@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
+import Link from "next/link";
 import { 
   Play, 
   ShoppingCart, 
@@ -147,10 +148,15 @@ export default function Home() {
               <Zap size={24} fill="white" />
               Abre tu tianguis digital
             </button>
-            <button className="px-10 py-5 rounded-2xl bg-white border-2 border-slate-100 text-slate-900 text-lg font-black hover:border-blue-600 hover:text-blue-600 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md">
+
+            {/* ✅ ÚNICO CAMBIO: este botón ahora navega a /beats */}
+            <Link
+              href="/beats"
+              className="px-10 py-5 rounded-2xl bg-white border-2 border-slate-100 text-slate-900 text-lg font-black hover:border-blue-600 hover:text-blue-600 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md"
+            >
               <Headphones size={24} />
               Escuchar Beats
-            </button>
+            </Link>
           </div>
         </div>
       </header>
