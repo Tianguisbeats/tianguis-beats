@@ -23,7 +23,7 @@ export default function Navbar() {
                     <div className="hidden md:flex items-center gap-8">
                         <div className="flex items-baseline space-x-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
                             <Link href="/beats" className="hover:text-blue-600 transition-colors">Explorar</Link>
-                            <Link href="/licencias" className="hover:text-blue-600 transition-colors">Licencias</Link>
+                            <Link href="/dashboard" className="hover:text-blue-600 transition-colors">Panel</Link>
                             <Link href="/pricing" className="hover:text-blue-600 transition-colors">Planes</Link>
                         </div>
 
@@ -51,7 +51,7 @@ export default function Navbar() {
                 <div className="md:hidden bg-white border-b border-slate-100 pb-6 px-4">
                     <div className="flex flex-col gap-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
                         <Link href="/beats" className="hover:text-blue-600 transition-colors py-2">Explorar</Link>
-                        <Link href="/licencias" className="hover:text-blue-600 transition-colors py-2">Licencias</Link>
+                        <Link href="/dashboard" className="hover:text-blue-600 transition-colors py-2">Panel</Link>
                         <Link href="/pricing" className="hover:text-blue-600 transition-colors py-2">Planes</Link>
                         <div className="flex flex-col gap-3 pt-4 border-t border-slate-50">
                             <Link href="/login" className="flex items-center justify-center gap-2 py-3 text-slate-900 font-black">
