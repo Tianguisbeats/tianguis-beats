@@ -99,18 +99,21 @@ export default function Home() {
       if (trendData) setTrendingBeats(await transformBeatData(trendData));
       if (salesData) setTopSellers(await transformBeatData(salesData));
 
-      // 3. Recomendados (Fallback por ahora si no hay login)
+      // 3. Recomendados (Con fallback para invitados)
       const { data: { session } } = await supabase.auth.getSession();
+      let recQuery = supabase.from('beats').select('*, producer:producer_id(artistic_name)').eq('is_public', true);
+
       if (session) {
-        // En un futuro consultaremos la tabla 'listens'
-        // Por ahora recomendamos Aleatorio de géneros populares
-        const { data: recData } = await supabase
-          .from('beats')
-          .select('*, producer:producer_id(artistic_name)')
-          .eq('is_public', true)
-          .limit(5);
-        if (recData) setRecommendedBeats(await transformBeatData(recData));
+        // En un futuro consultaremos la tabla 'listens' o 'preferences'
+        // Por ahora, traemos beats que no estén en las otras secciones para variar
+        recQuery = recQuery.order('created_at', { ascending: true }).limit(5);
+      } else {
+        // Para invitados, traemos beats aleatorios de calidad
+        recQuery = recQuery.limit(5);
       }
+
+      const { data: recData } = await recQuery;
+      if (recData) setRecommendedBeats(await transformBeatData(recData));
 
       setLoading(false);
     };
@@ -157,12 +160,17 @@ export default function Home() {
 
   const Section = ({ title, subtitle, beats }: { title: string, subtitle: string, beats: Beat[] }) => (
     beats.length > 0 ? (
-      <div className="mb-20">
-        <div className="mb-10">
-          <h2 className="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tighter">{title}</h2>
-          <p className="text-slate-400 font-black uppercase tracking-[0.2em] text-[10px]">{subtitle}</p>
+      <div className="mb-24 last:mb-0">
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-2 uppercase tracking-tighter">{title}</h2>
+            <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">{subtitle}</p>
+          </div>
+          <Link href="/beats" className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-slate-900 transition-colors">
+            Ver más <ChevronRight size={14} />
+          </Link>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
           {beats.map((beat) => (
             <BeatCard key={beat.id} beat={beat} />
           ))}
@@ -223,12 +231,10 @@ export default function Home() {
                 />
               ) : (
                 <>
-                  <Section title="🔥 Recién Horneado" subtitle="Prioridad para nuestros fundadores y nuevas joyas" beats={newBeats} />
-                  <Section title="📈 Lo más Escuchado" subtitle="Lo que más está sonando en el barrio" beats={trendingBeats} />
-                  <Section title="💰 Lo más Comprado" subtitle="Los hits que están rompiendo las ventas" beats={topSellers} />
-                  {recommendedBeats.length > 0 && (
-                    <Section title="✨ Recomendados para ti" subtitle="Basado en tu estilo y lo último que escuchaste" beats={recommendedBeats} />
-                  )}
+                  <Section title="🔥 Recién Horneado" subtitle="Las últimas joyas directas del horno" beats={newBeats} />
+                  <Section title="📈 Lo más Escuchado" subtitle="Los ritmos que están rompiendo las bocinas" beats={trendingBeats} />
+                  <Section title="💰 Lo más Comprado" subtitle="Los beats más buscados por los artistas" beats={topSellers} />
+                  <Section title="✨ Recomendados para ti" subtitle="Seleccionamos lo mejor basado en tu estilo" beats={recommendedBeats} />
                 </>
               )}
             </>
