@@ -4,20 +4,24 @@
  */
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import {
   ChevronRight,
+  Loader2,
 } from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Hero from '@/components/Hero';
 import BeatCard, { Beat } from '@/components/BeatCard';
+import { supabase } from '@/lib/supabase';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<string>('Todos');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [beats, setBeats] = useState<Beat[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const categories = [
     { name: 'Todos', emoji: '📦' },
@@ -26,27 +30,55 @@ export default function Home() {
     { name: 'Trap', emoji: '🔌' },
     { name: 'Cumbia 420', emoji: '🎺' },
     { name: 'Boombap', emoji: '🥁' },
+    { name: 'Experimental', emoji: '🧪' },
   ];
 
-  const beats: Beat[] = [
-    { id: 1, title: "Cumbión Triste", producer: "DJ Neza", price_mxn: 299, bpm: 90, genre: "Cumbia 420", tag: "Recién Horneado", tagEmoji: "🔥", tagColor: "bg-orange-600", coverColor: "bg-slate-50" },
-    { id: 2, title: "Corrido Belik", producer: "El Kompa", price_mxn: 349, bpm: 120, genre: "Corridos Tumbados", tag: "En Tendencia", tagEmoji: "📈", tagColor: "bg-red-600", coverColor: "bg-slate-100" },
-    { id: 3, title: "Perreo Sucio", producer: "Flow Pesado", price_mxn: 299, bpm: 98, genre: "Reggaeton", tag: "Picante", tagEmoji: "🌶️", tagColor: "bg-green-600", coverColor: "bg-slate-50" },
-    { id: 4, title: "Trap Hard", producer: "Lil Z", price_mxn: 399, bpm: 140, genre: "Trap", tag: "Gema Oculta", tagEmoji: "💎", tagColor: "bg-purple-600", coverColor: "bg-slate-100" },
-    { id: 5, title: "Sad Boyz", producer: "Junior B", price_mxn: 250, bpm: 85, genre: "Trap", tag: "De Remate", tagEmoji: "🏷️", tagColor: "bg-blue-600", coverColor: "bg-slate-50" },
-    { id: 6, title: "Sierreño Vibe", producer: "Rancho Humilde", price_mxn: 349, bpm: 115, genre: "Corridos Tumbados", tag: "Recién Horneado", tagEmoji: "🔥", tagColor: "bg-orange-600", coverColor: "bg-slate-100" },
-    { id: 7, title: "Dembow Mexa", producer: "El Alfa (Fan)", price_mxn: 299, bpm: 105, genre: "Reggaeton", tag: "Sabroso", tagEmoji: "🌮", tagColor: "bg-yellow-600", coverColor: "bg-slate-50" },
-    { id: 8, title: "Drill Oscuro", producer: "666 Beats", price_mxn: 499, bpm: 142, genre: "Trap", tag: "En Tendencia", tagEmoji: "📈", tagColor: "bg-red-600", coverColor: "bg-slate-100" },
-    { id: 9, title: "Lo-Fi Tacos", producer: "Chill Vibes", price_mxn: 199, bpm: 75, genre: "Boombap", tag: "Sabroso", tagEmoji: "🌮", tagColor: "bg-yellow-600", coverColor: "bg-slate-50" },
-    { id: 10, title: "Banda Synth", producer: "Sinaloa Tech", price_mxn: 399, bpm: 130, genre: "Experimental", tag: "Experimental", tagEmoji: "🧪", tagColor: "bg-cyan-600", coverColor: "bg-slate-100" },
-  ];
+  useEffect(() => {
+    const fetchBeats = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('beats')
+        .select(`
+          *,
+          producer:producer_id (
+            artistic_name
+          )
+        `)
+        .eq('is_public', true)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('Error fetching beats:', error);
+      } else if (data) {
+        const transformedBeats = data.map((b: any) => ({
+          id: b.id,
+          title: b.title,
+          producer: b.producer?.artistic_name || 'Productor Anónimo',
+          price_mxn: b.price_mxn,
+          bpm: b.bpm,
+          genre: b.genre,
+          tag: b.tag || "Nuevo",
+          tagEmoji: b.tag_emoji || "🔥",
+          tagColor: b.tag_color || "bg-orange-600",
+          coverColor: b.cover_color || (Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100')
+        }));
+        setBeats(transformedBeats);
+      }
+      setLoading(false);
+    };
+
+    fetchBeats();
+  }, []);
 
   const filteredBeats = useMemo(() => {
-    return beats.filter(beat =>
-      (beat.title?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
-      (beat.producer?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
-    );
-  }, [searchQuery, beats]);
+    return beats.filter(beat => {
+      const matchesSearch = (beat.title?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
+        (beat.producer?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+      const matchesTab = activeTab === 'Todos' || beat.genre === activeTab;
+      return matchesSearch && matchesTab;
+    });
+  }, [searchQuery, activeTab, beats]);
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white">
@@ -81,11 +113,22 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {filteredBeats.map((beat) => (
-              <BeatCard key={beat.id} beat={beat} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <Loader2 className="animate-spin text-blue-600" size={40} />
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Cargando el tianguis...</p>
+            </div>
+          ) : filteredBeats.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+              {filteredBeats.map((beat) => (
+                <BeatCard key={beat.id} beat={beat} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
+              <p className="text-slate-400 font-bold italic">No se encontraron beats en esta sección todavía.</p>
+            </div>
+          )}
 
           <div className="mt-20 text-center">
             <Link

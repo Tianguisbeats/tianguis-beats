@@ -22,7 +22,7 @@ export default function SignupPage() {
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState('');
     const [artisticName, setArtisticName] = useState('');
-    const [age, setAge] = useState('');
+    const [birthDate, setBirthDate] = useState('');
 
     // Artistic name availability
     const [isCheckingName, setIsCheckingName] = useState(false);
@@ -71,7 +71,7 @@ export default function SignupPage() {
                     data: {
                         full_name: fullName,
                         artistic_name: artisticName,
-                        age: parseInt(age),
+                        birth_date: birthDate,
                         role: role,
                     }
                 }
@@ -88,11 +88,11 @@ export default function SignupPage() {
     };
 
     const fillProofUser = () => {
-        setFullName('Usuario Prueba');
-        setArtisticName('GhostProducerMX');
-        setAge('25');
-        setEmail('prueba@tianguisbeats.com');
-        setPassword('prueba123');
+        setFullName('Mauricio Garces');
+        setArtisticName('SonDeMaik');
+        setBirthDate('1995-01-01');
+        setEmail('sdmsquad@hotmail.com');
+        setPassword('Escuadron1');
         setRole('producer');
     };
 
@@ -230,12 +230,11 @@ export default function SignupPage() {
 
                                         <div className="grid md:grid-cols-2 gap-6">
                                             <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Edad</label>
+                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Fecha de Nacimiento</label>
                                                 <input
-                                                    type="number"
-                                                    value={age}
-                                                    onChange={(e) => setAge(e.target.value)}
-                                                    placeholder="Ej. 21"
+                                                    type="date"
+                                                    value={birthDate}
+                                                    onChange={(e) => setBirthDate(e.target.value)}
                                                     className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
                                                     required
                                                 />

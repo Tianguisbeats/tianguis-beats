@@ -7,9 +7,10 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     artistic_name TEXT UNIQUE,
     full_name TEXT,
     avatar_url TEXT,
-    age INTEGER,
+    birth_date DATE,
     role TEXT CHECK (role IN ('producer', 'artist')),
     subscription_tier TEXT DEFAULT 'free' CHECK (subscription_tier IN ('free', 'pro', 'premium')),
+    is_admin BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -62,12 +63,12 @@ CREATE POLICY "Productores pueden gestionar sus propios beats" ON public.beats
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, artistic_name, age, role)
+  INSERT INTO public.profiles (id, full_name, artistic_name, birth_date, role)
   VALUES (
     new.id, 
     new.raw_user_meta_data->>'full_name', 
     new.raw_user_meta_data->>'artistic_name',
-    (new.raw_user_meta_data->>'age')::INTEGER,
+    (new.raw_user_meta_data->>'birth_date')::DATE,
     new.raw_user_meta_data->>'role'
   );
   RETURN new;
