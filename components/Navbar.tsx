@@ -13,23 +13,42 @@ import { useRouter } from 'next/navigation';
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [user, setUser] = useState<any>(null);
+    const [profile, setProfile] = useState<any>(null);
     const router = useRouter();
 
     useEffect(() => {
-        // Obtener sesión inicial
         const getSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             setUser(session?.user ?? null);
+            if (session?.user) {
+                fetchProfile(session.user.id);
+            }
         };
         getSession();
 
-        // Escuchar cambios de autenticación
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user ?? null);
+            if (session?.user) {
+                fetchProfile(session.user.id);
+            } else {
+                setProfile(null);
+            }
         });
 
         return () => subscription.unsubscribe();
     }, []);
+
+    const fetchProfile = async (userId: string) => {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('avatar_url, artistic_name, role')
+            .eq('id', userId)
+            .single();
+
+        if (!error && data) {
+            setProfile(data);
+        }
+    };
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -58,10 +77,25 @@ export default function Navbar() {
 
                         <div className="flex items-center gap-4">
                             {user ? (
-                                <div className="flex items-center gap-4">
-                                    <Link href="/profile" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 hover:text-blue-600 transition-colors flex items-center gap-2">
-                                        <User size={14} />
-                                        Perfil
+                                <div className="flex items-center gap-6">
+                                    {profile?.role === 'producer' && (
+                                        <Link href="/dashboard" className="bg-blue-600 text-white px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 transition-all shadow-lg shadow-blue-600/20 transform hover:-translate-y-0.5">
+                                            Subir Beat
+                                        </Link>
+                                    )}
+                                    <Link href="/profile" className="group flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden group-hover:border-blue-600 transition-colors">
+                                            {profile?.avatar_url ? (
+                                                <img src={profile.avatar_url} alt="Perfil" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-slate-400">
+                                                    <User size={16} />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 group-hover:text-blue-600 transition-colors">
+                                            Perfil
+                                        </span>
                                     </Link>
                                     <button
                                         onClick={handleLogout}

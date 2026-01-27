@@ -12,7 +12,9 @@ import {
     Settings,
     LogOut,
     Loader2,
-    CheckCircle2
+    CheckCircle2,
+    Camera,
+    Upload
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -26,6 +28,7 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState<any>(null);
     const [saving, setSaving] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
     useEffect(() => {
@@ -64,7 +67,7 @@ export default function ProfilePage() {
             .update({
                 full_name: profile.full_name,
                 artistic_name: profile.artistic_name,
-                age: profile.age
+                birth_date: profile.birth_date
             })
             .eq('id', profile.id);
 
@@ -74,6 +77,51 @@ export default function ProfilePage() {
             setMessage({ type: 'success', text: 'Perfil actualizado correctamente' });
         }
         setSaving(false);
+    };
+
+    const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploading(true);
+        setMessage(null);
+
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) throw new Error('No session');
+
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${session.user.id}/${Math.random()}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            // 1. Upload to Storage
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            // 2. Get Public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(filePath);
+
+            // 3. Update Profile
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({ avatar_url: publicUrl })
+                .eq('id', session.user.id);
+
+            if (updateError) throw updateError;
+
+            setProfile({ ...profile, avatar_url: publicUrl });
+            setMessage({ type: 'success', text: 'Foto de perfil actualizada' });
+        } catch (err: any) {
+            console.error('Error uploading avatar:', err);
+            setMessage({ type: 'error', text: 'Error al subir la imagen: ' + err.message });
+        } finally {
+            setUploading(false);
+        }
     };
 
     const handleLogout = async () => {
@@ -113,16 +161,41 @@ export default function ProfilePage() {
                         {/* Sidebar / Badge */}
                         <div className="space-y-6">
                             <div className="p-8 bg-slate-50 border border-slate-100 rounded-[2.5rem] flex flex-col items-center text-center">
-                                <div className="w-24 h-24 bg-blue-600 rounded-[2rem] flex items-center justify-center text-white mb-6 shadow-xl shadow-blue-600/20 rotate-3">
-                                    <User size={40} />
+                                <div className="relative group">
+                                    <div className="w-24 h-24 bg-blue-600 rounded-[2rem] flex items-center justify-center text-white mb-6 shadow-xl shadow-blue-600/20 rotate-3 overflow-hidden">
+                                        {profile.avatar_url ? (
+                                            <img
+                                                src={profile.avatar_url}
+                                                alt={profile.artistic_name}
+                                                className="w-full h-full object-cover -rotate-3 scale-110"
+                                            />
+                                        ) : (
+                                            <User size={40} />
+                                        )}
+                                        {uploading && (
+                                            <div className="absolute inset-0 bg-blue-600/80 flex items-center justify-center animate-pulse">
+                                                <Loader2 className="animate-spin text-white" size={24} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <label className="absolute -bottom-2 -right-2 w-10 h-10 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 hover:text-blue-600 cursor-pointer transition-all shadow-sm hover:scale-110">
+                                        <Camera size={20} />
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={handleAvatarUpload}
+                                            disabled={uploading}
+                                        />
+                                    </label>
                                 </div>
-                                <h2 className="text-xl font-black uppercase tracking-tight">{profile.artistic_name || 'Sin Nombre'}</h2>
+                                <h2 className="text-xl font-black uppercase tracking-tight mt-4">{profile.artistic_name || 'Sin Nombre'}</h2>
                                 <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">{profile.role === 'producer' ? 'Productor' : 'Artista'}</p>
 
                                 <div className="mt-8 pt-8 border-t border-slate-200 w-full">
                                     <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${profile.subscription_tier === 'premium' ? 'bg-purple-100 text-purple-600' :
-                                            profile.subscription_tier === 'pro' ? 'bg-orange-100 text-orange-600' :
-                                                'bg-slate-200 text-slate-600'
+                                        profile.subscription_tier === 'pro' ? 'bg-orange-100 text-orange-600' :
+                                            'bg-slate-200 text-slate-600'
                                         }`}>
                                         {profile.subscription_tier === 'premium' ? <Crown size={12} /> : <Music size={12} />}
                                         Plan {profile.subscription_tier}
@@ -178,13 +251,13 @@ export default function ProfilePage() {
                                         </div>
 
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Edad</label>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Fecha de Nacimiento</label>
                                             <div className="relative">
                                                 <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                                                 <input
-                                                    type="number"
-                                                    value={profile.age || ''}
-                                                    onChange={(e) => setProfile({ ...profile, age: e.target.value })}
+                                                    type="date"
+                                                    value={profile.birth_date || ''}
+                                                    onChange={(e) => setProfile({ ...profile, birth_date: e.target.value })}
                                                     className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-14 pr-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900"
                                                 />
                                             </div>

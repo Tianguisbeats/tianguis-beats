@@ -29,7 +29,9 @@ export default function ProducerDashboard() {
     const [title, setTitle] = useState('');
     const [genre, setGenre] = useState('');
     const [bpm, setBpm] = useState('');
+    const [musicalKey, setMusicalKey] = useState('');
     const [price, setPrice] = useState('299');
+    const [tag, setTag] = useState('Nuevo');
 
     // File states
     const [mp3File, setMp3File] = useState<File | null>(null);
@@ -91,6 +93,8 @@ export default function ProducerDashboard() {
                 title,
                 genre,
                 bpm: bpm ? parseInt(bpm) : null,
+                musical_key: musicalKey,
+                tag: tag,
                 price_mxn: parseFloat(price),
                 mp3_url: mp3Path,
                 wav_url: wavFile ? 'beats-raw/' + user.id + '/' + timestamp + '-master.wav' : null,
@@ -106,6 +110,8 @@ export default function ProducerDashboard() {
             setTitle('');
             setGenre('');
             setBpm('');
+            setMusicalKey('');
+            setTag('Nuevo');
             setMp3File(null);
             setWavFile(null);
             setStemsFile(null);
@@ -220,14 +226,21 @@ export default function ProducerDashboard() {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Género</label>
-                                            <input
-                                                type="text"
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Género Principal</label>
+                                            <select
                                                 value={genre}
                                                 onChange={(e) => setGenre(e.target.value)}
-                                                placeholder="Ej. Trap / Corridos"
-                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
-                                            />
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 appearance-none"
+                                            >
+                                                <option value="">Selecciona un género</option>
+                                                <option value="Trap">Trap</option>
+                                                <option value="Reggaeton">Reggaeton</option>
+                                                <option value="Corridos">Corridos</option>
+                                                <option value="Hip Hop">Hip Hop</option>
+                                                <option value="R&B">R&B</option>
+                                                <option value="Drill">Drill</option>
+                                                <option value="Experimental">Experimental</option>
+                                            </select>
                                         </div>
                                     </div>
 
@@ -241,6 +254,35 @@ export default function ProducerDashboard() {
                                                 placeholder="Ej. 140"
                                                 className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
                                             />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Tonalidad (Key)</label>
+                                            <select
+                                                value={musicalKey}
+                                                onChange={(e) => setMusicalKey(e.target.value)}
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 appearance-none"
+                                            >
+                                                <option value="">Selecciona tonalidad</option>
+                                                {['C', 'Cm', 'C#', 'C#m', 'D', 'Dm', 'D#', 'D#m', 'E', 'Em', 'F', 'Fm', 'F#', 'F#m', 'G', 'Gm', 'G#', 'G#m', 'A', 'Am', 'A#', 'A#m', 'B', 'Bm'].map(k => (
+                                                    <option key={k} value={k}>{k}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid md:grid-cols-2 gap-8">
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Etiqueta (Tag)</label>
+                                            <select
+                                                value={tag}
+                                                onChange={(e) => setTag(e.target.value)}
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 appearance-none"
+                                            >
+                                                <option value="Nuevo">Puesto (Nuevo)</option>
+                                                <option value="Caliente">Caliente 🔥</option>
+                                                <option value="Exclusivo">Exclusivo 💎</option>
+                                                <option value="Oferta">Oferta 💸</option>
+                                            </select>
                                         </div>
                                         <div>
                                             <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Precio (MXN)</label>
