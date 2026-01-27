@@ -1,11 +1,21 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "no-key");
 
 export async function POST(req: Request) {
     try {
         const { message } = await req.json();
+
+        // Fallback if no API key
+        if (!process.env.GEMINI_API_KEY) {
+            console.warn("GEMINI_API_KEY not found. Using mock response.");
+            return NextResponse.json({
+                reply: "¡Hola! Actualmente estoy en modo de demostración porque no detecté mi llave de API. Pero puedo decirte que TianguisBeats es la plataforma #1 para vender y comprar beats en México. ¿Buscas algo en específico?",
+                filters: {},
+                intent: "info"
+            });
+        }
 
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -52,7 +62,7 @@ export async function POST(req: Request) {
     } catch (error: any) {
         console.error("Gemini Error:", error);
         return NextResponse.json({
-            reply: "Lo siento, tuve un pequeño error técnico. ¿Podrías repetirme eso?",
+            reply: "Lo siento, tuve un pequeño error técnico o de conexión. ¿Podrías repetirme eso?",
             filters: {},
             intent: "info"
         });

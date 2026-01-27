@@ -63,56 +63,53 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const fetchSections = async () => {
-      setLoading(true);
+    setLoading(true);
 
-      // 1. Lo más Nuevo (Prioridad Premium)
-      const { data: newData } = await supabase
-        .from('beats')
-        .select('*, producer:producer_id(artistic_name)')
-        .eq('is_public', true)
-        .order('tier_visibility', { ascending: false })
-        .order('created_at', { ascending: false })
-        .limit(10);
+    const executeFetch = async () => {
+      const fetchSection = async (orderByField: string, limit: number) => {
+        try {
+          const { data, error } = await supabase
+            .from('beats')
+            .select('*, producer:producer_id(artistic_name)')
+            .eq('is_public', true)
+            .order(orderByField, { ascending: false })
+            .limit(limit);
 
-      // 2. Tendencias / Lo más escuchado (play_count)
-      const { data: trendData } = await supabase
-        .from('beats')
-        .select('*, producer:producer_id(artistic_name)')
-        .eq('is_public', true)
-        .order('play_count', { ascending: false })
-        .limit(10);
+          if (error) throw error;
+          return data;
+        } catch (err) {
+          console.warn(`Error fetching by ${orderByField}, falling back to created_at`, err);
+          // Fallback: order by created_at if the specific column doesn't exist
+          const { data } = await supabase
+            .from('beats')
+            .select('*, producer:producer_id(artistic_name)')
+            .eq('is_public', true)
+            .order('created_at', { ascending: false })
+            .limit(limit);
+          return data;
+        }
+      };
+
+      // 1. Lo más Nuevo
+      const newData = await fetchSection('created_at', 10);
+
+      // 2. Tendencias (play_count)
+      const trendData = await fetchSection('play_count', 10);
 
       // 3. Lo más comprado (sale_count)
-      const { data: salesData } = await supabase
-        .from('beats')
-        .select('*, producer:producer_id(artistic_name)')
-        .eq('is_public', true)
-        .order('sale_count', { ascending: false })
-        .limit(10);
+      const salesData = await fetchSection('sale_count', 10);
 
       if (newData) setNewBeats(await transformBeatData(newData));
       if (trendData) setTrendingBeats(await transformBeatData(trendData));
       if (salesData) setTopSellers(await transformBeatData(salesData));
 
-      // 3. Recomendados (Con fallback para invitados)
+      // 4. Recomendados (Fallback logic improved)
       const { data: { session } } = await supabase.auth.getSession();
 
-      let recQuery = supabase.from('beats').select('*, producer:producer_id(artistic_name)').eq('is_public', true);
-
-      if (session) {
-        // Usuario logueado: Podríamos usar historial. Por ahora, aleatoriedad inteligente (usando una función rpc si existiera, o client-side shuffle de los últimos 20)
-        // Simplificación: Traer los últimos 10 y barajarlos en cliente
-        recQuery = recQuery.order('created_at', { ascending: false }).limit(20);
-      } else {
-        // Invitado: Mostrar beats random o destacados
-        recQuery = recQuery.limit(20);
-      }
-
-      const { data: recData } = await recQuery;
+      // Always fetch some beats for recommendations
+      const recData = await fetchSection('created_at', 20);
 
       if (recData) {
-        // Cliente-side shuffle para "sensación" de recomendación
         const shuffled = recData.sort(() => 0.5 - Math.random()).slice(0, 10);
         setRecommendedBeats(await transformBeatData(shuffled));
       }
@@ -120,25 +117,25 @@ export default function Home() {
       setLoading(false);
     };
 
-    fetchSections();
+    executeFetch();
   }, []);
 
   // Efecto de búsqueda inline eliminado 
 
   const Section = ({ title, subtitle, beats }: { title: string, subtitle: string, beats: Beat[] }) => (
-    beats.length > 0 ? (
-      <div className="mb-16 last:mb-0">
-        <div className="flex items-end justify-between mb-8 px-4 md:px-0">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-1 uppercase tracking-tighter">{title}</h2>
-            <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">{subtitle}</p>
-          </div>
-          <Link href="/beats" className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-slate-900 transition-colors">
-            Ver más <ChevronRight size={14} />
-          </Link>
+    <div className="mb-16 last:mb-0">
+      <div className="flex items-end justify-between mb-8 px-4 md:px-0">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-1 uppercase tracking-tighter">{title}</h2>
+          <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">{subtitle}</p>
         </div>
+        <Link href="/beats" className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-slate-900 transition-colors">
+          Ver más <ChevronRight size={14} />
+        </Link>
+      </div>
 
-        {/* Horizontal Scroll / Carousel Container */}
+      {/* Horizontal Scroll / Carousel Container */}
+      {beats.length > 0 ? (
         <div className="flex gap-6 overflow-x-auto pb-8 -mx-4 px-4 md:mx-0 md:px-0 snap-x snap-mandatory no-scrollbar">
           {beats.map((beat) => (
             <div key={beat.id} className="min-w-[280px] w-[280px] snap-center">
@@ -153,8 +150,13 @@ export default function Home() {
             <span className="text-[10px] font-black uppercase tracking-widest">Ver Todo</span>
           </Link>
         </div>
-      </div>
-    ) : null
+      ) : (
+        <div className="w-full py-12 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-100 flex flex-col items-center justify-center text-center">
+          <p className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">Sección en construcción</p>
+          <p className="text-slate-300 text-[10px]">Pronto verás más beats aquí</p>
+        </div>
+      )}
+    </div>
   );
 
   return (
