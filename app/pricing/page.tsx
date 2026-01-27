@@ -24,7 +24,7 @@ export default function PricingPage() {
         },
         {
             name: "Pro",
-            price: "$199",
+            price: "$99",
             period: "/mes",
             description: "Lleva tu carrera al siguiente nivel.",
             icon: <Flame className="text-orange-600" size={32} />,
@@ -41,7 +41,7 @@ export default function PricingPage() {
         },
         {
             name: "Premium",
-            price: "$399",
+            price: "$299",
             period: "/mes",
             description: "El control total de tu estudio.",
             icon: <Crown className="text-purple-600" size={32} />,
@@ -50,6 +50,7 @@ export default function PricingPage() {
                 "Cero comisiones",
                 "Marketing destacado",
                 "Contratos legales incluidos",
+                "Stems (Trackouts) incluidos",
                 "Insignia 'Fidelidad' (Primeros 100)",
                 "Acceso exclusivo a eventos",
             ],
@@ -82,8 +83,8 @@ export default function PricingPage() {
                             <div
                                 key={plan.name}
                                 className={`relative p-10 rounded-[3rem] border-2 transition-all flex flex-col h-full ${plan.highlight
-                                        ? 'border-blue-600 bg-white shadow-2xl shadow-blue-600/10 scale-105 z-10'
-                                        : 'border-slate-100 bg-slate-50 hover:border-slate-200'
+                                    ? 'border-blue-600 bg-white shadow-2xl shadow-blue-600/10 scale-105 z-10'
+                                    : 'border-slate-100 bg-slate-50 hover:border-slate-200'
                                     }`}
                             >
                                 {plan.highlight && (
@@ -119,8 +120,8 @@ export default function PricingPage() {
 
                                 <button
                                     className={`w-full py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all transform active:scale-95 ${plan.highlight
-                                            ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-xl shadow-blue-600/30'
-                                            : 'bg-white border-2 border-slate-200 text-slate-900 hover:border-blue-600 hover:text-blue-600'
+                                        ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-xl shadow-blue-600/30'
+                                        : 'bg-white border-2 border-slate-200 text-slate-900 hover:border-blue-600 hover:text-blue-600'
                                         }`}
                                 >
                                     {plan.buttonText}
