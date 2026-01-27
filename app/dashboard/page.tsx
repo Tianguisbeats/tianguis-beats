@@ -32,11 +32,30 @@ export default function ProducerDashboard() {
     const [musicalKey, setMusicalKey] = useState('');
     const [price, setPrice] = useState('299');
     const [tag, setTag] = useState('Nuevo');
+    const [mood, setMood] = useState('');
+    const [refArtist, setRefArtist] = useState('');
+    const [isExclusive, setIsExclusive] = useState(false);
 
     // File states
     const [mp3File, setMp3File] = useState<File | null>(null);
     const [wavFile, setWavFile] = useState<File | null>(null);
     const [stemsFile, setStemsFile] = useState<File | null>(null);
+    const [profile, setProfile] = useState<any>(null);
+
+    React.useEffect(() => {
+        const fetchProfile = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+                setProfile(data);
+            }
+        };
+        fetchProfile();
+    }, []);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -99,6 +118,10 @@ export default function ProducerDashboard() {
                 mp3_url: mp3Path,
                 wav_url: wavFile ? 'beats-raw/' + user.id + '/' + timestamp + '-master.wav' : null,
                 stems_url: stemsFile ? 'beats-raw/' + user.id + '/' + timestamp + '-stems.zip' : null,
+                mood,
+                reference_artist: refArtist,
+                is_exclusive: isExclusive,
+                tier_visibility: profile?.role === 'producer' ? (profile?.subscription_tier === 'premium' ? 2 : profile?.subscription_tier === 'pro' ? 1 : 0) : 0
             });
 
             if (dbError) throw dbError;
@@ -112,6 +135,9 @@ export default function ProducerDashboard() {
             setBpm('');
             setMusicalKey('');
             setTag('Nuevo');
+            setMood('');
+            setRefArtist('');
+            setIsExclusive(false);
             setMp3File(null);
             setWavFile(null);
             setStemsFile(null);
@@ -246,6 +272,38 @@ export default function ProducerDashboard() {
 
                                     <div className="grid md:grid-cols-2 gap-8">
                                         <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Vibe / Mood</label>
+                                            <select
+                                                value={mood}
+                                                onChange={(e) => setMood(e.target.value)}
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 appearance-none"
+                                                required
+                                            >
+                                                <option value="">Selecciona el mood</option>
+                                                <option value="Agresivo">Agresivo 😤</option>
+                                                <option value="Triste">Triste 🥺</option>
+                                                <option value="Feliz">Feliz 😊</option>
+                                                <option value="Oscuro">Oscuro 🌑</option>
+                                                <option value="Chill">Chill 🌊</option>
+                                                <option value="Energético">Energético ⚡</option>
+                                                <option value="Romántico">Romántico ❤️</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Artista de Referencia (Type Beat)</label>
+                                            <input
+                                                type="text"
+                                                value={refArtist}
+                                                onChange={(e) => setRefArtist(e.target.value)}
+                                                placeholder="Ej. Bad Bunny, Junior H, Eladio Carrión"
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid md:grid-cols-2 gap-8">
+                                        <div>
                                             <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">BPM</label>
                                             <input
                                                 type="number"
@@ -253,6 +311,7 @@ export default function ProducerDashboard() {
                                                 onChange={(e) => setBpm(e.target.value)}
                                                 placeholder="Ej. 140"
                                                 className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                                required
                                             />
                                         </div>
                                         <div>
@@ -261,6 +320,7 @@ export default function ProducerDashboard() {
                                                 value={musicalKey}
                                                 onChange={(e) => setMusicalKey(e.target.value)}
                                                 className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 appearance-none"
+                                                required
                                             >
                                                 <option value="">Selecciona tonalidad</option>
                                                 {['C', 'Cm', 'C#', 'C#m', 'D', 'Dm', 'D#', 'D#m', 'E', 'Em', 'F', 'Fm', 'F#', 'F#m', 'G', 'Gm', 'G#', 'G#m', 'A', 'Am', 'A#', 'A#m', 'B', 'Bm'].map(k => (

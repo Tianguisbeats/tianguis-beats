@@ -47,6 +47,14 @@ CREATE TABLE IF NOT EXISTS public.beats (
     tag_color TEXT,
     cover_color TEXT,
     
+    -- Metadatos para Algoritmo y AI
+    mood TEXT,
+    reference_artist TEXT,
+    play_count INTEGER DEFAULT 0,
+    sale_count INTEGER DEFAULT 0,
+    is_exclusive BOOLEAN DEFAULT false,
+    tier_visibility INTEGER DEFAULT 0, -- 0: Free, 1: Pro, 2: Premium
+    
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

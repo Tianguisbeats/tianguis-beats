@@ -18,6 +18,12 @@ export interface Beat {
     tagColor?: string;
     coverColor?: string;
     musical_key?: string | null;
+    mood?: string | null;
+    reference_artist?: string | null;
+    play_count?: number;
+    sale_count?: number;
+    is_exclusive?: boolean;
+    tier_visibility?: number;
 }
 
 interface BeatCardProps {

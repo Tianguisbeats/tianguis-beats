@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
   Search,
@@ -12,6 +13,14 @@ import Footer from "@/components/Footer";
 import BeatCard, { Beat } from "@/components/BeatCard";
 
 export default function BeatsPage() {
+  return (
+    <Suspense fallback={<div>Cargando el catálogo...</div>}>
+      <BeatsPageContent />
+    </Suspense>
+  );
+}
+
+function BeatsPageContent() {
   const [beats, setBeats] = useState<Beat[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -19,6 +28,20 @@ export default function BeatsPage() {
   // UI state
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [genreFilter, setGenreFilter] = useState<string>("Todos");
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const g = searchParams.get('genre');
+    const m = searchParams.get('mood');
+    const a = searchParams.get('artist');
+    const b = searchParams.get('bpm');
+
+    if (g) setGenreFilter(g);
+    if (a || m || b) {
+      setSearchQuery(`${a || ''} ${m || ''} ${b || ''}`.trim());
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     let cancel = false;
