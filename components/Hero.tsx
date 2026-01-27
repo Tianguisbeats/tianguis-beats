@@ -8,6 +8,7 @@
 import React from 'react';
 import { Search, Zap, Headphones } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface HeroProps {
     searchQuery: string;
@@ -34,6 +35,34 @@ export default function Hero({
     activeKey,
     setActiveKey
 }: HeroProps) {
+    const router = useRouter();
+
+    const handleSearch = () => {
+        const params = new URLSearchParams();
+        if (searchQuery) params.set('q', searchQuery);
+        if (activeGenre && activeGenre !== 'Todos') params.set('genre', activeGenre);
+        if (activeMood) params.set('mood', activeMood);
+        if (activeBpm) params.set('bpm', activeBpm);
+        if (activeKey) params.set('artist', activeKey); // Using 'artist' param for key based on previous robust logic or fix in page
+
+        // Fix: Page.tsx seemed to map 'artist' to refArtist, let's check page.tsx again to ensure keys are consistent.
+        // Actually best to use standard keys. Page.tsx uses: genre, mood, artist, bpm.
+        // Wait, Page.tsx implemented: g=genre, m=mood, a=artist, b=bpm.
+        // And it sets searchQuery to combining them.
+        // Real logic should be distinct params.
+
+        // Let's standardise on:
+        // q -> text search
+        // genre -> genre
+        // mood -> mood
+        // bpm -> bpm
+        // key -> key (new)
+
+        if (activeKey) params.set('key', activeKey);
+
+        router.push(`/beats?${params.toString()}`);
+    };
+
     return (
         <header className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-white">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none opacity-40">
@@ -142,7 +171,10 @@ export default function Hero({
                             </select>
                         </div>
 
-                        <button className="bg-blue-600 text-white px-8 py-4 rounded-[2rem] font-black uppercase text-[10px] tracking-widest hover:bg-slate-900 transition-all active:scale-95 items-center gap-2 shadow-lg shadow-blue-600/20 shrink-0">
+                        <button
+                            onClick={handleSearch}
+                            className="bg-blue-600 text-white px-8 py-4 rounded-[2rem] font-black uppercase text-[10px] tracking-widest hover:bg-slate-900 transition-all active:scale-95 items-center gap-2 shadow-lg shadow-blue-600/20 shrink-0"
+                        >
                             Buscar
                         </button>
                     </div>

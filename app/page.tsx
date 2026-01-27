@@ -32,14 +32,10 @@ export default function Home() {
 
   const [loading, setLoading] = useState(true);
 
-  const categories = [
-    { name: 'Todos', emoji: '🎵' },
-    { name: 'Corridos Tumbados', emoji: '🎸' },
-    { name: 'Reggaeton', emoji: '🍑' },
-    { name: 'Trap', emoji: '🔌' },
-    { name: 'Boombap', emoji: '🥁' },
-    { name: 'R&B', emoji: '✨' },
-  ];
+  /* 
+   * Limpieza: Eliminamos categories y estados de búsqueda inline 
+   * ya que ahora el Hero redirige a /beats
+   */
 
   const transformBeatData = async (data: any[]) => {
     return data.map((b: any) => {
@@ -121,59 +117,35 @@ export default function Home() {
     fetchSections();
   }, []);
 
-  // Fetch para el buscador y filtros
-  useEffect(() => {
-    const searchBeats = async () => {
-      if (!searchQuery && activeTab === 'Todos') {
-        setFilteredBeats([]);
-        return;
-      }
-
-      let query = supabase.from('beats').select('*, producer:producer_id(artistic_name)').eq('is_public', true);
-
-      if (activeTab !== 'Todos') {
-        query = query.eq('genre', activeTab);
-      }
-
-      if (activeMood) {
-        query = query.eq('mood', activeMood);
-      }
-
-      if (activeKey) {
-        query = query.eq('musical_key', activeKey);
-      }
-
-      if (activeBpm) {
-        query = query.eq('bpm', parseInt(activeBpm));
-      }
-
-      if (searchQuery) {
-        query = query.ilike('title', `%${searchQuery}%`);
-      }
-
-      const { data } = await query.limit(20);
-      if (data) setFilteredBeats(await transformBeatData(data));
-    };
-
-    searchBeats();
-  }, [searchQuery, activeTab, activeMood, activeBpm, activeKey]);
+  // Efecto de búsqueda inline eliminado 
 
   const Section = ({ title, subtitle, beats }: { title: string, subtitle: string, beats: Beat[] }) => (
     beats.length > 0 ? (
-      <div className="mb-24 last:mb-0">
-        <div className="flex items-end justify-between mb-10">
+      <div className="mb-16 last:mb-0">
+        <div className="flex items-end justify-between mb-8 px-4 md:px-0">
           <div>
-            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-2 uppercase tracking-tighter">{title}</h2>
+            <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-1 uppercase tracking-tighter">{title}</h2>
             <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">{subtitle}</p>
           </div>
           <Link href="/beats" className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-slate-900 transition-colors">
             Ver más <ChevronRight size={14} />
           </Link>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+
+        {/* Horizontal Scroll / Carousel Container */}
+        <div className="flex gap-6 overflow-x-auto pb-8 -mx-4 px-4 md:mx-0 md:px-0 snap-x snap-mandatory no-scrollbar">
           {beats.map((beat) => (
-            <BeatCard key={beat.id} beat={beat} />
+            <div key={beat.id} className="min-w-[280px] w-[280px] snap-center">
+              <BeatCard beat={beat} />
+            </div>
           ))}
+          {/* Card 'Ver más' al final del carrusel */}
+          <Link href="/beats" className="min-w-[150px] flex flex-col items-center justify-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] text-slate-400 hover:text-blue-600 hover:border-blue-600 hover:bg-blue-50 transition-all cursor-pointer group snap-center">
+            <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <ChevronRight size={24} />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest">Ver Todo</span>
+          </Link>
         </div>
       </div>
     ) : null
@@ -198,23 +170,6 @@ export default function Home() {
       <section className="bg-slate-50/50 border-t border-slate-100 py-20">
         <div className="max-w-7xl mx-auto px-4">
 
-          {/* Barra de Filtros */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-10 no-scrollbar w-full mb-12 border-b border-slate-100">
-            {categories.map((cat) => (
-              <button
-                key={cat.name}
-                onClick={() => setActiveTab(cat.name)}
-                className={`flex items-center gap-2 px-5 py-3 rounded-2xl text-[10px] font-black transition-all whitespace-nowrap border ${activeTab === cat.name
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-xl shadow-blue-600/30'
-                  : 'bg-white text-slate-500 border-slate-200 hover:border-blue-400 hover:text-blue-600 shadow-sm'
-                  }`}
-              >
-                <span className="text-base">{cat.emoji}</span>
-                <span className="uppercase tracking-widest">{cat.name}</span>
-              </button>
-            ))}
-          </div>
-
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <Loader2 className="animate-spin text-blue-600" size={40} />
@@ -222,30 +177,25 @@ export default function Home() {
             </div>
           ) : (
             <>
-              {/* Resultados de Búsqueda */}
-              {(searchQuery || activeTab !== 'Todos') ? (
-                <Section
-                  title={`Resultados para "${searchQuery || activeTab}"`}
-                  subtitle="Lo que encontramos para tu búsqueda"
-                  beats={filteredBeats}
-                />
-              ) : (
-                <>
-                  <Section title="🔥 Recién Horneado" subtitle="Las últimas joyas directas del horno" beats={newBeats} />
-                  <Section title="📈 Lo más Escuchado" subtitle="Los ritmos que están rompiendo las bocinas" beats={trendingBeats} />
-                  <Section title="💰 Lo más Comprado" subtitle="Los beats más buscados por los artistas" beats={topSellers} />
-                  <Section title="✨ Recomendados para ti" subtitle="Seleccionamos lo mejor basado en tu estilo" beats={recommendedBeats} />
-                </>
-              )}
+              <Section title="🔥 Recién Horneado" subtitle="Las últimas joyas directas del horno" beats={newBeats} />
+              <Section title="📈 Lo más Escuchado" subtitle="Los ritmos que están rompiendo las bocinas" beats={trendingBeats} />
+              <Section title="💰 Lo más Comprado" subtitle="Los beats más buscados por los artistas" beats={topSellers} />
+              <Section title="✨ Recomendados para ti" subtitle="Seleccionamos lo mejor basado en tu estilo" beats={recommendedBeats} />
             </>
           )}
 
-          <div className="mt-20 text-center">
+          <div className="mt-20 mb-20">
             <Link
               href="/beats"
-              className="inline-flex items-center gap-3 text-slate-400 hover:text-blue-600 font-black uppercase tracking-[0.3em] text-[10px] transition-all border-b-2 border-transparent hover:border-blue-600 pb-3 group"
+              className="w-full bg-slate-900 text-white py-8 rounded-[2rem] flex flex-col items-center justify-center group hover:bg-blue-600 transition-colors shadow-2xl shadow-slate-900/20"
             >
-              Ver todo el tianguis <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-2xl md:text-4xl">💿</span>
+                <h3 className="text-2xl md:text-4xl font-black uppercase tracking-tighter">Explorar Catálogo Completo</h3>
+              </div>
+              <p className="text-slate-400 group-hover:text-blue-200 font-medium tracking-wide flex items-center gap-2">
+                Ver todos los beats disponibles <ChevronRight size={16} />
+              </p>
             </Link>
           </div>
         </div>

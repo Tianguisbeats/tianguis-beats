@@ -114,9 +114,11 @@ export default function Navbar() {
                                 </div>
                             ) : (
                                 <>
-                                    <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 border-2 border-slate-900 px-6 py-2 rounded-full hover:bg-slate-900 hover:text-white transition-all flex items-center gap-2">
-                                        <User size={14} />
-                                        Entrar
+                                    <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 border-2 border-slate-900 px-5 py-2 rounded-full hover:bg-slate-50 transition-all">
+                                        Log In
+                                    </Link>
+                                    <Link href="/signup" className="text-[10px] font-black uppercase tracking-[0.2em] text-white bg-slate-900 border-2 border-slate-900 px-5 py-2 rounded-full hover:bg-blue-600 hover:border-blue-600 transition-all shadow-lg shadow-slate-900/20">
+                                        Sign Up
                                     </Link>
                                 </>
                             )}
@@ -154,9 +156,11 @@ export default function Navbar() {
                                 </>
                             ) : (
                                 <>
-                                    <Link href="/login" className="flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl font-black">
-                                        <User size={16} />
-                                        Entrar
+                                    <Link href="/login" className="flex items-center justify-center gap-2 py-3 border-2 border-slate-100 rounded-xl font-black text-slate-900 uppercase">
+                                        Log In
+                                    </Link>
+                                    <Link href="/signup" className="flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl font-black uppercase">
+                                        Sign Up
                                     </Link>
                                 </>
                             )}
