@@ -24,13 +24,12 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   const categories = [
-    { name: 'Todos', emoji: '📦' },
+    { name: 'Todos', emoji: '🎵' },
     { name: 'Corridos Tumbados', emoji: '🎸' },
     { name: 'Reggaeton', emoji: '🍑' },
     { name: 'Trap', emoji: '🔌' },
-    { name: 'Cumbia 420', emoji: '🎺' },
     { name: 'Boombap', emoji: '🥁' },
-    { name: 'Experimental', emoji: '🧪' },
+    { name: 'R&B', emoji: '✨' },
   ];
 
   useEffect(() => {

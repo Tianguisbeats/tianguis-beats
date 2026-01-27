@@ -9,7 +9,8 @@ import {
     SkipForward,
     Volume2,
     VolumeX,
-    Music
+    Music,
+    X
 } from 'lucide-react';
 
 export default function AudioPlayer() {
@@ -21,7 +22,8 @@ export default function AudioPlayer() {
         currentTime,
         seek,
         volume,
-        setVolume
+        setVolume,
+        closePlayer
     } = usePlayer();
     const [isMuted, setIsMuted] = useState(false);
     const [prevVolume, setPrevVolume] = useState(volume);
@@ -57,7 +59,15 @@ export default function AudioPlayer() {
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-[100] bg-white/80 backdrop-blur-xl border-t border-slate-100 px-4 py-3 md:py-4 animate-in slide-in-from-bottom duration-500">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-8">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-8 relative">
+                {/* Close Button */}
+                <button
+                    onClick={closePlayer}
+                    className="absolute -top-2 -right-2 md:top-0 md:-right-8 p-1.5 text-slate-400 hover:text-red-500 transition-colors bg-white md:bg-transparent rounded-full shadow-sm md:shadow-none"
+                    title="Cerrar reproductor"
+                >
+                    <X size={16} />
+                </button>
 
                 {/* Track Info */}
                 <div className="flex items-center gap-4 w-full md:w-1/4">

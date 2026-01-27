@@ -20,6 +20,7 @@ interface PlayerContextType {
     togglePlay: () => void;
     seek: (time: number) => void;
     setVolume: (volume: number) => void;
+    closePlayer: () => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -90,8 +91,13 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         setCurrentTime(time);
     };
 
-    const setVolume = (v: number) => {
-        setVolumeState(v);
+    const closePlayer = () => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.src = "";
+        }
+        setCurrentBeat(null);
+        setIsPlaying(false);
     };
 
     return (
@@ -104,7 +110,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
             playBeat,
             togglePlay,
             seek,
-            setVolume
+            setVolume: setVolumeState,
+            closePlayer
         }}>
             {children}
         </PlayerContext.Provider>

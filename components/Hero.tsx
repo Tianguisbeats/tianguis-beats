@@ -58,22 +58,14 @@ export default function Hero({ searchQuery, setSearchQuery }: HeroProps) {
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row justify-center gap-5">
-                    <Link
-                        href="/signup"
-                        className="px-10 py-5 rounded-2xl bg-blue-600 text-white text-lg font-black hover:bg-blue-700 shadow-2xl shadow-blue-600/30 transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3"
-                    >
-                        <Zap size={24} fill="white" />
-                        Abre tu tianguis digital
-                    </Link>
-
-                    <Link
-                        href="/beats"
-                        className="px-10 py-5 rounded-2xl bg-white border-2 border-slate-100 text-slate-900 text-lg font-black hover:border-blue-600 hover:text-blue-600 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md"
-                    >
-                        <Headphones size={24} />
-                        Escuchar Beats
-                    </Link>
+                <div className="flex justify-center gap-4">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] flex items-center gap-3">
+                        Explora
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600/30"></span>
+                        Escucha
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600/30"></span>
+                        Crea
+                    </p>
                 </div>
             </div>
         </header>
