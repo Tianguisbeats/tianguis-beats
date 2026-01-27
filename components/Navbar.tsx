@@ -16,9 +16,9 @@ export default function Navbar() {
     const [profile, setProfile] = useState<any>(null);
     const router = useRouter();
 
-    // URL del Logo (Mauricio, cámbiala cuando me pases tu logo real)
-    const logoUrl = "/logo.png"; // Placeholder
-    const hasLogo = false; // Cambiar a true cuando el archivo exista en public/
+    // URL del Logo oficial
+    const logoUrl = "/logo.png";
+    const hasLogo = true;
 
     useEffect(() => {
         const getSession = async () => {
@@ -65,9 +65,9 @@ export default function Navbar() {
                 <div className="flex items-center justify-between h-20">
                     {/* Logo Area */}
                     <Link href="/" className="flex items-center gap-3 group">
-                        <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-xl shadow-blue-600/20 group-hover:rotate-6 transition-transform">
+                        <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-xl shadow-slate-900/10 group-hover:scale-110 transition-transform overflow-hidden">
                             {hasLogo ? (
-                                <img src={logoUrl} alt="Tianguis Beats Logo" className="w-full h-full object-contain" />
+                                <img src={logoUrl} alt="Tianguis Beats Logo" className="w-full h-full object-contain p-1 invert" />
                             ) : (
                                 <Music size={24} fill="currentColor" />
                             )}

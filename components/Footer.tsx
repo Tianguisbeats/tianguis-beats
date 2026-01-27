@@ -6,8 +6,8 @@ export default function Footer() {
         <footer className="bg-white py-16 border-t border-slate-100">
             <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-10">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center transform -rotate-6 shadow-xl shadow-slate-200">
-                        <Music className="text-white w-5 h-5" />
+                    <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center transform -rotate-6 shadow-xl shadow-slate-200 overflow-hidden">
+                        <img src="/logo.png" alt="Logo" className="w-full h-full object-contain p-1 invert" />
                     </div>
                     <div className="flex flex-col">
                         <span className="font-black text-slate-900 uppercase tracking-tighter leading-none">TianguisBeats</span>

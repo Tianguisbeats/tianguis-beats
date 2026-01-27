@@ -71,8 +71,8 @@ export default function AudioPlayer() {
 
                 {/* Track Info */}
                 <div className="flex items-center gap-4 w-full md:w-1/4">
-                    <div className={`w-12 h-12 ${currentBeat.coverColor || 'bg-blue-600'} rounded-xl flex items-center justify-center text-white shadow-lg overflow-hidden shrink-0`}>
-                        <Music size={20} />
+                    <div className={`w-12 h-12 ${currentBeat.coverColor || 'bg-slate-900'} rounded-xl flex items-center justify-center text-white shadow-lg overflow-hidden shrink-0 border border-slate-100`}>
+                        <img src="/logo.png" alt="Logo" className="w-full h-full object-contain p-1 invert opacity-40 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <div className="min-w-0">
                         <h4 className="font-black text-sm text-slate-900 truncate uppercase tracking-tight">{currentBeat.title}</h4>

@@ -3,8 +3,9 @@
 :root {
   --background: #ffffff;
   --foreground: #0f172a;
-  --accent: #2563eb;
-  --accent-soft: #eff6ff;
+  --accent: #1e40af;
+  /* Royal Blue for authority */
+  --accent-soft: #f8fafc;
 }
 
 @theme inline {
@@ -23,7 +24,13 @@ body {
 }
 
 @layer base {
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply tracking-tighter;
   }
 }
@@ -31,6 +38,7 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
