@@ -1,3 +1,7 @@
+/**
+ * Página Principal: Punto de entrada de la aplicación.
+ * Muestra el Hero y una sección de beats destacados.
+ */
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -66,8 +70,8 @@ export default function Home() {
                   key={cat.name}
                   onClick={() => setActiveTab(cat.name)}
                   className={`flex items-center gap-2 px-5 py-3 rounded-2xl text-[10px] font-black transition-all whitespace-nowrap border ${activeTab === cat.name
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-xl shadow-blue-600/30'
-                      : 'bg-white text-slate-500 border-slate-200 hover:border-blue-400 hover:text-blue-600 shadow-sm'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-xl shadow-blue-600/30'
+                    : 'bg-white text-slate-500 border-slate-200 hover:border-blue-400 hover:text-blue-600 shadow-sm'
                     }`}
                 >
                   <span className="text-base">{cat.emoji}</span>

@@ -4,6 +4,10 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Music, Menu, X, User } from 'lucide-react';
 
+/**
+ * Componente Navbar: Barra de navegación principal.
+ * Incluye enlaces a rutas clave y botones de autenticación.
+ */
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 

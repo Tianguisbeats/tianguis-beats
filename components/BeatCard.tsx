@@ -1,3 +1,7 @@
+/**
+ * Componente BeatCard: Tarjeta para mostrar información individual de un beat.
+ * @param beat Datos del beat provenientes de la base de datos o dummy data.
+ */
 import React from 'react';
 import { Music, Play, ShoppingCart } from 'lucide-react';
 

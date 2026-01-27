@@ -3,9 +3,11 @@
 -- 1. Perfiles de Usuario (Extensión de Auth)
 CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
-    username TEXT UNIQUE,
+    username TEXT UNIQUE, -- Se mantiene por compatibilidad, pero usaremos artistic_name
+    artistic_name TEXT UNIQUE,
     full_name TEXT,
     avatar_url TEXT,
+    age INTEGER,
     role TEXT CHECK (role IN ('producer', 'artist')),
     subscription_tier TEXT DEFAULT 'free' CHECK (subscription_tier IN ('free', 'pro', 'premium')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
@@ -60,8 +62,14 @@ CREATE POLICY "Productores pueden gestionar sus propios beats" ON public.beats
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, avatar_url, role)
-  VALUES (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url', new.raw_user_meta_data->>'role');
+  INSERT INTO public.profiles (id, full_name, artistic_name, age, role)
+  VALUES (
+    new.id, 
+    new.raw_user_meta_data->>'full_name', 
+    new.raw_user_meta_data->>'artistic_name',
+    (new.raw_user_meta_data->>'age')::INTEGER,
+    new.raw_user_meta_data->>'role'
+  );
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

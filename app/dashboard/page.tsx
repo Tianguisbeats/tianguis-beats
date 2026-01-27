@@ -1,22 +1,122 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
     Upload,
     Music,
     FileAudio,
     Layers,
-    Image as ImageIcon,
     CheckCircle2,
     AlertCircle,
-    Loader2
+    Loader2,
+    X
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { supabase } from '@/lib/supabase';
 
+/**
+ * Panel del Productor: Interfaz para gestionar beats y subir nuevos archivos.
+ * Permite la carga de archivos MP3, WAV y Stems a Supabase Storage.
+ */
 export default function ProducerDashboard() {
     const [isUploading, setIsUploading] = useState(false);
-    const [activeStep, setActiveStep] = useState(1);
+    const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [uploadProgress, setUploadProgress] = useState(0);
+
+    // Form states
+    const [title, setTitle] = useState('');
+    const [genre, setGenre] = useState('');
+    const [bpm, setBpm] = useState('');
+    const [price, setPrice] = useState('299');
+
+    // File states
+    const [mp3File, setMp3File] = useState<File | null>(null);
+    const [wavFile, setWavFile] = useState<File | null>(null);
+    const [stemsFile, setStemsFile] = useState<File | null>(null);
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileUpload = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!mp3File || !title) {
+            setErrorMessage('El título y el archivo MP3 son obligatorios.');
+            setUploadStatus('error');
+            return;
+        }
+
+        setIsUploading(true);
+        setUploadStatus('uploading');
+        setUploadProgress(10);
+
+        try {
+            const user = (await supabase.auth.getUser()).data.user;
+            if (!user) throw new Error('Debes iniciar sesión para subir archivos.');
+
+            // 1. Subir archivos a Storage
+            const timestamp = Date.now();
+            const mp3Path = `${user.id}/${timestamp}-preview.mp3`;
+
+            const { error: mp3Error } = await supabase.storage
+                .from('beats-previews')
+                .upload(mp3Path, mp3File);
+
+            if (mp3Error) throw mp3Error;
+            setUploadProgress(50);
+
+            let wavUrl = null;
+            if (wavFile) {
+                const wavPath = `${user.id}/${timestamp}-master.wav`;
+                const { error: wavError } = await supabase.storage
+                    .from('beats-raw')
+                    .upload(wavPath, wavFile);
+                if (wavError) throw wavError;
+            }
+
+            let stemsUrl = null;
+            if (stemsFile) {
+                const stemsPath = `${user.id}/${timestamp}-stems.zip`;
+                const { error: stemsError } = await supabase.storage
+                    .from('beats-raw')
+                    .upload(stemsPath, stemsFile);
+                if (stemsError) throw stemsError;
+            }
+
+            setUploadProgress(80);
+
+            // 2. Crear entrada en la base de datos
+            const { error: dbError } = await supabase.from('beats').insert({
+                producer_id: user.id,
+                title,
+                genre,
+                bpm: bpm ? parseInt(bpm) : null,
+                price_mxn: parseFloat(price),
+                mp3_url: mp3Path,
+                wav_url: wavFile ? 'beats-raw/' + user.id + '/' + timestamp + '-master.wav' : null,
+                stems_url: stemsFile ? 'beats-raw/' + user.id + '/' + timestamp + '-stems.zip' : null,
+            });
+
+            if (dbError) throw dbError;
+
+            setUploadStatus('success');
+            setUploadProgress(100);
+
+            // Reset form
+            setTitle('');
+            setGenre('');
+            setBpm('');
+            setMp3File(null);
+            setWavFile(null);
+            setStemsFile(null);
+
+        } catch (err: any) {
+            setErrorMessage(err.message || 'Error al subir el beat');
+            setUploadStatus('error');
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col">
@@ -24,13 +124,13 @@ export default function ProducerDashboard() {
 
             <main className="flex-1 pt-32 pb-20">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between mb-12">
+                    <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
                         <div>
                             <h1 className="text-4xl font-black tracking-tighter uppercase mb-2">Panel del <span className="text-blue-600">Productor</span></h1>
                             <p className="text-slate-500 font-medium tracking-tight">Gestiona tus beats y sube material nuevo.</p>
                         </div>
 
-                        <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-2xl border border-slate-100">
+                        <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100 w-full md:w-auto">
                             <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-600/20">
                                 U
                             </div>
@@ -42,10 +142,10 @@ export default function ProducerDashboard() {
                     </div>
 
                     <div className="grid lg:grid-cols-3 gap-8">
-                        {/* Sidebar Stats / Actions */}
+                        {/* Sidebar Stats */}
                         <div className="space-y-6">
                             <div className="p-8 bg-blue-600 rounded-[2.5rem] text-white shadow-2xl shadow-blue-600/20">
-                                <h3 className="font-black uppercase tracking-widest text-[10px] mb-6 text-blue-100 opacity-80">Estadísticas</h3>
+                                <h3 className="font-black uppercase tracking-widest text-[10px] mb-6 text-blue-100 opacity-80">Rendimiento</h3>
                                 <div className="space-y-6">
                                     <div>
                                         <p className="text-4xl font-black tracking-tighter">12</p>
@@ -75,34 +175,130 @@ export default function ProducerDashboard() {
                             </div>
                         </div>
 
-                        {/* Main Upload Area */}
+                        {/* Main Upload Form */}
                         <div className="lg:col-span-2">
-                            <div className="bg-white border-2 border-dashed border-slate-200 rounded-[3rem] p-12 text-center hover:border-blue-600 transition-all group flex flex-col items-center justify-center min-h-[400px]">
-                                <div className="w-24 h-24 bg-blue-50 rounded-[2rem] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500">
-                                    <Upload className="text-blue-600" size={40} />
-                                </div>
-                                <h2 className="text-2xl font-black uppercase tracking-tight mb-4 text-slate-900 text-center mx-auto">Súbele al <span className="text-blue-600">Tianguis</span></h2>
-                                <p className="text-slate-500 font-medium mb-12 max-w-sm text-center mx-auto">Arrastra tus archivos aquí o haz clic para seleccionar (MP3, WAV o Stems).</p>
+                            <form onSubmit={handleFileUpload} className="bg-white border-2 border-slate-100 rounded-[3rem] p-8 md:p-12 shadow-sm">
+                                <h2 className="text-2xl font-black uppercase tracking-tight mb-8">Sube tu <span className="text-blue-600">nuevo beat</span></h2>
 
-                                <div className="grid grid-cols-3 gap-4 w-full max-w-md mx-auto">
-                                    <div className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                        <FileAudio size={20} className="text-slate-400" />
-                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">MP3</span>
+                                {uploadStatus === 'success' && (
+                                    <div className="mb-8 p-6 bg-green-50 border border-green-100 rounded-[2rem] flex items-center gap-4 text-green-700 animate-in zoom-in duration-300">
+                                        <CheckCircle2 size={32} />
+                                        <div>
+                                            <p className="font-black uppercase tracking-widest text-[10px]">¡Éxito!</p>
+                                            <p className="font-bold">Tu beat se ha subido correctamente al Tianguis.</p>
+                                        </div>
+                                        <button onClick={() => setUploadStatus('idle')} className="ml-auto p-2 hover:bg-green-100 rounded-full transition-colors">
+                                            <X size={20} />
+                                        </button>
                                     </div>
-                                    <div className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                        <Music size={20} className="text-slate-400" />
-                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">WAV</span>
-                                    </div>
-                                    <div className="flex flex-col items-center gap-2 p-4 bg-blue-50 rounded-2xl border border-blue-100">
-                                        <Layers size={20} className="text-blue-600" />
-                                        <span className="text-[9px] font-black uppercase tracking-widest text-blue-600">Stems</span>
-                                    </div>
-                                </div>
+                                )}
 
-                                <button className="mt-12 bg-slate-900 text-white px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-blue-600 transition-all shadow-xl shadow-slate-900/10 transform active:scale-95">
-                                    Seleccionar Archivos
-                                </button>
-                            </div>
+                                {uploadStatus === 'error' && (
+                                    <div className="mb-8 p-6 bg-red-50 border border-red-100 rounded-[2rem] flex items-center gap-4 text-red-600">
+                                        <AlertCircle size={32} />
+                                        <div>
+                                            <p className="font-black uppercase tracking-widest text-[10px]">Error</p>
+                                            <p className="font-bold">{errorMessage}</p>
+                                        </div>
+                                        <button onClick={() => setUploadStatus('idle')} className="ml-auto p-2 hover:bg-red-100 rounded-full transition-colors">
+                                            <X size={20} />
+                                        </button>
+                                    </div>
+                                )}
+
+                                <div className="space-y-8">
+                                    <div className="grid md:grid-cols-2 gap-8">
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Título del Beat</label>
+                                            <input
+                                                type="text"
+                                                value={title}
+                                                onChange={(e) => setTitle(e.target.value)}
+                                                placeholder="Ej. Fuego en el Barrio"
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Género</label>
+                                            <input
+                                                type="text"
+                                                value={genre}
+                                                onChange={(e) => setGenre(e.target.value)}
+                                                placeholder="Ej. Trap / Corridos"
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid md:grid-cols-2 gap-8">
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">BPM</label>
+                                            <input
+                                                type="number"
+                                                value={bpm}
+                                                onChange={(e) => setBpm(e.target.value)}
+                                                placeholder="Ej. 140"
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Precio (MXN)</label>
+                                            <input
+                                                type="number"
+                                                value={price}
+                                                onChange={(e) => setPrice(e.target.value)}
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* File Upload Section */}
+                                    <div className="space-y-4">
+                                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Archivos del Beat</label>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            {/* MP3 */}
+                                            <label className={`cursor-pointer p-6 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${mp3File ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 bg-slate-50 hover:border-blue-400'}`}>
+                                                <input type="file" accept="audio/mpeg" className="hidden" onChange={(e) => setMp3File(e.target.files?.[0] || null)} />
+                                                <FileAudio size={24} />
+                                                <span className="text-[9px] font-black uppercase tracking-widest">{mp3File ? mp3File.name.substring(0, 10) + '...' : 'MP3 (Previsualización)'}</span>
+                                            </label>
+
+                                            {/* WAV */}
+                                            <label className={`cursor-pointer p-6 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${wavFile ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 bg-slate-50 hover:border-blue-400'}`}>
+                                                <input type="file" accept="audio/wav" className="hidden" onChange={(e) => setWavFile(e.target.files?.[0] || null)} />
+                                                <Music size={24} />
+                                                <span className="text-[9px] font-black uppercase tracking-widest">{wavFile ? wavFile.name.substring(0, 10) + '...' : 'WAV (Alta Calidad)'}</span>
+                                            </label>
+
+                                            {/* Stems */}
+                                            <label className={`cursor-pointer p-6 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${stemsFile ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 bg-slate-50 hover:border-blue-400'}`}>
+                                                <input type="file" accept=".zip,.rar" className="hidden" onChange={(e) => setStemsFile(e.target.files?.[0] || null)} />
+                                                <Layers size={24} />
+                                                <span className="text-[9px] font-black uppercase tracking-widest">{stemsFile ? stemsFile.name.substring(0, 10) + '...' : 'STEMS (Trackouts)'}</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={isUploading}
+                                        className={`w-full py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-xs transition-all shadow-xl transform active:scale-95 flex items-center justify-center gap-3 ${isUploading ? 'bg-slate-100 text-slate-400' : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-600/20'}`}
+                                    >
+                                        {isUploading ? (
+                                            <>
+                                                <Loader2 className="animate-spin" size={18} />
+                                                Subiendo {uploadProgress}%
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload size={18} />
+                                                Publicar en el Tianguis
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

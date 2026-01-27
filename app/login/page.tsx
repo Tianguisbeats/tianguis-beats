@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Music, ArrowRight, Github, Chrome, Loader2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -111,24 +111,6 @@ export default function LoginPage() {
                                 )}
                             </button>
                         </form>
-
-                        <div className="mt-8 relative text-center">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-slate-200"></div>
-                            </div>
-                            <span className="relative px-4 bg-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">O continúa con</span>
-                        </div>
-
-                        <div className="mt-8 grid grid-cols-2 gap-4">
-                            <button className="flex items-center justify-center gap-3 bg-white border-2 border-slate-100 py-4 rounded-2xl hover:border-slate-300 transition-all font-black text-[10px] uppercase tracking-widest text-slate-600">
-                                <Chrome size={18} />
-                                Google
-                            </button>
-                            <button className="flex items-center justify-center gap-3 bg-white border-2 border-slate-100 py-4 rounded-2xl hover:border-slate-300 transition-all font-black text-[10px] uppercase tracking-widest text-slate-600">
-                                <Github size={18} />
-                                Github
-                            </button>
-                        </div>
                     </div>
 
                     <p className="mt-8 text-center text-[11px] font-black uppercase tracking-widest text-slate-400">

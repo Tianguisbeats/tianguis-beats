@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Music, ArrowRight, User, AudioLines, Loader2 } from 'lucide-react';
+import { Music, ArrowRight, User, AudioLines, Loader2, Check, AlertTriangle } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 
+/**
+ * Página de Registro: Permite crear cuentas de Productor o Artista.
+ * Incluye campos para Nombre Artístico (único) y Edad.
+ */
 export default function SignupPage() {
     const [role, setRole] = useState<'producer' | 'artist' | null>(null);
     const [loading, setLoading] = useState(false);
@@ -17,9 +21,43 @@ export default function SignupPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState('');
+    const [artisticName, setArtisticName] = useState('');
+    const [age, setAge] = useState('');
+
+    // Artistic name availability
+    const [isCheckingName, setIsCheckingName] = useState(false);
+    const [isNameAvailable, setIsNameAvailable] = useState<boolean | null>(null);
+
+    // Debounce for artistic name check
+    useEffect(() => {
+        if (!artisticName) {
+            setIsNameAvailable(null);
+            return;
+        }
+
+        const checkName = async () => {
+            setIsCheckingName(true);
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('artistic_name')
+                .eq('artistic_name', artisticName)
+                .maybeSingle();
+
+            setIsNameAvailable(!data);
+            setIsCheckingName(false);
+        };
+
+        const timer = setTimeout(checkName, 500);
+        return () => clearTimeout(timer);
+    }, [artisticName]);
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (isNameAvailable === false) {
+            setError('Ese nombre artístico ya está en uso. Elige otro.');
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
@@ -28,9 +66,12 @@ export default function SignupPage() {
                 email,
                 password,
                 options: {
-                    emailRedirectTo: `${window.location.origin}/auth/callback`,
+                    // Redirigir a la nueva página de confirmación
+                    emailRedirectTo: `${window.location.origin}/auth/confirm`,
                     data: {
                         full_name: fullName,
+                        artistic_name: artisticName,
+                        age: parseInt(age),
                         role: role,
                     }
                 }
@@ -48,6 +89,8 @@ export default function SignupPage() {
 
     const fillProofUser = () => {
         setFullName('Usuario Prueba');
+        setArtisticName('GhostProducerMX');
+        setAge('25');
         setEmail('prueba@tianguisbeats.com');
         setPassword('prueba123');
         setRole('producer');
@@ -65,7 +108,7 @@ export default function SignupPage() {
                                 <Music className="text-white w-10 h-10" />
                             </div>
                             <h2 className="text-3xl font-black uppercase tracking-tighter mb-4">¡Casi listo!</h2>
-                            <p className="text-slate-600 font-medium mb-8">Hemos enviado un correo de confirmación a <span className="font-bold text-blue-600">{email}</span>. Revisa tu bandeja de entrada.</p>
+                            <p className="text-slate-600 font-medium mb-8">Hemos enviado un correo de confirmación a <span className="font-bold text-blue-600">{email}</span>. Revisa tu bandeja de entrada para verificar tu cuenta.</p>
                             <Link href="/login" className="inline-flex items-center gap-2 text-blue-600 font-black uppercase tracking-widest text-xs hover:underline">
                                 Ir al Inicio de Sesión <ArrowRight size={16} />
                             </Link>
@@ -77,7 +120,7 @@ export default function SignupPage() {
                                     <Music className="text-white w-8 h-8" />
                                 </div>
                                 <h1 className="text-4xl font-black tracking-tighter uppercase mb-3 text-slate-900">
-                                    Únete al <span className="text-blue-600 text-slate-900">Tianguis</span>
+                                    Únete al <span className="text-blue-600">Tianguis</span>
                                 </h1>
                                 <p className="text-slate-500 font-medium whitespace-pre-line">
                                     La plataforma ideal para productores y artistas mexas.{"\n"}
@@ -145,6 +188,7 @@ export default function SignupPage() {
                                                 {error}
                                             </div>
                                         )}
+
                                         <div className="grid md:grid-cols-2 gap-6">
                                             <div>
                                                 <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Nombre Completo</label>
@@ -153,6 +197,45 @@ export default function SignupPage() {
                                                     value={fullName}
                                                     onChange={(e) => setFullName(e.target.value)}
                                                     placeholder="Juan Perez"
+                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Nombre Artístico</label>
+                                                <div className="relative">
+                                                    <input
+                                                        type="text"
+                                                        value={artisticName}
+                                                        onChange={(e) => setArtisticName(e.target.value)}
+                                                        placeholder="Ej. DJ Neza"
+                                                        className={`w-full bg-slate-50 border-2 rounded-2xl px-6 py-4 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300 ${isNameAvailable === false ? 'border-red-400' : isNameAvailable === true ? 'border-green-400' : 'border-slate-100 focus:border-blue-600'}`}
+                                                        required
+                                                    />
+                                                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                                        {isCheckingName ? (
+                                                            <Loader2 size={16} className="animate-spin text-slate-400" />
+                                                        ) : isNameAvailable === true ? (
+                                                            <Check size={16} className="text-green-500" />
+                                                        ) : isNameAvailable === false ? (
+                                                            <AlertTriangle size={16} className="text-red-500" />
+                                                        ) : null}
+                                                    </div>
+                                                </div>
+                                                {isNameAvailable === false && (
+                                                    <p className="text-[9px] text-red-500 font-bold uppercase mt-2 ml-1">Este nombre ya está en el juego. Elige otro.</p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Edad</label>
+                                                <input
+                                                    type="number"
+                                                    value={age}
+                                                    onChange={(e) => setAge(e.target.value)}
+                                                    placeholder="Ej. 21"
                                                     className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
                                                     required
                                                 />
@@ -184,7 +267,7 @@ export default function SignupPage() {
 
                                         <button
                                             type="submit"
-                                            disabled={loading}
+                                            disabled={loading || isNameAvailable === false}
                                             className={`w-full text-white py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-lg flex items-center justify-center gap-3 group disabled:opacity-50 ${role === 'producer' ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20' : 'bg-slate-900 hover:bg-black shadow-slate-900/20'
                                                 }`}
                                         >
@@ -192,7 +275,7 @@ export default function SignupPage() {
                                                 <Loader2 className="animate-spin" size={18} />
                                             ) : (
                                                 <>
-                                                    Crear cuenta de {role === 'producer' ? 'Productor' : 'Artista'}
+                                                    Fichar como {role === 'producer' ? 'Productor' : 'Artista'}
                                                     <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                                                 </>
                                             )}

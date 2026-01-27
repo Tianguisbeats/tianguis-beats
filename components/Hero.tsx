@@ -1,3 +1,8 @@
+/**
+ * Componente Hero: Sección de bienvenida con buscador integrado.
+ * @param searchQuery Estado del término de búsqueda.
+ * @param setSearchQuery Función para actualizar el término de búsqueda.
+ */
 "use client";
 
 import React from 'react';
