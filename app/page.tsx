@@ -20,6 +20,8 @@ import { supabase } from '@/lib/supabase';
 export default function Home() {
   const [activeTab, setActiveTab] = useState<string>('Todos');
   const [activeMood, setActiveMood] = useState<string>('');
+  const [activeBpm, setActiveBpm] = useState<string>('');
+  const [activeKey, setActiveKey] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const [newBeats, setNewBeats] = useState<Beat[]>([]);
@@ -134,6 +136,14 @@ export default function Home() {
         query = query.eq('mood', activeMood);
       }
 
+      if (activeKey) {
+        query = query.eq('musical_key', activeKey);
+      }
+
+      if (activeBpm) {
+        query = query.eq('bpm', parseInt(activeBpm));
+      }
+
       if (searchQuery) {
         query = query.ilike('title', `%${searchQuery}%`);
       }
@@ -143,7 +153,7 @@ export default function Home() {
     };
 
     searchBeats();
-  }, [searchQuery, activeTab, activeMood]);
+  }, [searchQuery, activeTab, activeMood, activeBpm, activeKey]);
 
   const Section = ({ title, subtitle, beats }: { title: string, subtitle: string, beats: Beat[] }) => (
     beats.length > 0 ? (
@@ -171,6 +181,10 @@ export default function Home() {
         setActiveGenre={setActiveTab}
         activeMood={activeMood}
         setActiveMood={setActiveMood}
+        activeBpm={activeBpm}
+        setActiveBpm={setActiveBpm}
+        activeKey={activeKey}
+        setActiveKey={setActiveKey}
       />
 
       <section className="bg-slate-50/50 border-t border-slate-100 py-20">

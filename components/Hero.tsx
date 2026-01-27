@@ -16,6 +16,10 @@ interface HeroProps {
     setActiveGenre?: (genre: string) => void;
     activeMood?: string;
     setActiveMood?: (mood: string) => void;
+    activeBpm?: string;
+    setActiveBpm?: (bpm: string) => void;
+    activeKey?: string;
+    setActiveKey?: (key: string) => void;
 }
 
 export default function Hero({
@@ -24,7 +28,11 @@ export default function Hero({
     activeGenre,
     setActiveGenre,
     activeMood,
-    setActiveMood
+    setActiveMood,
+    activeBpm,
+    setActiveBpm,
+    activeKey,
+    setActiveKey
 }: HeroProps) {
     return (
         <header className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-white">
@@ -98,6 +106,39 @@ export default function Hero({
                                 <option value="Triste">Triste</option>
                                 <option value="Feliz">Feliz</option>
                                 <option value="Chill">Chill</option>
+                                <option value="Oscuro">Oscuro</option>
+                            </select>
+                        </div>
+
+                        <div className="h-8 w-[2px] bg-slate-100 hidden md:block"></div>
+
+                        {/* BPM Filter */}
+                        <div className="px-2">
+                            <select
+                                className="bg-transparent border-none focus:ring-0 text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer w-full md:w-auto"
+                                value={activeBpm}
+                                onChange={(e) => setActiveBpm?.(e.target.value)}
+                            >
+                                <option value="">BPM</option>
+                                {[80, 90, 100, 110, 120, 130, 140, 150, 160, 170].map(val => (
+                                    <option key={val} value={val}>{val} BPM</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="h-8 w-[2px] bg-slate-100 hidden md:block"></div>
+
+                        {/* Key Filter */}
+                        <div className="px-2">
+                            <select
+                                className="bg-transparent border-none focus:ring-0 text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer w-full md:w-auto"
+                                value={activeKey}
+                                onChange={(e) => setActiveKey?.(e.target.value)}
+                            >
+                                <option value="">Escala</option>
+                                {['C', 'Cm', 'C#', 'C#m', 'D', 'Dm', 'D#', 'D#m', 'E', 'Em', 'F', 'Fm', 'F#', 'F#m', 'G', 'Gm', 'G#', 'G#m', 'A', 'Am', 'A#', 'A#m', 'B', 'Bm'].map(k => (
+                                    <option key={k} value={k}>{k}</option>
+                                ))}
                             </select>
                         </div>
 
