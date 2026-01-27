@@ -42,8 +42,8 @@ export default function ProducerDashboard() {
 
     const handleFileUpload = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!mp3File || !title) {
-            setErrorMessage('El título y el archivo MP3 son obligatorios.');
+        if (!mp3File || !title || !genre) {
+            setErrorMessage('El título, género y el archivo MP3 son obligatorios.');
             setUploadStatus('error');
             return;
         }

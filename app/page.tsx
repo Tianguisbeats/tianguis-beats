@@ -51,18 +51,27 @@ export default function Home() {
       if (error) {
         console.error('Error fetching beats:', error);
       } else if (data) {
-        const transformedBeats = data.map((b: any) => ({
-          id: b.id,
-          title: b.title,
-          producer: b.producer?.artistic_name || 'Productor Anónimo',
-          price_mxn: b.price_mxn,
-          bpm: b.bpm,
-          genre: b.genre,
-          tag: b.tag || "Nuevo",
-          tagEmoji: b.tag_emoji || "🔥",
-          tagColor: b.tag_color || "bg-orange-600",
-          coverColor: b.cover_color || (Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100')
-        }));
+        const transformedBeats = data.map((b: any) => {
+          // Obtener URL de previsualización de Supabase Storage
+          const { data: { publicUrl } } = supabase.storage
+            .from('beats-previews')
+            .getPublicUrl(b.mp3_url);
+
+          return {
+            id: b.id,
+            title: b.title,
+            producer: b.producer?.artistic_name || 'Productor Anónimo',
+            price_mxn: b.price_mxn,
+            bpm: b.bpm,
+            genre: b.genre,
+            mp3_url: publicUrl,
+            musical_key: b.musical_key,
+            tag: b.tag || "Nuevo",
+            tagEmoji: b.tag_emoji || "🔥",
+            tagColor: b.tag_color || "bg-orange-600",
+            coverColor: b.cover_color || (Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100')
+          };
+        });
         setBeats(transformedBeats);
       }
       setLoading(false);

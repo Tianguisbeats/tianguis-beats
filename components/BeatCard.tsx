@@ -2,8 +2,8 @@
  * Componente BeatCard: Tarjeta para mostrar información individual de un beat.
  * @param beat Datos del beat provenientes de la base de datos o dummy data.
  */
-import React from 'react';
-import { Music, Play, ShoppingCart } from 'lucide-react';
+import { Music, Play, Pause, ShoppingCart } from 'lucide-react';
+import { usePlayer } from '@/context/PlayerContext';
 
 export interface Beat {
     id: string | number;
@@ -12,6 +12,7 @@ export interface Beat {
     price_mxn: number | null;
     bpm: number | null;
     genre: string | null;
+    mp3_url?: string | null;
     tag?: string | null;
     tagEmoji?: string | null;
     tagColor?: string;
@@ -33,8 +34,16 @@ function formatPriceMXN(value?: number | null) {
 }
 
 export default function BeatCard({ beat }: BeatCardProps) {
+    const { currentBeat, isPlaying, playBeat } = usePlayer();
+    const isThisPlaying = currentBeat?.id === beat.id && isPlaying;
+
     const coverColor = beat.coverColor || "bg-slate-50";
     const tagColor = beat.tagColor || "bg-blue-600";
+
+    const handlePlay = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        playBeat(beat);
+    };
 
     return (
         <div className="group bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-blue-900/10 transition-all transform hover:-translate-y-2">
@@ -49,8 +58,15 @@ export default function BeatCard({ beat }: BeatCardProps) {
                 <Music className="text-slate-200 w-20 h-20 group-hover:scale-110 group-hover:text-blue-500/20 transition-all duration-700 ease-out" />
 
                 <div className="absolute inset-0 bg-blue-600/10 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-[2px]">
-                    <button className="bg-white text-blue-600 p-5 rounded-full shadow-2xl transform hover:scale-110 transition-transform active:scale-90">
-                        <Play fill="currentColor" size={28} className="ml-1" />
+                    <button
+                        onClick={handlePlay}
+                        className="bg-white text-blue-600 p-5 rounded-full shadow-2xl transform hover:scale-110 transition-transform active:scale-90"
+                    >
+                        {isThisPlaying ? (
+                            <Pause fill="currentColor" size={28} />
+                        ) : (
+                            <Play fill="currentColor" size={28} className="ml-1" />
+                        )}
                     </button>
                 </div>
             </div>

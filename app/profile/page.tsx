@@ -14,10 +14,13 @@ import {
     Loader2,
     CheckCircle2,
     Camera,
-    Upload
+    Upload,
+    Play,
+    Pause
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { usePlayer } from '@/context/PlayerContext';
 
 /**
  * Página de Perfil: Muestra y permite editar la información del usuario.
@@ -27,6 +30,8 @@ export default function ProfilePage() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState<any>(null);
+    const [userBeats, setUserBeats] = useState<any[]>([]);
+    const { currentBeat, isPlaying, playBeat } = usePlayer();
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -40,6 +45,7 @@ export default function ProfilePage() {
                 return;
             }
 
+            // Fetch Profile
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
@@ -51,6 +57,29 @@ export default function ProfilePage() {
             } else {
                 setProfile(data);
             }
+
+            // Fetch User Beats
+            const { data: beats, error: beatsError } = await supabase
+                .from('beats')
+                .select('*')
+                .eq('producer_id', session.user.id)
+                .order('created_at', { ascending: false });
+
+            if (!beatsError && beats) {
+                const transformed = beats.map(b => {
+                    const { data: { publicUrl } } = supabase.storage
+                        .from('beats-previews')
+                        .getPublicUrl(b.mp3_url);
+
+                    return {
+                        ...b,
+                        producer: profile?.artistic_name || b.producer_id,
+                        mp3_url: publicUrl
+                    };
+                });
+                setUserBeats(transformed);
+            }
+
             setLoading(false);
         };
 
@@ -277,6 +306,55 @@ export default function ProfilePage() {
                                         )}
                                     </button>
                                 </form>
+                            </div>
+
+                            {/* Mis Beats Section */}
+                            <div className="mt-12">
+                                <h3 className="text-2xl font-black uppercase tracking-tight mb-8">Mis <span className="text-blue-600">Beats</span></h3>
+
+                                {userBeats.length > 0 ? (
+                                    <div className="grid gap-4">
+                                        {userBeats.map((beat) => (
+                                            <div key={beat.id} className="bg-slate-50 border border-slate-100 p-6 rounded-[2rem] flex items-center justify-between group hover:border-blue-200 transition-all">
+                                                <div className="flex items-center gap-4">
+                                                    <button
+                                                        onClick={() => playBeat(beat)}
+                                                        className={`w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm transition-all ${currentBeat?.id === beat.id && isPlaying ? 'bg-blue-600 text-white' : 'text-blue-600 hover:bg-blue-50'}`}
+                                                    >
+                                                        {currentBeat?.id === beat.id && isPlaying ? <Pause size={24} /> : <Play size={24} className="ml-1" />}
+                                                    </button>
+                                                    <div>
+                                                        <h4 className="font-black uppercase tracking-tight text-sm">{beat.title}</h4>
+                                                        <div className="flex gap-3 mt-1">
+                                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">{beat.genre}</span>
+                                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-300">•</span>
+                                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">{beat.bpm} BPM</span>
+                                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-300">•</span>
+                                                            <span className="text-[9px] font-black uppercase tracking-widest text-blue-500">${beat.price_mxn} MXN</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => router.push('/dashboard')}
+                                                    className="w-10 h-10 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-100 transition-all"
+                                                >
+                                                    <Settings size={18} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="bg-slate-50 border-2 border-dashed border-slate-200 p-12 rounded-[2.5rem] text-center">
+                                        <p className="text-slate-400 font-bold text-sm mb-4">Aún no has subido ningún beat.</p>
+                                        <button
+                                            onClick={() => router.push('/dashboard')}
+                                            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 transition-all shadow-lg shadow-blue-600/20"
+                                        >
+                                            <Upload size={14} />
+                                            Subir mi primer Beat
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
