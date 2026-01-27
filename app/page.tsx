@@ -97,19 +97,25 @@ export default function Home() {
 
       // 3. Recomendados (Con fallback para invitados)
       const { data: { session } } = await supabase.auth.getSession();
+
       let recQuery = supabase.from('beats').select('*, producer:producer_id(artistic_name)').eq('is_public', true);
 
       if (session) {
-        // En un futuro consultaremos la tabla 'listens' o 'preferences'
-        // Por ahora, traemos beats que no estén en las otras secciones para variar
-        recQuery = recQuery.order('created_at', { ascending: true }).limit(5);
+        // Usuario logueado: Podríamos usar historial. Por ahora, aleatoriedad inteligente (usando una función rpc si existiera, o client-side shuffle de los últimos 20)
+        // Simplificación: Traer los últimos 10 y barajarlos en cliente
+        recQuery = recQuery.order('created_at', { ascending: false }).limit(20);
       } else {
-        // Para invitados, traemos beats aleatorios de calidad
-        recQuery = recQuery.limit(5);
+        // Invitado: Mostrar beats random o destacados
+        recQuery = recQuery.limit(20);
       }
 
       const { data: recData } = await recQuery;
-      if (recData) setRecommendedBeats(await transformBeatData(recData));
+
+      if (recData) {
+        // Cliente-side shuffle para "sensación" de recomendación
+        const shuffled = recData.sort(() => 0.5 - Math.random()).slice(0, 10);
+        setRecommendedBeats(await transformBeatData(shuffled));
+      }
 
       setLoading(false);
     };
@@ -176,26 +182,21 @@ export default function Home() {
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Escaneando el tianguis...</p>
             </div>
           ) : (
-            <>
+            <div className="flex flex-col gap-16">
+              <Section title="✨ Recomendados para ti" subtitle="Seleccionamos lo mejor basado en tu estilo" beats={recommendedBeats} />
               <Section title="🔥 Recién Horneado" subtitle="Las últimas joyas directas del horno" beats={newBeats} />
               <Section title="📈 Lo más Escuchado" subtitle="Los ritmos que están rompiendo las bocinas" beats={trendingBeats} />
               <Section title="💰 Lo más Comprado" subtitle="Los beats más buscados por los artistas" beats={topSellers} />
-              <Section title="✨ Recomendados para ti" subtitle="Seleccionamos lo mejor basado en tu estilo" beats={recommendedBeats} />
-            </>
+            </div>
           )}
 
-          <div className="mt-20 mb-20">
+          <div className="mt-24 mb-20 flex justify-center">
             <Link
               href="/beats"
-              className="w-full bg-slate-900 text-white py-8 rounded-[2rem] flex flex-col items-center justify-center group hover:bg-blue-600 transition-colors shadow-2xl shadow-slate-900/20"
+              className="inline-flex items-center gap-4 px-8 py-4 bg-white border border-slate-200 rounded-full text-[12px] font-black uppercase tracking-[0.2em] text-slate-900 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm hover:shadow-xl hover:scale-105 active:scale-95 group"
             >
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl md:text-4xl">💿</span>
-                <h3 className="text-2xl md:text-4xl font-black uppercase tracking-tighter">Explorar Catálogo Completo</h3>
-              </div>
-              <p className="text-slate-400 group-hover:text-blue-200 font-medium tracking-wide flex items-center gap-2">
-                Ver todos los beats disponibles <ChevronRight size={16} />
-              </p>
+              <span>Explorar todo el Tianguis</span>
+              <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>

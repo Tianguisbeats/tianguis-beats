@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
   Search,
@@ -28,19 +28,34 @@ function BeatsPageContent() {
   // UI state
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [genreFilter, setGenreFilter] = useState<string>("Todos");
+  const [moodFilter, setMoodFilter] = useState<string>("");
+  const [bpmFilter, setBpmFilter] = useState<string>("");
+  const [keyFilter, setKeyFilter] = useState<string>("");
 
   const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setGenreFilter("Todos");
+    setMoodFilter("");
+    setBpmFilter("");
+    setKeyFilter("");
+    router.push("/beats");
+  };
 
   useEffect(() => {
+    const q = searchParams.get('q');
     const g = searchParams.get('genre');
     const m = searchParams.get('mood');
-    const a = searchParams.get('artist');
+    const k = searchParams.get('key');
     const b = searchParams.get('bpm');
 
+    if (q) setSearchQuery(q);
     if (g) setGenreFilter(g);
-    if (a || m || b) {
-      setSearchQuery(`${a || ''} ${m || ''} ${b || ''}`.trim());
-    }
+    if (m) setMoodFilter(m);
+    if (k) setKeyFilter(k);
+    if (b) setBpmFilter(b);
   }, [searchParams]);
 
   useEffect(() => {
@@ -113,19 +128,18 @@ function BeatsPageContent() {
     const q = searchQuery.trim().toLowerCase();
 
     return beats.filter((b) => {
-      const matchesGenre =
-        genreFilter === "Todos" ? true : (b.genre ?? "") === genreFilter;
+      const matchesGenre = genreFilter === "Todos" ? true : (b.genre ?? "") === genreFilter;
+      const matchesMood = !moodFilter ? true : (b.mood ?? "") === moodFilter;
+      const matchesBpm = !bpmFilter ? true : b.bpm === parseInt(bpmFilter);
+      const matchesKey = !keyFilter ? true : (b.musical_key ?? "") === keyFilter;
 
-      const matchesSearch =
-        !q
-          ? true
-          : `${b.title ?? ""} ${b.producer ?? ""} ${b.genre ?? ""}`
-            .toLowerCase()
-            .includes(q);
+      const matchesSearch = !q
+        ? true
+        : `${b.title ?? ""} ${b.producer ?? ""} ${b.genre ?? ""}`.toLowerCase().includes(q);
 
-      return matchesGenre && matchesSearch;
+      return matchesGenre && matchesMood && matchesBpm && matchesKey && matchesSearch;
     });
-  }, [beats, genreFilter, searchQuery]);
+  }, [beats, genreFilter, moodFilter, bpmFilter, keyFilter, searchQuery]);
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col">
@@ -147,33 +161,103 @@ function BeatsPageContent() {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-              <div className="relative group flex-1 md:w-80 w-full">
+            <div className="flex flex-col xl:flex-row items-center gap-4 w-full md:w-auto bg-slate-50 p-2 rounded-[2rem] border border-slate-100 shadow-sm">
+
+              {/* Search Text */}
+              <div className="relative group w-full xl:w-80">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-600 transition-colors">
                   <Search size={18} />
                 </div>
                 <input
                   type="text"
-                  placeholder="Título, productor, género..."
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-6 py-4 outline-none focus:border-blue-600 focus:bg-white transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                  placeholder="Buscar..."
+                  className="w-full bg-transparent border-none pl-12 pr-4 py-3 outline-none focus:ring-0 font-bold text-slate-900 placeholder:text-slate-300"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <div className="relative w-full sm:w-[200px]">
-                <select
-                  value={genreFilter}
-                  onChange={(e) => setGenreFilter(e.target.value)}
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 focus:bg-white transition-all font-bold text-slate-900 appearance-none"
-                >
-                  {genres.map((g) => (
-                    <option key={g} value={g}>{g}</option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
-                  <SlidersHorizontal size={16} />
+
+              <div className="h-8 w-[1px] bg-slate-200 hidden xl:block"></div>
+
+              {/* Filters Container */}
+              <div className="flex items-center gap-2 overflow-x-auto w-full xl:w-auto no-scrollbar px-2">
+
+                {/* Genre */}
+                <div className="relative min-w-[120px]">
+                  <select
+                    value={genreFilter}
+                    onChange={(e) => setGenreFilter(e.target.value)}
+                    className="w-full bg-transparent py-3 pl-2 pr-8 outline-none font-bold text-[11px] uppercase tracking-widest text-slate-500 cursor-pointer hover:text-blue-600 transition-colors appearance-none"
+                  >
+                    {genres.map((g) => (
+                      <option key={g} value={g}>{g === 'Todos' ? 'Género' : g}</option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pointer-events-none text-slate-300">
+                    <SlidersHorizontal size={14} />
+                  </div>
+                </div>
+
+                <div className="h-4 w-[1px] bg-slate-200"></div>
+
+                {/* Mood */}
+                <div className="relative min-w-[100px]">
+                  <select
+                    value={moodFilter}
+                    onChange={(e) => setMoodFilter(e.target.value)}
+                    className="w-full bg-transparent py-3 pl-2 pr-8 outline-none font-bold text-[11px] uppercase tracking-widest text-slate-500 cursor-pointer hover:text-blue-600 transition-colors appearance-none"
+                  >
+                    <option value="">Mood</option>
+                    <option value="Agresivo">Agresivo</option>
+                    <option value="Triste">Triste</option>
+                    <option value="Feliz">Feliz</option>
+                    <option value="Chill">Chill</option>
+                    <option value="Oscuro">Oscuro</option>
+                  </select>
+                </div>
+
+                <div className="h-4 w-[1px] bg-slate-200"></div>
+
+                {/* BPM */}
+                <div className="relative min-w-[90px]">
+                  <select
+                    className="w-full bg-transparent py-3 pl-2 pr-4 outline-none font-bold text-[11px] uppercase tracking-widest text-slate-500 cursor-pointer hover:text-blue-600 transition-colors appearance-none"
+                    value={bpmFilter}
+                    onChange={(e) => setBpmFilter(e.target.value)}
+                  >
+                    <option value="">BPM</option>
+                    {[80, 90, 100, 110, 120, 130, 140, 150, 160, 170].map(val => (
+                      <option key={val} value={val}>{val}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="h-4 w-[1px] bg-slate-200"></div>
+
+                {/* Key */}
+                <div className="relative min-w-[90px]">
+                  <select
+                    className="w-full bg-transparent py-3 pl-2 pr-4 outline-none font-bold text-[11px] uppercase tracking-widest text-slate-500 cursor-pointer hover:text-blue-600 transition-colors appearance-none"
+                    value={keyFilter}
+                    onChange={(e) => setKeyFilter(e.target.value)}
+                  >
+                    <option value="">Key</option>
+                    {['C', 'Cm', 'C#', 'C#m', 'D', 'Dm', 'D#', 'D#m', 'E', 'Em', 'F', 'Fm', 'F#', 'F#m', 'G', 'Gm', 'G#', 'G#m', 'A', 'Am', 'A#', 'A#m', 'B', 'Bm'].map(k => (
+                      <option key={k} value={k}>{k}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
+
+              {/* Clear Filters Button */}
+              {(genreFilter !== "Todos" || moodFilter || bpmFilter || keyFilter || searchQuery) && (
+                <button
+                  onClick={handleClearFilters}
+                  className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 rounded-full transition-colors shrink-0"
+                >
+                  Limpiar Filtros
+                </button>
+              )}
             </div>
           </div>
 
@@ -205,9 +289,9 @@ function BeatsPageContent() {
             </div>
           )}
         </div>
-      </main>
+      </main >
 
       <Footer />
-    </div>
+    </div >
   );
 }

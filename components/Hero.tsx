@@ -77,12 +77,12 @@ export default function Hero({
                 </div>
 
                 <h1 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter mb-8 leading-[0.85]">
-                    Sube el nivel.<br />
-                    <span className="text-blue-600 underline decoration-blue-100 underline-offset-8">Rompe la escena.</span>
+                    Tu sonido.<br />
+                    <span className="text-blue-600 underline decoration-blue-100 underline-offset-8">Tu negocio.</span>
                 </h1>
 
                 <p className="max-w-2xl mx-auto text-xl text-slate-500 font-medium leading-relaxed mb-12">
-                    "Donde el talento mexa se encuentra con los próximos éxitos mundiales. Trato directo, sin letras chiquitas."
+                    "Vende tus beats a artistas de todo el mundo. Encuentra el sonido perfecto para tu próximo hit."
                 </p>
 
                 {/* BUSCADOR INTEGRADO CON FILTROS */}
