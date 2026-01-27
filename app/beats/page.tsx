@@ -29,7 +29,12 @@ export default function BeatsPage() {
 
       const { data, error } = await supabase
         .from("beats")
-        .select("*")
+        .select(`
+          *,
+          producer:producer_id (
+            artistic_name
+          )
+        `)
         .eq("is_public", true)
         .order("created_at", { ascending: false });
 
