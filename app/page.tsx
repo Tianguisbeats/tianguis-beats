@@ -19,10 +19,12 @@ import { supabase } from '@/lib/supabase';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<string>('Todos');
+  const [activeMood, setActiveMood] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const [newBeats, setNewBeats] = useState<Beat[]>([]);
   const [trendingBeats, setTrendingBeats] = useState<Beat[]>([]);
+  const [topSellers, setTopSellers] = useState<Beat[]>([]);
   const [recommendedBeats, setRecommendedBeats] = useState<Beat[]>([]);
   const [filteredBeats, setFilteredBeats] = useState<Beat[]>([]);
 
@@ -75,7 +77,7 @@ export default function Home() {
         .order('created_at', { ascending: false })
         .limit(10);
 
-      // 2. Tendencias (play_count)
+      // 2. Tendencias / Lo más escuchado (play_count)
       const { data: trendData } = await supabase
         .from('beats')
         .select('*, producer:producer_id(artistic_name)')
@@ -83,8 +85,17 @@ export default function Home() {
         .order('play_count', { ascending: false })
         .limit(10);
 
+      // 3. Lo más comprado (sale_count)
+      const { data: salesData } = await supabase
+        .from('beats')
+        .select('*, producer:producer_id(artistic_name)')
+        .eq('is_public', true)
+        .order('sale_count', { ascending: false })
+        .limit(10);
+
       if (newData) setNewBeats(await transformBeatData(newData));
       if (trendData) setTrendingBeats(await transformBeatData(trendData));
+      if (salesData) setTopSellers(await transformBeatData(salesData));
 
       // 3. Recomendados (Fallback por ahora si no hay login)
       const { data: { session } } = await supabase.auth.getSession();
@@ -119,6 +130,10 @@ export default function Home() {
         query = query.eq('genre', activeTab);
       }
 
+      if (activeMood) {
+        query = query.eq('mood', activeMood);
+      }
+
       if (searchQuery) {
         query = query.ilike('title', `%${searchQuery}%`);
       }
@@ -128,7 +143,7 @@ export default function Home() {
     };
 
     searchBeats();
-  }, [searchQuery, activeTab]);
+  }, [searchQuery, activeTab, activeMood]);
 
   const Section = ({ title, subtitle, beats }: { title: string, subtitle: string, beats: Beat[] }) => (
     beats.length > 0 ? (
@@ -149,7 +164,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white">
       <Navbar />
-      <Hero searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <Hero
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        activeGenre={activeTab}
+        setActiveGenre={setActiveTab}
+        activeMood={activeMood}
+        setActiveMood={setActiveMood}
+      />
 
       <section className="bg-slate-50/50 border-t border-slate-100 py-20">
         <div className="max-w-7xl mx-auto px-4">
@@ -187,10 +209,11 @@ export default function Home() {
                 />
               ) : (
                 <>
-                  <Section title="📦 Lo más Nuevo" subtitle="Prioridad para nuestros fundadores y nuevas joyas" beats={newBeats} />
-                  <Section title="📈 Tendencias" subtitle="Lo que más está sonando en el barrio" beats={trendingBeats} />
+                  <Section title="🔥 Recién Horneado" subtitle="Prioridad para nuestros fundadores y nuevas joyas" beats={newBeats} />
+                  <Section title="📈 Lo más Escuchado" subtitle="Lo que más está sonando en el barrio" beats={trendingBeats} />
+                  <Section title="💰 Lo más Comprado" subtitle="Los hits que están rompiendo las ventas" beats={topSellers} />
                   {recommendedBeats.length > 0 && (
-                    <Section title="✨ Recomendados" subtitle="Basado en tu estilo y lo último que escuchaste" beats={recommendedBeats} />
+                    <Section title="✨ Recomendados para ti" subtitle="Basado en tu estilo y lo último que escuchaste" beats={recommendedBeats} />
                   )}
                 </>
               )}

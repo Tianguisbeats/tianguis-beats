@@ -12,9 +12,20 @@ import Link from 'next/link';
 interface HeroProps {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
+    activeGenre?: string;
+    setActiveGenre?: (genre: string) => void;
+    activeMood?: string;
+    setActiveMood?: (mood: string) => void;
 }
 
-export default function Hero({ searchQuery, setSearchQuery }: HeroProps) {
+export default function Hero({
+    searchQuery,
+    setSearchQuery,
+    activeGenre,
+    setActiveGenre,
+    activeMood,
+    setActiveMood
+}: HeroProps) {
     return (
         <header className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-white">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none opacity-40">
@@ -37,22 +48,60 @@ export default function Hero({ searchQuery, setSearchQuery }: HeroProps) {
                     "Donde el talento mexa se encuentra con los próximos éxitos mundiales. Trato directo, sin letras chiquitas."
                 </p>
 
-                {/* BUSCADOR INTEGRADO */}
-                <div className="max-w-2xl mx-auto mb-12 relative group">
-                    <div className="absolute inset-0 bg-blue-600/10 rounded-[2rem] blur-2xl opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-                    <div className="relative flex items-center bg-slate-50 border-2 border-slate-100 rounded-[2rem] p-2 shadow-2xl focus-within:border-blue-600 focus-within:bg-white transition-all">
-                        <div className="pl-5 pr-3 text-slate-400">
-                            <Search size={22} />
+                {/* BUSCADOR INTEGRADO CON FILTROS */}
+                <div className="max-w-4xl mx-auto mb-12 relative group">
+                    <div className="absolute inset-0 bg-blue-600/5 rounded-[2.5rem] blur-3xl opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+                    <div className="relative flex flex-col md:flex-row items-stretch md:items-center bg-white border-2 border-slate-100 rounded-[2.5rem] p-2 shadow-2xl focus-within:border-blue-600 transition-all gap-2">
+
+                        {/* Search Input */}
+                        <div className="flex-1 flex items-center min-w-0">
+                            <div className="pl-6 pr-3 text-slate-400">
+                                <Search size={20} />
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Título, artista o estilo..."
+                                className="w-full py-4 bg-transparent border-none focus:ring-0 text-base font-bold placeholder:text-slate-300 outline-none text-slate-900"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
                         </div>
-                        <input
-                            type="text"
-                            placeholder="Busca trap, corridos, BPM, productor..."
-                            className="flex-1 py-4 bg-transparent border-none focus:ring-0 text-lg font-bold placeholder:text-slate-300 outline-none text-slate-900"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                        <button className="hidden sm:flex bg-blue-600 text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-blue-700 transition-all active:scale-95 items-center gap-2 shadow-lg shadow-blue-600/20">
-                            <Zap size={14} fill="white" />
+
+                        <div className="h-8 w-[2px] bg-slate-100 hidden md:block"></div>
+
+                        {/* Genre Filter */}
+                        <div className="px-2">
+                            <select
+                                className="bg-transparent border-none focus:ring-0 text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer w-full md:w-auto"
+                                value={activeGenre}
+                                onChange={(e) => setActiveGenre?.(e.target.value)}
+                            >
+                                <option value="Todos">Género</option>
+                                <option value="Trap">Trap</option>
+                                <option value="Reggaeton">Reggaeton</option>
+                                <option value="Corridos">Corridos</option>
+                                <option value="Hip Hop">Hip Hop</option>
+                            </select>
+                        </div>
+
+                        <div className="h-8 w-[2px] bg-slate-100 hidden md:block"></div>
+
+                        {/* Mood Filter */}
+                        <div className="px-2">
+                            <select
+                                className="bg-transparent border-none focus:ring-0 text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer w-full md:w-auto"
+                                value={activeMood}
+                                onChange={(e) => setActiveMood?.(e.target.value)}
+                            >
+                                <option value="">Mood</option>
+                                <option value="Agresivo">Agresivo</option>
+                                <option value="Triste">Triste</option>
+                                <option value="Feliz">Feliz</option>
+                                <option value="Chill">Chill</option>
+                            </select>
+                        </div>
+
+                        <button className="bg-blue-600 text-white px-8 py-4 rounded-[2rem] font-black uppercase text-[10px] tracking-widest hover:bg-slate-900 transition-all active:scale-95 items-center gap-2 shadow-lg shadow-blue-600/20 shrink-0">
                             Buscar
                         </button>
                     </div>
