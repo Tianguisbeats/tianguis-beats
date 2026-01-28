@@ -17,7 +17,7 @@ export async function POST(req: Request) {
             });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
         const prompt = `Eres un experto A&R (Artist & Repertoire) de "TianguisBeats", una plataforma premium de beats en México.
         Tu tarea es ayudar a los usuarios (raperos, cantantes, productores) a encontrar el beat perfecto o resolver dudas sobre el sitio.

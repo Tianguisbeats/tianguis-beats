@@ -69,7 +69,7 @@ export default function AIChatBot() {
     };
 
     return (
-        <div className="fixed bottom-8 right-8 z-[100]">
+        <div className="fixed bottom-24 right-8 z-[100]">
             {/* Chat Window */}
             {isOpen && (
                 <div className="absolute bottom-20 right-0 w-80 md:w-96 h-[500px] bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 duration-300">
@@ -97,8 +97,8 @@ export default function AIChatBot() {
                         {messages.map((msg, i) => (
                             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-[85%] p-4 rounded-2xl ${msg.role === 'user'
-                                        ? 'bg-blue-600 text-white rounded-tr-none'
-                                        : 'bg-white text-slate-900 border border-slate-100 rounded-tl-none shadow-sm'
+                                    ? 'bg-blue-600 text-white rounded-tr-none'
+                                    : 'bg-white text-slate-900 border border-slate-100 rounded-tl-none shadow-sm'
                                     }`}>
                                     <p className="text-sm font-medium leading-relaxed">{msg.content}</p>
 
