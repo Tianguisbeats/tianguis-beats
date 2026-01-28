@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Music, ArrowRight, Loader2, Lock, Mail, Check } from 'lucide-react';
+import { Music, ArrowRight, Loader2, Lock, Mail, Check, Eye, EyeOff } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { supabase } from '@/lib/supabase';
@@ -14,6 +14,7 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [rememberMe, setRememberMe] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -22,8 +23,25 @@ export default function LoginPage() {
         setError(null);
 
         try {
+            let loginEmail = email.trim();
+            const isEmail = loginEmail.includes('@');
+
+            if (!isEmail) {
+                // If it's a username, look up the email
+                const { data, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('email')
+                    .ilike('username', loginEmail)
+                    .maybeSingle();
+
+                if (profileError || !data?.email) {
+                    throw new Error('Usuario no encontrado');
+                }
+                loginEmail = data.email;
+            }
+
             const { data, error: authError } = await supabase.auth.signInWithPassword({
-                email,
+                email: loginEmail,
                 password,
             });
 
@@ -66,16 +84,16 @@ export default function LoginPage() {
                             )}
 
                             <div>
-                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Email</label>
+                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Email o Usuario</label>
                                 <div className="relative group">
                                     <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
                                         <Mail size={20} />
                                     </div>
                                     <input
-                                        type="email"
+                                        type="text"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="productor@ejemplo.com"
+                                        placeholder="usuario o email@ejemplo.com"
                                         className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-16 pr-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
                                         required
                                     />
@@ -89,13 +107,20 @@ export default function LoginPage() {
                                         <Lock size={20} />
                                     </div>
                                     <input
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••"
-                                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-16 pr-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-16 pr-12 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
                                         required
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    </button>
                                 </div>
                             </div>
 

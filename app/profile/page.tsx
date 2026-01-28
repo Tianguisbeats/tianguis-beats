@@ -73,7 +73,7 @@ export default function ProfilePage() {
 
                     return {
                         ...b,
-                        producer: profile?.artistic_name || b.producer_id,
+                        producer: profile?.display_name || b.producer_id,
                         mp3_url: publicUrl
                     };
                 });
@@ -95,7 +95,7 @@ export default function ProfilePage() {
             .from('profiles')
             .update({
                 full_name: profile.full_name,
-                artistic_name: profile.artistic_name,
+                display_name: profile.display_name,
                 birth_date: profile.birth_date
             })
             .eq('id', profile.id);
@@ -195,7 +195,7 @@ export default function ProfilePage() {
                                         {profile.avatar_url ? (
                                             <img
                                                 src={profile.avatar_url}
-                                                alt={profile.artistic_name}
+                                                alt={profile.display_name}
                                                 className="w-full h-full object-cover -rotate-3 scale-110"
                                             />
                                         ) : (
@@ -218,7 +218,8 @@ export default function ProfilePage() {
                                         />
                                     </label>
                                 </div>
-                                <h2 className="text-xl font-black uppercase tracking-tight mt-4">{profile.artistic_name || 'Sin Nombre'}</h2>
+                                <h2 className="text-xl font-black uppercase tracking-tight mt-4">{profile.display_name || 'Sin Nombre'}</h2>
+                                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">@{profile.username}</p>
                                 <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">{profile.role === 'producer' ? 'Productor' : 'Artista'}</p>
 
                                 <div className="mt-8 pt-8 border-t border-slate-200 w-full">
@@ -267,14 +268,27 @@ export default function ProfilePage() {
                                         </div>
 
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Nombre Artístico</label>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Display Name (Nombre Artístico)</label>
                                             <div className="relative">
                                                 <Music className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                                                 <input
                                                     type="text"
-                                                    value={profile.artistic_name || ''}
-                                                    onChange={(e) => setProfile({ ...profile, artistic_name: e.target.value })}
+                                                    value={profile.display_name || ''}
+                                                    onChange={(e) => setProfile({ ...profile, display_name: e.target.value })}
                                                     className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-14 pr-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Username (No editable)</label>
+                                            <div className="relative">
+                                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 font-bold">@</span>
+                                                <input
+                                                    type="text"
+                                                    value={profile.username || ''}
+                                                    disabled
+                                                    className="w-full bg-slate-100 border-2 border-slate-100 rounded-2xl pl-10 pr-6 py-4 outline-none font-bold text-slate-500 cursor-not-allowed"
                                                 />
                                             </div>
                                         </div>

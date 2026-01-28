@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Music, ArrowRight, User, AudioLines, Loader2, Check, AlertTriangle } from 'lucide-react';
+import { Music, ArrowRight, User, AudioLines, Loader2, Check, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { supabase } from '@/lib/supabase';
@@ -21,40 +21,42 @@ export default function SignupPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState('');
-    const [artisticName, setArtisticName] = useState('');
+    const [username, setUsername] = useState('');
+    const [displayName, setDisplayName] = useState('');
     const [birthDate, setBirthDate] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
-    // Artistic name availability
+    // Username availability
     const [isCheckingName, setIsCheckingName] = useState(false);
-    const [isNameAvailable, setIsNameAvailable] = useState<boolean | null>(null);
+    const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean | null>(null);
 
-    // Debounce for artistic name check
+    // Debounce for username check
     useEffect(() => {
-        if (!artisticName) {
-            setIsNameAvailable(null);
+        if (!username) {
+            setIsUsernameAvailable(null);
             return;
         }
 
-        const checkName = async () => {
+        const checkUsername = async () => {
             setIsCheckingName(true);
             const { data, error } = await supabase
                 .from('profiles')
-                .select('artistic_name')
-                .eq('artistic_name', artisticName)
+                .select('username')
+                .eq('username', username)
                 .maybeSingle();
 
-            setIsNameAvailable(!data);
+            setIsUsernameAvailable(!data);
             setIsCheckingName(false);
         };
 
-        const timer = setTimeout(checkName, 500);
+        const timer = setTimeout(checkUsername, 500);
         return () => clearTimeout(timer);
-    }, [artisticName]);
+    }, [username]);
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (isNameAvailable === false) {
-            setError('Ese nombre artístico ya está en uso. Elige otro.');
+        if (isUsernameAvailable === false) {
+            setError('Ese nombre de usuario ya está en uso. Elige otro.');
             return;
         }
 
@@ -70,7 +72,8 @@ export default function SignupPage() {
                     emailRedirectTo: `${window.location.origin}/auth/confirm`,
                     data: {
                         full_name: fullName,
-                        artistic_name: artisticName,
+                        username: username,
+                        display_name: displayName,
                         birth_date: birthDate,
                         role: role,
                     }
@@ -89,11 +92,21 @@ export default function SignupPage() {
 
     const fillProofUser = () => {
         setFullName('Mauricio Garces');
-        setArtisticName('SonDeMaik');
+        setUsername('sondemaik');
+        setDisplayName('SonDeMaik');
         setBirthDate('1995-01-01');
         setEmail('sdmsquad@hotmail.com');
         setPassword('Escuadron1');
         setRole('producer');
+    };
+
+    const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Lowercase and remove spaces
+        const val = e.target.value.toLowerCase().replace(/\s/g, '');
+        // Allow only letters, numbers, underscores
+        if (/^[a-z0-9_]*$/.test(val)) {
+            setUsername(val);
+        }
     };
 
     return (
@@ -197,71 +210,92 @@ export default function SignupPage() {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Nombre Artístico</label>
+                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Username (Único)</label>
                                                 <div className="relative">
                                                     <input
                                                         type="text"
-                                                        value={artisticName}
-                                                        onChange={(e) => setArtisticName(e.target.value)}
-                                                        placeholder="SonDeMaik"
-                                                        className={`w-full bg-slate-50 border-2 rounded-2xl px-6 py-4 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300 ${isNameAvailable === false ? 'border-red-400' : isNameAvailable === true ? 'border-green-400' : 'border-slate-100 focus:border-blue-600'}`}
+                                                        value={username}
+                                                        onChange={handleUsernameChange}
+                                                        placeholder="sondemaik"
+                                                        className={`w-full bg-slate-50 border-2 rounded-2xl px-6 py-4 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300 ${isUsernameAvailable === false ? 'border-red-400' : isUsernameAvailable === true ? 'border-green-400' : 'border-slate-100 focus:border-blue-600'}`}
                                                         required
                                                     />
                                                     <div className="absolute right-4 top-1/2 -translate-y-1/2">
                                                         {isCheckingName ? (
                                                             <Loader2 size={16} className="animate-spin text-slate-400" />
-                                                        ) : isNameAvailable === true ? (
+                                                        ) : isUsernameAvailable === true ? (
                                                             <Check size={16} className="text-green-500" />
-                                                        ) : isNameAvailable === false ? (
+                                                        ) : isUsernameAvailable === false ? (
                                                             <AlertTriangle size={16} className="text-red-500" />
                                                         ) : null}
                                                     </div>
                                                 </div>
-                                                {isNameAvailable === false && (
-                                                    <p className="text-[9px] text-red-500 font-bold uppercase mt-2 ml-1">Este nombre ya está en el juego. Elige otro.</p>
+                                                {isUsernameAvailable === false && (
+                                                    <p className="text-[9px] text-red-500 font-bold uppercase mt-2 ml-1">Usuario no disponible. Intenta otro.</p>
                                                 )}
                                             </div>
-                                        </div>
 
-                                        <div className="grid md:grid-cols-2 gap-6">
                                             <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Fecha de Nacimiento</label>
+                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Nombre Artístico (Display)</label>
                                                 <input
-                                                    type="date"
-                                                    value={birthDate}
-                                                    onChange={(e) => setBirthDate(e.target.value)}
+                                                    type="text"
+                                                    value={displayName}
+                                                    onChange={(e) => setDisplayName(e.target.value)}
+                                                    placeholder="SonDeMaik"
                                                     className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
                                                     required
                                                 />
                                             </div>
-                                            <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Email</label>
-                                                <input
-                                                    type="email"
-                                                    value={email}
-                                                    onChange={(e) => setEmail(e.target.value)}
-                                                    placeholder="tu@email.com"
-                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
-                                                    required
-                                                />
+
+                                            <div className="col-span-1 md:col-span-2 grid md:grid-cols-2 gap-6">
+                                                <div>
+                                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Fecha de Nacimiento</label>
+                                                    <input
+                                                        type="date"
+                                                        value={birthDate}
+                                                        onChange={(e) => setBirthDate(e.target.value)}
+                                                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                                        required
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Email</label>
+                                                    <input
+                                                        type="email"
+                                                        value={email}
+                                                        onChange={(e) => setEmail(e.target.value)}
+                                                        placeholder="tu@email.com"
+                                                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                                        required
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
 
                                         <div>
                                             <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Contraseña</label>
-                                            <input
-                                                type="password"
-                                                value={password}
-                                                onChange={(e) => setPassword(e.target.value)}
-                                                placeholder="••••••••"
-                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
-                                                required
-                                            />
+                                            <div className="relative">
+                                                <input
+                                                    type={showPassword ? "text" : "password"}
+                                                    value={password}
+                                                    onChange={(e) => setPassword(e.target.value)}
+                                                    placeholder="••••••••"
+                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300 pr-12"
+                                                    required
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
+                                                >
+                                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                                </button>
+                                            </div>
                                         </div>
 
                                         <button
                                             type="submit"
-                                            disabled={loading || isNameAvailable === false}
+                                            disabled={loading || isUsernameAvailable === false}
                                             className={`w-full text-white py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-lg flex items-center justify-center gap-3 group disabled:opacity-50 ${role === 'producer' ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20' : 'bg-slate-900 hover:bg-black shadow-slate-900/20'
                                                 }`}
                                         >
