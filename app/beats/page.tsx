@@ -65,16 +65,48 @@ function BeatsPageContent() {
       setLoading(true);
       setErrorMsg(null);
 
-      const { data, error } = await supabase
+      // Build query with server-side filters
+      let query = supabase
         .from("beats")
         .select(`
-          *,
+          id,
+          title,
+          price_mxn,
+          bpm,
+          genre,
+          mp3_url,
+          musical_key,
+          mood,
+          tag,
+          tag_emoji,
+          tag_color,
+          cover_color,
           producer:producer_id (
             artistic_name
           )
         `)
-        .eq("is_public", true)
-        .order("created_at", { ascending: false });
+        .eq("is_public", true);
+
+      // Apply server-side filters
+      if (genreFilter && genreFilter !== "Todos") {
+        query = query.eq('genre', genreFilter);
+      }
+      if (moodFilter) {
+        query = query.eq('mood', moodFilter);
+      }
+      if (bpmFilter) {
+        query = query.eq('bpm', parseInt(bpmFilter));
+      }
+      if (keyFilter) {
+        query = query.eq('musical_key', keyFilter);
+      }
+      if (searchQuery.trim()) {
+        query = query.or(`title.ilike.%${searchQuery.trim()}%,genre.ilike.%${searchQuery.trim()}%`);
+      }
+
+      const { data, error } = await query
+        .order("created_at", { ascending: false })
+        .limit(50);
 
       if (cancel) return;
 
@@ -98,6 +130,7 @@ function BeatsPageContent() {
           genre: b.genre,
           mp3_url: publicUrl,
           musical_key: b.musical_key,
+          mood: b.mood,
           tag: b.tag || "Nuevo",
           tagEmoji: b.tag_emoji || "🔥",
           tagColor: b.tag_color || "bg-orange-600",
@@ -114,7 +147,7 @@ function BeatsPageContent() {
     return () => {
       cancel = true;
     };
-  }, []);
+  }, [genreFilter, moodFilter, bpmFilter, keyFilter, searchQuery]);
 
   const genres = useMemo(() => {
     const set = new Set<string>();
@@ -124,22 +157,8 @@ function BeatsPageContent() {
     return ["Todos", ...Array.from(set).sort((a, b) => a.localeCompare(b))];
   }, [beats]);
 
-  const filtered = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-
-    return beats.filter((b) => {
-      const matchesGenre = genreFilter === "Todos" ? true : (b.genre ?? "") === genreFilter;
-      const matchesMood = !moodFilter ? true : (b.mood ?? "") === moodFilter;
-      const matchesBpm = !bpmFilter ? true : b.bpm === parseInt(bpmFilter);
-      const matchesKey = !keyFilter ? true : (b.musical_key ?? "") === keyFilter;
-
-      const matchesSearch = !q
-        ? true
-        : `${b.title ?? ""} ${b.producer ?? ""} ${b.genre ?? ""}`.toLowerCase().includes(q);
-
-      return matchesGenre && matchesMood && matchesBpm && matchesKey && matchesSearch;
-    });
-  }, [beats, genreFilter, moodFilter, bpmFilter, keyFilter, searchQuery]);
+  // Note: Filtering is now done server-side in the Supabase query above
+  // Keeping genres extraction for dynamic genre dropdown
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col">
@@ -157,7 +176,7 @@ function BeatsPageContent() {
                 Escucha el <span className="text-blue-600">Talento Mexa.</span>
               </h1>
               <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-[10px]">
-                {loading ? "Sincronizando con el estudio..." : `${filtered.length} Beats encontrados`}
+                {loading ? "Sincronizando con el estudio..." : `${beats.length} Beats encontrados`}
               </p>
             </div>
 
@@ -273,9 +292,9 @@ function BeatsPageContent() {
                 <div key={i} className="aspect-square bg-slate-100 rounded-[2.5rem]"></div>
               ))}
             </div>
-          ) : filtered.length > 0 ? (
+          ) : beats.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
-              {filtered.map((beat) => (
+              {beats.map((beat) => (
                 <BeatCard key={beat.id} beat={beat} />
               ))}
             </div>

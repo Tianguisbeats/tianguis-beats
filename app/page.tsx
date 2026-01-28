@@ -66,11 +66,14 @@ export default function Home() {
     setLoading(true);
 
     const executeFetch = async () => {
+      // Columnas mínimas para BeatCard
+      const columns = 'id,title,price_mxn,bpm,genre,mp3_url,musical_key,mood,tag,tag_emoji,tag_color,cover_color,tier_visibility,producer:producer_id(artistic_name)';
+
       const fetchSection = async (orderByField: string, limit: number) => {
         try {
           const { data, error } = await supabase
             .from('beats')
-            .select('*, producer:producer_id(artistic_name)')
+            .select(columns)
             .eq('is_public', true)
             .order(orderByField, { ascending: false })
             .limit(limit);
@@ -79,10 +82,9 @@ export default function Home() {
           return data;
         } catch (err) {
           console.warn(`Error fetching by ${orderByField}, falling back to created_at`, err);
-          // Fallback: order by created_at if the specific column doesn't exist
           const { data } = await supabase
             .from('beats')
-            .select('*, producer:producer_id(artistic_name)')
+            .select(columns)
             .eq('is_public', true)
             .order('created_at', { ascending: false })
             .limit(limit);
@@ -90,24 +92,17 @@ export default function Home() {
         }
       };
 
-      // 1. Lo más Nuevo
-      const newData = await fetchSection('created_at', 10);
-
-      // 2. Tendencias (play_count)
-      const trendData = await fetchSection('play_count', 10);
-
-      // 3. Lo más comprado (sale_count)
-      const salesData = await fetchSection('sale_count', 10);
+      // Parallel fetches con Promise.all
+      const [newData, trendData, salesData, recData] = await Promise.all([
+        fetchSection('created_at', 10),
+        fetchSection('play_count', 10),
+        fetchSection('sale_count', 10),
+        fetchSection('created_at', 20),
+      ]);
 
       if (newData) setNewBeats(await transformBeatData(newData));
       if (trendData) setTrendingBeats(await transformBeatData(trendData));
       if (salesData) setTopSellers(await transformBeatData(salesData));
-
-      // 4. Recomendados (Fallback logic improved)
-      const { data: { session } } = await supabase.auth.getSession();
-
-      // Always fetch some beats for recommendations
-      const recData = await fetchSection('created_at', 20);
 
       if (recData) {
         const shuffled = recData.sort(() => 0.5 - Math.random()).slice(0, 10);

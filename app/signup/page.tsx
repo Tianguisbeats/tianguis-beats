@@ -22,7 +22,7 @@ export default function SignupPage() {
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState('');
     const [username, setUsername] = useState('');
-    const [displayName, setDisplayName] = useState('');
+    const [artisticName, setArtisticName] = useState('');
     const [birthDate, setBirthDate] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
@@ -73,7 +73,7 @@ export default function SignupPage() {
                     data: {
                         full_name: fullName,
                         username: username,
-                        display_name: displayName,
+                        artistic_name: artisticName,
                         birth_date: birthDate,
                         role: role,
                     }
@@ -93,7 +93,7 @@ export default function SignupPage() {
     const fillProofUser = () => {
         setFullName('Mauricio Garces');
         setUsername('sondemaik');
-        setDisplayName('SonDeMaik');
+        setArtisticName('SonDeMaik');
         setBirthDate('1995-01-01');
         setEmail('sdmsquad@hotmail.com');
         setPassword('Escuadron1');
@@ -236,11 +236,11 @@ export default function SignupPage() {
                                             </div>
 
                                             <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Nombre Artístico (Display)</label>
+                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Nombre Artístico</label>
                                                 <input
                                                     type="text"
-                                                    value={displayName}
-                                                    onChange={(e) => setDisplayName(e.target.value)}
+                                                    value={artisticName}
+                                                    onChange={(e) => setArtisticName(e.target.value)}
                                                     placeholder="SonDeMaik"
                                                     className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
                                                     required
