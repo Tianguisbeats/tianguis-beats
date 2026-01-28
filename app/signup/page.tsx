@@ -123,15 +123,10 @@ export default function SignupPage() {
                                     Únete al <span className="text-blue-600">Tianguis</span>
                                 </h1>
                                 <p className="text-slate-500 font-medium whitespace-pre-line">
-                                    La plataforma ideal para productores y artistas mexas.{"\n"}
+                                    La plataforma ideal para hacer match entre productores y artistas.{"\n"}
                                     Selecciona tu perfil para comenzar.
                                 </p>
-                                <button
-                                    onClick={fillProofUser}
-                                    className="mt-6 text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-4 py-2 rounded-full hover:bg-blue-100 transition-colors"
-                                >
-                                    ⚡ Rellenar datos de prueba
-                                </button>
+
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-6 mb-10">
@@ -149,7 +144,7 @@ export default function SignupPage() {
                                     </div>
                                     <h3 className="text-xl font-black uppercase tracking-tight mb-2">Productor</h3>
                                     <p className={`text-sm font-medium mb-6 flex-1 ${role === 'producer' ? 'text-blue-100' : 'text-slate-500'}`}>
-                                        Sube tus beats, gestiona licencias y empieza a vender a artistas de todo el país.
+                                        Sube tus beats, gestiona licencias y empieza a vender a artistas de todo el Mundo.
                                     </p>
                                     <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${role === 'producer' ? 'text-white' : 'text-blue-600'
                                         }`}>
@@ -196,7 +191,7 @@ export default function SignupPage() {
                                                     type="text"
                                                     value={fullName}
                                                     onChange={(e) => setFullName(e.target.value)}
-                                                    placeholder="Juan Perez"
+                                                    placeholder="Nombres Apellidos"
                                                     className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
                                                     required
                                                 />
@@ -208,7 +203,7 @@ export default function SignupPage() {
                                                         type="text"
                                                         value={artisticName}
                                                         onChange={(e) => setArtisticName(e.target.value)}
-                                                        placeholder="Ej. DJ Neza"
+                                                        placeholder="SonDeMaik"
                                                         className={`w-full bg-slate-50 border-2 rounded-2xl px-6 py-4 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300 ${isNameAvailable === false ? 'border-red-400' : isNameAvailable === true ? 'border-green-400' : 'border-slate-100 focus:border-blue-600'}`}
                                                         required
                                                     />
