@@ -2,17 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Music, ArrowRight, User, AudioLines, Loader2, Check, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { Music, ArrowRight, Loader2, Check, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { supabase } from '@/lib/supabase';
 
 /**
- * Página de Registro: Permite crear cuentas de Productor o Artista.
- * Incluye campos para Nombre Artístico (único) y Edad.
+ * Página de Registro: Formulario directo para crear cuenta.
+ * Todos los usuarios tienen el mismo tipo de cuenta.
  */
 export default function SignupPage() {
-    const [role, setRole] = useState<'producer' | 'artist' | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
@@ -39,7 +38,7 @@ export default function SignupPage() {
 
         const checkUsername = async () => {
             setIsCheckingName(true);
-            const { data, error } = await supabase
+            const { data } = await supabase
                 .from('profiles')
                 .select('username')
                 .eq('username', username)
@@ -64,18 +63,16 @@ export default function SignupPage() {
         setError(null);
 
         try {
-            const { data, error: authError } = await supabase.auth.signUp({
+            const { error: authError } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
-                    // Redirigir a la nueva página de confirmación
                     emailRedirectTo: `${window.location.origin}/auth/confirm`,
                     data: {
                         full_name: fullName,
                         username: username,
                         artistic_name: artisticName,
                         birth_date: birthDate,
-                        role: role,
                     }
                 }
             });
@@ -90,20 +87,8 @@ export default function SignupPage() {
         }
     };
 
-    const fillProofUser = () => {
-        setFullName('Mauricio Garces');
-        setUsername('sondemaik');
-        setArtisticName('SonDeMaik');
-        setBirthDate('1995-01-01');
-        setEmail('sdmsquad@hotmail.com');
-        setPassword('Escuadron1');
-        setRole('producer');
-    };
-
     const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // Lowercase and remove spaces
         const val = e.target.value.toLowerCase().replace(/\s/g, '');
-        // Allow only letters, numbers, underscores
         if (/^[a-z0-9_]*$/.test(val)) {
             setUsername(val);
         }
@@ -113,8 +98,8 @@ export default function SignupPage() {
         <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col">
             <Navbar />
 
-            <main className="flex-1 flex items-center justify-center pt-32 pb-20 px-4">
-                <div className="max-w-2xl w-full">
+            <main className="flex-1 flex items-center justify-center pt-28 pb-20 px-4">
+                <div className="max-w-xl w-full">
                     {success ? (
                         <div className="text-center bg-blue-50 p-12 rounded-[3.5rem] border-2 border-blue-100 animate-in zoom-in duration-500">
                             <div className="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl shadow-blue-600/20">
@@ -128,191 +113,139 @@ export default function SignupPage() {
                         </div>
                     ) : (
                         <>
-                            <div className="text-center mb-10">
+                            <div className="text-center mb-8">
                                 <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl transform rotate-3 shadow-xl shadow-blue-600/20 mb-6">
                                     <Music className="text-white w-8 h-8" />
                                 </div>
                                 <h1 className="text-4xl font-black tracking-tighter uppercase mb-3 text-slate-900">
                                     Únete al <span className="text-blue-600">Tianguis</span>
                                 </h1>
-                                <p className="text-slate-500 font-medium whitespace-pre-line">
-                                    La plataforma ideal para hacer match entre productores y artistas.{"\n"}
-                                    Selecciona tu perfil para comenzar.
+                                <p className="text-slate-500 font-medium">
+                                    Crea tu cuenta y descubre el mejor catálogo de beats.
                                 </p>
-
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-6 mb-10">
-                                {/* Productor Card */}
-                                <button
-                                    onClick={() => setRole('producer')}
-                                    className={`p-8 rounded-[2.5rem] border-2 transition-all text-left flex flex-col h-full group ${role === 'producer'
-                                        ? 'bg-blue-600 border-blue-600 text-white shadow-2xl shadow-blue-600/20'
-                                        : 'bg-slate-50 border-slate-100 hover:border-blue-400'
-                                        }`}
-                                >
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-colors ${role === 'producer' ? 'bg-white/20' : 'bg-blue-100 text-blue-600'
-                                        }`}>
-                                        <AudioLines size={28} />
-                                    </div>
-                                    <h3 className="text-xl font-black uppercase tracking-tight mb-2">Productor</h3>
-                                    <p className={`text-sm font-medium mb-6 flex-1 ${role === 'producer' ? 'text-blue-100' : 'text-slate-500'}`}>
-                                        Sube tus beats, gestiona licencias y empieza a vender a artistas de todo el Mundo.
-                                    </p>
-                                    <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${role === 'producer' ? 'text-white' : 'text-blue-600'
-                                        }`}>
-                                        Seleccionar <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                    </div>
-                                </button>
+                            <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] p-8 md:p-10 shadow-sm">
+                                <form onSubmit={handleSignup} className="space-y-5">
+                                    {error && (
+                                        <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-xs font-bold rounded-xl text-center">
+                                            {error}
+                                        </div>
+                                    )}
 
-                                {/* Artista Card */}
-                                <button
-                                    onClick={() => setRole('artist')}
-                                    className={`p-8 rounded-[2.5rem] border-2 transition-all text-left flex flex-col h-full group ${role === 'artist'
-                                        ? 'bg-slate-900 border-slate-900 text-white shadow-2xl shadow-slate-900/20'
-                                        : 'bg-slate-50 border-slate-100 hover:border-blue-400'
-                                        }`}
-                                >
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-colors ${role === 'artist' ? 'bg-white/20' : 'bg-slate-200 text-slate-900'
-                                        }`}>
-                                        <User size={28} />
-                                    </div>
-                                    <h3 className="text-xl font-black uppercase tracking-tight mb-2">Artista</h3>
-                                    <p className={`text-sm font-medium mb-6 flex-1 ${role === 'artist' ? 'text-slate-300' : 'text-slate-500'}`}>
-                                        Encuentra el sonido perfecto para tu próximo éxito y conecta con los mejores productores.
-                                    </p>
-                                    <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${role === 'artist' ? 'text-white' : 'text-slate-900'
-                                        }`}>
-                                        Seleccionar <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                    </div>
-                                </button>
-                            </div>
-
-                            {role && (
-                                <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] p-8 md:p-10 shadow-sm animate-in fade-in slide-in-from-bottom-5 duration-500">
-                                    <form onSubmit={handleSignup} className="space-y-6">
-                                        {error && (
-                                            <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-xs font-bold rounded-xl text-center">
-                                                {error}
-                                            </div>
-                                        )}
-
-                                        <div className="grid md:grid-cols-2 gap-6">
-                                            <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Nombre Completo</label>
+                                    <div className="grid md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Nombre Completo</label>
+                                            <input
+                                                type="text"
+                                                value={fullName}
+                                                onChange={(e) => setFullName(e.target.value)}
+                                                placeholder="Nombres Apellidos"
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Username</label>
+                                            <div className="relative">
                                                 <input
                                                     type="text"
-                                                    value={fullName}
-                                                    onChange={(e) => setFullName(e.target.value)}
-                                                    placeholder="Nombres Apellidos"
-                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                                    value={username}
+                                                    onChange={handleUsernameChange}
+                                                    placeholder="tu_username"
+                                                    className={`w-full bg-slate-50 border-2 rounded-2xl px-5 py-3.5 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300 ${isUsernameAvailable === false ? 'border-red-400' : isUsernameAvailable === true ? 'border-green-400' : 'border-slate-100 focus:border-blue-600'}`}
                                                     required
                                                 />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Username (Único)</label>
-                                                <div className="relative">
-                                                    <input
-                                                        type="text"
-                                                        value={username}
-                                                        onChange={handleUsernameChange}
-                                                        placeholder="sondemaik"
-                                                        className={`w-full bg-slate-50 border-2 rounded-2xl px-6 py-4 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300 ${isUsernameAvailable === false ? 'border-red-400' : isUsernameAvailable === true ? 'border-green-400' : 'border-slate-100 focus:border-blue-600'}`}
-                                                        required
-                                                    />
-                                                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                                                        {isCheckingName ? (
-                                                            <Loader2 size={16} className="animate-spin text-slate-400" />
-                                                        ) : isUsernameAvailable === true ? (
-                                                            <Check size={16} className="text-green-500" />
-                                                        ) : isUsernameAvailable === false ? (
-                                                            <AlertTriangle size={16} className="text-red-500" />
-                                                        ) : null}
-                                                    </div>
-                                                </div>
-                                                {isUsernameAvailable === false && (
-                                                    <p className="text-[9px] text-red-500 font-bold uppercase mt-2 ml-1">Usuario no disponible. Intenta otro.</p>
-                                                )}
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Nombre Artístico</label>
-                                                <input
-                                                    type="text"
-                                                    value={artisticName}
-                                                    onChange={(e) => setArtisticName(e.target.value)}
-                                                    placeholder="SonDeMaik"
-                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
-                                                    required
-                                                />
-                                            </div>
-
-                                            <div className="col-span-1 md:col-span-2 grid md:grid-cols-2 gap-6">
-                                                <div>
-                                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Fecha de Nacimiento</label>
-                                                    <input
-                                                        type="date"
-                                                        value={birthDate}
-                                                        onChange={(e) => setBirthDate(e.target.value)}
-                                                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
-                                                        required
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Email</label>
-                                                    <input
-                                                        type="email"
-                                                        value={email}
-                                                        onChange={(e) => setEmail(e.target.value)}
-                                                        placeholder="tu@email.com"
-                                                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
-                                                        required
-                                                    />
+                                                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                                    {isCheckingName ? (
+                                                        <Loader2 size={16} className="animate-spin text-slate-400" />
+                                                    ) : isUsernameAvailable === true ? (
+                                                        <Check size={16} className="text-green-500" />
+                                                    ) : isUsernameAvailable === false ? (
+                                                        <AlertTriangle size={16} className="text-red-500" />
+                                                    ) : null}
                                                 </div>
                                             </div>
+                                            {isUsernameAvailable === false && (
+                                                <p className="text-[9px] text-red-500 font-bold uppercase mt-1.5 ml-1">Usuario no disponible</p>
+                                            )}
                                         </div>
 
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Contraseña</label>
-                                            <div className="relative">
-                                                <input
-                                                    type={showPassword ? "text" : "password"}
-                                                    value={password}
-                                                    onChange={(e) => setPassword(e.target.value)}
-                                                    placeholder="••••••••"
-                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300 pr-12"
-                                                    required
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowPassword(!showPassword)}
-                                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
-                                                >
-                                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                                                </button>
-                                            </div>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Nombre Artístico</label>
+                                            <input
+                                                type="text"
+                                                value={artisticName}
+                                                onChange={(e) => setArtisticName(e.target.value)}
+                                                placeholder="Tu nombre de artista"
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                                required
+                                            />
                                         </div>
 
-                                        <button
-                                            type="submit"
-                                            disabled={loading || isUsernameAvailable === false}
-                                            className={`w-full text-white py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-lg flex items-center justify-center gap-3 group disabled:opacity-50 ${role === 'producer' ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20' : 'bg-slate-900 hover:bg-black shadow-slate-900/20'
-                                                }`}
-                                        >
-                                            {loading ? (
-                                                <Loader2 className="animate-spin" size={18} />
-                                            ) : (
-                                                <>
-                                                    Fichar como {role === 'producer' ? 'Productor' : 'Artista'}
-                                                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                                                </>
-                                            )}
-                                        </button>
-                                    </form>
-                                </div>
-                            )}
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Fecha de Nacimiento</label>
+                                            <input
+                                                type="date"
+                                                value={birthDate}
+                                                onChange={(e) => setBirthDate(e.target.value)}
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 outline-none focus:border-blue-600 transition-all font-bold text-slate-900"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
 
-                            <p className="mt-8 text-center text-[11px] font-black uppercase tracking-widest text-slate-400">
+                                    <div>
+                                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Email</label>
+                                        <input
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            placeholder="tu@email.com"
+                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Contraseña</label>
+                                        <div className="relative">
+                                            <input
+                                                type={showPassword ? "text" : "password"}
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                placeholder="••••••••"
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300 pr-12"
+                                                required
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
+                                            >
+                                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={loading || isUsernameAvailable === false}
+                                        className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-3 group disabled:opacity-50 mt-2"
+                                    >
+                                        {loading ? (
+                                            <Loader2 className="animate-spin" size={18} />
+                                        ) : (
+                                            <>
+                                                Crear Cuenta
+                                                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                            </>
+                                        )}
+                                    </button>
+                                </form>
+                            </div>
+
+                            <p className="mt-6 text-center text-[11px] font-black uppercase tracking-widest text-slate-400">
                                 ¿Ya tienes cuenta? <Link href="/login" className="text-blue-600 hover:underline">Inicia sesión</Link>
                             </p>
                         </>
