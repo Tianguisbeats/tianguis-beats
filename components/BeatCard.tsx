@@ -4,6 +4,7 @@
  */
 import { Music, Play, Pause, ShoppingCart } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
+import Link from 'next/link';
 
 export interface Beat {
     id: string | number;
@@ -78,9 +79,11 @@ export default function BeatCard({ beat }: BeatCardProps) {
             </div>
 
             <div className="p-6">
-                <h3 className="font-black text-slate-900 text-sm truncate mb-1 group-hover:text-blue-600 transition-colors leading-tight uppercase tracking-tight">
-                    {beat.title || "Sin título"}
-                </h3>
+                <Link href={`/beats/${beat.id}`} className="block">
+                    <h3 className="font-black text-slate-900 text-sm truncate mb-1 group-hover:text-blue-600 transition-colors leading-tight uppercase tracking-tight">
+                        {beat.title || "Sin título"}
+                    </h3>
+                </Link>
                 <div className="flex items-center justify-between mb-5">
                     <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest truncate max-w-[100px]">prod. {beat.producer || "—"}</p>
                     <span className="text-[9px] font-black text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200">{beat.bpm || "—"} BPM</span>
