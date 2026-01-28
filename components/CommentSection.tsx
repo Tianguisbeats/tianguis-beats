@@ -12,7 +12,7 @@ interface Comment {
     }
 }
 
-export default function CommentSection({ beatId }: { beatId: number | string }) {
+export default function CommentSection({ beatId }: { beatId: string }) {
     const [comments, setComments] = useState<Comment[]>([]);
     const [commentText, setCommentText] = useState('');
     const [isLoading, setIsLoading] = useState(false);
