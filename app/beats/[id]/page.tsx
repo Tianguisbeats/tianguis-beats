@@ -13,6 +13,7 @@ import Footer from '@/components/Footer';
 import LicenseCard from '@/components/LicenseCard';
 import CommentSection from '@/components/CommentSection';
 import WaveformPlayer from '@/components/WaveformPlayer';
+import Link from 'next/link';
 import { usePlayer } from '@/context/PlayerContext';
 import { Beat } from '@/components/BeatCard';
 
@@ -30,6 +31,7 @@ interface BeatDetail extends Beat {
     play_count?: number;
     sale_count?: number;
     description?: string;
+    cover_url?: string | null;
     created_at: string;
 }
 
@@ -48,7 +50,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
         const fetchBeat = async () => {
             const { data, error } = await supabase
                 .from('beats')
-                .select('*, producer:producer_id(artistic_name)')
+                .select('*, producer:producer_id(artistic_name, username)')
                 .eq('id', id)
                 .single();
 
@@ -133,9 +135,12 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         {/* Artwork & Header Info (Left) */}
                         <div className="lg:col-span-8 space-y-8">
                             <div className="flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">
-                                <div className={`w-64 h-64 md:w-72 md:h-72 rounded-[3.5rem] shadow-2xl flex items-center justify-center shrink-0 relative overflow-hidden ${beat.coverColor || 'bg-slate-200'}`}>
-                                    <Music2 size={80} className="text-white/30" />
-                                    {/* Si hubiera cover_url se pondría aquí */}
+                                <div className={`w-64 h-64 md:w-72 md:h-72 rounded-[3.5rem] shadow-2xl flex items-center justify-center shrink-0 relative overflow-hidden bg-slate-100`}>
+                                    {beat.cover_url ? (
+                                        <img src={beat.cover_url} className="w-full h-full object-cover" alt={beat.title || 'Beat'} />
+                                    ) : (
+                                        <Music2 size={80} className="text-slate-200" />
+                                    )}
                                 </div>
 
                                 <div className="flex-1">
@@ -158,7 +163,9 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                         {beat.title}
                                     </h1>
                                     <p className="text-xl font-bold text-slate-400 uppercase tracking-widest mb-8">
-                                        Prod. by <span className="text-blue-600 underline decoration-blue-100">{beat.producer}</span>
+                                        Prod. by <Link href={`/${(beat.producer as any)?.username || ''}`} className="text-blue-600 underline decoration-blue-100 hover:text-slate-900 transition-colors">
+                                            {(beat.producer as any)?.artistic_name || (beat.producer as any)?.username || 'Desconocido'}
+                                        </Link>
                                     </p>
 
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-6">

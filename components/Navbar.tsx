@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Music, Menu, X, User, LayoutDashboard, LogOut } from 'lucide-react';
+import { Music, Menu, X, User, LayoutDashboard, LogOut, Check } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
@@ -45,7 +45,7 @@ export default function Navbar() {
     const fetchProfile = async (userId: string) => {
         const { data, error } = await supabase
             .from('profiles')
-            .select('avatar_url, artistic_name, role')
+            .select('avatar_url, artistic_name, role, username, is_founder, is_verified, subscription_tier')
             .eq('id', userId)
             .single();
 
@@ -86,25 +86,39 @@ export default function Navbar() {
                         <div className="flex items-center gap-4">
                             {user ? (
                                 <div className="flex items-center gap-6">
-                                    {profile?.role === 'producer' && (
-                                        <Link href="/dashboard" className="bg-blue-600 text-white px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 transition-all shadow-lg shadow-blue-600/20 transform hover:-translate-y-0.5">
-                                            Subir Beat
-                                        </Link>
-                                    )}
-                                    <Link href="/profile" className="group flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden group-hover:border-blue-600 transition-colors">
+                                    <Link href="/upload" className="bg-blue-600 text-white px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 transition-all shadow-lg shadow-blue-600/20 transform hover:-translate-y-0.5">
+                                        Sube tu Beat
+                                    </Link>
+
+                                    <Link href={`/${profile?.username || 'profile'}`} className="group flex items-center gap-3">
+                                        <div className={`w-8 h-8 rounded-lg overflow-hidden border-2 transition-colors ${profile?.subscription_tier === 'premium' ? 'border-blue-600' :
+                                            profile?.subscription_tier === 'pro' ? 'border-slate-400' : 'border-slate-200'
+                                            }`}>
                                             {profile?.avatar_url ? (
                                                 <img src={profile.avatar_url} alt="Perfil" className="w-full h-full object-cover" />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-slate-400">
+                                                <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
                                                     <User size={16} />
                                                 </div>
                                             )}
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 group-hover:text-blue-600 transition-colors">
-                                            Perfil
-                                        </span>
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 group-hover:text-blue-600 transition-colors">
+                                                {profile?.username || 'Perfil'}
+                                            </span>
+                                            {profile?.is_verified && (
+                                                <div className="w-3 h-3 bg-blue-600 rounded-full flex items-center justify-center">
+                                                    <Check size={8} className="text-white" />
+                                                </div>
+                                            )}
+                                            {profile?.is_founder && (
+                                                <div className="w-3 h-3 bg-yellow-400 rounded-full flex items-center justify-center" title="Founder">
+                                                    <span className="text-[6px] font-black text-white">F</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </Link>
+
                                     <button
                                         onClick={handleLogout}
                                         className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-red-500 transition-colors"

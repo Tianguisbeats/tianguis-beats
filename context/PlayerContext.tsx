@@ -5,8 +5,9 @@ import React, { createContext, useContext, useState, useRef, useEffect } from 'r
 interface Beat {
     id: string | number;
     title: string | null;
-    producer: string | null;
+    producer?: any;
     mp3_url?: string | null;
+    cover_url?: string | null;
     coverColor?: string;
 }
 

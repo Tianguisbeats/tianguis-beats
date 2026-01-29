@@ -30,11 +30,16 @@ CREATE TABLE public.profiles (
     full_name TEXT,
     artistic_name TEXT,
     avatar_url TEXT,
+    cover_url TEXT,
     bio TEXT,
+    social_links JSONB DEFAULT '{}'::jsonb,
     birth_date DATE,
     role public.role_enum NOT NULL DEFAULT 'artist',
     subscription_tier public.subscription_tier_enum NOT NULL DEFAULT 'free',
     is_admin BOOLEAN NOT NULL DEFAULT false,
+    is_founder BOOLEAN NOT NULL DEFAULT false,
+    is_verified BOOLEAN NOT NULL DEFAULT false,
+    username_changes INTEGER DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -47,12 +52,14 @@ CREATE TABLE public.beats (
     genre TEXT,
     bpm INTEGER,
     musical_key TEXT,
+    musical_scale TEXT DEFAULT 'Menor', -- Menor o Mayor
     description TEXT,
     price_mxn NUMERIC DEFAULT 299,
     is_public BOOLEAN NOT NULL DEFAULT true,
     
     -- Archivos (URLs de Storage)
     cover_url TEXT,
+    mp3_tag_url TEXT, -- Archivo con TAG
     mp3_url TEXT NOT NULL,
     wav_url TEXT,
     stems_url TEXT,
@@ -134,7 +141,12 @@ CREATE TRIGGER trg_sync_likes AFTER INSERT OR DELETE ON public.likes FOR EACH RO
 -- TRIGGER CRÍTICO: Crear perfil al registrarse
 CREATE OR REPLACE FUNCTION public.handle_new_auth_user()
 RETURNS TRIGGER AS $$
+DECLARE
+    is_f boolean;
 BEGIN
+    -- Detectar si es uno de los primeros 100 usuarios
+    SELECT count(*) < 100 INTO is_f FROM public.profiles;
+
     INSERT INTO public.profiles (
         id, 
         email, 
@@ -142,7 +154,8 @@ BEGIN
         full_name, 
         artistic_name, 
         birth_date, 
-        role
+        role,
+        is_founder
     )
     VALUES (
         NEW.id,
@@ -151,11 +164,9 @@ BEGIN
         NEW.raw_user_meta_data->>'full_name',
         NEW.raw_user_meta_data->>'artistic_name',
         (NEW.raw_user_meta_data->>'birth_date')::DATE,
-        COALESCE((NEW.raw_user_meta_data->>'role')::public.role_enum, 'artist'::public.role_enum)
+        COALESCE((NEW.raw_user_meta_data->>'role')::public.role_enum, 'artist'::public.role_enum),
+        is_f
     );
-    RETURN NEW;
-EXCEPTION WHEN OTHERS THEN
-    -- Loguear error o simplemente dejar que Auth continúe pero sin perfil (no recomendado)
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

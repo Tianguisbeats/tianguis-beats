@@ -13,11 +13,21 @@ export interface Profile {
     artistic_name: string | null;
     full_name: string | null;
     avatar_url: string | null;
+    cover_url: string | null;
     bio: string | null;
+    social_links: {
+        instagram?: string;
+        youtube?: string;
+        twitter?: string;
+        tiktok?: string;
+    };
     birth_date: string | null;
     role: UserRole;
     subscription_tier: SubscriptionTier;
     is_admin: boolean;
+    is_founder: boolean;
+    is_verified: boolean;
+    username_changes: number;
     email: string;
     created_at: string;
     updated_at: string;
@@ -33,12 +43,14 @@ export interface Beat {
     genre: string | null;
     bpm: number | null;
     musical_key: string | null;
+    musical_scale: string | null;
     description: string | null;
     price_mxn: number;
     is_public: boolean;
 
     // Archivos
     cover_url: string | null;
+    mp3_tag_url: string | null;
     mp3_url: string;
     wav_url: string | null;
     stems_url: string | null;
