@@ -48,6 +48,7 @@ export default function Home() {
         id: b.id,
         title: b.title,
         producer: b.producer?.artistic_name || 'Productor Anónimo',
+        producer_username: b.producer?.username || b.producer?.artistic_name,
         price_mxn: b.price_mxn,
         bpm: b.bpm,
         genre: b.genre,
@@ -68,7 +69,7 @@ export default function Home() {
 
     const executeFetch = async () => {
       // Columnas mínimas para BeatCard
-      const columns = 'id,title,price_mxn,bpm,genre,mp3_url,musical_key,mood,tag,tag_emoji,tag_color,cover_color,tier_visibility,producer:producer_id(artistic_name)';
+      const columns = 'id,title,price_mxn,bpm,genre,mp3_tag_url,musical_key,mood,tag,tag_emoji,tag_color,cover_color,tier_visibility,producer:producer_id(artistic_name,username)';
 
       const fetchSection = async (orderByField: string, limit: number) => {
         try {

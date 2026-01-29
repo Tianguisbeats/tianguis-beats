@@ -29,6 +29,7 @@ export interface Beat {
     producer_avatar_url?: string | null;
     producer_tier?: string | null;
     producer_is_verified?: boolean;
+    producer_username?: string | null;
 }
 
 interface BeatCardProps {
@@ -103,14 +104,14 @@ export default function BeatCard({ beat }: BeatCardProps) {
                                 </div>
                             )}
                         </div>
-                        <div className="flex items-center gap-1 truncate">
+                        <Link href={`/${beat.producer_username || beat.producer}`} className="flex items-center gap-1 truncate hover:text-blue-600 transition-colors">
                             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest truncate">
                                 {beat.producer || "—"}
                             </p>
                             {beat.producer_is_verified && (
                                 <CheckCircle2 size={10} className="text-blue-600" fill="currentColor" color="white" />
                             )}
-                        </div>
+                        </Link>
                     </div>
                     <span className="text-[9px] font-black text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200 shrink-0">
                         {beat.bpm || "—"} BPM

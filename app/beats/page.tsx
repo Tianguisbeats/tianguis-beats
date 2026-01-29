@@ -82,7 +82,8 @@ function BeatsPageContent() {
           tag_color,
           cover_color,
           producer:producer_id (
-            artistic_name
+            artistic_name,
+            username
           )
         `)
         .eq("is_public", true);
@@ -125,6 +126,7 @@ function BeatsPageContent() {
           id: b.id,
           title: b.title,
           producer: b.producer?.artistic_name || 'Productor Anónimo',
+          producer_username: b.producer?.username || b.producer?.artistic_name,
           price_mxn: b.price_mxn,
           bpm: b.bpm,
           genre: b.genre,
@@ -134,7 +136,8 @@ function BeatsPageContent() {
           tag: b.tag || "Nuevo",
           tagEmoji: b.tag_emoji || "🔥",
           tagColor: b.tag_color || "bg-orange-600",
-          coverColor: b.cover_color || (Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100')
+          coverColor: b.cover_color || (Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100'),
+          mp3_tag_url: b.mp3_tag_url
         };
       });
 

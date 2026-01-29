@@ -12,6 +12,7 @@ import {
     Music,
     X
 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function AudioPlayer() {
     const {
@@ -79,8 +80,12 @@ export default function AudioPlayer() {
                         )}
                     </div>
                     <div className="min-w-0">
-                        <h4 className="font-black text-sm text-slate-900 truncate uppercase tracking-tight">{currentBeat.title}</h4>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">prod. {currentBeat.producer}</p>
+                        <Link href={`/beats/${currentBeat.id}`} className="hover:text-blue-600 transition-colors">
+                            <h4 className="font-black text-sm text-slate-900 truncate uppercase tracking-tight">{currentBeat.title}</h4>
+                        </Link>
+                        <Link href={`/${currentBeat.producer_username || currentBeat.producer}`} className="hover:text-blue-600 transition-colors">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">{currentBeat.producer}</p>
+                        </Link>
                     </div>
                 </div>
 

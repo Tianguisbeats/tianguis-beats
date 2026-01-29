@@ -6,6 +6,7 @@ interface Beat {
     id: string | number;
     title: string | null;
     producer?: any;
+    producer_username?: string | null;
     mp3_url?: string | null;
     cover_url?: string | null;
     coverColor?: string;
