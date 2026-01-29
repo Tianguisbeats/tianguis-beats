@@ -239,7 +239,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className={`w-40 h-40 rounded-full border-4 shadow-2xl overflow-hidden transition-all duration-500 ${profile.subscription_tier === 'premium'
                                 ? 'border-blue-600 shadow-blue-500/30'
                                 : profile.subscription_tier === 'pro'
-                                    ? 'border-slate-400 shadow-slate-900/10'
+                                    ? 'border-amber-400 shadow-amber-400/30'
                                     : 'border-white shadow-lg'
                                 }`}>
                                 {profile.avatar_url ? (

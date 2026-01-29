@@ -7,10 +7,13 @@ import {
   Search,
   SlidersHorizontal,
   Music,
+  X,
+  Users,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BeatCard, { Beat } from "@/components/BeatCard";
+import Link from "next/link";
 
 export default function BeatsPage() {
   return (
@@ -24,6 +27,7 @@ function BeatsPageContent() {
   const [beats, setBeats] = useState<Beat[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [featuredProducers, setFeaturedProducers] = useState<Array<{ id: string, username: string, artistic_name: string, avatar_url: string | null, is_verified: boolean, is_founder: boolean, subscription_tier: string }>>([]);
 
   // UI state
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -160,6 +164,22 @@ function BeatsPageContent() {
     };
   }, [genreFilter, moodFilter, bpmFilter, keyFilter, searchQuery]);
 
+  useEffect(() => {
+    async function loadProducers() {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, username, artistic_name, avatar_url, is_verified, is_founder, subscription_tier')
+        .or('is_verified.eq.true,role.eq.producer')
+        .neq('avatar_url', null) // Only show producers with avatars
+        .limit(10);
+
+      if (data) {
+        setFeaturedProducers(data as any); // Type assertion for quick fix, better to define interface
+      }
+    }
+    loadProducers();
+  }, []);
+
   const genres = useMemo(() => {
     const set = new Set<string>();
     for (const b of beats) {
@@ -177,6 +197,46 @@ function BeatsPageContent() {
 
       <main className="flex-1 pt-24 pb-20 text-slate-900 selection:bg-blue-600 selection:text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          {/* Featured Producers Section */}
+          {featuredProducers.length > 0 && (
+            <div className="mb-16 mt-8">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6 flex items-center gap-2">
+                <Users size={12} />
+                Productores Destacados
+              </h4>
+              <div className="flex items-center gap-4 overflow-x-scroll no-scrollbar pb-4 select-none mask-linear-fade">
+                {featuredProducers.map((producer) => (
+                  <Link
+                    key={producer.id}
+                    href={`/${producer.username}`}
+                    className="group relative flex-shrink-0"
+                  >
+                    <div className={`w-20 h-20 md:w-24 md:h-24 rounded-[2rem] overflow-hidden border-[3px] transition-all duration-500 transform group-hover:scale-105 group-hover:-rotate-2 shadow-xl ${producer.subscription_tier === 'premium' ? 'border-blue-600 shadow-blue-500/20 group-hover:shadow-blue-600/40' :
+                        producer.subscription_tier === 'pro' ? 'border-amber-400 shadow-amber-400/20 group-hover:shadow-amber-500/40' : 'border-slate-100 shadow-slate-200'
+                      }`}>
+                      <img src={producer.avatar_url || ''} alt={producer.artistic_name} className="w-full h-full object-cover" />
+                    </div>
+                    {(producer.is_verified || producer.is_founder) && (
+                      <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-sm">
+                        {producer.is_founder ? (
+                          <div className="text-yellow-400"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M2 20h20v-4H2v4zm2-7l3 4 5-8 5 8 3-4V2H4v11z" /></svg></div>
+                        ) : (
+                          <img src="/verified-badge.png" className="w-3 h-3" alt="verified" />
+                        )}
+                      </div>
+                    )}
+                    <div className="absolute inset-x-0 -bottom-8 opacity-0 group-hover:opacity-100 transition-all duration-300 text-center">
+                      <span className="text-[10px] font-black uppercase tracking-tight bg-slate-900 text-white px-2 py-1 rounded-full whitespace-nowrap">
+                        {producer.artistic_name}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-[0.3em] mb-6">

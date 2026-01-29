@@ -100,7 +100,7 @@ export default function BeatCard({ beat }: BeatCardProps) {
                 <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-2 truncate flex-1 mr-2">
                         <div className={`w-6 h-6 rounded-lg overflow-hidden border transition-all ${beat.producer_tier === 'premium' ? 'border-blue-600 shadow-sm' :
-                            beat.producer_tier === 'pro' ? 'border-slate-400' : 'border-slate-200'
+                            beat.producer_tier === 'pro' ? 'border-amber-400' : 'border-slate-200'
                             }`}>
                             {beat.producer_avatar_url ? (
                                 <img src={beat.producer_avatar_url} className="w-full h-full object-cover" alt="Producer" />

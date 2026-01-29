@@ -33,6 +33,7 @@ CREATE TABLE public.profiles (
     is_founder BOOLEAN DEFAULT FALSE,
     is_verified BOOLEAN DEFAULT FALSE,
     social_links JSONB DEFAULT '{}'::jsonb,
+    user_num SERIAL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -187,12 +188,13 @@ WITH CHECK (
 CREATE OR REPLACE FUNCTION public.handle_new_user() 
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, username, artistic_name)
+  INSERT INTO public.profiles (id, email, username, artistic_name, full_name)
   VALUES (
     new.id, 
     new.email, 
     COALESCE(new.raw_user_meta_data->>'username', 'user_' || substr(new.id::text, 1, 8)),
-    COALESCE(new.raw_user_meta_data->>'artistic_name', 'Artista Nuevo')
+    COALESCE(new.raw_user_meta_data->>'artistic_name', 'Artista Nuevo'),
+    new.raw_user_meta_data->>'full_name'
   );
   RETURN new;
 END;
@@ -202,5 +204,20 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
--- 6. VERIFICACIÓN MANUAL (Ejemplo para Sondemaik)
+-- 6. AUTO-FOUNDER para los primeros 100 usuarios
+CREATE OR REPLACE FUNCTION public.auto_founder_check()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.user_num <= 100 THEN
+    NEW.is_founder := true;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_founder_on_insert
+  BEFORE INSERT ON profiles
+  FOR EACH ROW EXECUTE FUNCTION auto_founder_check();
+
+-- 7. VERIFICACIÓN MANUAL (Ejemplo para Sondemaik)
 -- UPDATE profiles SET is_verified = true, is_founder = true WHERE username = 'sondemaik';

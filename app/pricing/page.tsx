@@ -135,7 +135,7 @@ export default function PricingPage() {
                                     className={`relative p-8 rounded-[2.5rem] border-2 transition-all duration-500 hover:scale-[1.02] flex flex-col ${isPremium
                                         ? 'border-blue-600 bg-blue-50/10 shadow-2xl shadow-blue-500/10'
                                         : isPro
-                                            ? 'border-slate-300 bg-slate-50/50 shadow-2xl shadow-slate-900/5'
+                                            ? 'border-amber-400 bg-amber-50/30 shadow-2xl shadow-amber-400/10'
                                             : 'border-slate-100 bg-white'
                                         }`}
                                 >
