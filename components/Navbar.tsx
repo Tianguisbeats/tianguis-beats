@@ -45,7 +45,7 @@ export default function Navbar() {
     const fetchProfile = async (userId: string) => {
         const { data, error } = await supabase
             .from('profiles')
-            .select('avatar_url, artistic_name, role, username, is_founder, is_verified, subscription_tier')
+            .select('avatar_url, artistic_name, role, username, is_founder, is_verified, subscription_tier, country')
             .eq('id', userId)
             .single();
 
@@ -105,8 +105,11 @@ export default function Navbar() {
                                                     )}
                                                 </div>
                                                 <div className="flex items-center gap-1">
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 group-hover:text-blue-600 transition-colors">
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 group-hover:text-blue-600 transition-colors flex items-center gap-1.5">
                                                         {profile?.username || 'Perfil'}
+                                                        {profile?.country && (
+                                                            <span className="text-slate-400 font-bold">• {profile.country}</span>
+                                                        )}
                                                     </span>
                                                     {profile?.is_verified && (
                                                         <img src="/verified-badge.png" alt="Verificado" className="w-3 h-3 object-contain" />

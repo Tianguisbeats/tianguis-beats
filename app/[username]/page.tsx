@@ -151,21 +151,34 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
         const fileExt = file.name.split('.').pop();
         const filePath = `${profile.id}/${type}-${Date.now()}.${fileExt}`;
-        const bucket = type === 'avatar' ? 'avatars' : 'beats-previews'; // Using existing buckets
+        const bucket = type === 'avatar' ? 'avatars' : 'beats-previews'; // Cover used to be here too
 
-        const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file);
+        // Use upsert to avoid duplicate errors if any, though timestamp makes it unique
+        const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file, {
+            upsert: true,
+            cacheControl: '3600'
+        });
 
         if (!uploadError) {
             const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath);
             const updateField = type === 'avatar' ? { avatar_url: publicUrl } : { cover_url: publicUrl };
 
             const { error: dbUpdateError } = await supabase.from('profiles').update(updateField).eq('id', profile.id);
-            if (dbUpdateError) throw dbUpdateError;
+            if (dbUpdateError) {
+                alert("Error al actualizar base de datos: " + dbUpdateError.message);
+                return;
+            }
 
             setProfile({ ...profile, ...updateField });
-            alert("Imagen actualizada.");
+            alert("¡Imagen actualizada con éxito!");
+
+            // Si es el avatar, refrescamos para sincronizar con el Navbar
+            if (type === 'avatar') {
+                window.location.reload();
+            }
         } else {
-            alert("Error al subir imagen: " + uploadError.message);
+            console.error("Upload Error:", uploadError);
+            alert("Error al subir archivo: " + uploadError.message);
         }
     };
 
@@ -242,16 +255,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div>
                                     <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                                        <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900">
+                                        <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900 leading-none">
                                             {profile.artistic_name || profile.username}
                                         </h1>
                                         {profile.is_verified && (
-                                            <div title="Verificado" className="w-5 h-5 flex items-center justify-center">
-                                                <img src="/verified-badge.png" alt="Verificado" className="w-full h-full object-contain" onError={(e) => {
-                                                    // Fallback to Icon if image fails
-                                                    (e.target as any).style.display = 'none';
-                                                }} />
-                                                <CheckCircle2 size={16} fill="currentColor" className="text-blue-600 hidden group-data-[img-error]:block" color="white" />
+                                            <div title="Verificado" className="flex items-center gap-1.5 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+                                                <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain" />
+                                                <span className="text-[10px] font-black uppercase text-blue-600 tracking-widest">Verificado</span>
                                             </div>
                                         )}
                                         {profile.is_founder && (
@@ -320,9 +330,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs font-bold text-slate-600">Verificación</span>
                                         {profile.is_verified ? (
-                                            <span className="text-xs font-black uppercase text-blue-600 flex items-center gap-1"><img src="/verified-badge.png" className="w-3 h-3" /> Verificado</span>
+                                            <span className="text-xs font-black uppercase text-blue-600 flex items-center gap-1.5">
+                                                <img src="/verified-badge.png" className="w-3.5 h-3.5" />
+                                                Verificado
+                                            </span>
                                         ) : (
-                                            <span className="text-xs font-bold text-slate-400">Regular</span>
+                                            <span className="text-xs font-black uppercase text-slate-400">Sin Verificar</span>
                                         )}
                                     </div>
                                     {profile.is_founder && (

@@ -65,9 +65,8 @@ export default function PricingPage() {
             features: [
                 "Todo lo que incluye el plan Pro",
                 "Licencia de Stems (Pistas)",
-                "Mayor visibilidad en el Tianguis",
+                "Mayor exposición del algoritmo",
                 "Venta Exclusiva Habilitada",
-                "Cero comisiones por venta",
                 "Soporte prioritario 24/7"
             ],
             icon: <ShieldCheck className="text-blue-600" size={24} />,
@@ -142,11 +141,6 @@ export default function PricingPage() {
                                 >
                                     {plan.popular && (
                                         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-5 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-xl shadow-blue-600/30">
-                                            {plan.label}
-                                        </div>
-                                    )}
-                                    {isPremium && (
-                                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900 text-white px-5 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-xl">
                                             {plan.label}
                                         </div>
                                     )}

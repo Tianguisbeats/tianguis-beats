@@ -23,7 +23,7 @@ export default function Footer() {
 
                 <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-100 text-slate-400 text-[8px] font-black uppercase tracking-[0.2em]">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                    HECHO ORGULLOSAMENTE EN NEZA 🇲🇽
+                    ORGULLOSAMENTE HECHO EN NEZA 🇲🇽
                 </div>
             </div>
         </footer>
