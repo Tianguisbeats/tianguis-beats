@@ -177,7 +177,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     if (!profile) return null;
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col pt-32">
+        <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col pt-24">
             <Navbar />
 
             <main className="flex-1 pb-20">
@@ -373,7 +373,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{b.bpm} BPM • {b.genre}</p>
                                             </div>
                                             <button
-                                                onClick={() => playBeat(b)}
+                                                onClick={() => playBeat({ ...b, mp3_url: (b as any).mp3_tag_url })}
                                                 className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${currentBeat?.id === b.id && isPlaying ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900 hover:bg-blue-600 hover:text-white'}`}
                                             >
                                                 {currentBeat?.id === b.id && isPlaying ? <Layout size={16} className="animate-pulse" /> : <Play size={16} fill="currentColor" />}

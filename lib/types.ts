@@ -48,6 +48,8 @@ export interface Beat {
     musical_scale: string | null;
     description: string | null;
     price_mxn: number;
+    price_wav_mxn: number | null;
+    price_stems_mxn: number | null;
     is_public: boolean;
 
     // Archivos

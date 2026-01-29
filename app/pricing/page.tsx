@@ -76,99 +76,108 @@ export default function PricingPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col pt-32">
+        <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col pt-24">
             <Navbar />
 
             <main className="flex-1 pb-20">
                 <div className="max-w-6xl mx-auto px-4 text-center mt-12">
                     {/* Header Section */}
                     <div className="mb-12">
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase mb-4 text-slate-900">
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase mb-2 text-slate-900 leading-none">
                             Elige tu <span className="text-blue-600">Plan</span>
                         </h1>
-                        <p className="text-base text-slate-500 font-medium max-w-xl mx-auto mb-8">
-                            Transforma tu pasión en un negocio. Elige las herramientas que necesitas para crecer tu carrera.
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em] mb-8">
+                            Transforma tu pasión en un negocio
                         </p>
 
                         {/* Toggle */}
-                        <div className="inline-flex items-center bg-slate-100 p-1.5 rounded-full">
+                        <div className="inline-flex items-center bg-slate-100 p-1 rounded-full border border-slate-200">
                             <button
                                 onClick={() => setBillingCycle('monthly')}
-                                className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'monthly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'monthly' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
                             >
                                 Mensual
                             </button>
                             <button
                                 onClick={() => setBillingCycle('yearly')}
-                                className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'yearly' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'yearly' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:text-slate-600'}`}
                             >
-                                Anual <span className="ml-1 opacity-80">-25%</span>
+                                Anual <span className="ml-1 opacity-80">-25% OFF</span>
                             </button>
                         </div>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-6 items-center max-w-5xl mx-auto">
+                    <div className="grid md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto px-4">
                         {plans.map((plan, idx) => {
                             const isCurrentPlan = userTier === plan.tier;
+                            const isPremium = plan.tier === 'premium';
+                            const isPro = plan.tier === 'pro';
+
                             return (
                                 <div
                                     key={idx}
-                                    className={`relative p-8 rounded-3xl border transition-all ${plan.color === 'blue' ? 'border-blue-200 bg-blue-50/10 shadow-xl shadow-blue-900/5 ring-1 ring-blue-100 scale-105 z-10' :
-                                        'border-slate-200 bg-white hover:border-slate-300'
+                                    className={`relative p-8 rounded-[2.5rem] border-2 transition-all duration-500 hover:scale-[1.02] flex flex-col ${isPremium
+                                            ? 'border-blue-600 bg-blue-50/10 shadow-2xl shadow-blue-500/10'
+                                            : isPro
+                                                ? 'border-slate-300 bg-slate-50/50 shadow-2xl shadow-slate-900/5'
+                                                : 'border-slate-100 bg-white'
                                         }`}
                                 >
                                     {plan.popular && (
-                                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900 text-white px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
-                                            Más Popular
+                                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-5 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-xl shadow-blue-600/30">
+                                            Recomendado
                                         </div>
                                     )}
 
-                                    <div className="mb-6 text-center">
-                                        <div className="mx-auto w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-slate-50">
+                                    <div className="mb-8 text-center">
+                                        <div className={`mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm ${isPremium ? 'bg-blue-100/50 text-blue-600' : isPro ? 'bg-slate-200 text-slate-700' : 'bg-slate-50 text-slate-400'
+                                            }`}>
                                             {plan.icon}
                                         </div>
-                                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter mb-2">{plan.name}</h3>
-                                        <p className="text-slate-400 text-xs font-medium">{plan.description}</p>
+                                        <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-1">{plan.name}</h3>
+                                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">{plan.description}</p>
                                     </div>
 
-                                    <div className="mb-8 text-center flex items-center justify-center gap-1">
-                                        <span className="text-3xl font-black text-slate-900 tracking-tighter">${plan.price}</span>
-                                        <div className="text-left">
-                                            <span className="block text-[8px] font-black text-slate-400 uppercase">MXN</span>
-                                            <span className="block text-[8px] font-bold text-slate-400">/Mes</span>
+                                    <div className="mb-10 text-center flex items-end justify-center gap-1">
+                                        <span className="text-4xl font-black text-slate-900 tracking-tighter">${plan.price}</span>
+                                        <div className="text-left mb-1">
+                                            <span className="block text-[10px] font-black text-slate-400 uppercase leading-none">MXN</span>
+                                            <span className="block text-[10px] font-bold text-slate-400 leading-none">/Mes</span>
                                         </div>
-                                        {billingCycle === 'yearly' && plan.tier !== 'free' && (
-                                            <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-md">
-                                                ${plan.yearlyPrice} año
-                                            </span>
-                                        )}
                                     </div>
 
-                                    <ul className="space-y-4 mb-8 text-left">
+                                    <ul className="space-y-4 mb-10 text-left flex-1">
                                         {plan.features.map((feature, fIdx) => (
-                                            <li key={fIdx} className="flex items-start gap-3 text-xs text-slate-600 font-bold">
-                                                <Check size={14} className={`shrink-0 ${plan.color === 'blue' ? 'text-blue-600' : 'text-slate-400'}`} />
-                                                <span>{feature}</span>
+                                            <li key={fIdx} className="flex items-center gap-3 text-xs text-slate-600 font-bold">
+                                                <div className={`p-0.5 rounded-full ${isPremium ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'}`}>
+                                                    <Check size={12} strokeWidth={4} />
+                                                </div>
+                                                <span className="tracking-tight">{feature}</span>
                                             </li>
                                         ))}
                                     </ul>
 
                                     <button
                                         disabled={isCurrentPlan}
-                                        className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${isCurrentPlan ? 'bg-slate-100 text-slate-400 cursor-not-allowed' :
-                                            plan.color === 'blue' ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20' :
-                                                'bg-slate-900 text-white hover:bg-slate-800'
+                                        className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform hover:-translate-y-1 ${isCurrentPlan
+                                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                                                : isPremium
+                                                    ? 'bg-blue-600 text-white hover:bg-slate-900 shadow-xl shadow-blue-600/20'
+                                                    : isPro
+                                                        ? 'bg-white border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white shadow-xl shadow-slate-900/5'
+                                                        : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
                                             }`}
                                     >
-                                        {isCurrentPlan ? "Tu plan actual" : plan.buttonText}
+                                        {isCurrentPlan ? "Plan Actual" : plan.buttonText}
                                     </button>
                                 </div>
                             );
                         })}
                     </div>
 
-                    <div className="mt-16 text-center">
-                        <p className="text-slate-400 text-xs font-medium">Cancela cuando quieras • Sin contratos forzosos • Garantía de satisfacción</p>
+                    <div className="mt-20 text-center">
+                        <p className="text-slate-900 text-sm font-black uppercase tracking-[0.3em] mb-4">Cancela cuando quieras</p>
+                        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Sin contratos forzosos • Garantía de satisfacción • Soporte 24/7</p>
                     </div>
                 </div>
             </main>
