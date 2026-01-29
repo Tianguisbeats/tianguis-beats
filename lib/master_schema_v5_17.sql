@@ -205,42 +205,107 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 -- 6. AUTO-FOUNDER para los primeros 100 usuarios
-CREATE OR REPLACE FUNCTION public.auto_founder_check()
+-- 6. v5.21: CONTADORES POR TIER & SYSTEMA FOUNDER AVANZADO
+-- Borramos triggers anteriores si existen
+DROP TRIGGER IF EXISTS check_founder_on_insert ON public.profiles;
+DROP TRIGGER IF EXISTS on_profile_deleted ON public.profiles;
+DROP FUNCTION IF EXISTS public.auto_founder_check();
+DROP FUNCTION IF EXISTS public.resequence_users_after_delete();
+
+-- Agregamos columnas para contadores por tier
+ALTER TABLE public.profiles 
+ADD COLUMN IF NOT EXISTS user_num_pro INTEGER,
+ADD COLUMN IF NOT EXISTS user_num_prem INTEGER;
+
+-- Función Maestra de Gestión de Tiers y Founders
+CREATE OR REPLACE FUNCTION public.manage_tier_identity()
 RETURNS TRIGGER AS $$
+DECLARE
+  v_tier_col TEXT;
+  v_max_val INTEGER;
 BEGIN
-  IF NEW.user_num <= 100 THEN
-    NEW.is_founder := true;
+  -- CASO 1: INSERT o UPDATE (Entrando a un tier pagado)
+  IF (TG_OP = 'INSERT' AND NEW.subscription_tier IN ('pro', 'premium')) OR
+     (TG_OP = 'UPDATE' AND NEW.subscription_tier IS DISTINCT FROM OLD.subscription_tier) THEN
+     
+     -- Si entra a PRO
+     IF NEW.subscription_tier = 'pro' AND (TG_OP = 'INSERT' OR OLD.subscription_tier IS DISTINCT FROM 'pro') THEN
+       SELECT COALESCE(MAX(user_num_pro), 0) + 1 INTO NEW.user_num_pro FROM public.profiles;
+       NEW.user_num_prem := NULL; -- Limpiar si venía de premium
+     -- Si entra a PREMIUM
+     ELSIF NEW.subscription_tier = 'premium' AND (TG_OP = 'INSERT' OR OLD.subscription_tier IS DISTINCT FROM 'premium') THEN
+       SELECT COALESCE(MAX(user_num_prem), 0) + 1 INTO NEW.user_num_prem FROM public.profiles;
+       NEW.user_num_pro := NULL; -- Limpiar si venía de pro
+     -- Si entra a FREE (Downgrade)
+     ELSIF NEW.subscription_tier = 'free' THEN
+       NEW.user_num_pro := NULL;
+       NEW.user_num_prem := NULL;
+     END IF;
+
+     -- Evaluar Founder Status (Solo para Pro o Premium primeros 100)
+     -- Usuarios gratis NUNCA son founder
+     NEW.is_founder := (
+        (NEW.user_num_pro <= 100) OR 
+        (NEW.user_num_prem <= 100)
+     );
   END IF;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER check_founder_on_insert
-  BEFORE INSERT ON profiles
-  FOR EACH ROW EXECUTE FUNCTION auto_founder_check();
+CREATE TRIGGER on_tier_change_before
+  BEFORE INSERT OR UPDATE ON public.profiles
+  FOR EACH ROW EXECUTE FUNCTION public.manage_tier_identity();
 
--- 7. RE-SECUENCIACIÓN DINÁMICA DE FOUNDERS
--- Si se borra un usuario, recorre los números y asigna Founder si entran al top 100
-CREATE OR REPLACE FUNCTION public.resequence_users_after_delete()
+-- Función de Re-secuencia (POST-CHANGE)
+CREATE OR REPLACE FUNCTION public.resequence_tiers_after()
 RETURNS TRIGGER AS $$
 BEGIN
-  -- 1. Recorrer numeración: Restar 1 al user_num de todos los usuarios posteriores
-  UPDATE public.profiles
-  SET user_num = user_num - 1
-  WHERE user_num > OLD.user_num;
+  -- 1. CASO GLOBAL: Si se borra un usuario, re-secuenciar el user_num general (para orden de usuarios gratis)
+  IF (TG_OP = 'DELETE') THEN
+     UPDATE public.profiles 
+     SET user_num = user_num - 1 
+     WHERE user_num > OLD.user_num;
+  END IF;
 
-  -- 2. Actualizar estatus Founder: Asegurar que los usuarios que entraron al rango 1-100 sean founders
-  -- Actualiza todos para asegurar consistencia, o solo los afectados
-  UPDATE public.profiles
-  SET is_founder = (user_num <= 100);
+  -- 2. CASO TIERS: Si se borró usuario o cambió de tier (saliendo)
+  IF (TG_OP = 'DELETE') OR (TG_OP = 'UPDATE' AND OLD.subscription_tier IS DISTINCT FROM NEW.subscription_tier) THEN
+     
+     -- Si salió de PRO
+     IF OLD.subscription_tier = 'pro' THEN
+        -- Recorrer numeración Pro
+        UPDATE public.profiles 
+        SET user_num_pro = user_num_pro - 1 
+        WHERE user_num_pro > OLD.user_num_pro;
+        
+        -- El usuario que bajó al puesto 100 ahora es founder
+        UPDATE public.profiles
+        SET is_founder = true
+        WHERE subscription_tier = 'pro' AND user_num_pro = 100;
+     END IF;
 
-  RETURN OLD;
+     -- Si salió de PREMIUM
+     IF OLD.subscription_tier = 'premium' THEN
+        -- Recorrer numeración Premium
+        UPDATE public.profiles 
+        SET user_num_prem = user_num_prem - 1 
+        WHERE user_num_prem > OLD.user_num_prem;
+
+        -- El usuario que bajó al puesto 100 ahora es founder
+        UPDATE public.profiles
+        SET is_founder = true
+        WHERE subscription_tier = 'premium' AND user_num_prem = 100;
+     END IF;
+
+  END IF;
+  RETURN NULL;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER on_profile_deleted
-  AFTER DELETE ON public.profiles
-  FOR EACH ROW EXECUTE PROCEDURE public.resequence_users_after_delete();
+CREATE TRIGGER on_tier_change_after
+  AFTER DELETE OR UPDATE ON public.profiles
+  FOR EACH ROW EXECUTE FUNCTION public.resequence_tiers_after();
 
 -- 7. VERIFICACIÓN MANUAL (Ejemplo para Sondemaik)
 -- UPDATE profiles SET is_verified = true, is_founder = true WHERE username = 'sondemaik';
