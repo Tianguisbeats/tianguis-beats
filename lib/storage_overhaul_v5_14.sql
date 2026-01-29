@@ -21,8 +21,13 @@ INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 VALUES ('beats-maestros', 'beats-maestros', false, 524288000, '{audio/wav,audio/mpeg,application/zip,application/x-zip-compressed,application/x-rar-compressed}')
 ON CONFLICT (id) DO UPDATE SET public = false, file_size_limit = 524288000;
 
--- 2. Limpieza de Políticas Previas
-DELETE FROM storage.policies WHERE bucket_id IN ('perfiles', 'portadas-beats', 'beats-muestras', 'beats-maestros');
+-- 2. Limpieza de Políticas Previas (Evitar errores por duplicados)
+DROP POLICY IF EXISTS "Lectura pública para perfiles" ON storage.objects;
+DROP POLICY IF EXISTS "Lectura pública para portadas" ON storage.objects;
+DROP POLICY IF EXISTS "Lectura pública para muestras" ON storage.objects;
+DROP POLICY IF EXISTS "Subida para dueños" ON storage.objects;
+DROP POLICY IF EXISTS "Edición para dueños" ON storage.objects;
+DROP POLICY IF EXISTS "Eliminación para dueños" ON storage.objects;
 
 -- 3. Políticas RLS (Row Level Security)
 
@@ -32,7 +37,6 @@ CREATE POLICY "Lectura pública para portadas" ON storage.objects FOR SELECT USI
 CREATE POLICY "Lectura pública para muestras" ON storage.objects FOR SELECT USING (bucket_id = 'beats-muestras');
 
 -- Subida para Usuarios Autenticados (Carpeta propia)
--- La estructura esperada es: bucket/auth.uid/archivo
 CREATE POLICY "Subida para dueños" ON storage.objects FOR INSERT TO authenticated
 WITH CHECK (bucket_id IN ('perfiles', 'portadas-beats', 'beats-muestras', 'beats-maestros') AND (storage.foldername(name))[1] = auth.uid()::text);
 
@@ -45,4 +49,4 @@ CREATE POLICY "Eliminación para dueños" ON storage.objects FOR DELETE TO authe
 USING (bucket_id IN ('perfiles', 'portadas-beats', 'beats-muestras', 'beats-maestros') AND (storage.foldername(name))[1] = auth.uid()::text);
 
 -- 4. Asegurar campos y datos de prueba
-UPDATE profiles SET is_verified = true WHERE username = 'SonDeMaik';
+UPDATE profiles SET is_verified = true WHERE username = 'Sondemaik';
