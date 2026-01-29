@@ -7,6 +7,8 @@ interface Beat {
     title: string | null;
     producer?: any;
     producer_username?: string | null;
+    is_verified?: boolean;
+    is_founder?: boolean;
     mp3_url?: string | null;
     cover_url?: string | null;
     coverColor?: string;

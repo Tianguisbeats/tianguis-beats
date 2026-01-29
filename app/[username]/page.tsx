@@ -260,7 +260,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         <div className="flex-1 text-center md:text-left pb-4">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div>
-                                    <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-3 mb-3 text-center md:text-left pt-6">
+                                    <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-3 mb-3 text-center md:text-left pt-12">
                                         <h1 className="text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter text-slate-900 leading-none">
                                             {profile.artistic_name || profile.username}
                                         </h1>
@@ -454,6 +454,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     ...b,
                                                     producer: profile.artistic_name || profile.username,
                                                     producer_username: profile.username,
+                                                    is_verified: profile.is_verified,
+                                                    is_founder: profile.is_founder,
                                                     mp3_url: (b as any).mp3_tag_url
                                                 })}
                                                 className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${currentBeat?.id === b.id && isPlaying ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900 hover:bg-blue-600 hover:text-white'}`}

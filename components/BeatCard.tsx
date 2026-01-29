@@ -2,7 +2,7 @@
  * Componente BeatCard: Tarjeta para mostrar información individual de un beat.
  * @param beat Datos del beat provenientes de la base de datos o dummy data.
  */
-import { Music, Play, Pause, ShoppingCart, CheckCircle2 } from 'lucide-react';
+import { Music, Play, Pause, ShoppingCart, CheckCircle2, Crown } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import Link from 'next/link';
 
@@ -29,6 +29,7 @@ export interface Beat {
     producer_avatar_url?: string | null;
     producer_tier?: string | null;
     producer_is_verified?: boolean;
+    producer_is_founder?: boolean;
     producer_username?: string | null;
 }
 
@@ -56,7 +57,12 @@ export default function BeatCard({ beat }: BeatCardProps) {
         e.stopPropagation();
         // Use tagged URL for public listening if available
         const playbackUrl = beat.mp3_tag_url || beat.mp3_url;
-        playBeat({ ...beat, mp3_url: playbackUrl });
+        playBeat({
+            ...beat,
+            mp3_url: playbackUrl,
+            is_verified: beat.producer_is_verified,
+            is_founder: beat.producer_is_founder
+        });
     };
 
     return (
@@ -104,12 +110,15 @@ export default function BeatCard({ beat }: BeatCardProps) {
                                 </div>
                             )}
                         </div>
-                        <Link href={`/${beat.producer_username || beat.producer}`} className="flex items-center gap-1 truncate hover:text-blue-600 transition-colors">
+                        <Link href={`/${beat.producer_username || beat.producer}`} className="flex items-center gap-1.5 truncate hover:text-blue-600 transition-colors">
                             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest truncate">
                                 {beat.producer || "—"}
                             </p>
                             {beat.producer_is_verified && (
-                                <CheckCircle2 size={10} className="text-blue-600" fill="currentColor" color="white" />
+                                <img src="/verified-badge.png" className="w-2.5 h-2.5 object-contain" alt="Verificado" />
+                            )}
+                            {beat.producer_is_founder && (
+                                <Crown size={10} className="text-yellow-400" fill="currentColor" />
                             )}
                         </Link>
                     </div>

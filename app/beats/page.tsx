@@ -83,7 +83,11 @@ function BeatsPageContent() {
           cover_color,
           producer:producer_id (
             artistic_name,
-            username
+            username,
+            is_verified,
+            is_founder,
+            avatar_url,
+            subscription_tier
           )
         `)
         .eq("is_public", true);
@@ -127,6 +131,10 @@ function BeatsPageContent() {
           title: b.title,
           producer: b.producer?.artistic_name || 'Productor Anónimo',
           producer_username: b.producer?.username || b.producer?.artistic_name,
+          producer_is_verified: b.producer?.is_verified,
+          producer_is_founder: b.producer?.is_founder,
+          producer_avatar_url: b.producer?.avatar_url,
+          producer_tier: b.producer?.subscription_tier,
           price_mxn: b.price_mxn,
           bpm: b.bpm,
           genre: b.genre,
