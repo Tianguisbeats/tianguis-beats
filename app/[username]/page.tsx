@@ -156,8 +156,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         }
 
         const fileExt = file.name.split('.').pop();
-        const filePath = `${profile.id}/${type}-${Date.now()}.${fileExt}`;
-        const bucket = 'perfiles';
+        const filePath = `${profile.username}/${type}-${Date.now()}.${fileExt}`;
+        const bucket = type === 'avatar' ? 'fotos-perfil' : 'fotos-portada';
 
         // Use upsert to avoid duplicate errors if any, though timestamp makes it unique
         const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file, {
@@ -232,7 +232,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="relative -mt-20 mb-8 flex flex-col md:flex-row items-end gap-6">
+                    <div className="relative -mt-16 mb-8 flex flex-col md:flex-row items-end gap-6">
 
                         {/* Avatar */}
                         <div className="relative group shrink-0 mx-auto md:mx-0">
@@ -260,7 +260,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         <div className="flex-1 text-center md:text-left pb-4">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div>
-                                    <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-3 mb-3 text-center md:text-left">
+                                    <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-3 mb-3 text-center md:text-left pt-6">
                                         <h1 className="text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter text-slate-900 leading-none">
                                             {profile.artistic_name || profile.username}
                                         </h1>
@@ -277,6 +277,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                     <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] flex items-center justify-center md:justify-start gap-2">
                                         @{profile.username}
+                                        {profile.country && <span className="text-slate-300 ml-1">• {profile.country}</span>}
                                         <span className="text-slate-300 ml-1">• Miembro desde {new Date(profile.created_at).getFullYear()}</span>
                                     </p>
                                 </div>
@@ -284,10 +285,31 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 <div className="flex items-center justify-center gap-3">
                                     {isOwner ? (
                                         <button
-                                            onClick={() => setIsEditing(!isEditing)}
+                                            onClick={() => {
+                                                if (isEditing) {
+                                                    const hasChanges = editBio !== (profile?.bio || '') ||
+                                                        editArtisticName !== (profile?.artistic_name || '') ||
+                                                        editCountry !== (profile?.country || '') ||
+                                                        JSON.stringify(editSocials) !== JSON.stringify(profile?.social_links || {});
+
+                                                    if (hasChanges) {
+                                                        handleUpdateProfile();
+                                                    } else {
+                                                        setIsEditing(false);
+                                                    }
+                                                } else {
+                                                    setIsEditing(true);
+                                                }
+                                            }}
                                             className={`px-6 py-2 rounded-full border-2 font-black text-[10px] uppercase tracking-widest transition-all ${isEditing ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-900 border-slate-200 hover:border-slate-400'}`}
                                         >
-                                            {isEditing ? 'Cancelar Edición' : 'Editar Perfil'}
+                                            {isEditing ? (
+                                                (editBio !== (profile?.bio || '') ||
+                                                    editArtisticName !== (profile?.artistic_name || '') ||
+                                                    editCountry !== (profile?.country || '') ||
+                                                    JSON.stringify(editSocials) !== JSON.stringify(profile?.social_links || {}))
+                                                    ? 'Guardar Cambios' : 'Cancelar'
+                                            ) : 'Editar Perfil'}
                                         </button>
                                     ) : (
                                         <button

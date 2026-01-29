@@ -107,9 +107,6 @@ export default function Navbar() {
                                                 <div className="flex items-center gap-1">
                                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 group-hover:text-blue-600 transition-colors flex items-center gap-1.5">
                                                         {profile?.username || 'Perfil'}
-                                                        {profile?.country && (
-                                                            <span className="text-slate-400 font-bold">• {profile.country}</span>
-                                                        )}
                                                     </span>
                                                     {profile?.is_verified && (
                                                         <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain translate-y-[-1px]" />

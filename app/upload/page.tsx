@@ -64,14 +64,21 @@ export default function UploadPage() {
     const [stemsFile, setStemsFile] = useState<File | null>(null);
 
     // Validation Helper
-    const validateFile = (file: File | null, allowedExtensions: string[], label: string) => {
+    const validateFile = (file: File | null, allowedExtensions: string[], label: string, maxMB: number) => {
         if (!file) return null;
+
         const extension = file.name.split('.').pop()?.toLowerCase();
-        if (extension && allowedExtensions.includes(extension)) {
-            return file;
+        if (!extension || !allowedExtensions.includes(extension)) {
+            setError(`Archivo inválido para ${label}. Solo se permiten extensiones: ${allowedExtensions.join(', ')}`);
+            return null;
         }
-        setError(`Archivo inválido para ${label}. Solo se permiten extensiones: ${allowedExtensions.join(', ')}`);
-        return null;
+
+        if (file.size > maxMB * 1024 * 1024) {
+            setError(`${label}: El peso máximo es de ${maxMB}MB.`);
+            return null;
+        }
+
+        return file;
     };
 
     useEffect(() => {
@@ -118,33 +125,35 @@ export default function UploadPage() {
 
         try {
             const userId = userData.id;
+            const username = userData.username;
             const timestamp = Date.now();
 
             // Uploads
-            // Portadas-beats para el artwork
-            const coverPath = `${userId}/${timestamp}-cover-${coverFile.name}`;
+            // Portadas-beats para el artwork (Max 5MB, 3000x3000px)
+            const coverPath = `${username}/${timestamp}-cover-${coverFile.name}`;
             await supabase.storage.from('portadas-beats').upload(coverPath, coverFile);
             const { data: { publicUrl: coverUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(coverPath);
 
-            // Beats-muestras para el MP3 con Tag (preview)
-            const previewPath = `${userId}/${timestamp}-preview-${previewFile.name}`;
+            // Beats-muestras para el MP3 con Tag (Max 20MB)
+            const previewPath = `${username}/${timestamp}-preview-${previewFile.name}`;
             await supabase.storage.from('beats-muestras').upload(previewPath, previewFile);
             const { data: { publicUrl: previewUrl } } = supabase.storage.from('beats-muestras').getPublicUrl(previewPath);
 
-            // Beats-maestros para los archivos finales
-            const hqPath = `${userId}/${timestamp}-hq-${hqMp3File.name}`;
-            await supabase.storage.from('beats-maestros').upload(hqPath, hqMp3File);
+            // Beats-maestros divididos por formato
+            // HQ MP3 (Max 50MB)
+            const hqPath = `${username}/${timestamp}-hq-${hqMp3File.name}`;
+            await supabase.storage.from('beats-mp3-alta-calidad').upload(hqPath, hqMp3File);
 
             let wavPath = null;
             if (wavFile && userData.subscription_tier !== 'free') {
-                wavPath = `${userId}/${timestamp}-wav-${wavFile.name}`;
-                await supabase.storage.from('beats-maestros').upload(wavPath, wavFile);
+                wavPath = `${username}/${timestamp}-wav-${wavFile.name}`;
+                await supabase.storage.from('beats-wav').upload(wavPath, wavFile);
             }
 
             let stemsPath = null;
             if (stemsFile && userData.subscription_tier === 'premium') {
-                stemsPath = `${userId}/${timestamp}-stems-${stemsFile.name}`;
-                await supabase.storage.from('beats-maestros').upload(stemsPath, stemsFile);
+                stemsPath = `${username}/${timestamp}-stems-${stemsFile.name}`;
+                await supabase.storage.from('beats-stems').upload(stemsPath, stemsFile);
             }
 
             // Save to DB
@@ -300,7 +309,7 @@ export default function UploadPage() {
 
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Artwork (Sugerido 3000x3000px - Max 2MB)</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Artwork (Sugerido 3000x3000px - Max 5MB)</label>
                                         <div className="relative">
                                             <input
                                                 type="file"
@@ -315,8 +324,8 @@ export default function UploadPage() {
                                                             setCoverFile(null);
                                                             return;
                                                         }
-                                                        if (file.size > 2 * 1024 * 1024) {
-                                                            setError("Artwork: El peso máximo es de 2MB.");
+                                                        if (file.size > 5 * 1024 * 1024) {
+                                                            setError("Artwork: El peso máximo es de 5MB.");
                                                             e.target.value = '';
                                                             setCoverFile(null);
                                                             return;
@@ -386,7 +395,7 @@ export default function UploadPage() {
                                                         type="file"
                                                         accept=".mp3"
                                                         onChange={(e) => {
-                                                            const file = validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 Tagged');
+                                                            const file = validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 Tagged', 20);
                                                             setPreviewFile(file);
                                                             if (!file) e.target.value = '';
                                                         }}
@@ -398,7 +407,10 @@ export default function UploadPage() {
                                                     </label>
                                                 </div>
                                             </div>
-                                            {previewFile && <p className="text-[9px] text-slate-400 font-bold px-2 truncate italic">{previewFile.name}</p>}
+                                            <div className="flex items-center justify-between px-2">
+                                                {previewFile ? <p className="text-[9px] text-slate-400 font-bold truncate italic max-w-[70%]">{previewFile.name}</p> : <span />}
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Max 20MB</span>
+                                            </div>
                                         </div>
 
                                         <div className="flex flex-col gap-1">
@@ -413,7 +425,7 @@ export default function UploadPage() {
                                                         type="file"
                                                         accept=".mp3"
                                                         onChange={(e) => {
-                                                            const file = validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 High Quality');
+                                                            const file = validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 High Quality', 50);
                                                             setHqMp3File(file);
                                                             if (!file) e.target.value = '';
                                                         }}
@@ -425,7 +437,10 @@ export default function UploadPage() {
                                                     </label>
                                                 </div>
                                             </div>
-                                            {hqMp3File && <p className="text-[9px] text-slate-400 font-bold px-2 truncate italic">{hqMp3File.name}</p>}
+                                            <div className="flex items-center justify-between px-2">
+                                                {hqMp3File ? <p className="text-[9px] text-slate-400 font-bold truncate italic max-w-[70%]">{hqMp3File.name}</p> : <span />}
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Max 50MB</span>
+                                            </div>
                                         </div>
 
                                         <div className="flex flex-col gap-1">
@@ -447,7 +462,7 @@ export default function UploadPage() {
                                                                 type="file"
                                                                 accept=".wav"
                                                                 onChange={(e) => {
-                                                                    const file = validateFile(e.target.files?.[0] || null, ['wav'], 'Archivo WAV');
+                                                                    const file = validateFile(e.target.files?.[0] || null, ['wav'], 'Archivo WAV', 200);
                                                                     setWavFile(file);
                                                                     if (!file) e.target.value = '';
                                                                 }}
@@ -461,7 +476,10 @@ export default function UploadPage() {
                                                     )}
                                                 </div>
                                             </div>
-                                            {wavFile && <p className="text-[9px] text-slate-400 font-bold px-2 truncate italic">{wavFile.name}</p>}
+                                            <div className="flex items-center justify-between px-2">
+                                                {wavFile ? <p className="text-[9px] text-slate-400 font-bold truncate italic max-w-[70%]">{wavFile.name}</p> : <span />}
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Max 200MB</span>
+                                            </div>
                                         </div>
 
                                         <div className="flex flex-col gap-1">
@@ -483,7 +501,7 @@ export default function UploadPage() {
                                                                 type="file"
                                                                 accept=".zip,.rar"
                                                                 onChange={(e) => {
-                                                                    const file = validateFile(e.target.files?.[0] || null, ['zip', 'rar'], 'Stems (.ZIP)');
+                                                                    const file = validateFile(e.target.files?.[0] || null, ['zip', 'rar'], 'Stems (.ZIP)', 500);
                                                                     setStemsFile(file);
                                                                     if (!file) e.target.value = '';
                                                                 }}
@@ -497,7 +515,10 @@ export default function UploadPage() {
                                                     )}
                                                 </div>
                                             </div>
-                                            {stemsFile && <p className="text-[9px] text-slate-400 font-bold px-2 truncate italic">{stemsFile.name}</p>}
+                                            <div className="flex items-center justify-between px-2">
+                                                {stemsFile ? <p className="text-[9px] text-slate-400 font-bold truncate italic max-w-[70%]">{stemsFile.name}</p> : <span />}
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Max 500MB</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
