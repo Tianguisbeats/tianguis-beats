@@ -84,9 +84,17 @@ export default function Navbar() {
                                 <Link href="/pricing" className="hover:text-blue-600 transition-colors">Planes</Link>
                             </div>
 
+                            import {Music, Menu, X, Settings} from 'lucide-react';
+                            // ... (imports remain the same, just adding Settings)
+
+                            // ... inside rendering ...
                             <div className="flex items-center gap-4">
                                 {user ? (
                                     <div className="flex items-center gap-6">
+                                        <Link href="/studio/beats" title="Tianguis Studio" className="text-slate-400 hover:text-slate-900 transition-colors">
+                                            <Settings size={20} />
+                                        </Link>
+
                                         <Link href="/upload" className="bg-blue-600 text-white px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 transition-all shadow-lg shadow-blue-600/20 transform hover:-translate-y-0.5">
                                             Sube tu Beat
                                         </Link>
@@ -94,7 +102,7 @@ export default function Navbar() {
                                         <div className="flex items-center gap-4 border-l border-slate-100 pl-6">
                                             <Link href={`/${profile?.username || 'profile'}`} className="group flex items-center gap-3">
                                                 <div className={`w-8 h-8 rounded-lg overflow-hidden border-2 transition-all duration-300 ${profile?.subscription_tier === 'premium' ? 'border-blue-600 shadow-lg shadow-blue-600/20' :
-                                                    profile?.subscription_tier === 'pro' ? 'border-slate-400' : 'border-slate-200'
+                                                    profile?.subscription_tier === 'pro' ? 'border-amber-400' : 'border-slate-200'
                                                     }`}>
                                                     {profile?.avatar_url ? (
                                                         <img src={profile.avatar_url} alt="Perfil" className="w-full h-full object-cover" />

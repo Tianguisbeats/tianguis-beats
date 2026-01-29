@@ -174,17 +174,21 @@ export default function PricingPage() {
                                     </ul>
 
                                     <button
-                                        disabled={isCurrentPlan}
+                                        disabled={isCurrentPlan || (userTier === 'premium' && !isPremium) || (userTier === 'pro' && plan.tier === 'free')}
                                         className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform hover:-translate-y-1 mb-3 ${isCurrentPlan
-                                            ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                                            : isPremium
-                                                ? 'bg-blue-600 text-white hover:bg-slate-900 shadow-xl shadow-blue-600/20'
-                                                : isPro
-                                                    ? 'bg-white border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white shadow-xl shadow-slate-900/5'
-                                                    : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
-                                            }`}
+                                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                                                : isPremium
+                                                    ? 'bg-blue-600 text-white hover:bg-slate-900 shadow-xl shadow-blue-600/20'
+                                                    : 'bg-slate-900 text-white hover:bg-blue-600 shadow-xl shadow-slate-900/10'
+                                            } ${(userTier === 'premium' && !isPremium) || (userTier === 'pro' && plan.tier === 'free') ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     >
-                                        {isCurrentPlan ? "Plan Actual" : plan.buttonText}
+                                        {isCurrentPlan
+                                            ? "Tu Plan Actual"
+                                            : userTier === 'premium'
+                                                ? "Incluido en tu Plan"
+                                                : userTier === 'pro' && plan.tier === 'free'
+                                                    ? "Superado"
+                                                    : plan.buttonText}
                                     </button>
 
                                     <button className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors py-2 flex items-center justify-center gap-1 group/link">
@@ -201,9 +205,9 @@ export default function PricingPage() {
                         <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Sin contratos forzosos • Garantía de satisfacción • Soporte 24/7</p>
                     </div>
                 </div>
-            </main>
+            </main >
 
             <Footer />
-        </div>
+        </div >
     );
 }

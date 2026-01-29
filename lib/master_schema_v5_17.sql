@@ -219,5 +219,28 @@ CREATE TRIGGER check_founder_on_insert
   BEFORE INSERT ON profiles
   FOR EACH ROW EXECUTE FUNCTION auto_founder_check();
 
+-- 7. RE-SECUENCIACIÓN DINÁMICA DE FOUNDERS
+-- Si se borra un usuario, recorre los números y asigna Founder si entran al top 100
+CREATE OR REPLACE FUNCTION public.resequence_users_after_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- 1. Recorrer numeración: Restar 1 al user_num de todos los usuarios posteriores
+  UPDATE public.profiles
+  SET user_num = user_num - 1
+  WHERE user_num > OLD.user_num;
+
+  -- 2. Actualizar estatus Founder: Asegurar que los usuarios que entraron al rango 1-100 sean founders
+  -- Actualiza todos para asegurar consistencia, o solo los afectados
+  UPDATE public.profiles
+  SET is_founder = (user_num <= 100);
+
+  RETURN OLD;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_profile_deleted
+  AFTER DELETE ON public.profiles
+  FOR EACH ROW EXECUTE PROCEDURE public.resequence_users_after_delete();
+
 -- 7. VERIFICACIÓN MANUAL (Ejemplo para Sondemaik)
 -- UPDATE profiles SET is_verified = true, is_founder = true WHERE username = 'sondemaik';
