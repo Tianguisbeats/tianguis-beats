@@ -8,7 +8,9 @@ interface Comment {
     created_at: string;
     user_id: string;
     user: {
-        email: string;
+        username: string;
+        artistic_name: string;
+        avatar_url: string | null;
     }
 }
 
@@ -24,23 +26,27 @@ export default function CommentSection({ beatId }: { beatId: string }) {
             const { data: { user } } = await supabase.auth.getUser();
             setCurrentUser(user ? user.id : null);
 
-            // Fetch comments with user email
-            // Note: This assumes we can join auth.users (requires specific supabase setup sometimes) 
-            // OR we fetch public profile table.
-            // For now, let's just fetch comments and we might not have email if RLS blocks auth.users select.
-            // We will simplify: just fetch content and created_at
-
+            // Fetch comments with user profile (username, artistic_name, avatar)
             const { data, error } = await supabase
                 .from('comments')
-                .select('*')
+                .select(`
+                    id,
+                    content,
+                    created_at,
+                    user_id,
+                    user:user_id (
+                        username,
+                        artistic_name,
+                        avatar_url
+                    )
+                `)
                 .eq('beat_id', beatId)
                 .order('created_at', { ascending: false });
 
             if (data) {
-                // Mocking user email display for now as joining auth.users is restricted usually
-                const formatted = data.map(c => ({
+                const formatted = data.map((c: any) => ({
                     ...c,
-                    user: { email: 'Usuario' }
+                    user: c.user || { username: 'Usuario', artistic_name: 'Usuario', avatar_url: null }
                 }));
                 setComments(formatted);
             }
@@ -52,7 +58,18 @@ export default function CommentSection({ beatId }: { beatId: string }) {
         const channel = supabase
             .channel('public:comments')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments', filter: `beat_id=eq.${beatId}` }, (payload) => {
-                setComments(prev => [{ ...payload.new as Comment, user: { email: 'Nuevo' } }, ...prev]);
+                // For new comments, we'll need to fetch the user info
+                const fetchNewComment = async () => {
+                    const { data } = await supabase
+                        .from('comments')
+                        .select(`id, content, created_at, user_id, user:user_id (username, artistic_name, avatar_url)`)
+                        .eq('id', (payload.new as any).id)
+                        .single();
+                    if (data) {
+                        setComments(prev => [{ ...data, user: (data as any).user || { username: 'Usuario', artistic_name: 'Usuario', avatar_url: null } } as Comment, ...prev]);
+                    }
+                };
+                fetchNewComment();
             })
             .subscribe();
 
@@ -127,12 +144,20 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                 ) : (
                     comments.map(comment => (
                         <div key={comment.id} className="flex gap-4 group">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center shrink-0">
-                                <span className="text-blue-600 font-black text-xs">U</span>
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center shrink-0 overflow-hidden">
+                                {comment.user.avatar_url ? (
+                                    <img src={comment.user.avatar_url} alt={comment.user.username} className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-blue-600 font-black text-xs">
+                                        {(comment.user.artistic_name || comment.user.username || 'U').charAt(0).toUpperCase()}
+                                    </span>
+                                )}
                             </div>
                             <div className="flex-1">
                                 <div className="flex items-center justify-between mb-1">
-                                    <span className="text-xs font-black text-slate-900 uppercase tracking-wide">Usuario de Tianguis</span>
+                                    <a href={`/${comment.user.username}`} className="text-xs font-black text-slate-900 uppercase tracking-wide hover:text-blue-600 transition-colors">
+                                        {comment.user.artistic_name || comment.user.username}
+                                    </a>
                                     <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">
                                         {new Date(comment.created_at).toLocaleDateString()}
                                     </span>

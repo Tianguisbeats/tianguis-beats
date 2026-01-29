@@ -101,6 +101,23 @@ CREATE TABLE public.likes (
     UNIQUE(beat_id, user_id)
 );
 
+-- COMENTARIOS
+CREATE TABLE public.comments (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    beat_id UUID REFERENCES public.beats(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- REPRODUCCIONES (Analytics)
+CREATE TABLE public.listens (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    beat_id UUID REFERENCES public.beats(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- 3. STORAGE INFRASTRUCTURE (7 BUCKETS)
 
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types) VALUES 
@@ -115,12 +132,13 @@ ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public, file_size_limit = EXCLU
 
 -- 4. ROW LEVEL SECURITY (RLS)
 
--- Tablas Públicas
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.beats ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.follows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.likes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.listens ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Lectura pública perfiles" ON public.profiles FOR SELECT USING (true);
 CREATE POLICY "Edición propio perfil" ON public.profiles FOR UPDATE USING (auth.uid() = id);
@@ -132,6 +150,19 @@ CREATE POLICY "Lectura pública follows" ON public.follows FOR SELECT USING (tru
 CREATE POLICY "Gestión propia follows" ON public.follows FOR ALL TO authenticated USING (auth.uid() = follower_id);
 
 CREATE POLICY "Lectura privada notificaciones" ON public.notifications FOR SELECT USING (auth.uid() = user_id);
+
+-- Likes Policies
+CREATE POLICY "Lectura pública likes" ON public.likes FOR SELECT USING (true);
+CREATE POLICY "Gestión propia likes" ON public.likes FOR ALL TO authenticated USING (auth.uid() = user_id);
+
+-- Comments Policies
+CREATE POLICY "Lectura pública comments" ON public.comments FOR SELECT USING (true);
+CREATE POLICY "Insertar comments autenticado" ON public.comments FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Borrar propio comment" ON public.comments FOR DELETE TO authenticated USING (auth.uid() = user_id);
+
+-- Listens Policies (Analytics)
+CREATE POLICY "Lectura pública listens" ON public.listens FOR SELECT USING (true);
+CREATE POLICY "Insertar listens" ON public.listens FOR INSERT WITH CHECK (true);
 
 -- Storage Policies (Basadas en Username)
 
