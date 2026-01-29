@@ -29,6 +29,7 @@ export default function Home() {
   const [topSellers, setTopSellers] = useState<Beat[]>([]);
   const [recommendedBeats, setRecommendedBeats] = useState<Beat[]>([]);
   const [filteredBeats, setFilteredBeats] = useState<Beat[]>([]);
+  const [followedBeats, setFollowedBeats] = useState<Beat[]>([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -113,6 +114,28 @@ export default function Home() {
     };
 
     executeFetch();
+    executeFetch();
+
+    // Check for user and fetch followed beats
+    const checkUserFollows = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: follows } = await supabase.from('follows').select('following_id').eq('follower_id', session.user.id);
+        if (follows && follows.length > 0) {
+          const followingIds = follows.map(f => f.following_id);
+          const { data: followedData } = await supabase
+            .from('beats')
+            .select('id,title,price_mxn,bpm,genre,mp3_url,musical_key,mood,tag,tag_emoji,tag_color,cover_color,tier_visibility,producer:producer_id(artistic_name)')
+            .in('producer_id', followingIds)
+            .order('created_at', { ascending: false })
+            .limit(10);
+
+          if (followedData) setFollowedBeats(await transformBeatData(followedData));
+        }
+      }
+    };
+    checkUserFollows();
+
   }, []);
 
   // Efecto de búsqueda inline eliminado 
@@ -180,6 +203,9 @@ export default function Home() {
             </div>
           ) : (
             <div className="flex flex-col gap-16">
+              {followedBeats.length > 0 && (
+                <Section title="👥 De tus Productores Seguidos" subtitle="Nuevos lanzamientos de tu comunidad" beats={followedBeats} />
+              )}
               <Section title="✨ Recomendados para ti" subtitle="Seleccionamos lo mejor basado en tu estilo" beats={recommendedBeats} />
               <Section title="🔥 Recién Horneado" subtitle="Las últimas joyas directas del horno" beats={newBeats} />
               <Section title="📈 Lo más Escuchado" subtitle="Los ritmos que están rompiendo las bocinas" beats={trendingBeats} />

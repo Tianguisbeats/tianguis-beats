@@ -3,9 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Check, Zap, Star, ShieldCheck, Crown, Info, ArrowUpRight, Lock } from 'lucide-react';
+import { Check, Zap, Star, ShieldCheck, ArrowUpRight, Lock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { SubscriptionTier } from '@/lib/types';
 
 export default function PricingPage() {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
@@ -27,57 +26,52 @@ export default function PricingPage() {
             name: "Gratis",
             tier: "free",
             price: "0",
-            description: "Empieza tu camino en la industria.",
+            description: "Para empezar.",
             features: [
-                "Hasta 5 Beats públicos",
-                "Solo archivos MP3",
-                "15% comisión por venta",
-                "Estadísticas básicas",
-                "Licencia Estándar"
+                "5 Beats públicos",
+                "Solo MP3",
+                "15% comisión",
+                "Estadísticas básicas"
             ],
-            icon: <Zap className="text-slate-400" size={32} />,
+            icon: <Zap className="text-slate-400" size={24} />,
             buttonText: "Empezar Gratis",
             color: "slate",
-            popular: false,
-            badge: null
+            popular: false
         },
         {
             name: "PRO",
             tier: "pro",
-            price: billingCycle === 'monthly' ? "149" : "111", // 1340 / 12 approx 111.6
+            price: billingCycle === 'monthly' ? "149" : "111", // 1340 / 12 approx
             yearlyPrice: "1,340",
-            description: "Para productores serios en crecimiento.",
+            description: "Para productores serios.",
             features: [
                 "Subidas ilimitadas",
-                "Archivos MP3 y WAV",
-                "0% comisión (Tú ganas todo)",
-                "Posición estándar en catálogo",
+                "MP3 y WAV",
+                "0% comisión",
                 "Soporte prioritario"
             ],
-            icon: <Star className="text-slate-500" size={32} />,
-            buttonText: "Elegir PRO",
+            icon: <Star className="text-slate-500" size={24} />,
+            buttonText: "Mejorar a PRO",
             color: "gray",
-            popular: true,
-            badge: "Económico"
+            popular: true
         },
         {
             name: "PREMIUM",
             tier: "premium",
-            price: billingCycle === 'monthly' ? "349" : "261", // 3140 / 12 approx 261.6
+            price: billingCycle === 'monthly' ? "349" : "261", // 3140 / 12 approx
             yearlyPrice: "3,140",
-            description: "La máxima potencia para tu carrera.",
+            description: "Máxima potencia.",
             features: [
-                "Archivos MP3, WAV y Stems",
-                "Ventas Exclusivas ilimitadas",
-                "Algoritmo Boost: Top Explorar",
-                "Estadísticas: Mapa de Calor",
-                "Insignia de Founder"
+                "Todo lo de PRO +",
+                "Stems (.ZIP)",
+                "Ventas Exclusivas",
+                "Boost Semanal",
+                "Mapa de Calor"
             ],
-            icon: <ShieldCheck className="text-blue-600" size={32} />,
-            buttonText: "Elegir PREMIUM",
+            icon: <ShieldCheck className="text-blue-600" size={24} />,
+            buttonText: "Ser Premium",
             color: "blue",
-            popular: false,
-            badge: "Full-time Producer"
+            popular: false
         }
     ];
 
@@ -86,144 +80,95 @@ export default function PricingPage() {
             <Navbar />
 
             <main className="flex-1 pb-20">
-                <div className="max-w-7xl mx-auto px-4 text-center mt-16">
+                <div className="max-w-6xl mx-auto px-4 text-center mt-12">
                     {/* Header Section */}
-                    <div className="mb-16">
-                        <div className="inline-flex items-center gap-3 bg-blue-50 border border-blue-100 p-2 rounded-2xl mb-8">
-                            <span className="bg-blue-600 text-white px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest">Ahorra 25%</span>
-                            <span className="text-blue-600 text-[10px] font-bold uppercase tracking-widest pr-2">¡3 Meses Gratis en planes anuales!</span>
-                        </div>
-
-                        <h1 className="text-5xl md:text-8xl font-black tracking-tighter uppercase mb-6 leading-none">
-                            Toma el <span className="text-blue-600 italic">Control</span>
+                    <div className="mb-12">
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase mb-4 text-slate-900">
+                            Elige tu <span className="text-blue-600">Plan</span>
                         </h1>
-                        <p className="text-lg text-slate-500 font-medium max-w-2xl mx-auto mb-12">
-                            Transforma tu pasión en un negocio rentable con los planes diseñados para productores profesionales.
+                        <p className="text-base text-slate-500 font-medium max-w-xl mx-auto mb-8">
+                            Transforma tu pasión en un negocio. Elige las herramientas que necesitas para crecer tu carrera.
                         </p>
 
                         {/* Toggle */}
-                        <div className="flex items-center justify-center gap-4 bg-slate-900 w-fit mx-auto p-2 rounded-[2.5rem] shadow-2xl">
+                        <div className="inline-flex items-center bg-slate-100 p-1.5 rounded-full">
                             <button
                                 onClick={() => setBillingCycle('monthly')}
-                                className={`px-10 py-5 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'monthly' ? 'bg-white text-slate-900 shadow-xl scale-105' : 'text-slate-400 hover:text-white'}`}
+                                className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'monthly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                             >
                                 Mensual
                             </button>
                             <button
                                 onClick={() => setBillingCycle('yearly')}
-                                className={`px-10 py-5 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${billingCycle === 'yearly' ? 'bg-blue-600 text-white shadow-xl scale-105' : 'text-slate-400 hover:text-white'}`}
+                                className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'yearly' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                             >
-                                Anual <span className="opacity-60">-25% OFF</span>
+                                Anual <span className="ml-1 opacity-80">-25%</span>
                             </button>
                         </div>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-8 items-stretch">
+                    <div className="grid md:grid-cols-3 gap-6 items-center max-w-5xl mx-auto">
                         {plans.map((plan, idx) => {
                             const isCurrentPlan = userTier === plan.tier;
                             return (
                                 <div
                                     key={idx}
-                                    className={`relative p-10 rounded-[4rem] border-4 transition-all duration-700 group flex flex-col ${plan.color === 'blue' ? 'border-blue-600 bg-white shadow-[0_40px_100px_-20px_rgba(37,99,235,0.15)] ring-8 ring-blue-50' :
-                                            plan.color === 'gray' ? 'border-slate-300 hover:border-slate-800 hover:bg-slate-50' : 'border-slate-100 bg-white'
+                                    className={`relative p-8 rounded-3xl border transition-all ${plan.color === 'blue' ? 'border-blue-200 bg-blue-50/10 shadow-xl shadow-blue-900/5 ring-1 ring-blue-100 scale-105 z-10' :
+                                            'border-slate-200 bg-white hover:border-slate-300'
                                         }`}
                                 >
-                                    {plan.badge && (
-                                        <div className={`absolute -top-5 left-1/2 -translate-x-1/2 px-6 py-2 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] shadow-xl whitespace-nowrap ${plan.color === 'blue' ? 'bg-blue-600 text-white' : 'bg-slate-900 text-white'
-                                            }`}>
-                                            {plan.badge}
+                                    {plan.popular && (
+                                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900 text-white px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
+                                            Más Popular
                                         </div>
                                     )}
 
-                                    <div className="mb-12 text-left">
-                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-8 transition-transform group-hover:scale-110 group-hover:rotate-3 ${plan.color === 'blue' ? 'bg-blue-50 text-blue-600' :
-                                                plan.color === 'gray' ? 'bg-slate-100 text-slate-600' : 'bg-slate-50 text-slate-400'
-                                            }`}>
+                                    <div className="mb-6 text-center">
+                                        <div className="mx-auto w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-slate-50">
                                             {plan.icon}
                                         </div>
-                                        <h3 className="text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-4">{plan.name}</h3>
-                                        <p className="text-slate-400 text-sm font-medium leading-relaxed">{plan.description}</p>
+                                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter mb-2">{plan.name}</h3>
+                                        <p className="text-slate-400 text-xs font-medium">{plan.description}</p>
                                     </div>
 
-                                    <div className="mb-12 text-left">
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="text-6xl font-black text-slate-900 tracking-tighter">${plan.price}</span>
-                                            <div className="flex flex-col">
-                                                <span className="text-slate-400 font-black uppercase text-[10px] tracking-widest">MXN</span>
-                                                <span className="text-slate-400 font-bold text-[10px] tracking-widest">/ Mes</span>
-                                            </div>
+                                    <div className="mb-8 text-center flex items-center justify-center gap-1">
+                                        <span className="text-3xl font-black text-slate-900 tracking-tighter">${plan.price}</span>
+                                        <div className="text-left">
+                                            <span className="block text-[8px] font-black text-slate-400 uppercase">MXN</span>
+                                            <span className="block text-[8px] font-bold text-slate-400">/Mes</span>
                                         </div>
                                         {billingCycle === 'yearly' && plan.tier !== 'free' && (
-                                            <div className="mt-3 flex items-center gap-2">
-                                                <p className="text-blue-600 text-[10px] font-black uppercase tracking-widest bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
-                                                    ${plan.yearlyPrice} al año
-                                                </p>
-                                                <span className="text-slate-400 text-[9px] font-bold uppercase underline decoration-blue-200">Total</span>
-                                            </div>
+                                            <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-md">
+                                                ${plan.yearlyPrice} año
+                                            </span>
                                         )}
                                     </div>
 
-                                    <div className="flex-1">
-                                        <div className="h-px bg-slate-100 w-full mb-8" />
-                                        <ul className="space-y-6 mb-12 text-left">
-                                            {plan.features.map((feature, fIdx) => (
-                                                <li key={fIdx} className="flex items-start gap-4 text-sm text-slate-600 font-bold group/item">
-                                                    <div className={`mt-0.5 p-1 rounded-full flex-shrink-0 transition-colors ${plan.color === 'blue' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-400 group-hover/item:bg-slate-900 group-hover/item:text-white'}`}>
-                                                        <Check size={10} strokeWidth={4} />
-                                                    </div>
-                                                    <span>{feature}</span>
-                                                </li>
-                                            ))}
-                                            {/* Extra feature for PRO that is lack in Free */}
-                                            {plan.tier === 'pro' && (
-                                                <li className="flex items-start gap-4 text-xs text-slate-300 font-black uppercase tracking-widest italic pt-2">
-                                                    <Lock size={12} className="mt-0.5" /> No incluye ventas exclusivas
-                                                </li>
-                                            )}
-                                        </ul>
-                                    </div>
+                                    <ul className="space-y-4 mb-8 text-left">
+                                        {plan.features.map((feature, fIdx) => (
+                                            <li key={fIdx} className="flex items-start gap-3 text-xs text-slate-600 font-bold">
+                                                <Check size={14} className={`shrink-0 ${plan.color === 'blue' ? 'text-blue-600' : 'text-slate-400'}`} />
+                                                <span>{feature}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
 
-                                    <div className="mt-auto">
-                                        <button
-                                            disabled={isCurrentPlan}
-                                            className={`w-full py-6 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.25em] transition-all flex items-center justify-center gap-2 transform group-hover:-translate-y-1 active:scale-95 shadow-2xl ${isCurrentPlan ? 'bg-slate-100 text-slate-400 border-2 border-slate-200 cursor-not-allowed' :
-                                                    plan.color === 'blue' ? 'bg-blue-600 text-white hover:bg-slate-900 shadow-blue-600/30' :
-                                                        plan.color === 'gray' ? 'bg-slate-900 text-white hover:bg-blue-600 shadow-slate-900/30' : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
-                                                }`}
-                                        >
-                                            {isCurrentPlan ? "Tu plan actual" : plan.buttonText}
-                                            {!isCurrentPlan && <ArrowUpRight size={16} />}
-                                        </button>
-
-                                        <button className="mt-6 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-blue-600 transition-colors w-full flex items-center justify-center gap-2">
-                                            Ver más sobre la licencia <ArrowUpRight size={10} />
-                                        </button>
-                                    </div>
+                                    <button
+                                        disabled={isCurrentPlan}
+                                        className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${isCurrentPlan ? 'bg-slate-100 text-slate-400 cursor-not-allowed' :
+                                                plan.color === 'blue' ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20' :
+                                                    'bg-slate-900 text-white hover:bg-slate-800'
+                                            }`}
+                                    >
+                                        {isCurrentPlan ? "Tu plan actual" : plan.buttonText}
+                                    </button>
                                 </div>
                             );
                         })}
                     </div>
 
-                    {/* Marketing Footer */}
-                    <div className="mt-32 grid md:grid-cols-2 gap-12 text-left">
-                        <div className="bg-slate-50 p-12 rounded-[3.5rem] border border-slate-100">
-                            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
-                                <ShieldCheck className="text-blue-600" size={28} />
-                            </div>
-                            <h4 className="text-2xl font-black uppercase tracking-tighter mb-4">¿Por qué el Plan Premium?</h4>
-                            <p className="text-slate-500 font-medium leading-relaxed">
-                                Un productor profesional no solo vende licencias de uso; busca el gran golpe. Con el Plan Premium puedes vender **Licencias Exclusivas** de miles de pesos. Con una sola venta exclusiva al año, recuperas toda tu inversión.
-                            </p>
-                        </div>
-                        <div className="bg-slate-900 p-12 rounded-[3.5rem] text-white">
-                            <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mb-6">
-                                <ArrowUpRight className="text-blue-500" size={28} />
-                            </div>
-                            <h4 className="text-2xl font-black uppercase tracking-tighter mb-4 text-white">Domina el Algoritmo</h4>
-                            <p className="text-slate-400 font-medium leading-relaxed">
-                                Los usuarios Premium reciben un "Boost" semanal en el Explorar. Tus beats aparecerán en las posiciones más altas, aumentando tus Plays y probabilidades de venta hasta en un 300%.
-                            </p>
-                        </div>
+                    <div className="mt-16 text-center">
+                        <p className="text-slate-400 text-xs font-medium">Cancela cuando quieras • Sin contratos forzosos • Garantía de satisfacción</p>
                     </div>
                 </div>
             </main>

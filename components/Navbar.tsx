@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Music, Menu, X, User, LayoutDashboard, LogOut, Check } from 'lucide-react';
+import { Music, Menu, X, User, LayoutDashboard, LogOut, Check, Settings, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
@@ -90,41 +90,42 @@ export default function Navbar() {
                                         Sube tu Beat
                                     </Link>
 
-                                    <Link href={`/${profile?.username || 'profile'}`} className="group flex items-center gap-3">
-                                        <div className={`w-8 h-8 rounded-lg overflow-hidden border-2 transition-colors ${profile?.subscription_tier === 'premium' ? 'border-blue-600' :
-                                            profile?.subscription_tier === 'pro' ? 'border-slate-400' : 'border-slate-200'
-                                            }`}>
-                                            {profile?.avatar_url ? (
-                                                <img src={profile.avatar_url} alt="Perfil" className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
-                                                    <User size={16} />
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-1">
-                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 group-hover:text-blue-600 transition-colors">
-                                                {profile?.username || 'Perfil'}
-                                            </span>
-                                            {profile?.is_verified && (
-                                                <div className="w-3 h-3 bg-blue-600 rounded-full flex items-center justify-center">
-                                                    <Check size={8} className="text-white" />
-                                                </div>
-                                            )}
-                                            {profile?.is_founder && (
-                                                <div className="w-3 h-3 bg-yellow-400 rounded-full flex items-center justify-center" title="Founder">
-                                                    <span className="text-[6px] font-black text-white">F</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </Link>
+                                    <div className="flex items-center gap-4 border-l border-slate-100 pl-6">
+                                        <Link href={`/${profile?.username || 'profile'}`} className="group flex items-center gap-3">
+                                            <div className={`w-8 h-8 rounded-lg overflow-hidden border-2 transition-colors ${profile?.subscription_tier === 'premium' ? 'border-blue-600' :
+                                                profile?.subscription_tier === 'pro' ? 'border-slate-400' : 'border-slate-200'
+                                                }`}>
+                                                {profile?.avatar_url ? (
+                                                    <img src={profile.avatar_url} alt="Perfil" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
+                                                        <User size={16} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 group-hover:text-blue-600 transition-colors">
+                                                    {profile?.username || 'Perfil'}
+                                                </span>
+                                                {profile?.is_verified && (
+                                                    <CheckCircle2 size={12} className="text-blue-600" fill="currentColor" color="white" />
+                                                )}
+                                            </div>
+                                        </Link>
 
-                                    <button
-                                        onClick={handleLogout}
-                                        className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-red-500 transition-colors"
-                                    >
-                                        Salir
-                                    </button>
+                                        {/* Settings Gear */}
+                                        <Link href={`/${profile?.username}`} className="text-slate-400 hover:text-slate-900 transition-colors">
+                                            <Settings size={18} />
+                                        </Link>
+
+                                        <button
+                                            onClick={handleLogout}
+                                            className="text-slate-400 hover:text-red-500 transition-colors"
+                                            title="Salir"
+                                        >
+                                            <LogOut size={18} />
+                                        </button>
+                                    </div>
                                 </div>
                             ) : (
                                 <>
