@@ -161,10 +161,23 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         </div>
     );
 
+    if (!profile && !loading) return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-white pt-32 p-4 text-center">
+            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-6">
+                <Users size={40} />
+            </div>
+            <h1 className="text-2xl font-black uppercase tracking-tighter text-slate-900 mb-2">Usuario no encontrado</h1>
+            <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-8">Ese tianguis aún no se ha puesto</p>
+            <Link href="/" className="px-8 py-3 bg-slate-900 text-white rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all">
+                Volver al Inicio
+            </Link>
+        </div>
+    );
+
     if (!profile) return null;
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col">
+        <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col pt-32">
             <Navbar />
 
             <main className="flex-1 pb-20">

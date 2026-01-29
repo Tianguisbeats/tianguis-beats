@@ -162,7 +162,7 @@ export default function UploadPage() {
     const isPremium = userData.subscription_tier === 'premium';
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col pt-20">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col pt-32">
             <Navbar />
 
             <main className="flex-1 pb-20">
@@ -283,8 +283,8 @@ export default function UploadPage() {
                                                     type="button"
                                                     onClick={() => handleMoodToggle(mood.label)}
                                                     className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wide transition-all ${selectedMoods.includes(mood.label)
-                                                            ? 'bg-slate-900 text-white shadow-md'
-                                                            : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                                        ? 'bg-slate-900 text-white shadow-md'
+                                                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                                                         }`}
                                                 >
                                                     {mood.label}

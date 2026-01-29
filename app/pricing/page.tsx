@@ -76,7 +76,7 @@ export default function PricingPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col pt-20">
+        <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col pt-32">
             <Navbar />
 
             <main className="flex-1 pb-20">
@@ -114,7 +114,7 @@ export default function PricingPage() {
                                 <div
                                     key={idx}
                                     className={`relative p-8 rounded-3xl border transition-all ${plan.color === 'blue' ? 'border-blue-200 bg-blue-50/10 shadow-xl shadow-blue-900/5 ring-1 ring-blue-100 scale-105 z-10' :
-                                            'border-slate-200 bg-white hover:border-slate-300'
+                                        'border-slate-200 bg-white hover:border-slate-300'
                                         }`}
                                 >
                                     {plan.popular && (
@@ -156,8 +156,8 @@ export default function PricingPage() {
                                     <button
                                         disabled={isCurrentPlan}
                                         className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${isCurrentPlan ? 'bg-slate-100 text-slate-400 cursor-not-allowed' :
-                                                plan.color === 'blue' ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20' :
-                                                    'bg-slate-900 text-white hover:bg-slate-800'
+                                            plan.color === 'blue' ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20' :
+                                                'bg-slate-900 text-white hover:bg-slate-800'
                                             }`}
                                     >
                                         {isCurrentPlan ? "Tu plan actual" : plan.buttonText}
