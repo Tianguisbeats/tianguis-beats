@@ -73,6 +73,7 @@ export default function SignupPage() {
                         username: username,
                         artistic_name: artisticName,
                         birth_date: birthDate,
+                        role: 'artist' // Default role for now, as UI is hidden
                     }
                 }
             });

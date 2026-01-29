@@ -116,12 +116,12 @@ export default function ProducerDashboard() {
                 tag: tag,
                 price_mxn: parseFloat(price),
                 mp3_url: mp3Path,
-                wav_url: wavFile ? 'beats-raw/' + user.id + '/' + timestamp + '-master.wav' : null,
-                stems_url: stemsFile ? 'beats-raw/' + user.id + '/' + timestamp + '-stems.zip' : null,
+                wav_url: wavFile ? `${user.id}/${timestamp}-master.wav` : null,
+                stems_url: stemsFile ? `${user.id}/${timestamp}-stems.zip` : null,
                 mood,
                 reference_artist: refArtist,
                 is_exclusive: isExclusive,
-                tier_visibility: profile?.role === 'producer' ? (profile?.subscription_tier === 'premium' ? 2 : profile?.subscription_tier === 'pro' ? 1 : 0) : 0
+                tier_visibility: profile?.subscription_tier === 'premium' ? 2 : (profile?.subscription_tier === 'pro' ? 1 : 0)
             });
 
             if (dbError) throw dbError;

@@ -137,9 +137,9 @@ export default function LoginPage() {
                                     />
                                     <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${rememberMe ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'}`}>Recordarme</span>
                                 </label>
-                                <Link href="#" className="text-blue-600 hover:text-blue-700 text-xs font-bold transition-colors">
+                                <button type="button" className="text-blue-600 hover:text-blue-700 text-xs font-bold transition-colors">
                                     ¿Olvidaste tu contraseña?
-                                </Link>
+                                </button>
                             </div>
 
                             <button
