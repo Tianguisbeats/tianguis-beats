@@ -11,11 +11,20 @@ INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 ('beats-stems', 'beats-stems', false, 524288000, '{application/zip,application/x-zip-compressed,application/x-rar-compressed}')
 ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public, file_size_limit = EXCLUDED.file_size_limit, allowed_mime_types = EXCLUDED.allowed_mime_types;
 
--- 2. Limpieza de Políticas Previas
-DELETE FROM storage.policies WHERE bucket_id IN (
-    'fotos-perfil', 'fotos-portada', 'portadas-beats', 
-    'beats-muestras', 'beats-mp3-alta-calidad', 'beats-wav', 'beats-stems'
-);
+-- 2. Limpieza de Políticas Previas (Evitar errores por duplicados)
+DROP POLICY IF EXISTS "Lectura pública fotos perfil" ON storage.objects;
+DROP POLICY IF EXISTS "Lectura pública fotos portada" ON storage.objects;
+DROP POLICY IF EXISTS "Lectura pública portadas beats" ON storage.objects;
+DROP POLICY IF EXISTS "Lectura pública muestras beats" ON storage.objects;
+DROP POLICY IF EXISTS "Lectura privada para dueños" ON storage.objects;
+DROP POLICY IF EXISTS "Gestión por Username" ON storage.objects;
+DROP POLICY IF EXISTS "Lectura pública para perfiles" ON storage.objects;
+DROP POLICY IF EXISTS "Lectura pública para portadas" ON storage.objects;
+DROP POLICY IF EXISTS "Lectura pública para muestras" ON storage.objects;
+DROP POLICY IF EXISTS "Subida para dueños" ON storage.objects;
+DROP POLICY IF EXISTS "Edición para dueños" ON storage.objects;
+DROP POLICY IF EXISTS "Eliminación para dueños" ON storage.objects;
+DROP POLICY IF EXISTS "Gestión completa para dueños" ON storage.objects;
 
 -- 3. Políticas RLS Basadas en USERNAME (Carpeta Legible)
 
