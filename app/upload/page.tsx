@@ -297,9 +297,33 @@ export default function UploadPage() {
 
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Artwork (Sugerido 3000x3000px)</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Artwork (Sugerido 3000x3000px - Max 2MB)</label>
                                         <div className="relative">
-                                            <input type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files?.[0] || null)} className="hidden" id="cover" />
+                                            <input
+                                                type="file"
+                                                accept=".jpg,.jpeg,.png"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0] || null;
+                                                    if (file) {
+                                                        const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                                                        if (!validTypes.includes(file.type)) {
+                                                            setError("Artwork: Solo se permiten archivos JPG o PNG.");
+                                                            e.target.value = '';
+                                                            setCoverFile(null);
+                                                            return;
+                                                        }
+                                                        if (file.size > 2 * 1024 * 1024) {
+                                                            setError("Artwork: El peso máximo es de 2MB.");
+                                                            e.target.value = '';
+                                                            setCoverFile(null);
+                                                            return;
+                                                        }
+                                                        setCoverFile(file);
+                                                    }
+                                                }}
+                                                className="hidden"
+                                                id="cover"
+                                            />
                                             <label htmlFor="cover" className="flex items-center gap-4 p-3 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 hover:border-slate-300 transition-all h-[116px]">
                                                 {coverFile ? (
                                                     <div className="flex items-center gap-3 w-full">

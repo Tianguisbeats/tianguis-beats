@@ -63,22 +63,22 @@ export default function PricingPage() {
             yearlyPrice: "3,140",
             description: "Máxima potencia comercial.",
             features: [
-                "Stems (Trackouts) .ZIP",
-                "Ventas Exclusivas (Tienda)",
-                "Prioridad en Búsquedas",
-                "0% comisión",
-                "Boost de Algoritmo"
+                "Todo lo que incluye el plan Pro",
+                "Licencia de Stems (Pistas)",
+                "Mayor visibilidad en el Tianguis",
+                "Venta Exclusiva Habilitada",
+                "Cero comisiones por venta",
+                "Soporte prioritario 24/7"
             ],
             icon: <ShieldCheck className="text-blue-600" size={24} />,
             buttonText: "Ser Premium",
             color: "blue",
-            popular: false,
-            label: "Pro de Tiempo Completo"
+            popular: true
         }
     ];
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col pt-24">
+        <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col pt-24">
             <Navbar />
 
             <main className="flex-1 pb-20">

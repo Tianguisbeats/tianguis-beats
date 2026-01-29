@@ -109,7 +109,7 @@ export default function Navbar() {
                                                         {profile?.username || 'Perfil'}
                                                     </span>
                                                     {profile?.is_verified && (
-                                                        <CheckCircle2 size={12} className="text-blue-600" fill="currentColor" color="white" />
+                                                        <img src="/verified-badge.png" alt="Verificado" className="w-3 h-3 object-contain" />
                                                     )}
                                                     {profile?.is_founder && (
                                                         <Crown size={12} className="text-yellow-400" fill="currentColor" />

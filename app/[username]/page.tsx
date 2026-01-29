@@ -35,6 +35,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     const [isEditing, setIsEditing] = useState(false);
     const [editBio, setEditBio] = useState('');
     const [editArtisticName, setEditArtisticName] = useState('');
+    const [editCountry, setEditCountry] = useState('');
     const [editSocials, setEditSocials] = useState<any>({});
     const [saving, setSaving] = useState(false);
 
@@ -57,6 +58,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             setProfile(profileData);
             setEditBio(profileData.bio || '');
             setEditArtisticName(profileData.artistic_name || '');
+            setEditCountry(profileData.country || '');
             setEditSocials(profileData.social_links || {});
 
             if (user?.id === profileData.id) {
@@ -104,13 +106,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             .from('profiles')
             .update({
                 bio: editBio,
+                country: editCountry,
                 // artistic_name: editArtisticName, // Only update if needed, maybe restricted?
                 social_links: editSocials
             })
             .eq('id', profile.id);
 
         if (!error) {
-            setProfile({ ...profile, bio: editBio, social_links: editSocials });
+            setProfile({ ...profile, bio: editBio, country: editCountry, social_links: editSocials });
             setIsEditing(false);
         }
         setSaving(false);
@@ -134,8 +137,17 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         const file = e.target.files?.[0];
         if (!file || !profile) return;
 
-        // Simple validation
-        if (file.size > 2 * 1024 * 1024) return alert("El archivo es muy pesado (Max 2MB)");
+        // Strict Validation
+        if (file.size > 2 * 1024 * 1024) {
+            alert("Artwork: El peso máximo es de 2MB.");
+            return;
+        }
+
+        const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (!validTypes.includes(file.type)) {
+            alert("Solo se permiten archivos JPG o PNG.");
+            return;
+        }
 
         const fileExt = file.name.split('.').pop();
         const filePath = `${profile.id}/${type}-${Date.now()}.${fileExt}`;
@@ -147,7 +159,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath);
             const updateField = type === 'avatar' ? { avatar_url: publicUrl } : { cover_url: publicUrl };
 
-            await supabase.from('profiles').update(updateField).eq('id', profile.id);
+            const { error: dbUpdateError } = await supabase.from('profiles').update(updateField).eq('id', profile.id);
+            if (dbUpdateError) throw dbUpdateError;
+
             setProfile({ ...profile, ...updateField });
             alert("Imagen actualizada.");
         } else {
@@ -232,8 +246,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             {profile.artistic_name || profile.username}
                                         </h1>
                                         {profile.is_verified && (
-                                            <div title="Verificado" className="text-blue-600">
-                                                <CheckCircle2 size={20} fill="currentColor" className="text-blue-600" color="white" />
+                                            <div title="Verificado" className="w-5 h-5 flex items-center justify-center">
+                                                <img src="/verified-badge.png" alt="Verificado" className="w-full h-full object-contain" onError={(e) => {
+                                                    // Fallback to Icon if image fails
+                                                    (e.target as any).style.display = 'none';
+                                                }} />
+                                                <CheckCircle2 size={16} fill="currentColor" className="text-blue-600 hidden group-data-[img-error]:block" color="white" />
                                             </div>
                                         )}
                                         {profile.is_founder && (
@@ -242,7 +260,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             </div>
                                         )}
                                     </div>
-                                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">@{profile.username}</p>
+                                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] flex items-center justify-center md:justify-start gap-2">
+                                        @{profile.username}
+                                        {profile.country && (
+                                            <span className="text-slate-300 ml-2">• {profile.country}</span>
+                                        )}
+                                    </p>
                                 </div>
 
                                 <div className="flex items-center justify-center gap-3">
@@ -286,62 +309,20 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 </div>
                             </div>
 
-                            {/* Bio Box */}
-                            <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm">
-                                {/* Socials (Arriba de Bio) */}
-                                <div className="flex gap-2 mb-6 justify-center md:justify-start">
-                                    {profile.social_links?.instagram && (
-                                        <a href={`https://instagram.com/${profile.social_links.instagram}`} className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-white transition-all"><Instagram size={18} /></a>
-                                    )}
-                                    {profile.social_links?.youtube && (
-                                        <a href={`https://youtube.com/${profile.social_links.youtube}`} className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-white transition-all"><Youtube size={18} /></a>
-                                    )}
-                                    {isEditing && (
-                                        <button className="w-10 h-10 rounded-full border-2 border-dashed border-slate-300 text-slate-300 flex items-center justify-center"><Globe size={18} /></button>
-                                    )}
-                                </div>
-
-                                <h3 className="text-xs font-black uppercase tracking-widest text-slate-300 mb-4">Trayectoria</h3>
-
-                                {isEditing ? (
-                                    <div className="space-y-4">
-                                        <textarea
-                                            value={editBio}
-                                            onChange={(e) => setEditBio(e.target.value)}
-                                            className="w-full h-32 bg-slate-50 rounded-xl p-4 text-sm font-medium border border-transparent focus:border-blue-500 outline-none resize-none"
-                                            placeholder="Escribe tu historia..."
-                                        />
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={handleUpdateProfile}
-                                                disabled={saving}
-                                                className="flex-1 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all"
-                                            >
-                                                {saving ? 'Guardando...' : 'Guardar Cambios'}
-                                            </button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                                        {profile.bio || "Sin biografía aún."}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* Status Sidebar */}
+                            {/* Status Sidebar (AHORA ARRIBA) */}
                             <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100">
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6">Estatus Tianguis</h3>
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6 font-outfit">Estatus Tianguis</h3>
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs font-bold text-slate-600">Plan</span>
-                                        <span className="text-xs font-black uppercase bg-blue-100 text-blue-700 px-2 py-1 rounded-lg">{profile.subscription_tier}</span>
+                                        <span className={`text-xs font-black uppercase px-2 py-1 rounded-lg ${profile.subscription_tier === 'premium' ? 'bg-blue-600 text-white' : profile.subscription_tier === 'pro' ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'}`}>{profile.subscription_tier}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs font-bold text-slate-600">Verificación</span>
                                         {profile.is_verified ? (
-                                            <span className="text-xs font-black uppercase text-blue-600 flex items-center gap-1"><CheckCircle2 size={12} /> Verificado</span>
+                                            <span className="text-xs font-black uppercase text-blue-600 flex items-center gap-1"><img src="/verified-badge.png" className="w-3 h-3" /> Verificado</span>
                                         ) : (
-                                            <span className="text-xs font-bold text-slate-400">Aún no verificado</span>
+                                            <span className="text-xs font-bold text-slate-400">Regular</span>
                                         )}
                                     </div>
                                     {profile.is_founder && (
@@ -351,6 +332,56 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         </div>
                                     )}
                                 </div>
+                            </div>
+
+                            {/* Bio Box (AHORA ABAJO) */}
+                            <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm">
+                                {/* Socials */}
+                                <div className="flex gap-2 mb-6 justify-center md:justify-start">
+                                    {profile.social_links?.instagram && (
+                                        <a href={`https://instagram.com/${profile.social_links.instagram}`} className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-white transition-all"><Instagram size={18} /></a>
+                                    )}
+                                    {profile.social_links?.youtube && (
+                                        <a href={`https://youtube.com/${profile.social_links.youtube}`} className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-white transition-all"><Youtube size={18} /></a>
+                                    )}
+                                </div>
+
+                                <h3 className="text-xs font-black uppercase tracking-widest text-slate-300 mb-4">Trayectoria</h3>
+
+                                {isEditing ? (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="text-[9px] font-black uppercase text-slate-400 mb-2 block">País</label>
+                                            <input
+                                                type="text"
+                                                value={editCountry}
+                                                onChange={(e) => setEditCountry(e.target.value)}
+                                                className="w-full bg-slate-50 rounded-xl px-4 py-2 text-xs font-bold border border-transparent focus:border-blue-500 outline-none"
+                                                placeholder="Ej. México 🇲🇽"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-[9px] font-black uppercase text-slate-400 mb-2 block">Biografía</label>
+                                            <textarea
+                                                value={editBio}
+                                                onChange={(e) => setEditBio(e.target.value)}
+                                                className="w-full h-32 bg-slate-50 rounded-xl p-4 text-sm font-medium border border-transparent focus:border-blue-500 outline-none resize-none"
+                                                placeholder="Escribe tu historia..."
+                                            />
+                                        </div>
+                                        <button
+                                            onClick={handleUpdateProfile}
+                                            disabled={saving}
+                                            className="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg"
+                                        >
+                                            {saving ? 'Guardando...' : 'Guardar Perfil'}
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-slate-600 font-medium leading-relaxed">
+                                        {profile.bio || "Sin biografía aún."}
+                                    </p>
+                                )}
                             </div>
                         </div>
 
