@@ -41,7 +41,7 @@ export default function Home() {
   const transformBeatData = async (data: any[]) => {
     return data.map((b: any) => {
       const { data: { publicUrl } } = supabase.storage
-        .from('beats-previews')
+        .from('beats-muestras')
         .getPublicUrl(b.mp3_tag_url);
 
       return {

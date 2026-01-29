@@ -121,27 +121,30 @@ export default function UploadPage() {
             const timestamp = Date.now();
 
             // Uploads
+            // Portadas-beats para el artwork
             const coverPath = `${userId}/${timestamp}-cover-${coverFile.name}`;
-            await supabase.storage.from('beats-previews').upload(coverPath, coverFile);
-            const { data: { publicUrl: coverUrl } } = supabase.storage.from('beats-previews').getPublicUrl(coverPath);
+            await supabase.storage.from('portadas-beats').upload(coverPath, coverFile);
+            const { data: { publicUrl: coverUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(coverPath);
 
+            // Beats-muestras para el MP3 con Tag (preview)
             const previewPath = `${userId}/${timestamp}-preview-${previewFile.name}`;
-            await supabase.storage.from('beats-previews').upload(previewPath, previewFile);
-            const { data: { publicUrl: previewUrl } } = supabase.storage.from('beats-previews').getPublicUrl(previewPath);
+            await supabase.storage.from('beats-muestras').upload(previewPath, previewFile);
+            const { data: { publicUrl: previewUrl } } = supabase.storage.from('beats-muestras').getPublicUrl(previewPath);
 
+            // Beats-maestros para los archivos finales
             const hqPath = `${userId}/${timestamp}-hq-${hqMp3File.name}`;
-            await supabase.storage.from('beats-raw').upload(hqPath, hqMp3File);
+            await supabase.storage.from('beats-maestros').upload(hqPath, hqMp3File);
 
             let wavPath = null;
             if (wavFile && userData.subscription_tier !== 'free') {
                 wavPath = `${userId}/${timestamp}-wav-${wavFile.name}`;
-                await supabase.storage.from('beats-raw').upload(wavPath, wavFile);
+                await supabase.storage.from('beats-maestros').upload(wavPath, wavFile);
             }
 
             let stemsPath = null;
             if (stemsFile && userData.subscription_tier === 'premium') {
                 stemsPath = `${userId}/${timestamp}-stems-${stemsFile.name}`;
-                await supabase.storage.from('beats-raw').upload(stemsPath, stemsFile);
+                await supabase.storage.from('beats-maestros').upload(stemsPath, stemsFile);
             }
 
             // Save to DB

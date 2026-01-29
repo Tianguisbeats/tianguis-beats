@@ -16,6 +16,12 @@ import { Profile, Beat } from '@/lib/types';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+const COUNTRIES = [
+    "México 🇲🇽", "Colombia 🇨🇴", "Argentina 🇦🇷", "España 🇪🇸", "Chile 🇨🇱",
+    "Perú 🇵🇪", "Ecuador 🇪🇨", "Guatemala 🇬🇹", "Estados Unidos 🇺🇸",
+    "Puerto Rico 🇵🇷", "República Dominicana 🇩🇴", "Venezuela 🇻🇪", "Panamá 🇵🇦", "Costa Rica 🇨🇷"
+];
+
 export default function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
     const resolvedParams = use(params);
     const username = resolvedParams.username;
@@ -151,7 +157,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
         const fileExt = file.name.split('.').pop();
         const filePath = `${profile.id}/${type}-${Date.now()}.${fileExt}`;
-        const bucket = type === 'avatar' ? 'avatars' : 'beats-previews'; // Cover used to be here too
+        const bucket = 'perfiles';
 
         // Use upsert to avoid duplicate errors if any, though timestamp makes it unique
         const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file, {
@@ -254,31 +260,23 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         <div className="flex-1 text-center md:text-left pb-4">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div>
-                                    <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-4 mb-3 text-center md:text-left">
+                                    <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-3 mb-3 text-center md:text-left">
                                         <h1 className="text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter text-slate-900 leading-none">
                                             {profile.artistic_name || profile.username}
                                         </h1>
-                                        {profile.is_verified ? (
-                                            <div title="Verificado" className="flex items-center gap-1.5 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 self-center md:self-end md:mb-1.5">
-                                                <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain" />
-                                                <span className="text-[10px] font-black uppercase text-blue-600 tracking-widest">Verificado</span>
-                                            </div>
-                                        ) : (
-                                            <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest self-center md:self-end md:mb-1.5">
-                                                Sin Verificar
+                                        {profile.is_verified && (
+                                            <div title="Verificado" className="self-center md:self-end md:mb-2 translate-y-[-2px]">
+                                                <img src="/verified-badge.png" alt="Verificado" className="w-5 h-5 object-contain" />
                                             </div>
                                         )}
                                         {profile.is_founder && (
-                                            <div title="Founder" className="text-yellow-400 self-center md:self-end md:mb-1.5">
-                                                <Crown size={24} fill="currentColor" />
+                                            <div title="Founder" className="text-yellow-400 self-center md:self-end md:mb-2 ml-[-4px]">
+                                                <Crown size={22} fill="currentColor" />
                                             </div>
                                         )}
                                     </div>
                                     <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] flex items-center justify-center md:justify-start gap-2">
                                         @{profile.username}
-                                        {profile.country && (
-                                            <span className="text-slate-300 ml-1">• {profile.country}</span>
-                                        )}
                                         <span className="text-slate-300 ml-1">• Miembro desde {new Date(profile.created_at).getFullYear()}</span>
                                     </p>
                                 </div>
@@ -370,13 +368,16 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     <div className="space-y-4">
                                         <div>
                                             <label className="text-[9px] font-black uppercase text-slate-400 mb-2 block">País</label>
-                                            <input
-                                                type="text"
+                                            <select
                                                 value={editCountry}
                                                 onChange={(e) => setEditCountry(e.target.value)}
-                                                className="w-full bg-slate-50 rounded-xl px-4 py-2 text-xs font-bold border border-transparent focus:border-blue-500 outline-none"
-                                                placeholder="Ej. México 🇲🇽"
-                                            />
+                                                className="w-full bg-slate-50 rounded-xl px-4 py-2 text-xs font-bold border border-transparent focus:border-blue-500 outline-none appearance-none"
+                                            >
+                                                <option value="">Seleccionar País</option>
+                                                {COUNTRIES.map(c => (
+                                                    <option key={c} value={c}>{c}</option>
+                                                ))}
+                                            </select>
                                         </div>
                                         <div>
                                             <label className="text-[9px] font-black uppercase text-slate-400 mb-2 block">Biografía</label>
@@ -427,7 +428,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{b.bpm} BPM • {b.genre}</p>
                                             </div>
                                             <button
-                                                onClick={() => playBeat({ ...b, mp3_url: (b as any).mp3_tag_url })}
+                                                onClick={() => playBeat({
+                                                    ...b,
+                                                    producer: profile.artistic_name || profile.username,
+                                                    producer_username: profile.username,
+                                                    mp3_url: (b as any).mp3_tag_url
+                                                })}
                                                 className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${currentBeat?.id === b.id && isPlaying ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900 hover:bg-blue-600 hover:text-white'}`}
                                             >
                                                 {currentBeat?.id === b.id && isPlaying ? <Layout size={16} className="animate-pulse" /> : <Play size={16} fill="currentColor" />}

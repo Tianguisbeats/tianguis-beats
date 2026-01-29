@@ -56,7 +56,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
             if (data) {
                 const { data: { publicUrl } } = supabase.storage
-                    .from('beats-previews')
+                    .from('beats-muestras')
                     .getPublicUrl(data.mp3_url);
 
                 setBeat({ ...data, mp3_url: publicUrl });

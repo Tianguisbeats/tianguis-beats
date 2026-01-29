@@ -119,7 +119,7 @@ function BeatsPageContent() {
 
       const transformed = (data || []).map((b: any) => {
         const { data: { publicUrl } } = supabase.storage
-          .from('beats-previews')
+          .from('beats-muestras')
           .getPublicUrl(b.mp3_tag_url);
 
         return {

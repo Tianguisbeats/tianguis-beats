@@ -112,10 +112,10 @@ export default function Navbar() {
                                                         )}
                                                     </span>
                                                     {profile?.is_verified && (
-                                                        <img src="/verified-badge.png" alt="Verificado" className="w-3 h-3 object-contain" />
+                                                        <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain translate-y-[-1px]" />
                                                     )}
                                                     {profile?.is_founder && (
-                                                        <Crown size={12} className="text-yellow-400" fill="currentColor" />
+                                                        <Crown size={16} className="text-yellow-400 translate-y-[-1px]" fill="currentColor" />
                                                     )}
                                                 </div>
                                             </Link>
