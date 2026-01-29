@@ -2,7 +2,7 @@
  * Componente BeatCard: Tarjeta para mostrar información individual de un beat.
  * @param beat Datos del beat provenientes de la base de datos o dummy data.
  */
-import { Music, Play, Pause, ShoppingCart } from 'lucide-react';
+import { Music, Play, Pause, ShoppingCart, CheckCircle2 } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import Link from 'next/link';
 
@@ -26,6 +26,9 @@ export interface Beat {
     is_exclusive?: boolean;
     tier_visibility?: number;
     mp3_tag_url?: string | null;
+    producer_avatar_url?: string | null;
+    producer_tier?: string | null;
+    producer_is_verified?: boolean;
 }
 
 interface BeatCardProps {
@@ -88,8 +91,30 @@ export default function BeatCard({ beat }: BeatCardProps) {
                     </h3>
                 </Link>
                 <div className="flex items-center justify-between mb-5">
-                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest truncate max-w-[100px]">prod. {beat.producer || "—"}</p>
-                    <span className="text-[9px] font-black text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200">{beat.bpm || "—"} BPM</span>
+                    <div className="flex items-center gap-2 truncate flex-1 mr-2">
+                        <div className={`w-6 h-6 rounded-lg overflow-hidden border transition-all ${beat.producer_tier === 'premium' ? 'border-blue-600 shadow-sm' :
+                            beat.producer_tier === 'pro' ? 'border-slate-400' : 'border-slate-200'
+                            }`}>
+                            {beat.producer_avatar_url ? (
+                                <img src={beat.producer_avatar_url} className="w-full h-full object-cover" alt="Producer" />
+                            ) : (
+                                <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300">
+                                    <Music size={10} />
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-1 truncate">
+                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest truncate">
+                                {beat.producer || "—"}
+                            </p>
+                            {beat.producer_is_verified && (
+                                <CheckCircle2 size={10} className="text-blue-600" fill="currentColor" color="white" />
+                            )}
+                        </div>
+                    </div>
+                    <span className="text-[9px] font-black text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200 shrink-0">
+                        {beat.bpm || "—"} BPM
+                    </span>
                 </div>
 
                 <div className="flex items-center justify-between pt-5 border-t border-slate-50">

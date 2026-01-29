@@ -203,7 +203,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                         {/* Avatar */}
                         <div className="relative group shrink-0 mx-auto md:mx-0">
-                            <div className="w-40 h-40 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden">
+                            <div className={`w-40 h-40 rounded-full border-4 shadow-2xl overflow-hidden transition-all duration-500 ${profile.subscription_tier === 'premium'
+                                ? 'border-blue-600 shadow-blue-500/30'
+                                : profile.subscription_tier === 'pro'
+                                    ? 'border-slate-400 shadow-slate-900/10'
+                                    : 'border-white shadow-lg'
+                                }`}>
                                 {profile.avatar_url ? (
                                     <img src={profile.avatar_url} className="w-full h-full object-cover" alt="Avatar" />
                                 ) : (
@@ -232,8 +237,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             </div>
                                         )}
                                         {profile.is_founder && (
-                                            <div title="Founder" className="bg-yellow-400 text-white p-1 rounded-md">
-                                                <Crown size={12} fill="currentColor" />
+                                            <div title="Founder" className="text-yellow-400">
+                                                <Crown size={20} fill="currentColor" />
                                             </div>
                                         )}
                                     </div>

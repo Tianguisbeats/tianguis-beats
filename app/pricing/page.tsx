@@ -26,11 +26,11 @@ export default function PricingPage() {
             name: "Gratis",
             tier: "free",
             price: "0",
-            description: "Para empezar.",
+            description: "Para empezar tu legado.",
             features: [
                 "5 Beats públicos",
-                "Solo MP3",
-                "15% comisión",
+                "Solo licencia MP3",
+                "15% comisión por venta",
                 "Estadísticas básicas"
             ],
             icon: <Zap className="text-slate-400" size={24} />,
@@ -41,37 +41,39 @@ export default function PricingPage() {
         {
             name: "PRO",
             tier: "pro",
-            price: billingCycle === 'monthly' ? "149" : "111", // 1340 / 12 approx
+            price: billingCycle === 'monthly' ? "149" : "111",
             yearlyPrice: "1,340",
             description: "Para productores serios.",
             features: [
                 "Subidas ilimitadas",
-                "MP3 y WAV",
+                "MP3 y WAV (Alta Calidad)",
                 "0% comisión",
-                "Soporte prioritario"
+                "Soporte prioritario 24/7"
             ],
             icon: <Star className="text-slate-500" size={24} />,
             buttonText: "Mejorar a PRO",
             color: "gray",
-            popular: true
+            popular: true,
+            label: "Más Popular"
         },
         {
             name: "PREMIUM",
             tier: "premium",
-            price: billingCycle === 'monthly' ? "349" : "261", // 3140 / 12 approx
+            price: billingCycle === 'monthly' ? "349" : "261",
             yearlyPrice: "3,140",
-            description: "Máxima potencia.",
+            description: "Máxima potencia comercial.",
             features: [
-                "Todo lo de PRO +",
-                "Stems (.ZIP)",
-                "Ventas Exclusivas",
-                "Boost Semanal",
-                "Mapa de Calor"
+                "Stems (Trackouts) .ZIP",
+                "Ventas Exclusivas (Tienda)",
+                "Prioridad en Búsquedas",
+                "0% comisión",
+                "Boost de Algoritmo"
             ],
             icon: <ShieldCheck className="text-blue-600" size={24} />,
             buttonText: "Ser Premium",
             color: "blue",
-            popular: false
+            popular: false,
+            label: "Pro de Tiempo Completo"
         }
     ];
 
@@ -80,30 +82,45 @@ export default function PricingPage() {
             <Navbar />
 
             <main className="flex-1 pb-20">
-                <div className="max-w-6xl mx-auto px-4 text-center mt-12">
+                <div className="max-w-6xl mx-auto px-4 text-center mt-8">
                     {/* Header Section */}
-                    <div className="mb-12">
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase mb-2 text-slate-900 leading-none">
+                    <div className="mb-10">
+                        <h1 className="text-5xl md:text-6xl font-black tracking-tighter uppercase mb-2 text-slate-900 leading-none">
                             Elige tu <span className="text-blue-600">Plan</span>
                         </h1>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em] mb-8">
-                            Transforma tu pasión en un negocio
+                        <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.3em] mb-10">
+                            Transforma tu pasión en un negocio rentable
                         </p>
 
-                        {/* Toggle */}
-                        <div className="inline-flex items-center bg-slate-100 p-1 rounded-full border border-slate-200">
-                            <button
-                                onClick={() => setBillingCycle('monthly')}
-                                className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'monthly' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
-                            >
-                                Mensual
-                            </button>
-                            <button
-                                onClick={() => setBillingCycle('yearly')}
-                                className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'yearly' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:text-slate-600'}`}
-                            >
-                                Anual <span className="ml-1 opacity-80">-25% OFF</span>
-                            </button>
+                        {/* Founder Invitation Relocated */}
+                        <div className="mb-12 inline-flex">
+                            <div className="bg-yellow-400/10 border-2 border-yellow-400 text-yellow-700 px-6 py-3 rounded-2xl flex items-center gap-3 animate-pulse">
+                                <Star size={16} fill="currentColor" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">
+                                    Sé de los primeros 100 y obtén estatus <span className="underline">Founder</span> para siempre
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Toggle Container */}
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="inline-flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200">
+                                <button
+                                    onClick={() => setBillingCycle('monthly')}
+                                    className={`px-10 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'monthly' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
+                                >
+                                    Mensual
+                                </button>
+                                <button
+                                    onClick={() => setBillingCycle('yearly')}
+                                    className={`px-10 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'yearly' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:text-slate-600'}`}
+                                >
+                                    Anual
+                                </button>
+                            </div>
+                            <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest animate-bounce">
+                                ¡25% OFF! (Recibe 3 meses gratis al año) 🎁
+                            </p>
                         </div>
                     </div>
 
@@ -117,15 +134,20 @@ export default function PricingPage() {
                                 <div
                                     key={idx}
                                     className={`relative p-8 rounded-[2.5rem] border-2 transition-all duration-500 hover:scale-[1.02] flex flex-col ${isPremium
-                                            ? 'border-blue-600 bg-blue-50/10 shadow-2xl shadow-blue-500/10'
-                                            : isPro
-                                                ? 'border-slate-300 bg-slate-50/50 shadow-2xl shadow-slate-900/5'
-                                                : 'border-slate-100 bg-white'
+                                        ? 'border-blue-600 bg-blue-50/10 shadow-2xl shadow-blue-500/10'
+                                        : isPro
+                                            ? 'border-slate-300 bg-slate-50/50 shadow-2xl shadow-slate-900/5'
+                                            : 'border-slate-100 bg-white'
                                         }`}
                                 >
                                     {plan.popular && (
                                         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-5 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-xl shadow-blue-600/30">
-                                            Recomendado
+                                            {plan.label}
+                                        </div>
+                                    )}
+                                    {isPremium && (
+                                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900 text-white px-5 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-xl">
+                                            {plan.label}
                                         </div>
                                     )}
 
@@ -159,16 +181,21 @@ export default function PricingPage() {
 
                                     <button
                                         disabled={isCurrentPlan}
-                                        className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform hover:-translate-y-1 ${isCurrentPlan
-                                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                                                : isPremium
-                                                    ? 'bg-blue-600 text-white hover:bg-slate-900 shadow-xl shadow-blue-600/20'
-                                                    : isPro
-                                                        ? 'bg-white border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white shadow-xl shadow-slate-900/5'
-                                                        : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
+                                        className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform hover:-translate-y-1 mb-3 ${isCurrentPlan
+                                            ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                                            : isPremium
+                                                ? 'bg-blue-600 text-white hover:bg-slate-900 shadow-xl shadow-blue-600/20'
+                                                : isPro
+                                                    ? 'bg-white border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white shadow-xl shadow-slate-900/5'
+                                                    : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
                                             }`}
                                     >
                                         {isCurrentPlan ? "Plan Actual" : plan.buttonText}
+                                    </button>
+
+                                    <button className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors py-2 flex items-center justify-center gap-1 group/link">
+                                        Más sobre el plan
+                                        <ArrowUpRight size={10} className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
                                     </button>
                                 </div>
                             );
