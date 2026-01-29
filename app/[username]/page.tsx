@@ -232,7 +232,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="relative -mt-16 mb-8 flex flex-col md:flex-row items-end gap-6">
+                    <div className="relative -mt-8 mb-8 flex flex-col md:flex-row items-end gap-6">
 
                         {/* Avatar */}
                         <div className="relative group shrink-0 mx-auto md:mx-0">
