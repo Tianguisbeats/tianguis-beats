@@ -63,7 +63,9 @@ export default function SignupPage() {
         setError(null);
 
         try {
-            const { error: authError } = await supabase.auth.signUp({
+            console.log('Iniciando registro para:', email, username);
+
+            const { data: authData, error: authError } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
@@ -73,16 +75,25 @@ export default function SignupPage() {
                         username: username,
                         artistic_name: artisticName,
                         birth_date: birthDate,
-                        role: 'artist' // Default role for now, as UI is hidden
+                        role: 'artist'
                     }
                 }
             });
 
-            if (authError) throw authError;
+            if (authError) {
+                console.error('Error de Supabase Auth:', authError);
+                throw authError;
+            }
 
+            if (!authData.user) {
+                throw new Error('No se pudo crear el usuario en el sistema de autenticación.');
+            }
+
+            console.log('Usuario creado exitosamente:', authData.user.id);
             setSuccess(true);
         } catch (err: any) {
-            setError(err.message || 'Error al crear cuenta');
+            console.error('Error capturado en Signup:', err);
+            setError(err.message || 'Error al crear cuenta. Inténtalo de nuevo.');
         } finally {
             setLoading(false);
         }
