@@ -72,6 +72,7 @@ export interface Beat {
     like_count: number;
 
     is_exclusive: boolean;
+    exclusive_price_mxn: number | null;
     tier_visibility: number;
 
     created_at: string;
