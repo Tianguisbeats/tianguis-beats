@@ -157,7 +157,7 @@ export default function Navbar() {
                         <div className="flex flex-col gap-3 pt-4 border-t border-slate-50">
                             {user ? (
                                 <>
-                                    <Link href="/profile" className="flex items-center justify-center gap-2 py-3 text-slate-900 font-black">
+                                    <Link href={`/${profile?.username || 'profile'}`} className="flex items-center justify-center gap-2 py-3 text-slate-900 font-black">
                                         <User size={16} />
                                         Mi Perfil
                                     </Link>
