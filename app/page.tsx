@@ -114,7 +114,6 @@ export default function Home() {
     };
 
     executeFetch();
-    executeFetch();
 
     // Check for user and fetch followed beats
     const checkUserFollows = async () => {
