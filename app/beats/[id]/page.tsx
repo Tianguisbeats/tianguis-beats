@@ -128,7 +128,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
             <Navbar />
 
             {/* Main Header Container */}
-            <div className="pt-32 pb-16 bg-gradient-to-b from-slate-50 to-white">
+            <div className="pt-24 pb-16 bg-gradient-to-b from-slate-50 to-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-8">
                     <div className="grid lg:grid-cols-12 gap-12 items-start">
 

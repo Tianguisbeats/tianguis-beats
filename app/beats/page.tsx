@@ -164,7 +164,7 @@ function BeatsPageContent() {
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 pt-32 pb-20">
+      <main className="flex-1 pt-24 pb-20 text-slate-900 selection:bg-blue-600 selection:text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
             <div>

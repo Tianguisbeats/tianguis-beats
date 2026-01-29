@@ -154,7 +154,7 @@ export default function ProducerDashboard() {
         <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col">
             <Navbar />
 
-            <main className="flex-1 pt-32 pb-20">
+            <main className="flex-1 pt-24 pb-20">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
                         <div>

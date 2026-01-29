@@ -110,7 +110,7 @@ export default function SignupPage() {
         <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col">
             <Navbar />
 
-            <main className="flex-1 flex items-center justify-center pt-28 pb-20 px-4">
+            <main className="flex-1 flex items-center justify-center pt-24 pb-20 px-4">
                 <div className="max-w-xl w-full">
                     {success ? (
                         <div className="text-center bg-blue-50 p-12 rounded-[3.5rem] border-2 border-blue-100 animate-in zoom-in duration-500">
@@ -255,11 +255,11 @@ export default function SignupPage() {
                                         )}
                                     </button>
                                 </form>
-                            </div>
 
-                            <p className="mt-6 text-center text-[11px] font-black uppercase tracking-widest text-slate-400">
-                                ¿Ya tienes cuenta? <Link href="/login" className="text-blue-600 hover:underline">Inicia sesión</Link>
-                            </p>
+                                <p className="mt-6 text-center text-[11px] font-black uppercase tracking-widest text-slate-400">
+                                    ¿Ya tienes cuenta? <Link href="/login" className="text-blue-600 hover:underline">Inicia sesión</Link>
+                                </p>
+                            </div>
                         </>
                     )}
                 </div>
