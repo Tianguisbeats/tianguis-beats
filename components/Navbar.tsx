@@ -60,7 +60,7 @@ export default function Navbar() {
     };
 
     return (
-        <div className="fixed w-full z-50">
+        <div className="fixed top-0 left-0 w-full z-50">
             <nav className="w-full bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
@@ -94,7 +94,7 @@ export default function Navbar() {
                                         <div className="flex items-center gap-4 border-l border-slate-100 pl-6">
                                             <Link href={`/${profile?.username || 'profile'}`} className="group flex items-center gap-3">
                                                 <div className={`w-8 h-8 rounded-lg overflow-hidden border-2 transition-all duration-300 ${profile?.subscription_tier === 'premium' ? 'border-blue-600 shadow-lg shadow-blue-600/20' :
-                                                        profile?.subscription_tier === 'pro' ? 'border-slate-400' : 'border-slate-200'
+                                                    profile?.subscription_tier === 'pro' ? 'border-slate-400' : 'border-slate-200'
                                                     }`}>
                                                     {profile?.avatar_url ? (
                                                         <img src={profile.avatar_url} alt="Perfil" className="w-full h-full object-cover" />

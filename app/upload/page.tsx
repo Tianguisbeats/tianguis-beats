@@ -63,6 +63,17 @@ export default function UploadPage() {
     const [wavFile, setWavFile] = useState<File | null>(null);
     const [stemsFile, setStemsFile] = useState<File | null>(null);
 
+    // Validation Helper
+    const validateFile = (file: File | null, allowedExtensions: string[], label: string) => {
+        if (!file) return null;
+        const extension = file.name.split('.').pop()?.toLowerCase();
+        if (extension && allowedExtensions.includes(extension)) {
+            return file;
+        }
+        setError(`Archivo inválido para ${label}. Solo se permiten extensiones: ${allowedExtensions.join(', ')}`);
+        return null;
+    };
+
     useEffect(() => {
         const checkAuth = async () => {
             const { data: { session } } = await supabase.auth.getSession();
@@ -172,20 +183,39 @@ export default function UploadPage() {
     const isPremium = userData.subscription_tier === 'premium';
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col pt-24">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col pt-20">
             <Navbar />
 
             <main className="flex-1 pb-20">
                 <div className="max-w-4xl mx-auto px-4 mt-8">
 
                     {/* Header Minimalista */}
-                    <div className="mb-10 pl-2">
-                        <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900 mb-1">
-                            Publicar nuevo <span className="text-blue-600">Beat</span>
-                        </h1>
-                        <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
-                            Datos del Beat
-                        </p>
+                    <div className="mb-10 pl-2 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                        <div>
+                            <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900 mb-1">
+                                Publicar nuevo <span className="text-blue-600">Beat</span>
+                            </h1>
+                            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                Datos del Beat
+                            </p>
+                        </div>
+                        {isFree && (
+                            <div className="bg-blue-50 border border-blue-100 rounded-2xl px-6 py-4 flex flex-col items-center md:items-end">
+                                <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Tu Límite (Gratis)</span>
+                                <div className="flex items-center gap-2">
+                                    <div className="h-1.5 w-24 bg-blue-100 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-blue-600 transition-all duration-500"
+                                            style={{ width: `${(beatCount / 5) * 100}%` }}
+                                        />
+                                    </div>
+                                    <span className="text-xs font-black text-blue-600">{beatCount}/5</span>
+                                </div>
+                                {beatCount >= 5 && (
+                                    <p className="text-[8px] font-bold text-red-500 uppercase mt-2">Límite alcanzado</p>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm">
@@ -325,7 +355,17 @@ export default function UploadPage() {
                                                 </div>
                                                 <div className="flex items-center gap-3">
                                                     {previewFile && <CheckCircle2 size={16} className="text-green-500" />}
-                                                    <input type="file" accept=".mp3" onChange={(e) => setPreviewFile(e.target.files?.[0] || null)} className="hidden" id="preview-file" />
+                                                    <input
+                                                        type="file"
+                                                        accept=".mp3"
+                                                        onChange={(e) => {
+                                                            const file = validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 Tagged');
+                                                            setPreviewFile(file);
+                                                            if (!file) e.target.value = '';
+                                                        }}
+                                                        className="hidden"
+                                                        id="preview-file"
+                                                    />
                                                     <label htmlFor="preview-file" className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 transition-all">
                                                         {previewFile ? 'Cambiar' : 'Seleccionar'}
                                                     </label>
@@ -342,7 +382,17 @@ export default function UploadPage() {
                                                 </div>
                                                 <div className="flex items-center gap-3">
                                                     {hqMp3File && <CheckCircle2 size={16} className="text-green-500" />}
-                                                    <input type="file" accept=".mp3" onChange={(e) => setHqMp3File(e.target.files?.[0] || null)} className="hidden" id="hq-file" />
+                                                    <input
+                                                        type="file"
+                                                        accept=".mp3"
+                                                        onChange={(e) => {
+                                                            const file = validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 High Quality');
+                                                            setHqMp3File(file);
+                                                            if (!file) e.target.value = '';
+                                                        }}
+                                                        className="hidden"
+                                                        id="hq-file"
+                                                    />
                                                     <label htmlFor="hq-file" className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 transition-all">
                                                         {hqMp3File ? 'Cambiar' : 'Seleccionar'}
                                                     </label>
@@ -366,7 +416,17 @@ export default function UploadPage() {
                                                     ) : (
                                                         <>
                                                             {wavFile && <CheckCircle2 size={16} className="text-green-500" />}
-                                                            <input type="file" accept=".wav" onChange={(e) => setWavFile(e.target.files?.[0] || null)} className="hidden" id="wav-file" />
+                                                            <input
+                                                                type="file"
+                                                                accept=".wav"
+                                                                onChange={(e) => {
+                                                                    const file = validateFile(e.target.files?.[0] || null, ['wav'], 'Archivo WAV');
+                                                                    setWavFile(file);
+                                                                    if (!file) e.target.value = '';
+                                                                }}
+                                                                className="hidden"
+                                                                id="wav-file"
+                                                            />
                                                             <label htmlFor="wav-file" className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 transition-all">
                                                                 {wavFile ? 'Cambiar' : 'Seleccionar'}
                                                             </label>
@@ -392,7 +452,17 @@ export default function UploadPage() {
                                                     ) : (
                                                         <>
                                                             {stemsFile && <CheckCircle2 size={16} className="text-green-500" />}
-                                                            <input type="file" accept=".zip,.rar" onChange={(e) => setStemsFile(e.target.files?.[0] || null)} className="hidden" id="stems-file" />
+                                                            <input
+                                                                type="file"
+                                                                accept=".zip,.rar"
+                                                                onChange={(e) => {
+                                                                    const file = validateFile(e.target.files?.[0] || null, ['zip', 'rar'], 'Stems (.ZIP)');
+                                                                    setStemsFile(file);
+                                                                    if (!file) e.target.value = '';
+                                                                }}
+                                                                className="hidden"
+                                                                id="stems-file"
+                                                            />
                                                             <label htmlFor="stems-file" className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 transition-all">
                                                                 {stemsFile ? 'Cambiar' : 'Seleccionar'}
                                                             </label>
@@ -464,35 +534,35 @@ export default function UploadPage() {
                                         </div>
                                     </div>
 
-                                    <div className={`p-5 rounded-2xl border transition-all ${isExclusive ? 'bg-blue-600 shadow-xl shadow-blue-600/20' : 'bg-slate-50 border-slate-100'}`}>
-                                        <div className="flex justify-between items-center mb-2">
+                                    <div className={`p-5 rounded-2xl border transition-all ${isExclusive ? 'border-blue-500 bg-blue-50/30 shadow-sm' : 'bg-slate-50 border-slate-100'}`}>
+                                        <div className="flex justify-between items-center mb-4">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isExclusive ? 'text-white' : !isPremium ? 'text-slate-300' : 'text-slate-900'}`}>Venta Exclusiva</span>
-                                                    {!isPremium && <Lock size={12} className={isExclusive ? 'text-blue-300' : 'text-slate-300'} />}
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${!isPremium ? 'text-slate-300' : 'text-slate-900'}`}>Licencia Exclusiva</span>
+                                                    {!isPremium && <Lock size={12} className="text-slate-300" />}
                                                 </div>
-                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${isExclusive ? 'text-blue-100' : 'text-slate-400'}`}>Derechos Totales</span>
+                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Derechos totales y retiro de la tienda</span>
                                             </div>
-                                            <button
-                                                type="button"
-                                                disabled={!isPremium}
-                                                onClick={() => setIsExclusive(!isExclusive)}
-                                                className={`w-10 h-5 rounded-full relative transition-colors ${isExclusive ? 'bg-white' : 'bg-slate-300'}`}
-                                            >
-                                                <div className={`w-3.5 h-3.5 rounded-full absolute top-0.5. transition-all ${isExclusive ? 'left-5.5 bg-blue-600' : 'left-1 bg-slate-100'}`} />
-                                            </button>
-                                        </div>
-                                        {isExclusive && (
-                                            <div className="mt-4 flex items-center bg-white/10 rounded-lg px-3 py-2 border border-white/20">
-                                                <span className="text-[10px] font-black text-white/50 mr-1">$</span>
+                                            <div className={`flex items-center rounded-lg px-3 py-2 border transition-all ${!isPremium ? 'bg-slate-100 border-slate-100' : isExclusive ? 'bg-white border-blue-500 ring-2 ring-blue-500/10' : 'bg-white border-slate-200'}`}>
+                                                <span className={`text-[10px] font-black mr-1 ${isExclusive ? 'text-blue-600' : 'text-slate-400'}`}>$</span>
                                                 <input
                                                     type="number"
+                                                    disabled={!isPremium}
                                                     value={exclusivePrice}
-                                                    onChange={(e) => setExclusivePrice(e.target.value)}
-                                                    className="w-full text-xs font-black outline-none text-white bg-transparent"
-                                                    placeholder="Precio Exclusivo"
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setExclusivePrice(val);
+                                                        setIsExclusive(val !== '' && parseInt(val) > 0);
+                                                    }}
+                                                    className={`w-16 text-xs font-black outline-none bg-transparent ${isExclusive ? 'text-blue-600' : 'text-slate-900'}`}
+                                                    placeholder="0"
                                                 />
                                             </div>
+                                        </div>
+                                        {isPremium && (
+                                            <p className={`text-[8px] font-bold uppercase ${isExclusive ? 'text-blue-500' : 'text-slate-400'}`}>
+                                                {isExclusive ? '★ Este beat se marcará como Exclusivo' : 'Deja en 0 para no ofrecer venta exclusiva'}
+                                            </p>
                                         )}
                                     </div>
                                 </div>
