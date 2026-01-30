@@ -9,13 +9,17 @@ import { supabase } from '@/lib/supabase';
 export default function PricingPage() {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
     const [userTier, setUserTier] = useState<string | null>(null);
+    const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {
-                const { data } = await supabase.from('profiles').select('subscription_tier').eq('id', session.user.id).single();
-                if (data) setUserTier(data.subscription_tier);
+                const { data } = await supabase.from('profiles').select('subscription_tier, subscription_end_date').eq('id', session.user.id).single();
+                if (data) {
+                    setUserTier(data.subscription_tier);
+                    setSubscriptionEndDate(data.subscription_end_date);
+                }
             }
         };
         fetchUser();
@@ -174,22 +178,39 @@ export default function PricingPage() {
                                     </ul>
 
                                     <button
-                                        disabled={isCurrentPlan || (userTier === 'premium' && !isPremium) || (userTier === 'pro' && plan.tier === 'free')}
+                                        disabled={isCurrentPlan}
+                                        onClick={() => {
+                                            if (userTier === 'premium' && plan.tier !== 'premium') {
+                                                alert(`Has solicitado bajar al plan ${plan.name}. Tus beneficios Premium se mantendrán hasta el final del periodo.`);
+                                            } else if (userTier === 'pro' && plan.tier === 'free') {
+                                                alert(`Has solicitado bajar al plan Gratis. Tus beneficios Pro se mantendrán hasta el final del periodo.`);
+                                            } else {
+                                                // Logic for upgrade would go here
+                                            }
+                                        }}
                                         className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform hover:-translate-y-1 mb-3 ${isCurrentPlan
-                                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                                            ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                                            : (userTier === 'premium' && plan.tier !== 'premium') || (userTier === 'pro' && plan.tier === 'free')
+                                                ? 'bg-white border-2 border-slate-200 text-slate-400 hover:border-slate-900 hover:text-slate-900' /* Downgrade Style */
                                                 : isPremium
                                                     ? 'bg-blue-600 text-white hover:bg-slate-900 shadow-xl shadow-blue-600/20'
                                                     : 'bg-slate-900 text-white hover:bg-blue-600 shadow-xl shadow-slate-900/10'
-                                            } ${(userTier === 'premium' && !isPremium) || (userTier === 'pro' && plan.tier === 'free') ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            }`}
                                     >
                                         {isCurrentPlan
                                             ? "Tu Plan Actual"
-                                            : userTier === 'premium'
-                                                ? "Incluido en tu Plan"
-                                                : userTier === 'pro' && plan.tier === 'free'
-                                                    ? "Superado"
-                                                    : plan.buttonText}
+                                            : (userTier === 'premium' && plan.tier === 'pro') ? "Bajar a Pro"
+                                                : (userTier === 'premium' && plan.tier === 'free') ? "Bajar a Gratis"
+                                                    : (userTier === 'pro' && plan.tier === 'free') ? "Bajar a Gratis"
+                                                        : plan.buttonText}
                                     </button>
+
+                                    {/* Subscription End Date Message for Downgrades or Current Plan */}
+                                    {subscriptionEndDate && (isCurrentPlan || (userTier === 'premium' && plan.tier !== 'premium') || (userTier === 'pro' && plan.tier === 'free')) && userTier !== 'free' && (
+                                        <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-4">
+                                            Vence el: {new Date(subscriptionEndDate).toLocaleDateString()}
+                                        </div>
+                                    )}
 
                                     <button className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors py-2 flex items-center justify-center gap-1 group/link">
                                         Más sobre el plan

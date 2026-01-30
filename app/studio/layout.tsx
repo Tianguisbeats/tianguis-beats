@@ -13,6 +13,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         { name: 'Mis Beats', href: '/studio/beats', icon: <Music size={18} /> },
         { name: 'Estadísticas', href: '/studio/stats', icon: <BarChart2 size={18} /> },
         { name: 'Ventas', href: '/studio/sales', icon: <DollarSign size={18} /> },
+        { name: 'Mi Suscripción', href: '/pricing', icon: <Settings size={18} /> },
     ];
 
     return (
@@ -36,8 +37,8 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                         key={item.href}
                                         href={item.href}
                                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${isActive
-                                                ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10'
-                                                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                                            ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10'
+                                            : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                                             }`}
                                     >
                                         {item.icon}

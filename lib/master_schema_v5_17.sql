@@ -36,7 +36,8 @@ ALTER TABLE public.profiles
 ADD COLUMN IF NOT EXISTS user_num_free INTEGER,
 ADD COLUMN IF NOT EXISTS user_num_pro INTEGER,
 ADD COLUMN IF NOT EXISTS user_num_prem INTEGER,
-ADD COLUMN IF NOT EXISTS fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now());
+ADD COLUMN IF NOT EXISTS fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
+ADD COLUMN IF NOT EXISTS subscription_end_date TIMESTAMP WITH TIME ZONE;
 
 -- C) Asegurar que fecha_creacion tenga datos históricos (Copia de created_at si existe)
 DO $$

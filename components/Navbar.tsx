@@ -81,7 +81,6 @@ export default function Navbar() {
                         <div className="hidden md:flex items-center gap-8">
                             <div className="flex items-baseline space-x-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
                                 <Link href="/beats" className="hover:text-blue-600 transition-colors">Explorar Tianguis</Link>
-                                <Link href="/pricing" className="hover:text-blue-600 transition-colors">Planes</Link>
                             </div>
 
                             <div className="flex items-center gap-4">
