@@ -204,98 +204,135 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
--- 6. AUTO-FOUNDER para los primeros 100 usuarios
--- 6. v5.21: CONTADORES POR TIER & SYSTEMA FOUNDER AVANZADO
--- Borramos triggers anteriores si existen
+-- 6 founder 
+-- v5.23: LÓGICA DE 'SILLAS MUSICALES' (4 CONTADORES & RE-SECUENCIA)
+-- Borramos triggers anteriores
 DROP TRIGGER IF EXISTS check_founder_on_insert ON public.profiles;
 DROP TRIGGER IF EXISTS on_profile_deleted ON public.profiles;
+DROP TRIGGER IF EXISTS on_tier_change_before ON public.profiles;
+DROP TRIGGER IF EXISTS on_tier_change_after ON public.profiles;
 DROP FUNCTION IF EXISTS public.auto_founder_check();
 DROP FUNCTION IF EXISTS public.resequence_users_after_delete();
+DROP FUNCTION IF EXISTS public.manage_tier_identity();
+DROP FUNCTION IF EXISTS public.resequence_tiers_after();
 
--- Agregamos columnas para contadores por tier
+-- 1. Modificación de Columnas
+-- Renombramos user_num a user_num_total si existe (para preservar data)
+DO $$
+BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'user_num') THEN
+     ALTER TABLE public.profiles RENAME COLUMN user_num TO user_num_total;
+  ELSE
+     ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS user_num_total INTEGER;
+  END IF;
+END $$;
+
 ALTER TABLE public.profiles 
+ADD COLUMN IF NOT EXISTS user_num_free INTEGER,
 ADD COLUMN IF NOT EXISTS user_num_pro INTEGER,
 ADD COLUMN IF NOT EXISTS user_num_prem INTEGER;
 
--- Función Maestra de Gestión de Tiers y Founders
-CREATE OR REPLACE FUNCTION public.manage_tier_identity()
+-- 2. Función Trigger: ASIGNACIÓN DE ASIENTOS (BEFORE INSERT/UPDATE)
+CREATE OR REPLACE FUNCTION public.assign_musical_chairs()
 RETURNS TRIGGER AS $$
-DECLARE
-  v_tier_col TEXT;
-  v_max_val INTEGER;
 BEGIN
-  -- CASO 1: INSERT o UPDATE (Entrando a un tier pagado)
-  IF (TG_OP = 'INSERT' AND NEW.subscription_tier IN ('pro', 'premium')) OR
-     (TG_OP = 'UPDATE' AND NEW.subscription_tier IS DISTINCT FROM OLD.subscription_tier) THEN
+  -- CASO: NUEVO USUARIO (INSERT)
+  IF (TG_OP = 'INSERT') THEN
+     -- 1. Asignar Global Total
+     SELECT COALESCE(MAX(user_num_total), 0) + 1 INTO NEW.user_num_total FROM public.profiles;
      
-     -- Si entra a PRO
-     IF NEW.subscription_tier = 'pro' AND (TG_OP = 'INSERT' OR OLD.subscription_tier IS DISTINCT FROM 'pro') THEN
-       SELECT COALESCE(MAX(user_num_pro), 0) + 1 INTO NEW.user_num_pro FROM public.profiles;
-       NEW.user_num_prem := NULL; -- Limpiar si venía de premium
-     -- Si entra a PREMIUM
-     ELSIF NEW.subscription_tier = 'premium' AND (TG_OP = 'INSERT' OR OLD.subscription_tier IS DISTINCT FROM 'premium') THEN
-       SELECT COALESCE(MAX(user_num_prem), 0) + 1 INTO NEW.user_num_prem FROM public.profiles;
-       NEW.user_num_pro := NULL; -- Limpiar si venía de pro
-     -- Si entra a FREE (Downgrade)
-     ELSIF NEW.subscription_tier = 'free' THEN
-       NEW.user_num_pro := NULL;
-       NEW.user_num_prem := NULL;
+     -- 2. Asignar Asiento según Tier
+     IF NEW.subscription_tier = 'free' OR NEW.subscription_tier IS NULL THEN
+        SELECT COALESCE(MAX(user_num_free), 0) + 1 INTO NEW.user_num_free FROM public.profiles;
+     ELSIF NEW.subscription_tier = 'pro' THEN
+        SELECT COALESCE(MAX(user_num_pro), 0) + 1 INTO NEW.user_num_pro FROM public.profiles;
+     ELSIF NEW.subscription_tier = 'premium' THEN
+        SELECT COALESCE(MAX(user_num_prem), 0) + 1 INTO NEW.user_num_prem FROM public.profiles;
      END IF;
-
-     -- Evaluar Founder Status (Solo para Pro o Premium primeros 100)
-     -- Usuarios gratis NUNCA son founder
-     NEW.is_founder := (
-        (NEW.user_num_pro <= 100) OR 
-        (NEW.user_num_prem <= 100)
-     );
+  
+  -- CASO: CAMBIO DE TIER (UPDATE)
+  ELSIF (TG_OP = 'UPDATE' AND NEW.subscription_tier IS DISTINCT FROM OLD.subscription_tier) THEN
+     -- 1. Asignar NUEVO asiento al final de la fila destino
+     IF NEW.subscription_tier = 'free' THEN
+        SELECT COALESCE(MAX(user_num_free), 0) + 1 INTO NEW.user_num_free FROM public.profiles;
+        NEW.user_num_pro := NULL; 
+        NEW.user_num_prem := NULL;
+     ELSIF NEW.subscription_tier = 'pro' THEN
+        SELECT COALESCE(MAX(user_num_pro), 0) + 1 INTO NEW.user_num_pro FROM public.profiles;
+        NEW.user_num_free := NULL;
+        NEW.user_num_prem := NULL;
+     ELSIF NEW.subscription_tier = 'premium' THEN
+        SELECT COALESCE(MAX(user_num_prem), 0) + 1 INTO NEW.user_num_prem FROM public.profiles;
+        NEW.user_num_free := NULL;
+        NEW.user_num_pro := NULL;
+     END IF;
   END IF;
+
+  -- 3. EVALUAR FOUNDER IMPLÍCITO (Solo Pro/Prem primeros 100)
+  NEW.is_founder := (
+     (COALESCE(NEW.user_num_pro, 999) <= 100) OR 
+     (COALESCE(NEW.user_num_prem, 999) <= 100)
+  );
 
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER on_tier_change_before
+CREATE TRIGGER on_chairs_assignment
   BEFORE INSERT OR UPDATE ON public.profiles
-  FOR EACH ROW EXECUTE FUNCTION public.manage_tier_identity();
+  FOR EACH ROW EXECUTE FUNCTION public.assign_musical_chairs();
 
--- Función de Re-secuencia (POST-CHANGE)
-CREATE OR REPLACE FUNCTION public.resequence_tiers_after()
+-- 3. Función Trigger: RE-SECUENCIA (AFTER DELETE/UPDATE)
+-- "Cierra los huecos"
+CREATE OR REPLACE FUNCTION public.resequence_musical_chairs()
 RETURNS TRIGGER AS $$
+DECLARE
+  v_old_tier TEXT;
+  v_old_free INT;
+  v_old_pro INT;
+  v_old_prem INT;
+  v_old_total INT;
 BEGIN
-  -- 1. CASO GLOBAL: Si se borra un usuario, re-secuenciar el user_num general (para orden de usuarios gratis)
+  -- Obtener valores viejos
   IF (TG_OP = 'DELETE') THEN
-     UPDATE public.profiles 
-     SET user_num = user_num - 1 
-     WHERE user_num > OLD.user_num;
+     v_old_tier := OLD.subscription_tier;
+     v_old_free := OLD.user_num_free;
+     v_old_pro := OLD.user_num_pro;
+     v_old_prem := OLD.user_num_prem;
+     v_old_total := OLD.user_num_total;
+  ELSE -- UPDATE
+     v_old_tier := OLD.subscription_tier;
+     v_old_free := OLD.user_num_free;
+     v_old_pro := OLD.user_num_pro;
+     v_old_prem := OLD.user_num_prem;
+     v_old_total := NULL; -- En update no cambia el total global
   END IF;
 
-  -- 2. CASO TIERS: Si se borró usuario o cambió de tier (saliendo)
+  -- 1. CASO GLOBAL: Si se borra, recorre el total
+  IF (TG_OP = 'DELETE') AND v_old_total IS NOT NULL THEN
+     UPDATE public.profiles SET user_num_total = user_num_total - 1 WHERE user_num_total > v_old_total;
+  END IF;
+
+  -- 2. CASO TIERS: Si dejó un hueco (por Delete o cambio de Tier)
   IF (TG_OP = 'DELETE') OR (TG_OP = 'UPDATE' AND OLD.subscription_tier IS DISTINCT FROM NEW.subscription_tier) THEN
      
-     -- Si salió de PRO
-     IF OLD.subscription_tier = 'pro' THEN
-        -- Recorrer numeración Pro
-        UPDATE public.profiles 
-        SET user_num_pro = user_num_pro - 1 
-        WHERE user_num_pro > OLD.user_num_pro;
-        
-        -- El usuario que bajó al puesto 100 ahora es founder
-        UPDATE public.profiles
-        SET is_founder = true
-        WHERE subscription_tier = 'pro' AND user_num_pro = 100;
+     -- Hueco en FREE
+     IF v_old_tier = 'free' AND v_old_free IS NOT NULL THEN
+        UPDATE public.profiles SET user_num_free = user_num_free - 1 WHERE user_num_free > v_old_free;
      END IF;
 
-     -- Si salió de PREMIUM
-     IF OLD.subscription_tier = 'premium' THEN
-        -- Recorrer numeración Premium
-        UPDATE public.profiles 
-        SET user_num_prem = user_num_prem - 1 
-        WHERE user_num_prem > OLD.user_num_prem;
+     -- Hueco en PRO
+     IF v_old_tier = 'pro' AND v_old_pro IS NOT NULL THEN
+        UPDATE public.profiles SET user_num_pro = user_num_pro - 1 WHERE user_num_pro > v_old_pro;
+        -- Checar nuevo Founder (el que cayó al 100)
+        UPDATE public.profiles SET is_founder = true WHERE user_num_pro = 100 AND subscription_tier = 'pro';
+     END IF;
 
-        -- El usuario que bajó al puesto 100 ahora es founder
-        UPDATE public.profiles
-        SET is_founder = true
-        WHERE subscription_tier = 'premium' AND user_num_prem = 100;
+     -- Hueco en PREMIUM
+     IF v_old_tier = 'premium' AND v_old_prem IS NOT NULL THEN
+        UPDATE public.profiles SET user_num_prem = user_num_prem - 1 WHERE user_num_prem > v_old_prem;
+        -- Checar nuevo Founder
+        UPDATE public.profiles SET is_founder = true WHERE user_num_prem = 100 AND subscription_tier = 'premium';
      END IF;
 
   END IF;
@@ -303,9 +340,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER on_tier_change_after
+CREATE TRIGGER on_chairs_resequence
   AFTER DELETE OR UPDATE ON public.profiles
-  FOR EACH ROW EXECUTE FUNCTION public.resequence_tiers_after();
+  FOR EACH ROW EXECUTE FUNCTION public.resequence_musical_chairs();
 
 -- 7. VERIFICACIÓN MANUAL (Ejemplo para Sondemaik)
 -- UPDATE profiles SET is_verified = true, is_founder = true WHERE username = 'sondemaik';
