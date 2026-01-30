@@ -84,14 +84,10 @@ export default function Navbar() {
                                 <Link href="/pricing" className="hover:text-blue-600 transition-colors">Planes</Link>
                             </div>
 
-                            import {Music, Menu, X, Settings} from 'lucide-react';
-                            // ... (imports remain the same, just adding Settings)
-
-                            // ... inside rendering ...
                             <div className="flex items-center gap-4">
                                 {user ? (
                                     <div className="flex items-center gap-6">
-                                        <Link href="/studio/beats" title="Tianguis Studio" className="text-slate-400 hover:text-slate-900 transition-colors">
+                                        <Link href="/studio" title="Tianguis Studio" className="text-slate-400 hover:text-slate-900 transition-colors">
                                             <Settings size={20} />
                                         </Link>
 
