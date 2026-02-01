@@ -13,18 +13,18 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 const MOODS = [
-    { label: "Agresivo", emoji: "🔥" },
-    { label: "Chill", emoji: "🌊" },
-    { label: "Oscuro", emoji: "🌑" },
-    { label: "Triste", emoji: "💔" },
-    { label: "Melódico", emoji: "✨" },
-    { label: "Energético", emoji: "⚡" },
-    { label: "Psicodélico", emoji: "🍄" },
-    { label: "Brillante", emoji: "💎" },
-    { label: "Clásico", emoji: "🎹" },
-    { label: "Nostálgico", emoji: "🚬" },
-    { label: "Malandro", emoji: "👺" },
-    { label: "Tropical", emoji: "🌴" }
+    { label: "Agresivo", emoji: "🔥", color: "bg-red-500" },
+    { label: "Chill", emoji: "🌊", color: "bg-cyan-500" },
+    { label: "Oscuro", emoji: "🌑", color: "bg-slate-800" },
+    { label: "Triste", emoji: "💔", color: "bg-indigo-500" },
+    { label: "Melódico", emoji: "✨", color: "bg-pink-500" },
+    { label: "Energético", emoji: "⚡", color: "bg-amber-500" },
+    { label: "Psicodélico", emoji: "🍄", color: "bg-purple-500" },
+    { label: "Brillante", emoji: "💎", color: "bg-blue-400" },
+    { label: "Clásico", emoji: "🎹", color: "bg-emerald-600" },
+    { label: "Nostálgico", emoji: "🚬", color: "bg-orange-400" },
+    { label: "Malandro", emoji: "👺", color: "bg-rose-600" },
+    { label: "Tropical", emoji: "🌴", color: "bg-green-500" }
 ];
 
 const GENRES = [
@@ -229,33 +229,46 @@ export default function UploadPage() {
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col pt-20">
             <Navbar />
 
-            <main className="flex-1 pb-20">
+            {/* Background Accents */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/30 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-100/30 blur-[120px] rounded-full" />
+                <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-amber-50/40 blur-[100px] rounded-full" />
+            </div>
+            <main className="flex-1 pb-20 relative">
                 <div className="max-w-4xl mx-auto px-4 mt-8">
 
                     {/* Header Minimalista */}
                     <div className="mb-10 pl-2 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
                         <div>
-                            <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900 mb-1">
-                                Publicar nuevo <span className="text-blue-600">Beat</span>
+                            <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-slate-900 mb-1 flex items-center gap-3">
+                                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Publicar</span>
+                                <span className="text-slate-900">Beat</span>
+                                <Zap className="text-amber-400 fill-amber-400" size={32} />
                             </h1>
-                            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
-                                Datos del Beat
+                            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] flex items-center gap-2">
+                                <Edit2 size={12} className="text-blue-500" /> Datos maestros de tu obra
                             </p>
                         </div>
                         {isFree && (
-                            <div className="bg-blue-50 border border-blue-100 rounded-2xl px-6 py-4 flex flex-col items-center md:items-end">
-                                <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Tu Límite (Gratis)</span>
-                                <div className="flex items-center gap-2">
-                                    <div className="h-1.5 w-24 bg-blue-100 rounded-full overflow-hidden">
+                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-[2rem] px-8 py-5 flex flex-col items-center md:items-end shadow-sm">
+                                <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                    <Zap size={14} className="fill-blue-500" /> Tu Límite (Gratis)
+                                </span>
+                                <div className="flex items-center gap-4">
+                                    <div className="h-2 w-32 bg-white/50 rounded-full overflow-hidden border border-blue-100 shadow-inner">
                                         <div
-                                            className="h-full bg-blue-600 transition-all duration-500"
+                                            className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]"
                                             style={{ width: `${(beatCount / 5) * 100}%` }}
                                         />
                                     </div>
-                                    <span className="text-xs font-black text-blue-600">{beatCount}/5</span>
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-sm font-black text-slate-900 leading-none">{beatCount}/5</span>
+                                        <span className="text-[8px] font-bold text-slate-400 uppercase">Beats</span>
+                                    </div>
                                 </div>
                                 {beatCount >= 5 && (
-                                    <p className="text-[8px] font-bold text-red-500 uppercase mt-2">Límite alcanzado</p>
+                                    <p className="text-[9px] font-black text-red-500 uppercase mt-2 animate-pulse">Límite alcanzado ⚠️</p>
                                 )}
                             </div>
                         )}
@@ -397,19 +410,23 @@ export default function UploadPage() {
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Vibe (Elige 3 opciones)</label>
                                         <div className="flex flex-wrap gap-2">
-                                            {MOODS.map(mood => (
-                                                <button
-                                                    key={mood.label}
-                                                    type="button"
-                                                    onClick={() => handleMoodToggle(mood.label)}
-                                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wide transition-all ${selectedMoods.includes(mood.label)
-                                                        ? 'bg-slate-900 text-white shadow-md'
-                                                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                                                        }`}
-                                                >
-                                                    {mood.label}
-                                                </button>
-                                            ))}
+                                            {MOODS.map(mood => {
+                                                const isSelected = selectedMoods.includes(mood.label);
+                                                return (
+                                                    <button
+                                                        key={mood.label}
+                                                        type="button"
+                                                        onClick={() => handleMoodToggle(mood.label)}
+                                                        className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wide transition-all border flex items-center gap-1.5 ${isSelected
+                                                            ? `${mood.color} text-white border-transparent shadow-lg shadow-${mood.color.split('-')[1]}-500/20 scale-105`
+                                                            : 'bg-white text-slate-500 border-slate-100 hover:border-slate-300 hover:bg-slate-50'
+                                                            }`}
+                                                    >
+                                                        <span>{mood.emoji}</span>
+                                                        {mood.label}
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 </div>
@@ -421,11 +438,13 @@ export default function UploadPage() {
                             <div className="space-y-6">
                                 <div className="grid md:grid-cols-2 gap-6">
                                     {/* MP3 Tagged + Licencia Base */}
-                                    <div className="flex flex-col gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <div className="flex flex-col gap-4 p-6 bg-green-50/30 rounded-3xl border border-green-100 hover:bg-green-50/50 transition-colors group">
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
-                                                <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">MP3 Tag (Muestra)</span>
-                                                <span className="text-[9px] font-bold text-blue-500 uppercase tracking-widest">Obligatorio (Preview)</span>
+                                                <span className="text-[10px] font-black text-green-700 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                                    <Music size={14} className="text-green-500" /> MP3 Tag (Muestra)
+                                                </span>
+                                                <span className="text-[9px] font-bold text-green-500/70 uppercase tracking-widest">Obligatorio • Max 20MB</span>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
@@ -440,23 +459,24 @@ export default function UploadPage() {
                                                 className="hidden"
                                                 id="preview-file"
                                             />
-                                            <label htmlFor="preview-file" className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 text-center truncate max-w-[200px]">
+                                            <label htmlFor="preview-file" className="flex-1 px-4 py-3 bg-white border-2 border-dashed border-green-200 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-green-400 hover:bg-green-50 transition-all text-center truncate">
                                                 {previewFile ? previewFile.name : 'Seleccionar MP3 (Muestra)'}
                                             </label>
-                                            {previewFile && <CheckCircle2 size={16} className="text-green-500" />}
+                                            {previewFile && <CheckCircle2 size={20} className="text-green-500 animate-in zoom-in" />}
                                         </div>
-                                        <p className="text-[8px] font-black text-slate-400 uppercase">Este archivo se usa para la reproducción pública</p>
                                     </div>
 
                                     {/* MP3 320 KBPS (High Quality) */}
-                                    <div className="flex flex-col gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <div className="flex flex-col gap-4 p-6 bg-amber-50/30 rounded-3xl border border-amber-100 hover:bg-amber-50/50 transition-colors">
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
-                                                <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">MP3 320 KBPS</span>
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">(High Quality)</span>
+                                                <span className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                                    <Music size={14} className="text-amber-500" /> MP3 320 KBPS
+                                                </span>
+                                                <span className="text-[9px] font-bold text-amber-500/70 uppercase tracking-widest">Opcional • Master HQ</span>
                                             </div>
-                                            <div className="flex items-center gap-2 bg-white rounded-lg px-2 py-1.5 border border-slate-200">
-                                                <span className="text-[10px] font-black text-slate-400">$</span>
+                                            <div className="flex items-center gap-2 bg-white rounded-xl px-2 py-1.5 border-2 border-amber-100 shadow-sm">
+                                                <span className="text-[10px] font-black text-amber-500">$</span>
                                                 <input
                                                     type="number"
                                                     value={standardPrice}
@@ -477,38 +497,39 @@ export default function UploadPage() {
                                                 className="hidden"
                                                 id="hq-file"
                                             />
-                                            <label htmlFor="hq-file" className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 text-center truncate max-w-[200px]">
+                                            <label htmlFor="hq-file" className="flex-1 px-4 py-3 bg-white border-2 border-dashed border-amber-200 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-amber-400 hover:bg-amber-50 transition-all text-center truncate">
                                                 {hqMp3File ? hqMp3File.name : 'Seleccionar MP3 (HQ)'}
                                             </label>
-                                            {hqMp3File && <CheckCircle2 size={16} className="text-green-500" />}
+                                            {hqMp3File && <CheckCircle2 size={20} className="text-green-500 animate-in zoom-in" />}
                                         </div>
-                                        <p className="text-[8px] font-black text-slate-300 uppercase">Opcional para todos los planes</p>
                                     </div>
 
                                     {/* WAV + Precio */}
-                                    <div className={`flex flex-col gap-4 p-5 rounded-2xl border transition-all ${isFree ? 'bg-slate-100/50 border-slate-100' : 'bg-slate-50 border-slate-100'}`}>
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' : 'bg-blue-50/30 border-blue-100 hover:bg-blue-50/50'}`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isFree ? 'text-slate-400' : 'text-slate-900'}`}>Archivo WAV</span>
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${isFree ? 'text-slate-400' : 'text-blue-700'}`}>
+                                                        <Music size={14} className={isFree ? 'text-slate-400' : 'text-blue-500'} /> Archivo WAV
+                                                    </span>
                                                     {isFree && <Lock size={12} className="text-slate-400" />}
                                                 </div>
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Alta Fidelidad</span>
+                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${isFree ? 'text-slate-300' : 'text-blue-500/70'}`}>Alta Fidelidad • 24 bit</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 {isFree && (
-                                                    <Link href="/pricing" className="text-[8px] font-black text-blue-600 border border-blue-200 px-2 py-1 rounded-full uppercase hover:bg-blue-600 hover:text-white transition-all">
+                                                    <Link href="/pricing" className="text-[8px] font-black text-blue-600 bg-white border-2 border-blue-100 px-2.5 py-1.5 rounded-full uppercase hover:bg-blue-600 hover:text-white transition-all shadow-sm">
                                                         Mejorar a Pro
                                                     </Link>
                                                 )}
-                                                <div className={`flex items-center rounded-lg px-2 py-1.5 border ${isFree ? 'bg-slate-100 border-slate-100' : 'bg-white border-slate-200'}`}>
-                                                    <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
+                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 ${isFree ? 'bg-slate-50 border-slate-100' : 'bg-white border-blue-100 shadow-sm'}`}>
+                                                    <span className={`text-[10px] font-black mr-1 ${isFree ? 'text-slate-300' : 'text-blue-400'}`}>$</span>
                                                     <input
                                                         type="number"
                                                         disabled={isFree}
                                                         value={wavPrice}
                                                         onChange={(e) => setWavPrice(e.target.value)}
-                                                        className="w-10 text-[10px] font-black outline-none text-slate-900 bg-transparent"
+                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${isFree ? 'text-slate-300' : 'text-slate-900'}`}
                                                     />
                                                 </div>
                                             </div>
@@ -526,39 +547,40 @@ export default function UploadPage() {
                                                     className="hidden"
                                                     id="wav-file"
                                                 />
-                                                <label htmlFor="wav-file" className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 text-center truncate max-w-[200px]">
+                                                <label htmlFor="wav-file" className="flex-1 px-4 py-3 bg-white border-2 border-dashed border-blue-200 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all text-center truncate">
                                                     {wavFile ? wavFile.name : 'Seleccionar WAV'}
                                                 </label>
-                                                {wavFile && <CheckCircle2 size={16} className="text-green-500" />}
+                                                {wavFile && <CheckCircle2 size={20} className="text-green-500 animate-in zoom-in" />}
                                             </div>
                                         )}
-                                        <p className="text-[8px] font-black text-slate-300 uppercase">Solo disponible en planes Pro y Premium</p>
                                     </div>
 
                                     {/* Stems + Precio */}
-                                    <div className={`flex flex-col gap-4 p-5 rounded-2xl border transition-all ${!isPremium ? 'bg-slate-100/50 border-slate-100' : 'bg-slate-50 border-slate-100'}`}>
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' : 'bg-purple-50/30 border-purple-100 hover:bg-purple-50/50'}`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${!isPremium ? 'text-slate-400' : 'text-slate-900'}`}>Stems</span>
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${!isPremium ? 'text-slate-400' : 'text-purple-700'}`}>
+                                                        <Hash size={14} className={!isPremium ? 'text-slate-400' : 'text-purple-500'} /> Stems
+                                                    </span>
                                                     {!isPremium && <Lock size={12} className="text-slate-400" />}
                                                 </div>
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Pistas separadas</span>
+                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${!isPremium ? 'text-slate-300' : 'text-purple-500/70'}`}>Pistas separadas • .ZIP</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 {!isPremium && (
-                                                    <Link href="/pricing" className="text-[8px] font-black text-blue-600 border border-blue-200 px-2 py-1 rounded-full uppercase hover:bg-blue-600 hover:text-white transition-all">
-                                                        {isFree ? 'Mejorar a Premium' : 'Mejorar a Premium'}
+                                                    <Link href="/pricing" className="text-[8px] font-black text-purple-600 bg-white border-2 border-purple-100 px-2.5 py-1.5 rounded-full uppercase hover:bg-purple-600 hover:text-white transition-all shadow-sm">
+                                                        Mejorar a Premium
                                                     </Link>
                                                 )}
-                                                <div className={`flex items-center rounded-lg px-2 py-1.5 border ${!isPremium ? 'bg-slate-100 border-slate-100' : 'bg-white border-slate-200'}`}>
-                                                    <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
+                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 ${!isPremium ? 'bg-slate-50 border-slate-100' : 'bg-white border-purple-100 shadow-sm'}`}>
+                                                    <span className={`text-[10px] font-black mr-1 ${!isPremium ? 'text-slate-300' : 'text-purple-400'}`}>$</span>
                                                     <input
                                                         type="number"
                                                         disabled={!isPremium}
                                                         value={stemsPrice}
                                                         onChange={(e) => setStemsPrice(e.target.value)}
-                                                        className="w-10 text-[10px] font-black outline-none text-slate-900 bg-transparent"
+                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${!isPremium ? 'text-slate-300' : 'text-slate-900'}`}
                                                     />
                                                 </div>
                                             </div>
@@ -576,13 +598,12 @@ export default function UploadPage() {
                                                     className="hidden"
                                                     id="stems-file"
                                                 />
-                                                <label htmlFor="stems-file" className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 text-center truncate max-w-[200px]">
+                                                <label htmlFor="stems-file" className="flex-1 px-4 py-3 bg-white border-2 border-dashed border-purple-200 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-all text-center truncate">
                                                     {stemsFile ? stemsFile.name : 'Seleccionar Stems'}
                                                 </label>
-                                                {stemsFile && <CheckCircle2 size={16} className="text-green-500" />}
+                                                {stemsFile && <CheckCircle2 size={20} className="text-green-500 animate-in zoom-in" />}
                                             </div>
                                         )}
-                                        <p className="text-[8px] font-black text-slate-300 uppercase">Solo disponible en plan Premium</p>
                                     </div>
                                 </div>
 
@@ -625,9 +646,19 @@ export default function UploadPage() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 bg-slate-900 text-white rounded-xl font-black uppercase tracking-[0.2em] text-xs hover:bg-blue-600 transition-all shadow-lg active:scale-95"
+                                className="w-full py-5 bg-gradient-to-r from-slate-900 to-blue-900 text-white rounded-2xl font-black uppercase tracking-[0.3em] text-xs hover:from-blue-600 hover:to-indigo-600 transition-all shadow-xl shadow-blue-900/20 active:scale-95 flex items-center justify-center gap-3 border-t border-white/10"
                             >
-                                {loading ? "Publicando..." : "Publicar Beat"}
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="animate-spin" size={20} />
+                                        Publicando Beat...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Upload size={18} />
+                                        Publicar Beat en el Tianguis
+                                    </>
+                                )}
                             </button>
                         </form>
                     </div>
