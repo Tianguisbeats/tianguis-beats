@@ -61,23 +61,27 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     .single();
 
                 if (data) {
+                    // Resolve high-quality preview or maestra bucket
                     const path = data.mp3_url || '';
                     const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-
                     const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+                    const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
 
-                    const { data: { publicUrl } } = supabase.storage
-                        .from(bucket)
-                        .getPublicUrl(encodedPath);
+                    // Resolve Cover Art URL if it's a relative path
+                    let finalCoverUrl = data.cover_url;
+                    if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
+                        const { data: { publicUrl: coverPUrl } } = supabase.storage.from('artworks').getPublicUrl(finalCoverUrl);
+                        finalCoverUrl = coverPUrl;
+                    }
 
-                    // Supabase might return producer as an object or array depending on the relationship config
                     const rawData = data as any;
                     const producerObj = Array.isArray(rawData.producer) ? rawData.producer[0] : rawData.producer;
 
                     setBeat({
                         ...data,
                         producer: producerObj,
-                        mp3_url: publicUrl
+                        mp3_url: publicUrl,
+                        cover_url: finalCoverUrl
                     } as BeatDetail);
 
                     logListen(data.id);
@@ -206,6 +210,20 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                             <span className="text-sm font-black">{beat.sale_count || 0} <span className="text-[10px] uppercase opacity-60">Ventas</span></span>
                                         </div>
                                     </div>
+
+                                    {/* Quick Actions Integration */}
+                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-6">
+                                        <button
+                                            onClick={handleLike}
+                                            className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest transition-all ${isLiked ? 'bg-red-50 text-red-500 border-2 border-red-100' : 'bg-white text-slate-900 border-2 border-slate-100 hover:border-blue-600'}`}
+                                        >
+                                            <Heart size={14} fill={isLiked ? "currentColor" : "none"} />
+                                            {isLiked ? 'Favorito' : 'Dar Like'}
+                                        </button>
+                                        <button className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-slate-900 border-2 border-slate-100 font-black text-[10px] uppercase tracking-widest hover:border-blue-600 transition-all">
+                                            <Share2 size={14} /> Compartir
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -295,6 +313,14 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     <li className="flex justify-between items-center pb-4 border-b border-slate-200">
                                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Escala</span>
                                         <span className="text-sm font-bold text-slate-900">{beat.musical_key || 'No especificada'}</span>
+                                    </li>
+                                    <li className="flex justify-between items-center pb-4 border-b border-slate-200">
+                                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Tonalidad</span>
+                                        <span className="text-sm font-bold text-slate-900">{beat.musical_scale || 'Natural'}</span>
+                                    </li>
+                                    <li className="flex justify-between items-center pb-4 border-b border-slate-200">
+                                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Tempo (BPM)</span>
+                                        <span className="text-sm font-bold text-slate-900">{beat.bpm} BPM</span>
                                     </li>
                                     <li className="flex justify-between items-center">
                                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Género</span>

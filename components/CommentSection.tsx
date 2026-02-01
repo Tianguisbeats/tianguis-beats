@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Send, User, Trash2 } from 'lucide-react';
+import { Send, User, Trash2, Crown } from 'lucide-react';
 
 interface Comment {
     id: string;
@@ -11,6 +11,9 @@ interface Comment {
         username: string;
         artistic_name: string;
         avatar_url: string | null;
+        is_verified?: boolean;
+        is_founder?: boolean;
+        subscription_tier?: string;
     }
 }
 
@@ -26,7 +29,7 @@ export default function CommentSection({ beatId }: { beatId: string }) {
             const { data: { user } } = await supabase.auth.getUser();
             setCurrentUser(user ? user.id : null);
 
-            // Fetch comments with user profile (username, artistic_name, avatar)
+            // Fetch comments with user profile (username, artistic_name, avatar, badges, tier)
             const { data, error } = await supabase
                 .from('comments')
                 .select(`
@@ -37,7 +40,10 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                     user:user_id (
                         username,
                         artistic_name,
-                        avatar_url
+                        avatar_url,
+                        is_verified,
+                        is_founder,
+                        subscription_tier
                     )
                 `)
                 .eq('beat_id', beatId)
@@ -58,11 +64,10 @@ export default function CommentSection({ beatId }: { beatId: string }) {
         const channel = supabase
             .channel('public:comments')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments', filter: `beat_id=eq.${beatId}` }, (payload) => {
-                // For new comments, we'll need to fetch the user info
                 const fetchNewComment = async () => {
                     const { data } = await supabase
                         .from('comments')
-                        .select(`id, content, created_at, user_id, user:user_id (username, artistic_name, avatar_url)`)
+                        .select(`id, content, created_at, user_id, user:user_id (username, artistic_name, avatar_url, is_verified, is_founder, subscription_tier)`)
                         .eq('id', (payload.new as any).id)
                         .single();
                     if (data) {
@@ -144,30 +149,47 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                 ) : (
                     comments.map(comment => (
                         <div key={comment.id} className="flex gap-4 group">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center shrink-0 overflow-hidden">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden border-2 transition-all ${comment.user.subscription_tier === 'premium' ? 'border-blue-500 shadow-sm shadow-blue-500/20' :
+                                comment.user.subscription_tier === 'pro' ? 'border-amber-400' :
+                                    'border-slate-100'
+                                }`}>
                                 {comment.user.avatar_url ? (
                                     <img src={comment.user.avatar_url} alt={comment.user.username} className="w-full h-full object-cover" />
                                 ) : (
-                                    <span className="text-blue-600 font-black text-xs">
+                                    <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300 italic font-black text-[10px]">
                                         {(comment.user.artistic_name || comment.user.username || 'U').charAt(0).toUpperCase()}
-                                    </span>
+                                    </div>
                                 )}
                             </div>
-                            <div className="flex-1">
+                            <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between mb-1">
-                                    <a href={`/${comment.user.username}`} className="text-xs font-black text-slate-900 uppercase tracking-wide hover:text-blue-600 transition-colors">
-                                        {comment.user.artistic_name || comment.user.username}
-                                    </a>
-                                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                        <a href={`/${comment.user.username}`} className="text-xs font-black text-slate-900 uppercase tracking-tight hover:text-blue-600 transition-colors truncate max-w-[150px]">
+                                            {comment.user.artistic_name || comment.user.username}
+                                        </a>
+                                        {comment.user.is_verified && (
+                                            <img src="/verified-badge.png" className="w-3.5 h-3.5 object-contain" alt="Verificado" title="Usuario Verificado" />
+                                        )}
+                                        {comment.user.is_founder && (
+                                            <span title="Founder">
+                                                <Crown size={12} className="text-amber-400" fill="currentColor" />
+                                            </span>
+                                        )}
+                                    </div>
+                                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest shrink-0">
                                         {new Date(comment.created_at).toLocaleDateString()}
                                     </span>
                                 </div>
-                                <p className="text-slate-500 text-sm leading-relaxed">{comment.content}</p>
+                                <p className="text-slate-500 text-sm leading-relaxed break-words">{comment.content}</p>
                             </div>
                             {currentUser === comment.user_id && (
                                 <button
-                                    onClick={() => handleDelete(comment.id)}
-                                    className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all"
+                                    onClick={() => {
+                                        if (confirm('¿Eliminar comentario?')) {
+                                            handleDelete(comment.id);
+                                        }
+                                    }}
+                                    className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1"
                                 >
                                     <Trash2 size={14} />
                                 </button>
