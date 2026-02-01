@@ -456,7 +456,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     producer_username: profile.username,
                                                     is_verified: profile.is_verified,
                                                     is_founder: profile.is_founder,
-                                                    mp3_url: (b as any).mp3_tag_url
+                                                    mp3_url: (b as any).mp3_url
                                                 })}
                                                 className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${currentBeat?.id === b.id && isPlaying ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900 hover:bg-blue-600 hover:text-white'}`}
                                             >

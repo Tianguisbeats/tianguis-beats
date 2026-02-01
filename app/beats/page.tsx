@@ -125,7 +125,7 @@ function BeatsPageContent() {
       const transformed = (data || []).map((b: any) => {
         const { data: { publicUrl } } = supabase.storage
           .from('beats-muestras')
-          .getPublicUrl(b.mp3_tag_url);
+          .getPublicUrl(b.mp3_url);
 
         return {
           id: b.id,
@@ -142,11 +142,11 @@ function BeatsPageContent() {
           mp3_url: publicUrl,
           musical_key: b.musical_key,
           mood: b.mood,
-          tag: b.tag || "Nuevo",
-          tagEmoji: b.tag_emoji || "🔥",
-          tagColor: b.tag_color || "bg-orange-600",
+          tag: "Nuevo",
+          tagEmoji: "🔥",
+          tagColor: "bg-orange-600",
           coverColor: b.cover_color || (Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100'),
-          mp3_tag_url: b.mp3_tag_url
+          mp3_url: publicUrl
         };
       });
 
