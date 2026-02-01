@@ -54,23 +54,30 @@ export default function PrivacyPage() {
 
                             <div className="space-y-12">
                                 <div>
-                                    <h4 className="text-blue-400 font-black uppercase tracking-widest text-xs mb-4">¿Qué información recopilamos?</h4>
+                                    <h4 className="text-blue-400 font-black uppercase tracking-widest text-xs mb-4">Transferencia Internacional de Datos</h4>
                                     <p className="text-slate-300 leading-relaxed text-lg">
-                                        Para poder ofrecerte la mejor experiencia, recopilamos tu nombre, correo electrónico, información de perfil profesional y, en caso de vendedores, datos fiscales y bancarios necesarios para el procesamiento de pagos.
+                                        Al utilizar Tianguis Beats, aceptas que tu información pueda ser procesada en servidores ubicados fuera de México (como los de Supabase o Stripe). Sin embargo, garantizamos que estos proveedores cumplen con estándares internacionales de protección equivalentes a la LFPDPPP.
                                     </p>
                                 </div>
 
                                 <div>
-                                    <h4 className="text-blue-400 font-black uppercase tracking-widest text-xs mb-4">Uso de Cookies</h4>
+                                    <h4 className="text-blue-400 font-black uppercase tracking-widest text-xs mb-4">Conservación de Datos</h4>
                                     <p className="text-slate-300 leading-relaxed text-lg">
-                                        Utilizamos cookies para recordar tu sesión, preferencias y entender cómo interactúas con nuestra plataforma. Esto nos ayuda a mejorar nuestros servicios constantemente.
+                                        Mantendremos tus datos personales únicamente durante el tiempo que sea necesario para cumplir con los fines para los cuales fueron recopilados, incluyendo el cumplimiento de obligaciones legales, contables o de reporte.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <h4 className="text-blue-400 font-black uppercase tracking-widest text-xs mb-4">Uso de Cookies y Tecnologías Similares</h4>
+                                    <p className="text-slate-300 leading-relaxed text-lg">
+                                        Utilizamos cookies técnicas para mantener tu sesión activa, cookies de personalización para recordar tus preferencias de búsqueda, y cookies de análisis para entender cómo mejorar el Tianguis. Puedes desactivarlas en la configuración de tu navegador, aunque algunas funciones podrían no estar disponibles.
                                     </p>
                                 </div>
 
                                 <div>
                                     <h4 className="text-blue-400 font-black uppercase tracking-widest text-xs mb-4">Derechos ARCO</h4>
                                     <p className="text-slate-300 leading-relaxed text-lg">
-                                        Puedes ejercer tus derechos de Acceso, Rectificación, Cancelación y Oposición enviando un correo a <span className="text-blue-400 font-bold">privacidad@tianguisbeats.com</span>. Atenderemos tu solicitud en los tiempos marcados por la ley.
+                                        Puedes ejercer tus derechos de Acceso, Rectificación, Cancelación y Oposición enviando un correo a <span className="text-blue-400 font-bold">privacidad@tianguisbeats.com</span>. Atenderemos tu solicitud en un plazo máximo de 20 días hábiles.
                                     </p>
                                 </div>
                             </div>

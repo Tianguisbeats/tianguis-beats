@@ -104,20 +104,33 @@ export default function TermsPage() {
                             <section id="payments" className="mb-12 scroll-mt-32">
                                 <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-6 flex items-center gap-3">
                                     <span className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm">4</span>
-                                    Pagos y Suscripciones
+                                    Pagos y Reembolsos
                                 </h2>
                                 <p className="text-slate-600 leading-relaxed">
-                                    Todas las transacciones se realizan a través de procesadores de pago seguros integrados. Tianguis Beats ofrece diferentes planes de suscripción para productores. Las tarifas no son reembolsables a menos que se especifique lo contrario por ley o por política interna de la empresa.
+                                    Todas las transacciones se realizan a través de procesadores de pago seguros integrados. Debido a la naturaleza digital de los productos (beats y licencias), <strong>todas las ventas son finales y no reembolsables</strong> una vez que el archivo ha sido descargado o el acceso ha sido concedido.
+                                </p>
+                                <p className="text-slate-600 leading-relaxed">
+                                    En caso de suscripciones PRO o PREMIUM, puedes cancelar tu renovación en cualquier momento desde el Studio, pero no se realizarán reembolsos prorrateados por periodos ya pagados.
+                                </p>
+                            </section>
+
+                            <section id="termination" className="mb-12 scroll-mt-32">
+                                <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-6 flex items-center gap-3">
+                                    <span className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm">5</span>
+                                    Terminación de Cuenta
+                                </h2>
+                                <p className="text-slate-600 leading-relaxed">
+                                    Tianguis Beats se reserva el derecho de suspender o cancelar tu cuenta de manera inmediata, sin previo aviso ni responsabilidad, por cualquier razón que consideremos una violación de estos Términos, incluyendo pero no limitado a infracciones de derechos de autor o comportamiento fraudulento.
                                 </p>
                             </section>
 
                             <section id="legal" className="mb-12 scroll-mt-32">
                                 <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-6 flex items-center gap-3">
-                                    <span className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm">5</span>
+                                    <span className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm">6</span>
                                     Jurisdicción y Ley Aplicable
                                 </h2>
                                 <p className="text-slate-600 leading-relaxed">
-                                    Estos términos se regirán e interpretarán de acuerdo con las leyes vigentes en México. Cualquier disputa relacionada con estos términos estará sujeta a la jurisdicción exclusiva de los tribunales competentes en la Ciudad de México o el Estado de México.
+                                    Estos términos se regirán de acuerdo con las leyes de México. Para cualquier controversia, las partes se someten a la jurisdicción de los tribunales competentes en la Ciudad de México, renunciando a cualquier otro fuero que pudiera corresponderles.
                                 </p>
                             </section>
                         </div>

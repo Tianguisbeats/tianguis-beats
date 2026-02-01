@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Send, Bot, Sparkles, Loader2, Play } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -11,10 +11,18 @@ interface Message {
 }
 
 export default function AIChatBot() {
+    const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
-        { role: 'assistant', content: '¡Hola! Soy tu A&R Virtual. ¿En qué puedo ayudarte hoy? Cuéntame qué tipo de beat buscas o pregúntame sobre nuestros planes.' }
+        { role: 'assistant', content: '¡Hola! Soy tu Tianguis A&R. ¿Buscas un beat en especial o tienes dudas sobre los planes?' }
     ]);
+
+    // Visibilidad controlada: Solo en Home, Beats, Pricing, Terms y Privacy.
+    // Oculto en Ayuda, Studio, Login, Signup, etc.
+    const allowedPaths = ['/', '/beats', '/pricing', '/terms', '/privacy'];
+    const shouldShow = allowedPaths.includes(pathname);
+
+    if (!shouldShow) return null;
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -86,7 +94,7 @@ export default function AIChatBot() {
                                 <Bot size={20} />
                             </div>
                             <div>
-                                <h3 className="font-black uppercase tracking-tight text-xs">A&R Virtual</h3>
+                                <h3 className="font-black uppercase tracking-tight text-xs">Tianguis A&R</h3>
                                 <div className="flex items-center gap-1.5">
                                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                                     <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">En línea</span>
