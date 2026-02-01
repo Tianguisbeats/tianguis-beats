@@ -109,13 +109,17 @@ export default function SignupPage() {
         } catch (err: any) {
             console.error('Error capturado en Signup:', err);
 
-            let userMessage = err.message || 'Error al crear cuenta. Inténtalo de nuevo.';
+            let userMessage = 'Ocurrió un error al crear tu cuenta. Inténtalo de nuevo.';
 
             // Traducción de errores comunes de Supabase
             if (err.message?.includes('email rate limit exceeded')) {
                 userMessage = 'Has intentado registrarte demasiadas veces. Por seguridad, espera unos minutos e intenta de nuevo.';
-            } else if (err.message?.includes('User already registered')) {
-                userMessage = 'Este correo ya está registrado. Intenta iniciar sesión.';
+            } else if (err.message?.includes('User already registered') || err.message?.includes('already been registered')) {
+                userMessage = 'Este correo ya está registrado. ¿Ya tienes cuenta? Intenta iniciar sesión.';
+            } else if (err.message?.includes('Password should be')) {
+                userMessage = 'La contraseña debe tener al menos 6 caracteres.';
+            } else if (err.message === 'Debes ser mayor de 18 años para registrarte en Tianguis Beats.') {
+                userMessage = err.message;
             }
 
             setError(userMessage);

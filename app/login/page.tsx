@@ -54,7 +54,24 @@ export default function LoginPage() {
 
             router.push('/beats');
         } catch (err: any) {
-            setError(err.message || 'Credenciales inválidas');
+            console.error('Error de login capturado:', err);
+
+            let userMessage = 'Datos incorrectos. Por favor, revisa tu correo/usuario y contraseña.';
+
+            // Mapeo detallado de errores de Supabase Auth
+            if (err.message?.includes('Invalid login credentials')) {
+                userMessage = 'Datos incorrectos. Por favor, revisa tu correo/usuario y contraseña.';
+            } else if (err.message?.includes('Email not confirmed')) {
+                userMessage = 'Tu cuenta aún no ha sido confirmada. Revisa tu correo electrónico.';
+            } else if (err.message?.includes('too many requests') || err.message?.includes('rate limit')) {
+                userMessage = 'Demasiados intentos fallidos. Por seguridad, espera unos minutos e intenta de nuevo.';
+            } else if (err.message === 'Usuario no encontrado') {
+                userMessage = 'Los datos ingresados no coinciden con ninguna cuenta. Verifica tu información.';
+            } else {
+                userMessage = 'Ocurrió un error inesperado. Inténtalo de nuevo en un momento.';
+            }
+
+            setError(userMessage);
         } finally {
             setLoading(false);
         }
