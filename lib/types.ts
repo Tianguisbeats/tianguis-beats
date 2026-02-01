@@ -11,71 +11,76 @@ export interface Profile {
     id: string;
     username: string;
     artistic_name: string | null;
-    full_name: string | null;
-    avatar_url: string | null;
-    cover_url: string | null;
-    bio: string | null;
-    country: string;
-    open_collaborations: boolean;
-    social_links: {
+    full_name?: string | null;
+    avatar_url?: string | null;
+    cover_url?: string | null;
+    bio?: string | null;
+    country?: string;
+    open_collaborations?: boolean;
+    social_links?: {
         instagram?: string;
         youtube?: string;
         twitter?: string;
         tiktok?: string;
     };
-    birth_date: string | null;
-    role: UserRole;
-    subscription_tier: SubscriptionTier;
-    is_admin: boolean;
-    is_founder: boolean;
-    is_verified: boolean;
-    username_changes: number;
-    email: string;
+    birth_date?: string | null;
+    role?: UserRole;
+    subscription_tier?: SubscriptionTier;
+    is_admin?: boolean;
+    is_founder?: boolean;
+    is_verified?: boolean;
+    username_changes?: number;
+    email?: string;
     created_at: string;
-    updated_at: string;
+    updated_at?: string;
 }
 
 export interface Beat {
     id: string;
-    producer_id: string;
+    producer_id?: string;
     producer?: {
         artistic_name: string;
+        username?: string;
     } | string;
     title: string;
-    genre: string | null;
-    bpm: number | null;
-    musical_key: string | null;
-    musical_scale: string | null;
-    description: string | null;
-    price_mxn: number;
-    price_wav_mxn: number | null;
-    price_stems_mxn: number | null;
-    is_public: boolean;
+    genre?: string | null;
+    bpm?: number | null;
+    musical_key?: string | null;
+    musical_scale?: string | null;
+    description?: string | null;
+    price_mxn?: number;
+    price_wav_mxn?: number | null;
+    price_stems_mxn?: number | null;
+    is_public?: boolean;
 
     // Archivos
-    cover_url: string | null;
-    mp3_tag_url: string | null;
-    mp3_url: string;
-    wav_url: string | null;
-    stems_url: string | null;
+    cover_url?: string | null;
+    mp3_url?: string;
+    wav_url?: string | null;
+    stems_url?: string | null;
 
-    // Estética
-    tag: string | null;
-    tag_emoji: string | null;
-    tag_color: string | null;
-    cover_color: string | null;
-
-    mood: string | null;
-    reference_artist: string | null;
+    mood?: string | null;
+    reference_artist?: string | null;
 
     // Stats
-    play_count: number;
-    sale_count: number;
-    like_count: number;
+    play_count?: number;
+    sale_count?: number;
+    like_count?: number;
 
-    is_exclusive: boolean;
-    exclusive_price_mxn: number | null;
-    tier_visibility: number;
+    is_exclusive?: boolean;
+    exclusive_price_mxn?: number | null;
+    tier_visibility?: number;
+
+    // UI-Specific flat properties (used by BeatCard)
+    producer_avatar_url?: string | null;
+    producer_tier?: string | null;
+    producer_is_verified?: boolean;
+    producer_is_founder?: boolean;
+    producer_username?: string | null;
+    tag?: string | null;
+    tagEmoji?: string | null;
+    tagColor?: string;
+    coverColor?: string;
 
     created_at: string;
 }

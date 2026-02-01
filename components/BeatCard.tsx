@@ -5,32 +5,7 @@
 import { Music, Play, Pause, ShoppingCart, CheckCircle2, Crown } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import Link from 'next/link';
-
-export interface Beat {
-    id: string | number;
-    title: string | null;
-    producer: string | null;
-    price_mxn: number | null;
-    bpm: number | null;
-    genre: string | null;
-    mp3_url?: string | null;
-    tag?: string | null;
-    tagEmoji?: string | null;
-    tagColor?: string;
-    coverColor?: string;
-    musical_key?: string | null;
-    mood?: string | null;
-    reference_artist?: string | null;
-    play_count?: number;
-    sale_count?: number;
-    is_exclusive?: boolean;
-    tier_visibility?: number;
-    producer_avatar_url?: string | null;
-    producer_tier?: string | null;
-    producer_is_verified?: boolean;
-    producer_is_founder?: boolean;
-    producer_username?: string | null;
-}
+import { Beat } from '@/lib/types';
 
 interface BeatCardProps {
     beat: Beat;
@@ -111,7 +86,7 @@ export default function BeatCard({ beat }: BeatCardProps) {
                         </div>
                         <Link href={`/${beat.producer_username || beat.producer}`} className="flex items-center gap-1.5 truncate hover:text-blue-600 transition-colors">
                             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest truncate">
-                                {beat.producer || "—"}
+                                {typeof beat.producer === 'object' ? beat.producer.artistic_name : (beat.producer || "—")}
                             </p>
                             {beat.producer_is_verified && (
                                 <img src="/verified-badge.png" className="w-2.5 h-2.5 object-contain" alt="Verificado" />

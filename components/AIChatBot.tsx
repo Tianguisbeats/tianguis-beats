@@ -10,6 +10,11 @@ interface Message {
     filters?: any;
 }
 
+/**
+ * AIChatBot: Asistente virtual (A&R) que ayuda a los usuarios a encontrar beats.
+ * Utiliza una API interna que conecta con Gemini para entender el lenguaje natural.
+ * Permite aplicar filtros de búsqueda de forma automática.
+ */
 export default function AIChatBot() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);

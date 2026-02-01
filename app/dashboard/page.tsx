@@ -48,7 +48,7 @@ export default function ProducerDashboard() {
             if (user) {
                 const { data } = await supabase
                     .from('profiles')
-                    .select('*')
+                    .select('id, username, artistic_name, subscription_tier')
                     .eq('id', user.id)
                     .single();
                 setProfile(data);

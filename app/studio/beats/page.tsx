@@ -5,6 +5,11 @@ import { supabase } from '@/lib/supabase';
 import { Edit, Trash2, Play, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
+/**
+ * StudioBeatsPage: Interfaz de gestión para productores.
+ * Permite ver, eliminar y navegar a la edición de beats propios.
+ */
+
 export default function StudioBeatsPage() {
     const [beats, setBeats] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -19,7 +24,7 @@ export default function StudioBeatsPage() {
 
         const { data } = await supabase
             .from('beats')
-            .select('*')
+            .select('id, title, genre, bpm, price_mxn, cover_url, musical_key, play_count, like_count, created_at')
             .eq('producer_id', user.id)
             .order('created_at', { ascending: false });
 

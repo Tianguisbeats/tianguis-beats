@@ -35,6 +35,11 @@ const GENRES = [
 const SCALES = ["Menor", "Mayor", "Dórica", "Frigia", "Lidia", "Mixolidia", "Locria"];
 const KEYS_BASE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
+/**
+ * UploadPage: Formulario principal para la subida de beats.
+ * Gestiona la carga de archivos a Supabase Storage y el registro en la base de datos.
+ * Incluye validaciones de peso y formatos.
+ */
 export default function UploadPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -89,10 +94,17 @@ export default function UploadPage() {
                 return;
             }
 
-            const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('id, username, artistic_name, subscription_tier')
+                .eq('id', session.user.id)
+                .single();
             setUserData(profile);
 
-            const { count } = await supabase.from('beats').select('*', { count: 'exact', head: true }).eq('producer_id', session.user.id);
+            const { count } = await supabase
+                .from('beats')
+                .select('id', { count: 'exact', head: true })
+                .eq('producer_id', session.user.id);
             setBeatCount(count || 0);
         };
         checkAuth();

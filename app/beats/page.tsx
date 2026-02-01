@@ -12,7 +12,8 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import BeatCard, { Beat } from "@/components/BeatCard";
+import BeatCard from "@/components/BeatCard";
+import { Beat } from "@/lib/types";
 import Link from "next/link";
 
 export default function BeatsPage() {
@@ -81,6 +82,7 @@ function BeatsPageContent() {
           mp3_url,
           musical_key,
           mood,
+          created_at,
           producer:producer_id (
             artistic_name,
             username,
@@ -144,7 +146,8 @@ function BeatsPageContent() {
           tagEmoji: "🔥",
           tagColor: "bg-orange-600",
           coverColor: Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100',
-          mp3_url: publicUrl
+          mp3_url: publicUrl,
+          created_at: b.created_at
         };
       });
 

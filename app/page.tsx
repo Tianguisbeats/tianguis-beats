@@ -15,7 +15,8 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Hero from '@/components/Hero';
-import BeatCard, { Beat } from '@/components/BeatCard';
+import BeatCard from '@/components/BeatCard';
+import { Beat } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 
 export default function Home() {
@@ -64,7 +65,8 @@ export default function Home() {
         tagEmoji: b.tier_visibility > 0 ? "⭐" : "🔥",
         tagColor: b.tier_visibility > 0 ? "bg-indigo-600" : "bg-orange-600",
         coverColor: Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100',
-        tier_visibility: b.tier_visibility
+        tier_visibility: b.tier_visibility,
+        created_at: b.created_at
       };
     });
   };
@@ -74,7 +76,7 @@ export default function Home() {
 
     const executeFetch = async () => {
       // Columnas mínimas para BeatCard
-      const columns = 'id,title,price_mxn,bpm,genre,mp3_url,musical_key,mood,tier_visibility,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)';
+      const columns = 'id,title,price_mxn,bpm,genre,mp3_url,musical_key,mood,tier_visibility,created_at,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)';
 
       const fetchSection = async (orderByField: string, limit: number) => {
         try {
@@ -130,7 +132,7 @@ export default function Home() {
           const followingIds = follows.map(f => f.following_id);
           const { data: followedData } = await supabase
             .from('beats')
-            .select('id,title,price_mxn,bpm,genre,mp3_url,musical_key,mood,tier_visibility,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)')
+            .select('id,title,price_mxn,bpm,genre,mp3_url,musical_key,mood,tier_visibility,created_at,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)')
             .in('producer_id', followingIds)
             .order('created_at', { ascending: false })
             .limit(10);

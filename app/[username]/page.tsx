@@ -22,6 +22,11 @@ const COUNTRIES = [
     "Puerto Rico 🇵🇷", "República Dominicana 🇩🇴", "Venezuela 🇻🇪", "Panamá 🇵🇦", "Costa Rica 🇨🇷"
 ];
 
+/**
+ * PublicProfilePage: Muestra el perfil público de un productor o usuario.
+ * Incluye su biografía, redes sociales, y catálogo de beats.
+ * @param username El nombre de usuario obtenido de la URL dinámica.
+ */
 export default function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
     const resolvedParams = use(params);
     const username = resolvedParams.username;
@@ -56,7 +61,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         // 1. Get Profile
         const { data: profileData, error } = await supabase
             .from('profiles')
-            .select('*')
+            .select('id, username, artistic_name, avatar_url, cover_url, bio, country, social_links, is_verified, is_founder, subscription_tier, created_at')
             .eq('username', username)
             .single();
 
@@ -71,11 +76,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 setIsOwner(true);
             }
 
-            // 2. Get Beats
+            // 2. Get Beats (Optimized Select)
             const { data: beatsData } = await supabase
                 .from('beats')
-                .select('*')
+                .select('id, title, genre, bpm, price_mxn, cover_url, mp3_url, musical_key, mood, is_public, play_count, like_count, created_at')
                 .eq('producer_id', profileData.id)
+                .eq('is_public', true)
                 .order('created_at', { ascending: false });
 
             if (beatsData) setBeats(beatsData);
@@ -91,7 +97,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             if (user) {
                 const { data: followData } = await supabase
                     .from('follows')
-                    .select('*')
+                    .select('id')
                     .eq('follower_id', user.id)
                     .eq('following_id', profileData.id)
                     .single();

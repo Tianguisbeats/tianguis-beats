@@ -15,7 +15,7 @@ import CommentSection from '@/components/CommentSection';
 import WaveformPlayer from '@/components/WaveformPlayer';
 import Link from 'next/link';
 import { usePlayer } from '@/context/PlayerContext';
-import { Beat } from '@/components/BeatCard';
+import { Beat } from '@/lib/types';
 
 // Extend Beat interface to include detail columns
 interface BeatDetail extends Beat {
@@ -35,6 +35,10 @@ interface BeatDetail extends Beat {
     created_at: string;
 }
 
+/**
+ * BeatDetailPage: Muestra la información detallada de un beat específico.
+ * Permite reproducir, dar like, comentar y ver opciones de licencia.
+ */
 export default function BeatDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params);
     const id = resolvedParams.id;
@@ -50,23 +54,32 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
         const fetchBeat = async () => {
             const { data, error } = await supabase
                 .from('beats')
-                .select('*, producer:producer_id(artistic_name, username)')
+                .select('id, title, genre, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, cover_url, mp3_url, musical_key, mood, description, play_count, sale_count, like_count, is_exclusive, created_at, producer:producer_id(artistic_name, username)')
                 .eq('id', id)
                 .single();
 
             if (data) {
                 const { data: { publicUrl } } = supabase.storage
                     .from('beats-muestras')
-                    .getPublicUrl(data.mp3_url);
+                    .getPublicUrl(data.mp3_url || '');
 
-                setBeat({ ...data, mp3_url: publicUrl });
+                // Supabase might return producer as an object or array depending on the relationship config
+                const rawData = data as any;
+                const producerObj = Array.isArray(rawData.producer) ? rawData.producer[0] : rawData.producer;
+
+                setBeat({
+                    ...data,
+                    producer: producerObj,
+                    mp3_url: publicUrl
+                } as BeatDetail);
+
                 logListen(data.id);
 
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
                     const { count } = await supabase
                         .from('likes')
-                        .select('*', { count: 'exact', head: true })
+                        .select('id', { count: 'exact', head: true })
                         .eq('beat_id', data.id)
                         .eq('user_id', user.id);
                     setIsLiked(!!count);
