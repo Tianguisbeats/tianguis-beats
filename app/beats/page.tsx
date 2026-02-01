@@ -9,6 +9,8 @@ import {
   Music,
   X,
   Users,
+  Star,
+  Check,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -71,7 +73,6 @@ function BeatsPageContent() {
         setLoading(true);
         setErrorMsg(null);
 
-        // Build query with server-side filters
         let query = supabase
           .from("beats")
           .select(`
@@ -97,7 +98,6 @@ function BeatsPageContent() {
           `)
           .eq("is_public", true);
 
-        // Apply server-side filters
         if (genreFilter && genreFilter !== "Todos") {
           query = query.eq('genre', genreFilter);
         }
@@ -128,11 +128,9 @@ function BeatsPageContent() {
         const transformed = await Promise.all((data || []).map(async (b: any) => {
           const path = b.mp3_tag_url || b.mp3_url || '';
           const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-
           const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
           const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
 
-          // Resolve Cover Art URL
           let finalCoverUrl = b.portadabeat_url;
           if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
             const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(finalCoverUrl);
@@ -185,11 +183,11 @@ function BeatsPageContent() {
         .from('profiles')
         .select('id, username, artistic_name, avatar_url, is_verified, is_founder, subscription_tier')
         .or('is_verified.eq.true,role.eq.producer')
-        .neq('avatar_url', null) // Only show producers with avatars
+        .neq('avatar_url', null)
         .limit(10);
 
       if (data) {
-        setFeaturedProducers(data as any); // Type assertion for quick fix, better to define interface
+        setFeaturedProducers(data as any);
       }
     }
     loadProducers();
@@ -203,48 +201,48 @@ function BeatsPageContent() {
     return ["Todos", ...Array.from(set).sort((a, b) => a.localeCompare(b))];
   }, [beats]);
 
-  // Note: Filtering is now done server-side in the Supabase query above
-  // Keeping genres extraction for dynamic genre dropdown
-
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 pt-24 pb-20 text-slate-900 selection:bg-blue-600 selection:text-white">
+      <main className="flex-1 pt-24 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Featured Producers Section */}
           {featuredProducers.length > 0 && (
-            <div className="mb-16 mt-8">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6 flex items-center gap-2">
-                <Users size={12} />
-                Productores Destacados
+            <div className="mb-20 mt-8">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-8 flex items-center gap-2">
+                <Users size={12} className="text-blue-500" />
+                Productores en Ascenso
               </h4>
-              <div className="flex items-center gap-4 overflow-x-scroll no-scrollbar pb-4 select-none mask-linear-fade">
+              <div className="flex items-center gap-6 overflow-x-scroll no-scrollbar pb-6 select-none">
                 {featuredProducers.map((producer) => (
                   <Link
                     key={producer.id}
                     href={`/${producer.username}`}
                     className="group relative flex-shrink-0"
                   >
-                    <div className={`w-20 h-20 md:w-24 md:h-24 rounded-[2rem] overflow-hidden border-[3px] transition-all duration-500 transform group-hover:scale-105 group-hover:-rotate-2 shadow-xl ${producer.subscription_tier === 'premium' ? 'border-blue-600 shadow-blue-500/20 group-hover:shadow-blue-600/40' :
-                      producer.subscription_tier === 'pro' ? 'border-amber-400 shadow-amber-400/20 group-hover:shadow-amber-500/40' : 'border-slate-100 shadow-slate-200'
+                    <div className={`w-20 h-20 md:w-24 md:h-24 rounded-[2.5rem] overflow-hidden border-2 transition-all duration-500 transform group-hover:-translate-y-2 shadow-sm ${producer.subscription_tier === 'premium' ? 'border-blue-500 shadow-blue-500/10 group-hover:shadow-blue-500/30' :
+                        producer.subscription_tier === 'pro' ? 'border-amber-400 shadow-amber-400/10 group-hover:shadow-amber-400/30' : 'border-slate-100 group-hover:border-slate-300'
                       }`}>
-                      <img src={producer.avatar_url || ''} alt={producer.artistic_name} className="w-full h-full object-cover" />
+                      <img src={producer.avatar_url || ''} alt={producer.artistic_name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </div>
+
                     {(producer.is_verified || producer.is_founder) && (
-                      <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-sm">
+                      <div className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-lg z-10">
                         {producer.is_founder ? (
-                          <div className="text-yellow-400"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M2 20h20v-4H2v4zm2-7l3 4 5-8 5 8 3-4V2H4v11z" /></svg></div>
+                          <div className="text-amber-500"><Star size={12} fill="currentColor" /></div>
                         ) : (
-                          <img src="/verified-badge.png" className="w-3 h-3" alt="verified" />
+                          <Check size={10} className="text-blue-600" strokeWidth={4} />
                         )}
                       </div>
                     )}
-                    <div className="absolute inset-x-0 -bottom-8 opacity-0 group-hover:opacity-100 transition-all duration-300 text-center">
-                      <span className="text-[10px] font-black uppercase tracking-tight bg-slate-900 text-white px-2 py-1 rounded-full whitespace-nowrap">
+
+                    <div className="mt-3 text-center transition-all duration-300 transform group-hover:translate-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-tighter text-slate-900 truncate max-w-[80px] md:max-w-[96px]">
                         {producer.artistic_name}
-                      </span>
+                      </p>
                     </div>
                   </Link>
                 ))}
@@ -252,115 +250,95 @@ function BeatsPageContent() {
             </div>
           )}
 
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
-            <div>
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-[0.3em] mb-6">
-                <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                Explorar Catálogo
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-16">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/10 border border-blue-600/10 text-blue-600 text-[9px] font-black uppercase tracking-[0.4em] mb-8">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
+                </span>
+                Laboratorio Creativo
               </div>
-              <h1 className="text-5xl md:text-6xl font-black tracking-tighter uppercase leading-[0.95] mb-2">
-                Escucha el <span className="text-blue-600">Talento Mexa.</span>
+              <h1 className="text-6xl md:text-8xl font-black tracking-[-0.05em] uppercase leading-[0.85] mb-6">
+                La nueva era del <span className="text-transparent bg-clip-text bg-gradient-to-br from-blue-700 to-blue-400">Beatmaking.</span>
               </h1>
-              <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-[10px]">
-                {loading ? "Sincronizando con el estudio..." : `${beats.length} Beats encontrados`}
+              <p className="text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px] flex items-center gap-3">
+                <Music size={14} className="text-blue-500" />
+                {loading ? "Calibrando frecuencias..." : `${beats.length} Obras encontradas`}
               </p>
             </div>
+          </div>
 
-            <div className="flex flex-col xl:flex-row items-center gap-4 w-full md:w-auto bg-slate-50 p-2 rounded-[2rem] border border-slate-100 shadow-sm">
+          <div className="sticky top-24 z-30 mb-20">
+            <div className="bg-white/80 backdrop-blur-xl border border-slate-200/60 p-3 rounded-[3rem] shadow-2xl shadow-slate-200/40 flex flex-col lg:flex-row items-center gap-4">
 
-              {/* Search Text */}
-              <div className="relative group w-full xl:w-80">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-600 transition-colors">
-                  <Search size={18} />
+              <div className="relative group w-full lg:w-[400px]">
+                <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                  <Search size={20} />
                 </div>
                 <input
                   type="text"
-                  placeholder="Buscar..."
-                  className="w-full bg-transparent border-none pl-12 pr-4 py-3 outline-none focus:ring-0 font-bold text-slate-900 placeholder:text-slate-300"
+                  placeholder="Buscar productor, género o mood..."
+                  className="w-full bg-slate-50/50 border-2 border-transparent focus:border-blue-600/10 rounded-full pl-16 pr-6 py-4 outline-none font-black text-sm text-slate-900 placeholder:text-slate-300 transition-all"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
 
-              <div className="h-8 w-[1px] bg-slate-200 hidden xl:block"></div>
+              <div className="h-10 w-[1px] bg-slate-100 hidden lg:block"></div>
 
-              {/* Filters Container */}
-              <div className="flex items-center gap-2 overflow-x-auto w-full xl:w-auto no-scrollbar px-2">
-
-                {/* Genre */}
-                <div className="relative min-w-[120px]">
+              <div className="flex items-center gap-3 overflow-x-auto w-full lg:w-auto no-scrollbar px-2 py-1">
+                <div className="relative group">
                   <select
                     value={genreFilter}
                     onChange={(e) => setGenreFilter(e.target.value)}
-                    className="w-full bg-transparent py-3 pl-2 pr-8 outline-none font-bold text-[11px] uppercase tracking-widest text-slate-500 cursor-pointer hover:text-blue-600 transition-colors appearance-none"
+                    className="appearance-none bg-slate-50/50 hover:bg-white border-2 border-transparent hover:border-slate-100 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-blue-600 transition-all cursor-pointer min-w-[140px]"
                   >
                     {genres.map((g) => (
                       <option key={g} value={g}>{g === 'Todos' ? 'Género' : g}</option>
                     ))}
                   </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center pointer-events-none text-slate-300">
-                    <SlidersHorizontal size={14} />
-                  </div>
+                  <SlidersHorizontal size={12} className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300" />
                 </div>
 
-                <div className="h-4 w-[1px] bg-slate-200"></div>
+                <select
+                  value={moodFilter}
+                  onChange={(e) => setMoodFilter(e.target.value)}
+                  className="appearance-none bg-slate-50/50 hover:bg-white border-2 border-transparent hover:border-slate-100 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-blue-600 transition-all cursor-pointer min-w-[120px]"
+                >
+                  <option value="">Mood</option>
+                  <option value="Agresivo">Agresivo</option>
+                  <option value="Chill">Chill</option>
+                  <option value="Oscuro">Oscuro</option>
+                  <option value="Triste">Triste</option>
+                  <option value="Melódico">Melódico</option>
+                </select>
 
-                {/* Mood */}
-                <div className="relative min-w-[100px]">
-                  <select
-                    value={moodFilter}
-                    onChange={(e) => setMoodFilter(e.target.value)}
-                    className="w-full bg-transparent py-3 pl-2 pr-8 outline-none font-bold text-[11px] uppercase tracking-widest text-slate-500 cursor-pointer hover:text-blue-600 transition-colors appearance-none"
-                  >
-                    <option value="">Mood</option>
-                    <option value="Agresivo">Agresivo</option>
-                    <option value="Triste">Triste</option>
-                    <option value="Feliz">Feliz</option>
-                    <option value="Chill">Chill</option>
-                    <option value="Oscuro">Oscuro</option>
-                  </select>
-                </div>
+                <select
+                  value={bpmFilter}
+                  onChange={(e) => setBpmFilter(e.target.value)}
+                  className="appearance-none bg-slate-50/50 hover:bg-white border-2 border-transparent hover:border-slate-100 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-blue-600 transition-all cursor-pointer min-w-[100px]"
+                >
+                  <option value="">BPM</option>
+                  {[80, 100, 120, 140, 160].map(v => <option key={v} value={v}>{v}</option>)}
+                </select>
 
-                <div className="h-4 w-[1px] bg-slate-200"></div>
-
-                {/* BPM */}
-                <div className="relative min-w-[90px]">
-                  <select
-                    className="w-full bg-transparent py-3 pl-2 pr-4 outline-none font-bold text-[11px] uppercase tracking-widest text-slate-500 cursor-pointer hover:text-blue-600 transition-colors appearance-none"
-                    value={bpmFilter}
-                    onChange={(e) => setBpmFilter(e.target.value)}
-                  >
-                    <option value="">BPM</option>
-                    {[80, 90, 100, 110, 120, 130, 140, 150, 160, 170].map(val => (
-                      <option key={val} value={val}>{val}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="h-4 w-[1px] bg-slate-200"></div>
-
-                {/* Key */}
-                <div className="relative min-w-[90px]">
-                  <select
-                    className="w-full bg-transparent py-3 pl-2 pr-4 outline-none font-bold text-[11px] uppercase tracking-widest text-slate-500 cursor-pointer hover:text-blue-600 transition-colors appearance-none"
-                    value={keyFilter}
-                    onChange={(e) => setKeyFilter(e.target.value)}
-                  >
-                    <option value="">Key</option>
-                    {['C', 'Cm', 'C#', 'C#m', 'D', 'Dm', 'D#', 'D#m', 'E', 'Em', 'F', 'Fm', 'F#', 'F#m', 'G', 'Gm', 'G#', 'G#m', 'A', 'Am', 'A#', 'A#m', 'B', 'Bm'].map(k => (
-                      <option key={k} value={k}>{k}</option>
-                    ))}
-                  </select>
-                </div>
+                <select
+                  value={keyFilter}
+                  onChange={(e) => setKeyFilter(e.target.value)}
+                  className="appearance-none bg-slate-50/50 hover:bg-white border-2 border-transparent hover:border-slate-100 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-blue-600 transition-all cursor-pointer min-w-[100px]"
+                >
+                  <option value="">Key</option>
+                  {['C', 'D', 'E', 'F', 'G', 'A', 'B'].map(k => <option key={k} value={k}>{k}</option>)}
+                </select>
               </div>
 
-              {/* Clear Filters Button */}
               {(genreFilter !== "Todos" || moodFilter || bpmFilter || keyFilter || searchQuery) && (
                 <button
                   onClick={handleClearFilters}
-                  className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 rounded-full transition-colors shrink-0"
+                  className="lg:ml-auto px-6 py-3 bg-red-50 text-red-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all transform active:scale-95"
                 >
-                  Limpiar Filtros
+                  Reset
                 </button>
               )}
             </div>
@@ -394,9 +372,9 @@ function BeatsPageContent() {
             </div>
           )}
         </div>
-      </main >
+      </main>
 
       <Footer />
-    </div >
+    </div>
   );
 }
