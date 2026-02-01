@@ -81,9 +81,6 @@ function BeatsPageContent() {
           mp3_url,
           musical_key,
           mood,
-          tag,
-          tag_emoji,
-          tag_color,
           cover_color,
           producer:producer_id (
             artistic_name,
@@ -213,7 +210,7 @@ function BeatsPageContent() {
                     className="group relative flex-shrink-0"
                   >
                     <div className={`w-20 h-20 md:w-24 md:h-24 rounded-[2rem] overflow-hidden border-[3px] transition-all duration-500 transform group-hover:scale-105 group-hover:-rotate-2 shadow-xl ${producer.subscription_tier === 'premium' ? 'border-blue-600 shadow-blue-500/20 group-hover:shadow-blue-600/40' :
-                        producer.subscription_tier === 'pro' ? 'border-amber-400 shadow-amber-400/20 group-hover:shadow-amber-500/40' : 'border-slate-100 shadow-slate-200'
+                      producer.subscription_tier === 'pro' ? 'border-amber-400 shadow-amber-400/20 group-hover:shadow-amber-500/40' : 'border-slate-100 shadow-slate-200'
                       }`}>
                       <img src={producer.avatar_url || ''} alt={producer.artistic_name} className="w-full h-full object-cover" />
                     </div>

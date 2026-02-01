@@ -73,7 +73,7 @@ export default function Home() {
 
     const executeFetch = async () => {
       // Columnas mínimas para BeatCard
-      const columns = 'id,title,price_mxn,bpm,genre,mp3_tag_url,musical_key,mood,tag,tag_emoji,tag_color,cover_color,tier_visibility,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)';
+      const columns = 'id,title,price_mxn,bpm,genre,mp3_tag_url,musical_key,mood,cover_color,tier_visibility,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)';
 
       const fetchSection = async (orderByField: string, limit: number) => {
         try {
@@ -129,7 +129,7 @@ export default function Home() {
           const followingIds = follows.map(f => f.following_id);
           const { data: followedData } = await supabase
             .from('beats')
-            .select('id,title,price_mxn,bpm,genre,mp3_tag_url,musical_key,mood,tag,tag_emoji,tag_color,cover_color,tier_visibility,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)')
+            .select('id,title,price_mxn,bpm,genre,mp3_tag_url,musical_key,mood,cover_color,tier_visibility,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)')
             .in('producer_id', followingIds)
             .order('created_at', { ascending: false })
             .limit(10);
