@@ -131,40 +131,48 @@ export default function UploadPage() {
             setError("Por favor completa los campos y archivos obligatorios.");
             return;
         }
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("No hay sesión activa");
+        const userId = user.id;
+
+        // Sanitización de nombres de archivos
+        const sanitize = (name: string) => name.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
 
         setLoading(true);
         setError(null);
 
         try {
-            const userId = userData.id;
             const username = userData.username;
             const timestamp = Date.now();
 
-            // Uploads
-            // Portadas-beats para el artwork (Max 5MB, 3000x3000px)
-            const coverPath = `${username}/${timestamp}-cover-${coverFile.name}`;
-            await supabase.storage.from('portadas-beats').upload(coverPath, coverFile);
-            const { data: { publicUrl: coverUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(coverPath);
+            // 1. Artwork Upload
+            let coverUrl = null;
+            if (coverFile) {
+                const coverExt = coverFile.name.split('.').pop();
+                const coverPath = `${username}/${timestamp}-cover.${coverExt}`;
+                await supabase.storage.from('artworks').upload(coverPath, coverFile);
+                const { data: { publicUrl } } = supabase.storage.from('artworks').getPublicUrl(coverPath);
+                coverUrl = publicUrl;
+            }
 
-            // Beats-muestras para el MP3 con Tag (Max 20MB)
-            const previewPath = `${username}/${timestamp}-preview-${previewFile.name}`;
+            // 2. Audio Previews & HQ (Beats-muestras)
+            const previewPath = `${username}/${timestamp}-preview-${sanitize(previewFile.name)}`;
             await supabase.storage.from('beats-muestras').upload(previewPath, previewFile);
-            const { data: { publicUrl: previewUrl } } = supabase.storage.from('beats-muestras').getPublicUrl(previewPath);
 
             // Beats-maestros divididos por formato
             // HQ MP3 (Max 50MB)
-            const hqPath = `${username}/${timestamp}-hq-${hqMp3File.name}`;
+            const hqPath = `${username}/${timestamp}-hq-${sanitize(hqMp3File.name)}`;
             await supabase.storage.from('beats-mp3-alta-calidad').upload(hqPath, hqMp3File);
 
             let wavPath = null;
             if (wavFile && userData.subscription_tier !== 'free') {
-                wavPath = `${username}/${timestamp}-wav-${wavFile.name}`;
+                wavPath = `${username}/${timestamp}-wav-${sanitize(wavFile.name)}`;
                 await supabase.storage.from('beats-wav').upload(wavPath, wavFile);
             }
 
             let stemsPath = null;
             if (stemsFile && userData.subscription_tier === 'premium') {
-                stemsPath = `${username}/${timestamp}-stems-${stemsFile.name}`;
+                stemsPath = `${username}/${timestamp}-stems-${sanitize(stemsFile.name)}`;
                 await supabase.storage.from('beats-stems').upload(stemsPath, stemsFile);
             }
 

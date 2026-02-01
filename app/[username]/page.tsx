@@ -84,7 +84,16 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 .eq('is_public', true)
                 .order('created_at', { ascending: false });
 
-            if (beatsData) setBeats(beatsData);
+            if (beatsData) {
+                // Transform internal storage paths to public URLs
+                const transformedBeats = await Promise.all(beatsData.map(async (b: Beat) => {
+                    const { data: { publicUrl } } = supabase.storage
+                        .from('beats-muestras')
+                        .getPublicUrl(b.mp3_url || '');
+                    return { ...b, mp3_url: publicUrl };
+                }));
+                setBeats(transformedBeats);
+            }
 
             // 3. Get Follow Status & Count
             // Note: This relies on the table 'follows' existing (v5.4 schema)
@@ -282,9 +291,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         )}
                                     </div>
                                     <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] flex items-center justify-center md:justify-start gap-2">
-                                        @{profile.username}
+                                        {profile.username}
                                         {profile.country && <span className="text-slate-300 ml-1">• {profile.country}</span>}
-                                        <span className="text-slate-300 ml-1">• Miembro desde {new Date(profile.created_at).getFullYear()}</span>
+                                        <span className="text-slate-300 ml-1">• Miembro desde {profile.created_at ? new Date(profile.created_at).getFullYear() : (new Date().getFullYear())}</span>
                                     </p>
                                 </div>
 

@@ -279,7 +279,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 <ul className="space-y-4">
                                     <li className="flex justify-between items-center pb-4 border-b border-slate-200">
                                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Publicado</span>
-                                        <span className="text-sm font-bold text-slate-900">{new Date(beat.created_at).toLocaleDateString()}</span>
+                                        <span className="text-sm font-bold text-slate-900">{(beat.created_at) ? new Date(beat.created_at).toLocaleDateString() : new Date().toLocaleDateString()}</span>
                                     </li>
                                     <li className="flex justify-between items-center pb-4 border-b border-slate-200">
                                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Escala</span>
