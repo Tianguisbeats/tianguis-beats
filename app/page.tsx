@@ -1,6 +1,7 @@
 /**
  * Página Principal: Punto de entrada de la aplicación.
  * Muestra el Hero y una sección de beats destacados.
+ * Deployment trigger: 2026-01-31
  */
 "use client";
 
