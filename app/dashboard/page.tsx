@@ -379,7 +379,7 @@ export default function ProducerDashboard() {
                                             <label className={`cursor-pointer p-6 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${mp3File ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 bg-slate-50 hover:border-blue-400'}`}>
                                                 <input type="file" accept="audio/mpeg" className="hidden" onChange={(e) => setMp3File(e.target.files?.[0] || null)} />
                                                 <FileAudio size={24} />
-                                                <span className="text-[9px] font-black uppercase tracking-widest">{mp3File ? mp3File.name.substring(0, 10) + '...' : 'MP3 (Muestra)'}</span>
+                                                <span className="text-[9px] font-black uppercase tracking-widest">{mp3File ? mp3File.name.substring(0, 10) + '...' : 'MP3 (Directo)'}</span>
                                             </label>
 
                                             {/* WAV */}

@@ -78,8 +78,9 @@ export default function UploadPage() {
             return null;
         }
 
-        if (file.size > maxMB * 1024 * 1024) {
-            setError(`${label}: El peso máximo es de ${maxMB}MB.`);
+        // Limit weight to 2GB (Browser/Supabase limit)
+        if (file.size > 2048 * 1024 * 1024) {
+            setError(`${label}: El peso máximo es de 2GB.`);
             return null;
         }
 
@@ -329,7 +330,7 @@ export default function UploadPage() {
 
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Artwork (Sugerido 3000x3000px - Max 5MB)</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Artwork (Sugerido 3000x3000px - Original)</label>
                                         <div className="relative">
                                             <input
                                                 type="file"
@@ -344,8 +345,8 @@ export default function UploadPage() {
                                                             setCoverFile(null);
                                                             return;
                                                         }
-                                                        if (file.size > 5 * 1024 * 1024) {
-                                                            setError("Artwork: El peso máximo es de 5MB.");
+                                                        if (file.size > 2048 * 1024 * 1024) {
+                                                            setError("Artwork: El peso máximo es de 2GB.");
                                                             e.target.value = '';
                                                             setCoverFile(null);
                                                             return;
@@ -429,7 +430,7 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center justify-between px-2">
                                                 {previewFile ? <p className="text-[9px] text-slate-400 font-bold truncate italic max-w-[70%]">{previewFile.name}</p> : <span />}
-                                                <span className="text-[8px] font-black text-slate-300 uppercase">Max 20MB</span>
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Sin Conversión</span>
                                             </div>
                                         </div>
 
@@ -459,7 +460,7 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center justify-between px-2">
                                                 {hqMp3File ? <p className="text-[9px] text-slate-400 font-bold truncate italic max-w-[70%]">{hqMp3File.name}</p> : <span />}
-                                                <span className="text-[8px] font-black text-slate-300 uppercase">Max 50MB</span>
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Sin Conversión</span>
                                             </div>
                                         </div>
 
@@ -498,7 +499,7 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center justify-between px-2">
                                                 {wavFile ? <p className="text-[9px] text-slate-400 font-bold truncate italic max-w-[70%]">{wavFile.name}</p> : <span />}
-                                                <span className="text-[8px] font-black text-slate-300 uppercase">Max 200MB</span>
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Formato Directo</span>
                                             </div>
                                         </div>
 
@@ -537,7 +538,7 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center justify-between px-2">
                                                 {stemsFile ? <p className="text-[9px] text-slate-400 font-bold truncate italic max-w-[70%]">{stemsFile.name}</p> : <span />}
-                                                <span className="text-[8px] font-black text-slate-300 uppercase">Max 500MB</span>
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Formato Directo</span>
                                             </div>
                                         </div>
                                     </div>

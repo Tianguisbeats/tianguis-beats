@@ -179,8 +179,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         if (!file || !profile) return;
 
         // Relaxed Validation
-        if (file.size > 10 * 1024 * 1024) {
-            alert("El peso máximo permitido es de 10MB.");
+        if (file.size > 2048 * 1024 * 1024) {
+            alert("El archivo es demasiado grande (Máximo 2GB)");
             return;
         }
 
