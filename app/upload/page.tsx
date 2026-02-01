@@ -139,6 +139,12 @@ export default function UploadPage() {
         // Sanitización de nombres de archivos
         const sanitize = (name: string) => name.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
 
+        if (selectedMoods.length !== 3) {
+            setError("Vibe: Debes elegir exactamente 3 opciones.");
+            setLoading(false);
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
@@ -357,11 +363,18 @@ export default function UploadPage() {
                                                 className="hidden"
                                                 id="cover"
                                             />
-                                            <label htmlFor="cover" className="flex items-center gap-4 p-3 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 hover:border-slate-300 transition-all h-[116px]">
+                                            <label htmlFor="cover" className="flex items-center gap-4 p-3 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 hover:border-slate-300 transition-all h-[116px] overflow-hidden">
                                                 {coverFile ? (
                                                     <div className="flex items-center gap-3 w-full">
-                                                        <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
-                                                            <ImageIcon size={24} className="text-slate-400" />
+                                                        <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center shrink-0 overflow-hidden border border-slate-200 shadow-sm">
+                                                            <img
+                                                                src={URL.createObjectURL(coverFile)}
+                                                                className="w-full h-full object-cover"
+                                                                alt="Preview"
+                                                                onLoad={(e) => {
+                                                                    // Optional: Revoke URL to avoid memory leaks if needed
+                                                                }}
+                                                            />
                                                         </div>
                                                         <div className="min-w-0">
                                                             <p className="text-xs font-bold text-slate-900 truncate">{coverFile.name}</p>
@@ -378,7 +391,7 @@ export default function UploadPage() {
                                         </div>
                                     </div>
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Vibe (Max 3)</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Vibe (Elige 3 opciones)</label>
                                         <div className="flex flex-wrap gap-2">
                                             {MOODS.map(mood => (
                                                 <button
@@ -407,8 +420,8 @@ export default function UploadPage() {
                                         <div className="flex flex-col gap-1">
                                             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-blue-500 transition-all">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">MP3 Tag / Muestra</span>
-                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Audio con Voz (Publico)</span>
+                                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">MP3 Tag (Muestra)</span>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Audio que se muestra al público</span>
                                                 </div>
                                                 <div className="flex items-center gap-3">
                                                     {previewFile && <CheckCircle2 size={16} className="text-green-500" />}
@@ -430,15 +443,15 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center justify-between px-2">
                                                 {previewFile ? <p className="text-[9px] text-slate-400 font-bold truncate italic max-w-[70%]">{previewFile.name}</p> : <span />}
-                                                <span className="text-[8px] font-black text-slate-300 uppercase">Sin Conversión</span>
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Solo subir archivo MP3</span>
                                             </div>
                                         </div>
 
                                         <div className="flex flex-col gap-1">
                                             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-blue-500 transition-all">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">MP3 HQ (Limpio)</span>
-                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">320kbps Maestro Full</span>
+                                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">320kbps Master</span>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Solo subir archivo MP3</span>
                                                 </div>
                                                 <div className="flex items-center gap-3">
                                                     {hqMp3File && <CheckCircle2 size={16} className="text-green-500" />}
@@ -460,7 +473,7 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center justify-between px-2">
                                                 {hqMp3File ? <p className="text-[9px] text-slate-400 font-bold truncate italic max-w-[70%]">{hqMp3File.name}</p> : <span />}
-                                                <span className="text-[8px] font-black text-slate-300 uppercase">Sin Conversión</span>
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Solo subir archivo MP3</span>
                                             </div>
                                         </div>
 
@@ -468,10 +481,10 @@ export default function UploadPage() {
                                             <div className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${isFree ? 'bg-slate-100/50 border-slate-100 grayscale' : 'bg-slate-50 border-slate-100 group hover:border-blue-500'}`}>
                                                 <div className="flex flex-col">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">Archivo WAV (Estudio)</span>
+                                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">Solo subir archivo WAV</span>
                                                         {isFree && <Lock size={12} className="text-slate-400" />}
                                                     </div>
-                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Calidad de Estudio (PRO)</span>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Audio de Alta Fidelidad</span>
                                                 </div>
                                                 <div className="flex items-center gap-3 text-center">
                                                     {isFree ? (
@@ -499,7 +512,7 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center justify-between px-2">
                                                 {wavFile ? <p className="text-[9px] text-slate-400 font-bold truncate italic max-w-[70%]">{wavFile.name}</p> : <span />}
-                                                <span className="text-[8px] font-black text-slate-300 uppercase">Formato Directo</span>
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Solo subir archivo WAV</span>
                                             </div>
                                         </div>
 
@@ -507,10 +520,10 @@ export default function UploadPage() {
                                             <div className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${!isPremium ? 'bg-slate-100/50 border-slate-100 grayscale' : 'bg-slate-50 border-slate-100 group hover:border-blue-500'}`}>
                                                 <div className="flex flex-col">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">Stems (.ZIP)</span>
+                                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">Solo subir archivo RAR o ZIP</span>
                                                         {!isPremium && <Lock size={12} className="text-slate-400" />}
                                                     </div>
-                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Pistas Separadas (Premium)</span>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Pistas separadas (Stems)</span>
                                                 </div>
                                                 <div className="flex items-center gap-3 text-center">
                                                     {!isPremium ? (
@@ -538,101 +551,101 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center justify-between px-2">
                                                 {stemsFile ? <p className="text-[9px] text-slate-400 font-bold truncate italic max-w-[70%]">{stemsFile.name}</p> : <span />}
-                                                <span className="text-[8px] font-black text-slate-300 uppercase">Formato Directo</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <div className="flex flex-col">
-                                                <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">Licencia MP3</span>
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Uso no comercial limitado</span>
-                                            </div>
-                                            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-slate-200">
-                                                <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
-                                                <input
-                                                    type="number"
-                                                    value={standardPrice}
-                                                    onChange={(e) => setStandardPrice(e.target.value)}
-                                                    className="w-12 text-xs font-black outline-none text-slate-900"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="flex justify-between items-center mb-4 pt-4 border-t border-slate-200/50">
-                                            <div className="flex flex-col">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isFree ? 'text-slate-300' : 'text-slate-900'}`}>Licencia WAV</span>
-                                                    {isFree && <Lock size={12} className="text-slate-300" />}
-                                                </div>
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Alta calidad sin compresión</span>
-                                            </div>
-                                            <div className={`flex items-center rounded-lg px-3 py-2 border ${isFree ? 'bg-slate-100 border-slate-100' : 'bg-white border-slate-200'}`}>
-                                                <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
-                                                <input
-                                                    type="number"
-                                                    disabled={isFree}
-                                                    value={wavPrice}
-                                                    onChange={(e) => setWavPrice(e.target.value)}
-                                                    className="w-12 text-xs font-black outline-none text-slate-900 bg-transparent"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="flex justify-between items-center pt-4 border-t border-slate-200/50">
-                                            <div className="flex flex-col">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${!isPremium ? 'text-slate-300' : 'text-slate-900'}`}>Licencia Stems</span>
-                                                    {!isPremium && <Lock size={12} className="text-slate-300" />}
-                                                </div>
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Pistas individuales</span>
-                                            </div>
-                                            <div className={`flex items-center rounded-lg px-3 py-2 border ${!isPremium ? 'bg-slate-100 border-slate-100' : 'bg-white border-slate-200'}`}>
-                                                <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
-                                                <input
-                                                    type="number"
-                                                    disabled={!isPremium}
-                                                    value={stemsPrice}
-                                                    onChange={(e) => setStemsPrice(e.target.value)}
-                                                    className="w-12 text-xs font-black outline-none text-slate-900 bg-transparent"
-                                                />
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Solo subir archivo RAR o ZIP</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className={`p-5 rounded-2xl border transition-all ${isExclusive ? 'border-blue-500 bg-blue-50/30 shadow-sm' : 'bg-slate-50 border-slate-100'}`}>
-                                        <div className="flex justify-between items-center mb-4">
-                                            <div className="flex flex-col">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${!isPremium ? 'text-slate-300' : 'text-slate-900'}`}>Licencia Exclusiva</span>
-                                                    {!isPremium && <Lock size={12} className="text-slate-300" />}
+                                    <div className="space-y-4">
+                                        <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">Licencia MP3</span>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Uso no comercial limitado</span>
                                                 </div>
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Derechos totales y retiro de la tienda</span>
+                                                <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-slate-200">
+                                                    <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
+                                                    <input
+                                                        type="number"
+                                                        value={standardPrice}
+                                                        onChange={(e) => setStandardPrice(e.target.value)}
+                                                        className="w-12 text-xs font-black outline-none text-slate-900"
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className={`flex items-center rounded-lg px-3 py-2 border transition-all ${!isPremium ? 'bg-slate-100 border-slate-100' : isExclusive ? 'bg-white border-blue-500 ring-2 ring-blue-500/10' : 'bg-white border-slate-200'}`}>
-                                                <span className={`text-[10px] font-black mr-1 ${isExclusive ? 'text-blue-600' : 'text-slate-400'}`}>$</span>
-                                                <input
-                                                    type="number"
-                                                    disabled={!isPremium}
-                                                    value={exclusivePrice}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value;
-                                                        setExclusivePrice(val);
-                                                        setIsExclusive(val !== '' && parseInt(val) > 0);
-                                                    }}
-                                                    className={`w-16 text-xs font-black outline-none bg-transparent ${isExclusive ? 'text-blue-600' : 'text-slate-900'}`}
-                                                    placeholder="0"
-                                                />
+
+                                            <div className="flex justify-between items-center mb-4 pt-4 border-t border-slate-200/50">
+                                                <div className="flex flex-col">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isFree ? 'text-slate-300' : 'text-slate-900'}`}>Licencia WAV</span>
+                                                        {isFree && <Lock size={12} className="text-slate-300" />}
+                                                    </div>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Alta calidad sin compresión</span>
+                                                </div>
+                                                <div className={`flex items-center rounded-lg px-3 py-2 border ${isFree ? 'bg-slate-100 border-slate-100' : 'bg-white border-slate-200'}`}>
+                                                    <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
+                                                    <input
+                                                        type="number"
+                                                        disabled={isFree}
+                                                        value={wavPrice}
+                                                        onChange={(e) => setWavPrice(e.target.value)}
+                                                        className="w-12 text-xs font-black outline-none text-slate-900 bg-transparent"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-between items-center pt-4 border-t border-slate-200/50">
+                                                <div className="flex flex-col">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${!isPremium ? 'text-slate-300' : 'text-slate-900'}`}>Licencia Stems</span>
+                                                        {!isPremium && <Lock size={12} className="text-slate-300" />}
+                                                    </div>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Pistas individuales</span>
+                                                </div>
+                                                <div className={`flex items-center rounded-lg px-3 py-2 border ${!isPremium ? 'bg-slate-100 border-slate-100' : 'bg-white border-slate-200'}`}>
+                                                    <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
+                                                    <input
+                                                        type="number"
+                                                        disabled={!isPremium}
+                                                        value={stemsPrice}
+                                                        onChange={(e) => setStemsPrice(e.target.value)}
+                                                        className="w-12 text-xs font-black outline-none text-slate-900 bg-transparent"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
-                                        {isPremium && (
-                                            <p className={`text-[8px] font-bold uppercase ${isExclusive ? 'text-blue-500' : 'text-slate-400'}`}>
-                                                {isExclusive ? '★ Este beat se marcará como Exclusivo' : 'Deja en 0 para no ofrecer venta exclusiva'}
-                                            </p>
-                                        )}
+
+                                        <div className={`p-5 rounded-2xl border transition-all ${isExclusive ? 'border-blue-500 bg-blue-50/30 shadow-sm' : 'bg-slate-50 border-slate-100'}`}>
+                                            <div className="flex justify-between items-center mb-4">
+                                                <div className="flex flex-col">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${!isPremium ? 'text-slate-300' : 'text-slate-900'}`}>Licencia Exclusiva</span>
+                                                        {!isPremium && <Lock size={12} className="text-slate-300" />}
+                                                    </div>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Derechos totales y retiro de la tienda</span>
+                                                </div>
+                                                <div className={`flex items-center rounded-lg px-3 py-2 border transition-all ${!isPremium ? 'bg-slate-100 border-slate-100' : isExclusive ? 'bg-white border-blue-500 ring-2 ring-blue-500/10' : 'bg-white border-slate-200'}`}>
+                                                    <span className={`text-[10px] font-black mr-1 ${isExclusive ? 'text-blue-600' : 'text-slate-400'}`}>$</span>
+                                                    <input
+                                                        type="number"
+                                                        disabled={!isPremium}
+                                                        value={exclusivePrice}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value;
+                                                            setExclusivePrice(val);
+                                                            setIsExclusive(val !== '' && parseInt(val) > 0);
+                                                        }}
+                                                        className={`w-16 text-xs font-black outline-none bg-transparent ${isExclusive ? 'text-blue-600' : 'text-slate-900'}`}
+                                                        placeholder="0"
+                                                    />
+                                                </div>
+                                            </div>
+                                            {isPremium && (
+                                                <p className={`text-[8px] font-bold uppercase ${isExclusive ? 'text-blue-500' : 'text-slate-400'}`}>
+                                                    {isExclusive ? '★ Este beat se marcará como Exclusivo' : 'Deja en 0 para no ofrecer venta exclusiva'}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
