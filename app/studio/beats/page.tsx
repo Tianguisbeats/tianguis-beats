@@ -37,7 +37,7 @@ export default function StudioBeatsPage() {
                 } else if (!finalCoverUrl) {
                     finalCoverUrl = null;
                 }
-                return { ...b, cover_url: finalCoverUrl };
+                return { ...b, portadabeat_url: finalCoverUrl };
             });
             setBeats(transformed);
         }
@@ -94,7 +94,7 @@ export default function StudioBeatsPage() {
                                     <td className="py-4 pl-4">
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 shrink-0 relative group-hover:shadow-md transition-all">
-                                                {beat.cover_url && <img src={beat.cover_url} className="w-full h-full object-cover" />}
+                                                {beat.portadabeat_url && <img src={beat.portadabeat_url} className="w-full h-full object-cover" />}
                                                 <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
                                                     <Play size={16} className="text-white fill-current" />
                                                 </div>

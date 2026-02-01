@@ -81,7 +81,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         ...data,
                         producer: producerObj,
                         mp3_url: publicUrl,
-                        cover_url: finalCoverUrl
+                        portadabeat_url: finalCoverUrl
                     } as BeatDetail);
 
                     logListen(data.id);

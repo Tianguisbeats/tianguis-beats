@@ -67,7 +67,7 @@ export default function Home() {
         price_mxn: b.price_mxn,
         bpm: b.bpm,
         genre: b.genre,
-        cover_url: b.portadabeat_url?.startsWith('http')
+        portadabeat_url: b.portadabeat_url?.startsWith('http')
           ? b.portadabeat_url
           : b.portadabeat_url
             ? supabase.storage.from('portadas-beats').getPublicUrl(b.portadabeat_url).data.publicUrl
