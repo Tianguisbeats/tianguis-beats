@@ -28,7 +28,17 @@ export default function StudioBeatsPage() {
             .eq('producer_id', user.id)
             .order('created_at', { ascending: false });
 
-        if (data) setBeats(data);
+        if (data) {
+            const transformed = data.map((b: any) => {
+                const finalCoverUrl = b.cover_url?.startsWith('http')
+                    ? b.cover_url
+                    : b.cover_url
+                        ? supabase.storage.from('portadas-beats').getPublicUrl(b.cover_url).data.publicUrl
+                        : null;
+                return { ...b, cover_url: finalCoverUrl };
+            });
+            setBeats(transformed);
+        }
         setLoading(false);
     };
 
