@@ -55,6 +55,7 @@ export interface Beat {
     is_public?: boolean;
 
     // Archivos
+    portadabeat_url?: string | null;
     cover_url?: string | null;
     mp3_url?: string;
     wav_url?: string | null;

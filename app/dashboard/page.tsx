@@ -128,7 +128,7 @@ export default function ProducerDashboard() {
                 bpm: bpm ? parseInt(bpm) : null,
                 musical_key: musicalKey,
                 tag: tag,
-                cover_url: null,
+                portadabeat_url: null,
                 price_mxn: parseFloat(price),
                 mp3_url: mp3FullUrl,
                 mp3_tag_url: mp3TagUrl,

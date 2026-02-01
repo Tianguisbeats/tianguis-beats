@@ -31,7 +31,7 @@ interface BeatDetail extends Beat {
     play_count?: number;
     sale_count?: number;
     description?: string;
-    cover_url?: string | null;
+    portadabeat_url?: string | null;
     created_at: string;
 }
 
@@ -56,7 +56,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 setLoading(true);
                 const { data, error } = await supabase
                     .from('beats')
-                    .select('id, title, genre, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, cover_url, mp3_url, mp3_tag_url, musical_key, mood, description, play_count, sale_count, like_count, is_exclusive, created_at, producer:producer_id(artistic_name, username)')
+                    .select('id, title, genre, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, description, play_count, sale_count, like_count, is_exclusive, created_at, producer:producer_id(artistic_name, username)')
                     .eq('id', id)
                     .single();
 
@@ -68,7 +68,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
 
                     // Resolve Cover Art URL if it's a relative path
-                    let finalCoverUrl = data.cover_url;
+                    let finalCoverUrl = data.portadabeat_url;
                     if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
                         const { data: { publicUrl: coverPUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(finalCoverUrl);
                         finalCoverUrl = coverPUrl;
@@ -163,9 +163,13 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         {/* Artwork & Header Info (Left) */}
                         <div className="lg:col-span-8 space-y-8">
                             <div className="flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">
-                                <div className={`w-64 h-64 md:w-72 md:h-72 rounded-[3.5rem] shadow-2xl flex items-center justify-center shrink-0 relative overflow-hidden bg-slate-100`}>
-                                    {beat.cover_url ? (
-                                        <img src={beat.cover_url} className="w-full h-full object-cover" alt={beat.title || 'Beat'} />
+                                <div className={`aspect-square rounded-[3rem] bg-slate-100 flex items-center justify-center overflow-hidden shadow-2xl relative group ${!beat.portadabeat_url ? 'animate-pulse' : ''} border-4 border-white`}>
+                                    {beat.portadabeat_url ? (
+                                        <img
+                                            src={beat.portadabeat_url}
+                                            alt={beat.title}
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        />
                                     ) : (
                                         <Music2 size={80} className="text-slate-200" />
                                     )}

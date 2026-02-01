@@ -67,10 +67,10 @@ export default function Home() {
         price_mxn: b.price_mxn,
         bpm: b.bpm,
         genre: b.genre,
-        cover_url: b.cover_url?.startsWith('http')
-          ? b.cover_url
-          : b.cover_url
-            ? supabase.storage.from('portadas-beats').getPublicUrl(b.cover_url).data.publicUrl
+        cover_url: b.portadabeat_url?.startsWith('http')
+          ? b.portadabeat_url
+          : b.portadabeat_url
+            ? supabase.storage.from('portadas-beats').getPublicUrl(b.portadabeat_url).data.publicUrl
             : null,
         mp3_url: publicUrl,
         musical_key: b.musical_key,
@@ -90,7 +90,7 @@ export default function Home() {
 
     const executeFetch = async () => {
       // Columnas mínimas para BeatCard
-      const columns = 'id,title,price_mxn,bpm,genre,mp3_url,mp3_tag_url,musical_key,mood,tier_visibility,created_at,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)';
+      const columns = 'id,title,price_mxn,bpm,genre,mp3_url,mp3_tag_url,musical_key,mood,tier_visibility,created_at,portadabeat_url,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)';
 
       const fetchSection = async (orderByField: string, limit: number) => {
         try {

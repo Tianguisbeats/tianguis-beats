@@ -80,6 +80,7 @@ function BeatsPageContent() {
             price_mxn,
             bpm,
             genre,
+            portadabeat_url,
             mp3_url,
             mp3_tag_url,
             musical_key,
@@ -131,6 +132,13 @@ function BeatsPageContent() {
           const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
           const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
 
+          // Resolve Cover Art URL
+          let finalCoverUrl = b.portadabeat_url;
+          if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
+            const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(finalCoverUrl);
+            finalCoverUrl = cpUrl;
+          }
+
           return {
             id: b.id,
             title: b.title,
@@ -146,13 +154,9 @@ function BeatsPageContent() {
             musical_key: b.musical_key,
             mood: b.mood,
             tag: "Nuevo",
-            cover_url: b.cover_url?.startsWith('http')
-              ? b.cover_url
-              : b.cover_url
-                ? supabase.storage.from('portadas-beats').getPublicUrl(b.cover_url).data.publicUrl
-                : null,
             tagEmoji: "🔥",
             tagColor: "bg-orange-600",
+            portadabeat_url: finalCoverUrl,
             coverColor: Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100',
             mp3_url: publicUrl,
             created_at: b.created_at

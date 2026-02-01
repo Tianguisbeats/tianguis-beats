@@ -22,19 +22,21 @@ export default function StudioBeatsPage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from('beats')
-            .select('id, title, genre, bpm, price_mxn, cover_url, musical_key, play_count, like_count, created_at')
+            .select('id, title, genre, bpm, price_mxn, portadabeat_url, mp3_url, is_public, play_count, sale_count, like_count, created_at')
             .eq('producer_id', user.id)
             .order('created_at', { ascending: false });
 
         if (data) {
             const transformed = data.map((b: any) => {
-                const finalCoverUrl = b.cover_url?.startsWith('http')
-                    ? b.cover_url
-                    : b.cover_url
-                        ? supabase.storage.from('portadas-beats').getPublicUrl(b.cover_url).data.publicUrl
-                        : null;
+                let finalCoverUrl = b.portadabeat_url;
+                if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
+                    const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(finalCoverUrl);
+                    finalCoverUrl = cpUrl;
+                } else if (!finalCoverUrl) {
+                    finalCoverUrl = null;
+                }
                 return { ...b, cover_url: finalCoverUrl };
             });
             setBeats(transformed);

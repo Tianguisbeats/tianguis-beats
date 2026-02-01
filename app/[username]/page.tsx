@@ -83,7 +83,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 // 2. Get Beats (Optimized Select)
                 const { data: beatsData } = await supabase
                     .from('beats')
-                    .select('id, title, genre, bpm, price_mxn, cover_url, mp3_url, mp3_tag_url, musical_key, mood, is_public, play_count, like_count, created_at')
+                    .select('id, title, genre, bpm, price_mxn, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, is_public, play_count, like_count, created_at')
                     .eq('producer_id', profileData.id)
                     .eq('is_public', true)
                     .order('created_at', { ascending: false });
@@ -549,7 +549,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     beats.map((b, idx) => (
                                         <div key={b.id} className="group bg-white rounded-2xl p-3 flex items-center gap-4 hover:shadow-lg transition-all border border-slate-50">
                                             <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-white shrink-0 overflow-hidden">
-                                                {b.cover_url ? <img src={b.cover_url} className="w-full h-full object-cover" /> : <Music size={20} />}
+                                                {b.portadabeat_url ? <img src={b.portadabeat_url} className="w-full h-full object-cover" /> : <Music size={20} />}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <Link href={`/beats/${b.id}`} className="block font-black text-sm text-slate-900 truncate hover:text-blue-600 transition-colors uppercase">{b.title}</Link>

@@ -146,13 +146,13 @@ export default function UploadPage() {
             const timestamp = Date.now();
 
             // 1. Artwork Upload
-            let coverUrl = null;
+            let portadabeat_url = null;
             if (coverFile) {
                 const coverExt = coverFile.name.split('.').pop();
                 const coverPath = `${username}/${timestamp}-cover.${coverExt}`;
                 await supabase.storage.from('portadas-beats').upload(coverPath, coverFile);
                 const { data: { publicUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(coverPath);
-                coverUrl = publicUrl;
+                portadabeat_url = publicUrl;
             }
 
             // 2. Audio Previews & HQ (Beats-muestras)
@@ -185,7 +185,7 @@ export default function UploadPage() {
                 musical_key: musicalKey,
                 musical_scale: musicalScale,
                 mood: selectedMoods.join(', '),
-                cover_url: coverUrl,
+                portadabeat_url: portadabeat_url,
                 mp3_url: hqPath, // Archivo de Alta Calidad (Limpio)
                 mp3_tag_url: previewPath, // Archivo con tags para previsualización
                 wav_url: wavPath,
