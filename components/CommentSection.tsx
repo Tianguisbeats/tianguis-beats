@@ -164,7 +164,7 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between mb-1">
                                     <div className="flex items-center gap-1.5 flex-wrap">
-                                        <a href={`/${comment.user.username}`} className="text-xs font-black text-slate-900 uppercase tracking-tight hover:text-blue-600 transition-colors truncate max-w-[150px]">
+                                        <a href={`/${comment.user.username}`} className="text-xs font-black text-slate-900 uppercase tracking-tight hover:text-blue-600 transition-colors truncate max-w-[150px] username-highlight">
                                             {comment.user.artistic_name || comment.user.username}
                                         </a>
                                         {comment.user.is_verified && (

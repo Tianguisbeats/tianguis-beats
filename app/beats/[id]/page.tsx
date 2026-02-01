@@ -216,7 +216,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             {/* Header Info Area */}
                             <div className="flex-1 text-center lg:text-left space-y-6">
                                 <div className="space-y-4">
-                                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-slate-900 leading-[0.8] drop-shadow-sm">
+                                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-slate-900 leading-[0.8] drop-shadow-sm click-highlight">
                                         {beat.title}
                                     </h1>
                                     <div className="flex items-center justify-center lg:justify-start gap-4">
@@ -224,7 +224,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                             <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200">
                                                 <img src={(beat.producer as any)?.avatar_url || "/logo.png"} className="w-full h-full object-cover" alt="Producer" />
                                             </div>
-                                            <span className="text-sm font-black text-slate-900 uppercase tracking-widest group-hover:text-blue-600 transition-colors">
+                                            <span className="text-sm font-black text-slate-900 uppercase tracking-widest group-hover:text-blue-600 transition-colors username-highlight">
                                                 Prod. by {(beat.producer as any)?.artistic_name || (beat.producer as any)?.username}
                                             </span>
                                         </Link>

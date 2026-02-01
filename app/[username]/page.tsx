@@ -621,7 +621,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <Music size={20} />
                                     </div>
                                     <div>
-                                        <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900">Beats Recientes</h2>
+                                        <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900">Recién Horneados 🔥</h2>
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Últimas creaciones del productor</p>
                                     </div>
                                 </div>
