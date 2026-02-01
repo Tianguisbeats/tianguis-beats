@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Music, Menu, X, User, LayoutDashboard, LogOut, Check, Settings, CheckCircle2, Crown } from 'lucide-react';
+import { Music, Menu, X, User, LayoutDashboard, LogOut, Check, Settings, CheckCircle2, Crown, ShoppingCart } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { useCart } from '@/context/CartContext';
 
 /**
  * Componente Navbar: Barra de navegación principal.
@@ -15,6 +16,7 @@ export default function Navbar() {
     const [user, setUser] = useState<any>(null);
     const [profile, setProfile] = useState<any>(null);
     const router = useRouter();
+    const { itemCount } = useCart();
 
     // URL del Logo oficial
     const logoUrl = "/logo.png";
@@ -86,7 +88,16 @@ export default function Navbar() {
                                 )}
                             </div>
 
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-6">
+                                <Link href="/cart" className="relative p-2 text-slate-400 hover:text-blue-600 transition-colors group">
+                                    <ShoppingCart size={22} strokeWidth={2.5} />
+                                    {itemCount > 0 && (
+                                        <span className="absolute top-0 right-0 bg-blue-600 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-lg animate-in fade-in zoom-in duration-300">
+                                            {itemCount}
+                                        </span>
+                                    )}
+                                </Link>
+
                                 {user ? (
                                     <div className="flex items-center gap-6">
 

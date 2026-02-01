@@ -24,6 +24,7 @@ export const metadata: Metadata = {
 };
 
 import { PlayerProvider } from "@/context/PlayerContext";
+import { CartProvider } from "@/context/CartContext";
 import AudioPlayer from "@/components/AudioPlayer";
 
 export default function RootLayout({
@@ -36,10 +37,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} font-sans antialiased`}
       >
-        <PlayerProvider>
-          {children}
-          <AudioPlayer />
-        </PlayerProvider>
+        <CartProvider>
+          <PlayerProvider>
+            {children}
+            <AudioPlayer />
+          </PlayerProvider>
+        </CartProvider>
       </body>
     </html>
   );

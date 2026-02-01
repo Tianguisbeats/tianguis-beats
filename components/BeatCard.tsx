@@ -2,8 +2,9 @@
  * Componente BeatCard: Tarjeta para mostrar información individual de un beat.
  * @param beat Datos del beat provenientes de la base de datos o dummy data.
  */
-import { Music, Play, Pause, ShoppingCart, CheckCircle2, Crown } from 'lucide-react';
+import { Music, Play, Pause, ShoppingCart, CheckCircle2, Crown, Check } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
+import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 import { Beat } from '@/lib/types';
 
@@ -22,7 +23,9 @@ function formatPriceMXN(value?: number | null) {
 
 export default function BeatCard({ beat }: BeatCardProps) {
     const { currentBeat, isPlaying, playBeat } = usePlayer();
+    const { addItem, isInCart } = useCart();
     const isThisPlaying = currentBeat?.id === beat.id && isPlaying;
+    const itemInCart = isInCart(beat.id);
 
     const coverColor = beat.coverColor || "bg-slate-50";
     const tagColor = beat.tagColor || "bg-blue-600";
@@ -37,6 +40,20 @@ export default function BeatCard({ beat }: BeatCardProps) {
             is_verified: beat.producer_is_verified,
             is_founder: beat.producer_is_founder
         });
+    };
+
+    const handleAddToCart = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!itemInCart) {
+            addItem({
+                id: beat.id,
+                type: 'beat',
+                name: beat.title,
+                price: beat.price_mxn || 0,
+                image: beat.portadabeat_url || undefined,
+                subtitle: typeof beat.producer === 'string' ? beat.producer : beat.producer?.artistic_name
+            });
+        }
     };
 
     return (
@@ -118,8 +135,11 @@ export default function BeatCard({ beat }: BeatCardProps) {
                             {beat.musical_key ? `Key: ${beat.musical_key}` : "Licencia Digital"}
                         </span>
                     </div>
-                    <button className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95">
-                        <ShoppingCart size={18} />
+                    <button
+                        onClick={handleAddToCart}
+                        className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${itemInCart ? 'bg-green-500 text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white'}`}
+                    >
+                        {itemInCart ? <Check size={18} strokeWidth={3} /> : <ShoppingCart size={18} />}
                     </button>
                 </div>
             </div>

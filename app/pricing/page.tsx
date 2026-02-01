@@ -5,12 +5,14 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Check, Zap, Star, ShieldCheck, ArrowUpRight, Lock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 
 export default function PricingPage() {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
     const [userTier, setUserTier] = useState<string | null>(null);
     const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
+    const { addItem, isInCart } = useCart();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -30,7 +32,7 @@ export default function PricingPage() {
         {
             name: "Gratis",
             tier: "free",
-            price: "0",
+            price: 0,
             description: "Para empezar tu legado.",
             features: [
                 "5 Beats públicos",
@@ -46,8 +48,8 @@ export default function PricingPage() {
         {
             name: "PRO",
             tier: "pro",
-            price: billingCycle === 'monthly' ? "149" : "111",
-            yearlyPrice: "1,340",
+            price: billingCycle === 'monthly' ? 149 : 111,
+            yearlyPrice: 1340,
             description: "Para productores serios.",
             features: [
                 "Subidas ilimitadas",
@@ -64,8 +66,8 @@ export default function PricingPage() {
         {
             name: "PREMIUM",
             tier: "premium",
-            price: billingCycle === 'monthly' ? "349" : "261",
-            yearlyPrice: "3,140",
+            price: billingCycle === 'monthly' ? 349 : 261,
+            yearlyPrice: 3140,
             description: "Máxima potencia comercial.",
             features: [
                 "Todo lo que incluye el plan Pro",
@@ -80,6 +82,25 @@ export default function PricingPage() {
             popular: true
         }
     ];
+
+    const handleSelectPlan = (plan: any) => {
+        if (plan.tier === 'free') {
+            alert("El plan gratuito se activa automáticamente al registrarte.");
+            return;
+        }
+
+        addItem({
+            id: `plan-${plan.tier}-${billingCycle}`,
+            type: 'plan',
+            name: `Plan ${plan.name} (${billingCycle === 'monthly' ? 'Mensual' : 'Anual'})`,
+            price: plan.price,
+            subtitle: plan.description,
+            metadata: { tier: plan.tier, cycle: billingCycle }
+        });
+
+        // Redirect to cart or show success
+        window.location.href = '/cart';
+    };
 
     return (
         <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col pt-24">
@@ -180,15 +201,7 @@ export default function PricingPage() {
 
                                     <button
                                         disabled={isCurrentPlan}
-                                        onClick={() => {
-                                            if (userTier === 'premium' && plan.tier !== 'premium') {
-                                                alert(`Has solicitado bajar al plan ${plan.name}. Tus beneficios Premium se mantendrán hasta el final del periodo.`);
-                                            } else if (userTier === 'pro' && plan.tier === 'free') {
-                                                alert(`Has solicitado bajar al plan Gratis. Tus beneficios Pro se mantendrán hasta el final del periodo.`);
-                                            } else {
-                                                // Logic for upgrade would go here
-                                            }
-                                        }}
+                                        onClick={() => handleSelectPlan(plan)}
                                         className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform hover:-translate-y-1 mb-3 ${isCurrentPlan
                                             ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
                                             : (userTier === 'premium' && plan.tier !== 'premium') || (userTier === 'pro' && plan.tier === 'free')

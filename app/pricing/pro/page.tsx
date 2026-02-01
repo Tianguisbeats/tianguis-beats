@@ -62,9 +62,12 @@ export default function ProPlanPage() {
                                 <p className="text-xl text-slate-400 font-medium mb-8 max-w-lg leading-relaxed">
                                     Diseñado para productores independientes que buscan maximizar sus ganancias y profesionalizar su catálogo.
                                 </p>
-                                <Link href="/pricing" className="inline-block px-10 py-5 bg-amber-500 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-amber-400 hover:scale-105 transition-all shadow-xl shadow-amber-500/20 active:scale-95">
+                                <button
+                                    onClick={() => window.location.href = '/pricing'}
+                                    className="inline-block px-10 py-5 bg-amber-500 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-amber-400 hover:scale-105 transition-all shadow-xl shadow-amber-500/20 active:scale-95"
+                                >
                                     Mejorar Ahora — $149 MXN
-                                </Link>
+                                </button>
                             </div>
                             <div className="relative hidden md:block">
                                 <div className="absolute -inset-4 bg-amber-500/20 blur-3xl rounded-full"></div>

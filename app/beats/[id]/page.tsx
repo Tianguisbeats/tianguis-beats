@@ -7,7 +7,7 @@ import React, { useEffect, useState, use } from 'react';
 // OR simply taking params as prop. Let's use standard prop typing for now, and if Next complains about params being a Promise (Next 15 breaking change), we handle it.
 
 import { supabase } from '@/lib/supabase';
-import { Play, Pause, Heart, Share2, Clock, Music2, ShieldCheck, Download, MessageCircle, BarChart3 } from 'lucide-react';
+import { Play, Pause, Heart, Share2, Clock, Music2, ShieldCheck, Download, MessageCircle, BarChart3, ShoppingCart } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LicenseCard from '@/components/LicenseCard';
@@ -15,6 +15,7 @@ import CommentSection from '@/components/CommentSection';
 import WaveformPlayer from '@/components/WaveformPlayer';
 import Link from 'next/link';
 import { usePlayer } from '@/context/PlayerContext';
+import { useCart } from '@/context/CartContext';
 import { Beat } from '@/lib/types';
 
 // Extend Beat interface to include detail columns
@@ -49,6 +50,30 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
     const [isLiked, setIsLiked] = useState(false);
 
     const { currentBeat, isPlaying, playBeat } = usePlayer();
+    const { addItem, isInCart } = useCart();
+
+    const handleAddToCart = () => {
+        if (!beat) return;
+
+        const priceMap = {
+            'MP3': beat.price_mp3 || beat.price_mxn || 299,
+            'WAV': beat.price_wav || Math.ceil((beat.price_mxn || 299) * 1.5),
+            'STEMS': beat.price_stems || Math.ceil((beat.price_mxn || 299) * 2.5),
+            'ILIMITADA': beat.price_exclusive || 2999
+        };
+
+        addItem({
+            id: `${beat.id}-${selectedLicense}`,
+            type: 'beat',
+            name: `${beat.title} [${selectedLicense}]`,
+            price: priceMap[selectedLicense as keyof typeof priceMap],
+            image: beat.portadabeat_url || undefined,
+            subtitle: `Prod. by ${(beat.producer as any)?.artistic_name || (beat.producer as any)?.username}`,
+            metadata: { license: selectedLicense, beatId: beat.id }
+        });
+
+        window.location.href = '/cart';
+    };
 
     useEffect(() => {
         const fetchBeat = async () => {
@@ -292,15 +317,26 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             {/* Interaction Actions */}
                             <div className="flex gap-4 pt-8">
                                 <button
+                                    onClick={handleAddToCart}
+                                    className="flex-[2] py-5 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-slate-900 transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3"
+                                >
+                                    <ShoppingCart size={20} />
+                                    Añadir al Carrito — {new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(
+                                        selectedLicense === 'MP3' ? (beat.price_mp3 || beat.price_mxn || 299) :
+                                            selectedLicense === 'WAV' ? (beat.price_wav || Math.ceil((beat.price_mxn || 299) * 1.5)) :
+                                                selectedLicense === 'STEMS' ? (beat.price_stems || Math.ceil((beat.price_mxn || 299) * 2.5)) :
+                                                    (beat.price_exclusive || 2999)
+                                    )}
+                                </button>
+                                <button
                                     onClick={handleLike}
                                     className={`flex-1 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3 ${isLiked ? 'bg-red-50 text-red-500 shadow-xl shadow-red-500/5' : 'bg-slate-900 text-white hover:bg-blue-600'}`}
                                 >
                                     <Heart size={20} fill={isLiked ? "currentColor" : "none"} />
-                                    {isLiked ? 'En tus favoritos' : 'Me gusta este beat'}
+                                    Favorito
                                 </button>
                                 <button className="flex-1 py-5 rounded-2xl border-2 border-slate-100 font-black uppercase tracking-widest text-[11px] text-slate-900 hover:bg-slate-50 transition-all flex items-center justify-center gap-3">
                                     <Share2 size={20} />
-                                    Compartir Beat
                                 </button>
                             </div>
                         </div>
