@@ -44,14 +44,18 @@ export default function ProducerDashboard() {
 
     React.useEffect(() => {
         const fetchProfile = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                const { data } = await supabase
-                    .from('profiles')
-                    .select('id, username, artistic_name, subscription_tier')
-                    .eq('id', user.id)
-                    .single();
-                setProfile(data);
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    const { data } = await supabase
+                        .from('profiles')
+                        .select('id, username, artistic_name, subscription_tier')
+                        .eq('id', user.id)
+                        .single();
+                    setProfile(data);
+                }
+            } catch (err) {
+                console.error("Error fetching dashboard profile:", err);
             }
         };
         fetchProfile();
@@ -72,12 +76,14 @@ export default function ProducerDashboard() {
         setUploadProgress(10);
 
         try {
-            const user = (await supabase.auth.getUser()).data.user;
+            const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('Debes iniciar sesión para subir archivos.');
+
+            const sanitize = (name: string) => name.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
 
             // 1. Subir archivos a Storage
             const timestamp = Date.now();
-            const mp3Path = `${user.id}/${timestamp}-preview.mp3`;
+            const mp3Path = `${user.id}/${timestamp}-preview-${sanitize(mp3File.name)}`;
 
             const { error: mp3Error } = await supabase.storage
                 .from('beats-previews')
@@ -87,8 +93,9 @@ export default function ProducerDashboard() {
             setUploadProgress(50);
 
             let wavUrl = null;
+            let wavPath = null;
             if (wavFile) {
-                const wavPath = `${user.id}/${timestamp}-master.wav`;
+                wavPath = `${user.id}/${timestamp}-master-${sanitize(wavFile.name)}`;
                 const { error: wavError } = await supabase.storage
                     .from('beats-raw')
                     .upload(wavPath, wavFile);
@@ -96,8 +103,9 @@ export default function ProducerDashboard() {
             }
 
             let stemsUrl = null;
+            let stemsPath = null;
             if (stemsFile) {
-                const stemsPath = `${user.id}/${timestamp}-stems.zip`;
+                stemsPath = `${user.id}/${timestamp}-stems-${sanitize(stemsFile.name)}`;
                 const { error: stemsError } = await supabase.storage
                     .from('beats-raw')
                     .upload(stemsPath, stemsFile);
@@ -116,8 +124,8 @@ export default function ProducerDashboard() {
                 tag: tag,
                 price_mxn: parseFloat(price),
                 mp3_url: mp3Path,
-                wav_url: wavFile ? `${user.id}/${timestamp}-master.wav` : null,
-                stems_url: stemsFile ? `${user.id}/${timestamp}-stems.zip` : null,
+                wav_url: wavPath,
+                stems_url: stemsPath,
                 mood,
                 reference_artist: refArtist,
                 is_exclusive: isExclusive,

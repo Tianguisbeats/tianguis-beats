@@ -42,9 +42,12 @@ export default function Home() {
 
   const transformBeatData = async (data: any[]) => {
     return data.map((b: any) => {
+      const path = b.mp3_url || '';
+      const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
+
       const { data: { publicUrl } } = supabase.storage
         .from('beats-muestras')
-        .getPublicUrl(b.mp3_url);
+        .getPublicUrl(encodedPath);
 
       return {
         id: b.id,

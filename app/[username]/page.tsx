@@ -54,66 +54,74 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
     // Fetch Data
     const fetchAll = async () => {
-        setLoading(true);
-        const { data: { user } } = await supabase.auth.getUser();
-        setCurrentUserId(user?.id || null);
+        try {
+            setLoading(true);
+            const { data: { user } } = await supabase.auth.getUser();
+            setCurrentUserId(user?.id || null);
 
-        // 1. Get Profile
-        const { data: profileData, error } = await supabase
-            .from('profiles')
-            .select('id, username, artistic_name, avatar_url, cover_url, bio, country, social_links, is_verified, is_founder, subscription_tier, created_at')
-            .eq('username', username)
-            .single();
+            // 1. Get Profile
+            const { data: profileData } = await supabase
+                .from('profiles')
+                .select('id, username, artistic_name, avatar_url, cover_url, bio, country, social_links, is_verified, is_founder, subscription_tier, created_at')
+                .eq('username', username)
+                .single();
 
-        if (profileData) {
-            setProfile(profileData);
-            setEditBio(profileData.bio || '');
-            setEditArtisticName(profileData.artistic_name || '');
-            setEditCountry(profileData.country || '');
-            setEditSocials(profileData.social_links || {});
+            if (profileData) {
+                setProfile(profileData);
+                setEditBio(profileData.bio || '');
+                setEditArtisticName(profileData.artistic_name || '');
+                setEditCountry(profileData.country || '');
+                setEditSocials(profileData.social_links || {});
 
-            if (user?.id === profileData.id) {
-                setIsOwner(true);
-            }
+                if (user?.id === profileData.id) {
+                    setIsOwner(true);
+                }
 
-            // 2. Get Beats (Optimized Select)
-            const { data: beatsData } = await supabase
-                .from('beats')
-                .select('id, title, genre, bpm, price_mxn, cover_url, mp3_url, musical_key, mood, is_public, play_count, like_count, created_at')
-                .eq('producer_id', profileData.id)
-                .eq('is_public', true)
-                .order('created_at', { ascending: false });
+                // 2. Get Beats (Optimized Select)
+                const { data: beatsData } = await supabase
+                    .from('beats')
+                    .select('id, title, genre, bpm, price_mxn, cover_url, mp3_url, musical_key, mood, is_public, play_count, like_count, created_at')
+                    .eq('producer_id', profileData.id)
+                    .eq('is_public', true)
+                    .order('created_at', { ascending: false });
 
-            if (beatsData) {
-                // Transform internal storage paths to public URLs
-                const transformedBeats = await Promise.all(beatsData.map(async (b: Beat) => {
-                    const { data: { publicUrl } } = supabase.storage
-                        .from('beats-muestras')
-                        .getPublicUrl(b.mp3_url || '');
-                    return { ...b, mp3_url: publicUrl };
-                }));
-                setBeats(transformedBeats);
-            }
+                if (beatsData) {
+                    // Transform internal storage paths to public URLs with encoding for spaces
+                    const transformedBeats = await Promise.all(beatsData.map(async (b: Beat) => {
+                        const path = b.mp3_url || '';
+                        const encodedPath = path.split('/').map(s => encodeURIComponent(s)).join('/');
 
-            // 3. Get Follow Status & Count
-            // Note: This relies on the table 'follows' existing (v5.4 schema)
-            const { count } = await supabase
-                .from('follows')
-                .select('*', { count: 'exact', head: true })
-                .eq('following_id', profileData.id);
-            setFollowersCount(count || 0);
+                        const { data: { publicUrl } } = supabase.storage
+                            .from('beats-muestras')
+                            .getPublicUrl(encodedPath);
 
-            if (user) {
-                const { data: followData } = await supabase
+                        return { ...b, mp3_url: publicUrl };
+                    }));
+                    setBeats(transformedBeats);
+                }
+
+                // 3. Get Follow Status & Count
+                const { count } = await supabase
                     .from('follows')
-                    .select('id')
-                    .eq('follower_id', user.id)
-                    .eq('following_id', profileData.id)
-                    .single();
-                setIsFollowing(!!followData);
+                    .select('id', { count: 'exact', head: true })
+                    .eq('following_id', profileData.id);
+                setFollowersCount(count || 0);
+
+                if (user) {
+                    const { data: followData } = await supabase
+                        .from('follows')
+                        .select('id')
+                        .eq('follower_id', user.id)
+                        .eq('following_id', profileData.id)
+                        .single();
+                    setIsFollowing(!!followData);
+                }
             }
+        } catch (err) {
+            console.error("Error fetching profile data:", err);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     useEffect(() => {

@@ -52,40 +52,49 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
     useEffect(() => {
         const fetchBeat = async () => {
-            const { data, error } = await supabase
-                .from('beats')
-                .select('id, title, genre, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, cover_url, mp3_url, musical_key, mood, description, play_count, sale_count, like_count, is_exclusive, created_at, producer:producer_id(artistic_name, username)')
-                .eq('id', id)
-                .single();
+            try {
+                setLoading(true);
+                const { data, error } = await supabase
+                    .from('beats')
+                    .select('id, title, genre, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, cover_url, mp3_url, musical_key, mood, description, play_count, sale_count, like_count, is_exclusive, created_at, producer:producer_id(artistic_name, username)')
+                    .eq('id', id)
+                    .single();
 
-            if (data) {
-                const { data: { publicUrl } } = supabase.storage
-                    .from('beats-muestras')
-                    .getPublicUrl(data.mp3_url || '');
+                if (data) {
+                    const path = data.mp3_url || '';
+                    const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
 
-                // Supabase might return producer as an object or array depending on the relationship config
-                const rawData = data as any;
-                const producerObj = Array.isArray(rawData.producer) ? rawData.producer[0] : rawData.producer;
+                    const { data: { publicUrl } } = supabase.storage
+                        .from('beats-muestras')
+                        .getPublicUrl(encodedPath);
 
-                setBeat({
-                    ...data,
-                    producer: producerObj,
-                    mp3_url: publicUrl
-                } as BeatDetail);
+                    // Supabase might return producer as an object or array depending on the relationship config
+                    const rawData = data as any;
+                    const producerObj = Array.isArray(rawData.producer) ? rawData.producer[0] : rawData.producer;
 
-                logListen(data.id);
+                    setBeat({
+                        ...data,
+                        producer: producerObj,
+                        mp3_url: publicUrl
+                    } as BeatDetail);
 
-                const { data: { user } } = await supabase.auth.getUser();
-                if (user) {
-                    const { count } = await supabase
-                        .from('likes')
-                        .select('id', { count: 'exact', head: true })
-                        .eq('beat_id', data.id)
-                        .eq('user_id', user.id);
-                    setIsLiked(!!count);
+                    logListen(data.id);
+
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (user) {
+                        const { count } = await supabase
+                            .from('likes')
+                            .select('id', { count: 'exact', head: true })
+                            .eq('beat_id', data.id)
+                            .eq('user_id', user.id);
+                        setIsLiked(!!count);
+                    }
                 }
+            } catch (err) {
+                console.error("Error fetching beat detail:", err);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
 
         fetchBeat();

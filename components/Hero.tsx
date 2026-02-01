@@ -43,8 +43,6 @@ export default function Hero({
         if (activeGenre && activeGenre !== 'Todos') params.set('genre', activeGenre);
         if (activeMood) params.set('mood', activeMood);
         if (activeBpm) params.set('bpm', activeBpm);
-        if (activeKey) params.set('artist', activeKey); // Using 'artist' param for key based on previous robust logic or fix in page
-
         // Fix: Page.tsx seemed to map 'artist' to refArtist, let's check page.tsx again to ensure keys are consistent.
         // Actually best to use standard keys. Page.tsx uses: genre, mood, artist, bpm.
         // Wait, Page.tsx implemented: g=genre, m=mood, a=artist, b=bpm.

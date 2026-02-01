@@ -67,92 +67,100 @@ function BeatsPageContent() {
     let cancel = false;
 
     async function load() {
-      setLoading(true);
-      setErrorMsg(null);
+      try {
+        setLoading(true);
+        setErrorMsg(null);
 
-      // Build query with server-side filters
-      let query = supabase
-        .from("beats")
-        .select(`
-          id,
-          title,
-          price_mxn,
-          bpm,
-          genre,
-          mp3_url,
-          musical_key,
-          mood,
-          created_at,
-          producer:producer_id (
-            artistic_name,
-            username,
-            is_verified,
-            is_founder,
-            avatar_url,
-            subscription_tier
-          )
-        `)
-        .eq("is_public", true);
+        // Build query with server-side filters
+        let query = supabase
+          .from("beats")
+          .select(`
+            id,
+            title,
+            price_mxn,
+            bpm,
+            genre,
+            mp3_url,
+            musical_key,
+            mood,
+            created_at,
+            producer:producer_id (
+              artistic_name,
+              username,
+              is_verified,
+              is_founder,
+              avatar_url,
+              subscription_tier
+            )
+          `)
+          .eq("is_public", true);
 
-      // Apply server-side filters
-      if (genreFilter && genreFilter !== "Todos") {
-        query = query.eq('genre', genreFilter);
-      }
-      if (moodFilter) {
-        query = query.eq('mood', moodFilter);
-      }
-      if (bpmFilter) {
-        query = query.eq('bpm', parseInt(bpmFilter));
-      }
-      if (keyFilter) {
-        query = query.eq('musical_key', keyFilter);
-      }
-      if (searchQuery.trim()) {
-        query = query.or(`title.ilike.%${searchQuery.trim()}%,genre.ilike.%${searchQuery.trim()}%`);
-      }
+        // Apply server-side filters
+        if (genreFilter && genreFilter !== "Todos") {
+          query = query.eq('genre', genreFilter);
+        }
+        if (moodFilter) {
+          query = query.eq('mood', moodFilter);
+        }
+        if (bpmFilter) {
+          query = query.eq('bpm', parseInt(bpmFilter));
+        }
+        if (keyFilter) {
+          query = query.eq('musical_key', keyFilter);
+        }
+        if (searchQuery.trim()) {
+          query = query.or(`title.ilike.%${searchQuery.trim()}%,genre.ilike.%${searchQuery.trim()}%`);
+        }
 
-      const { data, error } = await query
-        .order("created_at", { ascending: false })
-        .limit(50);
+        const { data, error } = await query
+          .order("created_at", { ascending: false })
+          .limit(50);
 
-      if (cancel) return;
+        if (cancel) return;
 
-      if (error) {
-        setErrorMsg(error.message ?? "Error desconocido al cargar beats");
+        if (error) {
+          setErrorMsg(error.message ?? "Error desconocido al cargar beats");
+          return;
+        }
+
+        const transformed = await Promise.all((data || []).map(async (b: any) => {
+          const path = b.mp3_url || '';
+          const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('beats-muestras')
+            .getPublicUrl(encodedPath);
+
+          return {
+            id: b.id,
+            title: b.title,
+            producer: b.producer?.artistic_name || 'Productor Anónimo',
+            producer_username: b.producer?.username || b.producer?.artistic_name,
+            producer_is_verified: b.producer?.is_verified,
+            producer_is_founder: b.producer?.is_founder,
+            producer_avatar_url: b.producer?.avatar_url,
+            producer_tier: b.producer?.subscription_tier,
+            price_mxn: b.price_mxn,
+            bpm: b.bpm,
+            genre: b.genre,
+            musical_key: b.musical_key,
+            mood: b.mood,
+            tag: "Nuevo",
+            tagEmoji: "🔥",
+            tagColor: "bg-orange-600",
+            coverColor: Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100',
+            mp3_url: publicUrl,
+            created_at: b.created_at
+          };
+        }));
+
+        setBeats(transformed);
+      } catch (err) {
+        console.error("Error loading beats:", err);
+        setErrorMsg("Error al cargar los beats.");
+      } finally {
         setLoading(false);
-        return;
       }
-
-      const transformed = (data || []).map((b: any) => {
-        const { data: { publicUrl } } = supabase.storage
-          .from('beats-muestras')
-          .getPublicUrl(b.mp3_url);
-
-        return {
-          id: b.id,
-          title: b.title,
-          producer: b.producer?.artistic_name || 'Productor Anónimo',
-          producer_username: b.producer?.username || b.producer?.artistic_name,
-          producer_is_verified: b.producer?.is_verified,
-          producer_is_founder: b.producer?.is_founder,
-          producer_avatar_url: b.producer?.avatar_url,
-          producer_tier: b.producer?.subscription_tier,
-          price_mxn: b.price_mxn,
-          bpm: b.bpm,
-          genre: b.genre,
-          musical_key: b.musical_key,
-          mood: b.mood,
-          tag: "Nuevo",
-          tagEmoji: "🔥",
-          tagColor: "bg-orange-600",
-          coverColor: Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100',
-          mp3_url: publicUrl,
-          created_at: b.created_at
-        };
-      });
-
-      setBeats(transformed);
-      setLoading(false);
     }
 
     load();
