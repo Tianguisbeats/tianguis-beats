@@ -7,7 +7,8 @@ import React, { useEffect, useState, use } from 'react';
 // OR simply taking params as prop. Let's use standard prop typing for now, and if Next complains about params being a Promise (Next 15 breaking change), we handle it.
 
 import { supabase } from '@/lib/supabase';
-import { Play, Pause, Heart, Share2, Clock, Music2, ShieldCheck, Download, MessageCircle, BarChart3, ShoppingCart } from 'lucide-react';
+import { Play, Pause, Heart, Share2, Clock, Music2, ShieldCheck, Download, MessageCircle, BarChart3, ShoppingCart, Info, Globe, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LicenseCard from '@/components/LicenseCard';
@@ -28,9 +29,7 @@ interface BeatDetail extends Beat {
     is_wav_active?: boolean;
     is_stems_active?: boolean;
     is_exclusive_active?: boolean;
-    like_count?: number;
-    play_count?: number;
-    sale_count?: number;
+    moods?: string[];
     description?: string;
     portadabeat_url?: string | null;
     created_at: string;
@@ -41,6 +40,7 @@ interface BeatDetail extends Beat {
  * Permite reproducir, dar like, comentar y ver opciones de licencia.
  */
 export default function BeatDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const router = useRouter();
     const resolvedParams = use(params);
     const id = resolvedParams.id;
 
@@ -72,7 +72,8 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
             metadata: { license: selectedLicense, beatId: beat.id }
         });
 
-        window.location.href = '/cart';
+        // onClose(); // This function is not defined in the provided context. Assuming it's removed or handled elsewhere.
+        router.push('/cart');
     };
 
     useEffect(() => {
@@ -81,7 +82,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 setLoading(true);
                 const { data, error } = await supabase
                     .from('beats')
-                    .select('id, title, genre, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, description, play_count, sale_count, like_count, is_exclusive, created_at, producer:producer_id(artistic_name, username)')
+                    .select('id, title, genre, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, description, play_count, like_count, created_at, producer:producer_id(artistic_name, username, avatar_url, is_verified, is_founder)')
                     .eq('id', id)
                     .single();
 
@@ -177,102 +178,150 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
     }
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white pb-20">
+        <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col pt-24">
             <Navbar />
 
-            {/* Main Header Container */}
-            <div className="pt-24 pb-16 bg-gradient-to-b from-slate-50 to-white">
-                <div className="max-w-7xl mx-auto px-4 md:px-8">
-                    <div className="grid lg:grid-cols-12 gap-12 items-start">
+            <main className="flex-1">
+                {/* 1. HERO SECTION - High Impact Header */}
+                <div className="relative pt-12 pb-24 overflow-hidden">
+                    {/* Background Glow */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full -z-10 bg-gradient-to-b from-blue-50/50 to-white pointer-events-none" />
+                    <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-blue-100/30 rounded-full blur-[120px] -z-10 animate-pulse" />
+                    <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-purple-100/20 rounded-full blur-[100px] -z-10" />
 
-                        {/* Artwork & Header Info (Left) */}
-                        <div className="lg:col-span-8 space-y-8">
-                            <div className="flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">
-                                <div className={`aspect-square rounded-[3rem] bg-slate-100 flex items-center justify-center overflow-hidden shadow-2xl relative group ${!beat.portadabeat_url ? 'animate-pulse' : ''} border-4 border-white`}>
+                    <div className="max-w-7xl mx-auto px-4 md:px-8">
+                        <div className="flex flex-col lg:flex-row gap-12 items-center lg:items-end mb-16">
+                            {/* Artwork Container */}
+                            <div className="relative group shrink-0">
+                                <div className="absolute inset-0 bg-blue-600/20 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                                <div className={`w-64 h-64 md:w-80 md:h-80 rounded-[3rem] bg-white shadow-2xl overflow-hidden border-4 border-white relative z-10 transition-all duration-700 group-hover:scale-[1.02] group-hover:-rotate-2`}>
                                     {beat.portadabeat_url ? (
-                                        <img
-                                            src={beat.portadabeat_url}
-                                            alt={beat.title}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                        />
+                                        <img src={beat.portadabeat_url} className="w-full h-full object-cover" alt={beat.title} />
                                     ) : (
-                                        <Music2 size={80} className="text-slate-200" />
+                                        <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-200"><Music2 size={80} /></div>
                                     )}
                                 </div>
+                                <button
+                                    onClick={() => playBeat(beat as any)}
+                                    className="absolute -bottom-6 -right-6 w-20 h-20 bg-blue-600 text-white rounded-3xl flex items-center justify-center shadow-2xl hover:bg-slate-900 hover:scale-110 transition-all active:scale-90 z-20 group/play"
+                                >
+                                    {isPlaying && currentBeat?.id === beat.id ? (
+                                        <Pause size={32} fill="currentColor" />
+                                    ) : (
+                                        <Play size={32} fill="currentColor" className="ml-1" />
+                                    )}
+                                </button>
+                            </div>
 
-                                <div className="flex-1">
-                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-4">
-                                        <span className="px-3 py-1 rounded-full bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest">
-                                            {beat.tag || 'Caliente'}
-                                        </span>
-                                        <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[9px] font-black uppercase tracking-widest">
-                                            {beat.genre}
-                                        </span>
-                                        <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[9px] font-black uppercase tracking-widest">
-                                            {beat.bpm} BPM
-                                        </span>
-                                        <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[9px] font-black uppercase tracking-widest">
-                                            {beat.musical_key}
-                                        </span>
-                                    </div>
-
-                                    <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-slate-900 leading-[0.85] mb-4">
+                            {/* Header Info Area */}
+                            <div className="flex-1 text-center lg:text-left space-y-6">
+                                <div className="space-y-4">
+                                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-slate-900 leading-[0.8] drop-shadow-sm">
                                         {beat.title}
                                     </h1>
-                                    <p className="text-xl font-bold text-slate-400 uppercase tracking-widest mb-8">
-                                        Prod. by <Link href={`/${(beat.producer as any)?.username || ''}`} className="text-blue-600 underline decoration-blue-100 hover:text-slate-900 transition-colors">
-                                            {(beat.producer as any)?.artistic_name || (beat.producer as any)?.username || 'Desconocido'}
+                                    <div className="flex items-center justify-center lg:justify-start gap-4">
+                                        <Link href={`/${(beat.producer as any)?.username || ''}`} className="group flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                                            <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200">
+                                                <img src={(beat.producer as any)?.avatar_url || "/logo.png"} className="w-full h-full object-cover" alt="Producer" />
+                                            </div>
+                                            <span className="text-sm font-black text-slate-900 uppercase tracking-widest group-hover:text-blue-600 transition-colors">
+                                                Prod. by {(beat.producer as any)?.artistic_name || (beat.producer as any)?.username}
+                                            </span>
                                         </Link>
-                                    </p>
+                                    </div>
+                                </div>
 
-                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-6">
-                                        <div className="flex items-center gap-2 text-slate-400">
-                                            <BarChart3 size={18} />
-                                            <span className="text-sm font-black">{beat.play_count || 0} <span className="text-[10px] uppercase opacity-60">Plays</span></span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-slate-400">
-                                            <Heart size={18} className={isLiked ? "fill-red-500 text-red-500" : ""} />
-                                            <span className="text-sm font-black">{beat.like_count || 0} <span className="text-[10px] uppercase opacity-60">Likes</span></span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-slate-400">
-                                            <Download size={18} />
-                                            <span className="text-sm font-black">{beat.sale_count || 0} <span className="text-[10px] uppercase opacity-60">Ventas</span></span>
+                                {/* Vibrant Stats Row */}
+                                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-8 pt-4">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Plays</span>
+                                        <div className="flex items-center gap-2 text-slate-900">
+                                            <BarChart3 size={18} className="text-blue-600" />
+                                            <span className="text-xl font-black">{beat.play_count || 0}</span>
                                         </div>
                                     </div>
-
-                                    {/* Quick Actions Integration */}
-                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-6">
-                                        <button
-                                            onClick={handleLike}
-                                            className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest transition-all ${isLiked ? 'bg-red-50 text-red-500 border-2 border-red-100' : 'bg-white text-slate-900 border-2 border-slate-100 hover:border-blue-600'}`}
-                                        >
-                                            <Heart size={14} fill={isLiked ? "currentColor" : "none"} />
-                                            {isLiked ? 'Favorito' : 'Dar Like'}
-                                        </button>
-                                        <button className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-slate-900 border-2 border-slate-100 font-black text-[10px] uppercase tracking-widest hover:border-blue-600 transition-all">
-                                            <Share2 size={14} /> Compartir
-                                        </button>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Likes</span>
+                                        <div className="flex items-center gap-2 text-slate-900">
+                                            <Heart size={18} className={isLiked ? "fill-red-500 text-red-500" : "text-slate-400"} />
+                                            <span className="text-xl font-black">{beat.like_count || 0}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            {/* WAVEFORM PLAYER */}
-                            <div className="mt-8">
-                                <WaveformPlayer
-                                    url={beat.mp3_url || ''}
-                                    height={100}
-                                    waveColor="#f1f5f9"
-                                    progressColor="#2563eb"
-                                />
+                        {/* 2. REORDENAMIENTO DE DETALLES - Visual Branding */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                            <div className="bg-white/50 backdrop-blur-sm p-5 rounded-[2rem] border border-slate-100 flex flex-col items-center justify-center text-center group border-green-100 bg-green-50/10">
+                                <span className="text-[9px] font-black text-green-600 uppercase tracking-widest mb-2">Género</span>
+                                <span className="text-sm font-black text-slate-900 uppercase">{beat.genre}</span>
                             </div>
+                            <div className="bg-white/50 backdrop-blur-sm p-5 rounded-[2rem] border border-slate-100 flex flex-col items-center justify-center text-center group border-amber-100 bg-amber-50/10">
+                                <span className="text-[9px] font-black text-amber-600 uppercase tracking-widest mb-2">Tempo</span>
+                                <span className="text-sm font-black text-slate-900 uppercase">{beat.bpm} BPM</span>
+                            </div>
+                            <div className="bg-white/50 backdrop-blur-sm p-5 rounded-[2rem] border border-slate-100 flex flex-col items-center justify-center text-center group border-blue-100 bg-blue-50/10">
+                                <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-2">Escala</span>
+                                <span className="text-sm font-black text-slate-900 uppercase">{beat.musical_key || '—'}</span>
+                            </div>
+                            <div className="bg-white/50 backdrop-blur-sm p-5 rounded-[2rem] border border-slate-100 flex flex-col items-center justify-center text-center group border-purple-100 bg-purple-50/10">
+                                <span className="text-[9px] font-black text-purple-600 uppercase tracking-widest mb-2">Tonalidad</span>
+                                <span className="text-sm font-black text-slate-900 uppercase">{beat.musical_scale || 'Natural'}</span>
+                            </div>
+                            <div className="col-span-2 bg-white/50 backdrop-blur-sm p-5 rounded-[2rem] border border-slate-100 flex flex-col items-center justify-center text-center border-slate-200">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Moods</span>
+                                <div className="flex flex-wrap justify-center gap-1.5">
+                                    {beat.mood && beat.mood.split(',').map((m, i) => (
+                                        <span key={i} className="text-[9px] font-black text-slate-600 bg-slate-100 px-2 py-1 rounded-lg uppercase tracking-widest">{m.trim()}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
 
-                            <div className="grid md:grid-cols-2 gap-8 mt-12">
-                                <div className="space-y-4">
-                                    <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
-                                        <ShieldCheck className="text-blue-600" size={20} />
-                                        Licencias Disponibles
-                                    </h3>
-                                    <div className="grid gap-4">
+                        {/* WAVEFORM - High Visibility */}
+                        <div className="mt-16 bg-slate-900/5 p-8 rounded-[3rem] border border-slate-100/50 relative overflow-hidden group">
+                            <div className="absolute inset-0 bg-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <WaveformPlayer
+                                url={beat.mp3_url || ''}
+                                height={120}
+                                waveColor="#e2e8f0"
+                                progressColor="#2563eb"
+                            />
+                        </div>
+
+                        {/* Master Actions Row */}
+                        <div className="mt-12 flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                            <button
+                                onClick={handleLike}
+                                className={`px-10 py-5 rounded-[2rem] font-black text-[12px] uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl active:scale-95 ${isLiked ? 'bg-red-500 text-white shadow-red-500/20' : 'bg-slate-900 text-white shadow-slate-900/20 hover:bg-red-500'}`}
+                            >
+                                <Heart size={20} fill={isLiked ? "currentColor" : "none"} />
+                                {isLiked ? 'En tus Favoritos' : 'Me Gusta'}
+                            </button>
+                            <button className="px-10 py-5 rounded-[2rem] bg-white border-2 border-slate-100 text-slate-900 font-black text-[12px] uppercase tracking-widest hover:border-blue-600 hover:text-blue-600 transition-all flex items-center gap-3 shadow-sm active:scale-95">
+                                <Share2 size={20} /> Compartir Beat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 3. CONTENT AREA - Layout Reorganized */}
+                <div className="max-w-7xl mx-auto px-4 md:px-8 pb-32">
+                    <div className="grid lg:grid-cols-12 gap-16">
+
+                        {/* LEFT: Licenses & Description */}
+                        <div className="lg:col-span-8 space-y-16">
+
+                            {/* Licenses Grid - Solo las activas */}
+                            <section>
+                                <div className="flex items-center gap-4 mb-10">
+                                    <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shadow-sm"><ShieldCheck size={24} /></div>
+                                    <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900">Opciones de Licencia</h2>
+                                </div>
+
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    {beat.is_mp3_active !== false && (
                                         <LicenseCard
                                             type="MP3"
                                             price={beat.price_mp3 || beat.price_mxn || 299}
@@ -281,19 +330,18 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                             onSelect={() => setSelectedLicense('MP3')}
                                             active={true}
                                         />
+                                    )}
+                                    {beat.is_wav_active !== false && (
                                         <LicenseCard
                                             type="WAV"
                                             price={beat.price_wav || Math.ceil((beat.price_mxn || 299) * 1.5)}
-                                            features={['WAV + MP3', 'Mejor Calidad', 'Certificado de Uso']}
+                                            features={['WAV + MP3', 'Uso comercial ilimitado', 'Calidad de estudio']}
                                             selected={selectedLicense === 'WAV'}
                                             onSelect={() => setSelectedLicense('WAV')}
                                             active={true}
                                         />
-                                    </div>
-                                </div>
-                                <div className="space-y-4">
-                                    <div className="h-7 invisible" /> {/* Spacer */}
-                                    <div className="grid gap-4">
+                                    )}
+                                    {beat.is_stems_active !== false && (
                                         <LicenseCard
                                             type="STEMS"
                                             price={beat.price_stems || Math.ceil((beat.price_mxn || 299) * 2.5)}
@@ -302,6 +350,8 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                             onSelect={() => setSelectedLicense('STEMS')}
                                             active={true}
                                         />
+                                    )}
+                                    {beat.is_exclusive_active !== false && (
                                         <LicenseCard
                                             type="ILIMITADA"
                                             price={beat.price_exclusive || 2999}
@@ -310,70 +360,50 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                             onSelect={() => setSelectedLicense('ILIMITADA')}
                                             active={true}
                                         />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Interaction Actions */}
-                            <div className="flex gap-4 pt-8">
-                                <button
-                                    onClick={handleAddToCart}
-                                    className="flex-[2] py-5 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-slate-900 transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3"
-                                >
-                                    <ShoppingCart size={20} />
-                                    Añadir al Carrito — {new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(
-                                        selectedLicense === 'MP3' ? (beat.price_mp3 || beat.price_mxn || 299) :
-                                            selectedLicense === 'WAV' ? (beat.price_wav || Math.ceil((beat.price_mxn || 299) * 1.5)) :
-                                                selectedLicense === 'STEMS' ? (beat.price_stems || Math.ceil((beat.price_mxn || 299) * 2.5)) :
-                                                    (beat.price_exclusive || 2999)
                                     )}
-                                </button>
-                                <button
-                                    onClick={handleLike}
-                                    className={`flex-1 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3 ${isLiked ? 'bg-red-50 text-red-500 shadow-xl shadow-red-500/5' : 'bg-slate-900 text-white hover:bg-blue-600'}`}
-                                >
-                                    <Heart size={20} fill={isLiked ? "currentColor" : "none"} />
-                                    Favorito
-                                </button>
-                                <button className="flex-1 py-5 rounded-2xl border-2 border-slate-100 font-black uppercase tracking-widest text-[11px] text-slate-900 hover:bg-slate-50 transition-all flex items-center justify-center gap-3">
-                                    <Share2 size={20} />
-                                </button>
-                            </div>
+                                </div>
+
+                                {/* Main Add To Cart */}
+                                <div className="mt-8">
+                                    <button
+                                        onClick={handleAddToCart}
+                                        className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] hover:bg-slate-900 transition-all shadow-2xl shadow-blue-600/30 flex items-center justify-center gap-4 group active:scale-[0.98]"
+                                    >
+                                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+                                            <ShoppingCart size={16} />
+                                        </div>
+                                        Añadir al Carrito — {new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(
+                                            selectedLicense === 'MP3' ? (beat.price_mp3 || beat.price_mxn || 299) :
+                                                selectedLicense === 'WAV' ? (beat.price_wav || Math.ceil((beat.price_mxn || 299) * 1.5)) :
+                                                    selectedLicense === 'STEMS' ? (beat.price_stems || Math.ceil((beat.price_mxn || 299) * 2.5)) :
+                                                        (beat.price_exclusive || 2999)
+                                        )}
+                                    </button>
+                                </div>
+                            </section>
+
+                            {/* Description Section */}
+                            {beat.description && (
+                                <section className="p-10 bg-slate-50 rounded-[3rem] border border-slate-100">
+                                    <h3 className="text-xl font-black uppercase tracking-tight mb-4 flex items-center gap-2">
+                                        <Info size={20} className="text-blue-600" /> Notas del Productor
+                                    </h3>
+                                    <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-wrap">
+                                        {beat.description}
+                                    </p>
+                                </section>
+                            )}
                         </div>
 
-                        {/* Right Sidebar: Comments & Details (Right) */}
-                        <div className="lg:col-span-4 space-y-8">
-                            <div className="bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100">
-                                <h3 className="font-black text-xl uppercase tracking-tight mb-6">Detalles Técnicos</h3>
-                                <ul className="space-y-4">
-                                    <li className="flex justify-between items-center pb-4 border-b border-slate-200">
-                                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Publicado</span>
-                                        <span className="text-sm font-bold text-slate-900">{(beat.created_at) ? new Date(beat.created_at).toLocaleDateString() : new Date().toLocaleDateString()}</span>
-                                    </li>
-                                    <li className="flex justify-between items-center pb-4 border-b border-slate-200">
-                                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Escala</span>
-                                        <span className="text-sm font-bold text-slate-900">{beat.musical_key || 'No especificada'}</span>
-                                    </li>
-                                    <li className="flex justify-between items-center pb-4 border-b border-slate-200">
-                                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Tonalidad</span>
-                                        <span className="text-sm font-bold text-slate-900">{beat.musical_scale || 'Natural'}</span>
-                                    </li>
-                                    <li className="flex justify-between items-center pb-4 border-b border-slate-200">
-                                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Tempo (BPM)</span>
-                                        <span className="text-sm font-bold text-slate-900">{beat.bpm} BPM</span>
-                                    </li>
-                                    <li className="flex justify-between items-center">
-                                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Género</span>
-                                        <span className="text-sm font-bold text-slate-900">{beat.genre}</span>
-                                    </li>
-                                </ul>
+                        {/* RIGHT SIDEBAR: Comments */}
+                        <div className="lg:col-span-4">
+                            <div className="sticky top-32 space-y-8">
+                                <CommentSection beatId={id} />
                             </div>
-
-                            <CommentSection beatId={id} />
                         </div>
                     </div>
                 </div>
-            </div>
+            </main>
 
             <Footer />
         </div>

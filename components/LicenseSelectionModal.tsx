@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { X, Music, Check, ShoppingCart, ShieldCheck, Zap, Layers, Crown } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Beat } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
 
@@ -12,6 +13,7 @@ interface LicenseSelectionModalProps {
 }
 
 export default function LicenseSelectionModal({ beat, isOpen, onClose }: LicenseSelectionModalProps) {
+    const router = useRouter();
     const { addItem } = useCart();
     const [selectedType, setSelectedType] = React.useState<'MP3' | 'WAV' | 'STEMS' | 'ILIMITADA'>('MP3');
 
@@ -68,7 +70,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
 
         onClose();
         // Option to redirect to cart
-        window.location.href = '/cart';
+        router.push('/cart');
     };
 
     const currentLicense = licenses.find(l => l.id === selectedType);

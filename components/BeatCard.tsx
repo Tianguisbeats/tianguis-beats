@@ -46,6 +46,7 @@ export default function BeatCard({ beat }: BeatCardProps) {
     };
 
     const handleAddToCart = (e: React.MouseEvent) => {
+        e.preventDefault();
         e.stopPropagation();
         setIsLicenseModalOpen(true);
     };
@@ -162,7 +163,8 @@ export default function BeatCard({ beat }: BeatCardProps) {
                     </button>
                     <button
                         onClick={handleAddToCart}
-                        className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${itemInCart ? 'bg-green-500 text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white'}`}
+                        className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${itemInCart ? 'bg-green-500 text-white shadow-green-200' : 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white'}`}
+                        title={itemInCart ? "En el carrito - Ver Licencias" : "Añadir al carrito"}
                     >
                         {itemInCart ? <Check size={18} strokeWidth={3} /> : <ShoppingCart size={18} />}
                     </button>
