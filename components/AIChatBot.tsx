@@ -28,7 +28,7 @@ export default function AIChatBot() {
     const isProfilePath = pathname && !allowedPaths.includes(pathname) && pathname.split('/').length === 2 && !pathname.includes('.');
     const isPricingPath = pathname?.startsWith('/pricing');
 
-    const isVisibleRoute = pathname === '/' || pathname === '/beats' || isPricingPath || isProfilePath;
+    const isVisibleRoute = pathname === '/' || pathname === '/beats' || isPricingPath;
     const hideFloatingButton = pathname === '/help';
 
     // Árbol de Lógica

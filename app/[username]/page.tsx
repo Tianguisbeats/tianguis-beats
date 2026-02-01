@@ -554,20 +554,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 </div>
                             </div>
 
-                            {/* Acciones de Playlist (Solo Dueño) */}
-                            {isOwner && (
-                                <div className="space-y-4">
-                                    <button
-                                        onClick={() => {
-                                            setEditingPlaylist(null);
-                                            setIsPlaylistModalOpen(true);
-                                        }}
-                                        className="w-full py-4 bg-blue-50 text-blue-600 border border-blue-100 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-xl hover:shadow-blue-600/10"
-                                    >
-                                        <Plus size={16} /> Nueva Playlist
-                                    </button>
-                                </div>
-                            )}
 
                             {/* Bio Box (AHORA ABAJO) */}
                             <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm">
@@ -632,7 +618,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                     <div>
                                         <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900">Beats Recientes</h2>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Últimas creaciones del artista</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Últimas creaciones del productor</p>
                                     </div>
                                 </div>
                                 <Link
@@ -655,6 +641,23 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 <div className="bg-slate-50 rounded-2xl p-12 text-center">
                                     <Music size={48} className="text-slate-200 mx-auto mb-4" />
                                     <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No hay beats públicos</p>
+                                </div>
+                            )}
+
+                            {/* Nueva Playlist (Solo Dueño) - AHORA AQUÍ ABAJO */}
+                            {isOwner && (
+                                <div className="mt-8 flex justify-center">
+                                    <button
+                                        onClick={() => {
+                                            setEditingPlaylist(null);
+                                            setIsPlaylistModalOpen(true);
+                                        }}
+                                        className="group relative px-10 py-5 bg-white border-2 border-slate-900 text-slate-900 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 hover:text-white transition-all overflow-hidden flex items-center gap-3 shadow-xl shadow-slate-900/5 active:scale-95"
+                                    >
+                                        <Plus size={18} className="transition-transform group-hover:rotate-90" />
+                                        <span>Nueva Playlist</span>
+                                        <div className="absolute inset-0 bg-blue-600 translate-y-full group-hover:translate-y-0 transition-transform -z-10" />
+                                    </button>
                                 </div>
                             )}
 

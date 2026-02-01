@@ -30,7 +30,7 @@ export default function PlaylistSection({ playlists, isOwner, onEdit }: Playlist
                         <div>
                             <div className="flex items-center gap-2 mb-1">
                                 <ListMusic size={16} className="text-blue-600" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Colección Curada</span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Colección</span>
                             </div>
                             <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-slate-900 leading-none">
                                 {playlist.name}
