@@ -25,7 +25,6 @@ export interface Beat {
     sale_count?: number;
     is_exclusive?: boolean;
     tier_visibility?: number;
-    mp3_url?: string | null;
     producer_avatar_url?: string | null;
     producer_tier?: string | null;
     producer_is_verified?: boolean;
@@ -56,7 +55,7 @@ export default function BeatCard({ beat }: BeatCardProps) {
     const handlePlay = (e: React.MouseEvent) => {
         e.stopPropagation();
         // Use tagged URL for public listening if available
-        const playbackUrl = beat.mp3_url || beat.mp3_url;
+        const playbackUrl = beat.mp3_url;
         playBeat({
             ...beat,
             mp3_url: playbackUrl,
