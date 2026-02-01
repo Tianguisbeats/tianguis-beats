@@ -7,7 +7,7 @@ import {
     Share2, MoreHorizontal, Calendar, MapPin,
     Music, Play, Users, Crown, Settings, Camera,
     Edit3, CheckCircle2, Copy, Trash2, Layout,
-    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save
+    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save, ChevronUp, ChevronDown
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -61,6 +61,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     const [isAdjustingCover, setIsAdjustingCover] = useState(false);
     const [tempOffset, setTempOffset] = useState(50);
     const [isReordering, setIsReordering] = useState(false);
+    const [hasChangedOrder, setHasChangedOrder] = useState(false);
 
     const { playBeat, currentBeat, isPlaying } = usePlayer();
 
@@ -674,10 +675,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     <div className="flex items-center justify-between mb-6">
                                         <h3 className="text-[10px] font-black uppercase tracking-widest text-blue-600">Cambiar orden de aparición</h3>
                                         <button
-                                            onClick={() => setIsReordering(false)}
+                                            onClick={() => {
+                                                setIsReordering(false);
+                                                setHasChangedOrder(false);
+                                            }}
                                             className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors"
                                         >
-                                            Finalizar
+                                            {hasChangedOrder ? "Guardar cambios" : "Cancelar cambios"}
                                         </button>
                                     </div>
                                     <div className="space-y-2">
@@ -694,6 +698,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                             const newPlaylists = [...playlists];
                                                             [newPlaylists[idx], newPlaylists[idx - 1]] = [newPlaylists[idx - 1], newPlaylists[idx]];
                                                             setPlaylists(newPlaylists);
+                                                            setHasChangedOrder(true);
                                                             // Persist order
                                                             await Promise.all(newPlaylists.map((p, i) =>
                                                                 supabase.from('playlists').update({ order_index: i }).eq('id', p.id)
@@ -701,7 +706,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                         }}
                                                         className="p-2 hover:bg-slate-50 text-slate-400 rounded-lg disabled:opacity-20"
                                                     >
-                                                        <Plus size={14} className="rotate-180" />
+                                                        <ChevronUp size={16} />
                                                     </button>
                                                     <button
                                                         disabled={idx === playlists.length - 1}
@@ -709,6 +714,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                             const newPlaylists = [...playlists];
                                                             [newPlaylists[idx], newPlaylists[idx + 1]] = [newPlaylists[idx + 1], newPlaylists[idx]];
                                                             setPlaylists(newPlaylists);
+                                                            setHasChangedOrder(true);
                                                             // Persist order
                                                             await Promise.all(newPlaylists.map((p, i) =>
                                                                 supabase.from('playlists').update({ order_index: i }).eq('id', p.id)
@@ -716,7 +722,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                         }}
                                                         className="p-2 hover:bg-slate-50 text-slate-400 rounded-lg disabled:opacity-20"
                                                     >
-                                                        <Plus size={14} />
+                                                        <ChevronDown size={16} />
                                                     </button>
                                                 </div>
                                             </div>
@@ -727,7 +733,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                             {/* Playlists Section */}
                             {playlists.length > 0 && (
-                                <div className="mt-24 pt-24 border-t border-slate-100">
+                                <div className="mt-8">
                                     <PlaylistSection
                                         playlists={playlists}
                                         isOwner={isOwner}

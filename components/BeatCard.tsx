@@ -126,7 +126,7 @@ export default function BeatCard({ beat }: BeatCardProps) {
                             {beat.genre}
                         </span>
                     )}
-                    <span className="text-[8px] font-black text-slate-500 bg-slate-50 px-2 py-1 rounded-md border border-slate-100 uppercase tracking-widest">
+                    <span className="text-[8px] font-black text-amber-600 bg-amber-50 px-2 py-1 rounded-md border border-amber-100 uppercase tracking-widest">
                         {beat.bpm || "—"} BPM
                     </span>
                     {beat.musical_key && (
