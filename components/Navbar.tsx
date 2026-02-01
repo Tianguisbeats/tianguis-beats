@@ -120,8 +120,7 @@ export default function Navbar() {
                                                 </div>
                                             </Link>
 
-                                            {/* Settings Gear */}
-                                            <Link href={`/${profile?.username}`} className="text-slate-400 hover:text-slate-900 transition-colors">
+                                            <Link href="/studio" className="text-slate-400 hover:text-slate-900 transition-colors" title="Tianguis Studio">
                                                 <Settings size={18} />
                                             </Link>
 
