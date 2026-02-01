@@ -14,7 +14,7 @@ export interface Profile {
     full_name?: string | null;
     avatar_url?: string | null;
     portada_perfil_url?: string | null;
-    cover_offset_y?: number;
+    ajuste_portada?: number;
     bio?: string | null;
     country?: string;
     open_collaborations?: boolean;

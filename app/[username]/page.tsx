@@ -76,7 +76,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             // 1. Get Profile
             const { data: profileData } = await supabase
                 .from('profiles')
-                .select('id, username, artistic_name, avatar_url, portada_perfil_url, cover_offset_y, bio, country, social_links, is_verified, is_founder, subscription_tier, created_at')
+                .select('id, username, artistic_name, avatar_url, portada_perfil_url, ajuste_portada, bio, country, social_links, is_verified, is_founder, subscription_tier, created_at')
                 .eq('username', username)
                 .single();
 
@@ -86,7 +86,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 setEditArtisticName(profileData.artistic_name || '');
                 setEditCountry(profileData.country || '');
                 setEditSocials(profileData.social_links || {});
-                setTempOffset(profileData.cover_offset_y ?? 50);
+                setTempOffset(profileData.ajuste_portada ?? 50);
 
                 if (user?.id === profileData.id) {
                     setIsOwner(true);
@@ -310,11 +310,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         setSaving(true);
         const { error } = await supabase
             .from('profiles')
-            .update({ cover_offset_y: tempOffset })
+            .update({ ajuste_portada: tempOffset })
             .eq('id', profile.id);
 
         if (!error) {
-            setProfile({ ...profile, cover_offset_y: tempOffset });
+            setProfile({ ...profile, ajuste_portada: tempOffset });
             setIsAdjustingCover(false);
             alert("Posición guardada");
         }
@@ -353,7 +353,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         <img
                             src={profile.portada_perfil_url}
                             className="w-full h-full object-cover transition-all duration-300"
-                            style={{ objectPosition: `center ${isAdjustingCover ? tempOffset : (profile.cover_offset_y ?? 50)}%` }}
+                            style={{ objectPosition: `center ${isAdjustingCover ? tempOffset : (profile.ajuste_portada ?? 50)}%` }}
                             alt="Cover"
                         />
                     ) : (
@@ -399,7 +399,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     <button
                                         onClick={() => {
                                             setIsAdjustingCover(false);
-                                            setTempOffset(profile.cover_offset_y ?? 50);
+                                            setTempOffset(profile.ajuste_portada ?? 50);
                                         }}
                                         className="flex-1 px-6 py-3 border border-slate-100 rounded-full font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all"
                                     >

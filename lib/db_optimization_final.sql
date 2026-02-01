@@ -1,5 +1,5 @@
--- TIANGUIS BEATS - OPTIMIZACIÓN QUIRÚRGICA DE PROFILES (Versión Definitiva)
--- Unifica campos de fecha a español, elimina redundancias, añade rastreo de sesión y mantiene ajuste de portada.
+-- TIANGUIS BEATS - OPTIMIZACIÓN QUIRÚRGICA DE PROFILES (Versión Final Definitiva)
+-- Unifica campos de fecha a español, elimina redundancias, añade rastreo de sesión y renombra ajuste_portada.
 
 -- 1. LIMPIEZA Y RENOMBRAMIENTO DE COLUMNAS
 DO $$ 
@@ -21,6 +21,11 @@ BEGIN
     END IF;
     IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='updated_at') THEN
         ALTER TABLE public.profiles RENAME COLUMN updated_at TO ultima_actualizacion;
+    END IF;
+
+    -- Renombrar cover_offset_y a ajuste_portada
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='cover_offset_y') THEN
+        ALTER TABLE public.profiles RENAME COLUMN cover_offset_y TO ajuste_portada;
     END IF;
 
 END $$;
@@ -76,4 +81,4 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 COMMENT ON COLUMN public.profiles.fecha_de_creacion IS 'Fecha de registro original (Horario CDMX)';
 COMMENT ON COLUMN public.profiles.ultima_actualizacion IS 'Último cambio realizado en los datos del perfil';
 COMMENT ON COLUMN public.profiles.ultima_sesion IS 'Fecha y hora del último acceso al sistema';
-COMMENT ON COLUMN public.profiles.cover_offset_y IS 'Desplazamiento vertical de la portada (0-100). Esencial para el botón Ajustar.';
+COMMENT ON COLUMN public.profiles.ajuste_portada IS 'Porcentaje de desplazamiento vertical de la portada (0-100)';
