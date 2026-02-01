@@ -49,6 +49,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     const [editCountry, setEditCountry] = useState('');
     const [editSocials, setEditSocials] = useState<any>({});
     const [saving, setSaving] = useState(false);
+    const [isAdjustingCover, setIsAdjustingCover] = useState(false);
+    const [tempOffset, setTempOffset] = useState(50);
 
     const { playBeat, currentBeat, isPlaying } = usePlayer();
 
@@ -62,7 +64,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             // 1. Get Profile
             const { data: profileData } = await supabase
                 .from('profiles')
-                .select('id, username, artistic_name, avatar_url, cover_url, bio, country, social_links, is_verified, is_founder, subscription_tier, created_at')
+                .select('id, username, artistic_name, avatar_url, cover_url, cover_offset_y, bio, country, social_links, is_verified, is_founder, subscription_tier, created_at')
                 .eq('username', username)
                 .single();
 
@@ -72,6 +74,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 setEditArtisticName(profileData.artistic_name || '');
                 setEditCountry(profileData.country || '');
                 setEditSocials(profileData.social_links || {});
+                setTempOffset(profileData.cover_offset_y ?? 50);
 
                 if (user?.id === profileData.id) {
                     setIsOwner(true);
@@ -175,15 +178,15 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         const file = e.target.files?.[0];
         if (!file || !profile) return;
 
-        // Strict Validation
-        if (file.size > 2 * 1024 * 1024) {
-            alert("Artwork: El peso máximo es de 2MB.");
+        // Relaxed Validation
+        if (file.size > 10 * 1024 * 1024) {
+            alert("El peso máximo permitido es de 10MB.");
             return;
         }
 
-        const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
         if (!validTypes.includes(file.type)) {
-            alert("Solo se permiten archivos JPG o PNG.");
+            alert("Formato no soportado. Usa JPG, PNG o WebP.");
             return;
         }
 
@@ -208,16 +211,33 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             }
 
             setProfile({ ...profile, ...updateField });
-            alert("¡Imagen actualizada con éxito!");
 
-            // Si es el avatar, refrescamos para sincronizar con el Navbar
-            if (type === 'avatar') {
+            if (type === 'cover') {
+                setIsAdjustingCover(true);
+            } else {
+                alert("¡Avatar actualizado con éxito!");
                 window.location.reload();
             }
         } else {
             console.error("Upload Error:", uploadError);
             alert("Error al subir archivo: " + uploadError.message);
         }
+    };
+
+    const handleSaveAdjustment = async () => {
+        if (!profile) return;
+        setSaving(true);
+        const { error } = await supabase
+            .from('profiles')
+            .update({ cover_offset_y: tempOffset })
+            .eq('id', profile.id);
+
+        if (!error) {
+            setProfile({ ...profile, cover_offset_y: tempOffset });
+            setIsAdjustingCover(false);
+            alert("Posición guardada");
+        }
+        setSaving(false);
     };
 
     if (loading) return (
