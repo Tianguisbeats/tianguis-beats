@@ -1,4 +1,4 @@
--- TIANGUIS BEATS: PLAYLISTS MIGRATION
+-- TIANGUIS BEATS: ACTIVACIÓN DE PLAYLIST PARA USUARIO
 -- Permite a los productores organizar sus beats en colecciones/playlists.
 
 -- 1. Crear Tabla de Playlists
