@@ -28,32 +28,35 @@ export default function AIChatBot() {
     const isProfilePath = pathname && !allowedPaths.includes(pathname) && pathname.split('/').length === 2 && !pathname.includes('.');
     const isPricingPath = pathname?.startsWith('/pricing');
 
-    const isVisible = pathname === '/' || pathname === '/beats' || isPricingPath || isProfilePath;
+    const isVisibleRoute = pathname === '/' || pathname === '/beats' || isPricingPath || isProfilePath;
+    const hideFloatingButton = pathname === '/help';
 
     // Árbol de Lógica
     const showMenuPrincipal = () => {
         setMessages(prev => [...prev, {
             role: 'bot',
-            content: '¿En qué puedo ayudarte hoy carnal?',
+            content: '¿En qué puedo asistirle el día de hoy? Por favor, seleccione una categoría de interés:',
             options: [
-                { label: '🔍 Buscar Beats', action: handleBuscarBeats, icon: <Music size={12} /> },
-                { label: '📜 Licencias', action: handleLicencias, icon: <CreditCard size={12} /> },
-                { label: '💎 Planes', action: handlePlanes, icon: <ShieldCheck size={12} /> },
-                { label: '⚙️ Soporte', action: handleSoporte, icon: <ChevronRight size={12} /> }
+                { label: '🔍 Explorar el Catálogo', action: handleBuscarBeats, icon: <Music size={12} /> },
+                { label: '📜 Gestión de Licencias', action: handleLicencias, icon: <CreditCard size={12} /> },
+                { label: '💎 Planes de Suscripción', action: handlePlanes, icon: <ShieldCheck size={12} /> },
+                { label: '💰 Vender mis Beats', action: handleVentas, icon: <ChevronRight size={12} /> },
+                { label: '⚙️ Soporte Técnico', action: handleSoporte, icon: <ChevronRight size={12} /> }
             ]
         }]);
     };
 
     const handleBuscarBeats = () => {
         setMessages(prev => [...prev,
-        { role: 'user', content: 'Buscar Beats' },
+        { role: 'user', content: 'Deseo explorar los beats disponibles.' },
         {
             role: 'bot',
-            content: '¿Qué género buscas?',
+            content: 'Contamos con una amplia variedad de ritmos profesionales. ¿Qué género prefiere consultar?',
             options: [
                 { label: 'Trap', action: () => router.push('/beats?genre=Trap') },
                 { label: 'Reggaeton', action: () => router.push('/beats?genre=Reggaeton') },
-                { label: 'Corridos', action: () => router.push('/beats?genre=Corridos') }
+                { label: 'Corridos', action: () => router.push('/beats?genre=Corridos') },
+                { label: 'Catálogo Completo', action: () => router.push('/beats') }
             ]
         }
         ]);
@@ -61,13 +64,13 @@ export default function AIChatBot() {
 
     const handleLicencias = () => {
         setMessages(prev => [...prev,
-        { role: 'user', content: 'Licencias' },
+        { role: 'user', content: 'Necesito información sobre las licencias.' },
         {
             role: 'bot',
-            content: 'Manejamos MP3, WAV y STEMS. ¿Quieres ver los detalles?',
+            content: 'Ofrecemos tres opciones de licencias para cubrir sus necesidades:\n\n• **Estándar (MP3)**: Para uso en demos y redes sociales.\n• **Profesional (WAV)**: Archivo de alta fidelidad para plataformas de streaming.\n• **Ilimitada (STEMS)**: Control total sobre la mezcla con pistas separadas.\n\n¿Desea profundizar en los términos legales de cada una?',
             options: [
-                { label: 'Ver más', action: () => router.push('/help') },
-                { label: 'Menú', action: showMenuPrincipal }
+                { label: 'Ver Tabla Comparativa', action: () => router.push('/help') },
+                { label: 'Regresar al Menú', action: showMenuPrincipal }
             ]
         }
         ]);
@@ -75,13 +78,27 @@ export default function AIChatBot() {
 
     const handlePlanes = () => {
         setMessages(prev => [...prev,
-        { role: 'user', content: 'Planes' },
+        { role: 'user', content: 'Quiero conocer los planes de suscripción.' },
         {
             role: 'bot',
-            content: 'Tenemos planes FREE, PRO y PREMIUM. ¿Quieres ver precios?',
+            content: 'Nuestros planes están diseñados para impulsar su carrera como productor:\n\n• **Plan Pro**: Aumenta su límite de subidas y personaliza su perfil.\n• **Plan Premium**: Subidas ilimitadas, destacados en la home y 0% de comisión.\n\n¿Le gustaría consultar los costos vigentes?',
             options: [
-                { label: 'Ver Planes', action: () => router.push('/pricing') },
-                { label: 'Menú', action: showMenuPrincipal }
+                { label: 'Ver Precios Actualizados', action: () => router.push('/pricing') },
+                { label: 'Volver al Menú', action: showMenuPrincipal }
+            ]
+        }
+        ]);
+    };
+
+    const handleVentas = () => {
+        setMessages(prev => [...prev,
+        { role: 'user', content: '¿Cómo puedo vender mis beats?' },
+        {
+            role: 'bot',
+            content: 'Es muy sencillo. Solo necesita crear una cuenta de productor, completar su perfil con su nombre artístico y comenzar a subir sus archivos en el Tianguis Studio.\n\n¿Desea ir directamente al panel de carga?',
+            options: [
+                { label: 'Ir al Studio', action: () => router.push('/studio') },
+                { label: 'Más Información', action: () => router.push('/help') }
             ]
         }
         ]);
@@ -89,12 +106,13 @@ export default function AIChatBot() {
 
     const handleSoporte = () => {
         setMessages(prev => [...prev,
-        { role: 'user', content: 'Soporte' },
+        { role: 'user', content: 'Requiero soporte técnico.' },
         {
             role: 'bot',
-            content: 'Para ayuda técnica, ve a nuestro Centro de Apoyo.',
+            content: 'Nuestro Centro de Soporte está disponible las 24 horas para resolver cualquier incidencia técnica o duda administrativa relacional con su cuenta.',
             options: [
-                { label: 'Ir a Ayuda', action: () => router.push('/help') }
+                { label: 'Visitar Centro de Ayuda', action: () => router.push('/help') },
+                { label: 'Menú Inicial', action: showMenuPrincipal }
             ]
         }
         ]);
@@ -103,7 +121,7 @@ export default function AIChatBot() {
     useEffect(() => {
         if (messages.length === 0) {
             setMessages([
-                { role: 'bot', content: '¡Hola! Soy Tianguis AI.' }
+                { role: 'bot', content: 'Bienvenido a Tianguis IA. Soy su asistente virtual dedicado para una experiencia óptima en la plataforma.' }
             ]);
             setTimeout(showMenuPrincipal, 600);
         }
@@ -119,17 +137,19 @@ export default function AIChatBot() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    if (!isVisible) return null;
+    if (!isVisibleRoute && !isOpen) return null;
 
     return (
         <div className="fixed bottom-6 right-6 z-[100] font-sans pointer-events-none">
-            {/* Botón Flotante Más Pequeño y Sutil */}
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className={`pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center shadow-xl transition-all duration-500 hover:scale-110 active:scale-95 ${isOpen ? 'bg-slate-900' : 'bg-blue-600'}`}
-            >
-                {isOpen ? <X className="text-white" size={20} /> : <BrainCircuit className="text-white" size={20} />}
-            </button>
+            {/* Botón Flotante Ocultable en Soporte */}
+            {!hideFloatingButton && (
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className={`pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center shadow-xl transition-all duration-500 hover:scale-110 active:scale-95 ${isOpen ? 'bg-slate-900' : 'bg-blue-600'}`}
+                >
+                    {isOpen ? <X className="text-white" size={20} /> : <BrainCircuit className="text-white" size={20} />}
+                </button>
+            )}
 
             {/* Ventana de Chat Más Compacta */}
             <div className={`pointer-events-auto absolute bottom-16 right-0 w-[300px] md:w-[320px] h-[450px] bg-white rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.12)] border border-slate-100 flex flex-col transition-all duration-500 origin-bottom-right ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none translate-y-10'}`}>
@@ -140,10 +160,10 @@ export default function AIChatBot() {
                         <Sparkles size={16} />
                     </div>
                     <div>
-                        <h3 className="font-black text-[9px] uppercase tracking-widest leading-none">Tianguis Helper</h3>
+                        <h3 className="font-black text-[9px] uppercase tracking-widest leading-none">Tianguis IA</h3>
                         <div className="flex items-center gap-1 mt-0.5">
-                            <span className="w-1 h-1 bg-green-500 rounded-full animate-pulse"></span>
-                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Activo</span>
+                            <span className="w-1 h-1 bg-green-500 rounded-full"></span>
+                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Asistente Virtual</span>
                         </div>
                     </div>
                 </div>

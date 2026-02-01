@@ -147,12 +147,12 @@ export default function HelpPage() {
                                 <p className="text-blue-100 font-medium">Nuestro equipo de soporte está listo para ayudarte en lo que necesites.</p>
                             </div>
                         </div>
-                        <Link
-                            href="/ai-test"
+                        <button
+                            onClick={() => window.dispatchEvent(new CustomEvent('open-ai-chat'))}
                             className="whitespace-nowrap px-8 py-4 bg-white text-blue-600 rounded-full font-black uppercase tracking-widest text-xs hover:bg-slate-900 hover:text-white transition-all shadow-lg text-center"
                         >
-                            Contactar Soporte AI
-                        </Link>
+                            Contactar Soporte IA
+                        </button>
                     </div>
                 </div>
             </main>
