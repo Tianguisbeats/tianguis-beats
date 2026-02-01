@@ -76,7 +76,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             // 1. Get Profile
             const { data: profileData } = await supabase
                 .from('profiles')
-                .select('id, username, artistic_name, avatar_url, portada_perfil_url, ajuste_portada, bio, country, social_links, is_verified, is_founder, subscription_tier, created_at')
+                .select('id, username, artistic_name, foto_perfil, portada_perfil, ajuste_portada, bio, country, social_links, is_verified, is_founder, subscription_tier, fecha_de_creacion')
                 .eq('username', username)
                 .single();
 
@@ -125,7 +125,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             portadabeat_url: finalCoverUrl,
                             producer_artistic_name: profileData.artistic_name,
                             producer_username: profileData.username,
-                            producer_avatar_url: profileData.avatar_url,
+                            producer_foto_perfil: profileData.foto_perfil,
                             producer_is_verified: profileData.is_verified,
                             producer_is_founder: profileData.is_founder,
                             producer_tier: profileData.subscription_tier
@@ -175,7 +175,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 portadabeat_url: finalCoverUrl,
                                 producer_artistic_name: profileData.artistic_name,
                                 producer_username: profileData.username,
-                                producer_avatar_url: profileData.avatar_url,
+                                producer_foto_perfil: profileData.foto_perfil,
                                 producer_is_verified: profileData.is_verified,
                                 producer_is_founder: profileData.is_founder,
                                 producer_tier: profileData.subscription_tier
@@ -283,7 +283,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
         if (!uploadError) {
             const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath);
-            const updateField = type === 'avatar' ? { avatar_url: publicUrl } : { portada_perfil_url: publicUrl };
+            const updateField = type === 'avatar' ? { foto_perfil: publicUrl } : { portada_perfil: publicUrl };
 
             const { error: dbUpdateError } = await supabase.from('profiles').update(updateField).eq('id', profile.id);
             if (dbUpdateError) {
@@ -349,9 +349,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             <main className="flex-1 pb-20">
                 {/* 1. Portada */}
                 <div className={`relative h-48 md:h-80 bg-slate-100 group overflow-hidden ${isAdjustingCover ? 'ring-4 ring-blue-500 ring-inset' : ''}`}>
-                    {profile.portada_perfil_url ? (
+                    {profile.portada_perfil ? (
                         <img
-                            src={profile.portada_perfil_url}
+                            src={profile.portada_perfil}
                             className="w-full h-full object-cover transition-all duration-300"
                             style={{ objectPosition: `center ${isAdjustingCover ? tempOffset : (profile.ajuste_portada ?? 50)}%` }}
                             alt="Cover"
@@ -429,8 +429,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     ? 'border-amber-400 shadow-amber-400/30'
                                     : 'border-white shadow-lg'
                                 }`}>
-                                {profile.avatar_url ? (
-                                    <img src={profile.avatar_url} className="w-full h-full object-cover" alt="Avatar" />
+                                {profile.foto_perfil ? (
+                                    <img src={profile.foto_perfil} className="w-full h-full object-cover" alt="Avatar" />
                                 ) : (
                                     <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300"><Users size={48} /></div>
                                 )}
@@ -488,7 +488,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         )}
                                         <span className="text-slate-300">•</span>
                                         <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
-                                            Miembro desde {profile.created_at ? new Date(profile.created_at).getFullYear() : (new Date().getFullYear())}
+                                            Miembro desde {profile.fecha_de_creacion ? new Date(profile.fecha_de_creacion).getFullYear() : (new Date().getFullYear())}
                                         </p>
                                     </div>
                                 </div>

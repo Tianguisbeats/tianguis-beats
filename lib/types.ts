@@ -12,8 +12,8 @@ export interface Profile {
     username: string;
     artistic_name: string | null;
     full_name?: string | null;
-    avatar_url?: string | null;
-    portada_perfil_url?: string | null;
+    foto_perfil?: string | null;
+    portada_perfil?: string | null;
     ajuste_portada?: number;
     bio?: string | null;
     country?: string;
@@ -25,15 +25,17 @@ export interface Profile {
         tiktok?: string;
     };
     birth_date?: string | null;
-    role?: UserRole;
     subscription_tier?: SubscriptionTier;
-    is_admin?: boolean;
     is_founder?: boolean;
     is_verified?: boolean;
     username_changes?: number;
     email?: string;
-    created_at: string;
-    updated_at?: string;
+    fecha_de_creacion: string;
+    ultima_actualizacion?: string;
+    ultima_sesion?: string;
+    perfil_completado?: boolean;
+    stripe_customer_id?: string;
+    idioma_preferido?: string;
 }
 
 export interface Beat {
@@ -42,7 +44,7 @@ export interface Beat {
     producer?: {
         artistic_name: string;
         username?: string;
-        avatar_url?: string;
+        foto_perfil?: string;
         is_verified?: boolean;
         is_founder?: boolean;
     } | string;
@@ -78,7 +80,7 @@ export interface Beat {
     tier_visibility?: number;
 
     // UI-Specific flat properties (used by BeatCard)
-    producer_avatar_url?: string | null;
+    producer_foto_perfil?: string | null;
     producer_tier?: string | null;
     producer_is_verified?: boolean;
     producer_is_founder?: boolean;

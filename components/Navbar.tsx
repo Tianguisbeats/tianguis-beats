@@ -47,7 +47,7 @@ export default function Navbar() {
     const fetchProfile = async (userId: string) => {
         const { data, error } = await supabase
             .from('profiles')
-            .select('avatar_url, artistic_name, role, username, is_founder, is_verified, subscription_tier, country')
+            .select('foto_perfil, artistic_name, username, is_founder, is_verified, subscription_tier, country')
             .eq('id', userId)
             .single();
 
@@ -111,8 +111,8 @@ export default function Navbar() {
                                                 <div className={`w-8 h-8 rounded-lg overflow-hidden border-2 transition-all duration-300 ${profile?.subscription_tier === 'premium' ? 'border-blue-600 shadow-lg shadow-blue-600/20' :
                                                     profile?.subscription_tier === 'pro' ? 'border-amber-400' : 'border-slate-200'
                                                     }`}>
-                                                    {profile?.avatar_url ? (
-                                                        <img src={profile.avatar_url} alt="Perfil" className="w-full h-full object-cover" />
+                                                    {profile?.foto_perfil ? (
+                                                        <img src={profile.foto_perfil} alt="Perfil" className="w-full h-full object-cover" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
                                                             <User size={16} />
