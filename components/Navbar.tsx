@@ -81,14 +81,14 @@ export default function Navbar() {
                         <div className="hidden md:flex items-center gap-8">
                             <div className="flex items-baseline space-x-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
                                 <Link href="/beats" className="hover:text-blue-600 transition-colors">Explorar Tianguis</Link>
+                                {!user && (
+                                    <Link href="/pricing" className="hover:text-blue-600 transition-colors">Planes</Link>
+                                )}
                             </div>
 
                             <div className="flex items-center gap-4">
                                 {user ? (
                                     <div className="flex items-center gap-6">
-                                        <Link href="/studio" title="Tianguis Studio" className="text-slate-400 hover:text-slate-900 transition-colors">
-                                            <Settings size={20} />
-                                        </Link>
 
                                         <Link href="/upload" className="bg-blue-600 text-white px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 transition-all shadow-lg shadow-blue-600/20 transform hover:-translate-y-0.5">
                                             Sube tu Beat
