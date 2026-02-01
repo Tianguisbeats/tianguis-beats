@@ -7,14 +7,18 @@ import {
     Share2, MoreHorizontal, Calendar, MapPin,
     Music, Play, Users, Crown, Settings, Camera,
     Edit3, CheckCircle2, Copy, Trash2, Layout,
-    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck
+    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import BeatCard from '@/components/BeatCard';
+import PlaylistSection from '@/components/PlaylistSection';
+import PlaylistManagerModal from '@/components/PlaylistManagerModal';
 import { usePlayer } from '@/context/PlayerContext';
 import { Profile, Beat } from '@/lib/types';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { ChevronRight } from 'lucide-react';
 
 const COUNTRIES = [
     "México 🇲🇽", "Colombia 🇨🇴", "Argentina 🇦🇷", "España 🇪🇸", "Chile 🇨🇱",
@@ -34,9 +38,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
     const [profile, setProfile] = useState<Profile | null>(null);
     const [beats, setBeats] = useState<Beat[]>([]);
+    const [playlists, setPlaylists] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isOwner, setIsOwner] = useState(false);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+    // Playlist Management
+    const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
+    const [editingPlaylist, setEditingPlaylist] = useState<any>(null);
 
     // Follow System
     const [isFollowing, setIsFollowing] = useState(false);
@@ -107,12 +116,79 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 ? supabase.storage.from('portadas-beats').getPublicUrl(b.portadabeat_url).data.publicUrl
                                 : null;
 
-                        return { ...b, mp3_url: publicUrl, portadabeat_url: finalCoverUrl };
+                        return {
+                            ...b,
+                            mp3_url: publicUrl,
+                            portadabeat_url: finalCoverUrl,
+                            producer_artistic_name: profileData.artistic_name,
+                            producer_username: profileData.username,
+                            producer_avatar_url: profileData.avatar_url,
+                            producer_is_verified: profileData.is_verified,
+                            producer_is_founder: profileData.is_founder,
+                            producer_tier: profileData.subscription_tier
+                        };
                     }));
                     setBeats(transformedBeats);
                 }
 
-                // 3. Get Follow Status & Count
+                // 3. Get Playlists
+                const { data: playlistsData } = await supabase
+                    .from('playlists')
+                    .select(`
+                        id, 
+                        name, 
+                        description, 
+                        playlist_beats (
+                            order_index,
+                            beats (*)
+                        )
+                    `)
+                    .eq('producer_id', profileData.id)
+                    .eq('is_public', true)
+                    .order('created_at', { ascending: false });
+
+                if (playlistsData) {
+                    const formattedPlaylists = await Promise.all(playlistsData.map(async (pl: any) => {
+                        const playlistBeats = pl.playlist_beats
+                            .map((pb: any) => pb.beats)
+                            .filter(Boolean);
+
+                        // Transform URLs for playlist beats (reusing logic)
+                        const transformedPLBeats = await Promise.all(playlistBeats.map(async (b: any) => {
+                            const path = b.mp3_tag_url || b.mp3_url || '';
+                            const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
+                            const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+                            const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
+
+                            const finalCoverUrl = b.portadabeat_url?.startsWith('http')
+                                ? b.portadabeat_url
+                                : b.portadabeat_url
+                                    ? supabase.storage.from('portadas-beats').getPublicUrl(b.portadabeat_url).data.publicUrl
+                                    : null;
+
+                            return {
+                                ...b,
+                                mp3_url: publicUrl,
+                                portadabeat_url: finalCoverUrl,
+                                producer_artistic_name: profileData.artistic_name,
+                                producer_username: profileData.username,
+                                producer_is_verified: profileData.is_verified,
+                                producer_is_founder: profileData.is_founder,
+                                producer_tier: profileData.subscription_tier
+                            };
+                        }));
+
+                        return {
+                            id: pl.id,
+                            name: pl.name,
+                            description: pl.description,
+                            beats: transformedPLBeats
+                        };
+                    }));
+                    setPlaylists(formattedPlaylists as any);
+                }
+
+                // 4. Get Follow Status & Count
                 const { count } = await supabase
                     .from('follows')
                     .select('id', { count: 'exact', head: true })
@@ -478,6 +554,21 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 </div>
                             </div>
 
+                            {/* Acciones de Playlist (Solo Dueño) */}
+                            {isOwner && (
+                                <div className="space-y-4">
+                                    <button
+                                        onClick={() => {
+                                            setEditingPlaylist(null);
+                                            setIsPlaylistModalOpen(true);
+                                        }}
+                                        className="w-full py-4 bg-blue-50 text-blue-600 border border-blue-100 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-xl hover:shadow-blue-600/10"
+                                    >
+                                        <Plus size={16} /> Nueva Playlist
+                                    </button>
+                                </div>
+                            )}
+
                             {/* Bio Box (AHORA ABAJO) */}
                             <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm">
                                 {/* Socials */}
@@ -534,47 +625,67 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                         {/* Beats Feed */}
                         <div className="lg:col-span-8">
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-xl font-black uppercase tracking-tighter text-slate-900">Beats Recientes</h2>
-                                <Link href="/beats" className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:underline">Ver Todo</Link>
+                            <div className="flex items-center justify-between mb-8">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
+                                        <Music size={20} />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900">Bits Recientes</h2>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Últimas creaciones del artista</p>
+                                    </div>
+                                </div>
+                                <Link
+                                    href={`/${username}/beats`}
+                                    className="flex items-center gap-2 px-6 py-3 bg-slate-50 border border-slate-100 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all border-dashed"
+                                >
+                                    Ver Todo <ChevronRight size={14} />
+                                </Link>
                             </div>
 
-                            <div className="space-y-3">
-                                {beats.length === 0 ? (
-                                    <div className="bg-slate-50 rounded-2xl p-12 text-center">
-                                        <Music size={48} className="text-slate-200 mx-auto mb-4" />
-                                        <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No hay beats publicos</p>
-                                    </div>
-                                ) : (
-                                    beats.map((b, idx) => (
-                                        <div key={b.id} className="group bg-white rounded-2xl p-3 flex items-center gap-4 hover:shadow-lg transition-all border border-slate-50">
-                                            <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-white shrink-0 overflow-hidden">
-                                                {b.portadabeat_url ? <img src={b.portadabeat_url} className="w-full h-full object-cover" /> : <Music size={20} />}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <Link href={`/beats/${b.id}`} className="block font-black text-sm text-slate-900 truncate hover:text-blue-600 transition-colors uppercase">{b.title}</Link>
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{b.bpm} BPM • {b.genre}</p>
-                                            </div>
-                                            <button
-                                                onClick={() => playBeat({
-                                                    ...b,
-                                                    producer: profile.artistic_name || profile.username,
-                                                    producer_username: profile.username,
-                                                    is_verified: profile.is_verified,
-                                                    is_founder: profile.is_founder,
-                                                    mp3_url: (b as any).mp3_url
-                                                })}
-                                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${currentBeat?.id === b.id && isPlaying ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900 hover:bg-blue-600 hover:text-white'}`}
-                                            >
-                                                {currentBeat?.id === b.id && isPlaying ? <Layout size={16} className="animate-pulse" /> : <Play size={16} fill="currentColor" />}
-                                            </button>
+                            {beats.length > 0 ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    {beats.slice(0, 6).map((beat) => (
+                                        <div key={beat.id}>
+                                            <BeatCard beat={beat} />
                                         </div>
-                                    ))
-                                )}
-                            </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="bg-slate-50 rounded-2xl p-12 text-center">
+                                    <Music size={48} className="text-slate-200 mx-auto mb-4" />
+                                    <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No hay beats públicos</p>
+                                </div>
+                            )}
+
+                            {/* Playlists Section */}
+                            {playlists.length > 0 && (
+                                <div className="mt-24 pt-24 border-t border-slate-100">
+                                    <PlaylistSection
+                                        playlists={playlists}
+                                        isOwner={isOwner}
+                                        onEdit={(id) => {
+                                            const pl = playlists.find(p => p.id === id);
+                                            setEditingPlaylist(pl);
+                                            setIsPlaylistModalOpen(true);
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
+
+                {isOwner && profile && (
+                    <PlaylistManagerModal
+                        isOpen={isPlaylistModalOpen}
+                        onClose={() => setIsPlaylistModalOpen(false)}
+                        producerId={profile.id}
+                        existingPlaylist={editingPlaylist}
+                        allBeats={beats}
+                        onSuccess={fetchAll}
+                    />
+                )}
             </main>
 
             <Footer />

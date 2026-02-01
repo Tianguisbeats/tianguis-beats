@@ -2,7 +2,7 @@
  * Componente BeatCard: Tarjeta para mostrar información individual de un beat.
  * @param beat Datos del beat provenientes de la base de datos o dummy data.
  */
-import { Music, Play, Pause, ShoppingCart, CheckCircle2, Crown, Check } from 'lucide-react';
+import { Music, Play, Pause, ShoppingCart, CheckCircle2, Crown, Check, ChevronRight } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
@@ -92,7 +92,7 @@ export default function BeatCard({ beat }: BeatCardProps) {
                         {beat.title || "Sin título"}
                     </h3>
                 </Link>
-                <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2 truncate flex-1 mr-2">
                         <div className={`w-6 h-6 rounded-lg overflow-hidden border transition-all ${beat.producer_tier === 'premium' ? 'border-blue-600 shadow-sm' :
                             beat.producer_tier === 'pro' ? 'border-amber-400' : 'border-slate-200'
@@ -105,7 +105,7 @@ export default function BeatCard({ beat }: BeatCardProps) {
                                 </div>
                             )}
                         </div>
-                        <Link href={`/${beat.producer_username || beat.producer}`} className="flex items-center gap-1.5 truncate hover:text-blue-600 transition-colors">
+                        <Link href={`/${beat.producer_username || (typeof beat.producer === 'object' ? beat.producer.username : beat.producer)}`} className="flex items-center gap-1.5 truncate hover:text-blue-600 transition-colors">
                             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest truncate">
                                 {typeof beat.producer === 'object' ? beat.producer.artistic_name : (beat.producer || "—")}
                             </p>
@@ -117,18 +117,44 @@ export default function BeatCard({ beat }: BeatCardProps) {
                             )}
                         </Link>
                     </div>
-                    <span className="text-[9px] font-black text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200 shrink-0">
+                </div>
+
+                {/* Etiquetas Enriquecidas */}
+                <div className="flex flex-wrap gap-2 mb-5">
+                    <span className="text-[8px] font-black text-slate-500 bg-slate-50 px-2 py-1 rounded-md border border-slate-100 uppercase tracking-widest">
                         {beat.bpm || "—"} BPM
                     </span>
+                    {beat.musical_key && (
+                        <span className="text-[8px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md border border-blue-100 uppercase tracking-widest">
+                            Key: {beat.musical_key}
+                        </span>
+                    )}
+                    {beat.musical_scale && (
+                        <span className="text-[8px] font-black text-purple-600 bg-purple-50 px-2 py-1 rounded-md border border-purple-100 uppercase tracking-widest">
+                            {beat.musical_scale}
+                        </span>
+                    )}
                 </div>
 
                 <div className="flex items-center justify-between pt-5 border-t border-slate-50">
-                    <div className="flex flex-col">
-                        <span className="text-blue-600 font-black text-xl leading-none">{formatPriceMXN(beat.price_mxn)}</span>
-                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1.5 italic">
-                            {beat.musical_key ? `Key: ${beat.musical_key}` : "Licencia Digital"}
+                    <button
+                        onClick={handleAddToCart}
+                        className="flex flex-col text-left group/price"
+                    >
+                        <span className="text-blue-600 font-black text-xl leading-none group-hover/price:text-slate-900 transition-colors">
+                            {formatPriceMXN(
+                                Math.max(
+                                    beat.price_mxn || 0,
+                                    beat.price_wav_mxn || 0,
+                                    beat.price_stems_mxn || 0,
+                                    beat.exclusive_price_mxn || 0
+                                )
+                            )}
                         </span>
-                    </div>
+                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1.5 italic flex items-center gap-1">
+                            Ver Licencias <ChevronRight size={8} />
+                        </span>
+                    </button>
                     <button
                         onClick={handleAddToCart}
                         className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${itemInCart ? 'bg-green-500 text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white'}`}
