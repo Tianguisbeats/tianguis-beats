@@ -210,27 +210,31 @@ function BeatsPageContent() {
 
           {/* Featured Producers Section */}
           {featuredProducers.length > 0 && (
-            <div className="mb-20 mt-8">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-8 flex items-center gap-2">
-                <Users size={12} className="text-blue-500" />
-                Productores en Ascenso
-              </h4>
-              <div className="flex items-center gap-6 overflow-x-scroll no-scrollbar pb-6 select-none">
+            <div className="mb-24 mt-12">
+              <div className="flex items-center justify-between mb-10">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 flex items-center gap-3">
+                  <Users size={14} className="text-blue-600" />
+                  Productores Destacados
+                </h4>
+                <div className="h-[1px] flex-1 bg-slate-100 ml-8 hidden md:block"></div>
+              </div>
+
+              <div className="flex items-center gap-8 overflow-x-scroll no-scrollbar pb-8 select-none">
                 {featuredProducers.map((producer) => (
                   <Link
                     key={producer.id}
                     href={`/${producer.username}`}
                     className="group relative flex-shrink-0"
                   >
-                    <div className={`w-20 h-20 md:w-24 md:h-24 rounded-[2.5rem] overflow-hidden border-2 transition-all duration-500 transform group-hover:-translate-y-2 shadow-sm ${producer.subscription_tier === 'premium' ? 'border-blue-500 shadow-blue-500/10 group-hover:shadow-blue-500/30' :
-                        producer.subscription_tier === 'pro' ? 'border-amber-400 shadow-amber-400/10 group-hover:shadow-amber-400/30' : 'border-slate-100 group-hover:border-slate-300'
+                    <div className={`w-20 h-20 md:w-28 md:h-28 rounded-[3rem] overflow-hidden border-2 transition-all duration-500 transform group-hover:-translate-y-3 shadow-sm ${producer.subscription_tier === 'premium' ? 'border-blue-600/30 group-hover:border-blue-600 shadow-blue-500/5' :
+                        producer.subscription_tier === 'pro' ? 'border-amber-400/30 group-hover:border-amber-400 shadow-amber-400/5' : 'border-slate-100 group-hover:border-slate-300'
                       }`}>
                       <img src={producer.avatar_url || ''} alt={producer.artistic_name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </div>
 
                     {(producer.is_verified || producer.is_founder) && (
-                      <div className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-lg z-10">
+                      <div className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-xl z-10 scale-90 md:scale-100">
                         {producer.is_founder ? (
                           <div className="text-amber-500"><Star size={12} fill="currentColor" /></div>
                         ) : (
@@ -239,10 +243,11 @@ function BeatsPageContent() {
                       </div>
                     )}
 
-                    <div className="mt-3 text-center transition-all duration-300 transform group-hover:translate-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-tighter text-slate-900 truncate max-w-[80px] md:max-w-[96px]">
+                    <div className="mt-4 text-center transition-all duration-300">
+                      <p className="text-[11px] font-black uppercase tracking-tight text-slate-900 group-hover:text-blue-600">
                         {producer.artistic_name}
                       </p>
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">@{producer.username}</p>
                     </div>
                   </Link>
                 ))}
@@ -250,97 +255,86 @@ function BeatsPageContent() {
             </div>
           )}
 
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-16">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/10 border border-blue-600/10 text-blue-600 text-[9px] font-black uppercase tracking-[0.4em] mb-8">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
-                </span>
-                Laboratorio Creativo
-              </div>
-              <h1 className="text-6xl md:text-8xl font-black tracking-[-0.05em] uppercase leading-[0.85] mb-6">
-                La nueva era del <span className="text-transparent bg-clip-text bg-gradient-to-br from-blue-700 to-blue-400">Beatmaking.</span>
-              </h1>
-              <p className="text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px] flex items-center gap-3">
-                <Music size={14} className="text-blue-500" />
-                {loading ? "Calibrando frecuencias..." : `${beats.length} Obras encontradas`}
-              </p>
+          <div className="flex flex-col items-center text-center mb-20">
+            <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-slate-900 text-white text-[9px] font-black uppercase tracking-[0.5em] mb-10 shadow-2xl shadow-slate-900/20">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              </span>
+              Explorar Catálogo
             </div>
+            <h1 className="text-6xl md:text-9xl font-black tracking-[-0.06em] uppercase leading-[0.8] mb-8 text-slate-900">
+              Explora todo el <span className="text-transparent bg-clip-text bg-gradient-to-b from-blue-600 to-blue-800">Tianguis.</span>
+            </h1>
+            <p className="text-slate-400 font-bold uppercase tracking-[0.4em] text-[10px] flex items-center gap-3 bg-slate-50 px-6 py-2 rounded-full border border-slate-100">
+              <Music size={14} className="text-blue-500" />
+              {loading ? "Sincronizando beats..." : `${beats.length} Ritmos disponibles ahora`}
+            </p>
           </div>
 
-          <div className="sticky top-24 z-30 mb-20">
-            <div className="bg-white/80 backdrop-blur-xl border border-slate-200/60 p-3 rounded-[3rem] shadow-2xl shadow-slate-200/40 flex flex-col lg:flex-row items-center gap-4">
+          <div className="sticky top-24 z-30 mb-24">
+            <div className="max-w-5xl mx-auto">
+              <div className="bg-white rounded-[3.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-slate-100 p-2 flex flex-col md:flex-row items-center gap-2">
 
-              <div className="relative group w-full lg:w-[400px]">
-                <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-600 transition-colors">
-                  <Search size={20} />
+                {/* Search Text */}
+                <div className="relative flex-1 w-full group">
+                  <div className="absolute inset-y-0 left-8 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                    <Search size={22} strokeWidth={2.5} />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Busca beats, géneros o productores..."
+                    className="w-full bg-transparent border-none pl-20 pr-6 py-6 outline-none font-black text-lg text-slate-900 placeholder:text-slate-300"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
                 </div>
-                <input
-                  type="text"
-                  placeholder="Buscar productor, género o mood..."
-                  className="w-full bg-slate-50/50 border-2 border-transparent focus:border-blue-600/10 rounded-full pl-16 pr-6 py-4 outline-none font-black text-sm text-slate-900 placeholder:text-slate-300 transition-all"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
 
-              <div className="h-10 w-[1px] bg-slate-100 hidden lg:block"></div>
+                <div className="hidden md:block w-[2px] h-10 bg-slate-100"></div>
 
-              <div className="flex items-center gap-3 overflow-x-auto w-full lg:w-auto no-scrollbar px-2 py-1">
-                <div className="relative group">
+                {/* Filters Row */}
+                <div className="flex items-center gap-2 px-4 w-full md:w-auto overflow-x-auto no-scrollbar pb-2 md:pb-0">
+                  <div className="relative group">
+                    <select
+                      value={genreFilter}
+                      onChange={(e) => setGenreFilter(e.target.value)}
+                      className="appearance-none bg-slate-50 hover:bg-slate-100 text-slate-900 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer min-w-[130px] pr-10"
+                    >
+                      {genres.map((g) => (
+                        <option key={g} value={g}>{g === 'Todos' ? 'Género' : g}</option>
+                      ))}
+                    </select>
+                    <SlidersHorizontal size={12} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                  </div>
+
                   <select
-                    value={genreFilter}
-                    onChange={(e) => setGenreFilter(e.target.value)}
-                    className="appearance-none bg-slate-50/50 hover:bg-white border-2 border-transparent hover:border-slate-100 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-blue-600 transition-all cursor-pointer min-w-[140px]"
+                    value={moodFilter}
+                    onChange={(e) => setMoodFilter(e.target.value)}
+                    className="appearance-none bg-slate-50 hover:bg-slate-100 text-slate-900 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer min-w-[110px]"
                   >
-                    {genres.map((g) => (
-                      <option key={g} value={g}>{g === 'Todos' ? 'Género' : g}</option>
-                    ))}
+                    <option value="">Mood</option>
+                    <option value="Agresivo">Agresivo</option>
+                    <option value="Chill">Chill</option>
+                    <option value="Oscuro">Oscuro</option>
+                    <option value="Triste">Triste</option>
+                    <option value="Melódico">Melódico</option>
                   </select>
-                  <SlidersHorizontal size={12} className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300" />
+
+                  {(genreFilter !== "Todos" || moodFilter || bpmFilter || keyFilter || searchQuery) && (
+                    <button
+                      onClick={handleClearFilters}
+                      className="p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-95 shrink-0"
+                      title="Limpiar filtros"
+                    >
+                      <X size={18} strokeWidth={3} />
+                    </button>
+                  )}
                 </div>
 
-                <select
-                  value={moodFilter}
-                  onChange={(e) => setMoodFilter(e.target.value)}
-                  className="appearance-none bg-slate-50/50 hover:bg-white border-2 border-transparent hover:border-slate-100 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-blue-600 transition-all cursor-pointer min-w-[120px]"
-                >
-                  <option value="">Mood</option>
-                  <option value="Agresivo">Agresivo</option>
-                  <option value="Chill">Chill</option>
-                  <option value="Oscuro">Oscuro</option>
-                  <option value="Triste">Triste</option>
-                  <option value="Melódico">Melódico</option>
-                </select>
-
-                <select
-                  value={bpmFilter}
-                  onChange={(e) => setBpmFilter(e.target.value)}
-                  className="appearance-none bg-slate-50/50 hover:bg-white border-2 border-transparent hover:border-slate-100 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-blue-600 transition-all cursor-pointer min-w-[100px]"
-                >
-                  <option value="">BPM</option>
-                  {[80, 100, 120, 140, 160].map(v => <option key={v} value={v}>{v}</option>)}
-                </select>
-
-                <select
-                  value={keyFilter}
-                  onChange={(e) => setKeyFilter(e.target.value)}
-                  className="appearance-none bg-slate-50/50 hover:bg-white border-2 border-transparent hover:border-slate-100 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-blue-600 transition-all cursor-pointer min-w-[100px]"
-                >
-                  <option value="">Key</option>
-                  {['C', 'D', 'E', 'F', 'G', 'A', 'B'].map(k => <option key={k} value={k}>{k}</option>)}
-                </select>
-              </div>
-
-              {(genreFilter !== "Todos" || moodFilter || bpmFilter || keyFilter || searchQuery) && (
-                <button
-                  onClick={handleClearFilters}
-                  className="lg:ml-auto px-6 py-3 bg-red-50 text-red-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all transform active:scale-95"
-                >
-                  Reset
+                <button className="hidden md:flex bg-blue-600 text-white px-8 py-5 rounded-[2.5rem] font-black uppercase text-[11px] tracking-[0.2em] hover:bg-slate-900 hover:scale-[1.02] transition-all shadow-xl shadow-blue-500/20 active:scale-95 ml-2">
+                  Buscar
                 </button>
-              )}
+              </div>
             </div>
           </div>
 
