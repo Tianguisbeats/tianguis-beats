@@ -147,7 +147,7 @@ export default function AIChatBot() {
                     onClick={() => setIsOpen(!isOpen)}
                     className={`pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center shadow-xl transition-all duration-500 hover:scale-110 active:scale-95 ${isOpen ? 'bg-slate-900' : 'bg-blue-600'}`}
                 >
-                    {isOpen ? <X className="text-white" size={20} /> : <BrainCircuit className="text-white" size={20} />}
+                    {isOpen ? <X className="text-white" size={20} /> : <span className="text-white font-black text-xs tracking-tighter">IA</span>}
                 </button>
             )}
 
@@ -155,17 +155,25 @@ export default function AIChatBot() {
             <div className={`pointer-events-auto absolute bottom-16 right-0 w-[300px] md:w-[320px] h-[450px] bg-white rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.12)] border border-slate-100 flex flex-col transition-all duration-500 origin-bottom-right ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none translate-y-10'}`}>
 
                 {/* Header Compacto */}
-                <div className="p-4 bg-slate-900 rounded-t-[2rem] flex items-center gap-3 text-white">
-                    <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                        <Sparkles size={16} />
-                    </div>
-                    <div>
-                        <h3 className="font-black text-[9px] uppercase tracking-widest leading-none">Tianguis IA</h3>
-                        <div className="flex items-center gap-1 mt-0.5">
-                            <span className="w-1 h-1 bg-green-500 rounded-full"></span>
-                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Asistente Virtual</span>
+                <div className="p-4 bg-slate-900 rounded-t-[2rem] flex items-center justify-between text-white">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                            <Sparkles size={16} />
+                        </div>
+                        <div>
+                            <h3 className="font-black text-[9px] uppercase tracking-widest leading-none">Tianguis IA</h3>
+                            <div className="flex items-center gap-1 mt-0.5">
+                                <span className="w-1 h-1 bg-green-500 rounded-full"></span>
+                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Asistente Virtual</span>
+                            </div>
                         </div>
                     </div>
+                    <button
+                        onClick={() => setIsOpen(false)}
+                        className="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"
+                    >
+                        <X size={16} />
+                    </button>
                 </div>
 
                 {/* Messages Body */}
