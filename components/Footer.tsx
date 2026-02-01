@@ -1,5 +1,4 @@
-import React from 'react';
-import { Music } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Footer() {
     return (
@@ -16,9 +15,9 @@ export default function Footer() {
                 </div>
 
                 <div className="flex gap-8 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                    <a href="#" className="hover:text-blue-600 transition-colors">Términos</a>
-                    <a href="#" className="hover:text-blue-600 transition-colors">Privacidad</a>
-                    <a href="#" className="hover:text-blue-600 transition-colors">Ayuda</a>
+                    <Link href="/terms" className="hover:text-blue-600 transition-colors">Términos</Link>
+                    <Link href="/privacy" className="hover:text-blue-600 transition-colors">Privacidad</Link>
+                    <Link href="/help" className="hover:text-blue-600 transition-colors">Ayuda</Link>
                 </div>
 
                 <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-100 text-slate-400 text-[8px] font-black uppercase tracking-[0.2em]">
