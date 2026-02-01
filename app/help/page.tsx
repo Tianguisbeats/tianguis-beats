@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Search, ChevronDown, Music, CreditCard, User, Upload, MessageCircle } from 'lucide-react';
+import Link from 'next/link';
 
 export default function HelpPage() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -146,12 +147,12 @@ export default function HelpPage() {
                                 <p className="text-blue-100 font-medium">Nuestro equipo de soporte está listo para ayudarte en lo que necesites.</p>
                             </div>
                         </div>
-                        <button
-                            onClick={openSupportChat}
-                            className="whitespace-nowrap px-8 py-4 bg-white text-blue-600 rounded-full font-black uppercase tracking-widest text-xs hover:bg-slate-900 hover:text-white transition-all shadow-lg"
+                        <Link
+                            href="/ai-test"
+                            className="whitespace-nowrap px-8 py-4 bg-white text-blue-600 rounded-full font-black uppercase tracking-widest text-xs hover:bg-slate-900 hover:text-white transition-all shadow-lg text-center"
                         >
-                            Contactar Soporte
-                        </button>
+                            Contactar Soporte AI
+                        </Link>
                     </div>
                 </div>
             </main>
