@@ -227,7 +227,7 @@ function BeatsPageContent() {
                     className="group relative flex-shrink-0"
                   >
                     <div className={`w-20 h-20 md:w-28 md:h-28 rounded-[3rem] overflow-hidden border-2 transition-all duration-500 transform group-hover:-translate-y-3 shadow-sm ${producer.subscription_tier === 'premium' ? 'border-blue-600/30 group-hover:border-blue-600 shadow-blue-500/5' :
-                        producer.subscription_tier === 'pro' ? 'border-amber-400/30 group-hover:border-amber-400 shadow-amber-400/5' : 'border-slate-100 group-hover:border-slate-300'
+                      producer.subscription_tier === 'pro' ? 'border-amber-400/30 group-hover:border-amber-400 shadow-amber-400/5' : 'border-slate-100 group-hover:border-slate-300'
                       }`}>
                       <img src={producer.avatar_url || ''} alt={producer.artistic_name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -261,7 +261,7 @@ function BeatsPageContent() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
               </span>
-              Explorar Catálogo
+              Los mejores Beats, están aquí
             </div>
             <h1 className="text-6xl md:text-9xl font-black tracking-[-0.06em] uppercase leading-[0.8] mb-8 text-slate-900">
               Explora todo el <span className="text-transparent bg-clip-text bg-gradient-to-b from-blue-600 to-blue-800">Tianguis.</span>
@@ -273,7 +273,7 @@ function BeatsPageContent() {
           </div>
 
           <div className="sticky top-24 z-30 mb-24">
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-6xl mx-auto">
               <div className="bg-white rounded-[3.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-slate-100 p-2 flex flex-col md:flex-row items-center gap-2">
 
                 {/* Search Text */}
@@ -294,11 +294,12 @@ function BeatsPageContent() {
 
                 {/* Filters Row */}
                 <div className="flex items-center gap-2 px-4 w-full md:w-auto overflow-x-auto no-scrollbar pb-2 md:pb-0">
+                  {/* Genre */}
                   <div className="relative group">
                     <select
                       value={genreFilter}
                       onChange={(e) => setGenreFilter(e.target.value)}
-                      className="appearance-none bg-slate-50 hover:bg-slate-100 text-slate-900 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer min-w-[130px] pr-10"
+                      className="appearance-none bg-slate-50 hover:bg-slate-100 text-slate-900 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer min-w-[120px] pr-10"
                     >
                       {genres.map((g) => (
                         <option key={g} value={g}>{g === 'Todos' ? 'Género' : g}</option>
@@ -307,17 +308,28 @@ function BeatsPageContent() {
                     <SlidersHorizontal size={12} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                   </div>
 
+                  {/* BPM */}
                   <select
-                    value={moodFilter}
-                    onChange={(e) => setMoodFilter(e.target.value)}
+                    value={bpmFilter}
+                    onChange={(e) => setBpmFilter(e.target.value)}
+                    className="appearance-none bg-slate-50 hover:bg-slate-100 text-slate-900 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer min-w-[100px]"
+                  >
+                    <option value="">BPM</option>
+                    {[80, 90, 100, 110, 120, 130, 140, 150, 160, 170].map(val => (
+                      <option key={val} value={val}>{val} BPM</option>
+                    ))}
+                  </select>
+
+                  {/* Key / Escala */}
+                  <select
+                    value={keyFilter}
+                    onChange={(e) => setKeyFilter(e.target.value)}
                     className="appearance-none bg-slate-50 hover:bg-slate-100 text-slate-900 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer min-w-[110px]"
                   >
-                    <option value="">Mood</option>
-                    <option value="Agresivo">Agresivo</option>
-                    <option value="Chill">Chill</option>
-                    <option value="Oscuro">Oscuro</option>
-                    <option value="Triste">Triste</option>
-                    <option value="Melódico">Melódico</option>
+                    <option value="">Escala / Key</option>
+                    {['C', 'Cm', 'C#', 'C#m', 'D', 'Dm', 'D#', 'D#m', 'E', 'Em', 'F', 'Fm', 'F#', 'F#m', 'G', 'Gm', 'G#', 'G#m', 'A', 'Am', 'A#', 'A#m', 'B', 'Bm'].map(k => (
+                      <option key={k} value={k}>{k}</option>
+                    ))}
                   </select>
 
                   {(genreFilter !== "Todos" || moodFilter || bpmFilter || keyFilter || searchQuery) && (
