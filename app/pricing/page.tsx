@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Check, Zap, Star, ShieldCheck, ArrowUpRight, Lock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import Link from 'next/link';
 
 export default function PricingPage() {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
@@ -212,10 +213,13 @@ export default function PricingPage() {
                                         </div>
                                     )}
 
-                                    <button className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors py-2 flex items-center justify-center gap-1 group/link">
+                                    <Link
+                                        href={`/pricing/${plan.tier}`}
+                                        className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors py-2 flex items-center justify-center gap-1 group/link"
+                                    >
                                         Más sobre el plan
                                         <ArrowUpRight size={10} className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-                                    </button>
+                                    </Link>
                                 </div>
                             );
                         })}
