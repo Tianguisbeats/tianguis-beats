@@ -42,10 +42,14 @@ export default function Home() {
 
   const transformBeatData = async (data: any[]) => {
     return data.map((b: any) => {
-      const path = b.mp3_url || '';
+      // Prioritizar mp3_tag_url si existe
+      const path = b.mp3_tag_url || b.mp3_url || '';
       const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
 
-      const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+      // Buckets logic
+      let bucket = 'beats-muestras';
+      if (path.includes('-hq-')) bucket = 'beats-mp3-alta-calidad';
+      if (path.includes('-wav-')) bucket = 'beats-wav';
 
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
@@ -86,7 +90,7 @@ export default function Home() {
 
     const executeFetch = async () => {
       // Columnas mínimas para BeatCard
-      const columns = 'id,title,price_mxn,bpm,genre,mp3_url,musical_key,mood,tier_visibility,created_at,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)';
+      const columns = 'id,title,price_mxn,bpm,genre,mp3_url,mp3_tag_url,musical_key,mood,tier_visibility,created_at,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)';
 
       const fetchSection = async (orderByField: string, limit: number) => {
         try {

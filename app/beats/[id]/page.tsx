@@ -56,13 +56,13 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 setLoading(true);
                 const { data, error } = await supabase
                     .from('beats')
-                    .select('id, title, genre, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, cover_url, mp3_url, musical_key, mood, description, play_count, sale_count, like_count, is_exclusive, created_at, producer:producer_id(artistic_name, username)')
+                    .select('id, title, genre, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, cover_url, mp3_url, mp3_tag_url, musical_key, mood, description, play_count, sale_count, like_count, is_exclusive, created_at, producer:producer_id(artistic_name, username)')
                     .eq('id', id)
                     .single();
 
                 if (data) {
                     // Resolve high-quality preview or maestra bucket
-                    const path = data.mp3_url || '';
+                    const path = data.mp3_tag_url || data.mp3_url || '';
                     const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
                     const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
                     const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);

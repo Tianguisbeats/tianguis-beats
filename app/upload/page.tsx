@@ -32,7 +32,7 @@ const GENRES = [
     "Phonk", "Afrobeat", "Techno", "House", "Rock", "Banda", "Alternativo"
 ];
 
-const SCALES = ["Menor", "Mayor", "Dórica", "Frigia", "Lidia", "Mixolidia", "Locria"];
+const SCALES = ["Menor", "Mayor"];
 const KEYS_BASE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
 /**
@@ -186,8 +186,8 @@ export default function UploadPage() {
                 musical_scale: musicalScale,
                 mood: selectedMoods.join(', '),
                 cover_url: coverUrl,
-                mp3_url: previewPath, // High quality preview path
-                mp3_tag_url: previewPath, // Tag/Preview path for public playback
+                mp3_url: hqPath, // Archivo de Alta Calidad (Limpio)
+                mp3_tag_url: previewPath, // Archivo con tags para previsualización
                 wav_url: wavPath,
                 stems_url: stemsPath,
                 is_exclusive: isExclusive,
@@ -406,8 +406,8 @@ export default function UploadPage() {
                                         <div className="flex flex-col gap-1">
                                             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-blue-500 transition-all">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">MP3 Tagged</span>
-                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Previsualización con Voz</span>
+                                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">MP3 Tag / Muestra</span>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Audio con Voz (Publico)</span>
                                                 </div>
                                                 <div className="flex items-center gap-3">
                                                     {previewFile && <CheckCircle2 size={16} className="text-green-500" />}
@@ -436,8 +436,8 @@ export default function UploadPage() {
                                         <div className="flex flex-col gap-1">
                                             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-blue-500 transition-all">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">MP3 High Quality</span>
-                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">320kbps Maestro</span>
+                                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">MP3 HQ (Limpio)</span>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">320kbps Maestro Full</span>
                                                 </div>
                                                 <div className="flex items-center gap-3">
                                                     {hqMp3File && <CheckCircle2 size={16} className="text-green-500" />}
@@ -467,7 +467,7 @@ export default function UploadPage() {
                                             <div className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${isFree ? 'bg-slate-100/50 border-slate-100 grayscale' : 'bg-slate-50 border-slate-100 group hover:border-blue-500'}`}>
                                                 <div className="flex flex-col">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">Archivo WAV</span>
+                                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">Archivo WAV (Estudio)</span>
                                                         {isFree && <Lock size={12} className="text-slate-400" />}
                                                     </div>
                                                     <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Calidad de Estudio (PRO)</span>

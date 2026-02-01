@@ -83,16 +83,16 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 // 2. Get Beats (Optimized Select)
                 const { data: beatsData } = await supabase
                     .from('beats')
-                    .select('id, title, genre, bpm, price_mxn, cover_url, mp3_url, musical_key, mood, is_public, play_count, like_count, created_at')
+                    .select('id, title, genre, bpm, price_mxn, cover_url, mp3_url, mp3_tag_url, musical_key, mood, is_public, play_count, like_count, created_at')
                     .eq('producer_id', profileData.id)
                     .eq('is_public', true)
                     .order('created_at', { ascending: false });
 
                 if (beatsData) {
                     // Transform internal storage paths to public URLs with encoding for spaces
-                    const transformedBeats = await Promise.all(beatsData.map(async (b: Beat) => {
-                        const path = b.mp3_url || '';
-                        const encodedPath = path.split('/').map(s => encodeURIComponent(s)).join('/');
+                    const transformedBeats = await Promise.all(beatsData.map(async (b: any) => {
+                        const path = b.mp3_tag_url || b.mp3_url || '';
+                        const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
 
                         const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
 

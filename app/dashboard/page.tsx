@@ -91,6 +91,11 @@ export default function ProducerDashboard() {
                 .upload(mp3Path, mp3File);
 
             if (mp3Error) throw mp3Error;
+
+            // En este dashboard simplificado, usamos el mismo MP3 para ambos campos 
+            // (se asume que es el etiquetado si es publico)
+            const mp3FullUrl = mp3Path;
+            const mp3TagUrl = mp3Path;
             setUploadProgress(50);
 
             let wavUrl = null;
@@ -123,8 +128,10 @@ export default function ProducerDashboard() {
                 bpm: bpm ? parseInt(bpm) : null,
                 musical_key: musicalKey,
                 tag: tag,
+                cover_url: null,
                 price_mxn: parseFloat(price),
-                mp3_url: mp3Path,
+                mp3_url: mp3FullUrl,
+                mp3_tag_url: mp3TagUrl,
                 wav_url: wavPath,
                 stems_url: stemsPath,
                 mood,
@@ -372,14 +379,14 @@ export default function ProducerDashboard() {
                                             <label className={`cursor-pointer p-6 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${mp3File ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 bg-slate-50 hover:border-blue-400'}`}>
                                                 <input type="file" accept="audio/mpeg" className="hidden" onChange={(e) => setMp3File(e.target.files?.[0] || null)} />
                                                 <FileAudio size={24} />
-                                                <span className="text-[9px] font-black uppercase tracking-widest">{mp3File ? mp3File.name.substring(0, 10) + '...' : 'MP3 (Previsualización)'}</span>
+                                                <span className="text-[9px] font-black uppercase tracking-widest">{mp3File ? mp3File.name.substring(0, 10) + '...' : 'MP3 (Muestra)'}</span>
                                             </label>
 
                                             {/* WAV */}
                                             <label className={`cursor-pointer p-6 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${wavFile ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 bg-slate-50 hover:border-blue-400'}`}>
                                                 <input type="file" accept="audio/wav" className="hidden" onChange={(e) => setWavFile(e.target.files?.[0] || null)} />
                                                 <Music size={24} />
-                                                <span className="text-[9px] font-black uppercase tracking-widest">{wavFile ? wavFile.name.substring(0, 10) + '...' : 'WAV (Alta Calidad)'}</span>
+                                                <span className="text-[9px] font-black uppercase tracking-widest">{wavFile ? wavFile.name.substring(0, 10) + '...' : 'WAV (Original)'}</span>
                                             </label>
 
                                             {/* Stems */}

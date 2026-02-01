@@ -81,6 +81,7 @@ function BeatsPageContent() {
             bpm,
             genre,
             mp3_url,
+            mp3_tag_url,
             musical_key,
             mood,
             created_at,
@@ -124,14 +125,11 @@ function BeatsPageContent() {
         }
 
         const transformed = await Promise.all((data || []).map(async (b: any) => {
-          const path = b.mp3_url || '';
+          const path = b.mp3_tag_url || b.mp3_url || '';
           const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
 
           const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
-
-          const { data: { publicUrl } } = supabase.storage
-            .from(bucket)
-            .getPublicUrl(encodedPath);
+          const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
 
           return {
             id: b.id,
