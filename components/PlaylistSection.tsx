@@ -42,14 +42,22 @@ export default function PlaylistSection({ playlists, isOwner, onEdit }: Playlist
                             )}
                         </div>
 
-                        {isOwner && (
-                            <button
-                                onClick={() => onEdit?.(playlist.id)}
-                                className="px-6 py-2.5 bg-slate-50 border border-slate-100 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all shadow-sm"
+                        <div className="flex items-center gap-3">
+                            {isOwner && (
+                                <button
+                                    onClick={() => onEdit?.(playlist.id)}
+                                    className="px-6 py-2.5 bg-slate-50 border border-slate-100 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all shadow-sm"
+                                >
+                                    Editar Playlist
+                                </button>
+                            )}
+                            <Link
+                                href={`/${playlist.beats[0]?.producer_username || 'beats'}/beats`}
+                                className="px-6 py-2.5 bg-blue-50 border border-blue-100 rounded-full text-[10px] font-black uppercase tracking-widest text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm flex items-center gap-2"
                             >
-                                Editar Playlist
-                            </button>
-                        )}
+                                Ver Catálogo Pro <ChevronRight size={12} />
+                            </Link>
+                        </div>
                     </div>
 
                     <div className="flex gap-6 overflow-x-auto pb-8 no-scrollbar -mx-4 px-4 md:mx-0 md:px-0">

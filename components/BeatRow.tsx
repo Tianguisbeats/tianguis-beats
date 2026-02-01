@@ -85,23 +85,15 @@ export default function BeatRow({ beat }: BeatRowProps) {
                 </Link>
             </div>
 
-            {/* Metadata (Desktop Only for space) */}
-            <div className="hidden md:flex items-center gap-3">
-                {beat.genre && (
-                    <span className="text-[9px] font-black text-green-600 bg-green-50 px-3 py-1.5 rounded-xl border border-green-100 uppercase tracking-widest whitespace-nowrap">
-                        {beat.genre}
-                    </span>
-                )}
-                <span className="text-[9px] font-black text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-100 uppercase tracking-widest whitespace-nowrap">
-                    {beat.bpm || "—"} BPM
-                </span>
+            {/* Metadata (Visible on mobile/tablet) */}
+            <div className="flex items-center gap-1 sm:gap-3 shrink-0">
                 {beat.musical_key && (
-                    <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-100 uppercase tracking-widest whitespace-nowrap">
+                    <span className="text-[8px] sm:text-[9px] font-black text-blue-600 bg-blue-50 px-2 sm:px-3 py-1.5 rounded-xl border border-blue-100 uppercase tracking-widest whitespace-nowrap">
                         {beat.musical_key}
                     </span>
                 )}
                 {beat.musical_scale && (
-                    <span className="text-[9px] font-black text-purple-600 bg-purple-50 px-3 py-1.5 rounded-xl border border-purple-100 uppercase tracking-widest whitespace-nowrap">
+                    <span className="text-[8px] sm:text-[9px] font-black text-purple-600 bg-purple-50 px-2 sm:px-3 py-1.5 rounded-xl border border-purple-100 uppercase tracking-widest whitespace-nowrap">
                         {beat.musical_scale}
                     </span>
                 )}

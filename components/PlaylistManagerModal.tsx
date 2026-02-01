@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, ListMusic, Check, Loader2, Music } from 'lucide-react';
+import { X, Plus, Trash2, ListMusic, Check, Loader2, Music, ChevronUp, ChevronDown } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Beat } from '@/lib/types';
 
@@ -45,6 +45,17 @@ export default function PlaylistManagerModal({
                 ? prev.filter(id => id !== beatId)
                 : [...prev, beatId]
         );
+    };
+
+    const moveBeat = (index: number, direction: 'up' | 'down') => {
+        const newOrder = [...selectedBeatIds];
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex < 0 || newIndex >= newOrder.length) return;
+
+        const temp = newOrder[index];
+        newOrder[index] = newOrder[newIndex];
+        newOrder[newIndex] = temp;
+        setSelectedBeatIds(newOrder);
     };
 
     const handleSave = async () => {
@@ -173,6 +184,44 @@ export default function PlaylistManagerModal({
                         </div>
                     </div>
 
+                    {/* Playlist Order */}
+                    {selectedBeatIds.length > 0 && (
+                        <div>
+                            <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-widest">Orden de la Playlist (Mueve para organizar)</label>
+                            <div className="space-y-2 mb-8">
+                                {selectedBeatIds.map((id, index) => {
+                                    const beat = allBeats.find(b => b.id === id);
+                                    if (!beat) return null;
+                                    return (
+                                        <div key={id} className="flex items-center gap-3 bg-white border border-slate-100 p-2 rounded-2xl shadow-sm">
+                                            <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
+                                                <img src={beat.portadabeat_url || ''} className="w-full h-full object-cover" alt="" />
+                                            </div>
+                                            <span className="flex-1 text-[10px] font-black uppercase truncate">{beat.title}</span>
+                                            <div className="flex gap-1">
+                                                <button
+                                                    onClick={() => moveBeat(index, 'up')}
+                                                    disabled={index === 0}
+                                                    className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 disabled:opacity-20"
+                                                >
+                                                    <ChevronUp size={14} />
+                                                </button>
+                                                <button
+                                                    onClick={() => moveBeat(index, 'down')}
+                                                    disabled={index === selectedBeatIds.length - 1}
+                                                    className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 disabled:opacity-20"
+                                                >
+                                                    <ChevronDown size={14} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <hr className="border-slate-50 mb-8" />
+                        </div>
+                    )}
+
                     {/* Beats Selection */}
                     <div>
                         <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-widest flex items-center justify-between">
@@ -185,8 +234,8 @@ export default function PlaylistManagerModal({
                                     key={beat.id}
                                     onClick={() => handleToggleBeat(beat.id)}
                                     className={`flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${selectedBeatIds.includes(beat.id)
-                                            ? 'bg-blue-50 border-blue-200 shadow-sm'
-                                            : 'bg-slate-50 border-slate-100 hover:bg-white hover:border-slate-200'
+                                        ? 'bg-blue-50 border-blue-200 shadow-sm'
+                                        : 'bg-slate-50 border-slate-100 hover:bg-white hover:border-slate-200'
                                         }`}
                                 >
                                     <div className="w-10 h-10 bg-white rounded-lg border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
