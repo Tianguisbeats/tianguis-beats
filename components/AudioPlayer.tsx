@@ -90,7 +90,7 @@ export default function AudioPlayer() {
                             <div className="flex items-center gap-1.5 min-w-0">
                                 <Link href={`/${currentBeat.producer_username || (typeof currentBeat.producer === 'object' ? currentBeat.producer?.username : currentBeat.producer)}`} className="hover:text-blue-600 transition-colors flex items-center gap-1.5 truncate">
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest username-highlight">
-                                        {typeof currentBeat.producer === 'object' ? currentBeat.producer?.artistic_name : currentBeat.producer}
+                                        @{currentBeat.producer_username || (typeof currentBeat.producer === 'object' ? currentBeat.producer?.username : currentBeat.producer)}
                                     </p>
                                     {currentBeat.is_verified && (
                                         <img src="/verified-badge.png" className="w-3 h-3 object-contain shrink-0" alt="Verificado" />

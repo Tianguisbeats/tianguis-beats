@@ -175,6 +175,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 portadabeat_url: finalCoverUrl,
                                 producer_artistic_name: profileData.artistic_name,
                                 producer_username: profileData.username,
+                                producer_avatar_url: profileData.avatar_url,
                                 producer_is_verified: profileData.is_verified,
                                 producer_is_founder: profileData.is_founder,
                                 producer_tier: profileData.subscription_tier
@@ -461,11 +462,35 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             </div>
                                         )}
                                     </div>
-                                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] flex items-center justify-center md:justify-start gap-2">
-                                        {profile.username}
-                                        {profile.country && <span className="text-slate-300 ml-1">• {profile.country}</span>}
-                                        <span className="text-slate-300 ml-1">• Miembro desde {profile.created_at ? new Date(profile.created_at).getFullYear() : (new Date().getFullYear())}</span>
-                                    </p>
+                                    <div className="flex items-center justify-center md:justify-start gap-2 mt-1">
+                                        <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                            @{profile.username}
+                                        </p>
+                                        <span className="text-slate-300">•</span>
+                                        {isEditing ? (
+                                            <div className="relative group/country">
+                                                <select
+                                                    value={editCountry}
+                                                    onChange={(e) => setEditCountry(e.target.value)}
+                                                    className="bg-slate-50 rounded-lg px-2 py-1 text-[10px] font-black uppercase tracking-widest border border-slate-200 focus:border-blue-500 outline-none appearance-none pr-6 text-slate-600"
+                                                >
+                                                    <option value="">País</option>
+                                                    {COUNTRIES.map(c => (
+                                                        <option key={c} value={c}>{c}</option>
+                                                    ))}
+                                                </select>
+                                                <Edit3 size={10} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                            </div>
+                                        ) : (
+                                            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] flex items-center gap-1">
+                                                {profile.country || "Planeta Tierra 🌎"}
+                                            </p>
+                                        )}
+                                        <span className="text-slate-300">•</span>
+                                        <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                            Miembro desde {profile.created_at ? new Date(profile.created_at).getFullYear() : (new Date().getFullYear())}
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <div className="flex items-center justify-center gap-3">
@@ -576,19 +601,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 {isEditing ? (
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="text-[9px] font-black uppercase text-slate-400 mb-2 block">País</label>
-                                            <select
-                                                value={editCountry}
-                                                onChange={(e) => setEditCountry(e.target.value)}
-                                                className="w-full bg-slate-50 rounded-xl px-4 py-2 text-xs font-bold border border-transparent focus:border-blue-500 outline-none appearance-none"
-                                            >
-                                                <option value="">Seleccionar País</option>
-                                                {COUNTRIES.map(c => (
-                                                    <option key={c} value={c}>{c}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div>
                                             <label className="text-[9px] font-black uppercase text-slate-400 mb-2 block">Biografía</label>
                                             <textarea
                                                 value={editBio}
@@ -627,7 +639,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 </div>
                                 <Link
                                     href={`/${username}/beats`}
-                                    className="flex items-center gap-2 px-6 py-3 bg-slate-50 border border-slate-100 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all border-dashed"
+                                    className="flex items-center gap-2 px-6 py-3 bg-blue-50 border border-blue-100 rounded-full text-[10px] font-black uppercase tracking-widest text-blue-600 hover:bg-blue-600 hover:text-white transition-all border-dashed"
                                 >
                                     Ver catálogo completo <ChevronRight size={14} />
                                 </Link>

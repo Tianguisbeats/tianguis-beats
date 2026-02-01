@@ -79,6 +79,9 @@ export default function BeatRow({ beat }: BeatRowProps) {
                     {(beat.producer_is_verified || (typeof beat.producer === 'object' && beat.producer?.is_verified)) && (
                         <img src="/verified-badge.png" className="w-2.5 h-2.5 object-contain" alt="Verificado" />
                     )}
+                    {(beat.producer_is_founder || (typeof beat.producer === 'object' && beat.producer?.is_founder)) && (
+                        <Crown size={12} className="text-yellow-400" fill="currentColor" />
+                    )}
                 </Link>
             </div>
 
@@ -107,16 +110,18 @@ export default function BeatRow({ beat }: BeatRowProps) {
             {/* Price & Cart */}
             <div className="flex items-center gap-6">
                 <div className="text-right">
-                    <p className="text-blue-600 font-black text-lg leading-none">
+                    <p className="text-blue-600 font-black text-lg leading-none mb-1">
                         {formatPriceMXN(beat.price_mxn || 299)}
                     </p>
-                    <button onClick={handleAddToCart} className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1 hover:text-blue-600 transition-colors flex items-center justify-end gap-1">
+                    <button onClick={handleAddToCart} className="text-[8px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-colors flex items-center justify-end gap-1">
                         Ver Licencias <ChevronRight size={8} />
                     </button>
                 </div>
                 <button
                     onClick={handleAddToCart}
-                    className={`shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${itemInCart ? 'bg-green-500 text-white' : 'bg-slate-900 text-white hover:bg-blue-600'}`}
+                    className={`shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-lg active:scale-95 ${itemInCart
+                        ? 'bg-green-500 text-white shadow-green-500/20'
+                        : 'bg-gradient-to-br from-blue-600 to-blue-700 text-white hover:shadow-blue-600/30 hover:-translate-y-0.5'}`}
                 >
                     {itemInCart ? <Check size={20} strokeWidth={3} /> : <ShoppingCart size={20} />}
                 </button>
