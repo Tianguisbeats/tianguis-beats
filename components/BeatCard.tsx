@@ -7,6 +7,8 @@ import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 import { Beat } from '@/lib/types';
+import LicenseSelectionModal from './LicenseSelectionModal';
+import { useState } from 'react';
 
 interface BeatCardProps {
     beat: Beat;
@@ -24,6 +26,7 @@ function formatPriceMXN(value?: number | null) {
 export default function BeatCard({ beat }: BeatCardProps) {
     const { currentBeat, isPlaying, playBeat } = usePlayer();
     const { addItem, isInCart } = useCart();
+    const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
     const isThisPlaying = currentBeat?.id === beat.id && isPlaying;
     const itemInCart = isInCart(beat.id);
 
@@ -44,16 +47,7 @@ export default function BeatCard({ beat }: BeatCardProps) {
 
     const handleAddToCart = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (!itemInCart) {
-            addItem({
-                id: beat.id,
-                type: 'beat',
-                name: beat.title,
-                price: beat.price_mxn || 0,
-                image: beat.portadabeat_url || undefined,
-                subtitle: typeof beat.producer === 'string' ? beat.producer : beat.producer?.artistic_name
-            });
-        }
+        setIsLicenseModalOpen(true);
     };
 
     return (
@@ -143,6 +137,12 @@ export default function BeatCard({ beat }: BeatCardProps) {
                     </button>
                 </div>
             </div>
+
+            <LicenseSelectionModal
+                beat={beat}
+                isOpen={isLicenseModalOpen}
+                onClose={() => setIsLicenseModalOpen(false)}
+            />
         </div>
     );
 }

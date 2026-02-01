@@ -121,9 +121,13 @@ export default function StudioBeatsPage() {
                                     </td>
                                     <td className="py-4 pr-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
-                                            <button className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-200 transition-colors" title="Editar (Próximamente)">
+                                            <Link
+                                                href={`/studio/beats/edit/${beat.id}`}
+                                                className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-200 transition-colors"
+                                                title="Editar Beat"
+                                            >
                                                 <Edit size={14} />
-                                            </button>
+                                            </Link>
                                             <button
                                                 onClick={() => handleDelete(beat.id)}
                                                 className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-red-500 hover:border-red-200 transition-colors"

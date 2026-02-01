@@ -12,7 +12,8 @@ import {
     Zap,
     Music,
     Plus,
-    Minus
+    Minus,
+    Star
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import Navbar from '@/components/Navbar';
@@ -76,9 +77,14 @@ export default function CartPage() {
                                     <div key={item.id} className="group relative bg-white border border-slate-100 p-8 rounded-[3rem] hover:shadow-2xl hover:shadow-slate-200 transition-all flex flex-col sm:flex-row items-center gap-10">
 
                                         {/* Item Image */}
-                                        <div className="w-32 h-32 bg-slate-50 rounded-[2.5rem] overflow-hidden shrink-0 shadow-sm">
+                                        <div className="w-32 h-32 bg-slate-50 rounded-[2.5rem] overflow-hidden shrink-0 shadow-sm flex items-center justify-center">
                                             {item.image ? (
                                                 <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                            ) : item.type === 'plan' ? (
+                                                <div className={`w-full h-full flex flex-col items-center justify-center ${item.id.includes('premium') ? 'bg-blue-600 text-white' : 'bg-slate-900 text-white'}`}>
+                                                    {item.id.includes('premium') ? <ShieldCheck size={48} /> : <Star size={48} />}
+                                                    <span className="text-[10px] font-black uppercase mt-2 tracking-widest">{item.id.includes('yearly') ? 'Anual' : 'Mensual'}</span>
+                                                </div>
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-slate-200">
                                                     <Music size={40} />
@@ -133,9 +139,9 @@ export default function CartPage() {
                                                 <span>-{formatPrice(total * 0.2)}</span>
                                             </div>
                                         )}
-                                        <div className="flex justify-between items-center text-white/60 font-bold uppercase tracking-widest text-[10px]">
-                                            <span>IMPUESTOS</span>
-                                            <span className="text-white text-sm">$0.00</span>
+                                        <div className="flex justify-between items-center text-blue-400 font-bold uppercase tracking-widest text-[10px]">
+                                            <span>Protección al Comprador</span>
+                                            <span className="text-white text-sm">Gratis</span>
                                         </div>
                                     </div>
 
