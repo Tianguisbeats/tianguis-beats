@@ -17,7 +17,7 @@ export async function POST(req: Request) {
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
         const prompt = `Eres "Tianguis A&R", el marchante experto de "TianguisBeats", la plataforma #1 de beats en México.
         Tu tono es profesional, amable y conocedor de la escena urbana y regional mexicana.

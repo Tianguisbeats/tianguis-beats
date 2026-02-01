@@ -17,12 +17,15 @@ export default function AIChatBot() {
         { role: 'assistant', content: '¡Hola! Soy tu Tianguis A&R. ¿Buscas un beat en especial o tienes dudas sobre los planes?' }
     ]);
 
-    // Visibilidad controlada: Solo en Home, Beats, Pricing, Terms y Privacy.
-    // Oculto en Ayuda, Studio, Login, Signup, etc.
-    const allowedPaths = ['/', '/beats', '/pricing', '/terms', '/privacy'];
-    const shouldShow = allowedPaths.includes(pathname);
+    // Visibilidad controlada: 
+    // Siempre ocultamos la burbuja en la página de Ayuda porque el botón de soporte la abre.
+    const isHelpPage = pathname === '/help';
+    const allowedPathsForBubble = ['/', '/beats', '/pricing', '/terms', '/privacy'];
+    const shouldShowBubble = allowedPathsForBubble.includes(pathname) && !isHelpPage;
 
-    if (!shouldShow) return null;
+    // Si no estamos en una ruta permitida Y el chat no está abierto, no renderizamos nada (para ahorrar recursos)
+    // Pero en /help SI renderizamos para escuchar el evento, aunque la burbuja esté oculta.
+    if (!shouldShowBubble && !isOpen && !isHelpPage) return null;
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -162,13 +165,15 @@ export default function AIChatBot() {
             )}
 
             {/* Bubble Button */}
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl transition-all hover:scale-110 active:scale-95 ${isOpen ? 'bg-slate-900 text-white rotate-90' : 'bg-blue-600 text-white shadow-blue-600/30'
-                    }`}
-            >
-                {isOpen ? <X size={20} /> : <div className="relative"><Sparkles size={20} /><div className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full animate-ping"></div></div>}
-            </button>
+            {shouldShowBubble && (
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl transition-all hover:scale-110 active:scale-95 ${isOpen ? 'bg-slate-900 text-white rotate-90' : 'bg-blue-600 text-white shadow-blue-600/30'
+                        }`}
+                >
+                    {isOpen ? <X size={20} /> : <div className="relative"><Sparkles size={20} /><div className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full animate-ping"></div></div>}
+                </button>
+            )}
         </div>
     );
 }
