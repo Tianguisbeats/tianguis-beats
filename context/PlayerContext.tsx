@@ -1,18 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
-
-interface Beat {
-    id: string | number;
-    title: string | null;
-    producer?: any;
-    producer_username?: string | null;
-    is_verified?: boolean;
-    is_founder?: boolean;
-    mp3_url?: string | null;
-    cover_url?: string | null;
-    coverColor?: string;
-}
+import { Beat } from '@/lib/types';
 
 interface PlayerContextType {
     currentBeat: Beat | null;

@@ -64,7 +64,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             // 1. Get Profile
             const { data: profileData } = await supabase
                 .from('profiles')
-                .select('id, username, artistic_name, avatar_url, cover_url, cover_offset_y, bio, country, social_links, is_verified, is_founder, subscription_tier, created_at')
+                .select('id, username, artistic_name, avatar_url, portada_perfil_url, cover_offset_y, bio, country, social_links, is_verified, is_founder, subscription_tier, created_at')
                 .eq('username', username)
                 .single();
 
@@ -101,13 +101,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             .getPublicUrl(encodedPath);
 
                         // Resolve Cover URL
-                        const finalCoverUrl = b.cover_url?.startsWith('http')
-                            ? b.cover_url
-                            : b.cover_url
-                                ? supabase.storage.from('portadas-beats').getPublicUrl(b.cover_url).data.publicUrl
+                        const finalCoverUrl = b.portadabeat_url?.startsWith('http')
+                            ? b.portadabeat_url
+                            : b.portadabeat_url
+                                ? supabase.storage.from('portadas-beats').getPublicUrl(b.portadabeat_url).data.publicUrl
                                 : null;
 
-                        return { ...b, mp3_url: publicUrl, cover_url: finalCoverUrl };
+                        return { ...b, mp3_url: publicUrl, portadabeat_url: finalCoverUrl };
                     }));
                     setBeats(transformedBeats);
                 }
@@ -202,7 +202,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
         if (!uploadError) {
             const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath);
-            const updateField = type === 'avatar' ? { avatar_url: publicUrl } : { cover_url: publicUrl };
+            const updateField = type === 'avatar' ? { avatar_url: publicUrl } : { portada_perfil_url: publicUrl };
 
             const { error: dbUpdateError } = await supabase.from('profiles').update(updateField).eq('id', profile.id);
             if (dbUpdateError) {
@@ -268,9 +268,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             <main className="flex-1 pb-20">
                 {/* 1. Portada */}
                 <div className={`relative h-48 md:h-80 bg-slate-100 group overflow-hidden ${isAdjustingCover ? 'ring-4 ring-blue-500 ring-inset' : ''}`}>
-                    {profile.cover_url ? (
+                    {profile.portada_perfil_url ? (
                         <img
-                            src={profile.cover_url}
+                            src={profile.portada_perfil_url}
                             className="w-full h-full object-cover transition-all duration-300"
                             style={{ objectPosition: `center ${isAdjustingCover ? tempOffset : (profile.cover_offset_y ?? 50)}%` }}
                             alt="Cover"

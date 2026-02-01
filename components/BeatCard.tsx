@@ -49,11 +49,17 @@ export default function BeatCard({ beat }: BeatCardProps) {
                     </div>
                 )}
 
-                {beat.portadabeat_url ? (
-                    <img src={beat.portadabeat_url} className="w-full h-full object-cover" alt={beat.title} />
-                ) : (
-                    <Music className="text-slate-200 w-20 h-20 group-hover:scale-110 group-hover:text-blue-500/20 transition-all duration-700 ease-out" />
-                )}
+                <div className="relative aspect-square bg-slate-100 group overflow-hidden">
+                    {beat.portadabeat_url ? (
+                        <img
+                            src={beat.portadabeat_url}
+                            alt={beat.title}
+                            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+                        />
+                    ) : (
+                        <Music className="text-slate-200 w-20 h-20 group-hover:scale-110 group-hover:text-blue-500/20 transition-all duration-700 ease-out" />
+                    )}
+                </div>
 
                 <div className="absolute inset-0 bg-blue-600/10 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-[2px]">
                     <button

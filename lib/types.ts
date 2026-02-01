@@ -13,7 +13,7 @@ export interface Profile {
     artistic_name: string | null;
     full_name?: string | null;
     avatar_url?: string | null;
-    cover_url?: string | null;
+    portada_perfil_url?: string | null;
     cover_offset_y?: number;
     bio?: string | null;
     country?: string;
@@ -53,10 +53,11 @@ export interface Beat {
     price_wav_mxn?: number | null;
     price_stems_mxn?: number | null;
     is_public?: boolean;
+    is_verified?: boolean;
+    is_founder?: boolean;
 
     // Archivos
     portadabeat_url?: string | null;
-    cover_url?: string | null;
     mp3_url?: string;
     wav_url?: string | null;
     stems_url?: string | null;
