@@ -267,18 +267,72 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
             <main className="flex-1 pb-20">
                 {/* 1. Portada */}
-                <div className="relative h-48 md:h-80 bg-slate-100 group">
+                <div className={`relative h-48 md:h-80 bg-slate-100 group overflow-hidden ${isAdjustingCover ? 'ring-4 ring-blue-500 ring-inset' : ''}`}>
                     {profile.cover_url ? (
-                        <img src={profile.cover_url} className="w-full h-full object-cover" alt="Cover" />
+                        <img
+                            src={profile.cover_url}
+                            className="w-full h-full object-cover transition-all duration-300"
+                            style={{ objectPosition: `center ${isAdjustingCover ? tempOffset : (profile.cover_offset_y ?? 50)}%` }}
+                            alt="Cover"
+                        />
                     ) : (
                         <div className="w-full h-full bg-gradient-to-r from-slate-200 to-slate-100" />
                     )}
-                    {isOwner && (
-                        <div className="absolute top-4 right-4">
-                            <label className="bg-black/50 hover:bg-black/70 text-white px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest cursor-pointer backdrop-blur-sm transition-all flex items-center gap-2">
-                                <Camera size={14} /> Cambiar Portada
+
+                    {isOwner && !isAdjustingCover && (
+                        <div className="absolute top-4 right-4 flex gap-2">
+                            <button
+                                onClick={() => setIsAdjustingCover(true)}
+                                className="bg-black/50 hover:bg-black/70 text-white px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm transition-all flex items-center gap-2"
+                            >
+                                <Edit3 size={14} /> Ajustar
+                            </button>
+                            <label className="bg-white/90 hover:bg-white text-slate-900 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest cursor-pointer shadow-xl transition-all flex items-center gap-2 border border-slate-200">
+                                <Camera size={14} className="text-blue-600" /> Cambiar Portada
                                 <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUploadMedia('cover', e)} />
                             </label>
+                        </div>
+                    )}
+
+                    {isAdjustingCover && (
+                        <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center p-6 backdrop-blur-md">
+                            <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-sm border border-slate-100">
+                                <div className="text-center mb-6">
+                                    <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mx-auto mb-4">
+                                        <Layout size={24} />
+                                    </div>
+                                    <h3 className="text-lg font-black uppercase tracking-tighter text-slate-900">Ajustar Portada</h3>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Desliza para centrar la imagen</p>
+                                </div>
+
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={tempOffset}
+                                    onChange={(e) => setTempOffset(parseInt(e.target.value))}
+                                    className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-blue-600 mb-8"
+                                />
+
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => {
+                                            setIsAdjustingCover(false);
+                                            setTempOffset(profile.cover_offset_y ?? 50);
+                                        }}
+                                        className="flex-1 px-6 py-3 border border-slate-100 rounded-full font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={handleSaveAdjustment}
+                                        disabled={saving}
+                                        className="flex-1 px-6 py-3 bg-slate-900 text-white rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl shadow-slate-900/10 flex items-center justify-center gap-2"
+                                    >
+                                        {saving ? <Loader2 size={14} className="animate-spin" /> : 'Guardar'}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>

@@ -186,7 +186,8 @@ export default function UploadPage() {
                 musical_scale: musicalScale,
                 mood: selectedMoods.join(', '),
                 cover_url: coverUrl,
-                mp3_url: previewPath, // Fix: Use preview path for public playback
+                mp3_url: previewPath, // High quality preview path
+                mp3_tag_url: previewPath, // Tag/Preview path for public playback
                 wav_url: wavPath,
                 stems_url: stemsPath,
                 is_exclusive: isExclusive,
