@@ -28,6 +28,8 @@ export default function BeatsPage() {
 
 function BeatsPageContent() {
   const [beats, setBeats] = useState<Beat[]>([]);
+  const [recientes, setRecientes] = useState<Beat[]>([]);
+  const [tendencias, setTendencias] = useState<Beat[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [featuredProducers, setFeaturedProducers] = useState<Array<{ id: string, username: string, artistic_name: string, avatar_url: string | null, is_verified: boolean, is_founder: boolean, subscription_tier: string }>>([]);
@@ -41,6 +43,14 @@ function BeatsPageContent() {
 
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  const isSearching = useMemo(() => {
+    return searchQuery.trim() !== "" ||
+      genreFilter !== "Todos" ||
+      moodFilter !== "" ||
+      bpmFilter !== "" ||
+      keyFilter !== "";
+  }, [searchQuery, genreFilter, moodFilter, bpmFilter, keyFilter]);
 
   const handleClearFilters = () => {
     setSearchQuery("");
@@ -65,6 +75,42 @@ function BeatsPageContent() {
     if (b) setBpmFilter(b);
   }, [searchParams]);
 
+  const transformBeat = async (b: any) => {
+    const path = b.mp3_tag_url || b.mp3_url || '';
+    const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
+    const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+    const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
+
+    let finalCoverUrl = b.portadabeat_url;
+    if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
+      const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(finalCoverUrl);
+      finalCoverUrl = cpUrl;
+    }
+
+    return {
+      id: b.id,
+      title: b.title,
+      producer: b.producer?.artistic_name || 'Productor Anónimo',
+      producer_username: b.producer?.username || b.producer?.artistic_name,
+      producer_is_verified: b.producer?.is_verified,
+      producer_is_founder: b.producer?.is_founder,
+      producer_avatar_url: b.producer?.avatar_url,
+      producer_tier: b.producer?.subscription_tier,
+      price_mxn: b.price_mxn,
+      bpm: b.bpm,
+      genre: b.genre,
+      musical_key: b.musical_key,
+      mood: b.mood,
+      tag: "Nuevo",
+      tagEmoji: "🔥",
+      tagColor: "bg-orange-600",
+      portadabeat_url: finalCoverUrl,
+      coverColor: Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100',
+      mp3_url: publicUrl,
+      created_at: b.created_at
+    };
+  };
+
   useEffect(() => {
     let cancel = false;
 
@@ -73,97 +119,40 @@ function BeatsPageContent() {
         setLoading(true);
         setErrorMsg(null);
 
+        // Grid principal (Resultados de búsqueda o "Todos")
         let query = supabase
           .from("beats")
           .select(`
-            id,
-            title,
-            price_mxn,
-            bpm,
-            genre,
-            portadabeat_url,
-            mp3_url,
-            mp3_tag_url,
-            musical_key,
-            mood,
-            created_at,
-            producer:producer_id (
-              artistic_name,
-              username,
-              is_verified,
-              is_founder,
-              avatar_url,
-              subscription_tier
-            )
+            id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, created_at,
+            producer:producer_id ( artistic_name, username, is_verified, is_founder, avatar_url, subscription_tier )
           `)
           .eq("is_public", true);
 
-        if (genreFilter && genreFilter !== "Todos") {
-          query = query.eq('genre', genreFilter);
-        }
-        if (moodFilter) {
-          query = query.eq('mood', moodFilter);
-        }
-        if (bpmFilter) {
-          query = query.eq('bpm', parseInt(bpmFilter));
-        }
-        if (keyFilter) {
-          query = query.eq('musical_key', keyFilter);
-        }
-        if (searchQuery.trim()) {
-          query = query.or(`title.ilike.%${searchQuery.trim()}%,genre.ilike.%${searchQuery.trim()}%`);
-        }
+        if (genreFilter && genreFilter !== "Todos") query = query.eq('genre', genreFilter);
+        if (moodFilter) query = query.eq('mood', moodFilter);
+        if (bpmFilter) query = query.eq('bpm', parseInt(bpmFilter));
+        if (keyFilter) query = query.eq('musical_key', keyFilter);
+        if (searchQuery.trim()) query = query.or(`title.ilike.%${searchQuery.trim()}%,genre.ilike.%${searchQuery.trim()}%`);
 
-        const { data, error } = await query
-          .order("created_at", { ascending: false })
-          .limit(50);
-
+        const { data, error } = await query.order("created_at", { ascending: false }).limit(40);
         if (cancel) return;
+        if (error) { setErrorMsg(error.message); return; }
+        const transformed = await Promise.all((data || []).map(transformBeat));
+        setBeats(transformed);
 
-        if (error) {
-          setErrorMsg(error.message ?? "Error desconocido al cargar beats");
-          return;
+        // Fetch Playlists only if NOT searching
+        if (!isSearching) {
+          // Recién Horneado (los 6 más nuevos)
+          const { data: rData } = await supabase.from("beats").select(`id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, created_at, producer:producer_id ( artistic_name, username, is_verified, is_founder, avatar_url, subscription_tier )`).eq("is_public", true).order("created_at", { ascending: false }).limit(6);
+          if (rData) setRecientes(await Promise.all(rData.map(transformBeat)));
+
+          // Tendencias (Random limit 6 for now or based on some metric)
+          const { data: tData } = await supabase.from("beats").select(`id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, created_at, producer:producer_id ( artistic_name, username, is_verified, is_founder, avatar_url, subscription_tier )`).eq("is_public", true).limit(6);
+          if (tData) setTendencias(await Promise.all(tData.map(transformBeat)));
         }
 
-        const transformed = await Promise.all((data || []).map(async (b: any) => {
-          const path = b.mp3_tag_url || b.mp3_url || '';
-          const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-          const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
-          const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
-
-          let finalCoverUrl = b.portadabeat_url;
-          if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
-            const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(finalCoverUrl);
-            finalCoverUrl = cpUrl;
-          }
-
-          return {
-            id: b.id,
-            title: b.title,
-            producer: b.producer?.artistic_name || 'Productor Anónimo',
-            producer_username: b.producer?.username || b.producer?.artistic_name,
-            producer_is_verified: b.producer?.is_verified,
-            producer_is_founder: b.producer?.is_founder,
-            producer_avatar_url: b.producer?.avatar_url,
-            producer_tier: b.producer?.subscription_tier,
-            price_mxn: b.price_mxn,
-            bpm: b.bpm,
-            genre: b.genre,
-            musical_key: b.musical_key,
-            mood: b.mood,
-            tag: "Nuevo",
-            tagEmoji: "🔥",
-            tagColor: "bg-orange-600",
-            portadabeat_url: finalCoverUrl,
-            coverColor: Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100',
-            mp3_url: publicUrl,
-            created_at: b.created_at
-          };
-        }));
-
-        setBeats(transformed);
       } catch (err) {
-        console.error("Error loading beats:", err);
+        console.error(err);
         setErrorMsg("Error al cargar los beats.");
       } finally {
         setLoading(false);
@@ -171,11 +160,8 @@ function BeatsPageContent() {
     }
 
     load();
-
-    return () => {
-      cancel = true;
-    };
-  }, [genreFilter, moodFilter, bpmFilter, keyFilter, searchQuery]);
+    return () => { cancel = true; };
+  }, [genreFilter, moodFilter, bpmFilter, keyFilter, searchQuery, isSearching]);
 
   useEffect(() => {
     async function loadProducers() {
@@ -350,33 +336,74 @@ function BeatsPageContent() {
             </div>
           </div>
 
-          {errorMsg && (
-            <div className="mb-12 p-6 bg-red-50 border border-red-100 rounded-[2rem] text-red-600 font-bold text-center">
-              {errorMsg}
+          {!isSearching && recientes.length > 0 && (
+            <div className="mb-24">
+              <div className="flex items-center justify-between mb-10">
+                <h2 className="text-3xl font-black uppercase tracking-tight flex items-center gap-4">
+                  <span className="w-10 h-10 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center text-xl">🔥</span>
+                  Recién Horneados
+                </h2>
+                <div className="h-[1px] flex-1 bg-slate-100 ml-8"></div>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                {recientes.map((beat) => (
+                  <BeatCard key={beat.id} beat={beat} />
+                ))}
+              </div>
             </div>
           )}
 
-          {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 animate-pulse">
-              {[...Array(10)].map((_, i) => (
-                <div key={i} className="aspect-square bg-slate-100 rounded-[2.5rem]"></div>
-              ))}
-            </div>
-          ) : beats.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
-              {beats.map((beat) => (
-                <BeatCard key={beat.id} beat={beat} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-20 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
-              <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-                <Music className="text-slate-300 w-10 h-10" />
+          {!isSearching && tendencias.length > 0 && (
+            <div className="mb-24">
+              <div className="flex items-center justify-between mb-10">
+                <h2 className="text-3xl font-black uppercase tracking-tight flex items-center gap-4">
+                  <span className="w-10 h-10 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-xl">📈</span>
+                  Tendencias
+                </h2>
+                <div className="h-[1px] flex-1 bg-slate-100 ml-8"></div>
               </div>
-              <h3 className="text-2xl font-black uppercase tracking-tight mb-2">Sin resultados</h3>
-              <p className="text-slate-500 font-medium">Intenta ajustando los filtros o la búsqueda.</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                {tendencias.map((beat) => (
+                  <BeatCard key={beat.id} beat={beat} />
+                ))}
+              </div>
             </div>
           )}
+
+          <div className="mb-12">
+            <h3 className="text-xl font-black uppercase tracking-widest text-slate-400 mb-8 flex items-center gap-4">
+              {isSearching ? "Resultados de Búsqueda" : "Explora todo el Catálogo"}
+              <div className="h-[1px] flex-1 bg-slate-100"></div>
+            </h3>
+
+            {errorMsg && (
+              <div className="mb-12 p-6 bg-red-50 border border-red-100 rounded-[2rem] text-red-600 font-bold text-center">
+                {errorMsg}
+              </div>
+            )}
+
+            {loading ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 animate-pulse">
+                {[...Array(10)].map((_, i) => (
+                  <div key={i} className="aspect-square bg-slate-100 rounded-[2.5rem]"></div>
+                ))}
+              </div>
+            ) : beats.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+                {beats.map((beat) => (
+                  <BeatCard key={beat.id} beat={beat} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
+                <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                  <Music className="text-slate-300 w-10 h-10" />
+                </div>
+                <h3 className="text-2xl font-black uppercase tracking-tight mb-2">Sin resultados</h3>
+                <p className="text-slate-500 font-medium">Intenta ajustando los filtros o la búsqueda.</p>
+              </div>
+            )}
+          </div>
         </div>
       </main>
 

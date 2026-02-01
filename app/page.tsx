@@ -1,8 +1,3 @@
-/**
- * Página Principal: Punto de entrada de la aplicación.
- * Muestra el Hero y una sección de beats destacados.
- * Deployment trigger: 2026-01-31
- */
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -10,50 +5,41 @@ import Link from 'next/link';
 import {
   ChevronRight,
   Loader2,
+  Music,
+  Play,
+  ArrowRight,
+  ShieldCheck,
+  Zap,
+  Globe,
+  Plus
 } from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import Hero from '@/components/Hero';
 import BeatCard from '@/components/BeatCard';
 import { Beat } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<string>('Todos');
-  const [activeMood, setActiveMood] = useState<string>('');
-  const [activeBpm, setActiveBpm] = useState<string>('');
-  const [activeKey, setActiveKey] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-
   const [newBeats, setNewBeats] = useState<Beat[]>([]);
   const [trendingBeats, setTrendingBeats] = useState<Beat[]>([]);
   const [topSellers, setTopSellers] = useState<Beat[]>([]);
-  const [recommendedBeats, setRecommendedBeats] = useState<Beat[]>([]);
-  const [filteredBeats, setFilteredBeats] = useState<Beat[]>([]);
-  const [followedBeats, setFollowedBeats] = useState<Beat[]>([]);
-
   const [loading, setLoading] = useState(true);
-
-  /* 
-   * Limpieza: Eliminamos categories y estados de búsqueda inline 
-   * ya que ahora el Hero redirige a /beats
-   */
+  const [searchQuery, setSearchQuery] = useState('');
 
   const transformBeatData = async (data: any[]) => {
-    return data.map((b: any) => {
-      // Prioritizar mp3_tag_url si existe
+    return Promise.all(data.map(async (b: any) => {
       const path = b.mp3_tag_url || b.mp3_url || '';
       const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-
-      // Buckets logic
       let bucket = 'beats-muestras';
       if (path.includes('-hq-')) bucket = 'beats-mp3-alta-calidad';
-      if (path.includes('-wav-')) bucket = 'beats-wav';
+      const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
 
-      const { data: { publicUrl } } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(encodedPath);
+      let finalCoverUrl = b.portadabeat_url;
+      if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
+        const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(finalCoverUrl);
+        finalCoverUrl = cpUrl;
+      }
 
       return {
         id: b.id,
@@ -67,186 +53,188 @@ export default function Home() {
         price_mxn: b.price_mxn,
         bpm: b.bpm,
         genre: b.genre,
-        portadabeat_url: b.portadabeat_url?.startsWith('http')
-          ? b.portadabeat_url
-          : b.portadabeat_url
-            ? supabase.storage.from('portadas-beats').getPublicUrl(b.portadabeat_url).data.publicUrl
-            : null,
+        portadabeat_url: finalCoverUrl,
         mp3_url: publicUrl,
         musical_key: b.musical_key,
         mood: b.mood,
-        tag: b.tier_visibility > 0 ? "Premium" : "Nuevo",
-        tagEmoji: b.tier_visibility > 0 ? "⭐" : "🔥",
-        tagColor: b.tier_visibility > 0 ? "bg-indigo-600" : "bg-orange-600",
-        coverColor: Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100',
-        tier_visibility: b.tier_visibility,
+        tag: "🔥",
+        tagEmoji: "NEW",
+        tagColor: "bg-blue-600",
+        coverColor: 'bg-slate-100',
         created_at: b.created_at
       };
-    });
+    }));
   };
 
   useEffect(() => {
-    setLoading(true);
+    const fetchData = async () => {
+      setLoading(true);
+      const columns = 'id,title,price_mxn,bpm,genre,mp3_url,mp3_tag_url,musical_key,mood,created_at,portadabeat_url,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)';
 
-    const executeFetch = async () => {
-      // Columnas mínimas para BeatCard
-      const columns = 'id,title,price_mxn,bpm,genre,mp3_url,mp3_tag_url,musical_key,mood,tier_visibility,created_at,portadabeat_url,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)';
-
-      const fetchSection = async (orderByField: string, limit: number) => {
-        try {
-          const { data, error } = await supabase
-            .from('beats')
-            .select(columns)
-            .eq('is_public', true)
-            .order(orderByField, { ascending: false })
-            .limit(limit);
-
-          if (error) throw error;
-          return data;
-        } catch (err) {
-          console.warn(`Error fetching by ${orderByField}, falling back to created_at`, err);
-          const { data } = await supabase
-            .from('beats')
-            .select(columns)
-            .eq('is_public', true)
-            .order('created_at', { ascending: false })
-            .limit(limit);
-          return data;
-        }
-      };
-
-      // Parallel fetches con Promise.all
-      const [newData, trendData, salesData, recData] = await Promise.all([
-        fetchSection('created_at', 10),
-        fetchSection('play_count', 10),
-        fetchSection('sale_count', 10),
-        fetchSection('created_at', 20),
-      ]);
+      const { data: newData } = await supabase.from('beats').select(columns).eq('is_public', true).order('created_at', { ascending: false }).limit(6);
+      const { data: trendData } = await supabase.from('beats').select(columns).eq('is_public', true).limit(6);
+      const { data: salesData } = await supabase.from('beats').select(columns).eq('is_public', true).limit(6);
 
       if (newData) setNewBeats(await transformBeatData(newData));
       if (trendData) setTrendingBeats(await transformBeatData(trendData));
       if (salesData) setTopSellers(await transformBeatData(salesData));
 
-      if (recData) {
-        const shuffled = recData.sort(() => 0.5 - Math.random()).slice(0, 10);
-        setRecommendedBeats(await transformBeatData(shuffled));
-      }
-
       setLoading(false);
     };
-
-    executeFetch();
-
-    // Check for user and fetch followed beats
-    const checkUserFollows = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data: follows } = await supabase.from('follows').select('following_id').eq('follower_id', session.user.id);
-        if (follows && follows.length > 0) {
-          const followingIds = follows.map(f => f.following_id);
-          const { data: followedData } = await supabase
-            .from('beats')
-            .select('id,title,price_mxn,bpm,genre,mp3_url,musical_key,mood,tier_visibility,created_at,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)')
-            .in('producer_id', followingIds)
-            .order('created_at', { ascending: false })
-            .limit(10);
-
-          if (followedData) setFollowedBeats(await transformBeatData(followedData));
-        }
-      }
-    };
-    checkUserFollows();
-
+    fetchData();
   }, []);
 
-  // Efecto de búsqueda inline eliminado 
-
-  const Section = ({ title, subtitle, beats }: { title: string, subtitle: string, beats: Beat[] }) => (
-    <div className="mb-16 last:mb-0">
-      <div className="flex items-end justify-between mb-8 px-4 md:px-0">
-        <div>
-          <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-1 uppercase tracking-tighter">{title}</h2>
-          <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">{subtitle}</p>
-        </div>
-        <Link href="/beats" className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-slate-900 transition-colors">
-          Ver más <ChevronRight size={14} />
+  const Section = ({ title, beats, color }: { title: string, beats: Beat[], color: string }) => (
+    <div className="mb-32">
+      <div className="flex items-center justify-between mb-12">
+        <h2 className="text-4xl font-black tracking-tight uppercase text-slate-900">
+          {title}
+        </h2>
+        <Link href="/beats" className="group flex items-center gap-3 text-xs font-black uppercase tracking-widest text-blue-600 hover:text-slate-900 transition-all">
+          Ver Catálogo Completo
+          <div className="w-8 h-[1px] bg-blue-600 group-hover:w-12 transition-all"></div>
         </Link>
       </div>
-
-      {/* Horizontal Scroll / Carousel Container */}
-      {beats.length > 0 ? (
-        <div className="flex gap-6 overflow-x-auto pb-8 -mx-4 px-4 md:mx-0 md:px-0 snap-x snap-mandatory no-scrollbar">
-          {beats.map((beat) => (
-            <div key={beat.id} className="min-w-[280px] w-[280px] snap-center">
-              <BeatCard beat={beat} />
-            </div>
-          ))}
-          {/* Card 'Ver más' al final del carrusel */}
-          <Link href="/beats" className="min-w-[150px] flex flex-col items-center justify-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] text-slate-400 hover:text-blue-600 hover:border-blue-600 hover:bg-blue-50 transition-all cursor-pointer group snap-center">
-            <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <ChevronRight size={24} />
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-widest">Ver Todo</span>
-          </Link>
-        </div>
-      ) : (
-        <div className="w-full py-12 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-100 flex flex-col items-center justify-center text-center">
-          <p className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">Sección en construcción</p>
-          <p className="text-slate-300 text-[10px]">Pronto verás más beats aquí</p>
-        </div>
-      )}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
+        {beats.map((beat) => (
+          <BeatCard key={beat.id} beat={beat} />
+        ))}
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white overflow-x-hidden">
       <Navbar />
-      <Hero
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        activeGenre={activeTab}
-        setActiveGenre={setActiveTab}
-        activeMood={activeMood}
-        setActiveMood={setActiveMood}
-        activeBpm={activeBpm}
-        setActiveBpm={setActiveBpm}
-        activeKey={activeKey}
-        setActiveKey={setActiveKey}
-      />
 
-      <section className="bg-slate-50/50 border-t border-slate-100 py-20">
-        <div className="max-w-7xl mx-auto px-4">
+      {/* Hero Section */}
+      <section className="relative h-[95vh] flex items-center justify-center overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/images/home-hero.png"
+            alt="Tianguis Beats Studio"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/80 to-slate-900"></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
+          <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white text-[10px] font-black uppercase tracking-[0.6em] mb-12 animate-fade-in">
+            <Zap size={14} className="text-blue-400" />
+            La Plataforma #1 de México
+          </div>
+
+          <h1 className="text-7xl md:text-[10rem] font-black text-white leading-[0.8] tracking-[-0.06em] uppercase mb-12">
+            Eleva tu <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-200 to-white">Sonido.</span>
+          </h1>
+
+          <div className="max-w-2xl mx-auto mb-16 px-4">
+            <div className="bg-white rounded-[3rem] p-2 flex shadow-2xl shadow-blue-900/40">
+              <input
+                type="text"
+                placeholder="Busca el beat que definirá tu próximo hit..."
+                className="flex-1 bg-transparent border-none pl-8 pr-4 outline-none font-bold text-slate-900"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (window.location.href = `/beats?q=${searchQuery}`)}
+              />
+              <button
+                onClick={() => window.location.href = `/beats?q=${searchQuery}`}
+                className="bg-blue-600 text-white px-10 py-5 rounded-[2.5rem] font-black uppercase text-[11px] tracking-[0.2em] hover:bg-slate-900 transition-all active:scale-95"
+              >
+                Explorar
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-8 mb-20">
+            <div className="flex items-center gap-3 text-white/60 font-bold uppercase tracking-widest text-[9px]">
+              <ShieldCheck size={16} className="text-blue-500" /> Compra Segura
+            </div>
+            <div className="flex items-center gap-3 text-white/60 font-bold uppercase tracking-widest text-[9px]">
+              <Globe size={16} className="text-blue-500" /> Comunidad Global
+            </div>
+            <div className="flex items-center gap-3 text-white/60 font-bold uppercase tracking-widest text-[9px]">
+              <ArrowRight size={16} className="text-blue-500" /> 0% Comisión
+            </div>
+          </div>
+        </div>
+
+        {/* Floating Shapes for polish */}
+        <div className="absolute bottom-10 left-10 w-64 h-64 bg-blue-600/20 blur-[100px] rounded-full"></div>
+        <div className="absolute top-20 right-10 w-96 h-96 bg-blue-400/10 blur-[120px] rounded-full"></div>
+      </section>
+
+      {/* Main Content */}
+      <section className="relative -mt-20 bg-white rounded-t-[5rem] pt-32 pb-40 z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <Loader2 className="animate-spin text-blue-600" size={40} />
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Escaneando el tianguis...</p>
+            <div className="flex flex-col items-center justify-center py-40 gap-6">
+              <Loader2 className="animate-spin text-blue-600" size={50} />
+              <p className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400">Calibrando el sistema...</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-16">
-              {followedBeats.length > 0 && (
-                <Section title="👥 De tus Productores Seguidos" subtitle="Nuevos lanzamientos de tu comunidad" beats={followedBeats} />
-              )}
-              <Section title="✨ Recomendados para ti" subtitle="Seleccionamos lo mejor basado en tu estilo" beats={recommendedBeats} />
-              <Section title="🔥 Recién Horneado" subtitle="Las últimas joyas directas del horno" beats={newBeats} />
-              <Section title="📈 Lo más Escuchado" subtitle="Los ritmos que están rompiendo las bocinas" beats={trendingBeats} />
-              <Section title="💰 Lo más Comprado" subtitle="Los beats más buscados por los artistas" beats={topSellers} />
-            </div>
+            <>
+              <Section title="🔥 Recién Horneado" beats={newBeats} color="blue" />
+              <Section title="📈 Tendencias" beats={trendingBeats} color="blue" />
+              <Section title="💰 Lo más Vendido" beats={topSellers} color="blue" />
+            </>
           )}
 
-          <div className="mt-24 mb-20 flex justify-center">
-            <Link
-              href="/beats"
-              className="inline-flex items-center gap-4 px-8 py-4 bg-white border border-slate-200 rounded-full text-[12px] font-black uppercase tracking-[0.2em] text-slate-900 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm hover:shadow-xl hover:scale-105 active:scale-95 group"
-            >
-              <span>Explorar todo el Tianguis</span>
-              <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
+          {/* Value Prop Section */}
+          <div className="mt-40 grid md:grid-cols-3 gap-12">
+            <div className="p-12 rounded-[4rem] bg-slate-50 border border-slate-100 group hover:bg-blue-600 transition-all duration-500">
+              <div className="w-16 h-16 bg-blue-600 text-white rounded-3xl flex items-center justify-center mb-8 group-hover:bg-white group-hover:text-blue-600 transition-all">
+                <Zap size={32} />
+              </div>
+              <h4 className="text-2xl font-black uppercase tracking-tight mb-4 group-hover:text-white transition-all">Velocidad Pura</h4>
+              <p className="text-slate-500 font-medium group-hover:text-blue-100 transition-all">Descarga tus archivos instantáneamente después del pago. Sin esperas, sin complicaciones.</p>
+            </div>
+            <div className="p-12 rounded-[4rem] bg-slate-50 border border-slate-100 group hover:bg-blue-600 transition-all duration-500">
+              <div className="w-16 h-16 bg-blue-600 text-white rounded-3xl flex items-center justify-center mb-8 group-hover:bg-white group-hover:text-blue-600 transition-all">
+                <Music size={32} />
+              </div>
+              <h4 className="text-2xl font-black uppercase tracking-tight mb-4 group-hover:text-white transition-all">Calidad de Estudio</h4>
+              <p className="text-slate-500 font-medium group-hover:text-blue-100 transition-all">Acceso a archivos WAV de alta fidelidad y Stems para un control total de tu mezcla.</p>
+            </div>
+            <div className="p-12 rounded-[4rem] bg-slate-50 border border-slate-100 group hover:bg-blue-600 transition-all duration-500">
+              <div className="w-16 h-16 bg-blue-600 text-white rounded-3xl flex items-center justify-center mb-8 group-hover:bg-white group-hover:text-blue-600 transition-all">
+                <ShieldCheck size={32} />
+              </div>
+              <h4 className="text-2xl font-black uppercase tracking-tight mb-4 group-hover:text-white transition-all">Tratos Directos</h4>
+              <p className="text-slate-500 font-medium group-hover:text-blue-100 transition-all">Fomenta relaciones directas con productores. Licencias claras y transparentes.</p>
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="mt-40 relative rounded-[5rem] overflow-hidden bg-slate-900 p-20 text-center text-white">
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(37,99,235,0.4),transparent)]"></div>
+            </div>
+            <div className="relative z-10">
+              <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-8 italic">¿Eres Productor?</h2>
+              <p className="text-blue-300 font-black uppercase tracking-[0.3em] text-[11px] mb-12">Únete a la mayor red de beatmakers de latinoamérica</p>
+              <div className="flex flex-wrap justify-center gap-6">
+                <Link href="/signup" className="px-12 py-5 bg-blue-600 text-white rounded-full font-black uppercase text-[12px] tracking-widest hover:bg-white hover:text-blue-600 transition-all">Empezar a Vender</Link>
+                <Link href="/pricing" className="px-12 py-5 bg-transparent border-2 border-white text-white rounded-full font-black uppercase text-[12px] tracking-widest hover:bg-white hover:text-slate-900 transition-all">Ver Planes</Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       <Footer />
+
+      <style jsx global>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fade-in 1s ease-out forwards; }
+      `}</style>
     </div>
   );
 }
