@@ -1,23 +1,23 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "no-key");
-
 export async function POST(req: Request) {
     try {
+        const apiKey = process.env.GEMINI_API_KEY;
         const { message } = await req.json();
 
         // Fallback if no API key
-        if (!process.env.GEMINI_API_KEY) {
-            console.warn("GEMINI_API_KEY not found. Using mock response.");
+        if (!apiKey || apiKey === "no-key") {
+            console.error("CRITICAL: GEMINI_API_KEY is missing or invalid in server environment.");
             return NextResponse.json({
-                reply: "¡Hola! Actualmente estoy en modo de demostración porque no detecté mi llave de API. Pero puedo decirte que TianguisBeats es la plataforma #1 para vender y comprar beats en México. ¿Buscas algo en específico?",
+                reply: "¡Hola! Para que pueda ayudarte, necesito que configures mi 'GEMINI_API_KEY' en el archivo .env.local y reinicies el servidor. Por ahora, TIANGUIS BEATS es tu plataforma premium de beats en México. ¿Cómo puedo ayudarte?",
                 filters: {},
                 intent: "info"
             });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `Eres un experto A&R (Artist & Repertoire) de "TianguisBeats", una plataforma premium de beats en México.
         Tu tarea es ayudar a los usuarios (raperos, cantantes, productores) a encontrar el beat perfecto o resolver dudas sobre el sitio.
@@ -61,8 +61,9 @@ export async function POST(req: Request) {
         return NextResponse.json(jsonResponse);
     } catch (error: any) {
         console.error("Gemini Error:", error);
+        const errorMessage = error.message || "error_desconocido";
         return NextResponse.json({
-            reply: "Lo siento, tuve un pequeño error técnico o de conexión. ¿Podrías repetirme eso?",
+            reply: `Lo siento, tuve un pequeño problema con la IA (${errorMessage}). ¿Podrías intentar de nuevo o revisar la configuración de la API?`,
             filters: {},
             intent: "info"
         });

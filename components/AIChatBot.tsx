@@ -57,6 +57,12 @@ export default function AIChatBot() {
         }
     };
 
+    useEffect(() => {
+        const handleOpen = () => setIsOpen(true);
+        window.addEventListener('open-ai-chat', handleOpen);
+        return () => window.removeEventListener('open-ai-chat', handleOpen);
+    }, []);
+
     const applyFilters = (filters: any) => {
         const params = new URLSearchParams();
         if (filters.genre) params.set('genre', filters.genre);
@@ -72,23 +78,23 @@ export default function AIChatBot() {
         <div className="fixed bottom-24 right-8 z-[100]">
             {/* Chat Window */}
             {isOpen && (
-                <div className="absolute bottom-20 right-0 w-80 md:w-96 h-[500px] bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 duration-300">
+                <div className="absolute bottom-16 right-0 w-80 md:w-96 h-[500px] bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 duration-300">
                     {/* Header */}
                     <div className="bg-slate-900 p-6 text-white flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-                                <Bot size={24} />
+                            <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center">
+                                <Bot size={20} />
                             </div>
                             <div>
-                                <h3 className="font-black uppercase tracking-tight text-sm">A&R Virtual</h3>
+                                <h3 className="font-black uppercase tracking-tight text-xs">A&R Virtual</h3>
                                 <div className="flex items-center gap-1.5">
                                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">En línea</span>
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">En línea</span>
                                 </div>
                             </div>
                         </div>
                         <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                            <X size={20} />
+                            <X size={18} />
                         </button>
                     </div>
 
@@ -150,10 +156,10 @@ export default function AIChatBot() {
             {/* Bubble Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-16 h-16 rounded-3xl flex items-center justify-center shadow-2xl transition-all hover:scale-110 active:scale-95 ${isOpen ? 'bg-slate-900 text-white rotate-90' : 'bg-blue-600 text-white shadow-blue-600/30'
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl transition-all hover:scale-110 active:scale-95 ${isOpen ? 'bg-slate-900 text-white rotate-90' : 'bg-blue-600 text-white shadow-blue-600/30'
                     }`}
             >
-                {isOpen ? <X size={32} /> : <div className="relative"><Sparkles size={32} /><div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full animate-ping"></div></div>}
+                {isOpen ? <X size={20} /> : <div className="relative"><Sparkles size={20} /><div className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full animate-ping"></div></div>}
             </button>
         </div>
     );
