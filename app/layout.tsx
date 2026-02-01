@@ -26,7 +26,6 @@ export const metadata: Metadata = {
 import { PlayerProvider } from "@/context/PlayerContext";
 import { CartProvider } from "@/context/CartContext";
 import AudioPlayer from "@/components/AudioPlayer";
-import AIChatBot from "@/components/AIChatBot";
 
 export default function RootLayout({
   children,
@@ -42,7 +41,6 @@ export default function RootLayout({
           <PlayerProvider>
             {children}
             <AudioPlayer />
-            <AIChatBot />
           </PlayerProvider>
         </CartProvider>
       </body>

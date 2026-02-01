@@ -30,10 +30,21 @@ IMPORTANTE:
 
 export async function POST(req: Request) {
     try {
+        const key = process.env.GEMINI_API_KEY;
+        console.log("DEBUG: GEMINI_API_KEY present:", !!key);
+
+        if (!key) {
+            return NextResponse.json({ error: "No API Key configured" }, { status: 500 });
+        }
+
         const { messages } = await req.json();
+        if (!messages || messages.length === 0) {
+            return NextResponse.json({ error: "No messages provided" }, { status: 400 });
+        }
+
         const lastMessage = messages[messages.length - 1].content;
 
-        // 1. Intentar búsqueda rápida en Supabase para dar contexto al bot
+        // Supabase Context
         let contextBeats = "";
         try {
             const { data: beats } = await supabase
@@ -50,6 +61,7 @@ export async function POST(req: Request) {
             console.error("Context fetch error:", err);
         }
 
+        // Use a widely compatible model name
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const chat = model.startChat({
@@ -60,18 +72,20 @@ export async function POST(req: Request) {
                 },
                 {
                     role: "model",
-                    parts: [{ text: "¡Entendido! Soy Tianguis AI. ¿En qué puedo ayudarte a romperla hoy?" }],
+                    parts: [{ text: "¡Entendido! Soy Tianguis AI. ¿En qué puedo ayudarte hoy?" }],
                 },
             ],
         });
 
         const result = await chat.sendMessage(lastMessage);
-        const response = await result.response;
-        const text = response.text();
+        const text = result.response.text();
 
         return NextResponse.json({ text });
     } catch (error: any) {
-        console.error("Chat Error:", error);
-        return NextResponse.json({ error: "No pude procesar tu mensaje carnal. Intenta de nuevo." }, { status: 500 });
+        console.error("API CHAT ERROR:", error);
+        return NextResponse.json({
+            error: "Error de comunicación con la IA",
+            details: error.message
+        }, { status: 500 });
     }
 }
