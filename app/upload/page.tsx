@@ -166,7 +166,6 @@ export default function UploadPage() {
                 musical_scale: musicalScale,
                 mood: selectedMoods.join(', '),
                 cover_url: coverUrl,
-                mp3_tag_url: previewUrl,
                 mp3_url: hqPath,
                 wav_url: wavPath,
                 stems_url: stemsPath,

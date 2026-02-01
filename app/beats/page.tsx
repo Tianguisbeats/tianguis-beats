@@ -81,7 +81,6 @@ function BeatsPageContent() {
           mp3_url,
           musical_key,
           mood,
-          cover_color,
           producer:producer_id (
             artistic_name,
             username,
@@ -139,13 +138,12 @@ function BeatsPageContent() {
           price_mxn: b.price_mxn,
           bpm: b.bpm,
           genre: b.genre,
-          mp3_url: publicUrl,
           musical_key: b.musical_key,
           mood: b.mood,
           tag: "Nuevo",
           tagEmoji: "🔥",
           tagColor: "bg-orange-600",
-          coverColor: b.cover_color || (Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100'),
+          coverColor: Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100',
           mp3_url: publicUrl
         };
       });

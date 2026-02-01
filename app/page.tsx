@@ -62,7 +62,7 @@ export default function Home() {
         tag: b.tier_visibility > 0 ? "Premium" : "Nuevo",
         tagEmoji: b.tier_visibility > 0 ? "⭐" : "🔥",
         tagColor: b.tier_visibility > 0 ? "bg-indigo-600" : "bg-orange-600",
-        coverColor: b.cover_color || (Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100'),
+        coverColor: Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100',
         tier_visibility: b.tier_visibility
       };
     });
@@ -73,7 +73,7 @@ export default function Home() {
 
     const executeFetch = async () => {
       // Columnas mínimas para BeatCard
-      const columns = 'id,title,price_mxn,bpm,genre,mp3_url,musical_key,mood,cover_color,tier_visibility,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)';
+      const columns = 'id,title,price_mxn,bpm,genre,mp3_url,musical_key,mood,tier_visibility,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)';
 
       const fetchSection = async (orderByField: string, limit: number) => {
         try {
@@ -129,7 +129,7 @@ export default function Home() {
           const followingIds = follows.map(f => f.following_id);
           const { data: followedData } = await supabase
             .from('beats')
-            .select('id,title,price_mxn,bpm,genre,mp3_url,musical_key,mood,cover_color,tier_visibility,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)')
+            .select('id,title,price_mxn,bpm,genre,mp3_url,musical_key,mood,tier_visibility,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)')
             .in('producer_id', followingIds)
             .order('created_at', { ascending: false })
             .limit(10);
