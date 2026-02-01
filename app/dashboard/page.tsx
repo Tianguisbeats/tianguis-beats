@@ -83,7 +83,8 @@ export default function ProducerDashboard() {
 
             // 1. Subir archivos a Storage
             const timestamp = Date.now();
-            const mp3Path = `${user.id}/${timestamp}-preview-${sanitize(mp3File.name)}`;
+            const username = profile.username;
+            const mp3Path = `${username}/${timestamp}-preview-${sanitize(mp3File.name)}`;
 
             const { error: mp3Error } = await supabase.storage
                 .from('beats-muestras')
@@ -95,9 +96,9 @@ export default function ProducerDashboard() {
             let wavUrl = null;
             let wavPath = null;
             if (wavFile) {
-                wavPath = `${user.id}/${timestamp}-master-${sanitize(wavFile.name)}`;
+                wavPath = `${username}/${timestamp}-master-${sanitize(wavFile.name)}`;
                 const { error: wavError } = await supabase.storage
-                    .from('beats-raw')
+                    .from('beats-wav')
                     .upload(wavPath, wavFile);
                 if (wavError) throw wavError;
             }
@@ -105,9 +106,9 @@ export default function ProducerDashboard() {
             let stemsUrl = null;
             let stemsPath = null;
             if (stemsFile) {
-                stemsPath = `${user.id}/${timestamp}-stems-${sanitize(stemsFile.name)}`;
+                stemsPath = `${username}/${timestamp}-stems-${sanitize(stemsFile.name)}`;
                 const { error: stemsError } = await supabase.storage
-                    .from('beats-raw')
+                    .from('beats-stems')
                     .upload(stemsPath, stemsFile);
                 if (stemsError) throw stemsError;
             }

@@ -63,6 +63,11 @@ export default function Home() {
         price_mxn: b.price_mxn,
         bpm: b.bpm,
         genre: b.genre,
+        cover_url: b.cover_url?.startsWith('http')
+          ? b.cover_url
+          : b.cover_url
+            ? supabase.storage.from('portadas-beats').getPublicUrl(b.cover_url).data.publicUrl
+            : null,
         mp3_url: publicUrl,
         musical_key: b.musical_key,
         mood: b.mood,

@@ -148,6 +148,11 @@ function BeatsPageContent() {
             musical_key: b.musical_key,
             mood: b.mood,
             tag: "Nuevo",
+            cover_url: b.cover_url?.startsWith('http')
+              ? b.cover_url
+              : b.cover_url
+                ? supabase.storage.from('portadas-beats').getPublicUrl(b.cover_url).data.publicUrl
+                : null,
             tagEmoji: "🔥",
             tagColor: "bg-orange-600",
             coverColor: Math.random() > 0.5 ? 'bg-slate-50' : 'bg-slate-100',

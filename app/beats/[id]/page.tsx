@@ -70,7 +70,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     // Resolve Cover Art URL if it's a relative path
                     let finalCoverUrl = data.cover_url;
                     if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
-                        const { data: { publicUrl: coverPUrl } } = supabase.storage.from('artworks').getPublicUrl(finalCoverUrl);
+                        const { data: { publicUrl: coverPUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(finalCoverUrl);
                         finalCoverUrl = coverPUrl;
                     }
 

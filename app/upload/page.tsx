@@ -150,8 +150,8 @@ export default function UploadPage() {
             if (coverFile) {
                 const coverExt = coverFile.name.split('.').pop();
                 const coverPath = `${username}/${timestamp}-cover.${coverExt}`;
-                await supabase.storage.from('artworks').upload(coverPath, coverFile);
-                const { data: { publicUrl } } = supabase.storage.from('artworks').getPublicUrl(coverPath);
+                await supabase.storage.from('portadas-beats').upload(coverPath, coverFile);
+                const { data: { publicUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(coverPath);
                 coverUrl = publicUrl;
             }
 
