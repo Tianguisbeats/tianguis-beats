@@ -15,6 +15,7 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BeatCard from "@/components/BeatCard";
+import BeatRow from "@/components/BeatRow";
 import { Beat } from "@/lib/types";
 import Link from "next/link";
 
@@ -40,6 +41,8 @@ function BeatsPageContent() {
   const [moodFilter, setMoodFilter] = useState<string>("");
   const [bpmFilter, setBpmFilter] = useState<string>("");
   const [keyFilter, setKeyFilter] = useState<string>("");
+  const [scaleFilter, setScaleFilter] = useState<string>("");
+  const [preferencias, setPreferencias] = useState<Beat[]>([]);
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -49,8 +52,9 @@ function BeatsPageContent() {
       genreFilter !== "Todos" ||
       moodFilter !== "" ||
       bpmFilter !== "" ||
-      keyFilter !== "";
-  }, [searchQuery, genreFilter, moodFilter, bpmFilter, keyFilter]);
+      keyFilter !== "" ||
+      scaleFilter !== "";
+  }, [searchQuery, genreFilter, moodFilter, bpmFilter, keyFilter, scaleFilter]);
 
   const handleClearFilters = () => {
     setSearchQuery("");
@@ -58,6 +62,7 @@ function BeatsPageContent() {
     setMoodFilter("");
     setBpmFilter("");
     setKeyFilter("");
+    setScaleFilter("");
     router.push("/beats");
   };
 
@@ -132,6 +137,7 @@ function BeatsPageContent() {
         if (moodFilter) query = query.eq('mood', moodFilter);
         if (bpmFilter) query = query.eq('bpm', parseInt(bpmFilter));
         if (keyFilter) query = query.eq('musical_key', keyFilter);
+        if (scaleFilter) query = query.eq('musical_scale', scaleFilter);
         if (searchQuery.trim()) query = query.or(`title.ilike.%${searchQuery.trim()}%,genre.ilike.%${searchQuery.trim()}%`);
 
         const { data, error } = await query.order("created_at", { ascending: false }).limit(40);
@@ -143,12 +149,16 @@ function BeatsPageContent() {
         // Fetch Playlists only if NOT searching
         if (!isSearching) {
           // Recién Horneado (los 6 más nuevos)
-          const { data: rData } = await supabase.from("beats").select(`id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, created_at, producer:producer_id ( artistic_name, username, is_verified, is_founder, avatar_url, subscription_tier )`).eq("is_public", true).order("created_at", { ascending: false }).limit(6);
+          const { data: rData } = await supabase.from("beats").select(`id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, musical_scale, created_at, producer:producer_id ( artistic_name, username, is_verified, is_founder, avatar_url, subscription_tier )`).eq("is_public", true).order("created_at", { ascending: false }).limit(6);
           if (rData) setRecientes(await Promise.all(rData.map(transformBeat)));
 
-          // Tendencias (Random limit 6 for now or based on some metric)
-          const { data: tData } = await supabase.from("beats").select(`id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, created_at, producer:producer_id ( artistic_name, username, is_verified, is_founder, avatar_url, subscription_tier )`).eq("is_public", true).limit(6);
+          // Tendencias (basado en likes/plays)
+          const { data: tData } = await supabase.from("beats").select(`id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, musical_scale, created_at, producer:producer_id ( artistic_name, username, is_verified, is_founder, avatar_url, subscription_tier )`).eq("is_public", true).order("play_count", { ascending: false }).limit(6);
           if (tData) setTendencias(await Promise.all(tData.map(transformBeat)));
+
+          // Basado en tus preferencias (Random/Recientes por ahora o simulación)
+          const { data: pData } = await supabase.from("beats").select(`id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, musical_scale, created_at, producer:producer_id ( artistic_name, username, is_verified, is_founder, avatar_url, subscription_tier )`).eq("is_public", true).limit(6);
+          if (pData) setPreferencias(await Promise.all(pData.map(transformBeat)));
         }
 
       } catch (err) {
@@ -161,7 +171,7 @@ function BeatsPageContent() {
 
     load();
     return () => { cancel = true; };
-  }, [genreFilter, moodFilter, bpmFilter, keyFilter, searchQuery, isSearching]);
+  }, [genreFilter, moodFilter, bpmFilter, keyFilter, scaleFilter, searchQuery, isSearching]);
 
   useEffect(() => {
     async function loadProducers() {
@@ -276,29 +286,29 @@ function BeatsPageContent() {
                   />
                 </div>
 
-                <div className="hidden md:block w-[2px] h-10 bg-slate-100"></div>
+                <div className="hidden md:block w-[2px] h-10 bg-slate-100 mx-4"></div>
 
                 {/* Filters Row */}
-                <div className="flex items-center gap-2 px-4 w-full md:w-auto overflow-x-auto no-scrollbar pb-2 md:pb-0">
+                <div className="flex flex-wrap items-center gap-3 px-4 w-full md:w-auto overflow-x-auto no-scrollbar pb-2 md:pb-0">
                   {/* Genre */}
                   <div className="relative group">
                     <select
                       value={genreFilter}
                       onChange={(e) => setGenreFilter(e.target.value)}
-                      className="appearance-none bg-slate-50 hover:bg-slate-100 text-slate-900 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer min-w-[120px] pr-10"
+                      className="appearance-none bg-green-50/50 hover:bg-green-100/50 text-green-700 border border-green-100/50 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer min-w-[130px] pr-10"
                     >
                       {genres.map((g) => (
                         <option key={g} value={g}>{g === 'Todos' ? 'Género' : g}</option>
                       ))}
                     </select>
-                    <SlidersHorizontal size={12} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    <SlidersHorizontal size={12} className="absolute right-4 top-1/2 -translate-y-1/2 text-green-400 pointer-events-none" />
                   </div>
 
                   {/* BPM */}
                   <select
                     value={bpmFilter}
                     onChange={(e) => setBpmFilter(e.target.value)}
-                    className="appearance-none bg-slate-50 hover:bg-slate-100 text-slate-900 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer min-w-[100px]"
+                    className="appearance-none bg-amber-50/50 hover:bg-amber-100/50 text-amber-700 border border-amber-100/50 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer min-w-[110px]"
                   >
                     <option value="">BPM</option>
                     {[80, 90, 100, 110, 120, 130, 140, 150, 160, 170].map(val => (
@@ -306,19 +316,31 @@ function BeatsPageContent() {
                     ))}
                   </select>
 
-                  {/* Key / Escala */}
+                  {/* Key */}
                   <select
                     value={keyFilter}
                     onChange={(e) => setKeyFilter(e.target.value)}
-                    className="appearance-none bg-slate-50 hover:bg-slate-100 text-slate-900 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer min-w-[110px]"
+                    className="appearance-none bg-blue-50/50 hover:bg-blue-100/50 text-blue-700 border border-blue-100/50 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer min-w-[110px]"
                   >
-                    <option value="">Escala / Key</option>
-                    {['C', 'Cm', 'C#', 'C#m', 'D', 'Dm', 'D#', 'D#m', 'E', 'Em', 'F', 'Fm', 'F#', 'F#m', 'G', 'Gm', 'G#', 'G#m', 'A', 'Am', 'A#', 'A#m', 'B', 'Bm'].map(k => (
+                    <option value="">Tonalidad</option>
+                    {['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map(k => (
                       <option key={k} value={k}>{k}</option>
                     ))}
                   </select>
 
-                  {(genreFilter !== "Todos" || moodFilter || bpmFilter || keyFilter || searchQuery) && (
+                  {/* Escala */}
+                  <select
+                    value={scaleFilter}
+                    onChange={(e) => setScaleFilter(e.target.value)}
+                    className="appearance-none bg-purple-50/50 hover:bg-purple-100/50 text-purple-700 border border-purple-100/50 px-6 py-3 rounded-2xl outline-none font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer min-w-[110px]"
+                  >
+                    <option value="">Escala</option>
+                    {['Mayor', 'Menor', 'Dórica', 'Frigia', 'Lidia', 'Mixolidia', 'Eolia', 'Locria'].map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+
+                  {(genreFilter !== "Todos" || moodFilter || bpmFilter || keyFilter || scaleFilter || searchQuery) && (
                     <button
                       onClick={handleClearFilters}
                       className="p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-95 shrink-0"
@@ -336,12 +358,29 @@ function BeatsPageContent() {
             </div>
           </div>
 
+          {!isSearching && preferencias.length > 0 && (
+            <div className="mb-24">
+              <div className="flex items-center justify-between mb-10">
+                <h2 className="text-4xl font-black uppercase tracking-tighter flex items-center gap-4 text-slate-900">
+                  Basado en tus preferencias
+                  <span className="w-10 h-10 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-xl">✨</span>
+                </h2>
+                <div className="h-[1px] flex-1 bg-slate-100 ml-8"></div>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                {preferencias.map((beat) => (
+                  <BeatCard key={beat.id} beat={beat} />
+                ))}
+              </div>
+            </div>
+          )}
+
           {!isSearching && recientes.length > 0 && (
             <div className="mb-24">
               <div className="flex items-center justify-between mb-10">
-                <h2 className="text-3xl font-black uppercase tracking-tight flex items-center gap-4">
-                  <span className="w-10 h-10 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center text-xl">🔥</span>
+                <h2 className="text-4xl font-black uppercase tracking-tighter flex items-center gap-4 text-slate-900">
                   Recién Horneados
+                  <span className="w-10 h-10 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center text-xl">🔥</span>
                 </h2>
                 <div className="h-[1px] flex-1 bg-slate-100 ml-8"></div>
               </div>
@@ -356,9 +395,9 @@ function BeatsPageContent() {
           {!isSearching && tendencias.length > 0 && (
             <div className="mb-24">
               <div className="flex items-center justify-between mb-10">
-                <h2 className="text-3xl font-black uppercase tracking-tight flex items-center gap-4">
-                  <span className="w-10 h-10 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-xl">📈</span>
+                <h2 className="text-4xl font-black uppercase tracking-tighter flex items-center gap-4 text-slate-900">
                   Tendencias
+                  <span className="w-10 h-10 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-xl">📈</span>
                 </h2>
                 <div className="h-[1px] flex-1 bg-slate-100 ml-8"></div>
               </div>
@@ -371,8 +410,8 @@ function BeatsPageContent() {
           )}
 
           <div className="mb-12">
-            <h3 className="text-xl font-black uppercase tracking-widest text-slate-400 mb-8 flex items-center gap-4">
-              {isSearching ? "Resultados de Búsqueda" : "Explora todo el Catálogo"}
+            <h3 className="text-3xl font-black uppercase tracking-tighter text-slate-900 mb-12 flex items-center gap-4">
+              {isSearching ? "Resultados de Búsqueda" : "Todo el Catálogo"}
               <div className="h-[1px] flex-1 bg-slate-100"></div>
             </h3>
 
@@ -383,15 +422,15 @@ function BeatsPageContent() {
             )}
 
             {loading ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 animate-pulse">
-                {[...Array(10)].map((_, i) => (
-                  <div key={i} className="aspect-square bg-slate-100 rounded-[2.5rem]"></div>
+              <div className="space-y-4 animate-pulse">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="h-24 bg-slate-100 rounded-3xl"></div>
                 ))}
               </div>
             ) : beats.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+              <div className="space-y-4">
                 {beats.map((beat) => (
-                  <BeatCard key={beat.id} beat={beat} />
+                  <BeatRow key={beat.id} beat={beat} />
                 ))}
               </div>
             ) : (

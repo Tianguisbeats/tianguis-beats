@@ -7,11 +7,12 @@ import {
     Share2, MoreHorizontal, Calendar, MapPin,
     Music, Play, Users, Crown, Settings, Camera,
     Edit3, CheckCircle2, Copy, Trash2, Layout,
-    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save, ChevronUp, ChevronDown
+    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save, ChevronUp, ChevronDown, List
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BeatCard from '@/components/BeatCard';
+import BeatRow from '@/components/BeatRow';
 import PlaylistSection from '@/components/PlaylistSection';
 import PlaylistManagerModal from '@/components/PlaylistManagerModal';
 import { usePlayer } from '@/context/PlayerContext';
@@ -628,15 +629,15 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     href={`/${username}/beats`}
                                     className="flex items-center gap-2 px-6 py-3 bg-slate-50 border border-slate-100 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all border-dashed"
                                 >
-                                    Ver Todo <ChevronRight size={14} />
+                                    Ver catálogo completo <ChevronRight size={14} />
                                 </Link>
                             </div>
 
                             {beats.length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                <div className="space-y-4">
                                     {beats.slice(0, 6).map((beat) => (
                                         <div key={beat.id}>
-                                            <BeatCard beat={beat} />
+                                            <BeatRow beat={beat} />
                                         </div>
                                     ))}
                                 </div>

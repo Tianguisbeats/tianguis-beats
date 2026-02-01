@@ -89,7 +89,7 @@ export default function BeatCard({ beat }: BeatCardProps) {
 
             <div className="p-6">
                 <Link href={`/beats/${beat.id}`} className="block">
-                    <h3 className="font-black text-slate-900 text-sm truncate mb-1 group-hover:text-blue-600 transition-colors leading-tight uppercase tracking-tight">
+                    <h3 className="font-black text-slate-900 text-sm truncate mb-1 group-hover:text-blue-600 transition-colors leading-tight uppercase tracking-tight click-highlight">
                         {beat.title || "Sin título"}
                     </h3>
                 </Link>
@@ -107,7 +107,7 @@ export default function BeatCard({ beat }: BeatCardProps) {
                             )}
                         </div>
                         <Link href={`/${beat.producer_username || (typeof beat.producer === 'object' ? beat.producer.username : beat.producer)}`} className="flex items-center gap-1.5 truncate hover:text-blue-600 transition-colors">
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest truncate">
+                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest truncate username-highlight">
                                 {beat.producer_artistic_name || (typeof beat.producer === 'object' ? beat.producer.artistic_name : (beat.producer || "—"))}
                             </p>
                             {(beat.producer_is_verified || (typeof beat.producer === 'object' && beat.producer?.is_verified)) && (
