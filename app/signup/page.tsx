@@ -62,6 +62,21 @@ export default function SignupPage() {
         setLoading(true);
         setError(null);
 
+        // Validar edad (mínimo 18 años)
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+
+        if (age < 18) {
+            setError('Debes ser mayor de 18 años para registrarte en Tianguis Beats.');
+            setLoading(false);
+            return;
+        }
+
         try {
             console.log('Iniciando registro para:', email, username);
 
@@ -93,7 +108,17 @@ export default function SignupPage() {
             setSuccess(true);
         } catch (err: any) {
             console.error('Error capturado en Signup:', err);
-            setError(err.message || 'Error al crear cuenta. Inténtalo de nuevo.');
+
+            let userMessage = err.message || 'Error al crear cuenta. Inténtalo de nuevo.';
+
+            // Traducción de errores comunes de Supabase
+            if (err.message?.includes('email rate limit exceeded')) {
+                userMessage = 'Has intentado registrarte demasiadas veces. Por seguridad, espera unos minutos e intenta de nuevo.';
+            } else if (err.message?.includes('User already registered')) {
+                userMessage = 'Este correo ya está registrado. Intenta iniciar sesión.';
+            }
+
+            setError(userMessage);
         } finally {
             setLoading(false);
         }
