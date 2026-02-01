@@ -1,107 +1,26 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   ChevronRight,
-  Loader2,
   Music,
-  Play,
-  ArrowRight,
-  ShieldCheck,
   Zap,
+  ShieldCheck,
   Globe,
+  Monitor,
+  Cpu,
+  Layers,
+  ArrowRight,
+  Star,
   Plus
 } from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import BeatCard from '@/components/BeatCard';
-import { Beat } from '@/lib/types';
-import { supabase } from '@/lib/supabase';
 
 export default function Home() {
-  const [newBeats, setNewBeats] = useState<Beat[]>([]);
-  const [trendingBeats, setTrendingBeats] = useState<Beat[]>([]);
-  const [topSellers, setTopSellers] = useState<Beat[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-
-  const transformBeatData = async (data: any[]) => {
-    return Promise.all(data.map(async (b: any) => {
-      const path = b.mp3_tag_url || b.mp3_url || '';
-      const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-      let bucket = 'beats-muestras';
-      if (path.includes('-hq-')) bucket = 'beats-mp3-alta-calidad';
-      const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
-
-      let finalCoverUrl = b.portadabeat_url;
-      if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
-        const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(finalCoverUrl);
-        finalCoverUrl = cpUrl;
-      }
-
-      return {
-        id: b.id,
-        title: b.title,
-        producer: b.producer?.artistic_name || 'Productor Anónimo',
-        producer_username: b.producer?.username || b.producer?.artistic_name,
-        producer_is_verified: b.producer?.is_verified,
-        producer_is_founder: b.producer?.is_founder,
-        producer_avatar_url: b.producer?.avatar_url,
-        producer_tier: b.producer?.subscription_tier,
-        price_mxn: b.price_mxn,
-        bpm: b.bpm,
-        genre: b.genre,
-        portadabeat_url: finalCoverUrl,
-        mp3_url: publicUrl,
-        musical_key: b.musical_key,
-        mood: b.mood,
-        tag: "🔥",
-        tagEmoji: "NEW",
-        tagColor: "bg-blue-600",
-        coverColor: 'bg-slate-100',
-        created_at: b.created_at
-      };
-    }));
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const columns = 'id,title,price_mxn,bpm,genre,mp3_url,mp3_tag_url,musical_key,mood,created_at,portadabeat_url,producer:producer_id(artistic_name,username,is_verified,is_founder,avatar_url,subscription_tier)';
-
-      const { data: newData } = await supabase.from('beats').select(columns).eq('is_public', true).order('created_at', { ascending: false }).limit(6);
-      const { data: trendData } = await supabase.from('beats').select(columns).eq('is_public', true).limit(6);
-      const { data: salesData } = await supabase.from('beats').select(columns).eq('is_public', true).limit(6);
-
-      if (newData) setNewBeats(await transformBeatData(newData));
-      if (trendData) setTrendingBeats(await transformBeatData(trendData));
-      if (salesData) setTopSellers(await transformBeatData(salesData));
-
-      setLoading(false);
-    };
-    fetchData();
-  }, []);
-
-  const Section = ({ title, beats, color }: { title: string, beats: Beat[], color: string }) => (
-    <div className="mb-32">
-      <div className="flex items-center justify-between mb-12">
-        <h2 className="text-4xl font-black tracking-tight uppercase text-slate-900">
-          {title}
-        </h2>
-        <Link href="/beats" className="group flex items-center gap-3 text-xs font-black uppercase tracking-widest text-blue-600 hover:text-slate-900 transition-all">
-          Ver Catálogo Completo
-          <div className="w-8 h-[1px] bg-blue-600 group-hover:w-12 transition-all"></div>
-        </Link>
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-        {beats.map((beat) => (
-          <BeatCard key={beat.id} beat={beat} />
-        ))}
-      </div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white overflow-x-hidden">
@@ -116,110 +35,164 @@ export default function Home() {
             alt="Tianguis Beats Studio"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/80 to-slate-900"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-900/70 to-slate-900"></div>
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white text-[10px] font-black uppercase tracking-[0.6em] mb-12 animate-fade-in">
-            <Zap size={14} className="text-blue-400" />
+            <span className="text-lg">🇲🇽</span>
             La Plataforma #1 de México
           </div>
 
-          <h1 className="text-7xl md:text-[10rem] font-black text-white leading-[0.8] tracking-[-0.06em] uppercase mb-12">
-            Eleva tu <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-200 to-white">Sonido.</span>
+          <h1 className="text-7xl md:text-[11rem] font-black text-white leading-[0.75] tracking-[-0.07em] uppercase mb-12">
+            Domina la <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-200 to-white">Escena.</span>
           </h1>
 
-          <div className="max-w-2xl mx-auto mb-16 px-4">
-            <div className="bg-white rounded-[3rem] p-2 flex shadow-2xl shadow-blue-900/40">
+          <div className="max-w-3xl mx-auto mb-16 px-4">
+            <p className="text-white/60 font-medium text-lg md:text-xl mb-10 tracking-tight leading-relaxed">
+              Donde la herencia musical de México se encuentra con <br className="hidden md:block" />
+              la tecnología de audio de última generación.
+            </p>
+
+            <div className="bg-white rounded-[3rem] p-2 flex shadow-2xl shadow-blue-900/40 transform hover:scale-[1.02] transition-all duration-500">
               <input
                 type="text"
-                placeholder="Busca el beat que definirá tu próximo hit..."
-                className="flex-1 bg-transparent border-none pl-8 pr-4 outline-none font-bold text-slate-900"
+                placeholder="Encuentra el sonido que cambiará tu carrera..."
+                className="flex-1 bg-transparent border-none pl-8 pr-4 outline-none font-bold text-slate-900 text-lg placeholder:text-slate-300"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && (window.location.href = `/beats?q=${searchQuery}`)}
               />
               <button
                 onClick={() => window.location.href = `/beats?q=${searchQuery}`}
-                className="bg-blue-600 text-white px-10 py-5 rounded-[2.5rem] font-black uppercase text-[11px] tracking-[0.2em] hover:bg-slate-900 transition-all active:scale-95"
+                className="bg-blue-600 text-white px-10 py-5 rounded-[3rem] font-black uppercase text-[11px] tracking-[0.2em] hover:bg-slate-900 transition-all active:scale-95 shadow-lg shadow-blue-500/20"
               >
-                Explorar
+                Explorar Catálogo
               </button>
             </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-8 mb-20">
-            <div className="flex items-center gap-3 text-white/60 font-bold uppercase tracking-widest text-[9px]">
-              <ShieldCheck size={16} className="text-blue-500" /> Compra Segura
+          <div className="flex flex-wrap justify-center gap-10">
+            <div className="flex items-center gap-3 text-white/40 font-black uppercase tracking-[0.3em] text-[9px]">
+              <ShieldCheck size={16} className="text-blue-500" /> Transacciones Seguras
             </div>
-            <div className="flex items-center gap-3 text-white/60 font-bold uppercase tracking-widest text-[9px]">
-              <Globe size={16} className="text-blue-500" /> Comunidad Global
+            <div className="flex items-center gap-3 text-white/40 font-black uppercase tracking-[0.3em] text-[9px]">
+              <Cpu size={16} className="text-blue-500" /> Inteligencia Musical
             </div>
-            <div className="flex items-center gap-3 text-white/60 font-bold uppercase tracking-widest text-[9px]">
-              <ArrowRight size={16} className="text-blue-500" /> 0% Comisión
+            <div className="flex items-center gap-3 text-white/40 font-black uppercase tracking-[0.3em] text-[9px]">
+              <Star size={16} className="text-blue-500" /> Calidad Premium
             </div>
           </div>
         </div>
 
-        {/* Floating Shapes for polish */}
-        <div className="absolute bottom-10 left-10 w-64 h-64 bg-blue-600/20 blur-[100px] rounded-full"></div>
-        <div className="absolute top-20 right-10 w-96 h-96 bg-blue-400/10 blur-[120px] rounded-full"></div>
+        {/* Floating element at bottom */}
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 text-white/20 animate-bounce">
+          <span className="text-[10px] font-black uppercase tracking-[0.4em]">Scroll</span>
+          <div className="w-[1px] h-12 bg-gradient-to-b from-white/20 to-transparent"></div>
+        </div>
       </section>
 
       {/* Main Content */}
-      <section className="relative -mt-20 bg-white rounded-t-[5rem] pt-32 pb-40 z-20">
+      <section className="relative -mt-24 bg-white rounded-t-[6rem] pt-32 pb-40 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-40 gap-6">
-              <Loader2 className="animate-spin text-blue-600" size={50} />
-              <p className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400">Calibrando el sistema...</p>
-            </div>
-          ) : (
-            <>
-              <Section title="🔥 Recién Horneado" beats={newBeats} color="blue" />
-              <Section title="📈 Tendencias" beats={trendingBeats} color="blue" />
-              <Section title="💰 Lo más Vendido" beats={topSellers} color="blue" />
-            </>
-          )}
+          {/* Features Grid / Technology Showcase */}
+          <div className="grid md:grid-cols-2 gap-20 items-center mb-40">
+            <div>
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-[0.4em] mb-8">
+                Innovación Técnica
+              </div>
+              <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tight text-slate-900 leading-[0.9] mb-10">
+                Tecnología <br /> al servicio <br /> del <span className="text-blue-600">Hit.</span>
+              </h2>
+              <p className="text-slate-500 text-lg font-medium leading-relaxed mb-12 max-w-lg">
+                No somos solo un marketplace. Somos un ecosistema diseñado para potenciar tu proceso creativo con herramientas de grado profesional.
+              </p>
 
-          {/* Value Prop Section */}
-          <div className="mt-40 grid md:grid-cols-3 gap-12">
-            <div className="p-12 rounded-[4rem] bg-slate-50 border border-slate-100 group hover:bg-blue-600 transition-all duration-500">
-              <div className="w-16 h-16 bg-blue-600 text-white rounded-3xl flex items-center justify-center mb-8 group-hover:bg-white group-hover:text-blue-600 transition-all">
-                <Zap size={32} />
+              <div className="space-y-8">
+                <div className="flex gap-6">
+                  <div className="w-14 h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center shrink-0">
+                    <Layers size={24} />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-black uppercase tracking-tight mb-2">Multitrack Stems</h4>
+                    <p className="text-slate-400 text-sm font-medium">Control total sobre tu mezcla con acceso a cada instrumento por separado.</p>
+                  </div>
+                </div>
+                <div className="flex gap-6">
+                  <div className="w-14 h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center shrink-0">
+                    <Monitor size={24} />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-black uppercase tracking-tight mb-2">Smart Dashboard</h4>
+                    <p className="text-slate-400 text-sm font-medium">Gestiona tus licencias, ventas y proyectos desde una interfaz intuitiva.</p>
+                  </div>
+                </div>
               </div>
-              <h4 className="text-2xl font-black uppercase tracking-tight mb-4 group-hover:text-white transition-all">Velocidad Pura</h4>
-              <p className="text-slate-500 font-medium group-hover:text-blue-100 transition-all">Descarga tus archivos instantáneamente después del pago. Sin esperas, sin complicaciones.</p>
             </div>
-            <div className="p-12 rounded-[4rem] bg-slate-50 border border-slate-100 group hover:bg-blue-600 transition-all duration-500">
-              <div className="w-16 h-16 bg-blue-600 text-white rounded-3xl flex items-center justify-center mb-8 group-hover:bg-white group-hover:text-blue-600 transition-all">
-                <Music size={32} />
+
+            <div className="relative">
+              <div className="aspect-square bg-slate-900 rounded-[5rem] overflow-hidden shadow-2xl relative">
+                <div className="absolute inset-x-8 top-12 bottom-12 rounded-[3.5rem] border border-white/10 bg-gradient-to-br from-white/5 to-transparent flex items-center justify-center p-12">
+                  <div className="text-center">
+                    <Music size={100} className="text-blue-500 mx-auto mb-10 opacity-50" />
+                    <div className="h-2 w-48 bg-blue-600/30 rounded-full mx-auto mb-4 overflow-hidden">
+                      <div className="h-full w-2/3 bg-blue-500"></div>
+                    </div>
+                    <div className="h-2 w-32 bg-white/10 rounded-full mx-auto"></div>
+                  </div>
+                </div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.15),transparent_70%)]"></div>
               </div>
-              <h4 className="text-2xl font-black uppercase tracking-tight mb-4 group-hover:text-white transition-all">Calidad de Estudio</h4>
-              <p className="text-slate-500 font-medium group-hover:text-blue-100 transition-all">Acceso a archivos WAV de alta fidelidad y Stems para un control total de tu mezcla.</p>
-            </div>
-            <div className="p-12 rounded-[4rem] bg-slate-50 border border-slate-100 group hover:bg-blue-600 transition-all duration-500">
-              <div className="w-16 h-16 bg-blue-600 text-white rounded-3xl flex items-center justify-center mb-8 group-hover:bg-white group-hover:text-blue-600 transition-all">
-                <ShieldCheck size={32} />
+              {/* Floating badges */}
+              <div className="absolute -top-10 -right-10 bg-white p-8 rounded-[3rem] shadow-2xl border border-slate-50 animate-bounce">
+                <Zap size={32} className="text-blue-600" />
               </div>
-              <h4 className="text-2xl font-black uppercase tracking-tight mb-4 group-hover:text-white transition-all">Tratos Directos</h4>
-              <p className="text-slate-500 font-medium group-hover:text-blue-100 transition-all">Fomenta relaciones directas con productores. Licencias claras y transparentes.</p>
+              <div className="absolute -bottom-6 -left-6 bg-slate-900 p-6 rounded-[2.5rem] shadow-xl text-white flex items-center gap-4">
+                <ShieldCheck size={20} className="text-green-400" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Masterización AI Ready</span>
+              </div>
             </div>
           </div>
 
-          {/* CTA Section */}
-          <div className="mt-40 relative rounded-[5rem] overflow-hidden bg-slate-900 p-20 text-center text-white">
-            <div className="absolute inset-0 opacity-20">
-              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(37,99,235,0.4),transparent)]"></div>
+          {/* New Simplified Value Props */}
+          <div className="grid md:grid-cols-3 gap-8 mb-40">
+            {[
+              { icon: <Globe />, title: "Mercado Global", text: "Vende y compra ritmos en cualquier parte del mundo con tipos de cambio automáticos." },
+              { icon: <ShieldCheck />, title: "Legalidad Total", text: "Contratos generados al instante para proteger tanto al artista como al productor." },
+              { icon: <Zap />, title: "Pago al Instante", text: "Recibe tus ganancias o descarga tus beats sin intermediarios ni retrasos." }
+            ].map((item, idx) => (
+              <div key={idx} className="p-10 rounded-[3.5rem] bg-slate-50 hover:bg-white hover:shadow-2xl hover:shadow-slate-200 transition-all border border-transparent hover:border-slate-100 group">
+                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-8 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                  {item.icon}
+                </div>
+                <h4 className="text-2xl font-black uppercase tracking-tight mb-4">{item.title}</h4>
+                <p className="text-slate-400 text-sm font-medium leading-relaxed">{item.text}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Final Elevated CTA */}
+          <div className="relative rounded-[5.5rem] overflow-hidden bg-slate-900 py-32 px-10 text-center text-white">
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <div className="absolute top-0 right-0 w-[50%] h-full bg-blue-600/10 blur-[150px] -rotate-45 translate-x-1/2"></div>
+              <div className="absolute bottom-0 left-0 w-[50%] h-full bg-blue-400/5 blur-[120px] rotate-12 -translate-x-1/2"></div>
             </div>
-            <div className="relative z-10">
-              <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-8 italic">¿Eres Productor?</h2>
-              <p className="text-blue-300 font-black uppercase tracking-[0.3em] text-[11px] mb-12">Únete a la mayor red de beatmakers de latinoamérica</p>
-              <div className="flex flex-wrap justify-center gap-6">
-                <Link href="/signup" className="px-12 py-5 bg-blue-600 text-white rounded-full font-black uppercase text-[12px] tracking-widest hover:bg-white hover:text-blue-600 transition-all">Empezar a Vender</Link>
-                <Link href="/pricing" className="px-12 py-5 bg-transparent border-2 border-white text-white rounded-full font-black uppercase text-[12px] tracking-widest hover:bg-white hover:text-slate-900 transition-all">Ver Planes</Link>
+
+            <div className="relative z-10 max-w-4xl mx-auto">
+              <span className="text-blue-500 font-black uppercase tracking-[0.5em] text-[10px] mb-10 block">Únete a la Revolución</span>
+              <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter mb-12 leading-[0.85]">
+                Es momento de <br /> <span className="italic">hacer historia.</span>
+              </h2>
+              <div className="flex flex-col sm:flex-row justify-center gap-8 items-center">
+                <Link href="/signup" className="group flex items-center gap-6 px-12 py-6 bg-blue-600 text-white rounded-full font-black uppercase text-[12px] tracking-widest hover:bg-white hover:text-blue-600 transition-all shadow-xl shadow-blue-500/20">
+                  Empezar ahora
+                  <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+                </Link>
+                <div className="flex items-center gap-4 text-white/40 text-[10px] font-black uppercase tracking-widest">
+                  <Plus size={16} /> 5,000 Productores ya están dentro
+                </div>
               </div>
             </div>
           </div>
