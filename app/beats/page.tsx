@@ -33,7 +33,7 @@ function BeatsPageContent() {
   const [tendencias, setTendencias] = useState<Beat[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [featuredProducers, setFeaturedProducers] = useState<Array<{ id: string, username: string, artistic_name: string, avatar_url: string | null, is_verified: boolean, is_founder: boolean, subscription_tier: string }>>([]);
+  const [featuredProducers, setFeaturedProducers] = useState<Array<{ id: string, username: string, artistic_name: string, foto_perfil: string | null, is_verified: boolean, is_founder: boolean, subscription_tier: string }>>([]);
 
   // UI state
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -99,7 +99,7 @@ function BeatsPageContent() {
       producer_username: b.producer?.username || b.producer?.artistic_name,
       producer_is_verified: b.producer?.is_verified,
       producer_is_founder: b.producer?.is_founder,
-      producer_avatar_url: b.producer?.avatar_url,
+      producer_foto_perfil: b.producer?.foto_perfil,
       producer_tier: b.producer?.subscription_tier,
       price_mxn: b.price_mxn,
       bpm: b.bpm,
@@ -129,7 +129,7 @@ function BeatsPageContent() {
           .from("beats")
           .select(`
             id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, created_at,
-            producer:producer_id ( artistic_name, username, is_verified, is_founder, avatar_url, subscription_tier )
+            producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
           `)
           .eq("is_public", true);
 
@@ -149,15 +149,15 @@ function BeatsPageContent() {
         // Fetch Playlists only if NOT searching
         if (!isSearching) {
           // Recién Horneado (los 6 más nuevos)
-          const { data: rData } = await supabase.from("beats").select(`id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, musical_scale, created_at, producer:producer_id ( artistic_name, username, is_verified, is_founder, avatar_url, subscription_tier )`).eq("is_public", true).order("created_at", { ascending: false }).limit(6);
+          const { data: rData } = await supabase.from("beats").select(`id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, musical_scale, created_at, producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )`).eq("is_public", true).order("created_at", { ascending: false }).limit(6);
           if (rData) setRecientes(await Promise.all(rData.map(transformBeat)));
 
           // Tendencias (basado en likes/plays)
-          const { data: tData } = await supabase.from("beats").select(`id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, musical_scale, created_at, producer:producer_id ( artistic_name, username, is_verified, is_founder, avatar_url, subscription_tier )`).eq("is_public", true).order("play_count", { ascending: false }).limit(6);
+          const { data: tData } = await supabase.from("beats").select(`id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, musical_scale, created_at, producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )`).eq("is_public", true).order("play_count", { ascending: false }).limit(6);
           if (tData) setTendencias(await Promise.all(tData.map(transformBeat)));
 
           // Basado en tus preferencias (Random/Recientes por ahora o simulación)
-          const { data: pData } = await supabase.from("beats").select(`id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, musical_scale, created_at, producer:producer_id ( artistic_name, username, is_verified, is_founder, avatar_url, subscription_tier )`).eq("is_public", true).limit(6);
+          const { data: pData } = await supabase.from("beats").select(`id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, musical_scale, created_at, producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )`).eq("is_public", true).limit(6);
           if (pData) setPreferencias(await Promise.all(pData.map(transformBeat)));
         }
 
@@ -177,9 +177,9 @@ function BeatsPageContent() {
     async function loadProducers() {
       const { data } = await supabase
         .from('profiles')
-        .select('id, username, artistic_name, avatar_url, is_verified, is_founder, subscription_tier')
+        .select('id, username, artistic_name, foto_perfil, is_verified, is_founder, subscription_tier')
         .or('is_verified.eq.true,role.eq.producer')
-        .neq('avatar_url', null)
+        .neq('foto_perfil', null)
         .limit(10);
 
       if (data) {
@@ -225,7 +225,7 @@ function BeatsPageContent() {
                     <div className={`w-20 h-20 md:w-28 md:h-28 rounded-[3rem] overflow-hidden border-2 transition-all duration-500 transform group-hover:-translate-y-3 shadow-sm ${producer.subscription_tier === 'premium' ? 'border-blue-600/30 group-hover:border-blue-600 shadow-blue-500/5' :
                       producer.subscription_tier === 'pro' ? 'border-amber-400/30 group-hover:border-amber-400 shadow-amber-400/5' : 'border-slate-100 group-hover:border-slate-300'
                       }`}>
-                      <img src={producer.avatar_url || ''} alt={producer.artistic_name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <img src={producer.foto_perfil || ''} alt={producer.artistic_name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </div>
 

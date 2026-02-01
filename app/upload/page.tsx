@@ -97,7 +97,7 @@ export default function UploadPage() {
 
             const { data: profile } = await supabase
                 .from('profiles')
-                .select('id, username, artistic_name, subscription_tier, portada_perfil_url')
+                .select('id, username, artistic_name, subscription_tier, portada_perfil')
                 .eq('id', session.user.id)
                 .single();
             setUserData(profile);

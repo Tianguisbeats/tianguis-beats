@@ -78,7 +78,7 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                             portadabeat_url: finalCoverUrl,
                             producer_username: profileData.username,
                             producer_artistic_name: profileData.artistic_name,
-                            producer_avatar_url: profileData.avatar_url,
+                            producer_foto_perfil: profileData.foto_perfil,
                             producer_is_verified: profileData.is_verified,
                             producer_is_founder: profileData.is_founder,
                             producer_tier: profileData.subscription_tier
@@ -163,8 +163,8 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                             {/* Producer Identity */}
                             <div className="relative shrink-0">
                                 <div className={`w-48 h-48 rounded-[3rem] border-4 overflow-hidden shadow-2xl ${profile.subscription_tier === 'premium' ? 'border-blue-500' : 'border-white/10'}`}>
-                                    {profile.avatar_url ? (
-                                        <img src={profile.avatar_url} className="w-full h-full object-cover" alt="Avatar" />
+                                    {profile.foto_perfil ? (
+                                        <img src={profile.foto_perfil} className="w-full h-full object-cover" alt="Avatar" />
                                     ) : (
                                         <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500"><Music size={64} /></div>
                                     )}
