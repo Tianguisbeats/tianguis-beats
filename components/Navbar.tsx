@@ -89,20 +89,21 @@ export default function Navbar() {
                             </div>
 
                             <div className="flex items-center gap-6">
-                                <Link href="/cart" className="relative p-2 text-slate-400 hover:text-blue-600 transition-colors group">
-                                    <ShoppingCart size={22} strokeWidth={2.5} />
-                                    {itemCount > 0 && (
-                                        <span className="absolute top-0 right-0 bg-blue-600 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-lg animate-in fade-in zoom-in duration-300">
-                                            {itemCount}
-                                        </span>
-                                    )}
-                                </Link>
 
                                 {user ? (
                                     <div className="flex items-center gap-6">
 
                                         <Link href="/upload" className="bg-blue-600 text-white px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 transition-all shadow-lg shadow-blue-600/20 transform hover:-translate-y-0.5">
                                             Sube tu Beat
+                                        </Link>
+
+                                        <Link href="/cart" className="relative p-2 text-slate-400 hover:text-blue-600 transition-colors group">
+                                            <ShoppingCart size={22} strokeWidth={2.5} />
+                                            {itemCount > 0 && (
+                                                <span className="absolute top-0 right-0 bg-blue-600 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-lg animate-in fade-in zoom-in duration-300">
+                                                    {itemCount}
+                                                </span>
+                                            )}
                                         </Link>
 
                                         <div className="flex items-center gap-4 border-l border-slate-100 pl-6">
@@ -146,6 +147,14 @@ export default function Navbar() {
                                     </div>
                                 ) : (
                                     <>
+                                        <Link href="/cart" className="relative p-2 text-slate-400 hover:text-blue-600 transition-colors group mr-2">
+                                            <ShoppingCart size={22} strokeWidth={2.5} />
+                                            {itemCount > 0 && (
+                                                <span className="absolute top-0 right-0 bg-blue-600 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-lg animate-in fade-in zoom-in duration-300">
+                                                    {itemCount}
+                                                </span>
+                                            )}
+                                        </Link>
                                         <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 border-2 border-slate-900 px-5 py-2 rounded-full hover:bg-slate-50 transition-all">
                                             Log In
                                         </Link>
