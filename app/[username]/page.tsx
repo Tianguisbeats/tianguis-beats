@@ -91,8 +91,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         const path = b.mp3_url || '';
                         const encodedPath = path.split('/').map(s => encodeURIComponent(s)).join('/');
 
+                        const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+
                         const { data: { publicUrl } } = supabase.storage
-                            .from('beats-muestras')
+                            .from(bucket)
                             .getPublicUrl(encodedPath);
 
                         return { ...b, mp3_url: publicUrl };

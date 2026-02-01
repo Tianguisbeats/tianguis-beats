@@ -127,8 +127,10 @@ function BeatsPageContent() {
           const path = b.mp3_url || '';
           const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
 
+          const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+
           const { data: { publicUrl } } = supabase.storage
-            .from('beats-muestras')
+            .from(bucket)
             .getPublicUrl(encodedPath);
 
           return {

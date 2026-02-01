@@ -86,7 +86,7 @@ export default function ProducerDashboard() {
             const mp3Path = `${user.id}/${timestamp}-preview-${sanitize(mp3File.name)}`;
 
             const { error: mp3Error } = await supabase.storage
-                .from('beats-previews')
+                .from('beats-muestras')
                 .upload(mp3Path, mp3File);
 
             if (mp3Error) throw mp3Error;

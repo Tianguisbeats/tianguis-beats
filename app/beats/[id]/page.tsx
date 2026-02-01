@@ -64,8 +64,10 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     const path = data.mp3_url || '';
                     const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
 
+                    const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+
                     const { data: { publicUrl } } = supabase.storage
-                        .from('beats-muestras')
+                        .from(bucket)
                         .getPublicUrl(encodedPath);
 
                     // Supabase might return producer as an object or array depending on the relationship config
