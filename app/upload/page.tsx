@@ -128,8 +128,8 @@ export default function UploadPage() {
             return;
         }
 
-        if (!title || !genre || !bpm || !musicalKey || !previewFile || !hqMp3File || !coverFile) {
-            setError("Por favor completa los campos y archivos obligatorios.");
+        if (!title || !genre || !bpm || !musicalKey || !previewFile || !coverFile) {
+            setError("Por favor completa los campos y el MP3 de Muestra (Obligatorio).");
             return;
         }
         const { data: { user } } = await supabase.auth.getUser();
@@ -168,8 +168,11 @@ export default function UploadPage() {
 
             // Beats-maestros divididos por formato
             // HQ MP3 (Max 50MB)
-            const hqPath = `${username}/${timestamp}-hq-${sanitize(hqMp3File.name)}`;
-            await supabase.storage.from('beats-mp3-alta-calidad').upload(hqPath, hqMp3File);
+            let hqPath = null;
+            if (hqMp3File) {
+                hqPath = `${username}/${timestamp}-hq-${sanitize(hqMp3File.name)}`;
+                await supabase.storage.from('beats-mp3-alta-calidad').upload(hqPath, hqMp3File);
+            }
 
             let wavPath = null;
             if (wavFile && userData.subscription_tier !== 'free') {
@@ -219,6 +222,7 @@ export default function UploadPage() {
 
     if (!userData) return null;
     const isFree = userData.subscription_tier === 'free';
+    const isPro = userData.subscription_tier === 'pro';
     const isPremium = userData.subscription_tier === 'premium';
 
     return (
@@ -421,7 +425,35 @@ export default function UploadPage() {
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">MP3 Tag (Muestra)</span>
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Preview Público</span>
+                                                <span className="text-[9px] font-bold text-blue-500 uppercase tracking-widest">Obligatorio (Preview)</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <input
+                                                type="file"
+                                                accept=".mp3"
+                                                onChange={(e) => {
+                                                    const file = validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 Tagged', 20);
+                                                    setPreviewFile(file);
+                                                    if (!file) e.target.value = '';
+                                                }}
+                                                className="hidden"
+                                                id="preview-file"
+                                            />
+                                            <label htmlFor="preview-file" className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 text-center truncate max-w-[200px]">
+                                                {previewFile ? previewFile.name : 'Seleccionar MP3 (Muestra)'}
+                                            </label>
+                                            {previewFile && <CheckCircle2 size={16} className="text-green-500" />}
+                                        </div>
+                                        <p className="text-[8px] font-black text-slate-400 uppercase">Este archivo se usa para la reproducción pública</p>
+                                    </div>
+
+                                    {/* MP3 320 KBPS (High Quality) */}
+                                    <div className="flex flex-col gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">MP3 320 KBPS</span>
+                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">(High Quality)</span>
                                             </div>
                                             <div className="flex items-center gap-2 bg-white rounded-lg px-2 py-1.5 border border-slate-200">
                                                 <span className="text-[10px] font-black text-slate-400">$</span>
@@ -438,32 +470,6 @@ export default function UploadPage() {
                                                 type="file"
                                                 accept=".mp3"
                                                 onChange={(e) => {
-                                                    const file = validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 Tagged', 20);
-                                                    setPreviewFile(file);
-                                                    if (!file) e.target.value = '';
-                                                }}
-                                                className="hidden"
-                                                id="preview-file"
-                                            />
-                                            <label htmlFor="preview-file" className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 text-center">
-                                                {previewFile ? 'Cambiar MP3' : 'Seleccionar MP3 (Muestra)'}
-                                            </label>
-                                            {previewFile && <CheckCircle2 size={16} className="text-green-500" />}
-                                        </div>
-                                        <p className="text-[8px] font-black text-slate-300 uppercase">Solo subir archivo MP3</p>
-                                    </div>
-
-                                    {/* 320kbps Master */}
-                                    <div className="flex flex-col gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">320kbps Master</span>
-                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Sin Voz (HQ)</span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <input
-                                                type="file"
-                                                accept=".mp3"
-                                                onChange={(e) => {
                                                     const file = validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 High Quality', 50);
                                                     setHqMp3File(file);
                                                     if (!file) e.target.value = '';
@@ -471,94 +477,112 @@ export default function UploadPage() {
                                                 className="hidden"
                                                 id="hq-file"
                                             />
-                                            <label htmlFor="hq-file" className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 text-center">
-                                                {hqMp3File ? 'Cambiar' : 'Seleccionar MP3 (HQ)'}
+                                            <label htmlFor="hq-file" className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 text-center truncate max-w-[200px]">
+                                                {hqMp3File ? hqMp3File.name : 'Seleccionar MP3 (HQ)'}
                                             </label>
                                             {hqMp3File && <CheckCircle2 size={16} className="text-green-500" />}
                                         </div>
-                                        <p className="text-[8px] font-black text-slate-300 uppercase">Solo subir archivo MP3</p>
+                                        <p className="text-[8px] font-black text-slate-300 uppercase">Opcional para todos los planes</p>
                                     </div>
 
                                     {/* WAV + Precio */}
-                                    <div className={`flex flex-col gap-4 p-5 rounded-2xl border transition-all ${isFree ? 'bg-slate-100/50 border-slate-100 grayscale' : 'bg-slate-50 border-slate-100'}`}>
+                                    <div className={`flex flex-col gap-4 p-5 rounded-2xl border transition-all ${isFree ? 'bg-slate-100/50 border-slate-100' : 'bg-slate-50 border-slate-100'}`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">Archivo WAV</span>
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isFree ? 'text-slate-400' : 'text-slate-900'}`}>Archivo WAV</span>
                                                     {isFree && <Lock size={12} className="text-slate-400" />}
                                                 </div>
                                                 <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Alta Fidelidad</span>
                                             </div>
-                                            <div className={`flex items-center rounded-lg px-2 py-1.5 border ${isFree ? 'bg-slate-100 border-slate-100' : 'bg-white border-slate-200'}`}>
-                                                <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
-                                                <input
-                                                    type="number"
-                                                    disabled={isFree}
-                                                    value={wavPrice}
-                                                    onChange={(e) => setWavPrice(e.target.value)}
-                                                    className="w-10 text-[10px] font-black outline-none text-slate-900 bg-transparent"
-                                                />
+                                            <div className="flex items-center gap-2">
+                                                {isFree && (
+                                                    <Link href="/pricing" className="text-[8px] font-black text-blue-600 border border-blue-200 px-2 py-1 rounded-full uppercase hover:bg-blue-600 hover:text-white transition-all">
+                                                        Mejorar a Pro
+                                                    </Link>
+                                                )}
+                                                <div className={`flex items-center rounded-lg px-2 py-1.5 border ${isFree ? 'bg-slate-100 border-slate-100' : 'bg-white border-slate-200'}`}>
+                                                    <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
+                                                    <input
+                                                        type="number"
+                                                        disabled={isFree}
+                                                        value={wavPrice}
+                                                        onChange={(e) => setWavPrice(e.target.value)}
+                                                        className="w-10 text-[10px] font-black outline-none text-slate-900 bg-transparent"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3">
-                                            <input
-                                                type="file"
-                                                accept=".wav"
-                                                onChange={(e) => {
-                                                    const file = validateFile(e.target.files?.[0] || null, ['wav'], 'Archivo WAV', 200);
-                                                    setWavFile(file);
-                                                    if (!file) e.target.value = '';
-                                                }}
-                                                className="hidden"
-                                                id="wav-file"
-                                            />
-                                            <label htmlFor="wav-file" className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 text-center">
-                                                {wavFile ? 'Cambiar' : 'Seleccionar WAV'}
-                                            </label>
-                                            {wavFile && <CheckCircle2 size={16} className="text-green-500" />}
-                                        </div>
-                                        <p className="text-[8px] font-black text-slate-300 uppercase">Solo subir archivo WAV</p>
+                                        {!isFree && (
+                                            <div className="flex items-center gap-3">
+                                                <input
+                                                    type="file"
+                                                    accept=".wav"
+                                                    onChange={(e) => {
+                                                        const file = validateFile(e.target.files?.[0] || null, ['wav'], 'Archivo WAV', 200);
+                                                        setWavFile(file);
+                                                        if (!file) e.target.value = '';
+                                                    }}
+                                                    className="hidden"
+                                                    id="wav-file"
+                                                />
+                                                <label htmlFor="wav-file" className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 text-center truncate max-w-[200px]">
+                                                    {wavFile ? wavFile.name : 'Seleccionar WAV'}
+                                                </label>
+                                                {wavFile && <CheckCircle2 size={16} className="text-green-500" />}
+                                            </div>
+                                        )}
+                                        <p className="text-[8px] font-black text-slate-300 uppercase">Solo disponible en planes Pro y Premium</p>
                                     </div>
 
                                     {/* Stems + Precio */}
-                                    <div className={`flex flex-col gap-4 p-5 rounded-2xl border transition-all ${!isPremium ? 'bg-slate-100/50 border-slate-100 grayscale' : 'bg-slate-50 border-slate-100'}`}>
+                                    <div className={`flex flex-col gap-4 p-5 rounded-2xl border transition-all ${!isPremium ? 'bg-slate-100/50 border-slate-100' : 'bg-slate-50 border-slate-100'}`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">Stems</span>
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${!isPremium ? 'text-slate-400' : 'text-slate-900'}`}>Stems</span>
                                                     {!isPremium && <Lock size={12} className="text-slate-400" />}
                                                 </div>
                                                 <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Pistas separadas</span>
                                             </div>
-                                            <div className={`flex items-center rounded-lg px-2 py-1.5 border ${!isPremium ? 'bg-slate-100 border-slate-100' : 'bg-white border-slate-200'}`}>
-                                                <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
-                                                <input
-                                                    type="number"
-                                                    disabled={!isPremium}
-                                                    value={stemsPrice}
-                                                    onChange={(e) => setStemsPrice(e.target.value)}
-                                                    className="w-10 text-[10px] font-black outline-none text-slate-900 bg-transparent"
-                                                />
+                                            <div className="flex items-center gap-2">
+                                                {!isPremium && (
+                                                    <Link href="/pricing" className="text-[8px] font-black text-blue-600 border border-blue-200 px-2 py-1 rounded-full uppercase hover:bg-blue-600 hover:text-white transition-all">
+                                                        {isFree ? 'Mejorar a Premium' : 'Mejorar a Premium'}
+                                                    </Link>
+                                                )}
+                                                <div className={`flex items-center rounded-lg px-2 py-1.5 border ${!isPremium ? 'bg-slate-100 border-slate-100' : 'bg-white border-slate-200'}`}>
+                                                    <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
+                                                    <input
+                                                        type="number"
+                                                        disabled={!isPremium}
+                                                        value={stemsPrice}
+                                                        onChange={(e) => setStemsPrice(e.target.value)}
+                                                        className="w-10 text-[10px] font-black outline-none text-slate-900 bg-transparent"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3">
-                                            <input
-                                                type="file"
-                                                accept=".zip,.rar"
-                                                onChange={(e) => {
-                                                    const file = validateFile(e.target.files?.[0] || null, ['zip', 'rar'], 'Stems (.ZIP)', 500);
-                                                    setStemsFile(file);
-                                                    if (!file) e.target.value = '';
-                                                }}
-                                                className="hidden"
-                                                id="stems-file"
-                                            />
-                                            <label htmlFor="stems-file" className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 text-center">
-                                                {stemsFile ? 'Cambiar' : 'Seleccionar Stems'}
-                                            </label>
-                                            {stemsFile && <CheckCircle2 size={16} className="text-green-500" />}
-                                        </div>
-                                        <p className="text-[8px] font-black text-slate-300 uppercase">Solo subir archivo RAR o ZIP</p>
+                                        {isPremium && (
+                                            <div className="flex items-center gap-3">
+                                                <input
+                                                    type="file"
+                                                    accept=".zip,.rar"
+                                                    onChange={(e) => {
+                                                        const file = validateFile(e.target.files?.[0] || null, ['zip', 'rar'], 'Stems (.ZIP)', 500);
+                                                        setStemsFile(file);
+                                                        if (!file) e.target.value = '';
+                                                    }}
+                                                    className="hidden"
+                                                    id="stems-file"
+                                                />
+                                                <label htmlFor="stems-file" className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-50 text-center truncate max-w-[200px]">
+                                                    {stemsFile ? stemsFile.name : 'Seleccionar Stems'}
+                                                </label>
+                                                {stemsFile && <CheckCircle2 size={16} className="text-green-500" />}
+                                            </div>
+                                        )}
+                                        <p className="text-[8px] font-black text-slate-300 uppercase">Solo disponible en plan Premium</p>
                                     </div>
                                 </div>
 
@@ -572,20 +596,27 @@ export default function UploadPage() {
                                             </div>
                                             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Retiro total de la tienda</span>
                                         </div>
-                                        <div className={`flex items-center rounded-lg px-3 py-2 border ${!isPremium ? 'bg-slate-100' : 'bg-white border-slate-200'}`}>
-                                            <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
-                                            <input
-                                                type="number"
-                                                disabled={!isPremium}
-                                                value={exclusivePrice}
-                                                onChange={(e) => {
-                                                    const val = e.target.value;
-                                                    setExclusivePrice(val);
-                                                    setIsExclusive(val !== '' && parseInt(val) > 0);
-                                                }}
-                                                className="w-16 text-xs font-black outline-none bg-transparent"
-                                                placeholder="0"
-                                            />
+                                        <div className="flex items-center gap-2">
+                                            {!isPremium && (
+                                                <Link href="/pricing" className="text-[8px] font-black text-blue-600 border border-blue-200 px-2 py-1 rounded-full uppercase hover:bg-blue-600 hover:text-white transition-all">
+                                                    Mejorar a Premium
+                                                </Link>
+                                            )}
+                                            <div className={`flex items-center rounded-lg px-3 py-2 border ${!isPremium ? 'bg-slate-100' : 'bg-white border-slate-200'}`}>
+                                                <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
+                                                <input
+                                                    type="number"
+                                                    disabled={!isPremium}
+                                                    value={exclusivePrice}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setExclusivePrice(val);
+                                                        setIsExclusive(val !== '' && parseInt(val) > 0);
+                                                    }}
+                                                    className="w-16 text-xs font-black outline-none bg-transparent"
+                                                    placeholder="0"
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
