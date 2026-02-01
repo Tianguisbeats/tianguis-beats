@@ -42,6 +42,9 @@ export interface Beat {
     producer?: {
         artistic_name: string;
         username?: string;
+        avatar_url?: string;
+        is_verified?: boolean;
+        is_founder?: boolean;
     } | string;
     title: string;
     genre?: string | null;
@@ -80,6 +83,7 @@ export interface Beat {
     producer_is_verified?: boolean;
     producer_is_founder?: boolean;
     producer_username?: string | null;
+    producer_artistic_name?: string | null;
     tag?: string | null;
     tagEmoji?: string | null;
     tagColor?: string;

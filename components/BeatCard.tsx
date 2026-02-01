@@ -97,8 +97,8 @@ export default function BeatCard({ beat }: BeatCardProps) {
                         <div className={`w-6 h-6 rounded-lg overflow-hidden border transition-all ${beat.producer_tier === 'premium' ? 'border-blue-600 shadow-sm' :
                             beat.producer_tier === 'pro' ? 'border-amber-400' : 'border-slate-200'
                             }`}>
-                            {beat.producer_avatar_url ? (
-                                <img src={beat.producer_avatar_url} className="w-full h-full object-cover" alt="Producer" />
+                            {(beat.producer_avatar_url || (typeof beat.producer === 'object' && beat.producer?.avatar_url)) ? (
+                                <img src={beat.producer_avatar_url || (typeof beat.producer === 'object' ? beat.producer.avatar_url : '')} className="w-full h-full object-cover" alt="Producer" />
                             ) : (
                                 <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300">
                                     <Music size={10} />
@@ -107,12 +107,12 @@ export default function BeatCard({ beat }: BeatCardProps) {
                         </div>
                         <Link href={`/${beat.producer_username || (typeof beat.producer === 'object' ? beat.producer.username : beat.producer)}`} className="flex items-center gap-1.5 truncate hover:text-blue-600 transition-colors">
                             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest truncate">
-                                {typeof beat.producer === 'object' ? beat.producer.artistic_name : (beat.producer || "—")}
+                                {beat.producer_artistic_name || (typeof beat.producer === 'object' ? beat.producer.artistic_name : (beat.producer || "—"))}
                             </p>
-                            {beat.producer_is_verified && (
+                            {(beat.producer_is_verified || (typeof beat.producer === 'object' && beat.producer?.is_verified)) && (
                                 <img src="/verified-badge.png" className="w-2.5 h-2.5 object-contain" alt="Verificado" />
                             )}
-                            {beat.producer_is_founder && (
+                            {(beat.producer_is_founder || (typeof beat.producer === 'object' && beat.producer?.is_founder)) && (
                                 <Crown size={10} className="text-yellow-400" fill="currentColor" />
                             )}
                         </Link>
