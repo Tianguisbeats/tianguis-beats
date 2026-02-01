@@ -121,12 +121,17 @@ export default function BeatCard({ beat }: BeatCardProps) {
 
                 {/* Etiquetas Enriquecidas */}
                 <div className="flex flex-wrap gap-2 mb-5">
+                    {beat.genre && (
+                        <span className="text-[8px] font-black text-green-600 bg-green-50 px-2 py-1 rounded-md border border-green-100 uppercase tracking-widest">
+                            {beat.genre}
+                        </span>
+                    )}
                     <span className="text-[8px] font-black text-slate-500 bg-slate-50 px-2 py-1 rounded-md border border-slate-100 uppercase tracking-widest">
                         {beat.bpm || "—"} BPM
                     </span>
                     {beat.musical_key && (
                         <span className="text-[8px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md border border-blue-100 uppercase tracking-widest">
-                            Key: {beat.musical_key}
+                            {beat.musical_key}
                         </span>
                     )}
                     {beat.musical_scale && (

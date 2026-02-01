@@ -7,7 +7,7 @@ import {
     Share2, MoreHorizontal, Calendar, MapPin,
     Music, Play, Users, Crown, Settings, Camera,
     Edit3, CheckCircle2, Copy, Trash2, Layout,
-    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus
+    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -60,6 +60,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     const [saving, setSaving] = useState(false);
     const [isAdjustingCover, setIsAdjustingCover] = useState(false);
     const [tempOffset, setTempOffset] = useState(50);
+    const [isReordering, setIsReordering] = useState(false);
 
     const { playBeat, currentBeat, isPlaying } = usePlayer();
 
@@ -182,6 +183,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             id: pl.id,
                             name: pl.name,
                             description: pl.description,
+                            order_index: pl.order_index,
                             beats: transformedPLBeats
                         };
                     }));
@@ -644,20 +646,82 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 </div>
                             )}
 
-                            {/* Nueva Playlist (Solo Dueño) - AHORA AQUÍ ABAJO */}
+                            {/* Acciones de Colecciones (Solo Dueño) */}
                             {isOwner && (
-                                <div className="mt-8 flex justify-center">
+                                <div className="mt-12 flex flex-wrap items-center justify-center gap-4 py-8 border-y border-slate-50 bg-slate-50/30 rounded-[2.5rem]">
                                     <button
                                         onClick={() => {
                                             setEditingPlaylist(null);
                                             setIsPlaylistModalOpen(true);
                                         }}
-                                        className="group relative px-10 py-5 bg-white border-2 border-slate-900 text-slate-900 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 hover:text-white transition-all overflow-hidden flex items-center gap-3 shadow-xl shadow-slate-900/5 active:scale-95"
+                                        className="px-8 py-4 bg-blue-50 text-blue-600 border border-blue-100 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-3 shadow-sm hover:shadow-xl hover:shadow-blue-600/10 active:scale-95"
                                     >
-                                        <Plus size={18} className="transition-transform group-hover:rotate-90" />
-                                        <span>Nueva Playlist</span>
-                                        <div className="absolute inset-0 bg-blue-600 translate-y-full group-hover:translate-y-0 transition-transform -z-10" />
+                                        <Plus size={18} /> Nueva Playlist
                                     </button>
+
+                                    <button
+                                        onClick={() => setIsReordering(!isReordering)}
+                                        className={`px-8 py-4 border rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-3 shadow-sm active:scale-95 ${isReordering ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300'}`}
+                                    >
+                                        {isReordering ? <><MoveVertical size={18} className="animate-bounce" /> Reordenando...</> : <><MoveVertical size={18} /> Organizar Colecciones</>}
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Reordering Controls (Only visible when isReordering is true) */}
+                            {isReordering && (
+                                <div className="mt-8 p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100 animate-in fade-in slide-in-from-top-4">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h3 className="text-[10px] font-black uppercase tracking-widest text-blue-600">Cambiar orden de aparición</h3>
+                                        <button
+                                            onClick={() => setIsReordering(false)}
+                                            className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors"
+                                        >
+                                            Finalizar
+                                        </button>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {playlists.map((pl, idx) => (
+                                            <div key={pl.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+                                                <div className="flex items-center gap-4">
+                                                    <span className="text-[10px] font-black text-slate-300 w-4">#{idx + 1}</span>
+                                                    <span className="text-xs font-bold text-slate-700">{pl.name}</span>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        disabled={idx === 0}
+                                                        onClick={async () => {
+                                                            const newPlaylists = [...playlists];
+                                                            [newPlaylists[idx], newPlaylists[idx - 1]] = [newPlaylists[idx - 1], newPlaylists[idx]];
+                                                            setPlaylists(newPlaylists);
+                                                            // Persist order
+                                                            await Promise.all(newPlaylists.map((p, i) =>
+                                                                supabase.from('playlists').update({ order_index: i }).eq('id', p.id)
+                                                            ));
+                                                        }}
+                                                        className="p-2 hover:bg-slate-50 text-slate-400 rounded-lg disabled:opacity-20"
+                                                    >
+                                                        <Plus size={14} className="rotate-180" />
+                                                    </button>
+                                                    <button
+                                                        disabled={idx === playlists.length - 1}
+                                                        onClick={async () => {
+                                                            const newPlaylists = [...playlists];
+                                                            [newPlaylists[idx], newPlaylists[idx + 1]] = [newPlaylists[idx + 1], newPlaylists[idx]];
+                                                            setPlaylists(newPlaylists);
+                                                            // Persist order
+                                                            await Promise.all(newPlaylists.map((p, i) =>
+                                                                supabase.from('playlists').update({ order_index: i }).eq('id', p.id)
+                                                            ));
+                                                        }}
+                                                        className="p-2 hover:bg-slate-50 text-slate-400 rounded-lg disabled:opacity-20"
+                                                    >
+                                                        <Plus size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
 
