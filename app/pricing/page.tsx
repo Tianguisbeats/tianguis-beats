@@ -239,7 +239,7 @@ export default function PricingPage() {
                                                     // NOT LOGGED IN
                                                     ? plan.tier === 'free' ? "Empezar Gratis"
                                                         : plan.tier === 'pro' ? "Empezar con Pro"
-                                                            : "Comenzar Premium"
+                                                            : "Empezar con Premium"
 
                                                     // LOGGED IN (Logic for upgrades/downgrades)
                                                     : currentTier === 'free'
