@@ -10,6 +10,7 @@ import Link from 'next/link';
 
 export default function PricingPage() {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+    const [loading, setLoading] = useState(true);
     const [userTier, setUserTier] = useState<string | null>(null);
     const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
     const { addItem, isInCart } = useCart();
@@ -24,6 +25,7 @@ export default function PricingPage() {
                     setSubscriptionEndDate(data.subscription_end_date);
                 }
             }
+            setLoading(false);
         };
         fetchUser();
     }, []);
@@ -200,48 +202,51 @@ export default function PricingPage() {
                                     </ul>
 
                                     <button
-                                        disabled={isCurrentPlan}
+                                        disabled={loading || isCurrentPlan}
                                         onClick={() => {
                                             if (!userTier) {
-                                                // Not logged in -> Redirect to signup
                                                 window.location.href = '/signup';
                                                 return;
                                             }
                                             handleSelectPlan(plan);
                                         }}
-                                        className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform hover:-translate-y-1 mb-3 ${isCurrentPlan
-                                            ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                                            : (userTier === 'premium' && plan.tier !== 'premium') || (userTier === 'pro' && plan.tier === 'free')
-                                                ? 'bg-white border-2 border-slate-200 text-slate-400 hover:border-slate-900 hover:text-slate-900' /* Downgrade */
-                                                : isPremium
-                                                    ? 'bg-blue-600 text-white hover:bg-slate-900 shadow-xl shadow-blue-600/20'
-                                                    : isPro
-                                                        ? 'bg-amber-400 text-slate-900 hover:bg-amber-500 shadow-xl shadow-amber-400/20'
-                                                        : 'bg-slate-900 text-white hover:bg-slate-700'
+                                        className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform hover:-translate-y-1 mb-3 ${loading
+                                            ? 'bg-slate-100 text-slate-400 cursor-wait border border-slate-200'
+                                            : isCurrentPlan
+                                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                                                : (userTier === 'premium' && plan.tier !== 'premium') || (userTier === 'pro' && plan.tier === 'free')
+                                                    ? 'bg-white border-2 border-slate-200 text-slate-400 hover:border-slate-900 hover:text-slate-900' /* Downgrade */
+                                                    : isPremium
+                                                        ? 'bg-blue-600 text-white hover:bg-slate-900 shadow-xl shadow-blue-600/20'
+                                                        : isPro
+                                                            ? 'bg-amber-400 text-slate-900 hover:bg-amber-500 shadow-xl shadow-amber-400/20'
+                                                            : 'bg-slate-900 text-white hover:bg-slate-700'
                                             }`}
                                     >
-                                        {isCurrentPlan
-                                            ? "Tu Plan Actual" // Always "Tu Plan Actual" if it's the current tier
-                                            : !userTier
-                                                // NOT LOGGED IN
-                                                ? plan.tier === 'free' ? "Empezar Gratis"
-                                                    : plan.tier === 'pro' ? "Empezar con Pro"
-                                                        : "Comenzar Premium"
+                                        {loading
+                                            ? "Cargando..."
+                                            : isCurrentPlan
+                                                ? "Tu Plan Actual" // Always "Tu Plan Actual" if it's the current tier
+                                                : !userTier
+                                                    // NOT LOGGED IN
+                                                    ? plan.tier === 'free' ? "Empezar Gratis"
+                                                        : plan.tier === 'pro' ? "Empezar con Pro"
+                                                            : "Comenzar Premium"
 
-                                                // LOGGED IN (Logic for upgrades/downgrades)
-                                                : userTier === 'free'
-                                                    // Current is Free -> Viewing upgrades
-                                                    ? plan.tier === 'pro' ? "Mejorar a Pro"
-                                                        : "Mejorar a Premium" // plan.tier === 'premium'
-
-                                                    : userTier === 'pro'
-                                                        // Current is Pro
-                                                        ? plan.tier === 'free' ? "Cambiar a Gratis"
+                                                    // LOGGED IN (Logic for upgrades/downgrades)
+                                                    : userTier === 'free'
+                                                        // Current is Free -> Viewing upgrades
+                                                        ? plan.tier === 'pro' ? "Mejorar a Pro"
                                                             : "Mejorar a Premium" // plan.tier === 'premium'
 
-                                                        // Current is Premium
-                                                        : plan.tier === 'free' ? "Cambiar a Gratis"
-                                                            : "Cambiar a Pro" // plan.tier === 'pro'
+                                                        : userTier === 'pro'
+                                                            // Current is Pro
+                                                            ? plan.tier === 'free' ? "Cambiar a Gratis"
+                                                                : "Mejorar a Premium" // plan.tier === 'premium'
+
+                                                            // Current is Premium
+                                                            : plan.tier === 'free' ? "Cambiar a Gratis"
+                                                                : "Cambiar a Pro" // plan.tier === 'pro'
                                         }
                                     </button>
 
