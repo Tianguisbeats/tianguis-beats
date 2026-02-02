@@ -158,8 +158,8 @@ export default function PricingPage() {
                         {plans.map((plan, idx) => {
                             // ROBUST LOGIC:
                             // If session exists, but userTier is null, default to 'free'
-                            // If no session, user is effectively 'guest'
-                            const currentTier = userTier || 'free';
+                            // Normalize to lowercase to match plan.tier ('free', 'pro', 'premium') even if DB has 'Premium'
+                            const currentTier = (userTier || 'free').toLowerCase();
                             const isLoggedIn = !!session;
 
                             const isCurrentPlan = isLoggedIn && currentTier === plan.tier;
