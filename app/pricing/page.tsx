@@ -109,6 +109,46 @@ export default function PricingPage() {
         }
     ];
 
+    // Helpers para mensajes personalizados
+    const getDowngradeWarning = (current: string, target: string) => {
+        if (current === 'premium' && target === 'pro') {
+            return [
+                "Perderás la Mayor Exposición del algoritmo.",
+                "Perderás la capacidad de vender Licencias de Stems.",
+                "Perderás las opciones de Venta Exclusiva."
+            ];
+        }
+        if (target === 'free') {
+            return [
+                "Tus comisiones subirán al 15%.",
+                "Perderás las subidas ilimitadas (Límite: 5 beats).",
+                "Tus licencias se limitarán a solo MP3.",
+                "Perderás el soporte prioritario."
+            ];
+        }
+        return ["Perderás los beneficios de tu plan actual."];
+    };
+
+    const getUpgradeBenefits = (target: string) => {
+        if (target === 'premium') {
+            return [
+                "¡Activación Inmediata!",
+                "Licencias de Stems y Venta Exclusiva.",
+                "Impulso algorítmico para tus beats.",
+                "Comisión del 0% mantenida."
+            ];
+        }
+        if (target === 'pro') {
+            return [
+                "¡Activación Inmediata!",
+                "0% de Comisión en tus ventas.",
+                "Subidas Ilimitadas.",
+                "Archivos WAV de alta calidad."
+            ];
+        }
+        return [];
+    };
+
     const handleSelectPlan = (plan: any) => {
         if (!session) {
             router.push('/signup');
@@ -120,63 +160,59 @@ export default function PricingPage() {
         // Prevent re-selecting current plan
         if (currentTier === plan.tier) return;
 
-        // Logic to determine if it's a downgrade or switch that requires valid expiration handling
-        // Simplify: If current is paid (pro/premium) and moving to free or another plan
-        const isDowngradeOrSwitch = (currentTier === 'premium') || (currentTier === 'pro');
+        const tierOrder = ['free', 'pro', 'premium'];
+        const currentIdx = tierOrder.indexOf(currentTier);
+        const targetIdx = tierOrder.indexOf(plan.tier);
 
-        if (isDowngradeOrSwitch) {
-            setSelectedPlan(plan);
+        const isDowngrade = targetIdx < currentIdx;
+
+        if (isDowngrade) {
+            // DOWNGRADE LOGIC: Schedule for end of cycle
+            setSelectedPlan({ ...plan, type: 'downgrade', messages: getDowngradeWarning(currentTier, plan.tier) });
             setShowDowngradeModal(true);
         } else {
-            // Processing upgrade normally via Cart
-            // If user is 'free', they pay immediately.
-            addItem({
-                id: `plan-${plan.tier}-${billingCycle}`,
-                type: 'plan',
-                name: `Plan ${plan.name} (${billingCycle === 'monthly' ? 'Mensual' : 'Anual'})`,
-                price: plan.price,
-                subtitle: plan.description,
-                metadata: { tier: plan.tier, cycle: billingCycle }
-            });
-            window.location.href = '/cart';
+            // UPGRADE LOGIC: Immediate
+            setSelectedPlan({ ...plan, type: 'upgrade', messages: getUpgradeBenefits(plan.tier) });
+            setShowDowngradeModal(true);
         }
     };
 
-    const confirmDowngrade = async () => {
+    const confirmAction = async () => {
         if (!selectedPlan || !session) return;
 
-        try {
-            // Update the profile to set the next subscription tier
-            // We assume 'termina_suscripcion' is already set by the backend/payment provider 
-            // OR if it's missing, we set it to end of current period (simulated here as +30 days if null for demo, 
-            // but ideally should verify real billing period).
-            // Since user asked for "when it ends", we assume end date exists.
+        if (selectedPlan.type === 'downgrade') {
+            try {
+                const updates: any = {
+                    comenzar_suscripcion: selectedPlan.tier,
+                    ultima_actualizacion: new Date().toISOString()
+                };
 
-            const updates: any = {
-                comenzar_suscripcion: selectedPlan.tier,
-                ultima_actualizacion: new Date().toISOString()
-            };
+                const { error } = await supabase
+                    .from('profiles')
+                    .update(updates)
+                    .eq('id', session.user.id);
 
-            // If no end date exists (manual assignment case), set one (e.g. today + 30 days) just to simulate standard behavior?
-            // User script handles "if date passed -> switch". 
-            // Ideally we don't touch end_date here if it comes from Stripe, but for this logic we update the INTENTION.
+                if (error) throw error;
 
-            const { error } = await supabase
-                .from('profiles')
-                .update(updates)
-                .eq('id', session.user.id);
+                setShowDowngradeModal(false);
+                setComenzarSuscripcion(selectedPlan.tier);
+                alert(`Cambio programado. Tu plan cambiará a ${selectedPlan.name} al terminar tu ciclo actual.`);
 
-            if (error) throw error;
-
-            setShowDowngradeModal(false);
-            setComenzarSuscripcion(selectedPlan.tier);
-
-            // Optional: User feedback
-            alert(`Cambio programado. Tu plan cambiará a ${selectedPlan.name} al terminar tu ciclo actual.`);
-
-        } catch (err) {
-            console.error(err);
-            alert("Hubo un error al programar el cambio.");
+            } catch (err) {
+                console.error(err);
+                alert("Hubo un error al programar el cambio.");
+            }
+        } else {
+            // Upgrade Logic: Send to Cart
+            addItem({
+                id: `plan-${selectedPlan.tier}-${billingCycle}`,
+                type: 'plan',
+                name: `Plan ${selectedPlan.name} (${billingCycle === 'monthly' ? 'Mensual' : 'Anual'})`,
+                price: selectedPlan.price,
+                subtitle: selectedPlan.description,
+                metadata: { tier: selectedPlan.tier, cycle: billingCycle }
+            });
+            window.location.href = '/cart';
         }
     };
 
@@ -185,7 +221,7 @@ export default function PricingPage() {
             <Navbar />
 
             <main className="flex-1 pb-20 relative">
-                {/* Downgrade Modal */}
+                {/* Unified Modal (Upgrade/Downgrade) */}
                 {showDowngradeModal && selectedPlan && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
                         <div className="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl relative">
@@ -197,45 +233,54 @@ export default function PricingPage() {
                             </button>
 
                             <div className="text-center mb-6">
-                                <div className="w-16 h-16 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <AlertTriangle size={32} />
+                                <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${selectedPlan.type === 'downgrade' ? 'bg-amber-100 text-amber-500' : 'bg-blue-100 text-blue-600'}`}>
+                                    {selectedPlan.type === 'downgrade' ? <AlertTriangle size={32} /> : <Zap size={32} />}
                                 </div>
                                 <h2 className="text-2xl font-black uppercase tracking-tighter text-slate-900 mb-2">
-                                    ¿Cambiar a Plan {selectedPlan.name}?
+                                    {selectedPlan.type === 'downgrade' ? `¿Bajar a Plan ${selectedPlan.name}?` : `¡Mejorar a Plan ${selectedPlan.name}!`}
                                 </h2>
                                 <p className="text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed">
-                                    Estás a punto de programar un cambio en tu suscripción.
+                                    {selectedPlan.type === 'downgrade'
+                                        ? "Estás a punto de reducir tus beneficios."
+                                        : "Excelente decisión. Esto es lo que obtendrás:"}
                                 </p>
                             </div>
 
                             <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 mb-6 space-y-4">
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="font-bold text-slate-500">Tu plan actual vence:</span>
-                                    <span className="font-black text-slate-900 bg-white px-3 py-1 rounded-lg border border-slate-200">
-                                        {terminaSuscripcion ? new Date(terminaSuscripcion).toLocaleDateString() : "Final del ciclo"}
-                                    </span>
-                                </div>
-                                <div className="h-px bg-slate-200 w-full"></div>
+                                {selectedPlan.type === 'downgrade' && (
+                                    <>
+                                        <div className="flex justify-between items-center text-xs">
+                                            <span className="font-bold text-slate-500">Tu plan actual vence:</span>
+                                            <span className="font-black text-slate-900 bg-white px-3 py-1 rounded-lg border border-slate-200">
+                                                {terminaSuscripcion ? new Date(terminaSuscripcion).toLocaleDateString() : "Final del ciclo"}
+                                            </span>
+                                        </div>
+                                        <div className="h-px bg-slate-200 w-full"></div>
+                                    </>
+                                )}
+
                                 <div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Consecuencias:</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+                                        {selectedPlan.type === 'downgrade' ? "Consecuencias:" : "Beneficios:"}
+                                    </p>
                                     <ul className="space-y-2">
-                                        <li className="flex items-start gap-2 text-[11px] font-bold text-slate-600">
-                                            <span className="text-amber-500 mt-0.5">⚠️</span>
-                                            Perderás acceso a comisiones reducidas (0%).
-                                        </li>
-                                        <li className="flex items-start gap-2 text-[11px] font-bold text-slate-600">
-                                            <span className="text-amber-500 mt-0.5">⚠️</span>
-                                            Tus subidas ilimitadas se restringirán.
-                                        </li>
+                                        {selectedPlan.messages?.map((msg: string, i: number) => (
+                                            <li key={i} className="flex items-start gap-2 text-[11px] font-bold text-slate-600">
+                                                <span className={`${selectedPlan.type === 'downgrade' ? 'text-amber-500' : 'text-blue-600'} mt-0.5`}>
+                                                    {selectedPlan.type === 'downgrade' ? '⚠️' : '✅'}
+                                                </span>
+                                                {msg}
+                                            </li>
+                                        ))}
                                     </ul>
                                 </div>
                             </div>
 
                             <button
-                                onClick={confirmDowngrade}
-                                className="w-full py-4 rounded-xl bg-slate-900 text-white font-black text-xs uppercase tracking-[0.2em] hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 mb-3"
+                                onClick={confirmAction}
+                                className={`w-full py-4 rounded-xl text-white font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl mb-3 ${selectedPlan.type === 'downgrade' ? 'bg-slate-900 hover:bg-slate-800 shadow-slate-900/20' : 'bg-blue-600 hover:bg-blue-500 shadow-blue-600/20'}`}
                             >
-                                Sí, Programar Cambio
+                                {selectedPlan.type === 'downgrade' ? "Sí, Programar Cambio" : "Ir a Pagar Diferencia"}
                             </button>
                             <button
                                 onClick={() => setShowDowngradeModal(false)}
@@ -293,12 +338,9 @@ export default function PricingPage() {
                         {plans.map((plan, idx) => {
                             const currentTier = (userTier || 'free').toLowerCase();
                             const isLoggedIn = !!session;
-
                             const isCurrentPlan = isLoggedIn && currentTier === plan.tier;
                             const isPremium = plan.tier === 'premium';
                             const isPro = plan.tier === 'pro';
-
-                            // Check if this plan is scheduled to start
                             const isScheduled = comenzarSuscripcion === plan.tier;
 
                             return (
@@ -353,7 +395,7 @@ export default function PricingPage() {
                                             : isCurrentPlan
                                                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
                                                 : isScheduled
-                                                    ? 'bg-green-100 text-green-600 border border-green-200 cursor-default' // Visual feedback for Scheduled
+                                                    ? 'bg-green-100 text-green-600 border border-green-200 cursor-default'
                                                     : (currentTier === 'premium' && plan.tier !== 'premium') || (currentTier === 'pro' && plan.tier === 'free')
                                                         ? 'bg-white border-2 border-slate-200 text-slate-400 hover:border-slate-900 hover:text-slate-900' /* Downgrade */
                                                         : isPremium
@@ -394,7 +436,6 @@ export default function PricingPage() {
                                     {terminaSuscripcion && isCurrentPlan && (
                                         <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-4 animate-in fade-in">
                                             Vence el: {new Date(terminaSuscripcion).toLocaleDateString()}
-                                            {/* Show if something is scheduled next */}
                                             {comenzarSuscripcion && (
                                                 <span className="block mt-1 text-slate-500">
                                                     (Cambia a {plans.find(p => p.tier === comenzarSuscripcion)?.name} automáticamente)
