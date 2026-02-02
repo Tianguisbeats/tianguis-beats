@@ -556,7 +556,7 @@ export default function UploadPage() {
                                     </div>
 
                                     {/* Stems + Precio */}
-                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' : 'bg-purple-50/30 border-purple-100 hover:bg-purple-50/50'}`}>
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' : 'bg-purple-50 border-purple-200 hover:bg-purple-100/50'}`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
@@ -569,7 +569,7 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 {!isPremium && (
-                                                    <Link href="/pricing" className="text-[8px] font-black text-purple-600 bg-white border-2 border-purple-100 px-2.5 py-1.5 rounded-full uppercase hover:bg-purple-600 hover:text-white transition-all shadow-sm">
+                                                    <Link href="/pricing" className="text-[8px] font-black text-blue-600 bg-white border-2 border-blue-100 px-2.5 py-1.5 rounded-full uppercase hover:bg-blue-600 hover:text-white transition-all shadow-sm">
                                                         Mejorar a Premium
                                                     </Link>
                                                 )}
