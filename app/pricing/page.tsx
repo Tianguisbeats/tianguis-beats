@@ -22,10 +22,9 @@ export default function PricingPage() {
             setSession(session);
 
             if (session?.user) {
-                const { data } = await supabase.from('profiles').select('subscription_tier, subscription_end_date').eq('id', session.user.id).single();
+                const { data } = await supabase.from('profiles').select('subscription_tier').eq('id', session.user.id).single();
                 if (data) {
                     setUserTier(data.subscription_tier);
-                    setSubscriptionEndDate(data.subscription_end_date);
                 }
             }
             setLoading(false);
