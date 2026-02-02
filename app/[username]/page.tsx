@@ -483,7 +483,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             </div>
                                         ) : (
                                             <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] flex items-center gap-1">
-                                                {profile.country || "Planeta Tierra 🌎"}
+                                                {profile.country || "Selecciona tu país o nacionalidad"}
                                             </p>
                                         )}
                                         <span className="text-slate-300">•</span>
