@@ -221,15 +221,28 @@ export default function PricingPage() {
                                             }`}
                                     >
                                         {isCurrentPlan
-                                            ? "Plan Actual"
+                                            ? "Tu Plan Actual" // Always "Tu Plan Actual" if it's the current tier
                                             : !userTier
-                                                ? "Empezar Gratis"
-                                                : (userTier === 'premium' && plan.tier === 'pro') ? "Bajar a Pro"
-                                                    : (userTier === 'premium' && plan.tier === 'free') ? "Bajar a Gratis"
-                                                        : (userTier === 'pro' && plan.tier === 'free') ? "Bajar a Gratis"
-                                                            : plan.tier === 'pro' ? "Mejorar a Pro"
-                                                                : plan.tier === 'premium' ? "Mejorar a Premium"
-                                                                    : plan.buttonText}
+                                                // NOT LOGGED IN
+                                                ? plan.tier === 'free' ? "Empezar Gratis"
+                                                    : plan.tier === 'pro' ? "Empezar con Pro"
+                                                        : "Comenzar Premium"
+
+                                                // LOGGED IN (Logic for upgrades/downgrades)
+                                                : userTier === 'free'
+                                                    // Current is Free -> Viewing upgrades
+                                                    ? plan.tier === 'pro' ? "Mejorar a Pro"
+                                                        : "Mejorar a Premium" // plan.tier === 'premium'
+
+                                                    : userTier === 'pro'
+                                                        // Current is Pro
+                                                        ? plan.tier === 'free' ? "Cambiar a Gratis"
+                                                            : "Mejorar a Premium" // plan.tier === 'premium'
+
+                                                        // Current is Premium
+                                                        : plan.tier === 'free' ? "Cambiar a Gratis"
+                                                            : "Cambiar a Pro" // plan.tier === 'pro'
+                                        }
                                     </button>
 
                                     {/* Subscription End Date Message for Downgrades or Current Plan */}
