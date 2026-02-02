@@ -11,6 +11,7 @@ import Link from 'next/link';
 export default function PricingPage() {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
     const [loading, setLoading] = useState(true);
+    const [session, setSession] = useState<any>(null); // Track session explicitly
     const [userTier, setUserTier] = useState<string | null>(null);
     const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
     const { addItem, isInCart } = useCart();
@@ -18,6 +19,8 @@ export default function PricingPage() {
     useEffect(() => {
         const fetchUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
+            setSession(session);
+
             if (session?.user) {
                 const { data } = await supabase.from('profiles').select('subscription_tier, subscription_end_date').eq('id', session.user.id).single();
                 if (data) {
@@ -86,8 +89,8 @@ export default function PricingPage() {
     ];
 
     const handleSelectPlan = (plan: any) => {
+        // If handled as logged-in user with free plan trying to select free plan again
         if (plan.tier === 'free') {
-            alert("El plan gratuito se activa automáticamente al registrarte.");
             return;
         }
 
@@ -153,7 +156,13 @@ export default function PricingPage() {
 
                     <div className="grid md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto px-4">
                         {plans.map((plan, idx) => {
-                            const isCurrentPlan = userTier === plan.tier;
+                            // ROBUST LOGIC:
+                            // If session exists, but userTier is null, default to 'free'
+                            // If no session, user is effectively 'guest'
+                            const currentTier = userTier || 'free';
+                            const isLoggedIn = !!session;
+
+                            const isCurrentPlan = isLoggedIn && currentTier === plan.tier;
                             const isPremium = plan.tier === 'premium';
                             const isPro = plan.tier === 'pro';
 
@@ -204,7 +213,7 @@ export default function PricingPage() {
                                     <button
                                         disabled={loading || isCurrentPlan}
                                         onClick={() => {
-                                            if (!userTier) {
+                                            if (!isLoggedIn) {
                                                 window.location.href = '/signup';
                                                 return;
                                             }
@@ -214,7 +223,7 @@ export default function PricingPage() {
                                             ? 'bg-slate-100 text-slate-400 cursor-wait border border-slate-200'
                                             : isCurrentPlan
                                                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                                                : (userTier === 'premium' && plan.tier !== 'premium') || (userTier === 'pro' && plan.tier === 'free')
+                                                : (currentTier === 'premium' && plan.tier !== 'premium') || (currentTier === 'pro' && plan.tier === 'free')
                                                     ? 'bg-white border-2 border-slate-200 text-slate-400 hover:border-slate-900 hover:text-slate-900' /* Downgrade */
                                                     : isPremium
                                                         ? 'bg-blue-600 text-white hover:bg-slate-900 shadow-xl shadow-blue-600/20'
@@ -226,20 +235,20 @@ export default function PricingPage() {
                                         {loading
                                             ? "Cargando..."
                                             : isCurrentPlan
-                                                ? "Tu Plan Actual" // Always "Tu Plan Actual" if it's the current tier
-                                                : !userTier
+                                                ? "Tu Plan Actual"
+                                                : !isLoggedIn
                                                     // NOT LOGGED IN
                                                     ? plan.tier === 'free' ? "Empezar Gratis"
                                                         : plan.tier === 'pro' ? "Empezar con Pro"
                                                             : "Comenzar Premium"
 
                                                     // LOGGED IN (Logic for upgrades/downgrades)
-                                                    : userTier === 'free'
+                                                    : currentTier === 'free'
                                                         // Current is Free -> Viewing upgrades
                                                         ? plan.tier === 'pro' ? "Mejorar a Pro"
                                                             : "Mejorar a Premium" // plan.tier === 'premium'
 
-                                                        : userTier === 'pro'
+                                                        : currentTier === 'pro'
                                                             // Current is Pro
                                                             ? plan.tier === 'free' ? "Cambiar a Gratis"
                                                                 : "Mejorar a Premium" // plan.tier === 'premium'
@@ -251,7 +260,7 @@ export default function PricingPage() {
                                     </button>
 
                                     {/* Subscription End Date Message for Downgrades or Current Plan */}
-                                    {subscriptionEndDate && (isCurrentPlan || (userTier === 'premium' && plan.tier !== 'premium') || (userTier === 'pro' && plan.tier === 'free')) && userTier !== 'free' && (
+                                    {subscriptionEndDate && (isCurrentPlan || (currentTier === 'premium' && plan.tier !== 'premium') || (currentTier === 'pro' && plan.tier === 'free')) && currentTier !== 'free' && (
                                         <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-4">
                                             Vence el: {new Date(subscriptionEndDate).toLocaleDateString()}
                                         </div>
