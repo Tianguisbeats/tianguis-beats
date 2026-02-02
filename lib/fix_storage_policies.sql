@@ -11,8 +11,8 @@ INSERT INTO storage.buckets (id, name, public) VALUES ('beats-mp3-alta-calidad',
 INSERT INTO storage.buckets (id, name, public) VALUES ('beats-wav', 'beats-wav', false) ON CONFLICT DO NOTHING;            -- Privado
 INSERT INTO storage.buckets (id, name, public) VALUES ('beats-stems', 'beats-stems', false) ON CONFLICT DO NOTHING;        -- Privado
 
--- 2. Habilitar RLS en Storage (Por seguridad)
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- 2. Habilitar RLS (Generalmente ya está activo por defecto, omitimos ALTER para evitar error 42501)
+-- ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
 
 -- 3. Políticas de Acceso (Policies)
 
