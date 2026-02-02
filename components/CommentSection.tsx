@@ -10,7 +10,7 @@ interface Comment {
     user: {
         username: string;
         artistic_name: string;
-        avatar_url: string | null;
+        foto_perfil: string | null;
         is_verified?: boolean;
         is_founder?: boolean;
         subscription_tier?: string;
@@ -40,7 +40,7 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                     user:user_id (
                         username,
                         artistic_name,
-                        avatar_url,
+                        foto_perfil,
                         is_verified,
                         is_founder,
                         subscription_tier
@@ -52,7 +52,7 @@ export default function CommentSection({ beatId }: { beatId: string }) {
             if (data) {
                 const formatted = data.map((c: any) => ({
                     ...c,
-                    user: c.user || { username: 'Usuario', artistic_name: 'Usuario', avatar_url: null }
+                    user: c.user || { username: 'Usuario', artistic_name: 'Usuario', foto_perfil: null }
                 }));
                 setComments(formatted);
             }
@@ -67,11 +67,11 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                 const fetchNewComment = async () => {
                     const { data } = await supabase
                         .from('comments')
-                        .select(`id, content, created_at, user_id, user:user_id (username, artistic_name, avatar_url, is_verified, is_founder, subscription_tier)`)
+                        .select(`id, content, created_at, user_id, user:user_id (username, artistic_name, foto_perfil, is_verified, is_founder, subscription_tier)`)
                         .eq('id', (payload.new as any).id)
                         .single();
                     if (data) {
-                        setComments(prev => [{ ...data, user: (data as any).user || { username: 'Usuario', artistic_name: 'Usuario', avatar_url: null } } as Comment, ...prev]);
+                        setComments(prev => [{ ...data, user: (data as any).user || { username: 'Usuario', artistic_name: 'Usuario', foto_perfil: null } } as Comment, ...prev]);
                     }
                 };
                 fetchNewComment();
@@ -153,8 +153,8 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                                 comment.user.subscription_tier === 'pro' ? 'border-amber-400' :
                                     'border-slate-100'
                                 }`}>
-                                {comment.user.avatar_url ? (
-                                    <img src={comment.user.avatar_url} alt={comment.user.username} className="w-full h-full object-cover" />
+                                {comment.user.foto_perfil ? (
+                                    <img src={comment.user.foto_perfil} alt={comment.user.username} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300 italic font-black text-[10px]">
                                         {(comment.user.artistic_name || comment.user.username || 'U').charAt(0).toUpperCase()}
