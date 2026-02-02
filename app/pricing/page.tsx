@@ -201,22 +201,35 @@ export default function PricingPage() {
 
                                     <button
                                         disabled={isCurrentPlan}
-                                        onClick={() => handleSelectPlan(plan)}
+                                        onClick={() => {
+                                            if (!userTier) {
+                                                // Not logged in -> Redirect to signup
+                                                window.location.href = '/signup';
+                                                return;
+                                            }
+                                            handleSelectPlan(plan);
+                                        }}
                                         className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform hover:-translate-y-1 mb-3 ${isCurrentPlan
                                             ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
                                             : (userTier === 'premium' && plan.tier !== 'premium') || (userTier === 'pro' && plan.tier === 'free')
-                                                ? 'bg-white border-2 border-slate-200 text-slate-400 hover:border-slate-900 hover:text-slate-900' /* Downgrade Style */
+                                                ? 'bg-white border-2 border-slate-200 text-slate-400 hover:border-slate-900 hover:text-slate-900' /* Downgrade */
                                                 : isPremium
                                                     ? 'bg-blue-600 text-white hover:bg-slate-900 shadow-xl shadow-blue-600/20'
-                                                    : 'bg-slate-900 text-white hover:bg-blue-600 shadow-xl shadow-slate-900/10'
+                                                    : isPro
+                                                        ? 'bg-amber-400 text-slate-900 hover:bg-amber-500 shadow-xl shadow-amber-400/20'
+                                                        : 'bg-slate-900 text-white hover:bg-slate-700'
                                             }`}
                                     >
                                         {isCurrentPlan
-                                            ? "Tu Plan Actual"
-                                            : (userTier === 'premium' && plan.tier === 'pro') ? "Bajar a Pro"
-                                                : (userTier === 'premium' && plan.tier === 'free') ? "Bajar a Gratis"
-                                                    : (userTier === 'pro' && plan.tier === 'free') ? "Bajar a Gratis"
-                                                        : plan.buttonText}
+                                            ? "Plan Actual"
+                                            : !userTier
+                                                ? "Empezar Gratis"
+                                                : (userTier === 'premium' && plan.tier === 'pro') ? "Bajar a Pro"
+                                                    : (userTier === 'premium' && plan.tier === 'free') ? "Bajar a Gratis"
+                                                        : (userTier === 'pro' && plan.tier === 'free') ? "Bajar a Gratis"
+                                                            : plan.tier === 'pro' ? "Mejorar a Pro"
+                                                                : plan.tier === 'premium' ? "Mejorar a Premium"
+                                                                    : plan.buttonText}
                                     </button>
 
                                     {/* Subscription End Date Message for Downgrades or Current Plan */}
