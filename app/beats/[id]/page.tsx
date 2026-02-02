@@ -222,7 +222,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     <div className="flex items-center justify-center lg:justify-start gap-4">
                                         <Link href={`/${(beat.producer as any)?.username || ''}`} className="group flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
                                             <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200">
-                                                <img src={(beat.producer as any)?.avatar_url || "/logo.png"} className="w-full h-full object-cover" alt="Producer" />
+                                                <img src={(beat.producer as any)?.foto_perfil || "/logo.png"} className="w-full h-full object-cover" alt="Producer" />
                                             </div>
                                             <span className="text-sm font-black text-slate-900 uppercase tracking-widest group-hover:text-blue-600 transition-colors username-highlight">
                                                 Prod. by {(beat.producer as any)?.artistic_name || (beat.producer as any)?.username}
