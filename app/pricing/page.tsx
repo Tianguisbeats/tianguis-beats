@@ -3,18 +3,28 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Check, Zap, Star, ShieldCheck, ArrowUpRight, Lock } from 'lucide-react';
+import { Check, Zap, Star, ShieldCheck, ArrowUpRight, Lock, AlertTriangle, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function PricingPage() {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
     const [loading, setLoading] = useState(true);
-    const [session, setSession] = useState<any>(null); // Track session explicitly
+    const [session, setSession] = useState<any>(null);
     const [userTier, setUserTier] = useState<string | null>(null);
-    const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
-    const { addItem, isInCart } = useCart();
+
+    // Nombres en español como solicitó el usuario
+    const [terminaSuscripcion, setTerminaSuscripcion] = useState<string | null>(null);
+    const [comenzarSuscripcion, setComenzarSuscripcion] = useState<string | null>(null);
+
+    const { addItem } = useCart();
+    const router = useRouter();
+
+    // Modal State
+    const [showDowngradeModal, setShowDowngradeModal] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState<any>(null);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -22,9 +32,21 @@ export default function PricingPage() {
             setSession(session);
 
             if (session?.user) {
-                const { data } = await supabase.from('profiles').select('subscription_tier').eq('id', session.user.id).single();
-                if (data) {
-                    setUserTier(data.subscription_tier);
+                // Fetch using Spanish column names if they exist, handle gracefully if not yet created in DB
+                try {
+                    const { data, error } = await supabase
+                        .from('profiles')
+                        .select('subscription_tier, termina_suscripcion, comenzar_suscripcion')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    if (data && !error) {
+                        setUserTier(data.subscription_tier);
+                        setTerminaSuscripcion(data.termina_suscripcion);
+                        setComenzarSuscripcion(data.comenzar_suscripcion);
+                    }
+                } catch (e) {
+                    console.error("Error fetching subscription details:", e);
                 }
             }
             setLoading(false);
@@ -88,29 +110,143 @@ export default function PricingPage() {
     ];
 
     const handleSelectPlan = (plan: any) => {
-        // If handled as logged-in user with free plan trying to select free plan again
-        if (plan.tier === 'free') {
+        if (!session) {
+            router.push('/signup');
             return;
         }
 
-        addItem({
-            id: `plan-${plan.tier}-${billingCycle}`,
-            type: 'plan',
-            name: `Plan ${plan.name} (${billingCycle === 'monthly' ? 'Mensual' : 'Anual'})`,
-            price: plan.price,
-            subtitle: plan.description,
-            metadata: { tier: plan.tier, cycle: billingCycle }
-        });
+        const currentTier = (userTier || 'free').toLowerCase();
 
-        // Redirect to cart or show success
-        window.location.href = '/cart';
+        // Prevent re-selecting current plan
+        if (currentTier === plan.tier) return;
+
+        // Logic to determine if it's a downgrade or switch that requires valid expiration handling
+        // Simplify: If current is paid (pro/premium) and moving to free or another plan
+        const isDowngradeOrSwitch = (currentTier === 'premium') || (currentTier === 'pro');
+
+        if (isDowngradeOrSwitch) {
+            setSelectedPlan(plan);
+            setShowDowngradeModal(true);
+        } else {
+            // Processing upgrade normally via Cart
+            // If user is 'free', they pay immediately.
+            addItem({
+                id: `plan-${plan.tier}-${billingCycle}`,
+                type: 'plan',
+                name: `Plan ${plan.name} (${billingCycle === 'monthly' ? 'Mensual' : 'Anual'})`,
+                price: plan.price,
+                subtitle: plan.description,
+                metadata: { tier: plan.tier, cycle: billingCycle }
+            });
+            window.location.href = '/cart';
+        }
+    };
+
+    const confirmDowngrade = async () => {
+        if (!selectedPlan || !session) return;
+
+        try {
+            // Update the profile to set the next subscription tier
+            // We assume 'termina_suscripcion' is already set by the backend/payment provider 
+            // OR if it's missing, we set it to end of current period (simulated here as +30 days if null for demo, 
+            // but ideally should verify real billing period).
+            // Since user asked for "when it ends", we assume end date exists.
+
+            const updates: any = {
+                comenzar_suscripcion: selectedPlan.tier,
+                ultima_actualizacion: new Date().toISOString()
+            };
+
+            // If no end date exists (manual assignment case), set one (e.g. today + 30 days) just to simulate standard behavior?
+            // User script handles "if date passed -> switch". 
+            // Ideally we don't touch end_date here if it comes from Stripe, but for this logic we update the INTENTION.
+
+            const { error } = await supabase
+                .from('profiles')
+                .update(updates)
+                .eq('id', session.user.id);
+
+            if (error) throw error;
+
+            setShowDowngradeModal(false);
+            setComenzarSuscripcion(selectedPlan.tier);
+
+            // Optional: User feedback
+            alert(`Cambio programado. Tu plan cambiará a ${selectedPlan.name} al terminar tu ciclo actual.`);
+
+        } catch (err) {
+            console.error(err);
+            alert("Hubo un error al programar el cambio.");
+        }
     };
 
     return (
         <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col pt-24">
             <Navbar />
 
-            <main className="flex-1 pb-20">
+            <main className="flex-1 pb-20 relative">
+                {/* Downgrade Modal */}
+                {showDowngradeModal && selectedPlan && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+                        <div className="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl relative">
+                            <button
+                                onClick={() => setShowDowngradeModal(false)}
+                                className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 transition-colors"
+                            >
+                                <X size={20} className="text-slate-400" />
+                            </button>
+
+                            <div className="text-center mb-6">
+                                <div className="w-16 h-16 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <AlertTriangle size={32} />
+                                </div>
+                                <h2 className="text-2xl font-black uppercase tracking-tighter text-slate-900 mb-2">
+                                    ¿Cambiar a Plan {selectedPlan.name}?
+                                </h2>
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed">
+                                    Estás a punto de programar un cambio en tu suscripción.
+                                </p>
+                            </div>
+
+                            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 mb-6 space-y-4">
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="font-bold text-slate-500">Tu plan actual vence:</span>
+                                    <span className="font-black text-slate-900 bg-white px-3 py-1 rounded-lg border border-slate-200">
+                                        {terminaSuscripcion ? new Date(terminaSuscripcion).toLocaleDateString() : "Final del ciclo"}
+                                    </span>
+                                </div>
+                                <div className="h-px bg-slate-200 w-full"></div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Consecuencias:</p>
+                                    <ul className="space-y-2">
+                                        <li className="flex items-start gap-2 text-[11px] font-bold text-slate-600">
+                                            <span className="text-amber-500 mt-0.5">⚠️</span>
+                                            Perderás acceso a comisiones reducidas (0%).
+                                        </li>
+                                        <li className="flex items-start gap-2 text-[11px] font-bold text-slate-600">
+                                            <span className="text-amber-500 mt-0.5">⚠️</span>
+                                            Tus subidas ilimitadas se restringirán.
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={confirmDowngrade}
+                                className="w-full py-4 rounded-xl bg-slate-900 text-white font-black text-xs uppercase tracking-[0.2em] hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 mb-3"
+                            >
+                                Sí, Programar Cambio
+                            </button>
+                            <button
+                                onClick={() => setShowDowngradeModal(false)}
+                                className="w-full py-3 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-widest hover:text-slate-600 hover:bg-slate-50 transition-all"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 <div className="max-w-6xl mx-auto px-4 text-center mt-8">
                     {/* Header Section */}
                     <div className="mb-10">
@@ -121,7 +257,7 @@ export default function PricingPage() {
                             Transforma tu pasión en un negocio rentable
                         </p>
 
-                        {/* Founder Invitation Relocated */}
+                        {/* Founder Invitation */}
                         <div className="mb-12 inline-flex">
                             <div className="bg-yellow-400/10 border-2 border-yellow-400 text-yellow-700 px-6 py-3 rounded-2xl flex items-center gap-3 animate-pulse">
                                 <Star size={16} fill="currentColor" />
@@ -155,15 +291,15 @@ export default function PricingPage() {
 
                     <div className="grid md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto px-4">
                         {plans.map((plan, idx) => {
-                            // ROBUST LOGIC:
-                            // If session exists, but userTier is null, default to 'free'
-                            // Normalize to lowercase to match plan.tier ('free', 'pro', 'premium') even if DB has 'Premium'
                             const currentTier = (userTier || 'free').toLowerCase();
                             const isLoggedIn = !!session;
 
                             const isCurrentPlan = isLoggedIn && currentTier === plan.tier;
                             const isPremium = plan.tier === 'premium';
                             const isPro = plan.tier === 'pro';
+
+                            // Check if this plan is scheduled to start
+                            const isScheduled = comenzarSuscripcion === plan.tier;
 
                             return (
                                 <div
@@ -210,58 +346,60 @@ export default function PricingPage() {
                                     </ul>
 
                                     <button
-                                        disabled={loading || isCurrentPlan}
-                                        onClick={() => {
-                                            if (!isLoggedIn) {
-                                                window.location.href = '/signup';
-                                                return;
-                                            }
-                                            handleSelectPlan(plan);
-                                        }}
+                                        disabled={loading || isCurrentPlan || isScheduled}
+                                        onClick={() => handleSelectPlan(plan)}
                                         className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform hover:-translate-y-1 mb-3 ${loading
                                             ? 'bg-slate-100 text-slate-400 cursor-wait border border-slate-200'
                                             : isCurrentPlan
                                                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                                                : (currentTier === 'premium' && plan.tier !== 'premium') || (currentTier === 'pro' && plan.tier === 'free')
-                                                    ? 'bg-white border-2 border-slate-200 text-slate-400 hover:border-slate-900 hover:text-slate-900' /* Downgrade */
-                                                    : isPremium
-                                                        ? 'bg-blue-600 text-white hover:bg-slate-900 shadow-xl shadow-blue-600/20'
-                                                        : isPro
-                                                            ? 'bg-amber-400 text-slate-900 hover:bg-amber-500 shadow-xl shadow-amber-400/20'
-                                                            : 'bg-slate-900 text-white hover:bg-slate-700'
+                                                : isScheduled
+                                                    ? 'bg-green-100 text-green-600 border border-green-200 cursor-default' // Visual feedback for Scheduled
+                                                    : (currentTier === 'premium' && plan.tier !== 'premium') || (currentTier === 'pro' && plan.tier === 'free')
+                                                        ? 'bg-white border-2 border-slate-200 text-slate-400 hover:border-slate-900 hover:text-slate-900' /* Downgrade */
+                                                        : isPremium
+                                                            ? 'bg-blue-600 text-white hover:bg-slate-900 shadow-xl shadow-blue-600/20'
+                                                            : isPro
+                                                                ? 'bg-amber-400 text-slate-900 hover:bg-amber-500 shadow-xl shadow-amber-400/20'
+                                                                : 'bg-slate-900 text-white hover:bg-slate-700'
                                             }`}
                                     >
                                         {loading
                                             ? "Cargando..."
                                             : isCurrentPlan
                                                 ? "Tu Plan Actual"
-                                                : !isLoggedIn
-                                                    // NOT LOGGED IN
-                                                    ? plan.tier === 'free' ? "Empezar Gratis"
-                                                        : plan.tier === 'pro' ? "Empezar con Pro"
-                                                            : "Empezar con Premium"
+                                                : isScheduled
+                                                    ? "Programado para iniciar"
+                                                    : !isLoggedIn
+                                                        // NOT LOGGED IN
+                                                        ? plan.tier === 'free' ? "Empezar Gratis"
+                                                            : plan.tier === 'pro' ? "Empezar con Pro"
+                                                                : "Empezar con Premium"
 
-                                                    // LOGGED IN (Logic for upgrades/downgrades)
-                                                    : currentTier === 'free'
-                                                        // Current is Free -> Viewing upgrades
-                                                        ? plan.tier === 'pro' ? "Mejorar a Pro"
-                                                            : "Mejorar a Premium" // plan.tier === 'premium'
+                                                        // LOGGED IN
+                                                        : currentTier === 'free'
+                                                            ? plan.tier === 'pro' ? "Mejorar a Pro"
+                                                                : "Mejorar a Premium"
 
-                                                        : currentTier === 'pro'
-                                                            // Current is Pro
-                                                            ? plan.tier === 'free' ? "Cambiar a Gratis"
-                                                                : "Mejorar a Premium" // plan.tier === 'premium'
+                                                            : currentTier === 'pro'
+                                                                ? plan.tier === 'free' ? "Cambiar a Gratis"
+                                                                    : "Mejorar a Premium"
 
-                                                            // Current is Premium
-                                                            : plan.tier === 'free' ? "Cambiar a Gratis"
-                                                                : "Cambiar a Pro" // plan.tier === 'pro'
+                                                                // Current is Premium
+                                                                : plan.tier === 'free' ? "Cambiar a Gratis"
+                                                                    : "Cambiar a Pro"
                                         }
                                     </button>
 
-                                    {/* Subscription End Date Message for Downgrades or Current Plan */}
-                                    {subscriptionEndDate && (isCurrentPlan || (currentTier === 'premium' && plan.tier !== 'premium') || (currentTier === 'pro' && plan.tier === 'free')) && currentTier !== 'free' && (
-                                        <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-4">
-                                            Vence el: {new Date(subscriptionEndDate).toLocaleDateString()}
+                                    {/* Expiration Info Display */}
+                                    {terminaSuscripcion && isCurrentPlan && (
+                                        <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-4 animate-in fade-in">
+                                            Vence el: {new Date(terminaSuscripcion).toLocaleDateString()}
+                                            {/* Show if something is scheduled next */}
+                                            {comenzarSuscripcion && (
+                                                <span className="block mt-1 text-slate-500">
+                                                    (Cambia a {plans.find(p => p.tier === comenzarSuscripcion)?.name} automáticamente)
+                                                </span>
+                                            )}
                                         </div>
                                     )}
 
