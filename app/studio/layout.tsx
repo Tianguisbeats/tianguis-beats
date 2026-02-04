@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Music, BarChart2, DollarSign, Settings, Home } from 'lucide-react';
+import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Palette } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
@@ -11,6 +11,9 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
 
     const navItems = [
         { name: 'Mis Beats', href: '/studio/beats', icon: <Music size={18} /> },
+        { name: 'Mis Servicios', href: '/studio/services', icon: <Briefcase size={18} /> },
+        { name: 'Cupones', href: '/studio/coupons', icon: <Ticket size={18} /> },
+        { name: 'Personalizar', href: '/studio/customize', icon: <Palette size={18} /> },
         { name: 'Estadísticas', href: '/studio/stats', icon: <BarChart2 size={18} /> },
         { name: 'Ventas', href: '/studio/sales', icon: <DollarSign size={18} /> },
         { name: 'Mi Suscripción', href: '/pricing', icon: <Settings size={18} /> },

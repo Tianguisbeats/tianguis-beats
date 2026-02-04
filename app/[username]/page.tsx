@@ -7,7 +7,7 @@ import {
     Share2, MoreHorizontal, Calendar, MapPin,
     Music, Play, Users, Crown, Settings, Camera,
     Edit3, CheckCircle2, Copy, Trash2, Layout,
-    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save, ChevronUp, ChevronDown, List
+    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save, ChevronUp, ChevronDown, List, Briefcase, Clock, DollarSign
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -40,6 +40,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     const [profile, setProfile] = useState<Profile | null>(null);
     const [beats, setBeats] = useState<Beat[]>([]);
     const [playlists, setPlaylists] = useState<any[]>([]);
+    const [services, setServices] = useState<any[]>([]);
+    const [activeTab, setActiveTab] = useState<'beats' | 'services' | 'playlists'>('beats');
     const [loading, setLoading] = useState(true);
     const [isOwner, setIsOwner] = useState(false);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -76,7 +78,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             // 1. Get Profile
             const { data: profileData } = await supabase
                 .from('profiles')
-                .select('id, username, artistic_name, foto_perfil, portada_perfil, ajuste_portada, bio, country, social_links, is_verified, is_founder, subscription_tier, fecha_de_creacion')
+                .select('id, username, artistic_name, foto_perfil, portada_perfil, ajuste_portada, bio, country, social_links, is_verified, is_founder, subscription_tier, fecha_de_creacion, tema_perfil, color_acento, video_destacado_url')
                 .eq('username', username)
                 .single();
 
@@ -209,6 +211,19 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         .single();
                     setIsFollowing(!!followData);
                 }
+
+                // 5. Get Services
+                const { data: servicesData } = await supabase
+                    .from('services')
+                    .select('*')
+                    .eq('user_id', profileData.id)
+                    .eq('is_active', true)
+                    .order('created_at', { ascending: false });
+
+                if (servicesData) {
+                    setServices(servicesData);
+                }
+
             }
         } catch (err) {
             console.error("Error fetching profile data:", err);
@@ -343,7 +358,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     if (!profile) return null;
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col pt-24">
+        <div className={`min-h-screen font-sans flex flex-col pt-24 transition-colors duration-500 ${profile.tema_perfil === 'dark' ? 'bg-slate-900 text-white selection:bg-white selection:text-slate-900' :
+                profile.tema_perfil === 'neon' ? 'bg-black text-green-400 font-mono selection:bg-green-400 selection:text-black' :
+                    profile.tema_perfil === 'gold' ? 'bg-slate-900 text-amber-100 font-serif selection:bg-amber-400 selection:text-black' :
+                        'bg-white text-slate-900 selection:bg-blue-600 selection:text-white'
+            }`} style={{
+                '--accent': profile.color_acento || '#2563eb'
+            } as React.CSSProperties}>
             <Navbar />
 
             <main className="flex-1 pb-20">
@@ -556,15 +577,23 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             </div>
 
                             {/* Status Sidebar (AHORA ARRIBA) */}
-                            <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100">
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6 font-outfit">Estatus Tianguis</h3>
+                            <div className={`rounded-[2rem] p-8 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
+                                    profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-[0_0_15px_rgba(74,222,128,0.2)]' :
+                                        profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50' :
+                                            'bg-slate-50 border-slate-100'
+                                }`}>
+                                <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] mb-6 font-outfit ${profile.tema_perfil === 'dark' ? 'text-slate-400' :
+                                        profile.tema_perfil === 'neon' ? 'text-green-600' :
+                                            profile.tema_perfil === 'gold' ? 'text-amber-500' :
+                                                'text-slate-400'
+                                    }`}>Estatus Tianguis</h3>
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-xs font-bold text-slate-600">Plan</span>
+                                        <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Plan</span>
                                         <span className={`text-xs font-black uppercase px-2 py-1 rounded-lg ${profile.subscription_tier === 'premium' ? 'bg-blue-600 text-white' : profile.subscription_tier === 'pro' ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'}`}>{profile.subscription_tier}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-xs font-bold text-slate-600">Verificación</span>
+                                        <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Verificación</span>
                                         {profile.is_verified ? (
                                             <span className="text-xs font-black uppercase text-blue-600 flex items-center gap-1.5">
                                                 <img src="/verified-badge.png" className="w-3.5 h-3.5" />
@@ -576,7 +605,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                     {profile.is_founder && (
                                         <div className="flex items-center justify-between">
-                                            <span className="text-xs font-bold text-slate-600">Insignia</span>
+                                            <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Insignia</span>
                                             <span className="text-xs font-black uppercase text-yellow-600 bg-yellow-100 px-2 py-1 rounded-lg flex items-center gap-1"><Crown size={10} /> Founder</span>
                                         </div>
                                     )}
@@ -585,7 +614,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
 
                             {/* Bio Box (AHORA ABAJO) */}
-                            <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm">
+                            <div className={`border rounded-[2rem] p-8 shadow-sm ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-300' :
+                                    profile.tema_perfil === 'neon' ? 'bg-black border-green-900/50 text-green-100' :
+                                        profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/30 text-amber-100' :
+                                            'bg-white border-slate-100'
+                                }`}>
                                 {/* Socials */}
                                 <div className="flex gap-2 mb-6 justify-center md:justify-start">
                                     {profile.social_links?.instagram && (
@@ -627,115 +660,99 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                         {/* Beats Feed */}
                         <div className="lg:col-span-8">
-                            <div className="flex items-center justify-between mb-8">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
-                                        <Music size={20} />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900">Recién Horneados 🔥</h2>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Últimas creaciones del productor</p>
-                                    </div>
-                                </div>
-                                <Link
-                                    href={`/${username}/beats`}
-                                    className="flex items-center gap-2 px-6 py-3 bg-blue-50 border border-blue-100 rounded-full text-[10px] font-black uppercase tracking-widest text-blue-600 hover:bg-blue-600 hover:text-white transition-all border-dashed"
+                            <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-1 overflow-x-auto">
+                                <button
+                                    onClick={() => setActiveTab('beats')}
+                                    className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all border-b-2 ${activeTab === 'beats' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
                                 >
-                                    Ver catálogo completo <ChevronRight size={14} />
-                                </Link>
+                                    Beats ({beats.length})
+                                </button>
+                                {services.length > 0 && (
+                                    <button
+                                        onClick={() => setActiveTab('services')}
+                                        className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all border-b-2 ${activeTab === 'services' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+                                    >
+                                        Servicios ({services.length})
+                                    </button>
+                                )}
+                                {playlists.length > 0 && (
+                                    <button
+                                        onClick={() => setActiveTab('playlists')}
+                                        className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all border-b-2 ${activeTab === 'playlists' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+                                    >
+                                        Colecciones ({playlists.length})
+                                    </button>
+                                )}
                             </div>
 
-                            {beats.length > 0 ? (
-                                <div className="space-y-4">
-                                    {beats.slice(0, 6).map((beat) => (
-                                        <div key={beat.id}>
-                                            <BeatRow beat={beat} />
+                            {activeTab === 'beats' && (
+                                <>
+                                    <div className="flex items-center justify-between mb-8">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
+                                                <Music size={20} />
+                                            </div>
+                                            <div>
+                                                <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900">Recién Horneados 🔥</h2>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Últimas creaciones del productor</p>
+                                            </div>
                                         </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="bg-slate-50 rounded-2xl p-12 text-center">
-                                    <Music size={48} className="text-slate-200 mx-auto mb-4" />
-                                    <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No hay beats públicos</p>
-                                </div>
-                            )}
-
-                            {/* Acciones de Colecciones (Solo Dueño) */}
-                            {isOwner && (
-                                <div className="mt-12 flex flex-wrap items-center justify-center gap-4 py-8 border-y border-slate-50 bg-slate-50/30 rounded-[2.5rem]">
-                                    <button
-                                        onClick={() => {
-                                            setEditingPlaylist(null);
-                                            setIsPlaylistModalOpen(true);
-                                        }}
-                                        className="px-8 py-4 bg-blue-50 text-blue-600 border border-blue-100 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-3 shadow-sm hover:shadow-xl hover:shadow-blue-600/10 active:scale-95"
-                                    >
-                                        <Plus size={18} /> Nueva Playlist
-                                    </button>
-
-                                    <button
-                                        onClick={() => setIsReordering(!isReordering)}
-                                        className={`px-8 py-4 border rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-3 shadow-sm active:scale-95 ${isReordering ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300'}`}
-                                    >
-                                        {isReordering ? <><MoveVertical size={18} className="animate-bounce" /> Reordenando...</> : <><MoveVertical size={18} /> Organizar Colecciones</>}
-                                    </button>
-                                </div>
-                            )}
-
-                            {/* Reordering Controls (Only visible when isReordering is true) */}
-                            {isReordering && (
-                                <div className="mt-8 p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100 animate-in fade-in slide-in-from-top-4">
-                                    <div className="flex items-center justify-between mb-6">
-                                        <h3 className="text-[10px] font-black uppercase tracking-widest text-blue-600">Cambiar orden de aparición</h3>
-                                        <button
-                                            onClick={() => {
-                                                setIsReordering(false);
-                                                setHasChangedOrder(false);
-                                            }}
-                                            className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors"
+                                        <Link
+                                            href={`/${username}/beats`}
+                                            className="flex items-center gap-2 px-6 py-3 bg-blue-50 border border-blue-100 rounded-full text-[10px] font-black uppercase tracking-widest text-blue-600 hover:bg-blue-600 hover:text-white transition-all border-dashed"
                                         >
-                                            {hasChangedOrder ? "Guardar cambios" : "Cancelar cambios"}
-                                        </button>
+                                            Ver catálogo completo <ChevronRight size={14} />
+                                        </Link>
                                     </div>
-                                    <div className="space-y-2">
-                                        {playlists.map((pl, idx) => (
-                                            <div key={pl.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
-                                                <div className="flex items-center gap-4">
-                                                    <span className="text-[10px] font-black text-slate-300 w-4">#{idx + 1}</span>
-                                                    <span className="text-xs font-bold text-slate-700">{pl.name}</span>
+
+                                    {beats.length > 0 ? (
+                                        <div className="space-y-4">
+                                            {beats.slice(0, 6).map((beat) => (
+                                                <div key={beat.id}>
+                                                    <BeatRow beat={beat} />
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        disabled={idx === 0}
-                                                        onClick={async () => {
-                                                            const newPlaylists = [...playlists];
-                                                            [newPlaylists[idx], newPlaylists[idx - 1]] = [newPlaylists[idx - 1], newPlaylists[idx]];
-                                                            setPlaylists(newPlaylists);
-                                                            setHasChangedOrder(true);
-                                                            // Persist order
-                                                            await Promise.all(newPlaylists.map((p, i) =>
-                                                                supabase.from('playlists').update({ order_index: i }).eq('id', p.id)
-                                                            ));
-                                                        }}
-                                                        className="p-2 hover:bg-slate-50 text-slate-400 rounded-lg disabled:opacity-20"
-                                                    >
-                                                        <ChevronUp size={16} />
-                                                    </button>
-                                                    <button
-                                                        disabled={idx === playlists.length - 1}
-                                                        onClick={async () => {
-                                                            const newPlaylists = [...playlists];
-                                                            [newPlaylists[idx], newPlaylists[idx + 1]] = [newPlaylists[idx + 1], newPlaylists[idx]];
-                                                            setPlaylists(newPlaylists);
-                                                            setHasChangedOrder(true);
-                                                            // Persist order
-                                                            await Promise.all(newPlaylists.map((p, i) =>
-                                                                supabase.from('playlists').update({ order_index: i }).eq('id', p.id)
-                                                            ));
-                                                        }}
-                                                        className="p-2 hover:bg-slate-50 text-slate-400 rounded-lg disabled:opacity-20"
-                                                    >
-                                                        <ChevronDown size={16} />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="bg-slate-50 rounded-2xl p-12 text-center">
+                                            <Music size={48} className="text-slate-200 mx-auto mb-4" />
+                                            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No hay beats públicos</p>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                            {activeTab === 'services' && (
+                                <div className="animate-in fade-in slide-in-from-bottom-2">
+                                    <div className="flex items-center gap-3 mb-8">
+                                        <div className="w-10 h-10 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                                            <Briefcase size={20} />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900">Servicios Profesionales</h2>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Contrata talento experto</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        {services.map(service => (
+                                            <div key={service.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                                        {service.tipo_servicio}
+                                                    </span>
+                                                    <span className="text-xl font-black text-slate-900">${service.precio}</span>
+                                                </div>
+                                                <h3 className="font-bold text-lg text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors">{service.titulo}</h3>
+                                                <p className="text-slate-500 text-xs mb-6 line-clamp-3 leading-relaxed">{service.descripcion}</p>
+
+                                                <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+                                                    <div className="flex items-center gap-1 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                                                        <Clock size={12} />
+                                                        {service.tiempo_entrega_dias} Días hábiles
+                                                    </div>
+                                                    <button className="bg-slate-900 text-white px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">
+                                                        Contratar
                                                     </button>
                                                 </div>
                                             </div>
@@ -744,18 +761,109 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 </div>
                             )}
 
-                            {/* Playlists Section */}
-                            {playlists.length > 0 && (
-                                <div className="mt-8">
-                                    <PlaylistSection
-                                        playlists={playlists}
-                                        isOwner={isOwner}
-                                        onEdit={(id) => {
-                                            const pl = playlists.find(p => p.id === id);
-                                            setEditingPlaylist(pl);
-                                            setIsPlaylistModalOpen(true);
-                                        }}
-                                    />
+                            {activeTab === 'playlists' && (
+                                <div className="animate-in fade-in slide-in-from-bottom-2">
+
+
+                                    {/* Acciones de Colecciones (Solo Dueño) */}
+                                    {isOwner && (
+                                        <div className="mt-12 flex flex-wrap items-center justify-center gap-4 py-8 border-y border-slate-50 bg-slate-50/30 rounded-[2.5rem]">
+                                            <button
+                                                onClick={() => {
+                                                    setEditingPlaylist(null);
+                                                    setIsPlaylistModalOpen(true);
+                                                }}
+                                                className="px-8 py-4 bg-blue-50 text-blue-600 border border-blue-100 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-3 shadow-sm hover:shadow-xl hover:shadow-blue-600/10 active:scale-95"
+                                            >
+                                                <Plus size={18} /> Nueva Playlist
+                                            </button>
+
+                                            <button
+                                                onClick={() => setIsReordering(!isReordering)}
+                                                className={`px-8 py-4 border rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-3 shadow-sm active:scale-95 ${isReordering ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300'}`}
+                                            >
+                                                {isReordering ? <><MoveVertical size={18} className="animate-bounce" /> Reordenando...</> : <><MoveVertical size={18} /> Organizar Colecciones</>}
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {/* Reordering Controls (Only visible when isReordering is true) */}
+                                    {isReordering && (
+                                        <div className="mt-8 p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100 animate-in fade-in slide-in-from-top-4">
+                                            <div className="flex items-center justify-between mb-6">
+                                                <h3 className="text-[10px] font-black uppercase tracking-widest text-blue-600">Cambiar orden de aparición</h3>
+                                                <button
+                                                    onClick={() => {
+                                                        setIsReordering(false);
+                                                        setHasChangedOrder(false);
+                                                    }}
+                                                    className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors"
+                                                >
+                                                    {hasChangedOrder ? "Guardar cambios" : "Cancelar cambios"}
+                                                </button>
+                                            </div>
+                                            <div className="space-y-2">
+                                                {playlists.map((pl, idx) => (
+                                                    <div key={pl.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+                                                        <div className="flex items-center gap-4">
+                                                            <span className="text-[10px] font-black text-slate-300 w-4">#{idx + 1}</span>
+                                                            <span className="text-xs font-bold text-slate-700">{pl.name}</span>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                disabled={idx === 0}
+                                                                onClick={async () => {
+                                                                    const newPlaylists = [...playlists];
+                                                                    [newPlaylists[idx], newPlaylists[idx - 1]] = [newPlaylists[idx - 1], newPlaylists[idx]];
+                                                                    setPlaylists(newPlaylists);
+                                                                    setHasChangedOrder(true);
+                                                                    // Persist order
+                                                                    await Promise.all(newPlaylists.map((p, i) =>
+                                                                        supabase.from('playlists').update({ order_index: i }).eq('id', p.id)
+                                                                    ));
+                                                                }}
+                                                                className="p-2 hover:bg-slate-50 text-slate-400 rounded-lg disabled:opacity-20"
+                                                            >
+                                                                <ChevronUp size={16} />
+                                                            </button>
+                                                            <button
+                                                                disabled={idx === playlists.length - 1}
+                                                                onClick={async () => {
+                                                                    const newPlaylists = [...playlists];
+                                                                    [newPlaylists[idx], newPlaylists[idx + 1]] = [newPlaylists[idx + 1], newPlaylists[idx]];
+                                                                    setPlaylists(newPlaylists);
+                                                                    setHasChangedOrder(true);
+                                                                    // Persist order
+                                                                    await Promise.all(newPlaylists.map((p, i) =>
+                                                                        supabase.from('playlists').update({ order_index: i }).eq('id', p.id)
+                                                                    ));
+                                                                }}
+                                                                className="p-2 hover:bg-slate-50 text-slate-400 rounded-lg disabled:opacity-20"
+                                                            >
+                                                                <ChevronDown size={16} />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Playlists Section */}
+                                    {playlists.length > 0 && (
+                                        <div className="mt-8">
+                                            <PlaylistSection
+                                                playlists={playlists}
+                                                isOwner={isOwner}
+                                                onEdit={(id) => {
+                                                    const pl = playlists.find(p => p.id === id);
+                                                    setEditingPlaylist(pl);
+                                                    setIsPlaylistModalOpen(true);
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+
                                 </div>
                             )}
                         </div>

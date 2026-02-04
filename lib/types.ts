@@ -34,6 +34,9 @@ export interface Profile {
     ultima_actualizacion?: string;
     ultima_sesion?: string;
     perfil_completado?: boolean;
+    tema_perfil?: string;
+    color_acento?: string;
+    video_destacado_url?: string;
     stripe_customer_id?: string;
     idioma_preferido?: string;
 }
