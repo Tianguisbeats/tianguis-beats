@@ -3,20 +3,14 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import {
-  ChevronRight,
-  Music,
+  Search,
+  ArrowRight,
   Zap,
   ShieldCheck,
-  Globe,
-  Monitor,
   Cpu,
-  Layers,
-  ArrowRight,
-  Star,
-  Plus,
-  Sparkles,
-  Search,
-  BrainCircuit,
+  Globe,
+  Music,
+  BarChart3,
   Waves
 } from 'lucide-react';
 
@@ -27,191 +21,206 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-black selection:text-white overflow-x-hidden">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative h-[95vh] flex items-center justify-center overflow-hidden">
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="/images/home-hero.png"
-            alt="Tianguis Beats Studio"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-900/70 to-slate-900"></div>
-        </div>
+      {/* 1. HERO SECTION: Minimalist Tech */}
+      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 overflow-hidden">
+        {/* Background Gradients */}
+        <div className="absolute top-0 left-0 w-full h-[80vh] bg-white -z-20"></div>
+        <div className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-blue-500/5 rounded-full blur-[120px] -z-10"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-purple-500/5 rounded-full blur-[100px] -z-10"></div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white text-[10px] font-black uppercase tracking-[0.6em] mb-12 animate-fade-in">
-            <span className="text-lg">🇲🇽</span>
-            La Plataforma #1 de México
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white/50 backdrop-blur-sm mb-8 animate-fade-in-up">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Tianguis AI Engine v2.0 Online</span>
           </div>
 
-          <h1 className="text-7xl md:text-[11rem] font-black text-white leading-[0.75] tracking-[-0.07em] uppercase mb-12">
-            Domina la <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-200 to-white">Escena.</span>
+          <h1 className="text-5xl md:text-7xl lg:text-9xl font-black text-slate-900 tracking-tighter mb-8 leading-[0.9]">
+            El Futuro del <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Audio Latino.</span>
           </h1>
 
-          <div className="max-w-3xl mx-auto mb-16 px-4">
-            <p className="text-white/60 font-medium text-lg md:text-xl mb-10 tracking-tight leading-relaxed">
-              Donde la herencia musical de México se encuentra con <br className="hidden md:block" />
-              la tecnología de audio de última generación.
-            </p>
+          <p className="text-lg md:text-xl text-slate-500 font-medium max-w-2xl mx-auto mb-12 leading-relaxed tracking-tight">
+            La primera plataforma impulsada por Inteligencia Artificial para productores y artistas. Encuentra, compra y vende beats con la precisión de un algoritmo y el alma de la calle.
+          </p>
 
-            <div className="bg-white rounded-[3rem] p-2 flex shadow-2xl shadow-blue-900/40 transform hover:scale-[1.02] transition-all duration-500">
+          {/* Omni-Search Bar */}
+          <div className="max-w-2xl mx-auto relative group">
+            <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative flex items-center bg-white p-2 rounded-full shadow-2xl shadow-slate-200/50 border border-slate-100 transition-all duration-300 focus-within:ring-4 focus-within:ring-blue-500/10">
+              <div className="pl-6 text-slate-400">
+                <Search size={22} />
+              </div>
               <input
                 type="text"
-                placeholder="Encuentra el sonido que cambiará tu carrera..."
-                className="flex-1 bg-transparent border-none pl-8 pr-4 outline-none font-bold text-slate-900 text-lg placeholder:text-slate-300"
+                placeholder="Escribe 'Reggaeton oscuro a 90bpm' o pega un link..."
+                className="flex-1 bg-transparent border-none px-4 py-4 outline-none font-medium text-slate-800 text-lg placeholder:text-slate-300"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && (window.location.href = `/beats?q=${searchQuery}`)}
               />
               <button
                 onClick={() => window.location.href = `/beats?q=${searchQuery}`}
-                className="bg-blue-600 text-white px-10 py-5 rounded-[3rem] font-black uppercase text-[11px] tracking-[0.2em] hover:bg-slate-900 transition-all active:scale-95 shadow-lg shadow-blue-500/20"
+                className="bg-slate-900 text-white px-8 py-3 rounded-full font-bold uppercase text-[10px] tracking-widest hover:bg-blue-600 transition-all"
               >
-                Explorar Catálogo
+                Buscar
               </button>
             </div>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-10">
-            <div className="flex items-center gap-3 text-white/40 font-black uppercase tracking-[0.3em] text-[10px]">
-              <ShieldCheck size={16} className="text-blue-500" /> Transacciones Seguras
-            </div>
-            <div className="flex items-center gap-3 text-white/40 font-black uppercase tracking-[0.3em] text-[10px]">
-              <BrainCircuit size={16} className="text-blue-500" /> Tianguis AI Core
-            </div>
-            <div className="flex items-center gap-3 text-white/40 font-black uppercase tracking-[0.3em] text-[10px]">
-              <Star size={16} className="text-blue-500" /> Calidad Premium
+            <div className="mt-4 flex flex-wrap justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              <span>Sugerencias:</span>
+              <button className="hover:text-blue-600 transition-colors" onClick={() => setSearchQuery('Corridos Tumbados')}>🔥 Corridos</button>
+              <button className="hover:text-blue-600 transition-colors" onClick={() => setSearchQuery('Reggaeton Dark')}>🕶️ Reggaeton</button>
+              <button className="hover:text-blue-600 transition-colors" onClick={() => setSearchQuery('Trap Melódico')}>🎹 Trap</button>
             </div>
           </div>
-        </div>
-
-        {/* Floating element at bottom */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 text-white/20 animate-bounce">
-          <span className="text-[10px] font-black uppercase tracking-[0.4em]">Scroll</span>
-          <div className="w-[1px] h-12 bg-gradient-to-b from-white/20 to-transparent"></div>
         </div>
       </section>
 
-      {/* AI Technology Showcase Section */}
-      <section className="relative -mt-24 bg-white rounded-t-[6rem] pt-32 pb-40 z-20 overflow-hidden">
-        {/* Abstract AI Background Element */}
-        <div className="absolute top-0 right-0 w-[40%] h-[40%] bg-blue-50 shadow-[0_0_150px_rgba(37,99,235,0.05)] rounded-full -translate-y-1/2 translate-x-1/2 -z-10"></div>
+      {/* 2. STATS / SOCIAL PROOF (Minimal Stripe-like) */}
+      <section className="bg-white border-y border-slate-100 py-12">
+        <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-center md:justify-between items-center gap-8 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+          {['Sony Music', 'Warner Chappell', 'Universal', 'Spotify', 'BMI'].map((brand) => (
+            <span key={brand} className="text-xl font-black text-slate-300 uppercase tracking-tighter">{brand}</span>
+          ))}
+        </div>
+      </section>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 3. AI FEATURES (The "Vitaminada" Section) */}
+      <section className="py-32 px-4 bg-slate-50 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-20">
+            <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter mb-6">
+              Poder <span className="text-blue-600">Ilimitado.</span>
+            </h2>
+            <p className="text-xl text-slate-500 max-w-xl font-medium">
+              Herramientas de próxima generación integradas directamente en tu flujo de trabajo. No es solo un marketplace, es tu estudio inteligente.
+            </p>
+          </div>
 
-          <div className="grid lg:grid-cols-2 gap-24 items-center mb-40">
-            <div className="relative">
-              <div className="aspect-square bg-slate-900 rounded-[5.5rem] overflow-hidden shadow-2xl relative group">
-                {/* AI Visual - Brain & Waves */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.2),transparent_70%)] animate-pulse"></div>
-
-                <div className="absolute inset-10 rounded-[4rem] border border-white/5 bg-slate-800/50 backdrop-blur-xl flex flex-col items-center justify-center p-12 overflow-hidden">
-                  <div className="relative mb-8">
-                    <BrainCircuit size={140} className="text-blue-500 opacity-80 group-hover:scale-110 transition-transform duration-700" strokeWidth={1} />
-                    <div className="absolute inset-0 bg-blue-500/20 blur-[60px] rounded-full"></div>
-                    <Sparkles className="absolute -top-4 -right-4 text-blue-300 animate-spin-slow" size={24} />
-                  </div>
-
-                  <div className="w-full max-w-[200px] space-y-4">
-                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full w-[85%] bg-gradient-to-r from-blue-600 to-blue-400"></div>
-                    </div>
-                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-blue-400">
-                      <span>AI MASTERING ENGINE</span>
-                      <span>Ready</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Floating Wave Icons */}
-                <div className="absolute bottom-16 right-16 w-20 h-20 bg-blue-600 text-white rounded-[2rem] flex items-center justify-center shadow-2xl animate-bounce-slow">
-                  <Waves size={32} />
-                </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Feature 1 */}
+            <div className="bg-white p-10 rounded-[2rem] border border-slate-100 hover:border-blue-100 hover:shadow-2xl hover:shadow-blue-900/5 transition-all group">
+              <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                <Cpu size={28} />
               </div>
-
-              {/* Context Label */}
-              <div className="absolute -bottom-8 -right-8 bg-white p-6 rounded-[3rem] shadow-2xl border border-slate-50 flex items-center gap-4">
-                <div className="w-10 h-10 bg-green-500/10 text-green-600 rounded-full flex items-center justify-center">
-                  <ShieldCheck size={20} />
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">100% Calidad Garantizada por IA</span>
-              </div>
-            </div>
-
-            <div className="space-y-10">
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-[0.4em]">
-                Tianguis AI CORE
-              </div>
-              <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tight text-slate-900 leading-[0.85]">
-                Inteligencia <br /> Musical <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">Sin Límites.</span>
-              </h2>
-              <p className="text-slate-500 text-lg font-medium leading-relaxed max-w-lg">
-                Nuestro núcleo de IA procesa miles de datos para ofrecerte una experiencia de nivel profesional, facilitando tu flujo de trabajo desde el muestreo hasta la masterización.
+              <h3 className="text-2xl font-black text-slate-900 mb-4 tracking-tight">Smart Match Algorithm</h3>
+              <p className="text-slate-500 leading-relaxed font-medium">
+                Nuestra IA analiza la estructura armónica de tus búsquedas para recomendarte beats que encajan matemáticamente con tu estilo.
               </p>
+            </div>
 
-              <div className="grid sm:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <div className="w-12 h-12 bg-slate-50 text-blue-600 rounded-2xl flex items-center justify-center border border-slate-100">
-                    <Sparkles size={24} />
-                  </div>
-                  <h4 className="text-lg font-black uppercase tracking-tight">AI Mastering</h4>
-                  <p className="text-slate-400 text-sm font-medium leading-snug">Eleva tus demos a calidad de radio automáticamente con nuestro motor de masterización inteligente.</p>
+            {/* Feature 2 */}
+            <div className="bg-slate-900 p-10 rounded-[2rem] text-white shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:opacity-100 transition-opacity opacity-50"></div>
+              <div className="relative z-10">
+                <div className="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center mb-8 backdrop-blur-sm">
+                  <Waves size={28} />
                 </div>
-                <div className="space-y-4">
-                  <div className="w-12 h-12 bg-slate-50 text-blue-600 rounded-2xl flex items-center justify-center border border-slate-100">
-                    <Search size={24} />
-                  </div>
-                  <h4 className="text-lg font-black uppercase tracking-tight">Smart Sampling</h4>
-                  <p className="text-slate-400 text-sm font-medium leading-snug">Algoritmos avanzados que te recomiendan los mejores sonidos basados en tus gustos y el mercado.</p>
+                <h3 className="text-2xl font-black mb-4 tracking-tight">Auto-Mastering Preview</h3>
+                <p className="text-slate-400 leading-relaxed font-medium">
+                  Escucha cómo sonaría tu voz sobre el beat en tiempo real. Sube una demo y deja que nuestro motor la mezcle instantáneamente.
+                </p>
+                <div className="mt-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-400">
+                  <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
+                  Beta Access
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Value Props Grid */}
-          <div className="grid md:grid-cols-3 gap-8 mb-40">
-            {[
-              { icon: <Globe />, title: "Mercado Global", text: "Vende y compra ritmos en cualquier parte del mundo con tipos de cambio automáticos." },
-              { icon: <ShieldCheck />, title: "Legalidad Total", text: "Contratos generados al instante por IA para proteger tanto al artista como al productor." },
-              { icon: <Zap />, title: "Pago al Instante", text: "Recibe tus ganancias o descarga tus beats sin intermediarios ni retrasos humanos." }
-            ].map((item, idx) => (
-              <div key={idx} className="p-10 rounded-[3.5rem] bg-slate-50 hover:bg-white hover:shadow-2xl hover:shadow-slate-200 transition-all border border-transparent hover:border-slate-100 group">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-8 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                  {item.icon}
-                </div>
-                <h4 className="text-2xl font-black uppercase tracking-tight mb-4">{item.title}</h4>
-                <p className="text-slate-400 text-sm font-medium leading-relaxed">{item.text}</p>
+            {/* Feature 3 */}
+            <div className="bg-white p-10 rounded-[2rem] border border-slate-100 hover:border-purple-100 hover:shadow-2xl hover:shadow-purple-900/5 transition-all group">
+              <div className="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                <ShieldCheck size={28} />
               </div>
-            ))}
-          </div>
-
-          {/* Final Elevated CTA */}
-          <div className="relative rounded-[5.5rem] overflow-hidden bg-slate-900 py-32 px-10 text-center text-white">
-            <div className="absolute inset-0 z-0 overflow-hidden">
-              <div className="absolute top-0 right-0 w-[50%] h-full bg-blue-600/10 blur-[150px] -rotate-45 translate-x-1/2"></div>
-              <div className="absolute bottom-0 left-0 w-[50%] h-full bg-blue-400/5 blur-[120px] rotate-12 -translate-x-1/2"></div>
+              <h3 className="text-2xl font-black text-slate-900 mb-4 tracking-tight">Smart Contracts</h3>
+              <p className="text-slate-500 leading-relaxed font-medium">
+                Olvídate de papeleo. Cada transacción genera un contrato legalmente vinculante en la Blockchain, protegiendo tus derechos para siempre.
+              </p>
             </div>
+          </div>
+        </div>
+      </section>
 
-            <div className="relative z-10 max-w-4xl mx-auto">
-              <span className="text-blue-500 font-black uppercase tracking-[0.5em] text-[10px] mb-10 block">Forma parte de la comunidad</span>
-              <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter mb-12 leading-[0.85]">
-                Únete al <br /> <span className="italic">Tianguis.</span>
+      {/* 4. PLANS TEASER (Minimalist Comparison) */}
+      <section className="py-32 px-4 bg-white border-t border-slate-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+            <div>
+              <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter mb-4">
+                Elige tu <span className="text-indigo-600">Nivel.</span>
               </h2>
-              <div className="flex flex-col sm:flex-row justify-center gap-8 items-center">
-                <Link href="/signup" className="group flex items-center gap-6 px-12 py-6 bg-blue-600 text-white rounded-full font-black uppercase text-[12px] tracking-widest hover:bg-white hover:text-blue-600 transition-all shadow-xl shadow-blue-500/20">
-                  Empezar ahora
-                  <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
-                </Link>
-                <div className="flex items-center gap-4 text-white/40 text-[10px] font-black uppercase tracking-widest">
-                  Cada día más productores se están uniendo 🇲🇽
+              <p className="text-lg text-slate-500 font-medium tracking-tight">Escala desde bedroom producer hasta leyenda mundial.</p>
+            </div>
+            <Link href="/pricing" className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-widest text-slate-900 border-b-2 border-slate-900 pb-1 hover:text-blue-600 hover:border-blue-600 transition-all">
+              Ver todos los planes <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            <div className="p-12 rounded-[3rem] bg-slate-50 border border-slate-100 flex flex-col justify-between h-full">
+              <div>
+                <span className="inline-block px-4 py-1 rounded-full bg-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-widest mb-6">Start</span>
+                <h3 className="text-4xl font-black text-slate-900 mb-4">Free</h3>
+                <p className="text-slate-500 font-medium mb-8">Perfecto para empezar a explorar. Sin compromiso.</p>
+                <ul className="space-y-4 mb-12">
+                  <li className="flex items-center gap-3 text-sm font-bold text-slate-700">
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div> Sube hasta 5 Beats
+                  </li>
+                  <li className="flex items-center gap-3 text-sm font-bold text-slate-700">
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div> Perfil Básico
+                  </li>
+                </ul>
+              </div>
+              <Link href="/signup" className="w-full py-4 text-center rounded-xl font-bold bg-white border border-slate-200 text-slate-900 hover:border-slate-400 transition-all">
+                Crear cuenta gratis
+              </Link>
+            </div>
+
+            <div className="p-12 rounded-[3rem] bg-slate-900 text-white relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+
+              <div className="relative z-10 h-full flex flex-col justify-between">
+                <div>
+                  <span className="inline-block px-4 py-1 rounded-full bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest mb-6">Recomendado</span>
+                  <h3 className="text-4xl font-black mb-4">Pro & Premium</h3>
+                  <p className="text-slate-400 font-medium mb-8">Desbloquea el poder total de la IA y personalización.</p>
+                  <ul className="space-y-4 mb-12">
+                    <li className="flex items-center gap-3 text-sm font-bold text-indigo-200">
+                      <Zap size={14} className="text-indigo-400" /> Uploads Ilimitados
+                    </li>
+                    <li className="flex items-center gap-3 text-sm font-bold text-indigo-200">
+                      <BarChart3 size={14} className="text-indigo-400" /> Estadísticas Reales & CRM
+                    </li>
+                    <li className="flex items-center gap-3 text-sm font-bold text-indigo-200">
+                      <Globe size={14} className="text-indigo-400" /> Tienda Personalizable
+                    </li>
+                  </ul>
                 </div>
+                <Link href="/pricing" className="w-full py-4 text-center rounded-xl font-bold bg-indigo-600 text-white hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/25">
+                  Ver Planes Pro
+                </Link>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. CTA FINAL */}
+      <section className="py-32 text-center bg-white">
+        <div className="max-w-4xl mx-auto px-4">
+          <h2 className="text-5xl md:text-8xl font-black text-slate-900 tracking-tighter mb-8 leading-[0.85]">
+            ¿Listo para <br />
+            <span className="italic">romperla?</span>
+          </h2>
+          <div className="flex justify-center gap-4">
+            <Link href="/beats" className="bg-slate-900 text-white px-10 py-5 rounded-full font-black uppercase text-[12px] tracking-widest hover:scale-105 transition-transform flex items-center gap-2">
+              Explorar Beats <Music size={16} />
+            </Link>
           </div>
         </div>
       </section>
@@ -219,21 +228,13 @@ export default function Home() {
       <Footer />
 
       <style jsx global>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(10px); }
+        @keyframes fade-in-up {
+          from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+        .animate-fade-in-up {
+          animation: fade-in-up 0.8s ease-out forwards;
         }
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-15px); }
-        }
-        .animate-fade-in { animation: fade-in 1s ease-out forwards; }
-        .animate-spin-slow { animation: spin-slow 8s linear infinite; }
-        .animate-bounce-slow { animation: bounce-slow 4s ease-in-out infinite; }
       `}</style>
     </div>
   );
