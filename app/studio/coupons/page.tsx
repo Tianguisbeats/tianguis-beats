@@ -237,7 +237,7 @@ export default function CouponsPage() {
                                         min="1"
                                         placeholder="Ilimitado"
                                         value={currentCoupon?.usos_maximos || ''}
-                                        onChange={e => setCurrentCoupon({ ...currentCoupon, usos_maximos: e.target.value ? Number(e.target.value) : null })}
+                                        onChange={e => setCurrentCoupon({ ...currentCoupon, usos_maximos: e.target.value ? Number(e.target.value) : null })} // Fix: null
                                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
                                     />
                                 </div>
