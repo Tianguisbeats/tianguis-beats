@@ -23,6 +23,10 @@ export interface Profile {
         youtube?: string;
         twitter?: string;
         tiktok?: string;
+        spotify?: string;
+        applemusic?: string;
+        tidal?: string;
+        amazon?: string;
     };
     birth_date?: string | null;
     subscription_tier?: SubscriptionTier;

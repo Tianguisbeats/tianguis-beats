@@ -27,6 +27,35 @@ const COUNTRIES = [
     "Puerto Rico 🇵🇷", "República Dominicana 🇩🇴", "Venezuela 🇻🇪", "Panamá 🇵🇦", "Costa Rica 🇨🇷"
 ];
 
+// Social Media Icons Mapping
+const SOCIAL_ICONS: Record<string, any> = {
+    instagram: { icon: Instagram, color: "hover:text-pink-600" },
+    youtube: { icon: Youtube, color: "hover:text-red-600" },
+    twitter: { icon: Twitter, color: "hover:text-blue-400" },
+    tiktok: {
+        path: "M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77-1.52v-3.4a4.85 4.85 0 0 1-1-.1z",
+        color: "hover:text-black dark:hover:text-white"
+    },
+    spotify: {
+        path: "M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2m0 2a8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8 8 8 0 0 0-8-8m3.93 11c-.3.06-.62 0-.85-.14-2.34-1.42-5.3-1.74-8.77-1.74-.29 0-.58.07-.82.2a.57.57 0 0 1-.78-.23c-.16-.28-.06-.63.22-.79 3.86.06 7.18.42 9.9 2a1 1 0 0 1 .4.15c.29.17.38.54.21.83-.11.19-.3.29-.51.29zM12 9.04c-3.15 0-5.83.33-8.08 1.05-.38.12-.58.53-.46.9.11.33.45.52.8.52.1 0 .21-.03.31-.06 2.02-.65 4.49-.95 7.43-.95 2.81 0 5.2.28 7.15.86.1.03.2.05.3.05.28 0 .55-.13.7-.37.21-.34.11-.78-.23-.99-2.22-.69-5.11-1.01-7.92-1.01zm-7.6 2.87c2.68-.8 6.09-1.12 9.06-1.12 2.62 0 5.64.26 8.27 1.05.47.14.73.65.59 1.12-.13.43-.53.7-1.02.7-.1 0-.21-.02-.3-.05-2.29-.68-4.99-.91-7.54-.91-2.6 0-5.63.29-8.04 1.01-.1.03-.2.04-.3.04-.4 0-.8-.25-.94-.64-.2-.47.05-1 .52-1.2z",
+        color: "hover:text-green-500"
+    },
+    applemusic: {
+        icon: Music, // Lucide Music icon is close enough for Apple Music visually usually
+        color: "hover:text-rose-500"
+    },
+    tidal: {
+        path: "M12.01 2.24L9.77 4.48l2.24 2.24 2.24-2.24-2.24-2.24zM5.29 6.72L3.05 8.96l2.24 2.24 2.24-2.24-2.24-2.24zM12.01 11.2l-2.24 2.24 2.24 2.24 2.24-2.24-2.24-2.24zM18.73 6.72l-2.24 2.24 2.24 2.24 2.24-2.24-2.24-2.24z",
+        color: "hover:text-black dark:hover:text-white"
+    },
+    amazon: {
+        path: "M13.5 12c-1.5 1.5-3.5 2-5 2-1.5 0-3-.5-4-2 .5 1 2 2 4 2 1.5 0 3-.5 4.5-1.5.5-.3 1-.8 1-1s-.3-1-.5-.5zm-2-1c.5-.5 1-1.5 1-2.5 0-1.5-1-2.5-2.5-2.5-1 0-2 .5-2.5 1.5-.5-1-1.5-1.5-2.5-1.5-1.5 0-2.5 1-2.5 2.5 0 .5 0 1 .5 1.5-1 .5-1.5 1.5-1.5 2.5 0 1.5 1 2.5 2.5 2.5 1.5 0 2.5-1 4-2.5 1.5 1.5 2.5 2.5 4 2.5 1.5 0 2.5-1 2.5-2.5 0-1-.5-2-1.5-2.5.5-1.5 0-3-1.5-3z",
+        color: "hover:text-cyan-500"
+    }
+};
+
+const SOCIAL_KEYS = ['instagram', 'youtube', 'tiktok', 'spotify', 'applemusic', 'tidal', 'amazon', 'twitter'];
+
 /**
  * PublicProfilePage: Muestra el perfil público de un productor o usuario.
  * Incluye su biografía, redes sociales, y catálogo de beats.
@@ -358,13 +387,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     if (!profile) return null;
 
     return (
-        <div className={`min-h-screen font-sans flex flex-col pt-24 transition-colors duration-500 ${profile.tema_perfil === 'dark' ? 'bg-slate-900 text-white selection:bg-white selection:text-slate-900' :
-            profile.tema_perfil === 'neon' ? 'bg-black text-green-400 font-mono selection:bg-green-400 selection:text-black' :
-                profile.tema_perfil === 'gold' ? 'bg-slate-900 text-amber-100 font-serif selection:bg-amber-400 selection:text-black' :
+        <div className={`min-h-screen font-sans flex flex-col pt-24 transition-colors duration-500 ${profile.tema_perfil === 'dark' ? 'bg-[#0F172A] text-white selection:bg-white selection:text-slate-900' :
+            profile.tema_perfil === 'neon' ? 'bg-[#09090b] text-white selection:bg-green-400 selection:text-black' :
+                profile.tema_perfil === 'gold' ? 'bg-[#1a1610] text-amber-50 font-serif selection:bg-amber-400 selection:text-black' :
                     'bg-white text-slate-900 selection:bg-blue-600 selection:text-white'
             }`} style={{
                 '--accent': profile.color_acento || '#2563eb'
             } as React.CSSProperties}>
+
             <Navbar />
 
             <main className="flex-1 pb-20">
@@ -584,9 +614,92 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 </div>
                             </div>
 
-                            {/* Status Sidebar (AHORA ARRIBA) */}
+                            {/* Bio Box (AHORA ARRIBA) */}
+                            <div className={`border rounded-[2rem] p-8 shadow-sm mb-0 relative overflow-hidden ${profile.tema_perfil === 'dark' ? 'bg-slate-800/50 border-slate-700/50 text-slate-300' :
+                                profile.tema_perfil === 'neon' ? 'bg-zinc-900/50 border-zinc-800 text-zinc-300' :
+                                    profile.tema_perfil === 'gold' ? 'bg-[#2a241c] border-amber-900/30 text-amber-100' :
+                                        'bg-white border-slate-100'
+                                }`}>
+                                <h3 className={`text-xs font-black uppercase tracking-widest mb-4 ${profile.tema_perfil === 'neon' ? 'text-green-500' :
+                                    profile.tema_perfil === 'gold' ? 'text-amber-500' :
+                                        'text-slate-400'
+                                    }`}>Trayectoria</h3>
+
+                                {/* Socials Row */}
+                                <div className="flex flex-wrap gap-3 mb-6">
+                                    {SOCIAL_KEYS.map(key => {
+                                        const url = profile.social_links?.[key as keyof typeof profile.social_links];
+                                        if (!url) return null;
+
+                                        // Construct URL (check if full URL or username)
+                                        let finalUrl = url.startsWith('http') ? url : `https://${key}.com/${url}`;
+                                        if (key === 'whatsapp') finalUrl = `https://wa.me/${url}`;
+
+                                        const item = SOCIAL_ICONS[key];
+                                        if (!item) return null;
+
+                                        return (
+                                            <a key={key} href={finalUrl} target="_blank" rel="noopener noreferrer"
+                                                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm group ${profile.tema_perfil === 'light'
+                                                    ? 'bg-slate-50 text-slate-900 hover:bg-slate-900 hover:text-white'
+                                                    : 'bg-white/5 text-white hover:bg-white hover:text-black'
+                                                    }`}>
+                                                {item.icon ? (
+                                                    <item.icon size={18} />
+                                                ) : (
+                                                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                                                        <path d={item.path} />
+                                                    </svg>
+                                                )}
+                                            </a>
+                                        )
+                                    })}
+                                </div>
+
+                                {isEditing ? (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="text-[9px] font-black uppercase text-slate-400 mb-2 block">Biografía</label>
+                                            <textarea
+                                                value={editBio}
+                                                onChange={(e) => setEditBio(e.target.value)}
+                                                className="w-full h-32 bg-slate-50 rounded-xl p-4 text-sm font-medium border border-transparent focus:border-blue-500 outline-none resize-none text-slate-900"
+                                                placeholder="Escribe tu historia..."
+                                            />
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {SOCIAL_KEYS.map(key => (
+                                                <div key={key}>
+                                                    <label className="text-[8px] font-black uppercase text-slate-400 mb-1 block">{key}</label>
+                                                    <input
+                                                        placeholder={`Usuario/Link ${key}`}
+                                                        value={editSocials[key] || ''}
+                                                        onChange={e => setEditSocials({ ...editSocials, [key]: e.target.value })}
+                                                        className="w-full bg-slate-50 rounded-lg px-3 py-2 text-xs font-medium border-transparent focus:border-blue-500 text-slate-900"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <button
+                                            onClick={handleUpdateProfile}
+                                            disabled={saving}
+                                            className="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg"
+                                        >
+                                            {saving ? 'Guardando...' : 'Guardar Perfil'}
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <p className={`text-sm font-medium leading-relaxed ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-300'}`}>
+                                        {profile.bio || "Sin biografía aún."}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Status Sidebar (AHORA ABAJO) */}
                             {profile.video_destacado_url && (
-                                <div className={`rounded-[2rem] overflow-hidden border mb-8 ${profile.tema_perfil === 'dark' ? 'border-slate-700 bg-slate-800' :
+                                <div className={`rounded-[2rem] overflow-hidden border ${profile.tema_perfil === 'dark' ? 'border-slate-700 bg-slate-800' :
                                     profile.tema_perfil === 'neon' ? 'border-green-900 bg-black shadow-[0_0_15px_rgba(74,222,128,0.1)]' :
                                         profile.tema_perfil === 'gold' ? 'border-amber-900/50 bg-slate-900' :
                                             'border-slate-100 bg-white'
@@ -614,8 +727,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             )}
 
                             <div className={`rounded-[2rem] p-8 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
-                                profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-[0_0_15px_rgba(74,222,128,0.2)]' :
-                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50' :
+                                profile.tema_perfil === 'neon' ? 'bg-zinc-900 border-zinc-800' :
+                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/30' :
                                         'bg-slate-50 border-slate-100'
                                 }`}>
                                 <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] mb-6 font-outfit ${profile.tema_perfil === 'dark' ? 'text-slate-400' :
@@ -647,85 +760,44 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     )}
                                 </div>
                             </div>
-
-
-                            {/* Bio Box (AHORA ABAJO) */}
-                            <div className={`border rounded-[2rem] p-8 shadow-sm ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-300' :
-                                profile.tema_perfil === 'neon' ? 'bg-black border-green-900/50 text-green-100' :
-                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/30 text-amber-100' :
-                                        'bg-white border-slate-100'
-                                }`}>
-                                {/* Socials */}
-                                <div className="flex gap-2 mb-6 justify-center md:justify-start">
-                                    {profile.social_links?.instagram && (
-                                        <a href={`https://instagram.com/${profile.social_links.instagram}`} className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-white transition-all"><Instagram size={18} /></a>
-                                    )}
-                                    {profile.social_links?.youtube && (
-                                        <a href={`https://youtube.com/${profile.social_links.youtube}`} className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-white transition-all"><Youtube size={18} /></a>
-                                    )}
-                                </div>
-
-                                <h3 className="text-xs font-black uppercase tracking-widest text-slate-300 mb-4">Trayectoria</h3>
-
-                                {isEditing ? (
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="text-[9px] font-black uppercase text-slate-400 mb-2 block">Biografía</label>
-                                            <textarea
-                                                value={editBio}
-                                                onChange={(e) => setEditBio(e.target.value)}
-                                                className="w-full h-32 bg-slate-50 rounded-xl p-4 text-sm font-medium border border-transparent focus:border-blue-500 outline-none resize-none"
-                                                placeholder="Escribe tu historia..."
-                                            />
-                                        </div>
-                                        <button
-                                            onClick={handleUpdateProfile}
-                                            disabled={saving}
-                                            className="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg"
-                                        >
-                                            {saving ? 'Guardando...' : 'Guardar Perfil'}
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <p className={`text-sm font-medium leading-relaxed ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-300'}`}>
-                                        {profile.bio || "Sin biografía aún."}
-                                    </p>
-                                )}
-                            </div>
                         </div>
 
                         {/* Beats Feed */}
                         <div className="lg:col-span-8">
-                            <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-1 overflow-x-auto">
+                            <div className={`flex items-center gap-2 mb-8 pb-1 overflow-x-auto ${profile.tema_perfil === 'light' ? 'border-b border-slate-100' : 'border-b border-white/10'
+                                }`}>
                                 <button
                                     onClick={() => setActiveTab('beats')}
-                                    className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all border-b-2 ${activeTab === 'beats'
-                                            ? (profile.tema_perfil === 'light' ? 'border-slate-900 text-slate-900' : 'border-white text-white')
-                                            : 'border-transparent text-slate-400 hover:text-slate-500'
+                                    className={`px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all ${activeTab === 'beats'
+                                            ? (profile.tema_perfil === 'light' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-black shadow-lg shadow-white/20')
+                                            : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
                                         }`}
                                 >
-                                    Beats ({beats.length})
+                                    Beats
+                                    <span className={`ml-2 px-1.5 py-0.5 rounded-md text-[8px] ${activeTab === 'beats' ? 'bg-white/20 text-current' : 'bg-slate-100 text-slate-500'}`}>{beats.length}</span>
                                 </button>
                                 {services.length > 0 && (
                                     <button
                                         onClick={() => setActiveTab('services')}
-                                        className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all border-b-2 ${activeTab === 'services'
-                                                ? 'border-blue-600 text-blue-600'
-                                                : 'border-transparent text-slate-400 hover:text-slate-500'
+                                        className={`px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all ${activeTab === 'services'
+                                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                                : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
                                             }`}
                                     >
-                                        Servicios ({services.length})
+                                        Servicios
+                                        <span className={`ml-2 px-1.5 py-0.5 rounded-md text-[8px] ${activeTab === 'services' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>{services.length}</span>
                                     </button>
                                 )}
                                 {playlists.length > 0 && (
                                     <button
                                         onClick={() => setActiveTab('playlists')}
-                                        className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all border-b-2 ${activeTab === 'playlists'
-                                                ? (profile.tema_perfil === 'light' ? 'border-slate-900 text-slate-900' : 'border-white text-white')
-                                                : 'border-transparent text-slate-400 hover:text-slate-500'
+                                        className={`px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all ${activeTab === 'playlists'
+                                                ? (profile.tema_perfil === 'light' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-black shadow-lg shadow-white/20')
+                                                : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
                                             }`}
                                     >
-                                        Colecciones ({playlists.length})
+                                        Colecciones
+                                        <span className={`ml-2 px-1.5 py-0.5 rounded-md text-[8px] ${activeTab === 'playlists' ? 'bg-white/20 text-current' : 'bg-slate-100 text-slate-500'}`}>{playlists.length}</span>
                                     </button>
                                 )}
                             </div>
@@ -782,9 +854,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     <div className="grid md:grid-cols-2 gap-4">
                                         {services.map(service => (
                                             <div key={service.id} className={`p-6 rounded-[2rem] border shadow-sm hover:shadow-md transition-all group ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
-                                                    profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-green-900/20' :
-                                                        profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50' :
-                                                            'bg-white border-slate-100'
+                                                profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-green-900/20' :
+                                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50' :
+                                                        'bg-white border-slate-100'
                                                 }`}>
                                                 <div className="flex justify-between items-start mb-4">
                                                     <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">
