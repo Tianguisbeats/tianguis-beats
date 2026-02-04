@@ -359,9 +359,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
     return (
         <div className={`min-h-screen font-sans flex flex-col pt-24 transition-colors duration-500 ${profile.tema_perfil === 'dark' ? 'bg-slate-900 text-white selection:bg-white selection:text-slate-900' :
-                profile.tema_perfil === 'neon' ? 'bg-black text-green-400 font-mono selection:bg-green-400 selection:text-black' :
-                    profile.tema_perfil === 'gold' ? 'bg-slate-900 text-amber-100 font-serif selection:bg-amber-400 selection:text-black' :
-                        'bg-white text-slate-900 selection:bg-blue-600 selection:text-white'
+            profile.tema_perfil === 'neon' ? 'bg-black text-green-400 font-mono selection:bg-green-400 selection:text-black' :
+                profile.tema_perfil === 'gold' ? 'bg-slate-900 text-amber-100 font-serif selection:bg-amber-400 selection:text-black' :
+                    'bg-white text-slate-900 selection:bg-blue-600 selection:text-white'
             }`} style={{
                 '--accent': profile.color_acento || '#2563eb'
             } as React.CSSProperties}>
@@ -453,7 +453,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 {profile.foto_perfil ? (
                                     <img src={profile.foto_perfil} className="w-full h-full object-cover" alt="Avatar" />
                                 ) : (
-                                    <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300"><Users size={48} /></div>
+                                    <div className={`w-full h-full flex items-center justify-center ${profile.tema_perfil === 'neon' ? 'bg-black text-green-500' : profile.tema_perfil === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-300'}`}><Users size={48} /></div>
                                 )}
                             </div>
                             {isOwner && (
@@ -469,7 +469,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div>
                                     <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-3 mb-3 text-center md:text-left pt-12">
-                                        <h1 className="text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter text-slate-900 leading-none">
+                                        <h1 className={`text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter leading-none ${profile.tema_perfil === 'neon' ? 'text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]' :
+                                            profile.tema_perfil === 'gold' ? 'text-amber-300 drop-shadow-lg' :
+                                                profile.tema_perfil === 'dark' ? 'text-white' :
+                                                    'text-slate-900'
+                                            }`}>
                                             {profile.artistic_name || profile.username}
                                         </h1>
                                         {profile.is_verified && (
@@ -484,7 +488,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         )}
                                     </div>
                                     <div className="flex items-center justify-center md:justify-start gap-2 mt-1">
-                                        <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                        <p className={`font-bold uppercase tracking-widest text-[10px] ${profile.tema_perfil === 'light' ? 'text-slate-400' : 'text-slate-500'}`}>
                                             @{profile.username}
                                         </p>
                                         <span className="text-slate-300">•</span>
@@ -561,31 +565,63 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         <div className="lg:col-span-4 space-y-8">
 
                             {/* Stats */}
-                            <div className="flex items-center justify-around bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                            <div className={`flex items-center justify-around rounded-2xl p-4 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
+                                profile.tema_perfil === 'neon' ? 'bg-black border-green-900' :
+                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50' :
+                                        'bg-slate-50 border-slate-100'
+                                }`}>
                                 <div className="text-center">
-                                    <span className="block text-xl font-black text-slate-900">{followersCount}</span>
+                                    <span className={`block text-xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{followersCount}</span>
                                     <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Seguidores</span>
                                 </div>
                                 <div className="text-center">
-                                    <span className="block text-xl font-black text-slate-900">{beats.length}</span>
+                                    <span className={`block text-xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{beats.length}</span>
                                     <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Beats</span>
                                 </div>
                                 <div className="text-center">
-                                    <span className="block text-xl font-black text-slate-900">0</span>
+                                    <span className={`block text-xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>0</span>
                                     <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Seguidos</span>
                                 </div>
                             </div>
 
                             {/* Status Sidebar (AHORA ARRIBA) */}
-                            <div className={`rounded-[2rem] p-8 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
-                                    profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-[0_0_15px_rgba(74,222,128,0.2)]' :
-                                        profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50' :
-                                            'bg-slate-50 border-slate-100'
-                                }`}>
-                                <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] mb-6 font-outfit ${profile.tema_perfil === 'dark' ? 'text-slate-400' :
-                                        profile.tema_perfil === 'neon' ? 'text-green-600' :
+                            {profile.video_destacado_url && (
+                                <div className={`rounded-[2rem] overflow-hidden border mb-8 ${profile.tema_perfil === 'dark' ? 'border-slate-700 bg-slate-800' :
+                                    profile.tema_perfil === 'neon' ? 'border-green-900 bg-black shadow-[0_0_15px_rgba(74,222,128,0.1)]' :
+                                        profile.tema_perfil === 'gold' ? 'border-amber-900/50 bg-slate-900' :
+                                            'border-slate-100 bg-white'
+                                    }`}>
+                                    <div className="aspect-video">
+                                        <iframe
+                                            width="100%"
+                                            height="100%"
+                                            src={profile.video_destacado_url.replace('watch?v=', 'embed/').split('&')[0]}
+                                            title="Featured Video"
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                        ></iframe>
+                                    </div>
+                                    <div className="p-4 text-center">
+                                        <span className={`text-[10px] font-black uppercase tracking-widest ${profile.tema_perfil === 'neon' ? 'text-green-600' :
                                             profile.tema_perfil === 'gold' ? 'text-amber-500' :
                                                 'text-slate-400'
+                                            }`}>
+                                            Video Destacado
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className={`rounded-[2rem] p-8 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
+                                profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-[0_0_15px_rgba(74,222,128,0.2)]' :
+                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50' :
+                                        'bg-slate-50 border-slate-100'
+                                }`}>
+                                <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] mb-6 font-outfit ${profile.tema_perfil === 'dark' ? 'text-slate-400' :
+                                    profile.tema_perfil === 'neon' ? 'text-green-600' :
+                                        profile.tema_perfil === 'gold' ? 'text-amber-500' :
+                                            'text-slate-400'
                                     }`}>Estatus Tianguis</h3>
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
@@ -615,9 +651,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                             {/* Bio Box (AHORA ABAJO) */}
                             <div className={`border rounded-[2rem] p-8 shadow-sm ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-300' :
-                                    profile.tema_perfil === 'neon' ? 'bg-black border-green-900/50 text-green-100' :
-                                        profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/30 text-amber-100' :
-                                            'bg-white border-slate-100'
+                                profile.tema_perfil === 'neon' ? 'bg-black border-green-900/50 text-green-100' :
+                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/30 text-amber-100' :
+                                        'bg-white border-slate-100'
                                 }`}>
                                 {/* Socials */}
                                 <div className="flex gap-2 mb-6 justify-center md:justify-start">
@@ -651,7 +687,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         </button>
                                     </div>
                                 ) : (
-                                    <p className="text-sm text-slate-600 font-medium leading-relaxed">
+                                    <p className={`text-sm font-medium leading-relaxed ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-300'}`}>
                                         {profile.bio || "Sin biografía aún."}
                                     </p>
                                 )}
@@ -663,14 +699,20 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-1 overflow-x-auto">
                                 <button
                                     onClick={() => setActiveTab('beats')}
-                                    className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all border-b-2 ${activeTab === 'beats' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+                                    className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all border-b-2 ${activeTab === 'beats'
+                                            ? (profile.tema_perfil === 'light' ? 'border-slate-900 text-slate-900' : 'border-white text-white')
+                                            : 'border-transparent text-slate-400 hover:text-slate-500'
+                                        }`}
                                 >
                                     Beats ({beats.length})
                                 </button>
                                 {services.length > 0 && (
                                     <button
                                         onClick={() => setActiveTab('services')}
-                                        className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all border-b-2 ${activeTab === 'services' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+                                        className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all border-b-2 ${activeTab === 'services'
+                                                ? 'border-blue-600 text-blue-600'
+                                                : 'border-transparent text-slate-400 hover:text-slate-500'
+                                            }`}
                                     >
                                         Servicios ({services.length})
                                     </button>
@@ -678,7 +720,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 {playlists.length > 0 && (
                                     <button
                                         onClick={() => setActiveTab('playlists')}
-                                        className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all border-b-2 ${activeTab === 'playlists' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+                                        className={`pb-3 px-2 font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all border-b-2 ${activeTab === 'playlists'
+                                                ? (profile.tema_perfil === 'light' ? 'border-slate-900 text-slate-900' : 'border-white text-white')
+                                                : 'border-transparent text-slate-400 hover:text-slate-500'
+                                            }`}
                                     >
                                         Colecciones ({playlists.length})
                                     </button>
@@ -693,7 +738,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 <Music size={20} />
                                             </div>
                                             <div>
-                                                <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900">Recién Horneados 🔥</h2>
+                                                <h2 className={`text-3xl font-black uppercase tracking-tighter ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>Recién Horneados 🔥</h2>
                                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Últimas creaciones del productor</p>
                                             </div>
                                         </div>
@@ -729,24 +774,28 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             <Briefcase size={20} />
                                         </div>
                                         <div>
-                                            <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900">Servicios Profesionales</h2>
+                                            <h2 className={`text-3xl font-black uppercase tracking-tighter ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>Servicios Profesionales</h2>
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Contrata talento experto</p>
                                         </div>
                                     </div>
 
                                     <div className="grid md:grid-cols-2 gap-4">
                                         {services.map(service => (
-                                            <div key={service.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                                            <div key={service.id} className={`p-6 rounded-[2rem] border shadow-sm hover:shadow-md transition-all group ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
+                                                    profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-green-900/20' :
+                                                        profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50' :
+                                                            'bg-white border-slate-100'
+                                                }`}>
                                                 <div className="flex justify-between items-start mb-4">
                                                     <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">
                                                         {service.tipo_servicio}
                                                     </span>
-                                                    <span className="text-xl font-black text-slate-900">${service.precio}</span>
+                                                    <span className={`text-xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>${service.precio}</span>
                                                 </div>
-                                                <h3 className="font-bold text-lg text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors">{service.titulo}</h3>
-                                                <p className="text-slate-500 text-xs mb-6 line-clamp-3 leading-relaxed">{service.descripcion}</p>
+                                                <h3 className={`font-bold text-lg mb-2 group-hover:text-indigo-600 transition-colors ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{service.titulo}</h3>
+                                                <p className={`text-xs mb-6 line-clamp-3 leading-relaxed ${profile.tema_perfil === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>{service.descripcion}</p>
 
-                                                <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+                                                <div className={`flex items-center justify-between pt-4 border-t ${profile.tema_perfil === 'light' ? 'border-slate-50' : 'border-white/10'}`}>
                                                     <div className="flex items-center gap-1 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
                                                         <Clock size={12} />
                                                         {service.tiempo_entrega_dias} Días hábiles
