@@ -7,7 +7,7 @@ import Link from 'next/link';
 import {
     Upload, Music, Image as ImageIcon, CheckCircle2,
     AlertCircle, Loader2, Info, ChevronLeft, Hash, Lock,
-    Check, Trash2, Edit2, Zap
+    Check, Trash2, Edit2, Zap, Eye, EyeOff
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -53,7 +53,13 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     const [musicalKey, setMusicalKey] = useState('');
     const [musicalScale, setMusicalScale] = useState('Menor');
     const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
+
+    // License States
     const [isExclusive, setIsExclusive] = useState(false);
+    const [isMp3Active, setIsMp3Active] = useState(true);
+    const [isWavActive, setIsWavActive] = useState(true);
+    const [isStemsActive, setIsStemsActive] = useState(true);
+
     const [exclusivePrice, setExclusivePrice] = useState('');
     const [standardPrice, setStandardPrice] = useState('');
     const [wavPrice, setWavPrice] = useState('');
@@ -113,11 +119,18 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             setMusicalKey(beat.musical_key || '');
             setMusicalScale(beat.musical_scale || 'Menor');
             setSelectedMoods(beat.mood ? beat.mood.split(', ') : []);
+
+            // Prices & Toggles
             setStandardPrice(beat.price_mxn?.toString() || '0');
             setWavPrice(beat.price_wav_mxn?.toString() || '0');
             setStemsPrice(beat.price_stems_mxn?.toString() || '0');
-            setIsExclusive(beat.is_exclusive || false);
             setExclusivePrice(beat.exclusive_price_mxn?.toString() || '0');
+
+            setIsExclusive(beat.is_exclusive || false);
+            // Default to true if null/undefined for backward compatibility
+            setIsMp3Active(beat.is_mp3_active !== false);
+            setIsWavActive(beat.is_wav_active !== false);
+            setIsStemsActive(beat.is_stems_active !== false);
 
             setExistingPortada(beat.portadabeat_url);
             setExistingMp3HQ(beat.mp3_url);
@@ -193,7 +206,13 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                 mp3_url,
                 wav_url,
                 stems_url,
-                is_exclusive: isExclusive,
+                is_exclusive: isExclusive ?? false, // Ensure boolean
+                // Save License Activation States
+                is_mp3_active: isMp3Active,
+                is_wav_active: isWavActive,
+                is_stems_active: isStemsActive,
+                is_exclusive_active: isExclusive, // Syncs with is_exclusive logic
+
                 price_mxn: parseInt(standardPrice) || 0,
                 price_wav_mxn: parseInt(wavPrice) || 0,
                 price_stems_mxn: parseInt(stemsPrice) || 0,
@@ -220,6 +239,21 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
     const isFree = userData?.subscription_tier === 'free';
     const isPremium = userData?.subscription_tier === 'premium';
+
+    // Helper to render toggles
+    const Toggle = ({ active, onToggle, disabled = false }: { active: boolean, onToggle: () => void, disabled?: boolean }) => (
+        <button
+            type="button"
+            onClick={onToggle}
+            disabled={disabled}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-100 text-slate-400' :
+                    active ? 'bg-green-100 text-green-600 hover:bg-green-200' : 'bg-red-50 text-red-500 hover:bg-red-100'
+                }`}
+        >
+            {active ? <Eye size={12} /> : <EyeOff size={12} />}
+            {active ? 'Visible' : 'Oculto'}
+        </button>
+    );
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col pt-20">
@@ -358,13 +392,19 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
                             {/* FILES & LICENSES */}
                             <div className="space-y-8">
-                                <h3 className="text-xl font-black uppercase tracking-tight text-slate-900">Archivos y Precios</h3>
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-xl font-black uppercase tracking-tight text-slate-900">Archivos y Precios</h3>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Activa/Desactiva Licencias con el ojo</span>
+                                </div>
 
                                 <div className="grid md:grid-cols-2 gap-6">
                                     {/* MP3 HQ */}
-                                    <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                                    <div className={`p-6 rounded-2xl border space-y-4 transition-all ${isMp3Active ? 'bg-slate-50 border-slate-100' : 'bg-slate-50/50 border-slate-100 opacity-75'}`}>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-[11px] font-black uppercase tracking-widest">MP3 Alta Calidad</span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[11px] font-black uppercase tracking-widest">MP3 Alta Calidad</span>
+                                                <Toggle active={isMp3Active} onToggle={() => setIsMp3Active(!isMp3Active)} />
+                                            </div>
                                             <div className="flex items-center gap-2 bg-white rounded-lg px-2 py-1.5 border border-slate-200">
                                                 <span className="text-[10px] font-black text-slate-300">$</span>
                                                 <input type="number" value={standardPrice} onChange={(e) => setStandardPrice(e.target.value)} className="w-12 text-[10px] font-black outline-none bg-transparent" />
@@ -378,11 +418,13 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                     </div>
 
                                     {/* WAV */}
-                                    <div className={`p-6 rounded-2xl border space-y-4 ${isFree ? 'opacity-50 pointer-events-none grayscale' : 'bg-slate-50 border-slate-100'}`}>
+                                    <div className={`p-6 rounded-2xl border space-y-4 transition-all ${isFree ? 'opacity-50 pointer-events-none grayscale' :
+                                            isWavActive ? 'bg-slate-50 border-slate-100' : 'bg-slate-50/50 border-slate-100 opacity-75'
+                                        }`}>
                                         <div className="flex justify-between items-center">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-[11px] font-black uppercase tracking-widest">Archivo WAV</span>
-                                                {isFree && <Lock size={12} />}
+                                                {isFree ? <Lock size={12} /> : <Toggle active={isWavActive} onToggle={() => setIsWavActive(!isWavActive)} />}
                                             </div>
                                             <div className="flex items-center gap-2 bg-white rounded-lg px-2 py-1.5 border border-slate-200">
                                                 <span className="text-[10px] font-black text-slate-300">$</span>
@@ -397,11 +439,13 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                     </div>
 
                                     {/* STEMS */}
-                                    <div className={`p-6 rounded-2xl border space-y-4 ${!isPremium ? 'opacity-50 pointer-events-none grayscale' : 'bg-slate-50 border-slate-100'}`}>
+                                    <div className={`p-6 rounded-2xl border space-y-4 transition-all ${!isPremium ? 'opacity-50 pointer-events-none grayscale' :
+                                            isStemsActive ? 'bg-slate-50 border-slate-100' : 'bg-slate-50/50 border-slate-100 opacity-75'
+                                        }`}>
                                         <div className="flex justify-between items-center">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-[11px] font-black uppercase tracking-widest">Stems (.ZIP)</span>
-                                                {!isPremium && <Lock size={12} />}
+                                                {!isPremium ? <Lock size={12} /> : <Toggle active={isStemsActive} onToggle={() => setIsStemsActive(!isStemsActive)} />}
                                             </div>
                                             <div className="flex items-center gap-2 bg-white rounded-lg px-2 py-1.5 border border-slate-200">
                                                 <span className="text-[10px] font-black text-slate-300">$</span>
@@ -416,9 +460,22 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                     </div>
 
                                     {/* EXCLUSIVA */}
-                                    <div className={`p-6 rounded-2xl border space-y-4 ${!isPremium ? 'opacity-50 pointer-events-none grayscale' : (isExclusive ? 'bg-blue-600 text-white border-blue-700' : 'bg-slate-50 border-slate-100')}`}>
+                                    <div className={`p-6 rounded-2xl border space-y-4 transition-all ${!isPremium ? 'opacity-50 pointer-events-none grayscale' :
+                                            isExclusive ? 'bg-blue-600 text-white border-blue-700' : 'bg-slate-50 border-slate-100'
+                                        }`}>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-[11px] font-black uppercase tracking-widest">Venta Exclusiva</span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[11px] font-black uppercase tracking-widest">Venta Exclusiva</span>
+                                                {!isPremium ? <Lock size={12} /> :
+                                                    <Toggle
+                                                        active={isExclusive}
+                                                        onToggle={() => {
+                                                            setIsExclusive(!isExclusive);
+                                                            if (!isExclusive) setExclusivePrice(exclusivePrice || '5000');
+                                                        }}
+                                                    />
+                                                }
+                                            </div>
                                             <div className={`flex items-center rounded-lg px-3 py-2 border ${isExclusive ? 'bg-white/10 border-white/20' : 'bg-white border-slate-200'}`}>
                                                 <span className={`text-[10px] font-black mr-1 ${isExclusive ? 'text-white/40' : 'text-slate-300'}`}>$</span>
                                                 <input
@@ -427,14 +484,14 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                                     onChange={(e) => {
                                                         const val = e.target.value;
                                                         setExclusivePrice(val);
-                                                        setIsExclusive(val !== '' && parseInt(val) > 0);
+                                                        if (val && parseInt(val) > 0) setIsExclusive(true);
                                                     }}
                                                     className={`w-16 text-xs font-bold outline-none bg-transparent ${isExclusive ? 'text-white' : 'text-slate-900'}`}
                                                 />
                                             </div>
                                         </div>
                                         <p className={`text-[8px] font-black uppercase ${isExclusive ? 'text-white/60' : 'text-slate-400'}`}>
-                                            {isExclusive ? 'Este beat dejará de estar a la venta tras su compra.' : 'Activa poniendo un precio mayor a 0.'}
+                                            {isExclusive ? 'Este beat dejará de estar a la venta tras su compra.' : 'Activa poniendo un precio mayor a 0, o haz click en el ojo.'}
                                         </p>
                                     </div>
                                 </div>

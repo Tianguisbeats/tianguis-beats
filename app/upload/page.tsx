@@ -7,7 +7,7 @@ import Link from 'next/link';
 import {
     Upload, Music, Image as ImageIcon, CheckCircle2,
     AlertCircle, Loader2, Info, ChevronRight, Hash, Lock,
-    Link as LinkIcon, Edit2, Zap
+    Link as LinkIcon, Edit2, Zap, Eye, EyeOff
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -55,7 +55,13 @@ export default function UploadPage() {
     const [musicalKey, setMusicalKey] = useState('');
     const [musicalScale, setMusicalScale] = useState('Menor');
     const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
+
+    // License States
     const [isExclusive, setIsExclusive] = useState(false);
+    const [isMp3Active, setIsMp3Active] = useState(true);
+    const [isWavActive, setIsWavActive] = useState(true);
+    const [isStemsActive, setIsStemsActive] = useState(true);
+
     const [exclusivePrice, setExclusivePrice] = useState('3500');
     const [standardPrice, setStandardPrice] = useState('199');
     const [wavPrice, setWavPrice] = useState('499');
@@ -201,6 +207,13 @@ export default function UploadPage() {
                 wav_url: wavPath,
                 stems_url: stemsPath,
                 is_exclusive: isExclusive,
+
+                // Active Licenses
+                is_mp3_active: isMp3Active,
+                is_wav_active: isWavActive,
+                is_stems_active: isStemsActive,
+                is_exclusive_active: isExclusive,
+
                 price_mxn: parseInt(standardPrice) || 0,
                 price_wav_mxn: parseInt(wavPrice) || 0,
                 price_stems_mxn: parseInt(stemsPrice) || 0,
@@ -224,6 +237,21 @@ export default function UploadPage() {
     const isFree = userData.subscription_tier === 'free';
     const isPro = userData.subscription_tier === 'pro';
     const isPremium = userData.subscription_tier === 'premium';
+
+    // Helper to render toggles
+    const Toggle = ({ active, onToggle, disabled = false }: { active: boolean, onToggle: () => void, disabled?: boolean }) => (
+        <button
+            type="button"
+            onClick={onToggle}
+            disabled={disabled}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-100 text-slate-400' :
+                    active ? 'bg-green-100 text-green-600 hover:bg-green-200' : 'bg-red-50 text-red-500 hover:bg-red-100'
+                }`}
+        >
+            {active ? <Eye size={12} /> : <EyeOff size={12} />}
+            {active ? 'Visible' : 'Oculto'}
+        </button>
+    );
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col pt-20">
@@ -436,6 +464,10 @@ export default function UploadPage() {
 
                             {/* 2. Archivos y Licencias */}
                             <div className="space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-xl font-black uppercase tracking-tight text-slate-900">Archivos y Precios</h3>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Activa/Desactiva Licencias con el ojo</span>
+                                </div>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     {/* MP3 Tagged + Licencia Base */}
                                     <div className="flex flex-col gap-4 p-6 bg-green-50/30 rounded-3xl border border-green-100 hover:bg-green-50/50 transition-colors group">
@@ -467,7 +499,7 @@ export default function UploadPage() {
                                     </div>
 
                                     {/* MP3 320 KBPS (High Quality) */}
-                                    <div className="flex flex-col gap-4 p-6 bg-amber-50/30 rounded-3xl border border-amber-100 hover:bg-amber-50/50 transition-colors">
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border transition-all ${isMp3Active ? 'bg-amber-50/30 border-amber-100 hover:bg-amber-50/50' : 'bg-slate-50/50 border-slate-100 opacity-75 grayscale'}`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <span className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-1 flex items-center gap-1.5">
@@ -475,14 +507,17 @@ export default function UploadPage() {
                                                 </span>
                                                 <span className="text-[9px] font-bold text-amber-500/70 uppercase tracking-widest">Opcional • Master HQ</span>
                                             </div>
-                                            <div className="flex items-center gap-2 bg-white rounded-xl px-2 py-1.5 border-2 border-amber-100 shadow-sm">
-                                                <span className="text-[10px] font-black text-amber-500">$</span>
-                                                <input
-                                                    type="number"
-                                                    value={standardPrice}
-                                                    onChange={(e) => setStandardPrice(e.target.value)}
-                                                    className="w-10 text-[10px] font-black outline-none text-slate-900"
-                                                />
+                                            <div className="flex items-center gap-2">
+                                                <Toggle active={isMp3Active} onToggle={() => setIsMp3Active(!isMp3Active)} />
+                                                <div className="flex items-center gap-2 bg-white rounded-xl px-2 py-1.5 border-2 border-amber-100 shadow-sm">
+                                                    <span className="text-[10px] font-black text-amber-500">$</span>
+                                                    <input
+                                                        type="number"
+                                                        value={standardPrice}
+                                                        onChange={(e) => setStandardPrice(e.target.value)}
+                                                        className="w-10 text-[10px] font-black outline-none text-slate-900"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
@@ -505,7 +540,9 @@ export default function UploadPage() {
                                     </div>
 
                                     {/* WAV + Precio */}
-                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' : 'bg-blue-50/30 border-blue-100 hover:bg-blue-50/50'}`}>
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' :
+                                            isWavActive ? 'bg-blue-50/30 border-blue-100 hover:bg-blue-50/50' : 'bg-slate-50/50 border-slate-100 opacity-75'
+                                        }`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
@@ -522,6 +559,7 @@ export default function UploadPage() {
                                                         Mejorar a Pro
                                                     </Link>
                                                 )}
+                                                {!isFree && <Toggle active={isWavActive} onToggle={() => setIsWavActive(!isWavActive)} />}
                                                 <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 ${isFree ? 'bg-slate-50 border-slate-100' : 'bg-white border-blue-100 shadow-sm'}`}>
                                                     <span className={`text-[10px] font-black mr-1 ${isFree ? 'text-slate-300' : 'text-blue-400'}`}>$</span>
                                                     <input
@@ -556,7 +594,9 @@ export default function UploadPage() {
                                     </div>
 
                                     {/* Stems + Precio */}
-                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' : 'bg-purple-50 border-purple-200 hover:bg-purple-100/50'}`}>
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' :
+                                            isStemsActive ? 'bg-purple-50 border-purple-200 hover:bg-purple-100/50' : 'bg-slate-50/50 border-slate-100 opacity-75'
+                                        }`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
@@ -573,6 +613,7 @@ export default function UploadPage() {
                                                         Mejorar a Premium
                                                     </Link>
                                                 )}
+                                                {isPremium && <Toggle active={isStemsActive} onToggle={() => setIsStemsActive(!isStemsActive)} />}
                                                 <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 ${!isPremium ? 'bg-slate-50 border-slate-100' : 'bg-white border-purple-100 shadow-sm'}`}>
                                                     <span className={`text-[10px] font-black mr-1 ${!isPremium ? 'text-slate-300' : 'text-purple-400'}`}>$</span>
                                                     <input
@@ -623,6 +664,10 @@ export default function UploadPage() {
                                                     Mejorar a Premium
                                                 </Link>
                                             )}
+                                            {isPremium && <Toggle active={isExclusive} onToggle={() => {
+                                                setIsExclusive(!isExclusive);
+                                                if (!isExclusive) setExclusivePrice(exclusivePrice || '5000');
+                                            }} />}
                                             <div className={`flex items-center rounded-lg px-3 py-2 border ${!isPremium ? 'bg-slate-100' : 'bg-white border-slate-200'}`}>
                                                 <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
                                                 <input
