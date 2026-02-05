@@ -286,7 +286,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             const { data: kitsData } = await supabase
                 .from('sound_kits')
                 .select('*')
-                .eq('producer_id', profileData.id)
+                .eq('producer_id', profileData!.id)
                 .eq('is_public', true)
                 .order('created_at', { ascending: false });
 
