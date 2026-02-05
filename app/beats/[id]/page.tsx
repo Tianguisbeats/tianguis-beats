@@ -282,15 +282,42 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 >
                                     <Share2 size={18} /> Compartir
                                 </button>
+
+                                {/* Release Date next to action buttons */}
+                                <div className="flex flex-col justify-center px-4 bg-white/50 backdrop-blur-sm rounded-2xl border border-slate-100 py-2">
+                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 leading-none text-center">Lanzamiento</span>
+                                    <div className="flex items-center gap-2 text-slate-900">
+                                        <Calendar size={14} className="text-blue-600" />
+                                        <span className="text-[11px] font-black uppercase tracking-widest">
+                                            {new Date(beat.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* 2. WAVEFORM VISUALIZER */}
-                <div className="max-w-6xl mx-auto px-4 -mt-10 relative z-20 mb-20">
+                <div className="max-w-6xl mx-auto px-4 -mt-10 relative z-20 mb-8">
                     <div className="bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100">
                         <WaveformPlayer url={beat.mp3_url || ''} height={100} waveColor="#cbd5e1" progressColor="#2563eb" />
+                    </div>
+                </div>
+
+                {/* Moods Bar - Vitaminized with Emojis */}
+                <div className="max-w-6xl mx-auto px-4 mb-16">
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                        {beat.mood?.split(',').map((m: string) => {
+                            const moodLabel = m.trim();
+                            const moodInfo = (require('@/lib/constants').MOODS as any[]).find((mood: any) => mood.label === moodLabel);
+                            return (
+                                <span key={moodLabel} className="px-5 py-2.5 bg-white border border-slate-100 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-600 shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex items-center gap-2">
+                                    <span className="text-lg leading-none">{moodInfo?.emoji || '✨'}</span>
+                                    {moodLabel}
+                                </span>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -373,60 +400,11 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         )}
                     </div>
 
-                    {/* RIGHT COLUMN: Statistics & Details */}
+                    {/* RIGHT COLUMN: Statistics & Details (Prioritizing Comments) */}
                     <div className="lg:col-span-4 space-y-8">
-                        {/* "Detalles Vitaminados" Card */}
-                        <section className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50">
-                            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-900 mb-8 flex items-center gap-2 border-b pb-4">
-                                <Info size={16} className="text-blue-600" /> Detalles Técnicos
-                            </h3>
-
-                            <div className="space-y-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3 text-slate-400">
-                                        <Speaker size={18} />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Reproducciones</span>
-                                    </div>
-                                    <span className="text-lg font-black text-slate-900">{beat.play_count?.toLocaleString() || 0}</span>
-                                </div>
-
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3 text-slate-400">
-                                        <Heart size={18} />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Likes</span>
-                                    </div>
-                                    <span className="text-lg font-black text-slate-900">{beat.like_count?.toLocaleString() || 0}</span>
-                                </div>
-
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3 text-slate-400">
-                                        <Calendar size={18} />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Lanzamiento</span>
-                                    </div>
-                                    <span className="text-[11px] font-bold text-slate-900 uppercase">
-                                        {new Date(beat.created_at).toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })}
-                                    </span>
-                                </div>
-
-                                {/* Moods Section */}
-                                <div className="pt-6 border-t mt-4">
-                                    <span className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Aura y Mood</span>
-                                    <div className="flex flex-wrap gap-2">
-                                        {beat.mood?.split(',').map((m: string) => (
-                                            <span key={m} className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-blue-100/50">
-                                                ✨ {m.trim()}
-                                            </span>
-                                        )) || (
-                                                <span className="text-[10px] text-slate-300 italic font-bold">No especificado</span>
-                                            )}
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
                         <section>
-                            <h3 className="text-sm font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2 px-4">
-                                <MessageCircle size={20} className="text-purple-500" /> Comentarios
+                            <h3 className="text-sm font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2 px-4 text-slate-900 border-b pb-4">
+                                <MessageCircle size={20} className="text-blue-600" /> Comentarios
                             </h3>
                             <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm min-h-[400px]">
                                 <CommentSection beatId={id} />
