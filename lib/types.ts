@@ -98,6 +98,7 @@ export interface Beat {
     tagColor?: string;
     coverColor?: string;
 
+    is_sound_kit?: boolean;
     created_at: string;
 }
 

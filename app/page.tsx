@@ -68,7 +68,7 @@ export default function Home() {
               />
               <button
                 onClick={() => window.location.href = `/beats?q=${searchQuery}`}
-                className="bg-cyan-500 text-white px-8 py-3 rounded-full font-black uppercase text-[10px] tracking-widest hover:bg-cyan-400 transition-all shadow-lg shadow-cyan-500/30"
+                className="bg-blue-600 text-white px-8 py-3 rounded-full font-black uppercase text-[10px] tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30"
               >
                 Buscar
               </button>

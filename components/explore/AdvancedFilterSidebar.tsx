@@ -9,6 +9,7 @@ interface FilterState {
     bpmMin: number | string;
     bpmMax: number | string;
     key: string;
+    scale: string;
     mood: string;
     priceRange: [number, number];
 }
@@ -163,22 +164,34 @@ export default function AdvancedFilterSidebar({
                         </div>
                     </div>
 
-                    {/* Key */}
+
+                    {/* Key & Scale */}
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tonalidad</label>
-                            {filterState.key && (
-                                <button onClick={() => updateFilter('key', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline">Limpiar</button>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tonalidad & Escala</label>
+                            {(filterState.key || filterState.scale) && (
+                                <button onClick={() => { updateFilter('key', ''); updateFilter('scale', ''); }} className="text-[9px] font-bold text-red-500 uppercase hover:underline">Limpiar</button>
                             )}
                         </div>
-                        <select
-                            value={filterState.key}
-                            onChange={(e) => updateFilter('key', e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-blue-500 appearance-none"
-                        >
-                            <option value="">Cualquier Nota</option>
-                            {KEYS.map(k => <option key={k} value={k}>{k}</option>)}
-                        </select>
+                        <div className="grid grid-cols-2 gap-2">
+                            <select
+                                value={filterState.key}
+                                onChange={(e) => updateFilter('key', e.target.value)}
+                                className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-blue-500 appearance-none"
+                            >
+                                <option value="">Nota</option>
+                                {KEYS.map(k => <option key={k} value={k}>{k}</option>)}
+                            </select>
+                            <select
+                                value={filterState.scale}
+                                onChange={(e) => updateFilter('scale', e.target.value)}
+                                className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-blue-500 appearance-none"
+                            >
+                                <option value="">Escala</option>
+                                <option value="Major">Mayor</option>
+                                <option value="Minor">Menor</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </aside>

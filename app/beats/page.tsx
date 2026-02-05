@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Filter, Music, SlidersHorizontal, ArrowLeft, Crown, Clock, TrendingUp } from "lucide-react";
+import { Filter, Music, SlidersHorizontal, ArrowLeft, Crown, Clock, TrendingUp, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Beat } from "@/lib/types";
@@ -25,7 +25,7 @@ export default function BeatsPage() {
   );
 }
 
-type ViewMode = 'all' | 'new' | 'trending' | 'top_producers' | 'premium_spotlight';
+type ViewMode = 'all' | 'new' | 'trending' | 'top_producers' | 'premium_spotlight' | 'sound_kits';
 
 function BeatsPageContent() {
   const [beats, setBeats] = useState<Beat[]>([]);
@@ -46,6 +46,7 @@ function BeatsPageContent() {
     bpmMin: "" as number | string,
     bpmMax: "" as number | string,
     key: "",
+    scale: "",
     mood: "",
     priceRange: [0, 10000] as [number, number]
   });
@@ -59,6 +60,7 @@ function BeatsPageContent() {
     const g = searchParams.get('genre');
     const m = searchParams.get('mood');
     const k = searchParams.get('key');
+    const s = searchParams.get('scale');
     const b = searchParams.get('bpm');
 
     setFilterState(prev => ({
@@ -67,6 +69,7 @@ function BeatsPageContent() {
       genre: g || prev.genre,
       mood: m || prev.mood,
       key: k || prev.key,
+      scale: s || prev.scale,
       bpmMin: b ? parseInt(b) : prev.bpmMin,
       bpmMax: b ? parseInt(b) : prev.bpmMax,
     }));
@@ -133,6 +136,7 @@ function BeatsPageContent() {
         if (filterState.bpmMin) query = query.gte('bpm', filterState.bpmMin);
         if (filterState.bpmMax) query = query.lte('bpm', filterState.bpmMax);
         if (filterState.key) query = query.eq('musical_key', filterState.key);
+        if (filterState.scale) query = query.eq('musical_scale', filterState.scale);
         if (filterState.searchQuery.trim()) query = query.or(`title.ilike.%${filterState.searchQuery.trim()}%,genre.ilike.%${filterState.searchQuery.trim()}%`);
 
         // Apply View Mode Specific Sorting/Filtering
@@ -141,35 +145,80 @@ function BeatsPageContent() {
             query = query.order("created_at", { ascending: false });
             break;
           case 'trending':
-            // Assuming play_count exists, otherwise use random or created_at
             query = query.order("play_count", { ascending: false, nullsFirst: false });
             break;
           case 'premium_spotlight':
-            query = query.not('producer', 'is', null); // Ensure producer exists to filter later
+            query = query.not('producer', 'is', null);
+            break;
+          case 'sound_kits':
+            // Overridden below
             break;
           default: // 'all'
             query = query.order("created_at", { ascending: false });
             break;
         }
 
-        const { data, error } = await query.limit(50);
+        if (viewMode === 'sound_kits') {
+          const { data: skData, error: skError } = await supabase
+            .from('services')
+            .select(`
+                    id, titulo, precio, descripcion, created_at,
+                    producer:user_id ( artistic_name, username, foto_perfil, subscription_tier )
+                `)
+            .eq('tipo_servicio', 'sound_kit')
+            .eq('is_active', true)
+            .order('created_at', { ascending: false });
 
-        if (cancel) return;
-        if (error) { setErrorMsg(error.message); return; }
+          if (skError) throw skError;
 
-        // Transform
-        let transformed = await Promise.all((data || []).map(transformBeat));
+          const skTransformed = (skData || []).map(sk => {
+            const prod = (sk.producer as any);
+            return {
+              id: sk.id,
+              title: sk.titulo,
+              producer_artistic_name: prod?.artistic_name || 'Productor',
+              producer_username: prod?.username,
+              producer_tier: prod?.subscription_tier,
+              producer_foto_perfil: prod?.foto_perfil,
+              price_mxn: sk.precio,
+              portadabeat_url: null,
+              is_sound_kit: true,
+              created_at: sk.created_at
+            };
+          });
 
-        // Additional Client-Side Filtering if needed (e.g. Premium check)
-        if (viewMode === 'premium_spotlight') {
-          transformed = transformed.filter(b => b.producer_tier === 'premium' || b.producer_tier === 'pro');
-        }
+          setBeats(skTransformed as any);
+        } else {
+          const { data, error } = await query.limit(50);
 
-        setBeats(transformed);
+          if (cancel) return;
+          if (error) { setErrorMsg(error.message); return; }
 
-        // Set Trending Beats for Banner (Taking 5 random beats from the result for visual impact)
-        if (transformed.length > 0) {
-          setTrendingBeats(transformed.slice(0, 5));
+          let transformed = await Promise.all((data || []).map(transformBeat));
+
+          if (viewMode === 'premium_spotlight') {
+            transformed = transformed.filter(b => b.producer_tier === 'premium' || b.producer_tier === 'pro');
+          }
+
+          setBeats(transformed);
+
+          // For Banner (Top 5 Reproducidos)
+          if (viewMode === 'all') {
+            const { data: trendData } = await supabase
+              .from('beats')
+              .select(`
+                        id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, created_at, play_count,
+                        producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
+                    `)
+              .eq('is_public', true)
+              .order('play_count', { ascending: false, nullsFirst: false })
+              .limit(5);
+
+            if (trendData) {
+              const trendTransformed = await Promise.all(trendData.map(transformBeat));
+              setTrendingBeats(trendTransformed);
+            }
+          }
         }
 
       } catch (err) {
@@ -190,18 +239,18 @@ function BeatsPageContent() {
     return defaultGenres.sort();
   }, []);
 
-  const TabButton = ({ mode, label, icon: Icon }: { mode: ViewMode, label: string, icon: any }) => (
+  const TabButton = ({ mode, label, icon: Icon, color }: { mode: ViewMode, label: string, icon: any, color: string }) => (
     <button
       onClick={() => setViewMode(mode)}
       className={`
-              flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap
+              relative flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap group
               ${viewMode === mode
-          ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20 scale-105'
-          : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-100'
+          ? `${color} text-white shadow-xl scale-105 z-10`
+          : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-100 hover:translate-y-[-2px]'
         }
           `}
     >
-      <Icon size={14} />
+      <Icon size={16} className={`${viewMode === mode ? 'animate-bounce' : 'group-hover:text-slate-900 transition-colors'}`} />
       {label}
     </button>
   );
@@ -249,15 +298,18 @@ function BeatsPageContent() {
                   </h2>
                 </div>
 
-                {/* Tabs */}
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full md:w-auto pb-2 md:pb-0">
-                  <TabButton mode="all" label="Todos" icon={Music} />
-                  <TabButton mode="new" label="Recién Horneados" icon={Clock} />
-                  <TabButton mode="trending" label="Tendencias" icon={TrendingUp} />
-                  <TabButton mode="premium_spotlight" label="Selección Tianguis" icon={Crown} />
+                {/* Tabs with Horizontal Scroll */}
+                <div className="relative w-full md:w-auto">
+                  <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 md:pb-0 scroll-smooth">
+                    <TabButton mode="all" label="Todos" icon={Music} color="bg-slate-900" />
+                    <TabButton mode="new" label="Recién Horneados" icon={Clock} color="bg-emerald-500 shadow-emerald-500/20" />
+                    <TabButton mode="trending" label="Tendencias" icon={TrendingUp} color="bg-rose-500 shadow-rose-500/20" />
+                    <TabButton mode="premium_spotlight" label="Selección Tianguis" icon={Crown} color="bg-amber-500 shadow-amber-500/20" />
+                    <TabButton mode="sound_kits" label="Sound Kits" icon={Sparkles} color="bg-purple-600 shadow-purple-500/20" />
+                  </div>
                 </div>
 
-                <div className="hidden md:block text-xs font-bold text-slate-400 uppercase tracking-widest">
+                <div className="hidden md:block text-xs font-bold text-slate-400 uppercase tracking-widest bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm">
                   {beats.length} Resultados
                 </div>
               </div>
@@ -299,11 +351,13 @@ function BeatsPageContent() {
                   <p className="text-slate-500 font-medium mb-6">
                     {viewMode === 'premium_spotlight'
                       ? "No hay beats premium que coincidan con tus filtros."
-                      : "No encontramos beats con esos filtros."}
+                      : viewMode === 'sound_kits'
+                        ? "No hay sound kits disponibles en este momento."
+                        : "No encontramos beats con esos filtros."}
                   </p>
                   <button
                     onClick={() => {
-                      setFilterState({ searchQuery: "", genre: "Todos", bpmMin: "", bpmMax: "", key: "", mood: "", priceRange: [0, 10000] });
+                      setFilterState({ searchQuery: "", genre: "Todos", bpmMin: "", bpmMax: "", key: "", scale: "", mood: "", priceRange: [0, 10000] });
                       setViewMode('all');
                     }}
                     className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline"
