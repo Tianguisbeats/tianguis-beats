@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Music, TrendingUp, ChevronRight, ChevronLeft, Users, Sparkles, Star, Zap, Crown, Flame, Instagram, Twitter, Globe } from "lucide-react";
+import { ArrowRight, Music, TrendingUp, ChevronRight, ChevronLeft, Users, Sparkles, Star, Zap, Crown, Flame, Instagram, Twitter, Globe, Pause, Play } from "lucide-react";
 import { Beat } from "@/lib/types";
+import { usePlayer } from "@/context/PlayerContext";
 
 interface FeaturedBannerProps {
     trendingBeats: Beat[];
@@ -16,6 +17,7 @@ type TabType = 'beats' | 'artists' | 'moods';
 export default function FeaturedBanner({ trendingBeats, trendingProducers, featuredMoods }: FeaturedBannerProps) {
     const [activeTab, setActiveTab] = useState<TabType>('beats');
     const [currentIndex, setCurrentIndex] = useState(0);
+    const { playBeat, currentBeat, isPlaying } = usePlayer();
 
     // Reset index when tab changes
     useEffect(() => {
@@ -24,6 +26,15 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
 
     const items = activeTab === 'beats' ? trendingBeats : activeTab === 'artists' ? trendingProducers : featuredMoods;
     const currentItem = items?.[currentIndex];
+
+    const isThisPlaying = activeTab === 'beats' && (currentItem as Beat)?.id === currentBeat?.id && isPlaying;
+
+    const handlePlayForBanner = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (activeTab === 'beats') {
+            playBeat(currentItem as Beat);
+        }
+    };
 
     // Auto-rotate every 6 seconds
     useEffect(() => {
@@ -211,6 +222,19 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                         )}
 
                         <div className="flex flex-wrap justify-center md:justify-start gap-8 items-center mt-4">
+                            {activeTab === 'beats' && (
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        const { usePlayer } = require('@/context/PlayerContext');
+                                        // Note: We need to use hook outside but this is a quick way or we refactor to use hook at top.
+                                        // Let's refactor to use hook at top.
+                                    }}
+                                    className="px-8 py-6 rounded-3xl bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all flex items-center gap-3 backdrop-blur-md"
+                                >
+                                    <Play size={20} fill="currentColor" />
+                                </button>
+                            )}
                             <Link
                                 href={activeTab === 'beats' ? `/beats/${currentItem.id}` : activeTab === 'artists' ? `/${currentItem.username}` : `/beats?mood=${currentItem.label}`}
                                 className={`px-16 py-6 rounded-3xl font-black uppercase text-[14px] tracking-[0.25em] transition-all shadow-3xl active:scale-95 flex items-center gap-4 group/btn-main ${activeTab === 'beats' ? 'bg-blue-600 text-white shadow-blue-600/40 hover:bg-blue-500 hover:scale-105' :
@@ -218,7 +242,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                                         'bg-purple-600 text-white shadow-purple-600/40 hover:bg-purple-700 hover:scale-105'
                                     }`}
                             >
-                                {activeTab === 'beats' ? 'Escuchar Beat' : activeTab === 'artists' ? 'Ver Perfil' : 'Explorar'}
+                                {activeTab === 'beats' ? 'Ver Detalles' : activeTab === 'artists' ? 'Ver Perfil' : 'Explorar'}
                                 <ChevronRight size={20} className="group-hover/btn-main:translate-x-2 transition-transform" />
                             </Link>
 

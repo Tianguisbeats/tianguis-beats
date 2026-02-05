@@ -214,12 +214,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
                             {/* Play Button Overlay */}
                             <button
-                                onClick={() => {
-                                    playBeat(beat as any);
-                                    supabase.rpc('increment_play_count', { beat_id: beat.id }).then(({ error }) => {
-                                        if (error) console.error("Error incrementing play count:", error);
-                                    });
-                                }}
+                                onClick={() => playBeat(beat as any)}
                                 className="absolute -bottom-6 -right-6 w-20 h-20 bg-slate-900 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-slate-900/20 hover:bg-blue-600 hover:shadow-blue-600/30 hover:scale-110 transition-all active:scale-95 z-20"
                             >
                                 {isPlaying && currentBeat?.id === beat.id ? <Pause size={30} fill="currentColor" /> : <Play size={30} fill="currentColor" className="ml-1" />}

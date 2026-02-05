@@ -15,13 +15,18 @@ export default function StudioStatsPage() {
     React.useEffect(() => {
         const fetchStats = async () => {
             const { data: { user } } = await import('@/lib/supabase').then(m => m.supabase.auth.getUser());
-            if (!user) return;
+            if (!user) {
+                setLoading(false);
+                return;
+            }
 
             // 1. Fetch Beats Stats
-            const { data: beats } = await import('@/lib/supabase').then(m => m.supabase
+            const { data: beats, error: beatsError } = await import('@/lib/supabase').then(m => m.supabase
                 .from('beats')
                 .select('play_count, like_count')
                 .eq('producer_id', user.id));
+
+            if (beatsError) console.error("Error fetching beats stats:", beatsError);
 
             // 2. Fetch Sales Count
             const { count: salesCount } = await import('@/lib/supabase').then(m => m.supabase

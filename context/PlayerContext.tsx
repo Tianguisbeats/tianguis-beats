@@ -54,6 +54,30 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         }
     }, [volume]);
 
+    const [playCountTracked, setPlayCountTracked] = useState<string | null>(null);
+
+    // Track play count with 10s delay
+    useEffect(() => {
+        if (!currentBeat || playCountTracked === currentBeat.id) return;
+
+        if (currentTime >= 10) {
+            const incrementPlays = async () => {
+                try {
+                    setPlayCountTracked(currentBeat.id);
+                    await supabase.rpc('increment_play_count', { beat_id: currentBeat.id });
+                } catch (err) {
+                    console.error("Error incrementing play count:", err);
+                    // Fallback
+                    await supabase
+                        .from('beats')
+                        .update({ play_count: (currentBeat.play_count || 0) + 1 })
+                        .eq('id', currentBeat.id);
+                }
+            };
+            incrementPlays();
+        }
+    }, [currentTime, currentBeat, playCountTracked]);
+
     const playBeat = async (beat: Beat) => {
         if (!audioRef.current) return;
 
@@ -62,16 +86,9 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
-        // Increment play count in Supabase
-        try {
-            await supabase.rpc('increment_play_count', { beat_id: beat.id });
-        } catch (err) {
-            console.error("Error incrementing play count:", err);
-            // Fallback: simple update if RPC is missing
-            await supabase
-                .from('beats')
-                .update({ play_count: (beat.play_count || 0) + 1 })
-                .eq('id', beat.id);
+        // Reset tracking for new beat
+        if (currentBeat?.id !== beat.id) {
+            setPlayCountTracked(null);
         }
 
         setCurrentBeat(beat);

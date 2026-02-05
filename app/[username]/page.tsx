@@ -249,17 +249,17 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 }
 
                 // 4. Get Follow Status & Counts
-                const { count: fCount } = await supabase
+                const { count: followersCountData } = await supabase
                     .from('follows')
-                    .select('id', { count: 'exact', head: true })
+                    .select('*', { count: 'exact', head: true })
                     .eq('following_id', profileData.id);
-                setFollowersCount(fCount || 0);
+                setFollowersCount(followersCountData || 0);
 
-                const { count: fingCount } = await supabase
+                const { count: followingCountData } = await supabase
                     .from('follows')
-                    .select('id', { count: 'exact', head: true })
-                    .eq('follower_id', profileData!.id);
-                setFollowingCount(fingCount || 0);
+                    .select('*', { count: 'exact', head: true })
+                    .eq('follower_id', profileData.id);
+                setFollowingCount(followingCountData || 0);
 
                 if (user) {
                     const { data: followData } = await supabase
