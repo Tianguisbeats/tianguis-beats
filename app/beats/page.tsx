@@ -8,6 +8,7 @@ import { Filter, Music, SlidersHorizontal, ArrowLeft, Crown, Clock, TrendingUp, 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Beat } from "@/lib/types";
+import { GENRES } from "@/lib/constants";
 
 // New Components
 import AdvancedFilterSidebar from "@/components/explore/AdvancedFilterSidebar";
@@ -26,7 +27,7 @@ export default function BeatsPage() {
   );
 }
 
-type ViewMode = 'all' | 'new' | 'trending' | 'best_sellers' | 'hidden_gems' | 'recommended' | 'exclusives' | 'premium_spotlight' | 'sound_kits' | 'producers';
+type ViewMode = 'all' | 'new' | 'trending' | 'best_sellers' | 'hidden_gems' | 'recommended' | 'exclusives' | 'premium_spotlight' | 'sound_kits' | 'producers' | 'mood_of_the_week' | 'corridos_tumbados';
 
 function BeatsPageContent() {
   const [beats, setBeats] = useState<Beat[]>([]);
@@ -45,6 +46,7 @@ function BeatsPageContent() {
   const [filterState, setFilterState] = useState({
     searchQuery: "",
     genre: "Todos",
+    subgenre: "",
     bpmMin: "" as number | string,
     bpmMax: "" as number | string,
     key: "",
@@ -74,6 +76,7 @@ function BeatsPageContent() {
       scale: s || prev.scale,
       bpmMin: b ? parseInt(b) : prev.bpmMin,
       bpmMax: b ? parseInt(b) : prev.bpmMax,
+      subgenre: searchParams.get('subgenre') || prev.subgenre,
     }));
   }, [searchParams]);
 
@@ -136,13 +139,14 @@ function BeatsPageContent() {
           .eq("is_public", true);
 
         // Apply Common Filters
-        if (filterState.genre && filterState.genre !== "Todos") query = query.eq('genre', filterState.genre);
+        if (filterState.genre !== 'Todos') query = query.eq('genre', filterState.genre);
+        if (filterState.subgenre) query = query.eq('subgenre', filterState.subgenre);
         if (filterState.mood) query = query.ilike('mood', `%${filterState.mood}%`);
         if (filterState.bpmMin) query = query.gte('bpm', filterState.bpmMin);
         if (filterState.bpmMax) query = query.lte('bpm', filterState.bpmMax);
         if (filterState.key) query = query.eq('musical_key', filterState.key);
         if (filterState.scale) query = query.eq('musical_scale', filterState.scale);
-        if (filterState.searchQuery.trim()) query = query.or(`title.ilike.%${filterState.searchQuery.trim()}%,genre.ilike.%${filterState.searchQuery.trim()}%`);
+        if (filterState.searchQuery.trim()) query = query.or(`title.ilike.%${filterState.searchQuery.trim()}%,genre.ilike.%${filterState.searchQuery.trim()}%,subgenre.ilike.%${filterState.searchQuery.trim()}%`);
 
         // Apply View Mode Specific Sorting/Filtering
         switch (viewMode) {
@@ -164,6 +168,14 @@ function BeatsPageContent() {
           case 'recommended':
             // Simply taking recent ones for now, randomized later
             query = query.order("created_at", { ascending: false });
+            break;
+          case 'mood_of_the_week':
+            // Logic for "Mood of the week": Filter by a specific mood and sort by engagement
+            query = query.eq('mood', 'Chill').order("play_count", { ascending: false });
+            break;
+          case 'corridos_tumbados':
+            // Logic for "Corridos Tumbados": Focus on Mexico's biggest export
+            query = query.eq('genre', 'Corridos Tumbados 🎸').order("created_at", { ascending: false });
             break;
           case 'premium_spotlight':
             query = query.not('producer', 'is', null);
@@ -274,9 +286,8 @@ function BeatsPageContent() {
   }, [filterState, viewMode]);
 
   // Extract Genres for Sidebar
-  const genres = useMemo(() => {
-    const defaultGenres = ["Trap", "Reggaeton", "Hip Hop", "Corridos", "R&B", "Drill", "Pop", "Lo-fi", "Phonk", "Afrobeat"];
-    return defaultGenres.sort();
+  const genresFromData = useMemo(() => {
+    return ["Todos", ...GENRES];
   }, []);
 
   const BannerSkeleton = () => (
@@ -328,7 +339,7 @@ function BeatsPageContent() {
             <AdvancedFilterSidebar
               filterState={filterState}
               setFilterState={setFilterState}
-              genres={genres}
+              genres={genresFromData}
               totalBeats={beats.length}
               isOpen={isSidebarOpen}
               onClose={() => setIsSidebarOpen(false)}
@@ -354,50 +365,84 @@ function BeatsPageContent() {
                 </div>
 
                 {/* Tabs with Horizontal Scroll & Arrows */}
-                <div className="relative w-full max-w-full group/tabs overflow-hidden mb-4">
-                  {/* Left Arrow */}
+                <div className="relative w-full max-w-full group/tabs mb-6">
+                  {/* Left Arrow Fade Overlay */}
+                  <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none md:block hidden" />
+
+                  {/* Left Arrow Button */}
                   <button
                     onClick={() => {
                       const container = document.getElementById('tabs-container');
-                      if (container) container.scrollBy({ left: -200, behavior: 'smooth' });
+                      if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
                     }}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full shadow-lg opacity-0 group-hover/tabs:opacity-100 transition-opacity hidden md:flex items-center justify-center -ml-2"
+                    className="absolute left-4 top-[calc(50%-8px)] -translate-y-1/2 z-20 p-2.5 bg-white border border-slate-200 rounded-full shadow-lg hover:bg-slate-50 transition-all hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
                   >
-                    <ChevronLeft size={16} />
+                    <ChevronLeft size={18} className="text-slate-600" />
                   </button>
 
                   <div
                     id="tabs-container"
-                    className="flex items-center gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-6 px-8 md:pb-2 scroll-smooth md:justify-center"
+                    className="flex items-center gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-4 px-4 md:px-20 scroll-smooth justify-start"
                   >
-                    <TabButton mode="all" label="Todos" icon={Music} color="bg-blue-600" />
-                    <TabButton mode="new" label="Recién" icon={Clock} color="bg-emerald-500 shadow-emerald-500/20" />
+                    <TabButton mode="all" label="Todos" icon={Music} color="bg-blue-600 shadow-blue-500/20" />
+                    <TabButton mode="corridos_tumbados" label="Corridos 🎸" icon={Zap} color="bg-orange-600 shadow-orange-500/20" />
+                    <TabButton mode="mood_of_the_week" label="Mood 🌙" icon={Sparkles} color="bg-purple-600 shadow-purple-500/20" />
+                    <TabButton mode="new" label="Nuevos" icon={Clock} color="bg-emerald-500 shadow-emerald-500/20" />
                     <TabButton mode="trending" label="Tendencias" icon={TrendingUp} color="bg-rose-500 shadow-rose-500/20" />
                     <TabButton mode="best_sellers" label="Best Sellers" icon={Trophy} color="bg-amber-600 shadow-amber-600/20" />
-                    <TabButton mode="hidden_gems" label="Joyas Ocultas" icon={Gem} color="bg-cyan-500 shadow-cyan-500/20" />
-                    <TabButton mode="recommended" label="Para Ti" icon={Heart} color="bg-pink-500 shadow-pink-500/20" />
-                    <TabButton mode="exclusives" label="Solo Exclusivos" icon={Star} color="bg-indigo-600 shadow-indigo-600/20" />
-                    <TabButton mode="premium_spotlight" label="Selección" icon={Crown} color="bg-orange-500 shadow-orange-500/20" />
+                    <TabButton mode="hidden_gems" label="Joyas" icon={Gem} color="bg-cyan-500 shadow-cyan-500/20" />
+                    <TabButton mode="exclusives" label="Exclusivos" icon={Star} color="bg-indigo-600 shadow-indigo-600/20" />
                     <TabButton mode="sound_kits" label="Sound Kits" icon={Sparkles} color="bg-purple-600 shadow-purple-500/20" />
                     <TabButton mode="producers" label="Artistas" icon={Users} color="bg-blue-600 shadow-blue-500/20" />
                   </div>
 
-                  {/* Right Arrow */}
+                  {/* Right Arrow Button */}
                   <button
                     onClick={() => {
                       const container = document.getElementById('tabs-container');
-                      if (container) container.scrollBy({ left: 200, behavior: 'smooth' });
+                      if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
                     }}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full shadow-lg opacity-0 group-hover/tabs:opacity-100 transition-opacity hidden md:flex items-center justify-center -mr-2"
+                    className="absolute right-4 top-[calc(50%-8px)] -translate-y-1/2 z-20 p-2.5 bg-white border border-slate-200 rounded-full shadow-lg hover:bg-slate-50 transition-all hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
                   >
-                    <ChevronRight size={16} />
+                    <ChevronRight size={18} className="text-slate-600" />
                   </button>
+
+                  {/* Right Arrow Fade Overlay */}
+                  <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none md:block hidden" />
                 </div>
 
 
               </div>
 
               {/* View Title/Description */}
+              {viewMode === 'corridos_tumbados' && (
+                <div className="mb-8 p-6 bg-gradient-to-r from-orange-100 to-rose-50 rounded-3xl border border-orange-200 flex items-start gap-4 animate-fade-in-up">
+                  <div className="p-3 bg-orange-600 text-white rounded-2xl shadow-lg shadow-orange-500/20">
+                    <Zap size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-orange-900 uppercase tracking-tight mb-1">🇲🇽 Corridos Tumbados / Bélicos</h3>
+                    <p className="text-sm font-medium text-orange-800/80 leading-relaxed">
+                      El sonido que está dominando el mundo. Guitarras bélicas, tololoche y líricas reales.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {viewMode === 'mood_of_the_week' && (
+                <div className="mb-8 p-6 bg-gradient-to-r from-purple-100 to-blue-50 rounded-3xl border border-purple-200 flex items-start gap-4 animate-fade-in-up">
+                  <div className="p-3 bg-purple-600 text-white rounded-2xl shadow-lg shadow-purple-500/20">
+                    <Sparkles size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-purple-900 uppercase tracking-tight mb-1">✨ Mood de la Semana: Chill</h3>
+                    <p className="text-sm font-medium text-purple-800/80 leading-relaxed">
+                      Selección especial de beats relajados para inspirar tus próximas letras.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {viewMode === 'premium_spotlight' && (
                 <div className="mb-8 p-6 bg-gradient-to-r from-amber-100 to-orange-50 rounded-3xl border border-amber-200 flex items-start gap-4 animate-fade-in-up">
                   <div className="p-3 bg-amber-500 text-white rounded-2xl shadow-lg shadow-amber-500/20">
@@ -475,7 +520,7 @@ function BeatsPageContent() {
                   </p>
                   <button
                     onClick={() => {
-                      setFilterState({ searchQuery: "", genre: "Todos", bpmMin: "", bpmMax: "", key: "", scale: "", mood: "", priceRange: [0, 10000] });
+                      setFilterState({ searchQuery: "", genre: "Todos", subgenre: "", bpmMin: "", bpmMax: "", key: "", scale: "", mood: "", priceRange: [0, 10000] });
                       setViewMode('all');
                     }}
                     className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline"

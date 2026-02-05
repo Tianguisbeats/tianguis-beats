@@ -12,7 +12,7 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
-import { GENRES, MOODS } from '@/lib/constants';
+import { GENRES, MOODS, SUBGENRES } from '@/lib/constants';
 
 const SCALES = ["Menor", "Mayor"];
 const KEYS_BASE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -33,6 +33,7 @@ export default function UploadPage() {
     // Form State
     const [title, setTitle] = useState('');
     const [genre, setGenre] = useState('');
+    const [subgenre, setSubgenre] = useState('');
     const [bpm, setBpm] = useState('');
     const [musicalKey, setMusicalKey] = useState('');
     const [musicalScale, setMusicalScale] = useState('Menor');
@@ -179,6 +180,7 @@ export default function UploadPage() {
                 producer_id: userId,
                 title,
                 genre,
+                subgenre,
                 bpm: parseInt(bpm),
                 musical_key: musicalKey,
                 musical_scale: musicalScale,
@@ -257,7 +259,7 @@ export default function UploadPage() {
                                 <Zap className="text-amber-400 fill-amber-400" size={32} />
                             </h1>
                             <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] flex items-center gap-2">
-                                <Edit2 size={12} className="text-blue-500" /> Datos maestros de tu obra
+                                <Edit2 size={12} className="text-blue-500" /> agrega los datos de tu Beat
                             </p>
                         </div>
                         {isFree && (
@@ -324,17 +326,36 @@ export default function UploadPage() {
                                                 required
                                             />
                                         </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Género</label>
-                                            <select
-                                                value={genre}
-                                                onChange={(e) => setGenre(e.target.value)}
-                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none"
-                                                required
-                                            >
-                                                <option value="">Seleccionar</option>
-                                                {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
-                                            </select>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Género</label>
+                                                <select
+                                                    value={genre}
+                                                    onChange={(e) => {
+                                                        setGenre(e.target.value);
+                                                        setSubgenre(''); // Reset subgenre on genre change
+                                                    }}
+                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none"
+                                                    required
+                                                >
+                                                    <option value="">Seleccionar</option>
+                                                    {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Subgénero</label>
+                                                <select
+                                                    value={subgenre}
+                                                    onChange={(e) => setSubgenre(e.target.value)}
+                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none disabled:opacity-50"
+                                                    disabled={!genre || !SUBGENRES[genre]}
+                                                >
+                                                    <option value="">{genre ? 'Seleccionar Subgénero' : '-'}</option>
+                                                    {genre && SUBGENRES[genre]?.map(sg => (
+                                                        <option key={sg} value={sg}>{sg}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
@@ -443,8 +464,8 @@ export default function UploadPage() {
                             {/* 2. Archivos y Licencias */}
                             <div className="space-y-6">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-1">DATOS DEL BEAT</h3>
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Activa/Desactiva Licencias con el ojo</span>
+                                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-1">AGREGA LOS DATOS DE TU BEAT</h3>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Activa/Desactiva licencias 👁️</span>
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     {/* MP3 Tagged + Licencia Base */}

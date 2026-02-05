@@ -12,7 +12,7 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
-import { GENRES, MOODS } from '@/lib/constants';
+import { GENRES, MOODS, SUBGENRES } from '@/lib/constants';
 
 const SCALES = ["Menor", "Mayor"];
 const KEYS_BASE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -31,6 +31,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     // Form State
     const [title, setTitle] = useState('');
     const [genre, setGenre] = useState('');
+    const [subgenre, setSubgenre] = useState('');
     const [bpm, setBpm] = useState('');
     const [musicalKey, setMusicalKey] = useState('');
     const [musicalScale, setMusicalScale] = useState('Menor');
@@ -97,6 +98,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             // Set Form Data
             setTitle(beat.title || '');
             setGenre(beat.genre || '');
+            setSubgenre(beat.subgenre || '');
             setBpm(beat.bpm?.toString() || '');
             setMusicalKey(beat.musical_key || '');
             setMusicalScale(beat.musical_scale || 'Menor');
@@ -180,6 +182,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             const { error: dbError } = await supabase.from('beats').update({
                 title,
                 genre,
+                subgenre,
                 bpm: parseInt(bpm),
                 musical_key: musicalKey,
                 musical_scale: musicalScale,
@@ -253,6 +256,9 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                         <h1 className="text-4xl font-black uppercase tracking-tighter text-slate-900">
                             Editar <span className="text-blue-600">"{title}"</span>
                         </h1>
+                        <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] flex items-center gap-2 mt-2">
+                            <Edit2 size={12} className="text-blue-500" /> agrega los datos de tu Beat
+                        </p>
                     </div>
 
                     <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-sm relative overflow-hidden">
@@ -294,15 +300,35 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                                 required
                                             />
                                         </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Género</label>
-                                            <select
-                                                value={genre}
-                                                onChange={(e) => setGenre(e.target.value)}
-                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none"
-                                            >
-                                                {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
-                                            </select>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Género</label>
+                                                <select
+                                                    value={genre}
+                                                    onChange={(e) => {
+                                                        setGenre(e.target.value);
+                                                        setSubgenre('');
+                                                    }}
+                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none"
+                                                >
+                                                    <option value="">Seleccionar</option>
+                                                    {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Subgénero</label>
+                                                <select
+                                                    value={subgenre}
+                                                    onChange={(e) => setSubgenre(e.target.value)}
+                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none disabled:opacity-50"
+                                                    disabled={!genre || !SUBGENRES[genre]}
+                                                >
+                                                    <option value="">{genre ? 'Seleccionar Subgénero' : '-'}</option>
+                                                    {genre && SUBGENRES[genre]?.map(sg => (
+                                                        <option key={sg} value={sg}>{sg}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
@@ -375,70 +401,101 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                             {/* FILES & LICENSES */}
                             <div className="space-y-8">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-1">DATOS DEL BEAT</h3>
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Activa/Desactiva Licencias con el ojo</span>
+                                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-1">AGREGA LOS DATOS DE TU BEAT</h3>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Activa/Desactiva licencias 👁️</span>
                                 </div>
 
                                 <div className="grid md:grid-cols-2 gap-6">
                                     {/* MP3 HQ */}
-                                    <div className={`p-6 rounded-2xl border space-y-4 transition-all ${isMp3Active ? 'bg-slate-50 border-slate-100' : 'bg-slate-50/50 border-slate-100 opacity-75'}`}>
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[11px] font-black uppercase tracking-widest">MP3 Alta Calidad</span>
-                                                <Toggle active={isMp3Active} onToggle={() => setIsMp3Active(!isMp3Active)} />
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border transition-all ${isMp3Active ? 'bg-amber-50/30 border-amber-100 hover:bg-amber-50/50' : 'bg-slate-50/50 border-slate-100 opacity-75 grayscale'}`}>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                                    <Music size={14} className="text-amber-500" /> MP3 MASTER HQ
+                                                </span>
+                                                <span className="text-[9px] font-bold text-amber-500/70 uppercase tracking-widest">Calidad 320 KBPS • Sin Tags</span>
                                             </div>
-                                            <div className="flex items-center gap-2 bg-white rounded-lg px-2 py-1.5 border border-slate-200">
-                                                <span className="text-[10px] font-black text-slate-300">$</span>
-                                                <input type="number" value={standardPrice} onChange={(e) => setStandardPrice(e.target.value)} className="w-12 text-[10px] font-black outline-none bg-transparent" />
+                                            <div className="flex items-center gap-2">
+                                                <Toggle active={isMp3Active} onToggle={() => setIsMp3Active(!isMp3Active)} />
+                                                <div className="flex items-center gap-2 bg-white rounded-xl px-2 py-1.5 border-2 border-amber-100 shadow-sm">
+                                                    <span className="text-[10px] font-black text-amber-500">$</span>
+                                                    <input type="number" value={standardPrice} onChange={(e) => setStandardPrice(e.target.value)} className="w-10 text-[10px] font-black outline-none text-slate-900" />
+                                                </div>
                                             </div>
                                         </div>
-                                        <input type="file" id="hq" className="hidden" onChange={(e) => setHqMp3File(e.target.files?.[0] || null)} />
-                                        <label htmlFor="hq" className="flex items-center justify-between px-4 py-2.5 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-all">
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">{hqMp3File ? hqMp3File.name : (existingMp3HQ ? 'Actualizar MP3' : 'Subir MP3 HQ')}</span>
-                                            <Upload size={14} className="text-slate-400" />
-                                        </label>
+                                        <div className="flex items-center gap-3">
+                                            <input type="file" id="hq" className="hidden" onChange={(e) => setHqMp3File(e.target.files?.[0] || null)} />
+                                            <label htmlFor="hq" className="flex-1 px-4 py-3 bg-white border-2 border-dashed border-amber-200 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-amber-400 hover:bg-amber-50 transition-all text-center truncate">
+                                                <span className="text-slate-400">{hqMp3File ? hqMp3File.name : (existingMp3HQ ? 'Actualizar MP3' : 'Subir MP3 HQ')}</span>
+                                            </label>
+                                            {(hqMp3File || existingMp3HQ) && <CheckCircle2 size={20} className="text-green-500" />}
+                                        </div>
                                     </div>
 
                                     {/* WAV */}
-                                    <div className={`p-6 rounded-2xl border space-y-4 transition-all ${isFree ? 'opacity-50 pointer-events-none grayscale' :
-                                        isWavActive ? 'bg-slate-50 border-slate-100' : 'bg-slate-50/50 border-slate-100 opacity-75'
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' :
+                                        isWavActive ? 'bg-blue-50/30 border-blue-100 hover:bg-blue-50/50' : 'bg-slate-50/50 border-slate-100 opacity-75'
                                         }`}>
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[11px] font-black uppercase tracking-widest">Archivo WAV</span>
-                                                {isFree ? <Lock size={12} /> : <Toggle active={isWavActive} onToggle={() => setIsWavActive(!isWavActive)} />}
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${isFree ? 'text-slate-400' : 'text-blue-700'}`}>
+                                                        <Music size={14} className={isFree ? 'text-slate-400' : 'text-blue-500'} /> Archivo WAV
+                                                    </span>
+                                                    {isFree && <Lock size={12} className="text-slate-400" />}
+                                                </div>
+                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${isFree ? 'text-slate-300' : 'text-blue-500/70'}`}>Alta Fidelidad • 24 bit</span>
                                             </div>
-                                            <div className="flex items-center gap-2 bg-white rounded-lg px-2 py-1.5 border border-slate-200">
-                                                <span className="text-[10px] font-black text-slate-300">$</span>
-                                                <input type="number" value={wavPrice} onChange={(e) => setWavPrice(e.target.value)} className="w-12 text-[10px] font-black outline-none bg-transparent" />
+                                            <div className="flex items-center gap-2">
+                                                {!isFree && <Toggle active={isWavActive} onToggle={() => setIsWavActive(!isWavActive)} />}
+                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 ${isFree ? 'bg-slate-50 border-slate-100' : 'bg-white border-blue-100 shadow-sm'}`}>
+                                                    <span className={`text-[10px] font-black mr-1 ${isFree ? 'text-slate-300' : 'text-blue-400'}`}>$</span>
+                                                    <input type="number" disabled={isFree} value={wavPrice} onChange={(e) => setWavPrice(e.target.value)} className={`w-10 text-[10px] font-black outline-none bg-transparent ${isFree ? 'text-slate-300' : 'text-slate-900'}`} />
+                                                </div>
                                             </div>
                                         </div>
-                                        <input type="file" id="wav" className="hidden" onChange={(e) => setWavFile(e.target.files?.[0] || null)} />
-                                        <label htmlFor="wav" className="flex items-center justify-between px-4 py-2.5 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-all">
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">{wavFile ? wavFile.name : (existingWav ? 'Actualizar WAV' : 'Subir WAV')}</span>
-                                            <Upload size={14} className="text-slate-400" />
-                                        </label>
+                                        {!isFree && (
+                                            <div className="flex items-center gap-3">
+                                                <input type="file" id="wav" className="hidden" onChange={(e) => setWavFile(e.target.files?.[0] || null)} />
+                                                <label htmlFor="wav" className="flex-1 px-4 py-3 bg-white border-2 border-dashed border-blue-200 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all text-center truncate">
+                                                    <span className="text-slate-400">{wavFile ? wavFile.name : (existingWav ? 'Actualizar WAV' : 'Subir WAV')}</span>
+                                                </label>
+                                                {(wavFile || existingWav) && <CheckCircle2 size={20} className="text-green-500" />}
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* STEMS */}
-                                    <div className={`p-6 rounded-2xl border space-y-4 transition-all ${!isPremium ? 'opacity-50 pointer-events-none grayscale' :
-                                        isStemsActive ? 'bg-slate-50 border-slate-100' : 'bg-slate-50/50 border-slate-100 opacity-75'
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' :
+                                        isStemsActive ? 'bg-purple-50 border-purple-200 hover:bg-purple-100/50' : 'bg-slate-50/50 border-slate-100 opacity-75'
                                         }`}>
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[11px] font-black uppercase tracking-widest">Stems (.ZIP)</span>
-                                                {!isPremium ? <Lock size={12} /> : <Toggle active={isStemsActive} onToggle={() => setIsStemsActive(!isStemsActive)} />}
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${!isPremium ? 'text-slate-400' : 'text-purple-700'}`}>
+                                                        <Music size={14} className={!isPremium ? 'text-slate-400' : 'text-purple-500'} /> Stems (.ZIP)
+                                                    </span>
+                                                    {!isPremium && <Lock size={12} className="text-slate-400" />}
+                                                </div>
+                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${!isPremium ? 'text-slate-300' : 'text-purple-500/70'}`}>Pistas separadas</span>
                                             </div>
-                                            <div className="flex items-center gap-2 bg-white rounded-lg px-2 py-1.5 border border-slate-200">
-                                                <span className="text-[10px] font-black text-slate-300">$</span>
-                                                <input type="number" value={stemsPrice} onChange={(e) => setStemsPrice(e.target.value)} className="w-12 text-[10px] font-black outline-none bg-transparent" />
+                                            <div className="flex items-center gap-2">
+                                                {isPremium && <Toggle active={isStemsActive} onToggle={() => setIsStemsActive(!isStemsActive)} />}
+                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 ${!isPremium ? 'bg-slate-50 border-slate-100' : 'bg-white border-purple-100 shadow-sm'}`}>
+                                                    <span className={`text-[10px] font-black mr-1 ${!isPremium ? 'text-slate-300' : 'text-purple-400'}`}>$</span>
+                                                    <input type="number" disabled={!isPremium} value={stemsPrice} onChange={(e) => setStemsPrice(e.target.value)} className={`w-10 text-[10px] font-black outline-none bg-transparent ${!isPremium ? 'text-slate-300' : 'text-slate-900'}`} />
+                                                </div>
                                             </div>
                                         </div>
-                                        <input type="file" id="stems" className="hidden" onChange={(e) => setStemsFile(e.target.files?.[0] || null)} />
-                                        <label htmlFor="stems" className="flex items-center justify-between px-4 py-2.5 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-all">
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">{stemsFile ? stemsFile.name : (existingStems ? 'Actualizar Stems' : 'Subir Stems')}</span>
-                                            <Upload size={14} className="text-slate-400" />
-                                        </label>
+                                        {isPremium && (
+                                            <div className="flex items-center gap-3">
+                                                <input type="file" id="stems" className="hidden" onChange={(e) => setStemsFile(e.target.files?.[0] || null)} />
+                                                <label htmlFor="stems" className="flex-1 px-4 py-3 bg-white border-2 border-dashed border-purple-200 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-all text-center truncate">
+                                                    <span className="text-slate-400">{stemsFile ? stemsFile.name : (existingStems ? 'Actualizar Stems' : 'Subir Stems')}</span>
+                                                </label>
+                                                {(stemsFile || existingStems) && <CheckCircle2 size={20} className="text-green-500" />}
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* EXCLUSIVA */}

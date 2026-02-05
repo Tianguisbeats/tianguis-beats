@@ -57,6 +57,7 @@ export interface Beat {
     } | string;
     title: string;
     genre?: string | null;
+    subgenre?: string | null;
     bpm?: number | null;
     musical_key?: string | null;
     musical_scale?: string | null;

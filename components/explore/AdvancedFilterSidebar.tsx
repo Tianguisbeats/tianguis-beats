@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react';
 import { SlidersHorizontal, Music, X, ChevronDown, Check, Zap } from 'lucide-react';
-import { MOODS } from '@/lib/constants';
+import { MOODS, SUBGENRES } from '@/lib/constants';
 
 interface FilterState {
     searchQuery: string;
     genre: string;
+    subgenre: string;
     bpmMin: number | string;
     bpmMax: number | string;
     key: string;
@@ -81,14 +82,17 @@ export default function AdvancedFilterSidebar({
                         <div className="flex items-center justify-between">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Género</label>
                             {filterState.genre !== 'Todos' && (
-                                <button onClick={() => updateFilter('genre', 'Todos')} className="text-[9px] font-bold text-red-500 uppercase hover:underline">Limpiar</button>
+                                <button onClick={() => { updateFilter('genre', 'Todos'); updateFilter('subgenre', ''); }} className="text-[9px] font-bold text-red-500 uppercase hover:underline">Limpiar</button>
                             )}
                         </div>
                         <div className="max-h-[200px] overflow-y-auto pr-2 space-y-1 tiny-scrollbar">
                             {genres.map(g => (
                                 <button
                                     key={g}
-                                    onClick={() => updateFilter('genre', g)}
+                                    onClick={() => {
+                                        updateFilter('genre', g);
+                                        updateFilter('subgenre', '');
+                                    }}
                                     className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-between group ${filterState.genre === g
                                         ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
                                         : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
@@ -100,6 +104,36 @@ export default function AdvancedFilterSidebar({
                             ))}
                         </div>
                     </div>
+
+                    {/* Subgenres (Conditional) */}
+                    {filterState.genre !== 'Todos' && SUBGENRES[filterState.genre] && (
+                        <>
+                            <div className="h-[1px] bg-slate-100"></div>
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subgénero</label>
+                                    {filterState.subgenre && (
+                                        <button onClick={() => updateFilter('subgenre', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline">Limpiar</button>
+                                    )}
+                                </div>
+                                <div className="max-h-[150px] overflow-y-auto pr-2 space-y-1 tiny-scrollbar">
+                                    {SUBGENRES[filterState.genre].map(sg => (
+                                        <button
+                                            key={sg}
+                                            onClick={() => updateFilter('subgenre', sg)}
+                                            className={`w-full text-left px-3 py-2 rounded-lg text-[11px] font-bold transition-all flex items-center justify-between group ${filterState.subgenre === sg
+                                                ? 'bg-blue-100 text-blue-700'
+                                                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-100'
+                                                }`}
+                                        >
+                                            {sg}
+                                            {filterState.subgenre === sg && <Check size={12} />}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </>
+                    )}
 
                     <div className="h-[1px] bg-slate-100"></div>
 

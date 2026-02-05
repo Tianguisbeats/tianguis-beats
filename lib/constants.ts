@@ -1,10 +1,8 @@
 export const GENRES = [
-    // Regional Mexicano
     "Corridos Tumbados 🎸",
     "Sierreño 🌵",
     "Banda / Norteño 🎺",
     "Mariachi Moderno 🎻",
-    // Urbano y Caribeño
     "Reggaetón 🍑",
     "Dembow 🇩🇴",
     "Dancehall 🇯🇲",
@@ -12,24 +10,49 @@ export const GENRES = [
     "R&B 🕯️",
     "Baile Funk 🇧🇷",
     "Afrobeats 🌍",
-    // Hip Hop y Calle
     "Boom Bap 🥁",
     "Drill 🔪",
     "Lo-Fi ☕",
     "Gangsta Rap 🔫",
-    // Electrónica y Alternativo
     "House 🏠",
     "Hyperpop 🍭",
     "Techno ⛓️",
     "Phonk 🚗",
     "Pop / Indie 🎸",
-    // Extras (Keep standard ones if not already included)
-    "Trap",
-    "Hip Hop",
-    "Pop",
-    "Rock",
-    "Alternativo"
+    "Piano 🎹",
+    "Trap 💎",
+    "Hip Hop 🎤",
+    "Rock 🤘",
+    "Alternativo 🌀"
 ];
+
+export const SUBGENRES: Record<string, string[]> = {
+    "Corridos Tumbados 🎸": ["Bélicos 🦅", "Tumbados Románticos ❤️", "Corridos de Calle 🚬"],
+    "Sierreño 🌵": ["Campirano 🤠", "Sierreño Tumbado 🎸"],
+    "Banda / Norteño 🎺": ["Quebradita 💃", "Zapateado 🕺", "Huapango 🎻"],
+    "Mariachi Moderno 🎻": ["Regional Pop 💎", "Mariacheño 🤠"],
+    "Reggaetón 🍑": ["Old School 👴", "Perreo Pesado 🔥", "Romantiqueo ❤️", "Neoperreo 🌈"],
+    "Dembow 🇩🇴": ["Dembow Dominicano 🇩🇴", "Bajo Mundo 🇩🇴"],
+    "Dancehall 🇯🇲": ["Ragga 🔊", "Rockers 🎸"],
+    "Trap Latino 🔥": ["Melodic Trap 🌊", "Dark Trap 🌑", "Pluggnb 🔌", "Latin Drill 🔪"],
+    "R&B 🕯️": ["Soul Moderno ✨", "R&B Alternativo 🌫️"],
+    "Baile Funk 🇧🇷": ["Funk Carioca 🇧🇷", "Brazilian Bass 🇧🇷"],
+    "Afrobeats 🌍": ["Afro-Fusion 🌍", "Amapiano 🇿🇦"],
+    "Boom Bap 🥁": ["Lo-Fi Hip Hop ☕", "Jazz Hop 🎷"],
+    "Drill 🔪": ["UK Drill 🇬🇧", "NY Drill 🗽"],
+    "Lo-Fi ☕": ["Chillhop 🌊", "Study Beats 📚"],
+    "Gangsta Rap 🔫": ["G-Funk 🌴", "West Coast 🌴", "East Coast 🗽"],
+    "House 🏠": ["Tech House 🔊", "Deep House 🌊", "Afro House 🌍"],
+    "Hyperpop 🍭": ["Glitchcore 👾", "Bubblegum Bass 🍬"],
+    "Techno ⛓️": ["Hard Techno 🔨", "Acid Techno 🧪"],
+    "Phonk 🚗": ["Drift Phonk 💨", "Brazilian Phonk 🇧🇷"],
+    "Pop / Indie 🎸": ["Dream Pop ☁️", "Synth Pop 🎹", "Indie Rock 🎸"],
+    "Piano 🎹": ["Piano Melódico 🎹", "Piano Instrumental 🎹"],
+    "Trap 💎": ["EDM Trap 🔊", "Trap Soul 🕯️"],
+    "Hip Hop 🎤": ["Old School 🎤", "Underground 🎤"],
+    "Rock 🤘": ["Metal 🤘", "Grunge 🎸", "Punk ⚡"],
+    "Alternativo 🌀": ["Experimental 🧪", "Avant-Garde 🎨"]
+};
 
 export const MOODS = [
     // Energía Positiva
