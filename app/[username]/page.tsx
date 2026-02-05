@@ -279,7 +279,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     .eq('is_active', true)
                     .order('created_at', { ascending: false });
 
-                setServices(servicesData);
+                setServices(servicesData || []);
             }
 
             // 6. Get Sound Kits
@@ -299,6 +299,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     return { ...kit, cover_url: coverUrl };
                 }));
                 setSoundKits(transformedKits);
+            } else {
+                setSoundKits([]);
             }
 
         } catch (err) {
