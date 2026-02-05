@@ -261,20 +261,16 @@ export default function PlaylistManagerModal({
 
                 {/* Footer */}
                 <div className="p-8 bg-slate-50 border-t border-slate-100 flex items-center gap-4">
-                    {existingPlaylist && (
-                        <button
-                            onClick={handleDelete}
-                            disabled={saving}
-                            className="p-4 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
-                            title="Eliminar Playlist"
-                        >
-                            <Trash2 size={20} />
-                        </button>
-                    )}
+                    <button
+                        onClick={onClose}
+                        className="px-6 py-4 bg-white text-slate-400 border border-slate-200 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 hover:text-slate-600 transition-all"
+                    >
+                        Cancelar
+                    </button>
                     <button
                         onClick={handleSave}
                         disabled={saving || !name.trim()}
-                        className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 hover:bg-blue-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:bg-slate-300"
+                        className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 hover:bg-blue-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:bg-slate-300"
                     >
                         {saving ? (
                             <Loader2 className="animate-spin" size={18} />
@@ -285,6 +281,16 @@ export default function PlaylistManagerModal({
                             </>
                         )}
                     </button>
+                    {existingPlaylist && (
+                        <button
+                            onClick={handleDelete}
+                            disabled={saving}
+                            className="p-4 bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white rounded-2xl transition-all border border-rose-100"
+                            title="Eliminar Playlist definitivamente"
+                        >
+                            <Trash2 size={20} />
+                        </button>
+                    )}
                 </div>
             </div>
 

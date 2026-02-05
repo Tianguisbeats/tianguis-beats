@@ -594,7 +594,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             </div>
                                         )}
                                         {profile.is_founder && (
-                                            <div title="Founder" className="text-yellow-400 self-center md:self-end md:mb-2 ml-[-4px]">
+                                            <div title="Founder" className="text-[#FDE047] self-center md:self-end md:mb-2 ml-[-4px]">
                                                 <Crown size={22} fill="currentColor" />
                                             </div>
                                         )}
@@ -717,7 +717,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     {profile.is_founder && (
                                         <div className="flex items-center justify-between">
                                             <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Insignia</span>
-                                            <span className="text-xs font-black uppercase text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-amber-100"><Crown size={12} fill="currentColor" /> Founder</span>
+                                            <span className="text-xs font-black uppercase text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-amber-100"><Crown size={12} fill="#FDE047" className="text-[#FDE047]" /> Founder</span>
                                         </div>
                                     )}
                                 </div>

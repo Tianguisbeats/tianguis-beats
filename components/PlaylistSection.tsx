@@ -52,7 +52,7 @@ export default function PlaylistSection({ playlists, isOwner, onEdit }: Playlist
                                 </button>
                             )}
                             <Link
-                                href={`/${playlist.beats[0]?.producer_username || 'beats'}/beats`}
+                                href={`/${playlist.beats[0]?.producer_username || 'beats'}/playlists/${playlist.id}`}
                                 className="px-6 py-2.5 bg-blue-50 border border-blue-100 rounded-full text-[10px] font-black uppercase tracking-widest text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm flex items-center gap-2"
                             >
                                 Ver playlist <ChevronRight size={12} />
