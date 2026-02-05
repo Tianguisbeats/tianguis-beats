@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Check, Zap, Star, ShieldCheck, ArrowUpRight, Lock, AlertTriangle, X } from 'lucide-react';
+import { Check, Zap, Star, ShieldCheck, ArrowUpRight, Lock, AlertTriangle, X, Crown } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
@@ -321,8 +321,9 @@ export default function PricingPage() {
                         {/* Founder Invitation */}
                         <div className="mb-14 inline-flex">
                             <div className="bg-gradient-to-r from-yellow-400/20 to-amber-500/10 border border-amber-200 text-amber-700 px-8 py-4 rounded-[2rem] flex items-center gap-4 animate-pulse shadow-xl shadow-amber-500/5">
-                                <div className="p-2 bg-amber-400 rounded-xl text-white">
+                                <div className="p-2 bg-amber-400 rounded-xl text-white flex items-center gap-2">
                                     <Star size={16} fill="currentColor" />
+                                    <Crown size={16} fill="currentColor" />
                                 </div>
                                 <span className="text-[11px] font-black uppercase tracking-widest text-left">
                                     Sé de los primeros 100 y obtén estatus <span className="underline decoration-2 underline-offset-4">Founder</span> para siempre
@@ -332,22 +333,22 @@ export default function PricingPage() {
 
                         {/* Premium Toggle Container */}
                         <div className="flex flex-col items-center gap-6">
-                            <div className="relative inline-flex items-center bg-slate-100/50 p-2 rounded-[2rem] border border-slate-200 shadow-inner backdrop-blur-sm">
+                            <div className="relative inline-flex items-center bg-slate-100/80 p-1.5 rounded-[2rem] border border-slate-200 shadow-inner backdrop-blur-sm">
                                 <button
                                     onClick={() => setBillingCycle('monthly')}
-                                    className={`relative z-10 px-12 py-4 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${billingCycle === 'monthly' ? 'text-white' : 'text-slate-400 hover:text-slate-600'}`}
+                                    className={`relative z-10 px-10 py-3.5 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${billingCycle === 'monthly' ? 'text-white' : 'text-slate-400 hover:text-slate-600'}`}
                                 >
                                     {billingCycle === 'monthly' && (
-                                        <div className="absolute inset-0 bg-slate-900 rounded-[1.5rem] -z-10 shadow-xl animate-in fade-in zoom-in-95 duration-300"></div>
+                                        <div className="absolute inset-0 bg-blue-600 rounded-[1.5rem] -z-10 shadow-lg shadow-blue-600/30 animate-in fade-in zoom-in-95 duration-300"></div>
                                     )}
                                     Mensual
                                 </button>
                                 <button
                                     onClick={() => setBillingCycle('yearly')}
-                                    className={`relative z-10 px-12 py-4 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${billingCycle === 'yearly' ? 'text-white' : 'text-slate-400 hover:text-slate-600'}`}
+                                    className={`relative z-10 px-10 py-3.5 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${billingCycle === 'yearly' ? 'text-white' : 'text-slate-400 hover:text-slate-600'}`}
                                 >
                                     {billingCycle === 'yearly' && (
-                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[1.5rem] -z-10 shadow-xl shadow-blue-600/20 animate-in fade-in zoom-in-95 duration-300"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-500 rounded-[1.5rem] -z-10 shadow-lg shadow-amber-500/30 animate-in fade-in zoom-in-95 duration-300"></div>
                                     )}
                                     Anual
                                 </button>
@@ -381,7 +382,7 @@ export default function PricingPage() {
                                         }`}
                                 >
                                     {plan.popular && (
-                                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-5 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-xl shadow-blue-600/30">
+                                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-400 text-slate-900 px-5 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-xl shadow-amber-400/30">
                                             {plan.label}
                                         </div>
                                     )}

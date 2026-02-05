@@ -722,7 +722,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         profile.tema_perfil === 'gold' ? 'border-amber-900/50 bg-slate-900' :
                                             'border-slate-100 bg-white shadow-xl shadow-slate-200/50'
                                     }`}>
-                                    <div className="aspect-video bg-black/20">
+                                    <div className="aspect-video bg-black">
                                         <iframe
                                             width="100%"
                                             height="100%"
@@ -731,18 +731,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             frameBorder="0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                             allowFullScreen
-                                            className="opacity-0 animate-fade-in duration-1000"
-                                            onLoad={(e) => (e.currentTarget.style.opacity = '1')}
+                                            className="w-full h-full"
                                         ></iframe>
-                                    </div>
-                                    <div className="p-5 text-center bg-gradient-to-t from-black/5 to-transparent">
-                                        <span className={`text-[11px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 ${profile.tema_perfil === 'neon' ? 'text-green-600' :
-                                            profile.tema_perfil === 'gold' ? 'text-amber-500' :
-                                                'text-slate-400'
-                                            }`}>
-                                            <Youtube size={14} className="text-red-600" />
-                                            Video Destacado
-                                        </span>
                                     </div>
                                 </div>
                             )}
@@ -872,63 +862,88 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                         {/* Beats Feed */}
                         <div className="lg:col-span-8">
-                            <div className={`flex items-center gap-3 mb-12 p-1.5 rounded-[2rem] overflow-x-auto ${profile.tema_perfil === 'light' ? 'bg-slate-100/50' : 'bg-white/5'
-                                }`}>
+                            <div className={`flex items-center gap-2 mb-10 p-1 rounded-[1.8rem] overflow-x-auto no-scrollbar border ${profile.tema_perfil === 'light' ? 'bg-slate-50/50 border-slate-100' : 'bg-white/5 border-white/10'}`}>
+                                {/* 1. Beats */}
                                 <button
                                     onClick={() => setActiveTab('beats')}
-                                    className={`px-8 py-4 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest whitespace-nowrap transition-all flex items-center gap-3 ${activeTab === 'beats'
-                                        ? (profile.tema_perfil === 'light' ? 'bg-white text-slate-900 shadow-xl shadow-slate-200/50' : 'bg-white text-black shadow-lg shadow-white/20')
+                                    className={`px-6 py-3 rounded-[1.3rem] font-black text-[10px] uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2.5 ${activeTab === 'beats'
+                                        ? (profile.tema_perfil === 'light' ? 'bg-white text-blue-600 shadow-md border border-blue-50' : 'bg-white text-black shadow-lg shadow-white/10')
                                         : 'text-slate-400 hover:text-slate-600'
                                         }`}
                                 >
-                                    <div className={`w-2.5 h-2.5 rounded-full ${activeTab === 'beats' ? 'bg-blue-500 animate-pulse' : 'bg-slate-300'}`}></div>
+                                    <Music size={14} className={activeTab === 'beats' ? 'text-blue-500' : 'text-slate-300'} />
                                     Beats
-                                    <span className={`px-2.5 py-1 rounded-lg text-[10px] ${activeTab === 'beats' ? 'bg-blue-600 text-white' : 'bg-slate-200/50 text-slate-500'}`}>{beats.length}</span>
+                                    <span className={`px-2 py-0.5 rounded-md text-[9px] ${activeTab === 'beats' ? 'bg-blue-600 text-white' : 'bg-slate-200/50 text-slate-500'}`}>{beats.length}</span>
                                 </button>
-                                {services.length > 0 && (
+
+                                {/* 2. Colecciones */}
+                                <button
+                                    onClick={() => setActiveTab('playlists')}
+                                    className={`px-6 py-3 rounded-[1.3rem] font-black text-[10px] uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2.5 ${activeTab === 'playlists'
+                                        ? (profile.tema_perfil === 'light' ? 'bg-white text-purple-600 shadow-md border border-purple-50' : 'bg-white text-black shadow-lg shadow-white/10')
+                                        : 'text-slate-400 hover:text-slate-600'
+                                        }`}
+                                >
+                                    <Layout size={14} className={activeTab === 'playlists' ? 'text-purple-500' : 'text-slate-300'} />
+                                    Colecciones
+                                    <span className={`px-2 py-0.5 rounded-md text-[9px] ${activeTab === 'playlists' ? 'bg-purple-600 text-white' : 'bg-slate-200/50 text-slate-500'}`}>{playlists.length}</span>
+                                </button>
+
+                                {/* 3. Servicios (Premium Lock for Free/Pro) */}
+                                <div className="relative group/tab">
                                     <button
-                                        onClick={() => setActiveTab('services')}
-                                        className={`px-8 py-4 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest whitespace-nowrap transition-all flex items-center gap-3 ${activeTab === 'services'
-                                            ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/30'
+                                        onClick={() => {
+                                            if (profile.subscription_tier === 'premium' || isOwner) {
+                                                setActiveTab('services');
+                                            } else {
+                                                router.push('/pricing');
+                                            }
+                                        }}
+                                        className={`px-6 py-3 rounded-[1.3rem] font-black text-[10px] uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2.5 ${activeTab === 'services'
+                                            ? 'bg-blue-600 text-white shadow-md'
                                             : 'text-slate-400 hover:text-slate-600'
                                             }`}
                                     >
-                                        <div className={`w-2.5 h-2.5 rounded-full ${activeTab === 'services' ? 'bg-white animate-pulse' : 'bg-slate-300'}`}></div>
+                                        <Briefcase size={14} className={activeTab === 'services' ? 'text-white' : 'text-slate-300'} />
                                         Servicios
-                                        <span className={`px-2.5 py-1 rounded-lg text-[10px] ${activeTab === 'services' ? 'bg-white text-blue-600' : 'bg-slate-200/50 text-slate-500'}`}>{services.length}</span>
+                                        {(profile.subscription_tier !== 'premium' && !isOwner) && (
+                                            <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-2 py-0.5 rounded-full text-[7px] font-black uppercase tracking-tighter shadow-sm">
+                                                Premium
+                                            </div>
+                                        )}
+                                        {services.length > 0 && (profile.subscription_tier === 'premium' || isOwner) && (
+                                            <span className={`px-2 py-0.5 rounded-md text-[9px] ${activeTab === 'services' ? 'bg-white text-blue-600' : 'bg-slate-200/50 text-slate-500'}`}>{services.length}</span>
+                                        )}
                                     </button>
-                                )}
-                                {playlists.length > 0 && (
+                                </div>
+
+                                {/* 4. Sound Kits (Premium Lock for Free/Pro) */}
+                                <div className="relative group/tab">
                                     <button
-                                        onClick={() => setActiveTab('playlists')}
-                                        className={`px-8 py-4 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest whitespace-nowrap transition-all flex items-center gap-3 ${activeTab === 'playlists'
-                                            ? (profile.tema_perfil === 'light' ? 'bg-slate-900 text-white shadow-xl' : 'bg-white text-black shadow-lg shadow-white/20')
+                                        onClick={() => {
+                                            if (profile.subscription_tier === 'premium' || isOwner) {
+                                                setActiveTab('sound_kits');
+                                            } else {
+                                                router.push('/pricing');
+                                            }
+                                        }}
+                                        className={`px-6 py-3 rounded-[1.3rem] font-black text-[10px] uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2.5 ${activeTab === 'sound_kits'
+                                            ? (profile.tema_perfil === 'light' ? 'bg-amber-400 text-slate-900 shadow-md border border-amber-300' : 'bg-amber-500 text-black shadow-lg shadow-amber-500/20')
                                             : 'text-slate-400 hover:text-slate-600'
                                             }`}
                                     >
-                                        <div className={`w-2.5 h-2.5 rounded-full ${activeTab === 'playlists' ? 'bg-purple-500 animate-pulse' : 'bg-slate-300'}`}></div>
-                                        Colecciones
-                                        <span className={`px-2.5 py-1 rounded-lg text-[10px] ${activeTab === 'playlists' ? 'bg-white/20 text-current' : 'bg-slate-200/50 text-slate-500'}`}>{playlists.length}</span>
-                                    </button>
-                                )}
-                                {(soundKits.length > 0 || isOwner) && (
-                                    <button
-                                        onClick={() => setActiveTab('sound_kits')}
-                                        className={`px-8 py-4 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest whitespace-nowrap transition-all flex items-center gap-3 ${activeTab === 'sound_kits'
-                                            ? (profile.tema_perfil === 'light' ? 'bg-amber-400 text-slate-900 shadow-xl shadow-amber-400/30' : 'bg-amber-500 text-black shadow-lg shadow-amber-500/20')
-                                            : 'text-slate-400 hover:text-slate-600'
-                                            }`}
-                                    >
-                                        <div className={`w-2.5 h-2.5 rounded-full ${activeTab === 'sound_kits' ? 'bg-white animate-pulse' : 'bg-slate-300'}`}></div>
+                                        <Zap size={14} className={activeTab === 'sound_kits' ? 'text-slate-900' : 'text-slate-300'} />
                                         Sound Kits
-                                        {isOwner && (
-                                            <span className="bg-slate-900 text-amber-400 px-1.5 py-0.5 rounded text-[8px] uppercase tracking-tighter">Premium</span>
+                                        {(profile.subscription_tier !== 'premium' && !isOwner) && (
+                                            <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-2 py-0.5 rounded-full text-[7px] font-black uppercase tracking-tighter shadow-sm">
+                                                Premium
+                                            </div>
                                         )}
-                                        {soundKits.length > 0 && !isOwner && (
-                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] ${activeTab === 'sound_kits' ? 'bg-white/20 text-current' : 'bg-slate-200/50 text-slate-500'}`}>{soundKits.length}</span>
+                                        {soundKits.length > 0 && (profile.subscription_tier === 'premium' || isOwner) && (
+                                            <span className={`px-2 py-0.5 rounded-md text-[9px] ${activeTab === 'sound_kits' ? 'bg-white/50 text-current' : 'bg-slate-200/50 text-slate-500'}`}>{soundKits.length}</span>
                                         )}
                                     </button>
-                                )}
+                                </div>
                             </div>
 
 
