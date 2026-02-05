@@ -1,5 +1,5 @@
 export const GENRES = [
-    "Corridos Tumbados 🎸",
+    "Corridos Tumbados 🇲🇽",
     "Sierreño 🌵",
     "Banda / Norteño 🎺",
     "Mariachi Moderno 🎻",
@@ -27,7 +27,7 @@ export const GENRES = [
 ];
 
 export const SUBGENRES: Record<string, string[]> = {
-    "Corridos Tumbados 🎸": ["Bélicos 🦅", "Tumbados Románticos ❤️", "Corridos de Calle 🚬", "Trap Corridos 💎", "Sierreño Tumbado 🌵"],
+    "Corridos Tumbados 🇲🇽": ["Bélicos 🦅", "Tumbados Románticos ❤️", "Corridos de Calle 🚬", "Trap Corridos 💎", "Sierreño Tumbado 🌵"],
     "Sierreño 🌵": ["Campirano 🤠", "Sierreño Tumbado 🎸", "Romántico 🌹", "Clásico 🎻"],
     "Banda / Norteño 🎺": ["Quebradita 💃", "Zapateado 🕺", "Huapango 🎻", "Norteño Sax 🎷", "Banda Sinaloense 🎺"],
     "Mariachi Moderno 🎻": ["Regional Pop 💎", "Mariacheño 🤠", "Mariachi Trap 🔥", "Clásico 🎻"],

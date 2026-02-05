@@ -39,21 +39,33 @@ function BeatsPageContent() {
   const [featuredMoods, setFeaturedMoods] = useState<any[]>([
     {
       label: 'Chill',
-      emoji: '🌙',
+      emoji: '🌊',
       quote: 'Encuentra la paz en cada beat.',
       image: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2070&auto=format&fit=crop'
     },
     {
       label: 'Bélico',
-      emoji: '⚔️',
-      quote: 'Sonido crudo para la calle.',
-      image: 'https://images.unsplash.com/photo-1514525253361-b83f859b73c0?q=80&w=2070&auto=format&fit=crop'
+      emoji: '🦅',
+      quote: 'Sonido con fuerza y actitud.',
+      image: 'https://images.unsplash.com/photo-1598387181032-a3103a2db5b3?q=80&w=2070&auto=format&fit=crop'
     },
     {
-      label: 'Energía',
-      emoji: '⚡',
-      quote: 'Pon a vibrar el club.',
+      label: 'Trap',
+      emoji: '💎',
+      quote: 'El sonido de la calle.',
       image: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop'
+    },
+    {
+      label: 'Romántico',
+      emoji: '❤️',
+      quote: 'Sentimiento en cada nota.',
+      image: 'https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?q=80&w=2070&auto=format&fit=crop'
+    },
+    {
+      label: 'Duro',
+      emoji: '🔥',
+      quote: 'Energía pura para tus proyectos.',
+      image: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=2070&auto=format&fit=crop'
     },
   ]);
 
@@ -181,25 +193,18 @@ function BeatsPageContent() {
             query = query.order("sale_count", { ascending: false, nullsFirst: false });
             break;
           case 'hidden_gems':
-            query = query.order("like_count", { ascending: false }).lte('play_count', 1000);
+            // High likes, low plays (Joyas)
+            query = query.order("like_count", { ascending: false }).lte('play_count', 2000);
             break;
-          case 'exclusives':
-            query = query.eq('is_exclusive_active', true);
+          case 'exclusives': // This will be "Tianguis IA" / Exposición Premium
+            query = query.not('producer_id', 'is', null);
             break;
           case 'recommended':
-            // Simply taking recent ones for now, randomized later
-            query = query.order("created_at", { ascending: false });
-            break;
-          case 'mood_of_the_week':
-            // Logic for "Mood of the week": Filter by a specific mood and sort by engagement
-            query = query.eq('mood', 'Chill').order("play_count", { ascending: false });
+            // Simple personalization fallback
+            query = query.order("play_count", { ascending: false });
             break;
           case 'corridos_tumbados':
-            // Logic for "Corridos Tumbados": Focus on Mexico's biggest export
-            query = query.eq('genre', 'Corridos Tumbados 🎸').order("created_at", { ascending: false });
-            break;
-          case 'premium_spotlight':
-            query = query.not('producer', 'is', null);
+            query = query.eq('genre', 'Corridos Tumbados 🇲🇽').order("created_at", { ascending: false });
             break;
           default: // 'all'
             query = query.order("created_at", { ascending: false });
@@ -259,7 +264,7 @@ function BeatsPageContent() {
 
           let transformed = await Promise.all((data || []).map(transformBeat));
 
-          if (viewMode === 'premium_spotlight') {
+          if (viewMode === 'exclusives') {
             transformed = transformed.filter(b => b.producer_tier === 'premium' || b.producer_tier === 'pro');
           }
 
@@ -269,7 +274,8 @@ function BeatsPageContent() {
             const tierA = tierOrder[a.producer_tier as any] ?? 3;
             const tierB = tierOrder[b.producer_tier as any] ?? 3;
             if (tierA !== tierB) return tierA - tierB;
-            return 0;
+            // Secondary sort by date
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
           });
 
           setBeats(transformed);
@@ -422,10 +428,11 @@ function BeatsPageContent() {
                     <TabButton mode="corridos_tumbados" label="Corridos 🇲🇽" icon={Zap} color="bg-orange-600 shadow-orange-500/20" />
                     <TabButton mode="new" label="Nuevos" icon={Clock} color="bg-emerald-500 shadow-emerald-500/20" />
                     <TabButton mode="trending" label="Tendencias" icon={TrendingUp} color="bg-rose-500 shadow-rose-500/20" />
-                    <TabButton mode="best_sellers" label="Best Sellers" icon={Trophy} color="bg-amber-600 shadow-amber-600/20" />
+                    <TabButton mode="best_sellers" label="Más comprados" icon={Trophy} color="bg-amber-600 shadow-amber-600/20" />
                     <TabButton mode="hidden_gems" label="Joyas" icon={Gem} color="bg-cyan-500 shadow-cyan-500/20" />
-                    <TabButton mode="exclusives" label="Exclusivos" icon={Star} color="bg-indigo-600 shadow-indigo-600/20" />
-                    <TabButton mode="sound_kits" label="Sound Kits" icon={Sparkles} color="bg-purple-600 shadow-purple-500/20" />
+                    <TabButton mode="exclusives" label="Tianguis IA" icon={Sparkles} color="bg-indigo-600 shadow-indigo-600/20" />
+                    <TabButton mode="recommended" label="Recomendados IA" icon={Zap} color="bg-blue-600 shadow-blue-500/20" />
+                    <TabButton mode="sound_kits" label="Sound Kits" icon={Music} color="bg-purple-600 shadow-purple-500/20" />
                     <TabButton mode="producers" label="Artistas" icon={Users} color="bg-blue-600 shadow-blue-500/20" />
                   </div>
 
