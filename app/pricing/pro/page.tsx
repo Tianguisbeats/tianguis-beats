@@ -3,39 +3,34 @@
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Check, Star, Zap, TrendingUp, ShieldCheck, ArrowLeft, Crown } from 'lucide-react';
+import { Check, Star, Zap, TrendingUp, ShieldCheck, ArrowLeft, Crown, X } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProPlanPage() {
     const mainFeatures = [
         {
             title: "0% Comisión por Venta",
-            description: "Quédate con el 100% de tus ingresos. Sin letras pequeñas.",
+            description: "No compartas tus ganancias. El 100% de cada venta va directamente a tu bolsillo.",
             icon: <TrendingUp className="text-amber-500" size={24} />
         },
         {
-            title: "Subidas Ilimitadas",
-            description: "No pongas límites a tu creatividad. Sube todos los beats que quieras.",
+            title: "Catálogo Ilimitado",
+            description: "Sube todos los ritmos que desees. No pongas frenos a tu flujo de trabajo creativo.",
             icon: <Zap className="text-amber-500" size={24} />
         },
         {
-            title: "Archivos WAV HQ",
-            description: "Ofrece la máxima calidad a tus clientes con archivos WAV profesionales.",
+            title: "Audio WAV Profesional",
+            description: "Habilita la entrega de archivos WAV de alta calidad para los artistas más exigentes.",
             icon: <ShieldCheck className="text-amber-500" size={24} />
         }
     ];
 
-    const deepContent = [
-        {
-            title: "Potencia tu Carrera",
-            text: "El plan PRO está diseñado para productores que han decidido tomarse su carrera en serio. Al eliminar las comisiones, cada venta que realizas es íntegramente tuya, lo que te permite reinvertir en tu equipo, marketing y crecimiento.",
-            image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop"
-        },
-        {
-            title: "Más que solo Archivos",
-            text: "Al habilitar la subida de archivos WAV, te posicionas como un profesional en el mercado. Los artistas serios buscan calidad, y el formato WAV es el estándar de la industria que te permitirá cerrar más ventas y a mejores precios.",
-            image: "https://images.unsplash.com/photo-1520529124203-0974f3ca4e18?q=80&w=2070&auto=format&fit=crop"
-        }
+    const summaryItems = [
+        { label: "Costo Mensual", value: "$149 MXN" },
+        { label: "Comisión Tianguis", value: "0%" },
+        { label: "Almacenamiento", value: "Ilimitado" },
+        { label: "Soporte", value: "Prioritario 24/7" },
+        { label: "Tianguis Studio", value: "Full Access" }
     ];
 
     return (
@@ -43,58 +38,47 @@ export default function ProPlanPage() {
             <Navbar />
 
             <main className="flex-1">
-                {/* Hero Section */}
-                <section className="relative py-20 overflow-hidden bg-slate-900 text-white">
-                    <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')]"></div>
+                {/* Hero section - Vitaminized Amber/Slate */}
+                <section className="relative py-24 bg-slate-900 text-white overflow-hidden">
+                    <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                    <div className="absolute top-0 right-0 w-1/2 h-full bg-amber-500/10 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
+
                     <div className="max-w-6xl mx-auto px-4 relative z-10">
-                        <Link href="/pricing" className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest mb-10">
+                        <Link href="/pricing" className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest mb-12">
                             <ArrowLeft size={14} /> Volver a planes
                         </Link>
 
-                        <div className="grid md:grid-cols-2 gap-12 items-center">
+                        <div className="grid md:grid-cols-2 gap-16 items-center">
                             <div>
-                                <div className="inline-flex items-center gap-2 bg-amber-400/20 text-amber-400 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-6 border border-amber-400/30">
-                                    <Crown size={12} /> Plan Recomendado
+                                <div className="inline-flex items-center gap-2 bg-amber-400/20 text-amber-400 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-8 border border-amber-400/30 backdrop-blur-sm">
+                                    <Star size={14} fill="currentColor" /> Plan de Crecimiento
                                 </div>
-                                <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none mb-6">
-                                    Plan <span className="text-amber-400 text-shadow-glow">PRO</span>
+                                <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none mb-8">
+                                    Plan <span className="text-amber-400 drop-shadow-[0_0_15px_rgba(251,191,36,0.3)]">PRO</span>
                                 </h1>
-                                <p className="text-xl text-slate-400 font-medium mb-8 max-w-lg leading-relaxed">
-                                    Diseñado para productores independientes que buscan maximizar sus ganancias y profesionalizar su catálogo.
+                                <p className="text-xl text-slate-400 font-medium mb-12 max-w-lg leading-relaxed">
+                                    Toma el control total de tu negocio. Sin comisiones, con subidas ilimitadas y todas las herramientas para profesionalizar tu tienda.
                                 </p>
-                                <button
-                                    onClick={() => window.location.href = '/pricing'}
-                                    className="inline-block px-10 py-5 bg-amber-500 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-amber-400 hover:scale-105 transition-all shadow-xl shadow-amber-500/20 active:scale-95"
-                                >
+                                <Link href="/pricing" className="inline-block px-12 py-6 bg-amber-500 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all shadow-2xl shadow-amber-500/20 hover:scale-105 active:scale-95">
                                     Mejorar Ahora — $149 MXN
-                                </button>
+                                </Link>
                             </div>
-                            <div className="relative hidden md:block">
-                                <div className="absolute -inset-4 bg-amber-500/20 blur-3xl rounded-full"></div>
-                                <div className="relative bg-slate-800 border-2 border-slate-700 p-8 rounded-[3rem] shadow-2xl overflow-hidden group">
-                                    <div className="absolute top-0 right-0 p-4 bg-amber-400 text-slate-900 rounded-bl-3xl font-black text-[10px] uppercase tracking-widest">0% Fees</div>
-                                    <div className="flex items-center gap-4 mb-8">
-                                        <div className="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-amber-400">
-                                            <Star size={24} fill="currentColor" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-black uppercase tracking-tighter text-lg">Independencia Total</h4>
-                                            <p className="text-slate-500 text-[10px] font-bold uppercase">Sin límites de distribución</p>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-4">
-                                        {[
-                                            "Comisión por venta: 0%",
-                                            "Almacenamiento: Ilimitado",
-                                            "Formato WAV: Habilitado",
-                                            "Soporte: Prioritario",
-                                            "Etiqueta Verificada PRO"
-                                        ].map((item, i) => (
-                                            <div key={i} className="flex items-center gap-3 text-slate-300 text-xs font-bold">
-                                                <Check size={14} className="text-amber-400" strokeWidth={4} />
-                                                {item}
+
+                            <div className="relative">
+                                <div className="bg-slate-800 border-2 border-slate-700 p-12 rounded-[4rem] shadow-2xl relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-6 bg-amber-400 text-slate-900 rounded-bl-[2.5rem] font-black text-[10px] uppercase tracking-widest">PRO Verified</div>
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-10">Resumen del Plan</h4>
+                                    <div className="space-y-6">
+                                        {summaryItems.map((item, i) => (
+                                            <div key={i} className="flex items-center justify-between py-1 border-b border-white/5 last:border-0">
+                                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{item.label}</span>
+                                                <span className="text-sm font-black text-white">{item.value}</span>
                                             </div>
                                         ))}
+                                    </div>
+                                    <div className="mt-10 pt-6 border-t border-white/5 flex items-center gap-3 text-amber-400 font-black text-[10px] uppercase tracking-widest">
+                                        <ShieldCheck size={16} />
+                                        100% de Ingresos para ti
                                     </div>
                                 </div>
                             </div>
@@ -102,62 +86,59 @@ export default function ProPlanPage() {
                     </div>
                 </section>
 
-                {/* Features Grid */}
-                <section className="py-24 bg-white">
+                {/* Features Highlights */}
+                <section className="py-32 bg-white">
                     <div className="max-w-6xl mx-auto px-4">
-                        <div className="text-center mb-20">
-                            <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900 mb-4">Beneficios de Élite</h2>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">Todo lo necesario para escalar</p>
-                        </div>
-
-                        <div className="grid md:grid-cols-3 gap-12">
+                        <div className="grid md:grid-cols-3 gap-8">
                             {mainFeatures.map((f, i) => (
-                                <div key={i} className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 hover:border-amber-200 transition-all hover:-translate-y-2">
-                                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-slate-100">
+                                <div key={i} className="p-12 bg-slate-50 rounded-[3.5rem] border border-slate-100 hover:border-amber-200 transition-all group">
+                                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-10 shadow-sm border border-slate-100 group-hover:scale-110 group-hover:bg-amber-50 group-hover:border-amber-100 transition-all duration-500">
                                         {f.icon}
                                     </div>
-                                    <h4 className="text-lg font-black uppercase tracking-tighter text-slate-900 mb-2">{f.title}</h4>
-                                    <p className="text-sm text-slate-500 font-medium leading-relaxed">{f.description}</p>
+                                    <h4 className="text-xl font-black uppercase tracking-tighter text-slate-900 mb-4">{f.title}</h4>
+                                    <p className="text-base text-slate-500 font-medium leading-relaxed">{f.description}</p>
                                 </div>
                             ))}
                         </div>
                     </div>
                 </section>
 
-                {/* Comparative Section */}
-                <section className="py-24 bg-slate-50">
+                {/* Business Growth Section */}
+                <section className="py-32 bg-slate-50">
                     <div className="max-w-4xl mx-auto px-4">
-                        <div className="bg-white p-10 md:p-16 rounded-[4rem] border border-slate-200 shadow-xl">
-                            <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-900 mb-12 text-center">Plan Gratis vs <span className="text-amber-500">PRO</span></h2>
+                        <div className="bg-white p-12 md:p-20 rounded-[4rem] border border-slate-200 shadow-2xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-50 rounded-full blur-[100px] -mr-32 -mt-32 opacity-60"></div>
 
-                            <div className="space-y-8">
-                                <div className="grid grid-cols-3 gap-4 border-b border-slate-100 pb-4">
-                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Característica</div>
-                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Gratis</div>
-                                    <div className="text-[10px] font-black uppercase text-amber-500 tracking-widest text-center">PRO</div>
-                                </div>
+                            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-slate-900 mb-16 text-center leading-none">
+                                Escala tu Negocio a <span className="text-amber-500">0% Comisión</span>
+                            </h2>
 
+                            <div className="grid gap-4">
                                 {[
-                                    { name: "Comisión Tianguis", free: "15%", pro: "0%" },
-                                    { name: "Límite de Beats", free: "5", pro: "Ilimitados" },
-                                    { name: "Formatos", free: "MP3", pro: "MP3 + WAV" },
-                                    { name: "Soporte", free: "Básico", pro: "Especializado" },
-                                    { name: "Estadísticas", free: "Simples", pro: "Avanzadas" }
+                                    { name: "Comisión por Venta", free: "15%", pro: "0%", icon: <TrendingUp size={14} /> },
+                                    { name: "Límite de Beats", free: "5", pro: "Ilimitados", icon: <Zap size={14} /> },
+                                    { name: "Entrega de MP3 & WAV", free: <X size={14} className="text-slate-300 mx-auto" />, pro: <Check size={14} className="text-amber-500 mx-auto" />, icon: <ShieldCheck size={14} /> },
+                                    { name: "Soporte al Cliente", free: "Básico", pro: "Prioritario", icon: <Star size={14} /> }
                                 ].map((row, i) => (
-                                    <div key={i} className="grid grid-cols-3 gap-4 items-center">
-                                        <div className="text-xs font-bold text-slate-700">{row.name}</div>
-                                        <div className="text-xs font-medium text-slate-400 text-center">{row.free}</div>
-                                        <div className="text-xs font-black text-slate-900 text-center bg-amber-50 rounded-lg py-1 border border-amber-100">{row.pro}</div>
+                                    <div key={i} className="grid grid-cols-3 gap-6 items-center py-6 border-b border-slate-50 last:border-0">
+                                        <div className="flex items-center gap-3 text-xs font-black text-slate-400 uppercase tracking-widest shrink-0">
+                                            <div className="p-2 bg-slate-50 rounded-lg text-slate-400">{row.icon}</div>
+                                            {row.name}
+                                        </div>
+                                        <div className="text-sm font-bold text-slate-400 text-center">{row.free}</div>
+                                        <div className="text-sm font-black text-slate-900 text-center bg-amber-50 rounded-2xl py-3 border border-amber-100 shadow-sm">
+                                            {row.pro}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="mt-16 bg-slate-900 text-white p-8 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div className="mt-16 bg-slate-900 text-white p-10 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-8 group">
                                 <div>
-                                    <h4 className="text-xl font-black uppercase tracking-tighter mb-1">¿Listo para la independencia?</h4>
-                                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Impulsa tu tienda hoy mismo</p>
+                                    <h4 className="text-2xl font-black uppercase tracking-tighter mb-2 group-hover:text-amber-400 transition-colors">¿Listo para la Independencia?</h4>
+                                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em]">Convierte tu pasión en una empresa rentable</p>
                                 </div>
-                                <Link href="/pricing" className="px-8 py-4 bg-amber-500 text-slate-900 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all">
+                                <Link href="/pricing" className="px-10 py-5 bg-amber-500 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all hover:scale-110 active:scale-95 shadow-xl shadow-amber-500/20">
                                     Empezar con PRO
                                 </Link>
                             </div>

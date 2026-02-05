@@ -91,7 +91,7 @@ export default function ServicesManagerPage() {
                 titulo: currentService.titulo,
                 descripcion: currentService.descripcion,
                 precio: currentService.precio,
-                tipo_servicio: currentService.tipo_servicio || 'mixing',
+                tipo_servicio: currentService.tipo_servicio || 'mixing_mastering',
                 tiempo_entrega_dias: currentService.tiempo_entrega_dias || 3,
                 is_active: true
             };
@@ -537,14 +537,12 @@ export default function ServicesManagerPage() {
                                 <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Categoría</label>
                                 <select
                                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 appearance-none"
-                                    value={currentService?.tipo_servicio || 'mixing'}
+                                    value={currentService?.tipo_servicio || 'mixing_mastering'}
                                     onChange={e => setCurrentService({ ...currentService, tipo_servicio: e.target.value })}
                                 >
-                                    <option value="mixing">Mezcla (Mixing)</option>
-                                    <option value="mastering">Masterización</option>
+                                    <option value="mixing_mastering">Mezcla y Masterización</option>
                                     <option value="beat_custom">Beat a Medida</option>
                                     <option value="mentoria">Mentoría / Clase</option>
-                                    <option value="sound_kit">Sound Kit / Librería</option>
                                     <option value="other">Otro</option>
                                 </select>
                             </div>

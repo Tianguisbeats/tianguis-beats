@@ -10,18 +10,18 @@ export default function FreePlanPage() {
     const limitsFeatures = [
         {
             title: "5 Beats Públicos",
-            description: "Empieza a mostrar tu sonido al mundo con tus mejores producciones.",
+            description: "Muestra tu talento al mundo. Sube tus mejores 5 producciones y empieza a generar tracción.",
             icon: <Music className="text-slate-400" size={24} />
         },
         {
-            title: "Licencia MP3 Básica",
-            description: "Permite a los artistas comprar una licencia estándar en formato MP3.",
+            title: "Licencia MP3 (con Tags)",
+            description: "Tus beats estarán disponibles para venta en formato MP3 con tus marcas de agua de protección.",
             icon: <Zap className="text-slate-400" size={24} />
         },
         {
-            title: "Plataforma de confianza",
-            description: "Únete a la comunidad de productores más fuerte de México y Latam.",
-            icon: <Heart className="text-slate-400" size={24} />
+            title: "Estadísticas Básicas",
+            description: "Visualiza cuántas personas han escuchado tus ritmos y monitorea tu crecimiento inicial.",
+            icon: <TrendingUp className="text-slate-400" size={24} />
         }
     ];
 
@@ -30,44 +30,48 @@ export default function FreePlanPage() {
             <Navbar />
 
             <main className="flex-1">
-                {/* Hero section - Minimalist and Clean */}
-                <section className="relative py-24 bg-slate-50 text-slate-900">
-                    <div className="max-w-6xl mx-auto px-4">
+                {/* Hero section - Vitaminized/Minimalist */}
+                <section className="relative py-24 bg-slate-50/50 text-slate-900 overflow-hidden">
+                    <div className="absolute top-0 right-0 w-1/3 h-full bg-slate-200/30 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
+                    <div className="max-w-6xl mx-auto px-4 relative z-10">
                         <Link href="/pricing" className="inline-flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors text-xs font-bold uppercase tracking-widest mb-12">
                             <ArrowLeft size={14} /> Volver a planes
                         </Link>
 
                         <div className="grid md:grid-cols-2 gap-16 items-center">
                             <div>
-                                <div className="inline-flex items-center gap-2 bg-slate-200 text-slate-500 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] mb-6">
-                                    Plan de Entrada
+                                <div className="inline-flex items-center gap-2 bg-slate-200/50 text-slate-500 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] mb-6 border border-slate-200">
+                                    Punto de Inicio
                                 </div>
                                 <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none mb-8">
                                     Plan <span className="text-slate-300">GRATIS</span>
                                 </h1>
                                 <p className="text-xl text-slate-500 font-medium mb-10 max-w-lg leading-relaxed">
-                                    La puerta de entrada a Tianguis Beats. Prueba la plataforma, sube tus primeros beats y empieza a vender sin costo fijo mensual.
+                                    La puerta de entrada a Tianguis Beats. Valida tu sonido, sube tus primeros beats y empieza a vender sin costos fijos.
                                 </p>
-                                <Link href="/signup" className="inline-block px-12 py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-600 transition-all shadow-xl shadow-slate-900/10">
-                                    Empezar a publicar ahora
+                                <Link href="/signup" className="inline-block px-12 py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 transition-all shadow-xl shadow-slate-900/10 hover:scale-105 active:scale-95">
+                                    Empezar Gratis Ahora
                                 </Link>
                             </div>
-                            <div className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 -mr-16 -mt-16 rounded-full"></div>
-                                <h4 className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 mb-8">Estructura del Plan</h4>
+                            <div className="bg-white p-12 rounded-[3.5rem] border border-slate-200 shadow-2xl shadow-slate-200/50 relative overflow-hidden group hover:border-slate-300 transition-all">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 -mr-16 -mt-16 rounded-full group-hover:scale-110 transition-transform"></div>
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-10">Estructura del Plan</h4>
                                 <div className="space-y-6">
                                     {[
-                                        "Costo Mensual: $0 MXN",
-                                        "Comisión por venta: 15%",
-                                        "Límite: 5 Beats públicos",
-                                        "Calidad: MP3 Estándar",
-                                        "Acceso al Tianguis Studio: Full"
+                                        { label: "Suscripción Mensual", value: "$0 MXN", icon: <Check size={14} className="text-slate-400" /> },
+                                        { label: "Comisión por Venta", value: "15%", icon: <Check size={14} className="text-slate-400" /> },
+                                        { label: "Límite de Beats", value: "5 Activos", icon: <Check size={14} className="text-slate-400" /> },
+                                        { label: "Calidad de Audio", value: "MP3 Estándar", icon: <Check size={14} className="text-slate-400" /> },
+                                        { label: "Tianguis Studio", value: "Acceso Básico", icon: <Check size={14} className="text-slate-400" /> }
                                     ].map((item, i) => (
-                                        <div key={i} className="flex items-center gap-4 text-slate-600 font-bold text-sm">
-                                            <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                                                <Check size={12} className="text-slate-400" strokeWidth={4} />
+                                        <div key={i} className="flex items-center justify-between py-1 border-b border-dashed border-slate-100 last:border-0">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
+                                                    {item.icon}
+                                                </div>
+                                                <span className="text-xs font-bold text-slate-500 uppercase tracking-tight">{item.label}</span>
                                             </div>
-                                            {item}
+                                            <span className="text-sm font-black text-slate-900">{item.value}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -77,12 +81,12 @@ export default function FreePlanPage() {
                 </section>
 
                 {/* Features Highlight */}
-                <section className="py-24 bg-white">
+                <section className="py-32 bg-white">
                     <div className="max-w-6xl mx-auto px-4">
-                        <div className="grid md:grid-cols-3 gap-12">
+                        <div className="grid md:grid-cols-3 gap-8">
                             {limitsFeatures.map((f, i) => (
-                                <div key={i} className="p-10 bg-white border border-slate-100 rounded-[2.5rem] hover:shadow-xl hover:shadow-slate-200/40 transition-all">
-                                    <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-10 group-hover:scale-110 transition-transform">
+                                <div key={i} className="p-12 bg-white border border-slate-100 rounded-[3rem] hover:shadow-2xl hover:shadow-slate-200/60 transition-all group">
+                                    <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-slate-100 transition-all duration-500">
                                         {f.icon}
                                     </div>
                                     <h4 className="text-xl font-black uppercase tracking-tighter text-slate-900 mb-4">{f.title}</h4>
@@ -94,29 +98,31 @@ export default function FreePlanPage() {
                 </section>
 
                 {/* Growth section */}
-                <section className="py-24 bg-slate-900 text-white">
-                    <div className="max-w-6xl mx-auto px-4">
+                <section className="py-32 bg-slate-900 text-white relative overflow-hidden">
+                    <div className="absolute bottom-0 left-0 w-1/2 h-full bg-blue-600/5 blur-[120px] rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                    <div className="max-w-6xl mx-auto px-4 relative z-10">
                         <div className="grid md:grid-cols-2 gap-20 items-center">
                             <div>
-                                <h2 className="text-4xl font-black uppercase tracking-tighter mb-8 italic">"Todos empezamos en algún <span className="text-blue-500">lugar</span>"</h2>
-                                <p className="text-slate-400 font-medium text-lg leading-relaxed mb-10">
-                                    El plan gratis no es un límite, es un trampolín. Úsalo para validar tus primeros beats y, en cuanto realices tus primeras ventas, podrás mejorar a PRO para reinvertir en tu carrera y quedarte con el 100% de lo que generas.
+                                <h2 className="text-5xl font-black uppercase tracking-tighter mb-8 italic leading-none">"Valida tu sonido sin <span className="text-blue-500">riesgos</span>"</h2>
+                                <p className="text-slate-400 font-medium text-lg leading-relaxed mb-12">
+                                    El plan gratis es el lugar ideal para probar tus ritmos. Cuando realices tus primeras ventas y estés listo para el siguiente nivel, mejora a PRO para quedarte con el 100% de tus ingresos.
                                 </p>
-                                <div className="flex items-center gap-6">
-                                    <div className="bg-slate-800 p-6 rounded-2xl">
-                                        <p className="text-2xl font-black text-blue-500">15%</p>
-                                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mt-1">Comisión única</p>
+                                <div className="flex items-center gap-8">
+                                    <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-sm">
+                                        <p className="text-3xl font-black text-blue-500">15%</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-2">Comisión Justa</p>
                                     </div>
-                                    <div className="bg-slate-800 p-6 rounded-2xl">
-                                        <p className="text-2xl font-black text-white">5</p>
-                                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mt-1">Beats Activos</p>
+                                    <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-sm">
+                                        <p className="text-3xl font-black text-white">5</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-2">Beats Públicos</p>
                                     </div>
                                 </div>
                             </div>
                             <div className="relative">
+                                <div className="absolute -inset-4 bg-blue-500/10 blur-3xl rounded-full"></div>
                                 <img
                                     src="https://images.unsplash.com/photo-1542333398-93f95b9d22aa?q=80&w=2070&auto=format&fit=crop"
-                                    className="rounded-[3rem] shadow-2xl opacity-60 grayscale hover:grayscale-0 transition-all"
+                                    className="rounded-[4rem] shadow-2xl opacity-80 group-hover:opacity-100 transition-opacity border-2 border-white/10"
                                     alt="Producer starts"
                                 />
                             </div>
@@ -125,13 +131,16 @@ export default function FreePlanPage() {
                 </section>
 
                 {/* Final CTA */}
-                <section className="py-24 text-center">
+                <section className="py-32 text-center bg-white">
                     <div className="max-w-3xl mx-auto px-4">
-                        <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-900 mb-6 underline decoration-blue-600 decoration-8 underline-offset-8">Sin excusas.</h2>
-                        <p className="text-slate-400 text-sm font-bold uppercase tracking-[0.2em] mb-12 mt-10 leading-loose">
-                            Crea tu cuenta hoy mismo, sube tus mejores 5 ritmos y empieza a formar parte del movimiento. Es gratis para siempre, o hasta que estés listo para crecer.
+                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-12">
+                            <Heart size={32} className="text-slate-200" />
+                        </div>
+                        <h2 className="text-5xl font-black uppercase tracking-tighter text-slate-900 mb-8 leading-none">Sin excusas. Únete hoy.</h2>
+                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-16 leading-loose">
+                            Es gratis para siempre. Sube tus mejores hits y forma parte de la comunidad.
                         </p>
-                        <Link href="/signup" className="px-16 py-6 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-600 transition-all shadow-xl shadow-blue-600/20 active:scale-95">
+                        <Link href="/signup" className="px-16 py-7 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 transition-all shadow-2xl shadow-blue-600/20 hover:scale-105 active:scale-95">
                             Crear mi cuenta GRATIS
                         </Link>
                     </div>
