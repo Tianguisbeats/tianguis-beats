@@ -28,8 +28,8 @@ export default function Home() {
       <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 overflow-hidden">
         {/* Background Gradients */}
         <div className="absolute top-0 left-0 w-full h-[80vh] bg-white -z-20"></div>
-        <div className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-blue-500/5 rounded-full blur-[120px] -z-10"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-purple-500/5 rounded-full blur-[100px] -z-10"></div>
+        <div className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-green-500/5 rounded-full blur-[120px] -z-10"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-emerald-500/5 rounded-full blur-[100px] -z-10"></div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white/50 backdrop-blur-sm mb-8 animate-fade-in-up">
@@ -38,23 +38,23 @@ export default function Home() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
             </span>
             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 animate-pulse-slow">
-              🇲🇽 La Tienda de Beats #1 en México
+              🇲🇽 El Movimiento #1 en México
             </span>
           </div>
 
           <h1 className="text-5xl md:text-7xl lg:text-9xl font-black text-slate-900 tracking-tighter mb-8 leading-[0.9]">
-            El Origen del <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">Nuevo Sonido.</span>
+            La Casa de los <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">Corridos Tumbados.</span>
           </h1>
 
           <p className="text-lg md:text-xl text-slate-500 font-medium max-w-3xl mx-auto mb-12 leading-relaxed tracking-tight">
-            Únete a la comunidad de productores más grande de Latinoamérica. Vende, colabora, ofrece servicios y crece en la plataforma potenciada con inteligencia artificial para maximizar tu trabajo.
+            La plataforma definitiva para el sonido que conquistó el mundo. Únete a productores verificados, vende tus beats y lleva el movimiento al siguiente nivel.
           </p>
 
           {/* Omni-Search Bar */}
-          <div className="max-w-2xl mx-auto relative group">
-            <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative flex items-center bg-white p-2 rounded-full shadow-2xl shadow-slate-200/50 border border-slate-100 transition-all duration-300 focus-within:ring-4 focus-within:ring-cyan-400/20">
+          <div className="max-w-2xl mx-auto relative group mb-12">
+            <div className="absolute inset-0 bg-green-500/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative flex items-center bg-white p-2 rounded-full shadow-2xl shadow-slate-200/50 border border-slate-100 transition-all duration-300 focus-within:ring-4 focus-within:ring-green-400/20">
               <div className="pl-6 text-slate-400">
                 <Search size={22} />
               </div>
@@ -68,12 +68,24 @@ export default function Home() {
               />
               <button
                 onClick={() => window.location.href = `/beats?q=${searchQuery}`}
-                className="bg-blue-600 text-white px-8 py-3 rounded-full font-black uppercase text-[10px] tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30"
+                className="bg-slate-900 text-white px-8 py-3 rounded-full font-black uppercase text-[10px] tracking-widest hover:bg-green-600 transition-all shadow-lg shadow-slate-900/10"
               >
                 Buscar
               </button>
             </div>
-            <div className="mt-8"></div>
+          </div>
+
+          {/* Dedicated CT Button */}
+          <div className="flex justify-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <Link
+              href={`/beats?genre=${encodeURIComponent("Corridos Tumbados 🇲🇽")}`}
+              className="group relative inline-flex items-center gap-3 px-10 py-5 bg-white border border-slate-100 text-slate-900 rounded-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-green-500/20"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <span className="relative z-10 font-black uppercase text-[11px] tracking-[0.2em] flex items-center gap-2 group-hover:text-green-700 transition-colors">
+                <Music size={16} className="text-green-600" /> Explorar Corridos Tumbados
+              </span>
+            </Link>
           </div>
         </div>
       </section>
