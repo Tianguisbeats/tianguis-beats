@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Filter, Music, SlidersHorizontal, ArrowLeft } from "lucide-react";
+import { Filter, Music, SlidersHorizontal, ArrowLeft, Crown, Clock, TrendingUp } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Beat } from "@/lib/types";
@@ -25,19 +25,26 @@ export default function BeatsPage() {
   );
 }
 
+type ViewMode = 'all' | 'new' | 'trending' | 'top_producers' | 'premium_spotlight';
+
 function BeatsPageContent() {
   const [beats, setBeats] = useState<Beat[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [trendingBeats, setTrendingBeats] = useState<Beat[]>([]);
 
   // Sidebar State
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // View Mode
+  const [viewMode, setViewMode] = useState<ViewMode>('all');
 
   // Filter State
   const [filterState, setFilterState] = useState({
     searchQuery: "",
     genre: "Todos",
-    bpm: null as number | null,
+    bpmMin: "" as number | string,
+    bpmMax: "" as number | string,
     key: "",
     mood: "",
     priceRange: [0, 10000] as [number, number]
@@ -60,7 +67,8 @@ function BeatsPageContent() {
       genre: g || prev.genre,
       mood: m || prev.mood,
       key: k || prev.key,
-      bpm: b ? parseInt(b) : prev.bpm
+      bpmMin: b ? parseInt(b) : prev.bpmMin,
+      bpmMax: b ? parseInt(b) : prev.bpmMax,
     }));
   }, [searchParams]);
 
@@ -85,7 +93,7 @@ function BeatsPageContent() {
       producer_is_founder: b.producer?.is_founder,
       producer_foto_perfil: b.producer?.foto_perfil,
       producer_tier: b.producer?.subscription_tier,
-      producer_artistic_name: b.producer?.artistic_name, // Added for convenience
+      producer_artistic_name: b.producer?.artistic_name,
       price_mxn: b.price_mxn,
       bpm: b.bpm,
       genre: b.genre,
@@ -94,6 +102,7 @@ function BeatsPageContent() {
       portadabeat_url: finalCoverUrl,
       mp3_url: publicUrl,
       created_at: b.created_at,
+      play_count: b.play_count,
       is_mp3_active: b.is_mp3_active,
       is_wav_active: b.is_wav_active,
       is_stems_active: b.is_stems_active,
@@ -112,26 +121,57 @@ function BeatsPageContent() {
         let query = supabase
           .from("beats")
           .select(`
-            id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, created_at,
+            id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, created_at, play_count,
             is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active,
             producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
           `)
           .eq("is_public", true);
 
-        // Apply Filters
+        // Apply Common Filters
         if (filterState.genre && filterState.genre !== "Todos") query = query.eq('genre', filterState.genre);
-        if (filterState.mood) query = query.ilike('mood', `%${filterState.mood}%`); // Partial match for comma separated
-        if (filterState.bpm) query = query.gte('bpm', filterState.bpm - 5).lte('bpm', filterState.bpm + 5); // Range +/- 5
+        if (filterState.mood) query = query.ilike('mood', `%${filterState.mood}%`);
+        if (filterState.bpmMin) query = query.gte('bpm', filterState.bpmMin);
+        if (filterState.bpmMax) query = query.lte('bpm', filterState.bpmMax);
         if (filterState.key) query = query.eq('musical_key', filterState.key);
         if (filterState.searchQuery.trim()) query = query.or(`title.ilike.%${filterState.searchQuery.trim()}%,genre.ilike.%${filterState.searchQuery.trim()}%`);
 
-        const { data, error } = await query.order("created_at", { ascending: false }).limit(50);
+        // Apply View Mode Specific Sorting/Filtering
+        switch (viewMode) {
+          case 'new':
+            query = query.order("created_at", { ascending: false });
+            break;
+          case 'trending':
+            // Assuming play_count exists, otherwise use random or created_at
+            query = query.order("play_count", { ascending: false, nullsFirst: false });
+            break;
+          case 'premium_spotlight':
+            query = query.not('producer', 'is', null); // Ensure producer exists to filter later
+            break;
+          default: // 'all'
+            query = query.order("created_at", { ascending: false });
+            break;
+        }
+
+        const { data, error } = await query.limit(50);
 
         if (cancel) return;
         if (error) { setErrorMsg(error.message); return; }
 
-        const transformed = await Promise.all((data || []).map(transformBeat));
+        // Transform
+        let transformed = await Promise.all((data || []).map(transformBeat));
+
+        // Additional Client-Side Filtering if needed (e.g. Premium check)
+        if (viewMode === 'premium_spotlight') {
+          transformed = transformed.filter(b => b.producer_tier === 'premium' || b.producer_tier === 'pro');
+        }
+
         setBeats(transformed);
+
+        // Set Trending Beats for Banner (Taking 5 random beats from the result for visual impact)
+        if (transformed.length > 0) {
+          setTrendingBeats(transformed.slice(0, 5));
+        }
+
       } catch (err) {
         console.error(err);
         setErrorMsg("Error al cargar los beats.");
@@ -142,14 +182,29 @@ function BeatsPageContent() {
 
     load();
     return () => { cancel = true; };
-  }, [filterState]);
+  }, [filterState, viewMode]);
 
   // Extract Genres for Sidebar
   const genres = useMemo(() => {
-    // If we have beats, extract unique genres. Otherwise default list.
     const defaultGenres = ["Trap", "Reggaeton", "Hip Hop", "Corridos", "R&B", "Drill", "Pop", "Lo-fi", "Phonk", "Afrobeat"];
     return defaultGenres.sort();
   }, []);
+
+  const TabButton = ({ mode, label, icon: Icon }: { mode: ViewMode, label: string, icon: any }) => (
+    <button
+      onClick={() => setViewMode(mode)}
+      className={`
+              flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap
+              ${viewMode === mode
+          ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20 scale-105'
+          : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-100'
+        }
+          `}
+    >
+      <Icon size={14} />
+      {label}
+    </button>
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col">
@@ -158,12 +213,12 @@ function BeatsPageContent() {
       <main className="flex-1 pt-24 pb-20 relative">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
 
-          {/* Header / Featured Banner */}
-          {!loading && !errorMsg && beats.length > 0 && (
-            <FeaturedBanner trendingBeat={beats[0]} />
+          {/* Featured Banner */}
+          {!loading && !errorMsg && trendingBeats.length > 0 && viewMode === 'all' && (
+            <FeaturedBanner trendingBeats={trendingBeats} />
           )}
 
-          <div className="flex gap-8 items-start">
+          <div className="flex flex-col lg:flex-row gap-8 items-start">
 
             {/* Sidebar (Desktop) */}
             <AdvancedFilterSidebar
@@ -178,20 +233,49 @@ function BeatsPageContent() {
             {/* Main Content */}
             <div className="flex-1 w-full min-w-0">
 
-              {/* Toolbar (Mobile Toggle & Count) */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
+              {/* Toolbar & Tabs */}
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+
+                {/* Mobile Sidebar Toggle */}
+                <div className="flex items-center gap-3 lg:hidden w-full">
                   <button
                     onClick={() => setIsSidebarOpen(true)}
-                    className="lg:hidden p-2.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:bg-slate-50 active:scale-95 transition-all text-slate-600"
+                    className="p-3 bg-white border border-slate-200 rounded-xl shadow-sm hover:bg-slate-50 active:scale-95 transition-all text-slate-600"
                   >
                     <SlidersHorizontal size={20} />
                   </button>
-                  <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
-                    Catalogo <span className="text-slate-400 text-sm font-bold bg-slate-100 px-2 py-1 rounded-lg tracking-widest">{beats.length}</span>
+                  <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight ml-auto">
+                    Catalogo
                   </h2>
                 </div>
+
+                {/* Tabs */}
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full md:w-auto pb-2 md:pb-0">
+                  <TabButton mode="all" label="Todos" icon={Music} />
+                  <TabButton mode="new" label="Recién Horneados" icon={Clock} />
+                  <TabButton mode="trending" label="Tendencias" icon={TrendingUp} />
+                  <TabButton mode="premium_spotlight" label="Selección Tianguis" icon={Crown} />
+                </div>
+
+                <div className="hidden md:block text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  {beats.length} Resultados
+                </div>
               </div>
+
+              {/* View Title/Description */}
+              {viewMode === 'premium_spotlight' && (
+                <div className="mb-8 p-6 bg-gradient-to-r from-amber-100 to-orange-50 rounded-3xl border border-amber-200 flex items-start gap-4 animate-fade-in-up">
+                  <div className="p-3 bg-amber-500 text-white rounded-2xl shadow-lg shadow-amber-500/20">
+                    <Crown size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-amber-900 uppercase tracking-tight mb-1">Selección Tianguis</h3>
+                    <p className="text-sm font-medium text-amber-800/80 leading-relaxed">
+                      Descubre beats exclusivos de nuestros productores Premium y Pro. Calidad garantizada.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Grid */}
               {loading ? (
@@ -209,12 +293,19 @@ function BeatsPageContent() {
               ) : (
                 <div className="text-center py-32 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm">
                   <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                    <Filter className="text-slate-300 w-10 h-10" />
+                    <Music className="text-slate-300 w-10 h-10" />
                   </div>
                   <h3 className="text-2xl font-black uppercase tracking-tight mb-2">Sin resultados</h3>
-                  <p className="text-slate-500 font-medium mb-6">No encontramos beats con esos filtros.</p>
+                  <p className="text-slate-500 font-medium mb-6">
+                    {viewMode === 'premium_spotlight'
+                      ? "No hay beats premium que coincidan con tus filtros."
+                      : "No encontramos beats con esos filtros."}
+                  </p>
                   <button
-                    onClick={() => setFilterState({ searchQuery: "", genre: "Todos", bpm: null, key: "", mood: "", priceRange: [0, 10000] })}
+                    onClick={() => {
+                      setFilterState({ searchQuery: "", genre: "Todos", bpmMin: "", bpmMax: "", key: "", mood: "", priceRange: [0, 10000] });
+                      setViewMode('all');
+                    }}
                     className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline"
                   >
                     Limpiar Filtros

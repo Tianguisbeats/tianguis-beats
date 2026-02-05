@@ -47,14 +47,14 @@ export default function Home() {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">Nuevo Sonido.</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-slate-500 font-medium max-w-2xl mx-auto mb-12 leading-relaxed tracking-tight">
-            Únete a la comunidad de productores más grande del país. Vende, colabora y crece en la plataforma diseñada para el talento mexicano.
+          <p className="text-lg md:text-xl text-slate-500 font-medium max-w-3xl mx-auto mb-12 leading-relaxed tracking-tight">
+            Únete a la comunidad de productores más grande de Latinoamérica. Vende, colabora, ofrece servicios y crece en la plataforma potenciada con inteligencia artificial para maximizar tu trabajo.
           </p>
 
           {/* Omni-Search Bar */}
           <div className="max-w-2xl mx-auto relative group">
             <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative flex items-center bg-white p-2 rounded-full shadow-2xl shadow-slate-200/50 border border-slate-100 transition-all duration-300 focus-within:ring-4 focus-within:ring-blue-500/10">
+            <div className="relative flex items-center bg-white p-2 rounded-full shadow-2xl shadow-slate-200/50 border border-slate-100 transition-all duration-300 focus-within:ring-4 focus-within:ring-cyan-400/20">
               <div className="pl-6 text-slate-400">
                 <Search size={22} />
               </div>
@@ -68,7 +68,7 @@ export default function Home() {
               />
               <button
                 onClick={() => window.location.href = `/beats?q=${searchQuery}`}
-                className="bg-slate-900 text-white px-8 py-3 rounded-full font-bold uppercase text-[10px] tracking-widest hover:bg-blue-600 transition-all"
+                className="bg-cyan-500 text-white px-8 py-3 rounded-full font-black uppercase text-[10px] tracking-widest hover:bg-cyan-400 transition-all shadow-lg shadow-cyan-500/30"
               >
                 Buscar
               </button>
