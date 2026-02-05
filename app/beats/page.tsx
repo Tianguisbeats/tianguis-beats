@@ -215,8 +215,8 @@ function BeatsPageContent() {
           // Fetch more fields needed for the producer card
           const { data: prodData, error: prodError } = await supabase
             .from('profiles')
-            .select(`id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, created_at`)
-            .not('artistic_name', 'is', null)
+            .select(`id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, created_at, social_links`)
+            .not('username', 'is', null)
             .limit(100);
 
           if (prodError) throw prodError;
@@ -328,7 +328,13 @@ function BeatsPageContent() {
               const tierMultiplier = p.subscription_tier === 'premium' ? 2.0 : p.subscription_tier === 'pro' ? 1.5 : 1.0;
               return { ...p, score: totalPlays * tierMultiplier };
             })
-              .sort((a, b) => b.score - a.score)
+              .sort((a, b) => {
+                const order: any = { premium: 0, pro: 1, free: 2 };
+                const tierA = order[a.subscription_tier as any] ?? 3;
+                const tierB = order[b.subscription_tier as any] ?? 3;
+                if (tierA !== tierB) return tierA - tierB;
+                return b.score - a.score;
+              })
               .slice(0, 10);
 
             setTrendingProducers(sortedProd);
@@ -511,49 +517,62 @@ function BeatsPageContent() {
               ) : viewMode === 'producers' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in-up">
                   {producers.map(p => (
-                    <div key={p.id} className="group bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 hover:-translate-y-2 flex flex-col items-center text-center relative overflow-hidden">
+                    <div key={p.id} className="group bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 hover:-translate-y-2 flex flex-col items-center text-center relative overflow-hidden h-full">
                       {/* Background Decoration */}
                       <div className={`absolute top-0 left-0 w-full h-2 ${p.subscription_tier === 'premium' ? 'bg-amber-400' : p.subscription_tier === 'pro' ? 'bg-blue-500' : 'bg-slate-200'}`} />
 
                       {/* Avatar */}
-                      <div className="relative mb-6">
-                        <div className={`w-24 h-24 rounded-full p-1 border-2 transition-all duration-500 group-hover:scale-110 ${p.subscription_tier === 'premium' ? 'border-amber-400 shadow-lg shadow-amber-500/20' : 'border-slate-100'}`}>
+                      <div className="relative mt-4 mb-6">
+                        <div className={`w-28 h-28 rounded-full p-1.5 border-2 transition-all duration-700 group-hover:scale-110 ${p.subscription_tier === 'premium' ? 'border-amber-400 shadow-xl shadow-amber-500/20' : 'border-slate-100 hover:border-blue-400'}`}>
                           <img
                             src={p.foto_perfil || `https://ui-avatars.com/api/?name=${p.artistic_name || p.username}&background=random`}
                             className="w-full h-full object-cover rounded-full"
-                            alt={p.artistic_name}
+                            alt={p.artistic_name || p.username}
                           />
                         </div>
                         {p.subscription_tier === 'premium' && (
-                          <div className="absolute -top-1 -right-1 p-2 bg-amber-500 text-white rounded-xl shadow-xl animate-bounce">
-                            <Crown size={14} fill="currentColor" />
+                          <div className="absolute -top-1 -right-1 p-2.5 bg-amber-500 text-white rounded-2xl shadow-xl animate-bounce">
+                            <Crown size={18} fill="currentColor" />
                           </div>
                         )}
                       </div>
 
                       {/* Info */}
-                      <div className="flex-1">
+                      <div className="flex-1 w-full">
                         <div className="flex items-center justify-center gap-2 mb-1">
-                          <h3 className="text-xl font-black uppercase tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
+                          <h3 className="text-2xl font-black uppercase tracking-tighter text-slate-900 group-hover:text-blue-600 transition-colors truncate max-w-[200px]">
                             {p.artistic_name || p.username}
                           </h3>
                           {p.is_verified && <img src="/verified-badge.png" alt="Verificado" className="w-5 h-5 object-contain" />}
                         </div>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">@{p.username}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">@{p.username}</p>
 
-                        <p className="text-sm text-slate-500 font-medium leading-relaxed italic mb-6 line-clamp-2 px-4">
-                          "{p.bio || "Productor destacado en Tianguis Beats."}"
+                        <p className="text-sm text-slate-500 font-medium leading-relaxed italic mb-8 line-clamp-3 px-2 min-h-[60px]">
+                          "{p.bio || "Productor destacado en Tianguis Beats con estilo único."}"
                         </p>
 
+                        {/* Social Links (Mini) */}
+                        <div className="flex justify-center gap-3 mb-8">
+                          {p.social_links && Object.keys(p.social_links).slice(0, 4).map(key => {
+                            const url = p.social_links[key];
+                            if (!url) return null;
+                            return (
+                              <div key={key} className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors">
+                                <span className="text-[10px] font-black uppercase">{key.substring(0, 2)}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+
                         <div className="flex justify-center gap-2 mb-8">
-                          <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${p.subscription_tier === 'premium' ? 'bg-amber-100 text-amber-700' :
-                              p.subscription_tier === 'pro' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'
+                          <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${p.subscription_tier === 'premium' ? 'bg-amber-100 text-amber-700' :
+                            p.subscription_tier === 'pro' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'
                             }`}>
                             {p.subscription_tier || 'Free'}
                           </span>
                           {p.is_founder && (
-                            <span className="px-3 py-1.5 bg-slate-900 text-white rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
-                              <Crown size={10} fill="currentColor" className="text-amber-400" /> Founder
+                            <span className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg shadow-black/10">
+                              <Crown size={12} fill="currentColor" className="text-amber-400" /> Founder
                             </span>
                           )}
                         </div>
@@ -561,9 +580,9 @@ function BeatsPageContent() {
 
                       <Link
                         href={`/${p.username}`}
-                        className="w-full py-4 bg-slate-50 border border-slate-100 text-slate-900 rounded-[1.5rem] font-black uppercase text-[10px] tracking-widest hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all active:scale-95 flex items-center justify-center gap-2"
+                        className="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black uppercase text-[11px] tracking-widest hover:bg-blue-600 transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl shadow-slate-900/10"
                       >
-                        Ver Perfil Principal <ChevronRight size={14} />
+                        Ver Perfil Principal <ChevronRight size={16} />
                       </Link>
                     </div>
                   ))}

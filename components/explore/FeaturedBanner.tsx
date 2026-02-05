@@ -44,20 +44,26 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
         <button
             onClick={() => setActiveTab(type)}
             className={`flex items-center gap-2 px-10 py-5 rounded-t-[2.5rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === type
-                ? 'bg-slate-900 text-white z-30 border-t border-x border-slate-800'
+                ? 'bg-white text-blue-600 z-30 border-t border-x border-slate-200/50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]'
                 : 'bg-white/40 text-slate-500 hover:text-slate-700 border border-slate-200 border-b-0 hover:bg-white/60'
                 }`}
         >
             <Icon size={14} strokeWidth={3} /> {label}
             {activeTab === type && (
-                <div className="absolute -bottom-2 left-0 right-0 h-4 bg-slate-900 z-40" />
+                <div className="absolute -bottom-2 left-0 right-0 h-4 bg-white z-40" />
             )}
         </button>
     );
 
     const getLiquidColors = () => {
-        if (activeTab === 'beats') return 'from-blue-600/40 via-purple-600/40 to-blue-900/40';
-        if (activeTab === 'artists') return 'from-amber-500/40 via-orange-600/40 to-amber-900/40';
+        if (activeTab === 'beats') {
+            const genre = (currentItem as Beat)?.genre;
+            if (genre?.includes('Corridos')) return 'from-emerald-500/40 via-green-600/40 to-red-900/40';
+            if (genre?.includes('Trap')) return 'from-purple-600/40 via-fuchsia-600/40 to-blue-900/40';
+            if (genre?.includes('Reggaeton')) return 'from-orange-500/40 via-rose-600/40 to-purple-900/40';
+            return 'from-blue-600/40 via-purple-600/40 to-blue-900/40';
+        }
+        if (activeTab === 'artists') return 'from-amber-400/40 via-orange-500/40 to-amber-900/40';
         return 'from-purple-600/40 via-pink-600/40 to-purple-900/40';
     };
 
@@ -142,7 +148,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                         </div>
 
                         <h1 className="text-4xl md:text-7xl font-black tracking-tighter mb-6 leading-[0.9] bg-clip-text text-transparent bg-gradient-to-br from-white to-white/40 lowercase">
-                            {activeTab === 'beats' ? (currentItem as Beat).title : activeTab === 'artists' ? currentItem.artistic_name : currentItem.label}
+                            {activeTab === 'beats' ? (currentItem as Beat).title : activeTab === 'artists' ? (currentItem.artistic_name || currentItem.username) : currentItem.label}
                             {activeTab === 'artists' && (
                                 <span className="inline-flex items-center gap-4 ml-6">
                                     {currentItem.is_verified && (

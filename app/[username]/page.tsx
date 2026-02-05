@@ -82,6 +82,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     // Follow System
     const [isFollowing, setIsFollowing] = useState(false);
     const [followersCount, setFollowersCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
 
     // Editing State
     const [isEditing, setIsEditing] = useState(false);
@@ -224,12 +225,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     setPlaylists(formattedPlaylists as any);
                 }
 
-                // 4. Get Follow Status & Count
-                const { count } = await supabase
+                // 4. Get Follow Status & Counts
+                const { count: fCount } = await supabase
                     .from('follows')
                     .select('id', { count: 'exact', head: true })
                     .eq('following_id', profileData.id);
-                setFollowersCount(count || 0);
+                setFollowersCount(fCount || 0);
+
+                const { count: fingCount } = await supabase
+                    .from('follows')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('follower_id', profileData.id);
+                setFollowingCount(fingCount || 0);
 
                 if (user) {
                     const { data: followData } = await supabase
@@ -611,7 +618,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 </div>
                                 <div className="h-8 w-px bg-slate-100"></div>
                                 <div className="text-center">
-                                    <span className={`block text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>0</span>
+                                    <span className={`block text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{followingCount}</span>
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Seguidos</span>
                                 </div>
                             </div>
@@ -653,49 +660,36 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             </div>
 
 
-                            {/* Socials Box */}
-                            <div className={`rounded-[2.5rem] p-8 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
-                                profile.tema_perfil === 'neon' ? 'bg-zinc-900 border-zinc-800' :
-                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/30' :
-                                        'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
-                                }`}>
-                                <h3 className={`text-[11px] font-black uppercase tracking-[0.2em] mb-6 font-outfit ${profile.tema_perfil === 'dark' ? 'text-slate-400' :
-                                    profile.tema_perfil === 'neon' ? 'text-green-600' :
-                                        profile.tema_perfil === 'gold' ? 'text-amber-500' :
-                                            'text-slate-400'
-                                    }`}>Redes Sociales</h3>
-
-                                <div className="flex flex-wrap gap-4">
-                                    {SOCIAL_KEYS.map(key => {
-                                        const url = profile.social_links?.[key as keyof typeof profile.social_links];
-                                        if (!url) return null;
-
-                                        let finalUrl = url.startsWith('http') ? url : `https://${key}.com/${url}`;
-                                        if (key === 'whatsapp') finalUrl = `https://wa.me/${url}`;
-
-                                        const item = SOCIAL_ICONS[key];
-                                        if (!item) return null;
-
-                                        return (
-                                            <a key={key} href={finalUrl} target="_blank" rel="noopener noreferrer"
-                                                className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-sm group border ${profile.tema_perfil === 'light'
-                                                    ? 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-900 hover:text-white'
-                                                    : 'bg-white/5 border-white/5 text-white hover:bg-white hover:text-black'
-                                                    }`}>
-                                                {item.icon ? (
-                                                    <item.icon size={20} />
-                                                ) : (
-                                                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                                                        <path d={item.path} />
-                                                    </svg>
-                                                )}
-                                            </a>
-                                        )
-                                    })}
+                            {/* Video Sidebar (Moved below Status) */}
+                            {profile.video_destacado_url && (
+                                <div className={`rounded-[2.5rem] overflow-hidden border ${profile.tema_perfil === 'dark' ? 'border-slate-700 bg-slate-800' :
+                                    profile.tema_perfil === 'neon' ? 'border-green-900 bg-black shadow-[0_0_15px_rgba(74,222,128,0.1)]' :
+                                        profile.tema_perfil === 'gold' ? 'border-amber-900/50 bg-slate-900' :
+                                            'border-slate-100 bg-white shadow-xl shadow-slate-200/50'
+                                    }`}>
+                                    <div className="aspect-video">
+                                        <iframe
+                                            width="100%"
+                                            height="100%"
+                                            src={profile.video_destacado_url.replace('watch?v=', 'embed/').split('&')[0]}
+                                            title="Featured Video"
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                        ></iframe>
+                                    </div>
+                                    <div className="p-5 text-center">
+                                        <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${profile.tema_perfil === 'neon' ? 'text-green-600' :
+                                            profile.tema_perfil === 'gold' ? 'text-amber-500' :
+                                                'text-slate-400'
+                                            }`}>
+                                            Video Destacado
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
-                            {/* Bio Box */}
+                            {/* Bio Box (Trayectoria + Socials Integrated) */}
                             <div className={`border rounded-[2.5rem] p-8 shadow-sm mb-0 relative overflow-hidden ${profile.tema_perfil === 'dark' ? 'bg-slate-800/50 border-slate-700/50 text-slate-300' :
                                 profile.tema_perfil === 'neon' ? 'bg-zinc-900/50 border-zinc-800 text-zinc-300' :
                                     profile.tema_perfil === 'gold' ? 'bg-[#2a241c] border-amber-900/30 text-amber-100' :
@@ -705,6 +699,38 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     profile.tema_perfil === 'gold' ? 'text-amber-500' :
                                         'text-slate-400'
                                     }`}>Trayectoria</h3>
+
+                                {/* Integrated Socials Section */}
+                                {!isEditing && (
+                                    <div className="flex flex-wrap gap-3 mb-8 pb-8 border-b border-slate-100/10">
+                                        {SOCIAL_KEYS.map(key => {
+                                            const url = profile.social_links?.[key as keyof typeof profile.social_links];
+                                            if (!url) return null;
+
+                                            let finalUrl = url.startsWith('http') ? url : `https://${key}.com/${url}`;
+                                            if (key === 'whatsapp') finalUrl = `https://wa.me/${url}`;
+
+                                            const item = SOCIAL_ICONS[key];
+                                            if (!item) return null;
+
+                                            return (
+                                                <a key={key} href={finalUrl} target="_blank" rel="noopener noreferrer"
+                                                    className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm group border ${profile.tema_perfil === 'light'
+                                                        ? 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-900 hover:text-white'
+                                                        : 'bg-white/5 border-white/5 text-white hover:bg-white hover:text-black'
+                                                        }`}>
+                                                    {item.icon ? (
+                                                        <item.icon size={18} />
+                                                    ) : (
+                                                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4.5 h-4.5">
+                                                            <path d={item.path} />
+                                                        </svg>
+                                                    )}
+                                                </a>
+                                            )
+                                        })}
+                                    </div>
+                                )}
 
                                 {isEditing ? (
                                     <div className="space-y-4">
@@ -746,36 +772,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </p>
                                 )}
                             </div>
-
-
-                            {/* Video Sidebar */}
-                            {profile.video_destacado_url && (
-                                <div className={`rounded-[2.5rem] overflow-hidden border ${profile.tema_perfil === 'dark' ? 'border-slate-700 bg-slate-800' :
-                                    profile.tema_perfil === 'neon' ? 'border-green-900 bg-black shadow-[0_0_15px_rgba(74,222,128,0.1)]' :
-                                        profile.tema_perfil === 'gold' ? 'border-amber-900/50 bg-slate-900' :
-                                            'border-slate-100 bg-white shadow-xl shadow-slate-200/50'
-                                    }`}>
-                                    <div className="aspect-video">
-                                        <iframe
-                                            width="100%"
-                                            height="100%"
-                                            src={profile.video_destacado_url.replace('watch?v=', 'embed/').split('&')[0]}
-                                            title="Featured Video"
-                                            frameBorder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowFullScreen
-                                        ></iframe>
-                                    </div>
-                                    <div className="p-5 text-center">
-                                        <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${profile.tema_perfil === 'neon' ? 'text-green-600' :
-                                            profile.tema_perfil === 'gold' ? 'text-amber-500' :
-                                                'text-slate-400'
-                                            }`}>
-                                            Video Destacado
-                                        </span>
-                                    </div>
-                                </div>
-                            )}
 
 
 

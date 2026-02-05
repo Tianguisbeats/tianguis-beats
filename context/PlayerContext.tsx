@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 import { Beat } from '@/lib/types';
+import { supabase } from '@/lib/supabase';
 
 interface PlayerContextType {
     currentBeat: Beat | null;
@@ -53,12 +54,24 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         }
     }, [volume]);
 
-    const playBeat = (beat: Beat) => {
+    const playBeat = async (beat: Beat) => {
         if (!audioRef.current) return;
 
         if (currentBeat?.id === beat.id) {
             togglePlay();
             return;
+        }
+
+        // Increment play count in Supabase
+        try {
+            await supabase.rpc('increment_play_count', { beat_id: beat.id });
+        } catch (err) {
+            console.error("Error incrementing play count:", err);
+            // Fallback: simple update if RPC is missing
+            await supabase
+                .from('beats')
+                .update({ play_count: (beat.play_count || 0) + 1 })
+                .eq('id', beat.id);
         }
 
         setCurrentBeat(beat);

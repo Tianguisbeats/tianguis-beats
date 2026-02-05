@@ -39,14 +39,24 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
         } as any);
     };
 
+    const getGenreStyles = () => {
+        const g = beat.genre || '';
+        if (g.includes('Corridos')) return 'bg-emerald-50/50 border-emerald-100/50 hover:shadow-emerald-500/10';
+        if (g.includes('Trap')) return 'bg-purple-50/50 border-purple-100/50 hover:shadow-purple-500/10';
+        if (g.includes('Reggaeton')) return 'bg-rose-50/50 border-rose-100/50 hover:shadow-rose-500/10';
+        return 'bg-white border-slate-100/60 hover:shadow-blue-500/10';
+    };
+
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         setIsLicenseModalOpen(true);
     };
 
+    const cardStyles = getGenreStyles();
+
     return (
-        <div className="group relative bg-white rounded-[3.5rem] overflow-hidden border border-slate-100/60 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-700 hover:-translate-y-2 flex flex-col h-full">
+        <div className={`group relative rounded-[3.5rem] overflow-hidden border transition-all duration-700 hover:-translate-y-2 flex flex-col h-full ${cardStyles}`}>
             {/* Image Section */}
             <div className="relative aspect-square overflow-hidden p-4 pb-2">
                 <div className="w-full h-full rounded-[3rem] overflow-hidden relative shadow-inner group">

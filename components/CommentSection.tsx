@@ -93,16 +93,21 @@ export default function CommentSection({ beatId }: { beatId: string }) {
         }
 
         setIsLoading(true);
-        const { error } = await supabase.from('comments').insert({
+        const { data, error } = await supabase.from('comments').insert({
             content: commentText.trim(),
             beat_id: beatId,
             user_id: user.id
-        });
+        }).select(`id, content, created_at, user_id, user:user_id (username, artistic_name, foto_perfil, is_verified, is_founder, subscription_tier)`).single();
 
         if (error) {
             console.error('Error posting comment:', error);
-        } else {
+        } else if (data) {
             setCommentText('');
+            // Optimistic update: Add if not already there (real-time might also add it)
+            setComments(prev => {
+                if (prev.some(c => c.id === data.id)) return prev;
+                return [{ ...data, user: (data as any).user || { username: 'Usuario', artistic_name: 'Usuario', foto_perfil: null } } as Comment, ...prev];
+            });
         }
         setIsLoading(false);
     };
