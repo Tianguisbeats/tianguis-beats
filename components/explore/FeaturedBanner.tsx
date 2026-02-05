@@ -221,23 +221,18 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                             </div>
                         )}
 
-                        <div className="flex flex-wrap justify-center md:justify-start gap-8 items-center mt-4">
+                        <div className="flex flex-wrap justify-center md:justify-start gap-6 items-center mt-4 text-white">
                             {activeTab === 'beats' && (
                                 <button
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        const { usePlayer } = require('@/context/PlayerContext');
-                                        // Note: We need to use hook outside but this is a quick way or we refactor to use hook at top.
-                                        // Let's refactor to use hook at top.
-                                    }}
-                                    className="px-8 py-6 rounded-3xl bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all flex items-center gap-3 backdrop-blur-md"
+                                    onClick={handlePlayForBanner}
+                                    className={`w-20 h-20 rounded-[2rem] flex items-center justify-center transition-all shadow-2xl active:scale-95 border backdrop-blur-md ${isThisPlaying ? 'bg-white text-blue-600 border-white' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}`}
                                 >
-                                    <Play size={20} fill="currentColor" />
+                                    {isThisPlaying ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" className="ml-1" />}
                                 </button>
                             )}
                             <Link
                                 href={activeTab === 'beats' ? `/beats/${currentItem.id}` : activeTab === 'artists' ? `/${currentItem.username}` : `/beats?mood=${currentItem.label}`}
-                                className={`px-16 py-6 rounded-3xl font-black uppercase text-[14px] tracking-[0.25em] transition-all shadow-3xl active:scale-95 flex items-center gap-4 group/btn-main ${activeTab === 'beats' ? 'bg-blue-600 text-white shadow-blue-600/40 hover:bg-blue-500 hover:scale-105' :
+                                className={`px-16 py-6 rounded-[2.5rem] font-black uppercase text-[14px] tracking-[0.25em] transition-all shadow-3xl active:scale-95 flex items-center gap-4 group/btn-main ${activeTab === 'beats' ? 'bg-blue-600 text-white shadow-blue-600/40 hover:bg-blue-500 hover:scale-105' :
                                     activeTab === 'artists' ? 'bg-white text-slate-950 shadow-white/10 hover:bg-slate-50 hover:scale-105' :
                                         'bg-purple-600 text-white shadow-purple-600/40 hover:bg-purple-700 hover:scale-105'
                                     }`}
