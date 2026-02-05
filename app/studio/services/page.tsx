@@ -43,6 +43,7 @@ export default function ServicesManagerPage() {
     const [currentKit, setCurrentKit] = useState<Partial<SoundKit> | null>(null);
     const [kitSaving, setKitSaving] = useState(false);
     const [kitFile, setKitFile] = useState<File | null>(null);
+    const [kitCoverFile, setKitCoverFile] = useState<File | null>(null);
 
     useEffect(() => {
         fetchData();
@@ -139,7 +140,7 @@ export default function ServicesManagerPage() {
         try {
             let fileUrl = currentKit.file_url || '';
 
-            // Handle File Upload
+            // Handle File Upload (ZIP/RAR)
             if (kitFile) {
                 const fileName = `${user.id}/${Date.now()}-${kitFile.name}`;
                 const { data, error: uploadError } = await supabase.storage
@@ -148,6 +149,24 @@ export default function ServicesManagerPage() {
 
                 if (uploadError) throw uploadError;
                 fileUrl = fileName;
+            }
+
+            // Handle Cover Upload
+            let coverUrl = currentKit.cover_url || null;
+            if (kitCoverFile) {
+                const fileExt = kitCoverFile.name.split('.').pop();
+                const coverName = `${user.id}/${Date.now()}-cover.${fileExt}`;
+                const { data, error: coverError } = await supabase.storage
+                    .from('sound_kits_covers')
+                    .upload(coverName, kitCoverFile);
+
+                if (coverError) throw coverError;
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('sound_kits_covers')
+                    .getPublicUrl(coverName);
+
+                coverUrl = publicUrl;
             }
 
             if (!fileUrl) {
@@ -162,6 +181,7 @@ export default function ServicesManagerPage() {
                 description: currentKit.description,
                 price: currentKit.price || 0,
                 file_url: fileUrl,
+                cover_url: coverUrl,
                 is_public: true
             };
 
@@ -177,7 +197,9 @@ export default function ServicesManagerPage() {
             if (error) throw error;
             setIsEditingKit(false);
             setCurrentKit(null);
+            setCurrentKit(null);
             setKitFile(null);
+            setKitCoverFile(null);
             fetchData();
         } catch (err) {
             console.error(err);
@@ -204,7 +226,7 @@ export default function ServicesManagerPage() {
                 </div>
                 <h1 className="text-3xl font-black text-slate-900 mb-4">Venta de Servicios Exclusiva</h1>
                 <p className="text-slate-500 max-w-md mb-8">
-                    La venta de servicios (Mezcla, Master, Mentorías, etc.) es una característica exclusiva para miembros
+                    La venta de servicios (Mezcla, Master, Mentorías, etc.) y Sound Kits es una característica exclusiva para miembros
                     <span className="text-blue-600 font-bold"> Premium</span>.
                 </p>
                 <Link href="/pricing" className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-slate-800 transition-all">
@@ -284,7 +306,10 @@ export default function ServicesManagerPage() {
             {/* Sound Kits Section */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">Sound Kits <span className="text-blue-600 text-xs align-top">(PREMIUM)</span></h1>
+                    <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase flex items-center gap-3">
+                        Sound Kits
+                        <span className="bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-widest shadow-lg shadow-amber-500/30">Premium</span>
+                    </h1>
                     <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">Vende tus librerías y bancos de sonidos</p>
                 </div>
                 <button
@@ -338,10 +363,16 @@ export default function ServicesManagerPage() {
             {/* Sound Kit Modal */}
             {isEditingKit && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
-                    <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl overflow-hidden">
-                        <h2 className="text-xl font-black uppercase tracking-tighter mb-6">
-                            {currentKit?.id ? "Editar Sound Kit" : "Nuevo Sound Kit"}
-                        </h2>
+                    <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl overflow-y-auto max-h-[90vh]">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-2">
+                                {currentKit?.id ? "Editar Sound Kit" : "Nuevo Sound Kit"}
+                                <span className="text-[10px] bg-amber-100 text-amber-600 px-2 py-1 rounded-full uppercase tracking-widest">Premium</span>
+                            </h2>
+                            <button onClick={() => { setIsEditingKit(false); setCurrentKit(null); setKitFile(null); setKitCoverFile(null); }} className="text-slate-400 hover:text-slate-600">
+                                <X size={20} />
+                            </button>
+                        </div>
 
                         <form onSubmit={handleSaveKit} className="space-y-4">
                             <div>
@@ -355,18 +386,42 @@ export default function ServicesManagerPage() {
                                 />
                             </div>
 
-                            <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Precio (MXN)</label>
-                                <div className="relative">
-                                    <DollarSign size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input
-                                        type="number"
-                                        required
-                                        min="0"
-                                        value={currentKit?.price || ''}
-                                        onChange={e => setCurrentKit({ ...currentKit, price: Number(e.target.value) })}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 font-bold text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-                                    />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Precio (MXN)</label>
+                                    <div className="relative">
+                                        <DollarSign size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <input
+                                            type="number"
+                                            required
+                                            min="0"
+                                            value={currentKit?.price || ''}
+                                            onChange={e => setCurrentKit({ ...currentKit, price: Number(e.target.value) })}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 font-bold text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Portada (Opcional)</label>
+                                    <div className="relative">
+                                        <input
+                                            type="file"
+                                            accept=".jpg,.jpeg,.png"
+                                            onChange={(e) => setKitCoverFile(e.target.files?.[0] || null)}
+                                            className="hidden"
+                                            id="kit-cover"
+                                        />
+                                        <label htmlFor="kit-cover" className={`flex items-center justify-center gap-2 p-3 border-2 border-dashed rounded-xl cursor-pointer hover:bg-slate-50 transition-all h-[46px] ${kitCoverFile ? 'border-green-500 bg-green-50' : 'border-slate-200'}`}>
+                                            {kitCoverFile ? (
+                                                <span className="text-[10px] font-bold text-green-600 truncate max-w-full block">Img: {kitCoverFile.name}</span>
+                                            ) : (
+                                                <>
+                                                    <Upload size={14} className="text-slate-400" />
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase">Subir</span>
+                                                </>
+                                            )}
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 

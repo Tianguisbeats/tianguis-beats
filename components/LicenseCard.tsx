@@ -47,15 +47,6 @@ export default function LicenseCard({ type, price, features, active, onSelect, s
                 ))}
             </ul>
 
-            <button className={`w-full py-4 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 transition-colors
-        ${selected
-                    ? 'bg-blue-600 text-white hover:bg-blue-500'
-                    : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
-                }
-      `}>
-                <ShoppingCart size={14} />
-                {selected ? 'Añadir al carrito' : 'Seleccionar'}
-            </button>
 
             {/* Recommended Badge (Optional logic) */}
             {type === 'WAV' && !selected && (

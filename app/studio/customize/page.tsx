@@ -88,12 +88,12 @@ export default function CustomizePage() {
                 <div className="bg-amber-100 p-6 rounded-full mb-6 text-amber-600">
                     <Palette size={48} />
                 </div>
-                <h1 className="text-3xl font-black text-slate-900 mb-4">Personalización Pro</h1>
+                <h1 className="text-3xl font-black text-slate-900 mb-4">Personalización Premium</h1>
                 <p className="text-slate-500 max-w-md mb-8">
                     Desbloquea temas oscuros, colores personalizados y video de bienvenida. Haz que tu marca destaque.
                 </p>
                 <Link href="/pricing" className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-slate-800 transition-all">
-                    Mejorar a Pro
+                    Mejorar a Premium
                 </Link>
             </div>
         );

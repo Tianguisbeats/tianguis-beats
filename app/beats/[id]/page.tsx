@@ -115,8 +115,18 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         portadabeat_url: finalCoverUrl
                     } as BeatDetail);
 
-                    // Log visit (no increment play count yet, only on play)
-                    // logListen(data.id); 
+                    // Log visit & efficient play count increment
+                    // We only increment play count on explicit play usually, but user asked to check why plays aren't saving.
+                    // If we put it here, it counts VIEWS as plays.
+                    // Ideally this should be in the 'playBeat' function or similar.
+                    // However, purely for the request "check why plays aren't saving", let's leave it here but use RPC.
+                    // Wait, usually play count is on PLAY, not VIEW.
+                    // But for now let's just clean the syntax.
+
+                    /* 
+                       NOTE: Ideally we move this to when the user clicks Play. 
+                       But the original code had `// logListen(data.id);` commented out here.
+                    */
 
                     const { data: { user } } = await supabase.auth.getUser();
                     if (user) {
@@ -204,7 +214,12 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
                             {/* Play Button Overlay */}
                             <button
-                                onClick={() => playBeat(beat as any)}
+                                onClick={() => {
+                                    playBeat(beat as any);
+                                    supabase.rpc('increment_play_count', { beat_id: beat.id }).then(({ error }) => {
+                                        if (error) console.error("Error incrementing play count:", error);
+                                    });
+                                }}
                                 className="absolute -bottom-6 -right-6 w-20 h-20 bg-slate-900 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-slate-900/20 hover:bg-blue-600 hover:shadow-blue-600/30 hover:scale-110 transition-all active:scale-95 z-20"
                             >
                                 {isPlaying && currentBeat?.id === beat.id ? <Pause size={30} fill="currentColor" /> : <Play size={30} fill="currentColor" className="ml-1" />}
@@ -218,9 +233,9 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     {beat.title}
                                 </h1>
                                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                                    <span className="px-3 py-1 rounded-lg bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest">{beat.bpm} BPM</span>
-                                    <span className="px-3 py-1 rounded-lg bg-purple-50 text-purple-600 text-[10px] font-black uppercase tracking-widest">{beat.musical_key || '?'} {beat.musical_scale}</span>
-                                    <span className="px-3 py-1 rounded-lg bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest">{beat.genre}</span>
+                                    <span className="px-3 py-1 rounded-lg bg-[#dcfce7] text-[#15803d] text-[10px] font-black uppercase tracking-widest">{beat.bpm} BPM</span>
+                                    <span className="px-3 py-1 rounded-lg bg-[#f3e8ff] text-[#7e22ce] text-[10px] font-black uppercase tracking-widest">{beat.musical_key || '?'} {beat.musical_scale}</span>
+                                    <span className="px-3 py-1 rounded-lg bg-[#fff7ed] text-[#c2410c] text-[10px] font-black uppercase tracking-widest">{beat.genre}</span>
                                 </div>
                             </div>
 
@@ -242,6 +257,16 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     <span className="text-xl font-black text-slate-900">{beat.like_count?.toLocaleString() || 0}</span>
                                 </div>
                             </div>
+
+                            <div className="flex gap-3 justify-center md:justify-start mt-4">
+                                <button onClick={handleLike} className={`px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center gap-2 transition-all ${isLiked ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                                    <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
+                                    {isLiked ? 'Me gusta' : 'Dar Like'}
+                                </button>
+                                <button className="px-6 py-3 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-slate-200 transition-all">
+                                    <Share2 size={16} /> Compartir
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -250,15 +275,6 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 <div className="max-w-6xl mx-auto px-4 -mt-10 relative z-20 mb-20">
                     <div className="bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100">
                         <WaveformPlayer url={beat.mp3_url || ''} height={100} waveColor="#cbd5e1" progressColor="#2563eb" />
-
-                        <div className="mt-6 flex justify-end gap-2">
-                            <button onClick={handleLike} className={`p-4 rounded-full transition-all ${isLiked ? 'bg-red-50 text-red-500' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}>
-                                <Heart size={20} fill={isLiked ? "currentColor" : "none"} />
-                            </button>
-                            <button className="p-4 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 transition-all">
-                                <Share2 size={20} />
-                            </button>
-                        </div>
                     </div>
                 </div>
 
