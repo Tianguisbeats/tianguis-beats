@@ -1,4 +1,4 @@
--- 1. Fix Sound Kits Covers Bucket
+-- 1. Fix Sound Kits Covers Bucket (Restricted User Folders)
 -- Attempt to insert if not exists
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('sound_kits_covers', 'sound_kits_covers', true)
@@ -9,26 +9,43 @@ DROP POLICY IF EXISTS "Public Access" ON storage.objects;
 DROP POLICY IF EXISTS "Authenticated Uploads" ON storage.objects;
 DROP POLICY IF EXISTS "Owner Update/Delete" ON storage.objects;
 DROP POLICY IF EXISTS "Owner Delete" ON storage.objects;
+DROP POLICY IF EXISTS "Public Access Sound Kits Covers" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated Uploads Sound Kits Covers" ON storage.objects;
+DROP POLICY IF EXISTS "Owner Update Sound Kits Covers" ON storage.objects;
+DROP POLICY IF EXISTS "Owner Delete Sound Kits Covers" ON storage.objects;
 
--- Create Policies (Specific to sound_kits_covers)
+-- Create Policies (Specific to sound_kits_covers with User Folder Enforcement)
+-- 1. PUBLIC READ: Allow anyone to read
 CREATE POLICY "Public Access Sound Kits Covers"
 ON storage.objects FOR SELECT
 USING ( bucket_id = 'sound_kits_covers' );
 
+-- 2. AUTH UPLOAD: Allow upload ONLY to user's own folder
 CREATE POLICY "Authenticated Uploads Sound Kits Covers"
 ON storage.objects FOR INSERT
 TO authenticated
-WITH CHECK ( bucket_id = 'sound_kits_covers' );
+WITH CHECK (
+    bucket_id = 'sound_kits_covers' 
+    AND (storage.foldername(name))[1] = auth.uid()::text
+);
 
+-- 3. OWNER UPDATE: Allow update ONLY if user owns folder
 CREATE POLICY "Owner Update Sound Kits Covers"
 ON storage.objects FOR UPDATE
 TO authenticated
-USING ( bucket_id = 'sound_kits_covers' AND auth.uid()::text = (storage.foldername(name))[1] );
+USING ( 
+    bucket_id = 'sound_kits_covers' 
+    AND (storage.foldername(name))[1] = auth.uid()::text 
+);
 
+-- 4. OWNER DELETE: Allow delete ONLY if user owns folder
 CREATE POLICY "Owner Delete Sound Kits Covers"
 ON storage.objects FOR DELETE
 TO authenticated
-USING ( bucket_id = 'sound_kits_covers' AND auth.uid()::text = (storage.foldername(name))[1] );
+USING ( 
+    bucket_id = 'sound_kits_covers' 
+    AND (storage.foldername(name))[1] = auth.uid()::text 
+);
 
 
 -- 2. Fix Play/Like Counters (RPC Functions to bypass RLS)
@@ -48,11 +65,6 @@ BEGIN
   WHERE id = beat_id;
 END;
 $$;
-
--- Function to handle likes (toggle) - though frontend logic seems to separate insert/delete
--- Let's just create an incrementer helper if needed, but usually insert/delete on 'likes' table is enough.
--- However, if 'beats' table has a 'like_count' column that needs to be kept in sync, prompts triggers.
--- But user asked to "debug play/like counting". If like_count on beats table isn't updating, we need a trigger.
 
 -- Trigger to update like_count on Beats table when a Like is added/removed
 CREATE OR REPLACE FUNCTION public.update_beat_like_count()

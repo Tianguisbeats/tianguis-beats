@@ -82,7 +82,8 @@ export default function CustomizePage() {
 
     if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-slate-400" /></div>;
 
-    if (userTier === 'free') {
+    // Restrict access to Premium users only
+    if (userTier !== 'premium') {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
                 <div className="bg-amber-100 p-6 rounded-full mb-6 text-amber-600">
