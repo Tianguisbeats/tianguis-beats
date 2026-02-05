@@ -258,7 +258,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 const { count: fingCount } = await supabase
                     .from('follows')
                     .select('id', { count: 'exact', head: true })
-                    .eq('follower_id', profileData.id);
+                    .eq('follower_id', profileData!.id);
                 setFollowingCount(fingCount || 0);
 
                 if (user) {
@@ -266,7 +266,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         .from('follows')
                         .select('id')
                         .eq('follower_id', user.id)
-                        .eq('following_id', profileData.id)
+                        .eq('following_id', profileData!.id)
                         .single();
                     setIsFollowing(!!followData);
                 }
@@ -275,7 +275,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 const { data: servicesData } = await supabase
                     .from('services')
                     .select('*')
-                    .eq('user_id', profileData.id)
+                    .eq('user_id', profileData!.id)
                     .eq('is_active', true)
                     .order('created_at', { ascending: false });
 
