@@ -110,6 +110,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     const [editArtisticName, setEditArtisticName] = useState('');
     const [editCountry, setEditCountry] = useState('');
     const [editSocials, setEditSocials] = useState<any>({});
+    const [editVideoUrl, setEditVideoUrl] = useState('');
     const [saving, setSaving] = useState(false);
     const [isAdjustingCover, setIsAdjustingCover] = useState(false);
     const [tempOffset, setTempOffset] = useState(50);
@@ -138,6 +139,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 setEditArtisticName(profileData.artistic_name || '');
                 setEditCountry(profileData.country || '');
                 setEditSocials(profileData.social_links || {});
+                setEditVideoUrl(profileData.video_destacado_url || '');
                 setTempOffset(profileData.ajuste_portada ?? 50);
 
                 if (user?.id === profileData.id) {
@@ -292,6 +294,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         fetchAll();
     }, [username]);
 
+    const hasChanges = () => {
+        if (!profile) return false;
+        const socialsChanged = JSON.stringify(editSocials) !== JSON.stringify(profile.social_links || {});
+        return (
+            editBio !== (profile.bio || '') ||
+            editArtisticName !== (profile.artistic_name || '') ||
+            editCountry !== (profile.country || '') ||
+            editVideoUrl !== (profile.video_destacado_url || '') ||
+            socialsChanged
+        );
+    };
+
     const handleUpdateProfile = async () => {
         if (!profile) return;
         setSaving(true);
@@ -300,14 +314,25 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             .update({
                 bio: editBio,
                 country: editCountry,
-                // artistic_name: editArtisticName, // Only update if needed, maybe restricted?
-                social_links: editSocials
+                artistic_name: editArtisticName,
+                social_links: editSocials,
+                video_destacado_url: editVideoUrl
             })
             .eq('id', profile.id);
 
         if (!error) {
-            setProfile({ ...profile, bio: editBio, country: editCountry, social_links: editSocials });
+            setProfile({
+                ...profile,
+                bio: editBio,
+                country: editCountry,
+                artistic_name: editArtisticName,
+                social_links: editSocials,
+                video_destacado_url: editVideoUrl
+            });
             setIsEditing(false);
+        } else {
+            console.error("Error updating profile:", error);
+            alert("Error al actualizar perfil");
         }
         setSaving(false);
     };
@@ -580,12 +605,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <button
                                             onClick={() => {
                                                 if (isEditing) {
-                                                    const hasChanges = editBio !== (profile?.bio || '') ||
-                                                        editArtisticName !== (profile?.artistic_name || '') ||
-                                                        editCountry !== (profile?.country || '') ||
-                                                        JSON.stringify(editSocials) !== JSON.stringify(profile?.social_links || {});
-
-                                                    if (hasChanges) {
+                                                    if (hasChanges()) {
                                                         handleUpdateProfile();
                                                     } else {
                                                         setIsEditing(false);
@@ -778,13 +798,35 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             ))}
                                         </div>
 
-                                        <button
-                                            onClick={handleUpdateProfile}
-                                            disabled={saving}
-                                            className="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg"
-                                        >
-                                            {saving ? 'Guardando...' : 'Guardar Perfil'}
-                                        </button>
+                                        <div>
+                                            <label className="text-[9px] font-black uppercase text-slate-400 mb-2 block">Video Destacado (YouTube)</label>
+                                            <input
+                                                type="text"
+                                                value={editVideoUrl}
+                                                onChange={(e) => setEditVideoUrl(e.target.value)}
+                                                className="w-full bg-slate-50 rounded-xl p-4 text-sm font-medium border border-transparent focus:border-blue-500 outline-none text-slate-900"
+                                                placeholder="Link de YouTube o Shorts..."
+                                            />
+                                        </div>
+
+                                        <div className="flex gap-2 pt-4">
+                                            <button
+                                                onClick={() => setIsEditing(false)}
+                                                className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
+                                            >
+                                                Cancelar
+                                            </button>
+                                            <button
+                                                onClick={handleUpdateProfile}
+                                                disabled={saving || !hasChanges()}
+                                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg ${hasChanges()
+                                                    ? 'bg-blue-600 text-white hover:bg-blue-500'
+                                                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                                    }`}
+                                            >
+                                                {saving ? 'Guardando...' : 'Guardar Cambios'}
+                                            </button>
+                                        </div>
                                     </div>
                                 ) : (
                                     <p className={`text-sm font-medium leading-relaxed ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-300'}`}>

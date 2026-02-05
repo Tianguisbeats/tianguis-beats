@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, use } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Music, ArrowLeft, Search, Filter, Loader2, Play, LayoutGrid, Heart, Eye, ListMusic, Plus, Edit3, Settings, Share2, ChevronDown } from 'lucide-react';
+import { Music, ArrowLeft, Search, Filter, Loader2, Play, LayoutGrid, Heart, Eye, ListMusic, Plus, Edit3, Settings, Share2, ChevronDown, CheckCircle2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BeatCardPro from '@/components/explore/BeatCardPro';
@@ -156,86 +156,95 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
     if (!profile) return null;
 
     return (
-        <div className="min-h-screen bg-white font-sans flex flex-col pt-24">
+        <div className="min-h-screen bg-[#050505] text-white font-sans flex flex-col selection:bg-blue-600 selection:text-white">
             <Navbar />
 
-            <main className="flex-1 pb-32">
-                {/* Hero Catalog Header */}
-                <div className="bg-slate-900 text-white relative overflow-hidden">
-                    <div className="absolute inset-0 opacity-10">
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,#3b82f6,transparent)]" />
-                    </div>
+            {/* Dynamic Background */}
+            <div className="fixed inset-0 pointer-events-none">
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,#1e1b4b,transparent)] opacity-40" />
+                <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-600/10 blur-[150px] rounded-full" />
+                <div className="absolute top-1/4 left-0 w-[300px] h-[300px] bg-purple-600/10 blur-[120px] rounded-full" />
+            </div>
 
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative z-10">
-                        <div className="flex flex-col md:flex-row items-center gap-12">
-                            {/* Producer Identity */}
-                            <div className="relative shrink-0">
-                                <div className={`w-48 h-48 rounded-[3rem] border-4 overflow-hidden shadow-2xl ${profile.subscription_tier === 'premium' ? 'border-blue-500' : 'border-white/10'}`}>
+            <main className="flex-1 relative z-10 pt-20">
+                {/* Immersive Header */}
+                <div className="relative pt-24 pb-32 overflow-hidden">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                        <div className="flex flex-col md:flex-row items-center gap-12 md:gap-20">
+
+                            {/* Giant Avatar with Rings */}
+                            <div className="relative group shrink-0">
+                                <div className="absolute inset-0 bg-blue-600 rounded-[4rem] blur-3xl opacity-20 group-hover:opacity-40 transition-opacity" />
+                                <div className={`relative w-56 h-56 md:w-72 md:h-72 rounded-[4.5rem] p-2 bg-white/5 backdrop-blur-3xl border border-white/10 shadow-2xl transition-all duration-700 group-hover:scale-105 group-hover:-rotate-2 ${profile.subscription_tier === 'premium' ? 'ring-4 ring-blue-500/50' : ''}`}>
                                     {profile.foto_perfil ? (
-                                        <img src={profile.foto_perfil} className="w-full h-full object-cover" alt="Avatar" />
+                                        <img src={profile.foto_perfil} className="w-full h-full object-cover rounded-[4rem]" alt="Avatar" />
                                     ) : (
-                                        <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500"><Music size={64} /></div>
+                                        <div className="w-full h-full bg-slate-800 rounded-[4rem] flex items-center justify-center text-slate-500"><Music size={80} /></div>
                                     )}
                                 </div>
+                                {profile.is_verified && (
+                                    <div className="absolute -top-4 -right-4 p-4 bg-blue-600 rounded-3xl shadow-2xl border-4 border-[#050505] animate-pulse">
+                                        <CheckCircle2 size={32} className="text-white" />
+                                    </div>
+                                )}
                             </div>
 
+                            {/* Impact Text Area */}
                             <div className="flex-1 text-center md:text-left">
-                                <Link href={`/${username}`} className="inline-flex items-center gap-2 text-blue-400 font-black text-[10px] uppercase tracking-widest mb-4 hover:text-blue-300 transition-colors">
-                                    <ArrowLeft size={14} /> Volver al Perfil
+                                <Link href={`/${username}`} className="inline-flex items-center gap-3 text-blue-400 font-black text-[11px] uppercase tracking-[0.3em] mb-8 hover:tracking-[0.4em] transition-all group">
+                                    <ArrowLeft size={16} className="group-hover:-translate-x-2 transition-transform" /> Regresar al Perfil
                                 </Link>
-                                <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-4 leading-tight">
-                                    Catálogo de {profile.artistic_name || profile.username}
+
+                                <h1 className="text-6xl md:text-9xl font-black uppercase tracking-tighter mb-6 leading-[0.85] italic">
+                                    <span className="block text-white">Catálogo</span>
+                                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 drop-shadow-2xl">
+                                        {profile.artistic_name || profile.username}
+                                    </span>
                                 </h1>
-                                <p className="text-slate-400 text-sm font-medium max-w-xl mb-8 leading-relaxed italic opacity-80">
-                                    "{profile.bio?.slice(0, 100) || "Escucha el sonido original de este productor."}{profile.bio && profile.bio.length > 100 ? '...' : ''}"
+
+                                <p className="text-slate-400 text-lg md:text-xl font-medium max-w-2xl mb-12 leading-relaxed italic opacity-80 border-l-2 border-blue-500/30 pl-8">
+                                    {profile.bio || "Explora el universo sonoro de este productor premium."}
                                 </p>
 
-                                {/* Stats Bar */}
-                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-8">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center text-blue-400">
-                                            <Heart size={20} fill="currentColor" />
-                                        </div>
-                                        <div>
-                                            <span className="block text-xl font-black">{totalLikes}</span>
-                                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Likes</span>
-                                        </div>
+                                {/* Premium Stats */}
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-12">
+                                    <div className="group/stat">
+                                        <span className="block text-4xl font-black mb-1 group-hover/stat:text-blue-500 transition-colors uppercase tabular-nums">
+                                            {totalLikes.toString().padStart(2, '0')}
+                                        </span>
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Total Likes</span>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center text-purple-400">
-                                            <Eye size={20} />
-                                        </div>
-                                        <div>
-                                            <span className="block text-xl font-black">{totalPlays}</span>
-                                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Reproducciones</span>
-                                        </div>
+                                    <div className="w-px h-12 bg-white/10 hidden md:block" />
+                                    <div className="group/stat">
+                                        <span className="block text-4xl font-black mb-1 group-hover/stat:text-purple-500 transition-colors uppercase tabular-nums">
+                                            {totalPlays.toString().padStart(2, '0')}
+                                        </span>
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Plays</span>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center text-amber-400">
-                                            <Music size={20} />
-                                        </div>
-                                        <div>
-                                            <span className="block text-xl font-black">{beats.length}</span>
-                                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Beats Listos</span>
-                                        </div>
+                                    <div className="w-px h-12 bg-white/10 hidden md:block" />
+                                    <div className="group/stat">
+                                        <span className="block text-4xl font-black mb-1 group-hover/stat:text-amber-500 transition-colors uppercase tabular-nums">
+                                            {beats.length.toString().padStart(2, '0')}
+                                        </span>
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Beats</span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Actions Area */}
+                            {/* Quick Actions (Owner) */}
                             {isOwner && (
-                                <div className="flex flex-col gap-3">
+                                <div className="flex flex-col gap-4">
                                     <button
                                         onClick={() => { setEditingPlaylist(null); setIsPlaylistModalOpen(true); }}
-                                        className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-blue-600/20 flex items-center justify-center gap-3"
+                                        className="px-10 py-6 bg-blue-600 hover:bg-blue-500 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] transition-all shadow-[0_20px_40px_rgba(37,99,235,0.3)] flex items-center justify-center gap-4 hover:scale-105"
                                     >
-                                        <Plus size={18} /> Nueva Playlist
+                                        <Plus size={20} strokeWidth={3} /> Nueva Colección
                                     </button>
                                     <Link
                                         href="/studio"
-                                        className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3"
+                                        className="px-10 py-6 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-4 group"
                                     >
-                                        <Edit3 size={18} /> Gestionar Beats
+                                        <Settings size={20} className="group-hover:rotate-90 transition-transform" /> Panel de Control
                                     </Link>
                                 </div>
                             )}
@@ -244,130 +253,140 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                 </div>
 
                 {/* Main Content Area */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20">
-                    {/* Search and Filters Strip */}
-                    <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-4 md:p-6 mb-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 pb-32 relative z-20">
+
+                    {/* Floating Search Hub */}
+                    <div className="bg-[#0a0a0a]/80 backdrop-blur-3xl rounded-[3.5rem] shadow-3xl border border-white/5 p-4 md:p-6 mb-24 ring-1 ring-white/10">
                         <div className="flex flex-col lg:flex-row gap-6 items-center">
-                            <div className="relative flex-1 w-full">
-                                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                            <div className="relative flex-1 w-full group">
+                                <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={24} />
                                 <input
                                     type="text"
-                                    placeholder="¿Qué estás buscando hoy?"
+                                    placeholder="¿Cuál es tu próximo hit?"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full bg-slate-50 border border-transparent rounded-[1.5rem] pl-16 pr-8 py-5 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:bg-white focus:border-blue-600 transition-all shadow-inner"
+                                    className="w-full bg-white/5 border border-transparent rounded-[2.5rem] pl-20 pr-10 py-6 text-lg font-bold focus:outline-none focus:ring-4 focus:ring-blue-600/20 focus:bg-white/10 focus:border-blue-500/50 transition-all text-white placeholder:text-slate-600 uppercase tracking-tight"
                                 />
                             </div>
 
-                            <div className="flex items-center gap-3 w-full lg:w-auto">
+                            <div className="flex items-center gap-4 w-full lg:w-auto">
                                 <button
                                     onClick={() => setShowFilters(!showFilters)}
-                                    className={`flex-1 lg:flex-none px-8 py-5 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 border shadow-sm ${showFilters ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-900 border-slate-100 hover:bg-slate-50'}`}
+                                    className={`flex-1 lg:flex-none px-12 py-6 rounded-[2.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-4 border ${showFilters ? 'bg-white text-black border-white' : 'bg-white/5 text-white border-white/10 hover:bg-white/10'}`}
                                 >
-                                    <Filter size={18} /> Filtros {showFilters ? <ChevronDown size={14} className="rotate-180" /> : <ChevronDown size={14} />}
+                                    <Filter size={20} /> FILTROS {showFilters ? <ChevronDown size={14} className="rotate-180" /> : <ChevronDown size={14} />}
                                 </button>
-                                <button className="p-5 bg-slate-50 text-slate-400 rounded-[1.5rem] hover:text-blue-600 transition-colors border border-slate-100">
-                                    <Share2 size={20} />
+                                <button className="p-6 bg-white/5 text-slate-400 rounded-[2.5rem] hover:text-white transition-all border border-white/10 hover:border-white/20">
+                                    <Share2 size={24} />
                                 </button>
                             </div>
                         </div>
 
-                        {/* Expandable Filters */}
+                        {/* Ultra-Modern Filter Drawer */}
                         {showFilters && (
-                            <div className="mt-8 pt-8 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-top-4 duration-300">
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-2">Género Musical</label>
-                                    <div className="flex flex-wrap gap-2">
+                            <div className="mt-10 pt-10 border-t border-white/5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 animate-in fade-in zoom-in-95 duration-500">
+                                <div className="space-y-6">
+                                    <label className="text-[11px] font-black uppercase text-blue-500 tracking-[0.3em] pl-2 mb-4 block">Géneros</label>
+                                    <div className="flex flex-wrap gap-3">
                                         {genres.map(g => (
                                             <button
                                                 key={g}
                                                 onClick={() => setSelectedGenre(g)}
-                                                className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase transition-all ${selectedGenre === g ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                                className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all border ${selectedGenre === g ? 'bg-blue-600 text-white border-blue-500 shadow-xl shadow-blue-600/30' : 'bg-white/5 text-slate-400 border-transparent hover:bg-white/10'}`}
                                             >
                                                 {g}
                                             </button>
                                         ))}
                                     </div>
                                 </div>
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-2">Estado de Ánimo</label>
-                                    <div className="flex flex-wrap gap-2">
+                                <div className="space-y-6">
+                                    <label className="text-[11px] font-black uppercase text-purple-500 tracking-[0.3em] pl-2 mb-4 block">Moods</label>
+                                    <div className="flex flex-wrap gap-3">
                                         {moods.map(m => (
                                             <button
                                                 key={m}
                                                 onClick={() => setSelectedMood(m)}
-                                                className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase transition-all ${selectedMood === m ? 'bg-purple-600 text-white' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                                className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all border ${selectedMood === m ? 'bg-purple-600 text-white border-purple-500 shadow-xl shadow-purple-600/30' : 'bg-white/5 text-slate-400 border-transparent hover:bg-white/10'}`}
                                             >
                                                 {m}
                                             </button>
                                         ))}
                                     </div>
                                 </div>
-                                <div className="flex items-center justify-end">
+                                <div className="flex flex-col items-end justify-center gap-6">
                                     <button
                                         onClick={() => { setSelectedGenre('Todos'); setSelectedMood('Todos'); setSearchQuery(''); }}
-                                        className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 transition-colors"
+                                        className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-rose-500 transition-colors flex items-center gap-3"
                                     >
-                                        Limpiar Filtros
+                                        Limpiar Todo
                                     </button>
+                                    <div className="text-[10px] font-bold text-slate-600 uppercase tracking-widest italic pr-2">
+                                        Filtrando {filteredBeats.length} resultados
+                                    </div>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* Content Sections */}
-                    <div className="space-y-24">
-                        {/* Playlists Section if any */}
+                    {/* Vitaminized Content Grid */}
+                    <div className="space-y-32">
+                        {/* Featured Playlists Grid */}
                         {playlists.length > 0 && searchQuery === '' && (
-                            <div className="space-y-12">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500">
-                                        <ListMusic size={24} />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-3xl font-black uppercase tracking-tighter">Colecciones Recomendadas</h2>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Selección especial del productor</p>
+                            <div className="space-y-16">
+                                <div className="flex flex-col md:flex-row items-center justify-between gap-8 border-b border-white/5 pb-10">
+                                    <div className="flex items-center gap-6">
+                                        <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-[2rem] flex items-center justify-center text-white shadow-2xl">
+                                            <ListMusic size={32} />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter italic">Colecciones Master</h2>
+                                            <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] mt-2">Curado especialmente por el equipo de producción</p>
+                                        </div>
                                     </div>
                                 </div>
-                                <PlaylistSection
-                                    playlists={playlists}
-                                    isOwner={isOwner}
-                                    onEdit={(id) => {
-                                        const pl = playlists.find(p => p.id === id);
-                                        setEditingPlaylist(pl);
-                                        setIsPlaylistModalOpen(true);
-                                    }}
-                                />
+                                <div className="grid grid-cols-1 gap-16">
+                                    <PlaylistSection
+                                        playlists={playlists}
+                                        isOwner={isOwner}
+                                        onEdit={(id) => {
+                                            const pl = playlists.find(p => p.id === id);
+                                            setEditingPlaylist(pl);
+                                            setIsPlaylistModalOpen(true);
+                                        }}
+                                    />
+                                </div>
                             </div>
                         )}
 
-                        {/* Beats Grid */}
-                        <div className="space-y-12">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
-                                        <Music size={24} />
+                        {/* Full Catalog Grid */}
+                        <div className="space-y-16">
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-8 border-b border-white/5 pb-10">
+                                <div className="flex items-center gap-6">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-[2rem] flex items-center justify-center text-white shadow-2xl">
+                                        <Music size={32} />
                                     </div>
                                     <div>
-                                        <h2 className="text-3xl font-black uppercase tracking-tighter">Todo el Catálogo</h2>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Mostrando {filteredBeats.length} beats</p>
+                                        <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter italic">Universo Beats</h2>
+                                        <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] mt-2">Explora {filteredBeats.length} creaciones originales listas para grabar</p>
                                     </div>
                                 </div>
                             </div>
 
                             {filteredBeats.length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                                    {filteredBeats.map(beat => (
-                                        <BeatCardPro key={beat.id} beat={beat} />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-16">
+                                    {filteredBeats.map((beat, idx) => (
+                                        <div key={beat.id} className="animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both" style={{ animationDelay: `${idx * 50}ms` }}>
+                                            <BeatCardPro beat={beat} />
+                                        </div>
                                     ))}
                                 </div>
                             ) : (
-                                <div className="bg-slate-50 rounded-[3rem] py-24 text-center border-2 border-dashed border-slate-200">
-                                    <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-slate-200 mx-auto mb-8 shadow-sm">
-                                        <Search size={40} />
+                                <div className="bg-white/5 rounded-[4rem] py-32 text-center border-2 border-dashed border-white/10 backdrop-blur-3xl">
+                                    <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center text-slate-700 mx-auto mb-10 shadow-inner">
+                                        <Music size={48} />
                                     </div>
-                                    <h3 className="text-2xl font-black uppercase tracking-tighter text-slate-900 mb-2">No se encontraron beats</h3>
-                                    <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">Intenta ajustar tus criterios de búsqueda</p>
+                                    <h3 className="text-3xl font-black uppercase tracking-tighter text-white mb-4 italic">No se encontraron frecuencias</h3>
+                                    <p className="text-slate-500 text-[11px] font-black uppercase tracking-[0.3em]">Ajusta tus filtros para descubrir nuevos sonidos</p>
                                 </div>
                             )}
                         </div>
@@ -391,6 +410,11 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
             <style jsx global>{`
                 .no-scrollbar::-webkit-scrollbar { display: none; }
                 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+                @keyframes fade-in-up {
+                    from { opacity: 0; transform: translateY(30px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in-up { animation: fade-in-up 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
             `}</style>
         </div>
     );
