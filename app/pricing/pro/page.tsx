@@ -1,12 +1,34 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Check, Star, Zap, TrendingUp, ShieldCheck, ArrowLeft, Crown, X } from 'lucide-react';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 
 export default function ProPlanPage() {
+    const [userTier, setUserTier] = useState<string | null>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                setIsLoggedIn(true);
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('subscription_tier')
+                    .eq('id', session.user.id)
+                    .single();
+                if (data) setUserTier(data.subscription_tier);
+            }
+            setLoading(false);
+        };
+        checkUser();
+    }, []);
+
     const mainFeatures = [
         {
             title: "0% Comisión por Venta",
@@ -59,9 +81,18 @@ export default function ProPlanPage() {
                                 <p className="text-xl text-slate-400 font-medium mb-12 max-w-lg leading-relaxed">
                                     Toma el control total de tu negocio. Sin comisiones, con subidas ilimitadas y todas las herramientas para profesionalizar tu tienda.
                                 </p>
-                                <Link href="/pricing" className="inline-block px-12 py-6 bg-amber-500 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all shadow-2xl shadow-amber-500/20 hover:scale-105 active:scale-95">
-                                    Mejorar Ahora — $149 MXN
-                                </Link>
+
+                                {loading ? (
+                                    <div className="h-16 w-56 bg-white/10 animate-pulse rounded-2xl"></div>
+                                ) : isLoggedIn && userTier === 'pro' ? (
+                                    <div className="inline-block px-12 py-6 bg-amber-400/10 text-amber-400 border border-amber-400/30 rounded-2xl font-black uppercase tracking-widest text-[10px] cursor-default backdrop-blur-sm">
+                                        Tu Plan Actual
+                                    </div>
+                                ) : (
+                                    <Link href="/pricing" className="inline-block px-12 py-6 bg-amber-500 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all shadow-2xl shadow-amber-500/20 hover:scale-105 active:scale-95">
+                                        {isLoggedIn && userTier === 'premium' ? "Plan Superior Activo" : isLoggedIn ? "Mejorar a PRO — $149 MXN" : "Mejorar Ahora — $149 MXN"}
+                                    </Link>
+                                )}
                             </div>
 
                             <div className="relative">
@@ -138,9 +169,18 @@ export default function ProPlanPage() {
                                     <h4 className="text-2xl font-black uppercase tracking-tighter mb-2 group-hover:text-amber-400 transition-colors">¿Listo para la Independencia?</h4>
                                     <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em]">Convierte tu pasión en una empresa rentable</p>
                                 </div>
-                                <Link href="/pricing" className="px-10 py-5 bg-amber-500 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all hover:scale-110 active:scale-95 shadow-xl shadow-amber-500/20">
-                                    Empezar con PRO
-                                </Link>
+
+                                {loading ? (
+                                    <div className="h-16 w-48 bg-white/10 animate-pulse rounded-2xl"></div>
+                                ) : isLoggedIn && userTier === 'pro' ? (
+                                    <div className="px-10 py-5 bg-white/10 text-white border border-white/20 rounded-2xl font-black uppercase tracking-widest text-[10px] cursor-default">
+                                        Plan Activo
+                                    </div>
+                                ) : (
+                                    <Link href="/pricing" className="px-10 py-5 bg-amber-500 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all hover:scale-110 active:scale-95 shadow-xl shadow-amber-500/20">
+                                        {isLoggedIn && userTier === 'premium' ? "Es parte de tu Plan" : "Empezar con PRO"}
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     </div>

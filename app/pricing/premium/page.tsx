@@ -1,4 +1,6 @@
-import React from 'react';
+"use client";
+
+import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import {
@@ -7,8 +9,30 @@ import {
     Diamond, Rocket, Music, Globe
 } from 'lucide-react';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 
 export default function PremiumPlanPage() {
+    const [userTier, setUserTier] = useState<string | null>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                setIsLoggedIn(true);
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('subscription_tier')
+                    .eq('id', session.user.id)
+                    .single();
+                if (data) setUserTier(data.subscription_tier);
+            }
+            setLoading(false);
+        };
+        checkUser();
+    }, []);
+
     const mainFeatures = [
         {
             title: "Servicios de Mezcla y Masterización",
@@ -66,9 +90,18 @@ export default function PremiumPlanPage() {
                                 <p className="text-xl md:text-2xl text-blue-100/80 font-medium mb-12 max-w-xl leading-relaxed">
                                     Domina el mercado global. Vende servicios, kits, exclusivas y obtén la exposición que tu carrera merece.
                                 </p>
-                                <Link href="/pricing" className="inline-block px-12 py-6 bg-white text-blue-900 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-blue-50 hover:scale-105 transition-all shadow-2xl shadow-blue-900/40 active:scale-95">
-                                    Ser Premium — $349 MXN
-                                </Link>
+
+                                {loading ? (
+                                    <div className="h-16 w-56 bg-white/10 animate-pulse rounded-[2rem]"></div>
+                                ) : isLoggedIn && userTier === 'premium' ? (
+                                    <div className="inline-block px-12 py-6 bg-white/20 text-white border border-white/30 rounded-[2rem] font-black uppercase tracking-widest text-[10px] cursor-default backdrop-blur-sm">
+                                        Tu Plan Actual
+                                    </div>
+                                ) : (
+                                    <Link href="/pricing" className="inline-block px-12 py-6 bg-white text-blue-900 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-blue-50 hover:scale-105 transition-all shadow-2xl shadow-blue-900/40 active:scale-95">
+                                        {isLoggedIn ? "Mejorar a Premium" : "Ser Premium — $349 MXN"}
+                                    </Link>
+                                )}
                             </div>
 
                             <div className="relative">
@@ -174,14 +207,28 @@ export default function PremiumPlanPage() {
                         </div>
                         <h2 className="text-5xl md:text-6xl font-black uppercase tracking-tighter text-slate-900 mb-8 leading-none">Domina el mercado global.</h2>
                         <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-16">Acceso inmediato a todas las herramientas de negocio</p>
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                            <Link href="/pricing" className="px-12 py-6 bg-blue-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-slate-900 transition-all shadow-2xl shadow-blue-600/30 hover:scale-105 active:scale-95">
-                                Elegir Premium
-                            </Link>
-                            <Link href="/signup" className="px-12 py-6 bg-white border-2 border-slate-100 text-slate-400 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-slate-900 hover:text-slate-900 transition-all active:scale-95">
-                                Crear mi cuenta
-                            </Link>
-                        </div>
+
+                        {loading ? (
+                            <div className="h-20 w-80 bg-slate-50 animate-pulse rounded-[2rem] mx-auto"></div>
+                        ) : (
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                                <Link
+                                    href={isLoggedIn && userTier === 'premium' ? "#" : "/pricing"}
+                                    className={`px-12 py-6 rounded-[2rem] font-black uppercase tracking-widest text-[10px] transition-all shadow-2xl hover:scale-105 active:scale-95 ${isLoggedIn && userTier === 'premium'
+                                        ? "bg-slate-100 text-slate-400 cursor-default shadow-none"
+                                        : "bg-blue-600 text-white hover:bg-slate-900 shadow-blue-600/30"
+                                        }`}
+                                >
+                                    {isLoggedIn && userTier === 'premium' ? "Tu Plan Actual" : isLoggedIn ? "Mejorar a Premium" : "Elegir Premium"}
+                                </Link>
+
+                                {!isLoggedIn && (
+                                    <Link href="/signup" className="px-12 py-6 bg-white border-2 border-slate-100 text-slate-400 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-slate-900 hover:text-slate-900 transition-all active:scale-95">
+                                        Crear mi cuenta
+                                    </Link>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </section>
             </main>

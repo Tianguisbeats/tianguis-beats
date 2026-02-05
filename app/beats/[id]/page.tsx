@@ -261,10 +261,22 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 <span className="px-4 py-2 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2">
                                     <Layers size={12} /> {beat.musical_scale}
                                 </span>
-                                <div className="h-6 w-px bg-slate-200 mx-2 hidden md:block" />
-                                <div className="flex items-center gap-4 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                                <div className="flex items-center gap-4 text-slate-400 text-[10px] font-black uppercase tracking-widest pl-2">
                                     <span className="flex items-center gap-1.5"><Speaker size={14} className="text-blue-500" /> {beat.play_count?.toLocaleString() || 0}</span>
                                     <span className="flex items-center gap-1.5"><Heart size={14} className="text-red-500" /> {beat.like_count?.toLocaleString() || 0}</span>
+                                </div>
+                                <div className="h-6 w-px bg-slate-200 mx-1 hidden md:block" />
+                                <div className="flex flex-wrap items-center gap-2">
+                                    {beat.mood?.split(',').map((m: string) => {
+                                        const moodLabel = m.trim();
+                                        const moodInfo = (require('@/lib/constants').MOODS as any[]).find((mood: any) => mood.label === moodLabel);
+                                        return (
+                                            <span key={moodLabel} className="px-3 py-1 bg-white border border-slate-100 rounded-lg text-[9px] font-black uppercase tracking-widest text-slate-500 shadow-sm flex items-center gap-1.5">
+                                                <span className="text-sm leading-none">{moodInfo?.emoji || '✨'}</span>
+                                                {moodLabel}
+                                            </span>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
@@ -305,21 +317,6 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
                 </div>
 
-                {/* Moods Bar - Vitaminized with Emojis */}
-                <div className="max-w-6xl mx-auto px-4 mb-16">
-                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                        {beat.mood?.split(',').map((m: string) => {
-                            const moodLabel = m.trim();
-                            const moodInfo = (require('@/lib/constants').MOODS as any[]).find((mood: any) => mood.label === moodLabel);
-                            return (
-                                <span key={moodLabel} className="px-5 py-2.5 bg-white border border-slate-100 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-600 shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex items-center gap-2">
-                                    <span className="text-lg leading-none">{moodInfo?.emoji || '✨'}</span>
-                                    {moodLabel}
-                                </span>
-                            );
-                        })}
-                    </div>
-                </div>
 
                 {/* 3. MAIN CONTENT GRID */}
                 <div className="max-w-6xl mx-auto px-4 grid lg:grid-cols-12 gap-12">
@@ -403,9 +400,6 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     {/* RIGHT COLUMN: Statistics & Details (Prioritizing Comments) */}
                     <div className="lg:col-span-4 space-y-8">
                         <section>
-                            <h3 className="text-sm font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2 px-4 text-slate-900 border-b pb-4">
-                                <MessageCircle size={20} className="text-blue-600" /> Comentarios
-                            </h3>
                             <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm min-h-[400px]">
                                 <CommentSection beatId={id} />
                             </div>

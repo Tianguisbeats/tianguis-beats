@@ -1,12 +1,32 @@
-"use client";
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Check, Music, TrendingUp, Zap, ArrowLeft, Heart } from 'lucide-react';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 
 export default function FreePlanPage() {
+    const [userTier, setUserTier] = useState<string | null>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                setIsLoggedIn(true);
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('subscription_tier')
+                    .eq('id', session.user.id)
+                    .single();
+                if (data) setUserTier(data.subscription_tier);
+            }
+            setLoading(false);
+        };
+        checkUser();
+    }, []);
+
     const limitsFeatures = [
         {
             title: "5 Beats Públicos",
@@ -47,11 +67,24 @@ export default function FreePlanPage() {
                                     Plan <span className="text-slate-300">GRATIS</span>
                                 </h1>
                                 <p className="text-xl text-slate-500 font-medium mb-10 max-w-lg leading-relaxed">
-                                    La puerta de entrada a Tianguis Beats. Valida tu sonido, sube tus primeros beats y empieza a vender sin costos fijos.
+                                    La puerta de entrada a Tianguis Beats. Impulsa tu carrera sin costos iniciales, sube tu música y comienza a construir tu comunidad.
                                 </p>
-                                <Link href="/signup" className="inline-block px-12 py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 transition-all shadow-xl shadow-slate-900/10 hover:scale-105 active:scale-95">
-                                    Empezar Gratis Ahora
-                                </Link>
+
+                                {loading ? (
+                                    <div className="h-16 w-48 bg-slate-100 animate-pulse rounded-2xl"></div>
+                                ) : isLoggedIn && userTier === 'free' ? (
+                                    <div className="inline-block px-12 py-5 bg-slate-100 text-slate-400 border border-slate-200 rounded-2xl font-black uppercase tracking-widest text-[10px] cursor-default">
+                                        Tu Plan Actual
+                                    </div>
+                                ) : isLoggedIn && userTier !== 'free' ? (
+                                    <Link href="/pricing" className="inline-block px-12 py-5 bg-white border border-slate-200 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:border-slate-900 transition-all shadow-sm hover:scale-105 active:scale-95">
+                                        Cambiar a Gratis
+                                    </Link>
+                                ) : (
+                                    <Link href="/signup" className="inline-block px-12 py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 transition-all shadow-xl shadow-slate-900/10 hover:scale-105 active:scale-95">
+                                        Empezar Gratis Ahora
+                                    </Link>
+                                )}
                             </div>
                             <div className="bg-white p-12 rounded-[3.5rem] border border-slate-200 shadow-2xl shadow-slate-200/50 relative overflow-hidden group hover:border-slate-300 transition-all">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 -mr-16 -mt-16 rounded-full group-hover:scale-110 transition-transform"></div>
@@ -103,18 +136,18 @@ export default function FreePlanPage() {
                     <div className="max-w-6xl mx-auto px-4 relative z-10">
                         <div className="grid md:grid-cols-2 gap-20 items-center">
                             <div>
-                                <h2 className="text-5xl font-black uppercase tracking-tighter mb-8 italic leading-none">"Valida tu sonido sin <span className="text-blue-500">riesgos</span>"</h2>
+                                <h2 className="text-5xl font-black uppercase tracking-tighter mb-8 italic leading-none">"Escala tu negocio <span className="text-blue-500">sin límites</span>"</h2>
                                 <p className="text-slate-400 font-medium text-lg leading-relaxed mb-12">
-                                    El plan gratis es el lugar ideal para probar tus ritmos. Cuando realices tus primeras ventas y estés listo para el siguiente nivel, mejora a PRO para quedarte con el 100% de tus ingresos.
+                                    El plan gratis es el lugar ideal para establecer tus bases. Cuando tus ventas comiencen a escalar, el paso natural es PRO para quedarte con el 100% de tus ingresos y potenciar tu catálogo.
                                 </p>
                                 <div className="flex items-center gap-8">
                                     <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-sm">
                                         <p className="text-3xl font-black text-blue-500">15%</p>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-2">Comisión Justa</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-2">Comisión Base</p>
                                     </div>
                                     <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-sm">
                                         <p className="text-3xl font-black text-white">5</p>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-2">Beats Públicos</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-2">Lanzamientos</p>
                                     </div>
                                 </div>
                             </div>
@@ -123,7 +156,7 @@ export default function FreePlanPage() {
                                 <img
                                     src="https://images.unsplash.com/photo-1542333398-93f95b9d22aa?q=80&w=2070&auto=format&fit=crop"
                                     className="rounded-[4rem] shadow-2xl opacity-80 group-hover:opacity-100 transition-opacity border-2 border-white/10"
-                                    alt="Producer starts"
+                                    alt="Comunidad de Productores"
                                 />
                             </div>
                         </div>
@@ -138,11 +171,24 @@ export default function FreePlanPage() {
                         </div>
                         <h2 className="text-5xl font-black uppercase tracking-tighter text-slate-900 mb-8 leading-none">Sin excusas. Únete hoy.</h2>
                         <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-16 leading-loose">
-                            Es gratis para siempre. Sube tus mejores hits y forma parte de la comunidad.
+                            Tu carrera musical no espera. Sube tus mejores hits y forma parte de la red de productores más grande.
                         </p>
-                        <Link href="/signup" className="px-16 py-7 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 transition-all shadow-2xl shadow-blue-600/20 hover:scale-105 active:scale-95">
-                            Crear mi cuenta GRATIS
-                        </Link>
+
+                        {loading ? (
+                            <div className="h-20 w-64 bg-slate-100 animate-pulse rounded-[2rem] mx-auto"></div>
+                        ) : isLoggedIn && userTier === 'free' ? (
+                            <div className="inline-block px-16 py-7 bg-slate-100 text-slate-400 border border-slate-200 rounded-[2rem] font-black uppercase tracking-widest text-[10px] cursor-default">
+                                Estás usando el Plan Gratis
+                            </div>
+                        ) : isLoggedIn ? (
+                            <Link href="/pricing" className="px-16 py-7 bg-white border-2 border-slate-200 text-slate-900 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-slate-900 transition-all shadow-sm hover:scale-105 active:scale-95 inline-block">
+                                Ver otros planes
+                            </Link>
+                        ) : (
+                            <Link href="/signup" className="px-16 py-7 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 transition-all shadow-2xl shadow-blue-600/20 hover:scale-105 active:scale-95 inline-block">
+                                Crear mi cuenta GRATIS
+                            </Link>
+                        )}
                     </div>
                 </section>
             </main>
