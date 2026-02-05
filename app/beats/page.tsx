@@ -305,11 +305,14 @@ function BeatsPageContent() {
             .from('profiles')
             .select('id, artistic_name, username, foto_perfil, subscription_tier, is_verified, is_founder, bio, country, created_at, social_links')
             .not('artistic_name', 'is', null)
-            .order('subscription_tier', { ascending: true }) // Premium first
-            .limit(10);
+            .limit(20);
 
           if (trendProd) {
-            setTrendingProducers(trendProd);
+            const sortedProd = trendProd.sort((a, b) => {
+              const tierOrder: any = { 'premium': 0, 'pro': 1, 'free': 2 };
+              return (tierOrder[a.subscription_tier as any] ?? 3) - (tierOrder[b.subscription_tier as any] ?? 3);
+            }).slice(0, 10);
+            setTrendingProducers(sortedProd);
           }
         }
 
