@@ -103,6 +103,7 @@ function BeatsPageContent() {
       bpm: b.bpm,
       genre: b.genre,
       musical_key: b.musical_key,
+      musical_scale: b.musical_scale,
       mood: b.mood,
       portadabeat_url: finalCoverUrl,
       mp3_url: publicUrl,
@@ -128,7 +129,7 @@ function BeatsPageContent() {
         let query = supabase
           .from("beats")
           .select(`
-            id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, created_at, play_count, sale_count, like_count,
+            id, title, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count, sale_count, like_count,
             is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active,
             producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
           `)
@@ -246,7 +247,7 @@ function BeatsPageContent() {
             const { data: trendData } = await supabase
               .from('beats')
               .select(`
-                        id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, created_at, play_count,
+                        id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count,
                         producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
                     `)
               .eq('is_public', true)
@@ -294,18 +295,15 @@ function BeatsPageContent() {
     </div>
   );
 
-  const TabButton = ({ mode, label, icon: Icon, color }: { mode: ViewMode, label: string, icon: any, color: string }) => (
+  const TabButton = ({ mode, label, icon: Icon, color }: { mode: string; label: string; icon: any; color: string }) => (
     <button
-      onClick={() => setViewMode(mode)}
-      className={`
-              relative flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap group
-              ${viewMode === mode
-          ? `${color} text-white shadow-xl scale-105 z-10`
-          : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-100 hover:translate-y-[-2px]'
-        }
-          `}
+      onClick={() => setViewMode(mode as any)}
+      className={`snap-center flex-shrink-0 flex items-center gap-2.5 px-6 py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-wider transition-all duration-300 ${viewMode === mode
+        ? `${color} text-white shadow-xl scale-105 ring-4 ring-white`
+        : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-100'
+        }`}
     >
-      <Icon size={16} className={`${viewMode === mode ? 'animate-bounce' : 'group-hover:text-slate-900 transition-colors'}`} />
+      <Icon size={16} strokeWidth={viewMode === mode ? 3 : 2} />
       {label}
     </button>
   );
@@ -356,8 +354,8 @@ function BeatsPageContent() {
                 </div>
 
                 {/* Tabs with Horizontal Scroll & Centered on Desktop */}
-                <div className="relative w-full">
-                  <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 md:pb-0 scroll-smooth md:justify-center">
+                <div className="relative w-full max-w-full overflow-hidden mb-4">
+                  <div className="flex items-center gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-6 px-4 md:pb-2 scroll-smooth md:justify-center">
                     <TabButton mode="all" label="Todos" icon={Music} color="bg-blue-600" />
                     <TabButton mode="new" label="Recién" icon={Clock} color="bg-emerald-500 shadow-emerald-500/20" />
                     <TabButton mode="trending" label="Tendencias" icon={TrendingUp} color="bg-rose-500 shadow-rose-500/20" />

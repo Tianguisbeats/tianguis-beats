@@ -91,8 +91,8 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
 
                 {/* Producer Info */}
                 <Link href={`/${beat.producer_username || '#'}`} className="flex items-center gap-3 mb-6 group/prod">
-                    <div className={`w-10 h-10 rounded-2xl overflow-hidden border-2 transition-all p-0.5 ${beat.producer_tier === 'premium' ? 'border-amber-400 shadow-lg shadow-amber-400/20' :
-                        beat.producer_tier === 'pro' ? 'border-blue-400' : 'border-slate-100'
+                    <div className={`w-10 h-10 rounded-2xl overflow-hidden border-2 transition-all p-0.5 ${beat.producer_tier === 'premium' ? 'border-blue-500 shadow-lg shadow-blue-500/20' :
+                            beat.producer_tier === 'pro' ? 'border-amber-400 shadow-lg shadow-amber-400/20' : 'border-slate-100'
                         }`}>
                         <img
                             src={beat.producer_foto_perfil || `https://ui-avatars.com/api/?name=${beat.producer_artistic_name}&background=random`}
@@ -130,7 +130,7 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                     </span>
                     {beat.musical_scale && (
                         <span className="text-[9px] font-black text-purple-600 bg-purple-50 px-3 py-1.5 rounded-xl border border-purple-100 uppercase tracking-widest">
-                            {beat.musical_scale === 'Major' ? 'MAYOR' : 'MENOR'}
+                            {beat.musical_scale.toUpperCase() === 'MAJOR' || beat.musical_scale.toUpperCase() === 'MAYOR' ? 'MAYOR' : 'MENOR'}
                         </span>
                     )}
                 </div>

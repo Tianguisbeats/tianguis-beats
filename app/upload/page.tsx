@@ -245,7 +245,7 @@ export default function UploadPage() {
             onClick={onToggle}
             disabled={disabled}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-100 text-slate-400' :
-                    active ? 'bg-green-100 text-green-600 hover:bg-green-200' : 'bg-red-50 text-red-500 hover:bg-red-100'
+                active ? 'bg-green-100 text-green-600 hover:bg-green-200' : 'bg-red-50 text-red-500 hover:bg-red-100'
                 }`}
         >
             {active ? <Eye size={12} /> : <EyeOff size={12} />}
@@ -503,9 +503,9 @@ export default function UploadPage() {
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <span className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                                    <Music size={14} className="text-amber-500" /> MP3 320 KBPS
+                                                    <Music size={14} className="text-amber-500" /> MP3 MASTER HQ
                                                 </span>
-                                                <span className="text-[9px] font-bold text-amber-500/70 uppercase tracking-widest">Opcional • Master HQ</span>
+                                                <span className="text-[9px] font-bold text-amber-500/70 uppercase tracking-widest">Calidad 320 KBPS • Sin Tags</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Toggle active={isMp3Active} onToggle={() => setIsMp3Active(!isMp3Active)} />
@@ -541,7 +541,7 @@ export default function UploadPage() {
 
                                     {/* WAV + Precio */}
                                     <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' :
-                                            isWavActive ? 'bg-blue-50/30 border-blue-100 hover:bg-blue-50/50' : 'bg-slate-50/50 border-slate-100 opacity-75'
+                                        isWavActive ? 'bg-blue-50/30 border-blue-100 hover:bg-blue-50/50' : 'bg-slate-50/50 border-slate-100 opacity-75'
                                         }`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
@@ -595,7 +595,7 @@ export default function UploadPage() {
 
                                     {/* Stems + Precio */}
                                     <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' :
-                                            isStemsActive ? 'bg-purple-50 border-purple-200 hover:bg-purple-100/50' : 'bg-slate-50/50 border-slate-100 opacity-75'
+                                        isStemsActive ? 'bg-purple-50 border-purple-200 hover:bg-purple-100/50' : 'bg-slate-50/50 border-slate-100 opacity-75'
                                         }`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
@@ -649,14 +649,14 @@ export default function UploadPage() {
                                 </div>
 
                                 {/* Licencia Exclusiva Full Width */}
-                                <div className={`p-5 rounded-2xl border transition-all ${isExclusive ? 'border-blue-500 bg-blue-50/30' : 'bg-slate-50 border-slate-100'}`}>
+                                <div className={`p-8 rounded-3xl border transition-all ${isExclusive ? 'border-pink-500 bg-pink-50/50 shadow-xl shadow-pink-500/10' : 'bg-slate-50 border-slate-100'}`}>
                                     <div className="flex justify-between items-center">
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
-                                                <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${!isPremium ? 'text-slate-300' : 'text-slate-900'}`}>Venta Exclusiva</span>
-                                                {!isPremium && <Lock size={12} className="text-slate-300" />}
+                                                <span className={`text-[11px] font-black uppercase tracking-widest mb-1 ${!isPremium ? 'text-slate-300' : 'text-pink-600'}`}>Licencia Exclusiva</span>
+                                                {!isPremium && <Lock size={12} className="text-slate-400" />}
                                             </div>
-                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Retiro total de la tienda</span>
+                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Tu beat se retirará automáticamente tras la compra</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             {!isPremium && (
