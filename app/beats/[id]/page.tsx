@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { Beat } from '@/lib/types';
+import { Crown, Youtube, Zap, Package, Tag, Layers, Activity, Calendar } from 'lucide-react';
 
 // Extend Beat interface to include detail columns
 interface BeatDetail extends Beat {
@@ -87,7 +88,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 setLoading(true);
                 const { data, error } = await supabase
                     .from('beats')
-                    .select('id, title, genre, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, description, play_count, like_count, created_at, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder)')
+                    .select('id, title, genre, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, description, play_count, like_count, created_at, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
                     .eq('id', id)
                     .single();
 
@@ -195,16 +196,18 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
             <main className="flex-1 pb-32">
                 {/* 1. HERO HEADER (Immersive Gradient) */}
                 <div className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-4 shadow-sm bg-white overflow-hidden">
-                    {/* Dynamic Ambient Background */}
+                    {/* Dynamic Ambient Background - "Liquid" Effect */}
                     <div className="absolute inset-0 bg-white -z-20" />
-                    <div className="absolute top-[-50%] left-[-20%] w-[80vw] h-[80vw] bg-blue-100/40 rounded-full blur-[150px] -z-10" />
-                    <div className="absolute bottom-[-30%] right-[-10%] w-[60vw] h-[60vw] bg-purple-100/40 rounded-full blur-[150px] -z-10" />
+                    <div className="absolute top-[-20%] left-[-10%] w-[120vw] h-[120vw] bg-gradient-to-br from-blue-50/50 via-purple-50/50 to-pink-50/50 rounded-full blur-[120px] -z-10 animate-pulse duration-[8000ms]" />
+                    <div className="absolute bottom-[-20%] right-[-10%] w-[100vw] h-[100vw] bg-gradient-to-tr from-amber-50/50 via-orange-50/50 to-yellow-50/50 rounded-full blur-[100px] -z-10 animate-pulse duration-[10000ms] delay-1000" />
 
                     <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
                         {/* Artwork */}
                         <div className="relative group shrink-0 w-64 h-64 md:w-80 md:h-80">
-                            <div className="absolute inset-0 bg-blue-600/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
-                            <div className={`w-full h-full rounded-[2.5rem] bg-white shadow-2xl overflow-hidden border border-slate-100 relative z-10 transition-transform duration-500 group-hover:scale-[1.02] group-hover:-rotate-1`}>
+                            {/* Liquid Animation Background for Card */}
+                            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-[3rem] blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-700 animate-spin-slow" />
+
+                            <div className="w-full h-full rounded-[2.5rem] bg-white shadow-2xl overflow-hidden border border-slate-100 relative z-10 transition-transform duration-500 group-hover:scale-[1.02] group-hover:-rotate-1">
                                 {beat.portadabeat_url ? (
                                     <img src={beat.portadabeat_url} className="w-full h-full object-cover" alt={beat.title} />
                                 ) : (
@@ -223,43 +226,55 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
                         {/* Text Info */}
                         <div className="text-center md:text-left flex-1 space-y-6">
-                            <div>
-                                <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-slate-900 leading-[0.9] uppercase tracking-tighter mb-2">
-                                    {beat.title}
-                                </h1>
-                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                                    <span className="px-3 py-1 rounded-lg bg-[#dcfce7] text-[#15803d] text-[10px] font-black uppercase tracking-widest">{beat.bpm} BPM</span>
-                                    <span className="px-3 py-1 rounded-lg bg-[#f3e8ff] text-[#7e22ce] text-[10px] font-black uppercase tracking-widest">{beat.musical_key || '?'} {beat.musical_scale}</span>
-                                    <span className="px-3 py-1 rounded-lg bg-[#fff7ed] text-[#c2410c] text-[10px] font-black uppercase tracking-widest">{beat.genre}</span>
+                            {/* Producer Header - First and Bigger */}
+                            <Link href={`/${(beat.producer as any)?.username || ''}`} className="inline-flex items-center gap-4 bg-white/50 backdrop-blur-md px-6 py-4 rounded-[2.5rem] border border-white/50 shadow-sm hover:shadow-xl transition-all group scale-105 origin-left">
+                                <div className={`relative p-1 rounded-full border-2 ${(beat.producer as any)?.subscription_tier === 'premium' ? 'border-blue-500' :
+                                        (beat.producer as any)?.subscription_tier === 'pro' ? 'border-amber-400' :
+                                            'border-slate-100'
+                                    } shadow-lg`}>
+                                    <img src={(beat.producer as any)?.foto_perfil || "/logo.png"} className="w-16 h-16 rounded-full object-cover" alt="Prod" />
+                                    {(beat.producer as any)?.is_verified && (
+                                        <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm border border-slate-50">
+                                            <img src="/verified-badge.png" className="w-5 h-5" alt="V" />
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-
-                            <Link href={`/${(beat.producer as any)?.username || ''}`} className="inline-flex items-center gap-4 bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group">
-                                <img src={(beat.producer as any)?.foto_perfil || "/logo.png"} className="w-10 h-10 rounded-full object-cover border border-slate-200" alt="Prod" />
                                 <div className="text-left">
-                                    <span className="block text-[9px] font-black uppercase text-slate-400 tracking-widest group-hover:text-blue-500 transition-colors">Producido por</span>
-                                    <span className="block text-sm font-bold text-slate-900">{(beat.producer as any)?.artistic_name || (beat.producer as any)?.username}</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="block text-2xl font-black text-slate-900 tracking-tighter">{(beat.producer as any)?.artistic_name || (beat.producer as any)?.username}</span>
+                                        {(beat.producer as any)?.is_founder && <Crown size={20} className="text-amber-400" fill="currentColor" />}
+                                    </div>
+                                    <span className="block text-[10px] font-black uppercase text-blue-600 tracking-widest animate-pulse mt-1">PRODUCTOR DESTACADO</span>
                                 </div>
                             </Link>
 
-                            <div className="flex items-center justify-center md:justify-start gap-8 pt-4">
-                                <div className="flex items-center gap-2">
-                                    <Speaker size={18} className="text-slate-400" />
-                                    <span className="text-xl font-black text-slate-900">{beat.play_count?.toLocaleString() || 0}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Heart size={18} className={isLiked ? "fill-red-500 text-red-500" : "text-slate-400"} />
-                                    <span className="text-xl font-black text-slate-900">{beat.like_count?.toLocaleString() || 0}</span>
+                            <div>
+                                <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-slate-900 leading-[0.9] uppercase tracking-tighter mb-4">
+                                    {beat.title}
+                                </h1>
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                                    <span className="px-5 py-2 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2">
+                                        <Tag size={12} /> {beat.genre}
+                                    </span>
+                                    <span className="px-5 py-2 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2">
+                                        <Activity size={12} /> {beat.bpm} BPM
+                                    </span>
+                                    <span className="px-5 py-2 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2">
+                                        <Music2 size={12} /> {beat.musical_key || '?'}
+                                    </span>
+                                    <span className="px-5 py-2 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2">
+                                        <Layers size={12} /> {beat.musical_scale}
+                                    </span>
                                 </div>
                             </div>
 
-                            <div className="flex gap-3 justify-center md:justify-start mt-4">
-                                <button onClick={handleLike} className={`px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center gap-2 transition-all ${isLiked ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
-                                    <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
-                                    {isLiked ? 'Me gusta' : 'Dar Like'}
+                            <div className="flex gap-4 justify-center md:justify-start mt-4">
+                                <button onClick={handleLike} className={`px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-3 transition-all ${isLiked ? 'bg-red-500 text-white shadow-xl shadow-red-500/30 hover:scale-105' : 'bg-slate-900 text-white hover:bg-blue-600 shadow-xl shadow-slate-900/10'}`}>
+                                    <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
+                                    {isLiked ? 'Te gusta' : 'Dar Like'}
                                 </button>
-                                <button className="px-6 py-3 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-slate-200 transition-all">
-                                    <Share2 size={16} /> Compartir
+                                <button className="px-8 py-4 rounded-2xl bg-white text-slate-900 border-2 border-slate-100 font-black text-xs uppercase tracking-widest flex items-center gap-3 hover:border-slate-900 transition-all">
+                                    <Share2 size={18} /> Compartir
                                 </button>
                             </div>
                         </div>
@@ -352,13 +367,62 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         )}
                     </div>
 
-                    {/* RIGHT COLUMN: Comments & Details */}
+                    {/* RIGHT COLUMN: Statistics & Details */}
                     <div className="lg:col-span-4 space-y-8">
+                        {/* "Detalles Vitaminados" Card */}
+                        <section className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50">
+                            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-900 mb-8 flex items-center gap-2 border-b pb-4">
+                                <Info size={16} className="text-blue-600" /> Detalles Técnicos
+                            </h3>
+
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3 text-slate-400">
+                                        <Speaker size={18} />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Reproducciones</span>
+                                    </div>
+                                    <span className="text-lg font-black text-slate-900">{beat.play_count?.toLocaleString() || 0}</span>
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3 text-slate-400">
+                                        <Heart size={18} />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Likes</span>
+                                    </div>
+                                    <span className="text-lg font-black text-slate-900">{beat.like_count?.toLocaleString() || 0}</span>
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3 text-slate-400">
+                                        <Calendar size={18} />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Lanzamiento</span>
+                                    </div>
+                                    <span className="text-[11px] font-bold text-slate-900 uppercase">
+                                        {new Date(beat.created_at).toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })}
+                                    </span>
+                                </div>
+
+                                {/* Moods Section */}
+                                <div className="pt-6 border-t mt-4">
+                                    <span className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Aura y Mood</span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {beat.mood?.split(',').map((m: string) => (
+                                            <span key={m} className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-blue-100/50">
+                                                ✨ {m.trim()}
+                                            </span>
+                                        )) || (
+                                                <span className="text-[10px] text-slate-300 italic font-bold">No especificado</span>
+                                            )}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
                         <section>
-                            <h3 className="text-lg font-black uppercase tracking-tight mb-6 flex items-center gap-2">
+                            <h3 className="text-sm font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2 px-4">
                                 <MessageCircle size={20} className="text-purple-500" /> Comentarios
                             </h3>
-                            <div className="bg-white p-6 rounded-[2rem] border border-slate-100 min-h-[400px]">
+                            <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm min-h-[400px]">
                                 <CommentSection beatId={id} />
                             </div>
                         </section>
