@@ -56,6 +56,26 @@ const SOCIAL_ICONS: Record<string, any> = {
 
 const SOCIAL_KEYS = ['instagram', 'youtube', 'tiktok', 'spotify', 'applemusic', 'tidal', 'amazon', 'twitter'];
 
+const getYouTubeEmbedUrl = (url: string) => {
+    if (!url) return '';
+    let videoId = '';
+    try {
+        if (url.includes('youtu.be/')) {
+            videoId = url.split('youtu.be/')[1].split(/[?#]/)[0];
+        } else if (url.includes('youtube.com/watch')) {
+            const urlObj = new URL(url);
+            videoId = urlObj.searchParams.get('v') || '';
+        } else if (url.includes('youtube.com/embed/')) {
+            videoId = url.split('embed/')[1].split(/[?#]/)[0];
+        } else if (url.includes('youtube.com/shorts/')) {
+            videoId = url.split('shorts/')[1].split(/[?#]/)[0];
+        }
+    } catch (e) {
+        console.error("Error parsing YouTube URL:", e);
+    }
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : '';
+};
+
 /**
  * PublicProfilePage: Muestra el perfil público de un productor o usuario.
  * Incluye su biografía, redes sociales, y catálogo de beats.
@@ -671,7 +691,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <iframe
                                             width="100%"
                                             height="100%"
-                                            src={profile.video_destacado_url.replace('watch?v=', 'embed/').split('&')[0]}
+                                            src={getYouTubeEmbedUrl(profile.video_destacado_url)}
                                             title="Featured Video"
                                             frameBorder="0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -695,12 +715,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     profile.tema_perfil === 'gold' ? 'bg-[#2a241c] border-amber-900/30 text-amber-100' :
                                         'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
                                 }`}>
-                                <h3 className={`text-[11px] font-black uppercase tracking-[0.2em] mb-6 ${profile.tema_perfil === 'neon' ? 'text-green-500' :
-                                    profile.tema_perfil === 'gold' ? 'text-amber-500' :
-                                        'text-slate-400'
-                                    }`}>Trayectoria</h3>
-
-                                {/* Integrated Socials Section */}
+                                {/* Integrated Socials Section (Now at the top) */}
                                 {!isEditing && (
                                     <div className="flex flex-wrap gap-3 mb-8 pb-8 border-b border-slate-100/10">
                                         {SOCIAL_KEYS.map(key => {
@@ -731,6 +746,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         })}
                                     </div>
                                 )}
+
+                                <h3 className={`text-[11px] font-black uppercase tracking-[0.2em] mb-6 ${profile.tema_perfil === 'neon' ? 'text-green-500' :
+                                    profile.tema_perfil === 'gold' ? 'text-amber-500' :
+                                        'text-slate-400'
+                                    }`}>Trayectoria</h3>
 
                                 {isEditing ? (
                                     <div className="space-y-4">

@@ -285,60 +285,59 @@ function BeatsPageContent() {
 
           setBeats(transformed);
           setProducers([]);
+        }
 
-          // Fetch Trending Data for Banner (Run once or on filter change)
-          const { data: trendData } = await supabase
-            .from('beats')
-            .select(`
-                      id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count,
-                      producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
-                  `)
-            .eq('is_public', true)
-            .order('play_count', { ascending: false, nullsFirst: false })
-            .limit(10); // More items for rotation
+        // Fetch Trending Data for Banner (ALWAYS FETCH for global banner persistence)
+        const { data: trendData } = await supabase
+          .from('beats')
+          .select(`
+                    id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count,
+                    producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
+                `)
+          .eq('is_public', true)
+          .order('play_count', { ascending: false, nullsFirst: false })
+          .limit(10);
 
-          if (trendData) {
-            const trendTransformed = await Promise.all(trendData.map(transformBeat));
-            setTrendingBeats(trendTransformed);
-          }
+        if (trendData) {
+          const trendTransformed = await Promise.all(trendData.map(transformBeat));
+          setTrendingBeats(trendTransformed);
+        }
 
-          // Fetch Trending Producers (Artists of the Week) logic:
-          // 1. Get play counts per producer from top beats
-          const { data: playsData } = await supabase
-            .from('beats')
-            .select('producer_id, play_count')
-            .not('producer_id', 'is', null)
-            .order('play_count', { ascending: false })
-            .limit(200);
+        // Fetch Trending Producers (Artists of the Week)
+        const { data: playsData } = await supabase
+          .from('beats')
+          .select('producer_id, play_count')
+          .not('producer_id', 'is', null)
+          .order('play_count', { ascending: false })
+          .limit(200);
 
-          const playsMap: Record<string, number> = {};
-          playsData?.forEach(b => {
-            playsMap[b.producer_id] = (playsMap[b.producer_id] || 0) + (b.play_count || 0);
-          });
+        const playsMap: Record<string, number> = {};
+        playsData?.forEach(b => {
+          playsMap[b.producer_id] = (playsMap[b.producer_id] || 0) + (b.play_count || 0);
+        });
 
-          const { data: trendProd } = await supabase
-            .from('profiles')
-            .select('id, artistic_name, username, foto_perfil, subscription_tier, is_verified, is_founder, bio, country, created_at, social_links')
-            .not('artistic_name', 'is', null)
-            .limit(50);
+        const { data: trendProd } = await supabase
+          .from('profiles')
+          .select('id, artistic_name, username, foto_perfil, subscription_tier, is_verified, is_founder, bio, country, created_at, social_links')
+          .not('username', 'is', null)
+          .limit(100);
 
-          if (trendProd) {
-            const sortedProd = trendProd.map(p => {
-              const totalPlays = playsMap[p.id] || 0;
-              const tierMultiplier = p.subscription_tier === 'premium' ? 2.0 : p.subscription_tier === 'pro' ? 1.5 : 1.0;
-              return { ...p, score: totalPlays * tierMultiplier };
+        if (trendProd) {
+          const sortedProd = trendProd.map(p => {
+            const totalPlays = playsMap[p.id] || 0;
+            const tierMultiplier = p.subscription_tier === 'premium' ? 2.0 : p.subscription_tier === 'pro' ? 1.5 : 1.0;
+            return { ...p, score: totalPlays * tierMultiplier };
+          })
+            .sort((a, b) => {
+              const order: any = { premium: 0, pro: 1, free: 2 };
+              const tierA = order[a.subscription_tier as any] ?? 3;
+              const tierB = order[b.subscription_tier as any] ?? 3;
+              if (tierA !== tierB) return tierA - tierB;
+              return b.score - a.score;
             })
-              .sort((a, b) => {
-                const order: any = { premium: 0, pro: 1, free: 2 };
-                const tierA = order[a.subscription_tier as any] ?? 3;
-                const tierB = order[b.subscription_tier as any] ?? 3;
-                if (tierA !== tierB) return tierA - tierB;
-                return b.score - a.score;
-              })
-              .slice(0, 10);
+            .slice(0, 10);
 
-            setTrendingProducers(sortedProd);
-          }
+          setTrendingProducers(sortedProd);
         }
 
       } catch (err) {
