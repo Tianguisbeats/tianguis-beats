@@ -799,13 +799,20 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         </div>
 
                                         <div>
-                                            <label className="text-[9px] font-black uppercase text-slate-400 mb-2 block">Video Destacado (YouTube)</label>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <label className="text-[9px] font-black uppercase text-slate-400 block">Video Destacado (YouTube)</label>
+                                                <span className="text-[8px] font-black bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full uppercase tracking-widest">Premium</span>
+                                            </div>
                                             <input
                                                 type="text"
                                                 value={editVideoUrl}
                                                 onChange={(e) => setEditVideoUrl(e.target.value)}
-                                                className="w-full bg-slate-50 rounded-xl p-4 text-sm font-medium border border-transparent focus:border-blue-500 outline-none text-slate-900"
-                                                placeholder="Link de YouTube o Shorts..."
+                                                disabled={profile.subscription_tier !== 'premium'}
+                                                className={`w-full rounded-xl p-4 text-sm font-medium border border-transparent outline-none transition-all ${profile.subscription_tier === 'premium'
+                                                    ? 'bg-slate-50 focus:border-blue-500 text-slate-900'
+                                                    : 'bg-slate-100 text-slate-400 cursor-not-allowed grayscale'
+                                                    }`}
+                                                placeholder={profile.subscription_tier === 'premium' ? "Link de YouTube o Shorts..." : "Mejora a Premium para destacar un video"}
                                             />
                                         </div>
 

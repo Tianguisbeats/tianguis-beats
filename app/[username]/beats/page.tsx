@@ -195,35 +195,35 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                                     <ArrowLeft size={16} className="group-hover:-translate-x-2 transition-transform" /> Regresar al Perfil
                                 </Link>
 
-                                <h1 className="text-6xl md:text-9xl font-black uppercase tracking-tighter mb-6 leading-[0.85] italic">
+                                <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter mb-6 leading-[0.9] italic">
                                     <span className="block text-white">Catálogo</span>
-                                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 drop-shadow-2xl">
+                                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 drop-shadow-2xl pb-2">
                                         {profile.artistic_name || profile.username}
                                     </span>
                                 </h1>
 
-                                <p className="text-slate-400 text-lg md:text-xl font-medium max-w-2xl mb-12 leading-relaxed italic opacity-80 border-l-2 border-blue-500/30 pl-8">
+                                <p className="text-slate-400 text-base md:text-lg font-medium max-w-2xl mb-10 leading-relaxed italic opacity-80 border-l-2 border-blue-500/30 pl-6 md:pl-8 mx-auto md:mx-0 text-center md:text-left">
                                     {profile.bio || "Explora el universo sonoro de este productor premium."}
                                 </p>
 
                                 {/* Premium Stats */}
-                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-12">
-                                    <div className="group/stat">
-                                        <span className="block text-4xl font-black mb-1 group-hover/stat:text-blue-500 transition-colors uppercase tabular-nums">
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-8 md:gap-12">
+                                    <div className="group/stat text-center md:text-left">
+                                        <span className="block text-3xl md:text-4xl font-black mb-1 group-hover/stat:text-blue-500 transition-colors uppercase tabular-nums">
                                             {totalLikes.toString().padStart(2, '0')}
                                         </span>
                                         <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Total Likes</span>
                                     </div>
-                                    <div className="w-px h-12 bg-white/10 hidden md:block" />
-                                    <div className="group/stat">
-                                        <span className="block text-4xl font-black mb-1 group-hover/stat:text-purple-500 transition-colors uppercase tabular-nums">
+                                    <div className="w-px h-10 bg-white/10 hidden md:block" />
+                                    <div className="group/stat text-center md:text-left">
+                                        <span className="block text-3xl md:text-4xl font-black mb-1 group-hover/stat:text-purple-500 transition-colors uppercase tabular-nums">
                                             {totalPlays.toString().padStart(2, '0')}
                                         </span>
                                         <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Plays</span>
                                     </div>
-                                    <div className="w-px h-12 bg-white/10 hidden md:block" />
-                                    <div className="group/stat">
-                                        <span className="block text-4xl font-black mb-1 group-hover/stat:text-amber-500 transition-colors uppercase tabular-nums">
+                                    <div className="w-px h-10 bg-white/10 hidden md:block" />
+                                    <div className="group/stat text-center md:text-left">
+                                        <span className="block text-3xl md:text-4xl font-black mb-1 group-hover/stat:text-amber-500 transition-colors uppercase tabular-nums">
                                             {beats.length.toString().padStart(2, '0')}
                                         </span>
                                         <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Beats</span>
