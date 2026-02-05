@@ -2,8 +2,9 @@
 
 import React, { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Filter, Music, SlidersHorizontal, ArrowLeft, Crown, Clock, TrendingUp, Sparkles } from "lucide-react";
+import { Filter, Music, SlidersHorizontal, ArrowLeft, Crown, Clock, TrendingUp, Sparkles, Trophy, Gem, Zap, Star, Users, Award, Heart } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Beat } from "@/lib/types";
@@ -25,10 +26,11 @@ export default function BeatsPage() {
   );
 }
 
-type ViewMode = 'all' | 'new' | 'trending' | 'top_producers' | 'premium_spotlight' | 'sound_kits';
+type ViewMode = 'all' | 'new' | 'trending' | 'best_sellers' | 'hidden_gems' | 'recommended' | 'exclusives' | 'premium_spotlight' | 'sound_kits' | 'producers';
 
 function BeatsPageContent() {
   const [beats, setBeats] = useState<Beat[]>([]);
+  const [producers, setProducers] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [trendingBeats, setTrendingBeats] = useState<Beat[]>([]);
@@ -106,6 +108,8 @@ function BeatsPageContent() {
       mp3_url: publicUrl,
       created_at: b.created_at,
       play_count: b.play_count,
+      sale_count: b.sale_count,
+      like_count: b.like_count,
       is_mp3_active: b.is_mp3_active,
       is_wav_active: b.is_wav_active,
       is_stems_active: b.is_stems_active,
@@ -124,7 +128,7 @@ function BeatsPageContent() {
         let query = supabase
           .from("beats")
           .select(`
-            id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, created_at, play_count,
+            id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, created_at, play_count, sale_count, like_count,
             is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active,
             producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
           `)
@@ -147,18 +151,42 @@ function BeatsPageContent() {
           case 'trending':
             query = query.order("play_count", { ascending: false, nullsFirst: false });
             break;
+          case 'best_sellers':
+            query = query.order("sale_count", { ascending: false, nullsFirst: false });
+            break;
+          case 'hidden_gems':
+            query = query.order("like_count", { ascending: false }).lte('play_count', 1000);
+            break;
+          case 'exclusives':
+            query = query.eq('is_exclusive_active', true);
+            break;
+          case 'recommended':
+            // Simply taking recent ones for now, randomized later
+            query = query.order("created_at", { ascending: false });
+            break;
           case 'premium_spotlight':
             query = query.not('producer', 'is', null);
-            break;
-          case 'sound_kits':
-            // Overridden below
             break;
           default: // 'all'
             query = query.order("created_at", { ascending: false });
             break;
         }
 
-        if (viewMode === 'sound_kits') {
+        if (viewMode === 'producers') {
+          const { data: prodData, error: prodError } = await supabase
+            .from('profiles')
+            .select(`id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio`)
+            .limit(40);
+
+          if (prodError) throw prodError;
+
+          const sortedProd = (prodData || []).sort((a, b) => {
+            const order: any = { premium: 0, pro: 1, free: 2 };
+            return (order[a.subscription_tier as any] ?? 3) - (order[b.subscription_tier as any] ?? 3);
+          });
+          setProducers(sortedProd);
+          setBeats([]);
+        } else if (viewMode === 'sound_kits') {
           const { data: skData, error: skError } = await supabase
             .from('services')
             .select(`
@@ -188,6 +216,7 @@ function BeatsPageContent() {
           });
 
           setBeats(skTransformed as any);
+          setProducers([]);
         } else {
           const { data, error } = await query.limit(50);
 
@@ -200,9 +229,19 @@ function BeatsPageContent() {
             transformed = transformed.filter(b => b.producer_tier === 'premium' || b.producer_tier === 'pro');
           }
 
-          setBeats(transformed);
+          // Algorithm: Tier-based sorting (Premium > Pro > Free)
+          const tierOrder: any = { premium: 0, pro: 1, free: 2 };
+          transformed.sort((a, b) => {
+            const tierA = tierOrder[a.producer_tier as any] ?? 3;
+            const tierB = tierOrder[b.producer_tier as any] ?? 3;
+            if (tierA !== tierB) return tierA - tierB;
+            return 0;
+          });
 
-          // For Banner (Top 5 Reproducidos)
+          setBeats(transformed);
+          setProducers([]);
+
+          // For Banner
           if (viewMode === 'all') {
             const { data: trendData } = await supabase
               .from('beats')
@@ -223,7 +262,7 @@ function BeatsPageContent() {
 
       } catch (err) {
         console.error(err);
-        setErrorMsg("Error al cargar los beats.");
+        setErrorMsg("Error al cargar.");
       } finally {
         setLoading(false);
       }
@@ -238,6 +277,22 @@ function BeatsPageContent() {
     const defaultGenres = ["Trap", "Reggaeton", "Hip Hop", "Corridos", "R&B", "Drill", "Pop", "Lo-fi", "Phonk", "Afrobeat"];
     return defaultGenres.sort();
   }, []);
+
+  const BannerSkeleton = () => (
+    <div className="w-full h-[350px] md:h-[380px] bg-slate-200 rounded-[2.5rem] animate-pulse mb-8"></div>
+  );
+
+  const BeatSkeleton = () => (
+    <div className="bg-white rounded-[2.5rem] p-4 border border-slate-100 shadow-sm animate-pulse">
+      <div className="aspect-square bg-slate-100 rounded-3xl mb-4"></div>
+      <div className="h-4 bg-slate-100 rounded-full w-3/4 mb-3"></div>
+      <div className="h-3 bg-slate-100 rounded-full w-1/2 mb-6"></div>
+      <div className="flex justify-between items-center px-1">
+        <div className="h-8 bg-slate-100 rounded-2xl w-20"></div>
+        <div className="h-10 bg-slate-100 rounded-2xl w-24"></div>
+      </div>
+    </div>
+  );
 
   const TabButton = ({ mode, label, icon: Icon, color }: { mode: ViewMode, label: string, icon: any, color: string }) => (
     <button
@@ -263,7 +318,9 @@ function BeatsPageContent() {
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
 
           {/* Featured Banner */}
-          {!loading && !errorMsg && trendingBeats.length > 0 && viewMode === 'all' && (
+          {loading ? (
+            <BannerSkeleton />
+          ) : !errorMsg && trendingBeats.length > 0 && viewMode === 'all' && (
             <FeaturedBanner trendingBeats={trendingBeats} />
           )}
 
@@ -302,10 +359,15 @@ function BeatsPageContent() {
                 <div className="relative w-full md:w-auto">
                   <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 md:pb-0 scroll-smooth">
                     <TabButton mode="all" label="Todos" icon={Music} color="bg-slate-900" />
-                    <TabButton mode="new" label="Recién Horneados" icon={Clock} color="bg-emerald-500 shadow-emerald-500/20" />
+                    <TabButton mode="new" label="Recién" icon={Clock} color="bg-emerald-500 shadow-emerald-500/20" />
                     <TabButton mode="trending" label="Tendencias" icon={TrendingUp} color="bg-rose-500 shadow-rose-500/20" />
-                    <TabButton mode="premium_spotlight" label="Selección Tianguis" icon={Crown} color="bg-amber-500 shadow-amber-500/20" />
+                    <TabButton mode="best_sellers" label="Best Sellers" icon={Trophy} color="bg-amber-600 shadow-amber-600/20" />
+                    <TabButton mode="hidden_gems" label="Joyas Ocultas" icon={Gem} color="bg-cyan-500 shadow-cyan-500/20" />
+                    <TabButton mode="recommended" label="Para Ti" icon={Heart} color="bg-pink-500 shadow-pink-500/20" />
+                    <TabButton mode="exclusives" label="Solo Exclusivos" icon={Star} color="bg-indigo-600 shadow-indigo-600/20" />
+                    <TabButton mode="premium_spotlight" label="Selección" icon={Crown} color="bg-orange-500 shadow-orange-500/20" />
                     <TabButton mode="sound_kits" label="Sound Kits" icon={Sparkles} color="bg-purple-600 shadow-purple-500/20" />
+                    <TabButton mode="producers" label="Artistas" icon={Users} color="bg-blue-600 shadow-blue-500/20" />
                   </div>
                 </div>
 
@@ -332,8 +394,43 @@ function BeatsPageContent() {
               {/* Grid */}
               {loading ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {[...Array(8)].map((_, i) => (
-                    <div key={i} className="aspect-square bg-slate-200 rounded-3xl animate-pulse"></div>
+                  {[...Array(8)].map((_, i) => <BeatSkeleton key={i} />)}
+                </div>
+              ) : viewMode === 'producers' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up">
+                  {producers.map(p => (
+                    <div key={p.id} className="bg-white rounded-[2.5rem] p-6 border border-slate-100 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative">
+                      <div className="flex items-center gap-6">
+                        <div className="relative">
+                          <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-slate-50">
+                            <img src={p.foto_perfil || `https://ui-avatars.com/api/?name=${p.artistic_name}&background=random`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                          </div>
+                          {p.subscription_tier === 'premium' && (
+                            <div className="absolute -top-2 -right-2 p-1.5 bg-amber-500 rounded-lg text-white shadow-lg shadow-amber-500/40">
+                              <Crown size={12} />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="text-xl font-black uppercase tracking-tight text-slate-900">{p.artistic_name}</h3>
+                            {p.is_verified && <div className="p-1 bg-blue-500 text-white rounded-full"><Award size={10} /></div>}
+                          </div>
+                          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-3">@{p.username}</p>
+                          <div className="flex gap-2">
+                            <span className={`px-2 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${p.subscription_tier === 'premium' ? 'bg-amber-100 text-amber-700' :
+                              p.subscription_tier === 'pro' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'
+                              }`}>
+                              {p.subscription_tier || 'Free'}
+                            </span>
+                            {p.is_founder && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-[8px] font-black uppercase tracking-widest">Founder</span>}
+                          </div>
+                        </div>
+                        <Link href={`/${p.username}`} className="p-4 bg-slate-900 text-white rounded-2xl hover:bg-blue-600 transition-all active:scale-95">
+                          <ArrowLeft className="rotate-180" size={20} />
+                        </Link>
+                      </div>
+                    </div>
                   ))}
                 </div>
               ) : beats.length > 0 ? (

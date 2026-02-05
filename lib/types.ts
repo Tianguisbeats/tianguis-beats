@@ -99,6 +99,10 @@ export interface Beat {
     coverColor?: string;
 
     is_sound_kit?: boolean;
+    is_mp3_active?: boolean;
+    is_wav_active?: boolean;
+    is_stems_active?: boolean;
+    is_exclusive_active?: boolean;
     created_at: string;
 }
 

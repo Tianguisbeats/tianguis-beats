@@ -135,7 +135,7 @@ export default function FeaturedBanner({ trendingBeats }: FeaturedBannerProps) {
                         <button
                             key={idx}
                             onClick={() => setCurrentIndex(idx)}
-                            className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex ? 'bg-white w-6' : 'bg-white/20 hover:bg-white/40'
+                            className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentIndex ? 'bg-white w-10 shadow-lg shadow-white/50' : 'bg-white/20 w-1.5 hover:bg-white/40'
                                 }`}
                         />
                     ))}
