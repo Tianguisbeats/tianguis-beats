@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Filter, Music, SlidersHorizontal, ArrowLeft, Crown, Clock, TrendingUp, Sparkles, Trophy, Gem, Zap, Star, Users, Award, Heart } from "lucide-react";
+import { Filter, Music, SlidersHorizontal, ArrowLeft, Crown, Clock, TrendingUp, Sparkles, Trophy, Gem, Zap, Star, Users, Award, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Beat } from "@/lib/types";
@@ -353,9 +353,23 @@ function BeatsPageContent() {
                   </h2>
                 </div>
 
-                {/* Tabs with Horizontal Scroll & Centered on Desktop */}
-                <div className="relative w-full max-w-full overflow-hidden mb-4">
-                  <div className="flex items-center gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-6 px-4 md:pb-2 scroll-smooth md:justify-center">
+                {/* Tabs with Horizontal Scroll & Arrows */}
+                <div className="relative w-full max-w-full group/tabs overflow-hidden mb-4">
+                  {/* Left Arrow */}
+                  <button
+                    onClick={() => {
+                      const container = document.getElementById('tabs-container');
+                      if (container) container.scrollBy({ left: -200, behavior: 'smooth' });
+                    }}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full shadow-lg opacity-0 group-hover/tabs:opacity-100 transition-opacity hidden md:flex items-center justify-center -ml-2"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+
+                  <div
+                    id="tabs-container"
+                    className="flex items-center gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-6 px-8 md:pb-2 scroll-smooth md:justify-center"
+                  >
                     <TabButton mode="all" label="Todos" icon={Music} color="bg-blue-600" />
                     <TabButton mode="new" label="Recién" icon={Clock} color="bg-emerald-500 shadow-emerald-500/20" />
                     <TabButton mode="trending" label="Tendencias" icon={TrendingUp} color="bg-rose-500 shadow-rose-500/20" />
@@ -367,11 +381,20 @@ function BeatsPageContent() {
                     <TabButton mode="sound_kits" label="Sound Kits" icon={Sparkles} color="bg-purple-600 shadow-purple-500/20" />
                     <TabButton mode="producers" label="Artistas" icon={Users} color="bg-blue-600 shadow-blue-500/20" />
                   </div>
+
+                  {/* Right Arrow */}
+                  <button
+                    onClick={() => {
+                      const container = document.getElementById('tabs-container');
+                      if (container) container.scrollBy({ left: 200, behavior: 'smooth' });
+                    }}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full shadow-lg opacity-0 group-hover/tabs:opacity-100 transition-opacity hidden md:flex items-center justify-center -mr-2"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
                 </div>
 
-                <div className="hidden md:block text-xs font-bold text-slate-400 uppercase tracking-widest bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm">
-                  {beats.length} Resultados
-                </div>
+
               </div>
 
               {/* View Title/Description */}

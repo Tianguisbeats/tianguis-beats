@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { SlidersHorizontal, Music, X, ChevronDown, Check, Zap } from 'lucide-react';
+import { MOODS } from '@/lib/constants';
 
 interface FilterState {
     searchQuery: string;
@@ -22,15 +23,6 @@ interface AdvancedFilterSidebarProps {
     isOpen: boolean;
     onClose: () => void;
 }
-
-const MOODS = [
-    { label: "Agresivo", emoji: "🔥", color: "text-red-500 bg-red-50 border-red-100" },
-    { label: "Chill", emoji: "🌊", color: "text-cyan-600 bg-cyan-50 border-cyan-100" },
-    { label: "Oscuro", emoji: "🌑", color: "text-slate-600 bg-slate-100 border-slate-200" },
-    { label: "Triste", emoji: "💔", color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
-    { label: "Melódico", emoji: "✨", color: "text-pink-600 bg-pink-50 border-pink-100" },
-    { label: "Energético", emoji: "⚡", color: "text-amber-600 bg-amber-50 border-amber-100" },
-];
 
 const KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 

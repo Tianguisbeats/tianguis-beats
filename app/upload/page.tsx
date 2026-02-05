@@ -12,25 +12,7 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
-const MOODS = [
-    { label: "Agresivo", emoji: "🔥", color: "bg-red-500" },
-    { label: "Chill", emoji: "🌊", color: "bg-cyan-500" },
-    { label: "Oscuro", emoji: "🌑", color: "bg-slate-800" },
-    { label: "Triste", emoji: "💔", color: "bg-indigo-500" },
-    { label: "Melódico", emoji: "✨", color: "bg-pink-500" },
-    { label: "Energético", emoji: "⚡", color: "bg-amber-500" },
-    { label: "Psicodélico", emoji: "🍄", color: "bg-purple-500" },
-    { label: "Brillante", emoji: "💎", color: "bg-blue-400" },
-    { label: "Clásico", emoji: "🎹", color: "bg-emerald-600" },
-    { label: "Nostálgico", emoji: "🚬", color: "bg-orange-400" },
-    { label: "Malandro", emoji: "👺", color: "bg-rose-600" },
-    { label: "Tropical", emoji: "🌴", color: "bg-green-500" }
-];
-
-const GENRES = [
-    "Trap", "Reggaeton", "Hip Hop", "Corridos", "R&B", "Drill", "Pop", "Lo-fi",
-    "Phonk", "Afrobeat", "Techno", "House", "Rock", "Banda", "Alternativo"
-];
+import { GENRES, MOODS } from '@/lib/constants';
 
 const SCALES = ["Menor", "Mayor"];
 const KEYS_BASE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -438,23 +420,19 @@ export default function UploadPage() {
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Vibe (Elige 3 opciones)</label>
                                         <div className="flex flex-wrap gap-2">
-                                            {MOODS.map(mood => {
-                                                const isSelected = selectedMoods.includes(mood.label);
-                                                return (
-                                                    <button
-                                                        key={mood.label}
-                                                        type="button"
-                                                        onClick={() => handleMoodToggle(mood.label)}
-                                                        className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wide transition-all border flex items-center gap-1.5 ${isSelected
-                                                            ? `${mood.color} text-white border-transparent shadow-lg shadow-${mood.color.split('-')[1]}-500/20 scale-105`
-                                                            : 'bg-white text-slate-500 border-slate-100 hover:border-slate-300 hover:bg-slate-50'
-                                                            }`}
-                                                    >
-                                                        <span>{mood.emoji}</span>
-                                                        {mood.label}
-                                                    </button>
-                                                );
-                                            })}
+                                            {MOODS.map(mood => (
+                                                <button
+                                                    key={mood.label}
+                                                    type="button"
+                                                    onClick={() => handleMoodToggle(mood.label)}
+                                                    className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${selectedMoods.includes(mood.label)
+                                                        ? 'bg-slate-900 text-white'
+                                                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                                        }`}
+                                                >
+                                                    <span className="mr-1">{mood.emoji}</span> {mood.label}
+                                                </button>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
@@ -465,7 +443,7 @@ export default function UploadPage() {
                             {/* 2. Archivos y Licencias */}
                             <div className="space-y-6">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-xl font-black uppercase tracking-tight text-slate-900">Archivos y Precios</h3>
+                                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-1">DATOS DEL BEAT</h3>
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Activa/Desactiva Licencias con el ojo</span>
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-6">

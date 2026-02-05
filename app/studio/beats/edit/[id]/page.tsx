@@ -12,25 +12,7 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
-const MOODS = [
-    { label: "Agresivo", emoji: "🔥" },
-    { label: "Chill", emoji: "🌊" },
-    { label: "Oscuro", emoji: "🌑" },
-    { label: "Triste", emoji: "💔" },
-    { label: "Melódico", emoji: "✨" },
-    { label: "Energético", emoji: "⚡" },
-    { label: "Psicodélico", emoji: "🍄" },
-    { label: "Brillante", emoji: "💎" },
-    { label: "Clásico", emoji: "🎹" },
-    { label: "Nostálgico", emoji: "🚬" },
-    { label: "Malandro", emoji: "👺" },
-    { label: "Tropical", emoji: "🌴" }
-];
-
-const GENRES = [
-    "Trap", "Reggaeton", "Hip Hop", "Corridos", "R&B", "Drill", "Pop", "Lo-fi",
-    "Phonk", "Afrobeat", "Techno", "House", "Rock", "Banda", "Alternativo"
-];
+import { GENRES, MOODS } from '@/lib/constants';
 
 const SCALES = ["Menor", "Mayor"];
 const KEYS_BASE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -247,7 +229,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             onClick={onToggle}
             disabled={disabled}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-100 text-slate-400' :
-                    active ? 'bg-green-100 text-green-600 hover:bg-green-200' : 'bg-red-50 text-red-500 hover:bg-red-100'
+                active ? 'bg-green-100 text-green-600 hover:bg-green-200' : 'bg-red-50 text-red-500 hover:bg-red-100'
                 }`}
         >
             {active ? <Eye size={12} /> : <EyeOff size={12} />}
@@ -380,7 +362,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                                         : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                                                         }`}
                                                 >
-                                                    {mood.label}
+                                                    <span className="mr-1">{mood.emoji}</span> {mood.label}
                                                 </button>
                                             ))}
                                         </div>
@@ -393,7 +375,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                             {/* FILES & LICENSES */}
                             <div className="space-y-8">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-xl font-black uppercase tracking-tight text-slate-900">Archivos y Precios</h3>
+                                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-1">DATOS DEL BEAT</h3>
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Activa/Desactiva Licencias con el ojo</span>
                                 </div>
 
@@ -419,7 +401,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
                                     {/* WAV */}
                                     <div className={`p-6 rounded-2xl border space-y-4 transition-all ${isFree ? 'opacity-50 pointer-events-none grayscale' :
-                                            isWavActive ? 'bg-slate-50 border-slate-100' : 'bg-slate-50/50 border-slate-100 opacity-75'
+                                        isWavActive ? 'bg-slate-50 border-slate-100' : 'bg-slate-50/50 border-slate-100 opacity-75'
                                         }`}>
                                         <div className="flex justify-between items-center">
                                             <div className="flex items-center gap-2">
@@ -440,7 +422,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
                                     {/* STEMS */}
                                     <div className={`p-6 rounded-2xl border space-y-4 transition-all ${!isPremium ? 'opacity-50 pointer-events-none grayscale' :
-                                            isStemsActive ? 'bg-slate-50 border-slate-100' : 'bg-slate-50/50 border-slate-100 opacity-75'
+                                        isStemsActive ? 'bg-slate-50 border-slate-100' : 'bg-slate-50/50 border-slate-100 opacity-75'
                                         }`}>
                                         <div className="flex justify-between items-center">
                                             <div className="flex items-center gap-2">
@@ -461,11 +443,11 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
                                     {/* EXCLUSIVA */}
                                     <div className={`p-6 rounded-2xl border space-y-4 transition-all ${!isPremium ? 'opacity-50 pointer-events-none grayscale' :
-                                            isExclusive ? 'bg-blue-600 text-white border-blue-700' : 'bg-slate-50 border-slate-100'
+                                        isExclusive ? 'bg-pink-50/50 border-pink-500 shadow-xl shadow-pink-500/10' : 'bg-slate-50 border-slate-100'
                                         }`}>
                                         <div className="flex justify-between items-center">
                                             <div className="flex items-center gap-2">
-                                                <span className="text-[11px] font-black uppercase tracking-widest">Venta Exclusiva</span>
+                                                <span className={`text-[11px] font-black uppercase tracking-widest ${isExclusive ? 'text-pink-600' : ''}`}>Licencia Exclusiva</span>
                                                 {!isPremium ? <Lock size={12} /> :
                                                     <Toggle
                                                         active={isExclusive}
@@ -476,8 +458,8 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                                     />
                                                 }
                                             </div>
-                                            <div className={`flex items-center rounded-lg px-3 py-2 border ${isExclusive ? 'bg-white/10 border-white/20' : 'bg-white border-slate-200'}`}>
-                                                <span className={`text-[10px] font-black mr-1 ${isExclusive ? 'text-white/40' : 'text-slate-300'}`}>$</span>
+                                            <div className={`flex items-center rounded-lg px-3 py-2 border ${isExclusive ? 'bg-white border-pink-200' : 'bg-white border-slate-200'}`}>
+                                                <span className={`text-[10px] font-black mr-1 ${isExclusive ? 'text-pink-300' : 'text-slate-300'}`}>$</span>
                                                 <input
                                                     type="number"
                                                     value={exclusivePrice}
