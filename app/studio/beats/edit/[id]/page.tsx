@@ -305,14 +305,17 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Subgénero</label>
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Subgénero</label>
+                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">(Opcional)</span>
+                                        </div>
                                         <select
                                             value={subgenre}
                                             onChange={(e) => setSubgenre(e.target.value)}
-                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none disabled:opacity-50"
+                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                             disabled={!genre || !SUBGENRES[genre]}
                                         >
-                                            <option value="">{genre ? 'Seleccionar Subgénero' : '-'}</option>
+                                            <option value="">{genre ? 'Ninguno / Automático' : 'Selecciona un género primero'}</option>
                                             {genre && SUBGENRES[genre]?.map(sg => (
                                                 <option key={sg} value={sg}>{sg}</option>
                                             ))}
