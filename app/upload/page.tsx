@@ -238,7 +238,7 @@ export default function UploadPage() {
     );
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col pt-20">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
             <Navbar />
 
             {/* Background Accents */}

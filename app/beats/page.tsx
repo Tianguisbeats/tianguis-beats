@@ -212,16 +212,20 @@ function BeatsPageContent() {
         }
 
         if (viewMode === 'producers') {
+          // Fetch more fields needed for the producer card
           const { data: prodData, error: prodError } = await supabase
             .from('profiles')
-            .select(`id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio`)
-            .limit(40);
+            .select(`id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, created_at`)
+            .limit(100);
 
           if (prodError) throw prodError;
 
           const sortedProd = (prodData || []).sort((a, b) => {
             const order: any = { premium: 0, pro: 1, free: 2 };
-            return (order[a.subscription_tier as any] ?? 3) - (order[b.subscription_tier as any] ?? 3);
+            const tierA = order[a.subscription_tier as any] ?? 3;
+            const tierB = order[b.subscription_tier as any] ?? 3;
+            if (tierA !== tierB) return tierA - tierB;
+            return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
           });
           setProducers(sortedProd);
           setBeats([]);
@@ -290,7 +294,7 @@ function BeatsPageContent() {
                   `)
             .eq('is_public', true)
             .order('play_count', { ascending: false, nullsFirst: false })
-            .limit(5);
+            .limit(10); // More items for rotation
 
           if (trendData) {
             const trendTransformed = await Promise.all(trendData.map(transformBeat));
@@ -299,10 +303,10 @@ function BeatsPageContent() {
 
           const { data: trendProd } = await supabase
             .from('profiles')
-            .select('id, artistic_name, username, foto_perfil, subscription_tier, beat_count, sale_count')
-            .in('subscription_tier', ['premium', 'pro'])
-            .order('sale_count', { ascending: false })
-            .limit(5);
+            .select('id, artistic_name, username, foto_perfil, subscription_tier, is_verified, is_founder, bio')
+            .not('artistic_name', 'is', null)
+            .order('subscription_tier', { ascending: true }) // Premium first
+            .limit(10);
 
           if (trendProd) {
             setTrendingProducers(trendProd);
@@ -359,7 +363,7 @@ function BeatsPageContent() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 pt-24 pb-20 relative">
+      <main className="flex-1 pt-8 pb-20 relative">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
 
           {/* Featured Banner (Persistent) */}
@@ -406,16 +410,19 @@ function BeatsPageContent() {
 
                 {/* Tabs with Horizontal Scroll & Arrows */}
                 <div className="relative w-full max-w-full group/tabs mb-6">
-                  {/* Left Arrow Fade Overlay */}
-                  <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none md:block hidden" />
-
                   {/* Left Arrow Button */}
                   <button
                     onClick={() => {
                       const container = document.getElementById('tabs-container');
-                      if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
+                      if (container) {
+                        if (container.scrollLeft <= 5) {
+                          container.scrollTo({ left: container.scrollWidth, behavior: 'smooth' });
+                        } else {
+                          container.scrollBy({ left: -300, behavior: 'smooth' });
+                        }
+                      }
                     }}
-                    className="absolute left-4 top-[calc(50%-8px)] -translate-y-1/2 z-20 p-2.5 bg-white border border-slate-200 rounded-full shadow-lg hover:bg-slate-50 transition-all hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
+                    className="absolute -left-4 top-[calc(50%-8px)] -translate-y-1/2 z-20 p-2.5 bg-white border border-slate-200 rounded-full shadow-lg hover:bg-slate-50 transition-all hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
                   >
                     <ChevronLeft size={18} className="text-slate-600" />
                   </button>
@@ -440,15 +447,19 @@ function BeatsPageContent() {
                   <button
                     onClick={() => {
                       const container = document.getElementById('tabs-container');
-                      if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
+                      if (container) {
+                        const isAtEnd = container.scrollLeft + container.offsetWidth >= container.scrollWidth - 10;
+                        if (isAtEnd) {
+                          container.scrollTo({ left: 0, behavior: 'smooth' });
+                        } else {
+                          container.scrollBy({ left: 300, behavior: 'smooth' });
+                        }
+                      }
                     }}
                     className="absolute right-4 top-[calc(50%-8px)] -translate-y-1/2 z-20 p-2.5 bg-white border border-slate-200 rounded-full shadow-lg hover:bg-slate-50 transition-all hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
                   >
                     <ChevronRight size={18} className="text-slate-600" />
                   </button>
-
-                  {/* Right Arrow Fade Overlay */}
-                  <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none md:block hidden" />
                 </div>
 
 

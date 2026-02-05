@@ -44,8 +44,8 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
         <button
             onClick={() => setActiveTab(type)}
             className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === type
-                ? 'bg-white text-slate-900 shadow-xl scale-105'
-                : 'bg-white/10 text-white hover:bg-white/20'
+                ? 'bg-slate-900 text-white shadow-xl scale-105'
+                : 'bg-white text-slate-400 hover:text-slate-900 border border-slate-200'
                 }`}
         >
             <Icon size={12} /> {label}
@@ -66,9 +66,9 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                 {/* Background Image with Blur */}
                 <div key={`${activeTab}-${currentIndex}`} className="absolute inset-0 z-0 animate-fade-in transition-opacity duration-1000 ease-in-out">
                     <img
-                        src={activeTab === 'beats' ? (currentItem as Beat).portadabeat_url || '' : activeTab === 'artists' ? currentItem.foto_perfil : currentItem.image}
+                        src={activeTab === 'beats' ? (currentItem as Beat).portadabeat_url || '' : activeTab === 'artists' ? (currentItem.foto_perfil || `https://ui-avatars.com/api/?name=${currentItem.artistic_name}&background=random`) : currentItem.image}
                         alt="Background"
-                        className="w-full h-full object-cover opacity-40 blur-3xl scale-110"
+                        className="w-full h-full object-cover opacity-30 blur-3xl scale-125"
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent"></div>
                 </div>
@@ -131,7 +131,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                                 <div className="flex items-center justify-center md:justify-start gap-4">
                                     <Link href="#" className="p-2.5 bg-white/5 rounded-xl hover:bg-white/10 transition-all text-slate-400 hover:text-white border border-white/5 shadow-lg"><Instagram size={18} /></Link>
                                     <Link href="#" className="p-2.5 bg-white/5 rounded-xl hover:bg-white/10 transition-all text-slate-400 hover:text-white border border-white/5 shadow-lg"><Twitter size={18} /></Link>
-                                    <Link href="#" className="p-2.5 bg-white/5 rounded-xl hover:bg-white/10 transition-all text-slate-400 hover:text-white border border-white/5 shadow-lg"><Globe size={18} /></Link>
+                                    <Link href="#" className="p-2.5 bg-white/10 rounded-xl hover:bg-white/20 transition-all text-slate-300 hover:text-white border border-white/10 shadow-lg"><Globe size={18} /></Link>
                                 </div>
                             </div>
                         )}
