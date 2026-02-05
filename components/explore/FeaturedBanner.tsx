@@ -89,7 +89,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                             activeTab === 'artists' ? (currentItem.foto_perfil || `https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop`) :
                                 currentItem.image}
                         alt="Background"
-                        className={`w-full h-full object-cover ${activeTab === 'moods' ? 'opacity-40 blur-none' : 'opacity-20 blur-3xl'} scale-125 transition-all duration-1000`}
+                        className={`w-full h-full object-cover ${activeTab === 'moods' ? 'opacity-40 blur-none' : activeTab === 'artists' ? 'opacity-40 blur-2xl' : 'opacity-20 blur-3xl'} scale-125 transition-all duration-1000`}
                     />
                     <div className={`absolute inset-0 ${activeTab === 'moods' ? 'bg-black/60' : 'bg-gradient-to-r from-slate-950 via-slate-950/40 to-transparent'}`}></div>
                 </div>
@@ -138,10 +138,10 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                                 'bg-purple-500/20 border-purple-400/30 text-purple-300'
                             }`}>
                             {activeTab === 'beats' ? <Flame size={14} className="text-orange-400" /> : activeTab === 'artists' ? <Star size={14} /> : <Zap size={14} />}
-                            {activeTab === 'beats' ? '🔥 Beat destacado' : activeTab === 'artists' ? '✨ Artista de la semana' : '💎 Mood recomendado'}
+                            {activeTab === 'beats' ? '🔥 Beats de la semana' : activeTab === 'artists' ? '✨ Artistas de la semana' : '💎 Mood de la semana'}
                         </div>
 
-                        <h1 className="text-5xl md:text-8xl font-black tracking-tighter mb-6 leading-[0.9] bg-clip-text text-transparent bg-gradient-to-br from-white to-white/40 lowercase">
+                        <h1 className="text-4xl md:text-7xl font-black tracking-tighter mb-6 leading-[0.9] bg-clip-text text-transparent bg-gradient-to-br from-white to-white/40 lowercase">
                             {activeTab === 'beats' ? (currentItem as Beat).title : activeTab === 'artists' ? currentItem.artistic_name : currentItem.label}
                             {activeTab === 'artists' && (
                                 <span className="inline-flex items-center gap-4 ml-6">

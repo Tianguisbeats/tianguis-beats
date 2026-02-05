@@ -509,38 +509,61 @@ function BeatsPageContent() {
                   {[...Array(8)].map((_, i) => <BeatSkeleton key={i} />)}
                 </div>
               ) : viewMode === 'producers' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in-up">
                   {producers.map(p => (
-                    <div key={p.id} className="bg-white rounded-[2.5rem] p-6 border border-slate-100 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative">
-                      <div className="flex items-center gap-6">
-                        <div className="relative">
-                          <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-slate-50">
-                            <img src={p.foto_perfil || `https://ui-avatars.com/api/?name=${p.artistic_name}&background=random`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                    <div key={p.id} className="group bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 hover:-translate-y-2 flex flex-col items-center text-center relative overflow-hidden">
+                      {/* Background Decoration */}
+                      <div className={`absolute top-0 left-0 w-full h-2 ${p.subscription_tier === 'premium' ? 'bg-amber-400' : p.subscription_tier === 'pro' ? 'bg-blue-500' : 'bg-slate-200'}`} />
+
+                      {/* Avatar */}
+                      <div className="relative mb-6">
+                        <div className={`w-24 h-24 rounded-full p-1 border-2 transition-all duration-500 group-hover:scale-110 ${p.subscription_tier === 'premium' ? 'border-amber-400 shadow-lg shadow-amber-500/20' : 'border-slate-100'}`}>
+                          <img
+                            src={p.foto_perfil || `https://ui-avatars.com/api/?name=${p.artistic_name || p.username}&background=random`}
+                            className="w-full h-full object-cover rounded-full"
+                            alt={p.artistic_name}
+                          />
+                        </div>
+                        {p.subscription_tier === 'premium' && (
+                          <div className="absolute -top-1 -right-1 p-2 bg-amber-500 text-white rounded-xl shadow-xl animate-bounce">
+                            <Crown size={14} fill="currentColor" />
                           </div>
-                          {p.subscription_tier === 'premium' && (
-                            <div className="absolute -top-2 -right-2 p-1.5 bg-amber-500 rounded-lg text-white shadow-lg shadow-amber-500/40">
-                              <Crown size={12} />
-                            </div>
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1">
+                        <div className="flex items-center justify-center gap-2 mb-1">
+                          <h3 className="text-xl font-black uppercase tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
+                            {p.artistic_name || p.username}
+                          </h3>
+                          {p.is_verified && <img src="/verified-badge.png" alt="Verificado" className="w-5 h-5 object-contain" />}
+                        </div>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">@{p.username}</p>
+
+                        <p className="text-sm text-slate-500 font-medium leading-relaxed italic mb-6 line-clamp-2 px-4">
+                          "{p.bio || "Productor destacado en Tianguis Beats."}"
+                        </p>
+
+                        <div className="flex justify-center gap-2 mb-8">
+                          <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${p.subscription_tier === 'premium' ? 'bg-amber-100 text-amber-700' :
+                              p.subscription_tier === 'pro' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'
+                            }`}>
+                            {p.subscription_tier || 'Free'}
+                          </span>
+                          {p.is_founder && (
+                            <span className="px-3 py-1.5 bg-slate-900 text-white rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
+                              <Crown size={10} fill="currentColor" className="text-amber-400" /> Founder
+                            </span>
                           )}
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="text-xl font-black uppercase tracking-tight text-slate-900">{p.artistic_name}</h3>
-                            {p.is_verified && <img src="/verified-badge.png" alt="Verificado" className="w-5 h-5 object-contain" />}
-                          </div>
-                          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-3">@{p.username}</p>
-                          <div className="flex gap-2">
-                            <span className={`px-2 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${p.subscription_tier === 'premium' ? 'bg-amber-100 text-amber-700' :
-                              p.subscription_tier === 'pro' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'
-                              }`}>
-                              {p.subscription_tier || 'Free'}
-                            </span>
-                            {p.is_founder && <Crown size={14} className="text-amber-500 fill-amber-500" />}
-                          </div>
-                        </div>
                       </div>
-                      <Link href={`/${p.username}`} className="p-4 bg-slate-900 text-white rounded-2xl hover:bg-blue-600 transition-all active:scale-95">
-                        <ArrowLeft className="rotate-180" size={20} />
+
+                      <Link
+                        href={`/${p.username}`}
+                        className="w-full py-4 bg-slate-50 border border-slate-100 text-slate-900 rounded-[1.5rem] font-black uppercase text-[10px] tracking-widest hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all active:scale-95 flex items-center justify-center gap-2"
+                      >
+                        Ver Perfil Principal <ChevronRight size={14} />
                       </Link>
                     </div>
                   ))}
