@@ -314,7 +314,38 @@ export default function UploadPage() {
                                             required
                                         />
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Género</label>
+                                        <select
+                                            value={genre}
+                                            onChange={(e) => {
+                                                setGenre(e.target.value);
+                                                setSubgenre(''); // Reset subgenre on genre change
+                                            }}
+                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none"
+                                            required
+                                        >
+                                            <option value="">Seleccionar</option>
+                                            {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
+                                        </select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Subgénero</label>
+                                        <select
+                                            value={subgenre}
+                                            onChange={(e) => setSubgenre(e.target.value)}
+                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none disabled:opacity-50"
+                                            disabled={!genre || !SUBGENRES[genre]}
+                                        >
+                                            <option value="">{genre ? 'Seleccionar Subgénero' : '-'}</option>
+                                            {genre && SUBGENRES[genre]?.map(sg => (
+                                                <option key={sg} value={sg}>{sg}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-4">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">BPM</label>
                                             <input
@@ -326,48 +357,15 @@ export default function UploadPage() {
                                                 required
                                             />
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Género</label>
-                                                <select
-                                                    value={genre}
-                                                    onChange={(e) => {
-                                                        setGenre(e.target.value);
-                                                        setSubgenre(''); // Reset subgenre on genre change
-                                                    }}
-                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none"
-                                                    required
-                                                >
-                                                    <option value="">Seleccionar</option>
-                                                    {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
-                                                </select>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Subgénero</label>
-                                                <select
-                                                    value={subgenre}
-                                                    onChange={(e) => setSubgenre(e.target.value)}
-                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none disabled:opacity-50"
-                                                    disabled={!genre || !SUBGENRES[genre]}
-                                                >
-                                                    <option value="">{genre ? 'Seleccionar Subgénero' : '-'}</option>
-                                                    {genre && SUBGENRES[genre]?.map(sg => (
-                                                        <option key={sg} value={sg}>{sg}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Escala</label>
                                             <select value={musicalScale} onChange={(e) => setMusicalScale(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all">
-                                                <option value="">Seleccionar Escala</option>
+                                                <option value="">Escala</option>
                                                 {SCALES.map(s => <option key={s} value={s}>{s}</option>)}
                                             </select>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nota Base</label>
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nota</label>
                                             <select
                                                 value={musicalKey}
                                                 onChange={(e) => setMusicalKey(e.target.value)}
@@ -464,7 +462,7 @@ export default function UploadPage() {
                             {/* 2. Archivos y Licencias */}
                             <div className="space-y-6">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-1">AGREGA LOS DATOS DE TU BEAT</h3>
+                                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-1">COSTOS Y ARCHIVOS DEL BEAT</h3>
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Activa/Desactiva licencias 👁️</span>
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-6">

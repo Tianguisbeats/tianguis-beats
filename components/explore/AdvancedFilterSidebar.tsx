@@ -81,84 +81,53 @@ export default function AdvancedFilterSidebar({
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Género</label>
-                            {filterState.genre !== 'Todos' && (
-                                <button onClick={() => { updateFilter('genre', 'Todos'); updateFilter('subgenre', ''); }} className="text-[9px] font-bold text-red-500 uppercase hover:underline">Limpiar</button>
-                            )}
                         </div>
-                        <div className="max-h-[200px] overflow-y-auto pr-2 space-y-1 tiny-scrollbar">
+                        <select
+                            value={filterState.genre}
+                            onChange={(e) => {
+                                updateFilter('genre', e.target.value);
+                                updateFilter('subgenre', '');
+                            }}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer"
+                        >
                             {genres.map(g => (
-                                <button
-                                    key={g}
-                                    onClick={() => {
-                                        updateFilter('genre', g);
-                                        updateFilter('subgenre', '');
-                                    }}
-                                    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-between group ${filterState.genre === g
-                                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-                                        }`}
-                                >
-                                    {g}
-                                    {filterState.genre === g && <Check size={14} />}
-                                </button>
+                                <option key={g} value={g}>{g}</option>
                             ))}
-                        </div>
+                        </select>
                     </div>
 
                     {/* Subgenres (Conditional) */}
                     {filterState.genre !== 'Todos' && SUBGENRES[filterState.genre] && (
-                        <>
-                            <div className="h-[1px] bg-slate-100"></div>
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subgénero</label>
-                                    {filterState.subgenre && (
-                                        <button onClick={() => updateFilter('subgenre', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline">Limpiar</button>
-                                    )}
-                                </div>
-                                <div className="max-h-[150px] overflow-y-auto pr-2 space-y-1 tiny-scrollbar">
-                                    {SUBGENRES[filterState.genre].map(sg => (
-                                        <button
-                                            key={sg}
-                                            onClick={() => updateFilter('subgenre', sg)}
-                                            className={`w-full text-left px-3 py-2 rounded-lg text-[11px] font-bold transition-all flex items-center justify-between group ${filterState.subgenre === sg
-                                                ? 'bg-blue-100 text-blue-700'
-                                                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-100'
-                                                }`}
-                                        >
-                                            {sg}
-                                            {filterState.subgenre === sg && <Check size={12} />}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </>
+                        <div className="space-y-3 animate-fade-in">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subgénero</label>
+                            <select
+                                value={filterState.subgenre}
+                                onChange={(e) => updateFilter('subgenre', e.target.value)}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer"
+                            >
+                                <option value="">Todos los subgéneros</option>
+                                {SUBGENRES[filterState.genre].map(sg => (
+                                    <option key={sg} value={sg}>{sg}</option>
+                                ))}
+                            </select>
+                        </div>
                     )}
 
                     <div className="h-[1px] bg-slate-100"></div>
 
                     {/* Moods */}
                     <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Vibe / Mood</label>
-                            {filterState.mood && (
-                                <button onClick={() => updateFilter('mood', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline">Limpiar</button>
-                            )}
-                        </div>
-                        <div className="flex flex-wrap gap-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Vibe / Mood</label>
+                        <select
+                            value={filterState.mood}
+                            onChange={(e) => updateFilter('mood', e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer"
+                        >
+                            <option value="">Cualquier Vibe</option>
                             {MOODS.map(m => (
-                                <button
-                                    key={m.label}
-                                    onClick={() => updateFilter('mood', filterState.mood === m.label ? '' : m.label)}
-                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide border flex items-center gap-1.5 transition-all ${filterState.mood === m.label
-                                        ? `${m.color} scale-105 shadow-md`
-                                        : 'bg-white text-slate-400 border-slate-100 grayscale hover:grayscale-0'
-                                        }`}
-                                >
-                                    <span>{m.emoji}</span> {m.label}
-                                </button>
+                                <option key={m.label} value={m.label}>{m.emoji} {m.label}</option>
                             ))}
-                        </div>
+                        </select>
                     </div>
 
                     <div className="h-[1px] bg-slate-100"></div>

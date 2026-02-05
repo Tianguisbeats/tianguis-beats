@@ -35,6 +35,27 @@ function BeatsPageContent() {
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [trendingBeats, setTrendingBeats] = useState<Beat[]>([]);
+  const [trendingProducers, setTrendingProducers] = useState<any[]>([]);
+  const [featuredMoods, setFeaturedMoods] = useState<any[]>([
+    {
+      label: 'Chill',
+      emoji: '🌙',
+      quote: 'Encuentra la paz en cada beat.',
+      image: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2070&auto=format&fit=crop'
+    },
+    {
+      label: 'Bélico',
+      emoji: '⚔️',
+      quote: 'Sonido crudo para la calle.',
+      image: 'https://images.unsplash.com/photo-1514525253361-b83f859b73c0?q=80&w=2070&auto=format&fit=crop'
+    },
+    {
+      label: 'Energía',
+      emoji: '⚡',
+      quote: 'Pon a vibrar el club.',
+      image: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop'
+    },
+  ]);
 
   // Sidebar State
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -254,22 +275,31 @@ function BeatsPageContent() {
           setBeats(transformed);
           setProducers([]);
 
-          // For Banner
-          if (viewMode === 'all') {
-            const { data: trendData } = await supabase
-              .from('beats')
-              .select(`
-                        id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count,
-                        producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
-                    `)
-              .eq('is_public', true)
-              .order('play_count', { ascending: false, nullsFirst: false })
-              .limit(5);
+          // Fetch Trending Data for Banner (Run once or on filter change)
+          const { data: trendData } = await supabase
+            .from('beats')
+            .select(`
+                      id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count,
+                      producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
+                  `)
+            .eq('is_public', true)
+            .order('play_count', { ascending: false, nullsFirst: false })
+            .limit(5);
 
-            if (trendData) {
-              const trendTransformed = await Promise.all(trendData.map(transformBeat));
-              setTrendingBeats(trendTransformed);
-            }
+          if (trendData) {
+            const trendTransformed = await Promise.all(trendData.map(transformBeat));
+            setTrendingBeats(trendTransformed);
+          }
+
+          const { data: trendProd } = await supabase
+            .from('profiles')
+            .select('id, artistic_name, username, foto_perfil, subscription_tier, beat_count, sale_count')
+            .in('subscription_tier', ['premium', 'pro'])
+            .order('sale_count', { ascending: false })
+            .limit(5);
+
+          if (trendProd) {
+            setTrendingProducers(trendProd);
           }
         }
 
@@ -326,11 +356,15 @@ function BeatsPageContent() {
       <main className="flex-1 pt-24 pb-20 relative">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
 
-          {/* Featured Banner */}
+          {/* Featured Banner (Persistent) */}
           {loading ? (
             <BannerSkeleton />
-          ) : !errorMsg && trendingBeats.length > 0 && viewMode === 'all' && (
-            <FeaturedBanner trendingBeats={trendingBeats} />
+          ) : !errorMsg && trendingBeats.length > 0 && (
+            <FeaturedBanner
+              trendingBeats={trendingBeats}
+              trendingProducers={trendingProducers}
+              featuredMoods={featuredMoods}
+            />
           )}
 
           <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -385,8 +419,7 @@ function BeatsPageContent() {
                     className="flex items-center gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-4 px-4 md:px-20 scroll-smooth justify-start"
                   >
                     <TabButton mode="all" label="Todos" icon={Music} color="bg-blue-600 shadow-blue-500/20" />
-                    <TabButton mode="corridos_tumbados" label="Corridos 🎸" icon={Zap} color="bg-orange-600 shadow-orange-500/20" />
-                    <TabButton mode="mood_of_the_week" label="Mood 🌙" icon={Sparkles} color="bg-purple-600 shadow-purple-500/20" />
+                    <TabButton mode="corridos_tumbados" label="Corridos 🇲🇽" icon={Zap} color="bg-orange-600 shadow-orange-500/20" />
                     <TabButton mode="new" label="Nuevos" icon={Clock} color="bg-emerald-500 shadow-emerald-500/20" />
                     <TabButton mode="trending" label="Tendencias" icon={TrendingUp} color="bg-rose-500 shadow-rose-500/20" />
                     <TabButton mode="best_sellers" label="Best Sellers" icon={Trophy} color="bg-amber-600 shadow-amber-600/20" />
@@ -414,34 +447,7 @@ function BeatsPageContent() {
 
               </div>
 
-              {/* View Title/Description */}
-              {viewMode === 'corridos_tumbados' && (
-                <div className="mb-8 p-6 bg-gradient-to-r from-orange-100 to-rose-50 rounded-3xl border border-orange-200 flex items-start gap-4 animate-fade-in-up">
-                  <div className="p-3 bg-orange-600 text-white rounded-2xl shadow-lg shadow-orange-500/20">
-                    <Zap size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-black text-orange-900 uppercase tracking-tight mb-1">🇲🇽 Corridos Tumbados / Bélicos</h3>
-                    <p className="text-sm font-medium text-orange-800/80 leading-relaxed">
-                      El sonido que está dominando el mundo. Guitarras bélicas, tololoche y líricas reales.
-                    </p>
-                  </div>
-                </div>
-              )}
 
-              {viewMode === 'mood_of_the_week' && (
-                <div className="mb-8 p-6 bg-gradient-to-r from-purple-100 to-blue-50 rounded-3xl border border-purple-200 flex items-start gap-4 animate-fade-in-up">
-                  <div className="p-3 bg-purple-600 text-white rounded-2xl shadow-lg shadow-purple-500/20">
-                    <Sparkles size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-black text-purple-900 uppercase tracking-tight mb-1">✨ Mood de la Semana: Chill</h3>
-                    <p className="text-sm font-medium text-purple-800/80 leading-relaxed">
-                      Selección especial de beats relajados para inspirar tus próximas letras.
-                    </p>
-                  </div>
-                </div>
-              )}
 
               {viewMode === 'premium_spotlight' && (
                 <div className="mb-8 p-6 bg-gradient-to-r from-amber-100 to-orange-50 rounded-3xl border border-amber-200 flex items-start gap-4 animate-fade-in-up">
