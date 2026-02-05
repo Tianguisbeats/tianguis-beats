@@ -303,7 +303,7 @@ function BeatsPageContent() {
 
           const { data: trendProd } = await supabase
             .from('profiles')
-            .select('id, artistic_name, username, foto_perfil, subscription_tier, is_verified, is_founder, bio')
+            .select('id, artistic_name, username, foto_perfil, subscription_tier, is_verified, is_founder, bio, country, created_at, social_links')
             .not('artistic_name', 'is', null)
             .order('subscription_tier', { ascending: true }) // Premium first
             .limit(10);

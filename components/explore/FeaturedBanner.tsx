@@ -43,19 +43,22 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
     const TabButton = ({ type, label, icon: Icon }: { type: TabType, label: string, icon: any }) => (
         <button
             onClick={() => setActiveTab(type)}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === type
-                ? 'bg-slate-900 text-white shadow-xl scale-105'
-                : 'bg-white text-slate-400 hover:text-slate-900 border border-slate-200'
+            className={`flex items-center gap-2 px-8 py-4 rounded-t-3xl text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === type
+                ? 'bg-slate-900 text-white translate-y-1 z-20 scale-105'
+                : 'bg-white/10 text-slate-400 hover:text-slate-600 border border-slate-200 border-b-0 hover:bg-slate-50'
                 }`}
         >
-            <Icon size={12} /> {label}
+            <Icon size={12} strokeWidth={3} /> {label}
+            {activeTab === type && (
+                <div className="absolute -bottom-1 left-0 right-0 h-2 bg-slate-900 z-30" />
+            )}
         </button>
     );
 
     return (
         <div className="w-full mb-10 group">
             {/* Tabs Navigation (Outside and Above) */}
-            <div className="flex justify-center gap-4 mb-8">
+            <div className="flex justify-center gap-2 mb-[-1px] relative z-20">
                 <TabButton type="beats" label="Beats" icon={Music} />
                 <TabButton type="artists" label="Artistas" icon={Users} />
                 <TabButton type="moods" label="Moods" icon={Sparkles} />
@@ -66,11 +69,13 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                 {/* Background Image with Blur */}
                 <div key={`${activeTab}-${currentIndex}`} className="absolute inset-0 z-0 animate-fade-in transition-opacity duration-1000 ease-in-out">
                     <img
-                        src={activeTab === 'beats' ? (currentItem as Beat).portadabeat_url || '' : activeTab === 'artists' ? (currentItem.foto_perfil || `https://ui-avatars.com/api/?name=${currentItem.artistic_name}&background=random`) : currentItem.image}
+                        src={activeTab === 'beats' ? (currentItem as Beat).portadabeat_url || '' :
+                            activeTab === 'artists' ? (currentItem.foto_perfil || `https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop`) :
+                                currentItem.image}
                         alt="Background"
-                        className="w-full h-full object-cover opacity-30 blur-3xl scale-125"
+                        className={`w-full h-full object-cover ${activeTab === 'moods' ? 'opacity-50 blur-none' : 'opacity-30 blur-3xl'} scale-125 transition-all duration-1000`}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent"></div>
+                    <div className={`absolute inset-0 ${activeTab === 'moods' ? 'bg-black/40' : 'bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent'}`}></div>
                 </div>
 
                 {/* Navigation Arrows */}
@@ -95,15 +100,19 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
 
                     {/* Media Content */}
                     <div key={`media-${activeTab}-${currentIndex}`} className="relative shrink-0 animate-fade-in-up">
-                        <div className="w-48 h-48 md:w-72 md:h-72 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/80 border border-white/10 rotate-1 hover:rotate-0 transition-all duration-700">
-                            <img
-                                src={activeTab === 'beats' ? (currentItem as Beat).portadabeat_url || '' : activeTab === 'artists' ? (currentItem.foto_perfil || `https://ui-avatars.com/api/?name=${currentItem.artistic_name}`) : currentItem.image}
-                                className="w-full h-full object-cover"
-                            />
+                        <div className={`w-48 h-48 md:w-72 md:h-72 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/80 border border-white/10 rotate-1 hover:rotate-0 transition-all duration-700 flex items-center justify-center ${activeTab === 'moods' ? 'bg-white/5 backdrop-blur-xl' : ''}`}>
+                            {activeTab === 'moods' ? (
+                                <span className="text-9xl animate-bounce-slow">{currentItem.emoji}</span>
+                            ) : (
+                                <img
+                                    src={activeTab === 'beats' ? (currentItem as Beat).portadabeat_url || '' : (currentItem.foto_perfil || `https://ui-avatars.com/api/?name=${currentItem.artistic_name}`)}
+                                    className="w-full h-full object-cover"
+                                />
+                            )}
                         </div>
                         {activeTab === 'artists' && (currentItem.subscription_tier === 'premium' || currentItem.subscription_tier === 'pro') && (
-                            <div className="absolute -top-4 -right-4 p-3 bg-amber-500 text-white rounded-2xl shadow-xl animate-bounce">
-                                <Crown size={20} />
+                            <div className="absolute -top-4 -right-4 p-3 bg-amber-500 text-white rounded-2xl shadow-xl animate-pulse">
+                                <Star size={20} fill="currentColor" />
                             </div>
                         )}
                     </div>
@@ -115,23 +124,42 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                                 'bg-purple-500/20 border-purple-400/30 text-purple-300'
                             }`}>
                             {activeTab === 'beats' ? <Flame size={12} className="text-orange-400" /> : activeTab === 'artists' ? <Star size={12} /> : <Zap size={12} />}
-                            {activeTab === 'beats' ? '🔥 Beat Recomendado' : activeTab === 'artists' ? '✨ Artista Premium' : '💎 Mood de la Semana'}
+                            {activeTab === 'beats' ? '🔥 Beats de la semana' : activeTab === 'artists' ? '✨ Artista Destacado' : '💎 Mood de la Semana'}
                         </div>
 
                         <h1 className="text-4xl md:text-7xl font-black tracking-tighter mb-4 leading-none bg-clip-text text-transparent bg-gradient-to-br from-white to-white/60">
                             {activeTab === 'beats' ? (currentItem as Beat).title : activeTab === 'artists' ? currentItem.artistic_name : currentItem.label}
-                            {activeTab === 'artists' && currentItem.is_verified && <CheckCircle2 size={24} className="inline-block ml-3 text-blue-400" />}
+                            {activeTab === 'artists' && (
+                                <span className="inline-flex items-center gap-3 ml-4">
+                                    {currentItem.is_verified && <CheckCircle2 size={24} className="text-blue-400" />}
+                                    {currentItem.is_founder && <Crown size={24} className="text-amber-400 fill-amber-400" />}
+                                </span>
+                            )}
                         </h1>
 
                         {activeTab === 'artists' && (
-                            <div className="mb-8 space-y-4">
+                            <div className="mb-8 space-y-6">
+                                <div className="flex flex-wrap gap-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                    <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+                                        <Globe size={12} className="text-blue-400" /> {currentItem.country || 'México'}
+                                    </span>
+                                    <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+                                        <Users size={12} className="text-purple-400" /> Miembro desde {new Date(currentItem.created_at || Date.now()).getFullYear()}
+                                    </span>
+                                </div>
                                 <p className="text-sm md:text-base font-medium text-slate-300 leading-relaxed max-w-xl line-clamp-3">
                                     {currentItem.bio || "Productor destacado en Tianguis Beats, creando sonidos únicos que definen la escena actual con una trayectoria reconocida en la industria."}
                                 </p>
                                 <div className="flex items-center justify-center md:justify-start gap-4">
-                                    <Link href="#" className="p-2.5 bg-white/5 rounded-xl hover:bg-white/10 transition-all text-slate-400 hover:text-white border border-white/5 shadow-lg"><Instagram size={18} /></Link>
-                                    <Link href="#" className="p-2.5 bg-white/5 rounded-xl hover:bg-white/10 transition-all text-slate-400 hover:text-white border border-white/5 shadow-lg"><Twitter size={18} /></Link>
-                                    <Link href="#" className="p-2.5 bg-white/10 rounded-xl hover:bg-white/20 transition-all text-slate-300 hover:text-white border border-white/10 shadow-lg"><Globe size={18} /></Link>
+                                    {currentItem.social_links?.instagram && (
+                                        <Link href={currentItem.social_links.instagram} target="_blank" className="p-2.5 bg-white/5 rounded-xl hover:bg-white/10 transition-all text-slate-400 hover:text-white border border-white/5 shadow-lg"><Instagram size={18} /></Link>
+                                    )}
+                                    {currentItem.social_links?.twitter && (
+                                        <Link href={currentItem.social_links.twitter} target="_blank" className="p-2.5 bg-white/5 rounded-xl hover:bg-white/10 transition-all text-slate-400 hover:text-white border border-white/5 shadow-lg"><Twitter size={18} /></Link>
+                                    )}
+                                    {currentItem.social_links?.website && (
+                                        <Link href={currentItem.social_links.website} target="_blank" className="p-2.5 bg-white/10 rounded-xl hover:bg-white/20 transition-all text-slate-300 hover:text-white border border-white/10 shadow-lg"><Globe size={18} /></Link>
+                                    )}
                                 </div>
                             </div>
                         )}
