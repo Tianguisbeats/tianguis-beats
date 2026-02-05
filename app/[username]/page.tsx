@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import BeatCard from '@/components/BeatCard';
+import BeatCardPro from '@/components/explore/BeatCardPro';
 import BeatRow from '@/components/BeatRow';
 import PlaylistSection from '@/components/PlaylistSection';
 import PlaylistManagerModal from '@/components/PlaylistManagerModal';
@@ -769,8 +769,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 <button
                                     onClick={() => setActiveTab('beats')}
                                     className={`px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all ${activeTab === 'beats'
-                                            ? (profile.tema_perfil === 'light' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-black shadow-lg shadow-white/20')
-                                            : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+                                        ? (profile.tema_perfil === 'light' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-black shadow-lg shadow-white/20')
+                                        : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
                                         }`}
                                 >
                                     Beats
@@ -780,8 +780,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     <button
                                         onClick={() => setActiveTab('services')}
                                         className={`px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all ${activeTab === 'services'
-                                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                                                : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                            : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
                                             }`}
                                     >
                                         Servicios
@@ -792,8 +792,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     <button
                                         onClick={() => setActiveTab('playlists')}
                                         className={`px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all ${activeTab === 'playlists'
-                                                ? (profile.tema_perfil === 'light' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-black shadow-lg shadow-white/20')
-                                                : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+                                            ? (profile.tema_perfil === 'light' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-black shadow-lg shadow-white/20')
+                                            : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
                                             }`}
                                     >
                                         Colecciones
@@ -823,11 +823,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
 
                                     {beats.length > 0 ? (
-                                        <div className="space-y-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                             {beats.slice(0, 6).map((beat) => (
-                                                <div key={beat.id}>
-                                                    <BeatRow beat={beat} />
-                                                </div>
+                                                <BeatCardPro key={beat.id} beat={beat} />
                                             ))}
                                         </div>
                                     ) : (

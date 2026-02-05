@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ListMusic, ChevronRight, Play } from 'lucide-react';
-import BeatCard from './BeatCard';
+import BeatCardPro from './explore/BeatCardPro';
 import { Beat } from '@/lib/types';
 import Link from 'next/link';
 
@@ -63,7 +63,7 @@ export default function PlaylistSection({ playlists, isOwner, onEdit }: Playlist
                     <div className="flex gap-6 overflow-x-auto pb-8 no-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
                         {playlist.beats.map((beat) => (
                             <div key={beat.id} className="w-[300px] shrink-0">
-                                <BeatCard beat={beat} />
+                                <BeatCardPro beat={beat} />
                             </div>
                         ))}
                     </div>

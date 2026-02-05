@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Music, ArrowLeft, Search, Filter, Loader2, Play, LayoutGrid, Heart, Eye, ListMusic, Plus, Edit3, Settings, Share2, ChevronDown } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import BeatCard from '@/components/BeatCard';
+import BeatCardPro from '@/components/explore/BeatCardPro';
 import PlaylistSection from '@/components/PlaylistSection';
 import PlaylistManagerModal from '@/components/PlaylistManagerModal';
 import { Beat, Profile } from '@/lib/types';
@@ -107,7 +107,15 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                         const playlistBeats = pl.playlist_beats.map((pb: any) => pb.beats).filter(Boolean);
                         const transformedPLBeats = await Promise.all(playlistBeats.map(async (b: any) => {
                             // Simplified transformation for playlists
-                            return { ...b, producer_username: profileData.username, producer_artistic_name: profileData.artistic_name };
+                            return {
+                                ...b,
+                                producer_username: profileData.username,
+                                producer_artistic_name: profileData.artistic_name,
+                                producer_foto_perfil: profileData.foto_perfil,
+                                producer_is_verified: profileData.is_verified,
+                                producer_is_founder: profileData.is_founder,
+                                producer_tier: profileData.subscription_tier
+                            };
                         }));
                         return { ...pl, beats: transformedPLBeats };
                     }));
@@ -350,7 +358,7 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                             {filteredBeats.length > 0 ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                                     {filteredBeats.map(beat => (
-                                        <BeatCard key={beat.id} beat={beat} />
+                                        <BeatCardPro key={beat.id} beat={beat} />
                                     ))}
                                 </div>
                             ) : (

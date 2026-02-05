@@ -355,10 +355,10 @@ function BeatsPageContent() {
                   </h2>
                 </div>
 
-                {/* Tabs with Horizontal Scroll */}
-                <div className="relative w-full md:w-auto">
-                  <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 md:pb-0 scroll-smooth">
-                    <TabButton mode="all" label="Todos" icon={Music} color="bg-slate-900" />
+                {/* Tabs with Horizontal Scroll & Centered on Desktop */}
+                <div className="relative w-full">
+                  <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 md:pb-0 scroll-smooth md:justify-center">
+                    <TabButton mode="all" label="Todos" icon={Music} color="bg-blue-600" />
                     <TabButton mode="new" label="Recién" icon={Clock} color="bg-emerald-500 shadow-emerald-500/20" />
                     <TabButton mode="trending" label="Tendencias" icon={TrendingUp} color="bg-rose-500 shadow-rose-500/20" />
                     <TabButton mode="best_sellers" label="Best Sellers" icon={Trophy} color="bg-amber-600 shadow-amber-600/20" />
