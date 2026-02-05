@@ -34,21 +34,19 @@ export default function Home() {
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white/50 backdrop-blur-sm mb-8 animate-fade-in-up">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
             </span>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 animate-pulse-slow">
-              🇲🇽 La Tienda de Beats #1 en México
-            </span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Tianguis AI Engine v2.0 Online</span>
           </div>
 
           <h1 className="text-5xl md:text-7xl lg:text-9xl font-black text-slate-900 tracking-tighter mb-8 leading-[0.9]">
-            El Origen del <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">Nuevo Sonido.</span>
+            El Futuro del <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Audio Latino.</span>
           </h1>
 
           <p className="text-lg md:text-xl text-slate-500 font-medium max-w-2xl mx-auto mb-12 leading-relaxed tracking-tight">
-            Únete a la comunidad de productores más grande del país. Vende, colabora y crece en la plataforma diseñada para el talento mexicano.
+            La primera plataforma impulsada por Inteligencia Artificial para productores y artistas. Encuentra, compra y vende beats con la precisión de un algoritmo y el alma de la calle.
           </p>
 
           {/* Omni-Search Bar */}
@@ -236,13 +234,6 @@ export default function Home() {
         }
         .animate-fade-in-up {
           animation: fade-in-up 0.8s ease-out forwards;
-        }
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.6; }
-        }
-        .animate-pulse-slow {
-          animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
       `}</style>
     </div>
