@@ -460,7 +460,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     if (!profile) return null;
 
     return (
-        <div className={`min-h-screen font-sans flex flex-col pt-24 transition-colors duration-500 ${profile.tema_perfil === 'dark' ? 'bg-[#0F172A] text-white selection:bg-white selection:text-slate-900' :
+        <div className={`min-h-screen font-sans flex flex-col transition-colors duration-500 ${profile.tema_perfil === 'dark' ? 'bg-[#0F172A] text-white selection:bg-white selection:text-slate-900' :
             profile.tema_perfil === 'neon' ? 'bg-[#09090b] text-white selection:bg-green-400 selection:text-black' :
                 profile.tema_perfil === 'gold' ? 'bg-[#1a1610] text-amber-50 font-serif selection:bg-amber-400 selection:text-black' :
                     'bg-white text-slate-900 selection:bg-blue-600 selection:text-white'
@@ -472,11 +472,33 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
             <main className="flex-1 pb-20">
                 {/* 1. Portada */}
-                <div className={`relative h-48 md:h-80 bg-slate-100 group overflow-hidden ${isAdjustingCover ? 'ring-4 ring-blue-500 ring-inset' : ''}`}>
+                <div
+                    className={`relative h-56 md:h-96 bg-slate-100 group overflow-hidden ${isAdjustingCover ? 'cursor-ns-resize ring-4 ring-blue-500 ring-inset z-50' : ''}`}
+                    onMouseDown={(e) => {
+                        if (!isAdjustingCover) return;
+                        (e.currentTarget as any)._isDragging = true;
+                        (e.currentTarget as any)._startY = e.clientY;
+                        (e.currentTarget as any)._startOffset = tempOffset;
+                    }}
+                    onMouseMove={(e) => {
+                        if (!(e.currentTarget as any)._isDragging) return;
+                        const delta = e.clientY - (e.currentTarget as any)._startY;
+                        // Sensitivity: 0.2% per pixel
+                        let newOffset = (e.currentTarget as any)._startOffset - (delta * 0.2);
+                        newOffset = Math.max(0, Math.min(100, newOffset));
+                        setTempOffset(newOffset);
+                    }}
+                    onMouseUp={(e) => {
+                        (e.currentTarget as any)._isDragging = false;
+                    }}
+                    onMouseLeave={(e) => {
+                        (e.currentTarget as any)._isDragging = false;
+                    }}
+                >
                     {profile.portada_perfil ? (
                         <img
                             src={profile.portada_perfil}
-                            className="w-full h-full object-cover transition-all duration-300"
+                            className="w-full h-full object-cover pointer-events-none select-none"
                             style={{ objectPosition: `center ${isAdjustingCover ? tempOffset : (profile.ajuste_portada ?? 50)}%` }}
                             alt="Cover"
                         />
@@ -500,43 +522,30 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     )}
 
                     {isAdjustingCover && (
-                        <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center p-6 backdrop-blur-md">
-                            <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-sm border border-slate-100">
-                                <div className="text-center mb-6">
-                                    <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mx-auto mb-4">
-                                        <Layout size={24} />
-                                    </div>
-                                    <h3 className="text-lg font-black uppercase tracking-tighter text-slate-900">Ajustar Portada</h3>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Desliza para centrar la imagen</p>
+                        <div className="absolute inset-x-0 bottom-8 flex justify-center z-50 animate-in slide-in-from-bottom-4 duration-500">
+                            <div className="bg-slate-900/90 backdrop-blur-xl px-2 py-2 rounded-[2rem] shadow-2xl border border-white/10 flex items-center gap-2">
+                                <div className="px-6 py-3">
+                                    <p className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+                                        <Layout size={14} className="text-blue-400" /> Arrastra para ajustar
+                                    </p>
                                 </div>
-
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="100"
-                                    value={tempOffset}
-                                    onChange={(e) => setTempOffset(parseInt(e.target.value))}
-                                    className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-blue-600 mb-8"
-                                />
-
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={() => {
-                                            setIsAdjustingCover(false);
-                                            setTempOffset(profile.ajuste_portada ?? 50);
-                                        }}
-                                        className="flex-1 px-6 py-3 border border-slate-100 rounded-full font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all"
-                                    >
-                                        Cancelar
-                                    </button>
-                                    <button
-                                        onClick={handleSaveAdjustment}
-                                        disabled={saving}
-                                        className="flex-1 px-6 py-3 bg-slate-900 text-white rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl shadow-slate-900/10 flex items-center justify-center gap-2"
-                                    >
-                                        {saving ? <Loader2 size={14} className="animate-spin" /> : 'Guardar'}
-                                    </button>
-                                </div>
+                                <div className="h-8 w-px bg-white/10 mx-2" />
+                                <button
+                                    onClick={() => {
+                                        setIsAdjustingCover(false);
+                                        setTempOffset(profile.ajuste_portada ?? 50);
+                                    }}
+                                    className="px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleSaveAdjustment}
+                                    disabled={saving}
+                                    className="px-8 py-3 bg-blue-600 text-white rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-blue-500 transition-all shadow-xl shadow-blue-600/20 flex items-center gap-2"
+                                >
+                                    {saving ? <Loader2 size={14} className="animate-spin" /> : 'Guardar Posición'}
+                                </button>
                             </div>
                         </div>
                     )}
@@ -994,34 +1003,53 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         </div>
                                     </div>
 
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        {services.map(service => (
-                                            <div key={service.id} className={`p-6 rounded-[2rem] border shadow-sm hover:shadow-md transition-all group ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
-                                                profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-green-900/20' :
-                                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50' :
-                                                        'bg-white border-slate-100'
-                                                }`}>
-                                                <div className="flex justify-between items-start mb-4">
-                                                    <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">
-                                                        {service.tipo_servicio}
-                                                    </span>
-                                                    <span className={`text-xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>${service.precio}</span>
+                                    {/* Owner Upsell for Non-Premium (Services) */}
+                                    {isOwner && profile.subscription_tier !== 'premium' ? (
+                                        <div className="bg-gradient-to-br from-[#1e1b4b] to-[#312e81] rounded-[2.5rem] p-12 text-center text-white overflow-hidden relative group">
+                                            <div className="absolute top-0 right-0 p-32 bg-indigo-600/20 blur-[100px] rounded-full group-hover:bg-indigo-600/30 transition-all pointer-events-none" />
+                                            <div className="relative z-10">
+                                                <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border border-white/10">
+                                                    <Briefcase size={32} className="text-indigo-400" />
                                                 </div>
-                                                <h3 className={`font-bold text-lg mb-2 group-hover:text-indigo-600 transition-colors ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{service.titulo}</h3>
-                                                <p className={`text-xs mb-6 line-clamp-3 leading-relaxed ${profile.tema_perfil === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>{service.descripcion}</p>
-
-                                                <div className={`flex items-center justify-between pt-4 border-t ${profile.tema_perfil === 'light' ? 'border-slate-50' : 'border-white/10'}`}>
-                                                    <div className="flex items-center gap-1 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-                                                        <Clock size={12} />
-                                                        {service.tiempo_entrega_dias} Días hábiles
-                                                    </div>
-                                                    <button className="bg-slate-900 text-white px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">
-                                                        Contratar
-                                                    </button>
-                                                </div>
+                                                <h3 className="text-3xl font-black uppercase tracking-tighter mb-4">Venta de Servicios</h3>
+                                                <p className="text-indigo-100 max-w-lg mx-auto mb-8 font-medium">
+                                                    Ofrece servicios de Mezcla, Masterización, Composición o Clases. Los usuarios Premium pueden listar sus servicios y ser contactados directamente. ¡Desbloquea esta función ahora!
+                                                </p>
+                                                <Link href="/pricing" className="inline-flex items-center gap-2 bg-white text-indigo-900 px-8 py-4 rounded-xl font-black uppercase tracking-widest hover:bg-slate-100 transition-all transform hover:scale-105">
+                                                    <Crown size={18} fill="currentColor" className="text-amber-500" /> Mejorar a Premium
+                                                </Link>
                                             </div>
-                                        ))}
-                                    </div>
+                                        </div>
+                                    ) : (
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            {services.map(service => (
+                                                <div key={service.id} className={`p-6 rounded-[2rem] border shadow-sm hover:shadow-md transition-all group ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
+                                                    profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-green-900/20' :
+                                                        profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50' :
+                                                            'bg-white border-slate-100'
+                                                    }`}>
+                                                    <div className="flex justify-between items-start mb-4">
+                                                        <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                                            {service.tipo_servicio}
+                                                        </span>
+                                                        <span className={`text-xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>${service.precio}</span>
+                                                    </div>
+                                                    <h3 className={`font-bold text-lg mb-2 group-hover:text-indigo-600 transition-colors ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{service.titulo}</h3>
+                                                    <p className={`text-xs mb-6 line-clamp-3 leading-relaxed ${profile.tema_perfil === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>{service.descripcion}</p>
+
+                                                    <div className={`flex items-center justify-between pt-4 border-t ${profile.tema_perfil === 'light' ? 'border-slate-50' : 'border-white/10'}`}>
+                                                        <div className="flex items-center gap-1 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                                                            <Clock size={12} />
+                                                            {service.tiempo_entrega_dias} Días hábiles
+                                                        </div>
+                                                        <button className="bg-slate-900 text-white px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">
+                                                            Contratar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

@@ -61,7 +61,7 @@ export default function PricingPage() {
             description: "Para empezar tu legado.",
             features: [
                 "5 Beats públicos",
-                "Solo licencia MP3",
+                "Licencia MP3 (con Tags)",
                 "15% comisión por venta",
                 "Estadísticas básicas"
             ],
@@ -79,7 +79,8 @@ export default function PricingPage() {
             features: [
                 "Subidas ilimitadas",
                 "MP3 y WAV (Alta Calidad)",
-                "0% comisión",
+                "0% comisión (Tú ganas todo)",
+                "Acceso a Venta de Servicios",
                 "Soporte prioritario 24/7"
             ],
             icon: <Star className="text-slate-500" size={24} />,
@@ -96,15 +97,16 @@ export default function PricingPage() {
             description: "Máxima potencia comercial.",
             features: [
                 "Todo lo que incluye el plan Pro",
-                "Licencia de Stems (Pistas)",
+                "Licencias de Stems (Pistas)",
+                "Venta de Sound Kits Habilitada",
                 "Mayor exposición del algoritmo",
                 "Venta Exclusiva Habilitada",
-                "Soporte prioritario 24/7"
+                "0% comisión por transacción"
             ],
             icon: <ShieldCheck className="text-blue-600" size={24} />,
             buttonText: "Ser Premium",
             color: "blue",
-            popular: true
+            popular: false
         }
     ];
 
@@ -322,8 +324,7 @@ export default function PricingPage() {
                         <div className="mb-14 inline-flex">
                             <div className="bg-gradient-to-r from-yellow-400/20 to-amber-500/10 border border-amber-200 text-amber-700 px-8 py-4 rounded-[2rem] flex items-center gap-4 animate-pulse shadow-xl shadow-amber-500/5">
                                 <div className="p-2 bg-amber-400 rounded-xl text-white flex items-center gap-2">
-                                    <Star size={16} fill="currentColor" />
-                                    <Crown size={16} fill="currentColor" />
+                                    <Crown size={18} fill="currentColor" />
                                 </div>
                                 <span className="text-[11px] font-black uppercase tracking-widest text-left">
                                     Sé de los primeros 100 y obtén estatus <span className="underline decoration-2 underline-offset-4">Founder</span> para siempre
