@@ -302,17 +302,35 @@ function BeatsPageContent() {
             setTrendingBeats(trendTransformed);
           }
 
+          // Fetch Trending Producers (Artists of the Week) logic:
+          // 1. Get play counts per producer from top beats
+          const { data: playsData } = await supabase
+            .from('beats')
+            .select('producer_id, play_count')
+            .not('producer_id', 'is', null)
+            .order('play_count', { ascending: false })
+            .limit(200);
+
+          const playsMap: Record<string, number> = {};
+          playsData?.forEach(b => {
+            playsMap[b.producer_id] = (playsMap[b.producer_id] || 0) + (b.play_count || 0);
+          });
+
           const { data: trendProd } = await supabase
             .from('profiles')
             .select('id, artistic_name, username, foto_perfil, subscription_tier, is_verified, is_founder, bio, country, created_at, social_links')
             .not('artistic_name', 'is', null)
-            .limit(20);
+            .limit(50);
 
           if (trendProd) {
-            const sortedProd = trendProd.sort((a, b) => {
-              const tierOrder: any = { 'premium': 0, 'pro': 1, 'free': 2 };
-              return (tierOrder[a.subscription_tier as any] ?? 3) - (tierOrder[b.subscription_tier as any] ?? 3);
-            }).slice(0, 10);
+            const sortedProd = trendProd.map(p => {
+              const totalPlays = playsMap[p.id] || 0;
+              const tierMultiplier = p.subscription_tier === 'premium' ? 2.0 : p.subscription_tier === 'pro' ? 1.5 : 1.0;
+              return { ...p, score: totalPlays * tierMultiplier };
+            })
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 10);
+
             setTrendingProducers(sortedProd);
           }
         }

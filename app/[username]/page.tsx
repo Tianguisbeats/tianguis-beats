@@ -595,43 +595,81 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         <div className="lg:col-span-4 space-y-8">
 
                             {/* Stats */}
-                            <div className={`flex items-center justify-around rounded-2xl p-4 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
-                                profile.tema_perfil === 'neon' ? 'bg-black border-green-900' :
-                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50' :
-                                        'bg-slate-50 border-slate-100'
+                            <div className={`flex items-center justify-around rounded-3xl p-6 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
+                                profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-[0_0_20px_rgba(74,222,128,0.05)]' :
+                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50 shadow-xl' :
+                                        'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
                                 }`}>
                                 <div className="text-center">
-                                    <span className={`block text-xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{followersCount}</span>
-                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Seguidores</span>
+                                    <span className={`block text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{followersCount}</span>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Seguidores</span>
                                 </div>
+                                <div className="h-8 w-px bg-slate-100"></div>
                                 <div className="text-center">
-                                    <span className={`block text-xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{beats.length}</span>
-                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Beats</span>
+                                    <span className={`block text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{beats.length}</span>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Beats</span>
                                 </div>
+                                <div className="h-8 w-px bg-slate-100"></div>
                                 <div className="text-center">
-                                    <span className={`block text-xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>0</span>
-                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Seguidos</span>
+                                    <span className={`block text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>0</span>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Seguidos</span>
                                 </div>
                             </div>
 
-                            {/* Bio Box (AHORA ARRIBA) */}
-                            <div className={`border rounded-[2rem] p-8 shadow-sm mb-0 relative overflow-hidden ${profile.tema_perfil === 'dark' ? 'bg-slate-800/50 border-slate-700/50 text-slate-300' :
-                                profile.tema_perfil === 'neon' ? 'bg-zinc-900/50 border-zinc-800 text-zinc-300' :
-                                    profile.tema_perfil === 'gold' ? 'bg-[#2a241c] border-amber-900/30 text-amber-100' :
-                                        'bg-white border-slate-100'
+                            {/* Status Sidebar */}
+                            <div className={`rounded-[2.5rem] p-8 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
+                                profile.tema_perfil === 'neon' ? 'bg-zinc-900 border-zinc-800' :
+                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/30' :
+                                        'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
                                 }`}>
-                                <h3 className={`text-xs font-black uppercase tracking-widest mb-4 ${profile.tema_perfil === 'neon' ? 'text-green-500' :
-                                    profile.tema_perfil === 'gold' ? 'text-amber-500' :
-                                        'text-slate-400'
-                                    }`}>Trayectoria</h3>
+                                <h3 className={`text-[11px] font-black uppercase tracking-[0.2em] mb-8 font-outfit ${profile.tema_perfil === 'dark' ? 'text-slate-400' :
+                                    profile.tema_perfil === 'neon' ? 'text-green-600' :
+                                        profile.tema_perfil === 'gold' ? 'text-amber-500' :
+                                            'text-slate-400'
+                                    }`}>Estatus Tianguis</h3>
+                                <div className="space-y-6">
+                                    <div className="flex items-center justify-between">
+                                        <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Plan</span>
+                                        <span className={`text-xs font-black uppercase px-3 py-1.5 rounded-xl ${profile.subscription_tier === 'premium' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : profile.subscription_tier === 'pro' ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'}`}>{profile.subscription_tier}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Verificación</span>
+                                        {profile.is_verified ? (
+                                            <span className="text-xs font-black uppercase text-blue-600 flex items-center gap-2">
+                                                <img src="/verified-badge.png" className="w-4 h-4" />
+                                                Verificado
+                                            </span>
+                                        ) : (
+                                            <span className="text-xs font-black uppercase text-slate-400">Sin Verificar</span>
+                                        )}
+                                    </div>
+                                    {profile.is_founder && (
+                                        <div className="flex items-center justify-between">
+                                            <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Insignia</span>
+                                            <span className="text-xs font-black uppercase text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-amber-100"><Crown size={12} fill="currentColor" /> Founder</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
 
-                                {/* Socials Row */}
-                                <div className="flex flex-wrap gap-3 mb-6">
+
+                            {/* Socials Box */}
+                            <div className={`rounded-[2.5rem] p-8 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
+                                profile.tema_perfil === 'neon' ? 'bg-zinc-900 border-zinc-800' :
+                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/30' :
+                                        'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
+                                }`}>
+                                <h3 className={`text-[11px] font-black uppercase tracking-[0.2em] mb-6 font-outfit ${profile.tema_perfil === 'dark' ? 'text-slate-400' :
+                                    profile.tema_perfil === 'neon' ? 'text-green-600' :
+                                        profile.tema_perfil === 'gold' ? 'text-amber-500' :
+                                            'text-slate-400'
+                                    }`}>Redes Sociales</h3>
+
+                                <div className="flex flex-wrap gap-4">
                                     {SOCIAL_KEYS.map(key => {
                                         const url = profile.social_links?.[key as keyof typeof profile.social_links];
                                         if (!url) return null;
 
-                                        // Construct URL (check if full URL or username)
                                         let finalUrl = url.startsWith('http') ? url : `https://${key}.com/${url}`;
                                         if (key === 'whatsapp') finalUrl = `https://wa.me/${url}`;
 
@@ -640,12 +678,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                         return (
                                             <a key={key} href={finalUrl} target="_blank" rel="noopener noreferrer"
-                                                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm group ${profile.tema_perfil === 'light'
-                                                    ? 'bg-slate-50 text-slate-900 hover:bg-slate-900 hover:text-white'
-                                                    : 'bg-white/5 text-white hover:bg-white hover:text-black'
+                                                className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-sm group border ${profile.tema_perfil === 'light'
+                                                    ? 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-900 hover:text-white'
+                                                    : 'bg-white/5 border-white/5 text-white hover:bg-white hover:text-black'
                                                     }`}>
                                                 {item.icon ? (
-                                                    <item.icon size={18} />
+                                                    <item.icon size={20} />
                                                 ) : (
                                                     <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
                                                         <path d={item.path} />
@@ -655,6 +693,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         )
                                     })}
                                 </div>
+                            </div>
+
+                            {/* Bio Box */}
+                            <div className={`border rounded-[2.5rem] p-8 shadow-sm mb-0 relative overflow-hidden ${profile.tema_perfil === 'dark' ? 'bg-slate-800/50 border-slate-700/50 text-slate-300' :
+                                profile.tema_perfil === 'neon' ? 'bg-zinc-900/50 border-zinc-800 text-zinc-300' :
+                                    profile.tema_perfil === 'gold' ? 'bg-[#2a241c] border-amber-900/30 text-amber-100' :
+                                        'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
+                                }`}>
+                                <h3 className={`text-[11px] font-black uppercase tracking-[0.2em] mb-6 ${profile.tema_perfil === 'neon' ? 'text-green-500' :
+                                    profile.tema_perfil === 'gold' ? 'text-amber-500' :
+                                        'text-slate-400'
+                                    }`}>Trayectoria</h3>
 
                                 {isEditing ? (
                                     <div className="space-y-4">
@@ -697,12 +747,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 )}
                             </div>
 
-                            {/* Status Sidebar (AHORA ABAJO) */}
+
+                            {/* Video Sidebar */}
                             {profile.video_destacado_url && (
-                                <div className={`rounded-[2rem] overflow-hidden border ${profile.tema_perfil === 'dark' ? 'border-slate-700 bg-slate-800' :
+                                <div className={`rounded-[2.5rem] overflow-hidden border ${profile.tema_perfil === 'dark' ? 'border-slate-700 bg-slate-800' :
                                     profile.tema_perfil === 'neon' ? 'border-green-900 bg-black shadow-[0_0_15px_rgba(74,222,128,0.1)]' :
                                         profile.tema_perfil === 'gold' ? 'border-amber-900/50 bg-slate-900' :
-                                            'border-slate-100 bg-white'
+                                            'border-slate-100 bg-white shadow-xl shadow-slate-200/50'
                                     }`}>
                                     <div className="aspect-video">
                                         <iframe
@@ -715,8 +766,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             allowFullScreen
                                         ></iframe>
                                     </div>
-                                    <div className="p-4 text-center">
-                                        <span className={`text-[10px] font-black uppercase tracking-widest ${profile.tema_perfil === 'neon' ? 'text-green-600' :
+                                    <div className="p-5 text-center">
+                                        <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${profile.tema_perfil === 'neon' ? 'text-green-600' :
                                             profile.tema_perfil === 'gold' ? 'text-amber-500' :
                                                 'text-slate-400'
                                             }`}>
@@ -726,81 +777,53 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 </div>
                             )}
 
-                            <div className={`rounded-[2rem] p-8 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
-                                profile.tema_perfil === 'neon' ? 'bg-zinc-900 border-zinc-800' :
-                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/30' :
-                                        'bg-slate-50 border-slate-100'
-                                }`}>
-                                <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] mb-6 font-outfit ${profile.tema_perfil === 'dark' ? 'text-slate-400' :
-                                    profile.tema_perfil === 'neon' ? 'text-green-600' :
-                                        profile.tema_perfil === 'gold' ? 'text-amber-500' :
-                                            'text-slate-400'
-                                    }`}>Estatus Tianguis</h3>
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Plan</span>
-                                        <span className={`text-xs font-black uppercase px-2 py-1 rounded-lg ${profile.subscription_tier === 'premium' ? 'bg-blue-600 text-white' : profile.subscription_tier === 'pro' ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'}`}>{profile.subscription_tier}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Verificación</span>
-                                        {profile.is_verified ? (
-                                            <span className="text-xs font-black uppercase text-blue-600 flex items-center gap-1.5">
-                                                <img src="/verified-badge.png" className="w-3.5 h-3.5" />
-                                                Verificado
-                                            </span>
-                                        ) : (
-                                            <span className="text-xs font-black uppercase text-slate-400">Sin Verificar</span>
-                                        )}
-                                    </div>
-                                    {profile.is_founder && (
-                                        <div className="flex items-center justify-between">
-                                            <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Insignia</span>
-                                            <span className="text-xs font-black uppercase text-yellow-600 bg-yellow-100 px-2 py-1 rounded-lg flex items-center gap-1"><Crown size={10} /> Founder</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+
+
                         </div>
 
                         {/* Beats Feed */}
                         <div className="lg:col-span-8">
-                            <div className={`flex items-center gap-2 mb-8 pb-1 overflow-x-auto ${profile.tema_perfil === 'light' ? 'border-b border-slate-100' : 'border-b border-white/10'
+                            <div className={`flex items-center gap-3 mb-12 p-1.5 rounded-[2rem] overflow-x-auto ${profile.tema_perfil === 'light' ? 'bg-slate-100/50' : 'bg-white/5'
                                 }`}>
                                 <button
                                     onClick={() => setActiveTab('beats')}
-                                    className={`px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all ${activeTab === 'beats'
-                                        ? (profile.tema_perfil === 'light' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-black shadow-lg shadow-white/20')
-                                        : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+                                    className={`px-8 py-4 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest whitespace-nowrap transition-all flex items-center gap-3 ${activeTab === 'beats'
+                                        ? (profile.tema_perfil === 'light' ? 'bg-white text-slate-900 shadow-xl shadow-slate-200/50' : 'bg-white text-black shadow-lg shadow-white/20')
+                                        : 'text-slate-400 hover:text-slate-600'
                                         }`}
                                 >
+                                    <div className={`w-2.5 h-2.5 rounded-full ${activeTab === 'beats' ? 'bg-blue-500 animate-pulse' : 'bg-slate-300'}`}></div>
                                     Beats
-                                    <span className={`ml-2 px-1.5 py-0.5 rounded-md text-[8px] ${activeTab === 'beats' ? 'bg-white/20 text-current' : 'bg-slate-100 text-slate-500'}`}>{beats.length}</span>
+                                    <span className={`px-2.5 py-1 rounded-lg text-[10px] ${activeTab === 'beats' ? 'bg-blue-600 text-white' : 'bg-slate-200/50 text-slate-500'}`}>{beats.length}</span>
                                 </button>
                                 {services.length > 0 && (
                                     <button
                                         onClick={() => setActiveTab('services')}
-                                        className={`px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all ${activeTab === 'services'
-                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                                            : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+                                        className={`px-8 py-4 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest whitespace-nowrap transition-all flex items-center gap-3 ${activeTab === 'services'
+                                            ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/30'
+                                            : 'text-slate-400 hover:text-slate-600'
                                             }`}
                                     >
+                                        <div className={`w-2.5 h-2.5 rounded-full ${activeTab === 'services' ? 'bg-white animate-pulse' : 'bg-slate-300'}`}></div>
                                         Servicios
-                                        <span className={`ml-2 px-1.5 py-0.5 rounded-md text-[8px] ${activeTab === 'services' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>{services.length}</span>
+                                        <span className={`px-2.5 py-1 rounded-lg text-[10px] ${activeTab === 'services' ? 'bg-white text-blue-600' : 'bg-slate-200/50 text-slate-500'}`}>{services.length}</span>
                                     </button>
                                 )}
                                 {playlists.length > 0 && (
                                     <button
                                         onClick={() => setActiveTab('playlists')}
-                                        className={`px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all ${activeTab === 'playlists'
-                                            ? (profile.tema_perfil === 'light' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-black shadow-lg shadow-white/20')
-                                            : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+                                        className={`px-8 py-4 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest whitespace-nowrap transition-all flex items-center gap-3 ${activeTab === 'playlists'
+                                            ? (profile.tema_perfil === 'light' ? 'bg-slate-900 text-white shadow-xl' : 'bg-white text-black shadow-lg shadow-white/20')
+                                            : 'text-slate-400 hover:text-slate-600'
                                             }`}
                                     >
+                                        <div className={`w-2.5 h-2.5 rounded-full ${activeTab === 'playlists' ? 'bg-purple-500 animate-pulse' : 'bg-slate-300'}`}></div>
                                         Colecciones
-                                        <span className={`ml-2 px-1.5 py-0.5 rounded-md text-[8px] ${activeTab === 'playlists' ? 'bg-white/20 text-current' : 'bg-slate-100 text-slate-500'}`}>{playlists.length}</span>
+                                        <span className={`px-2.5 py-1 rounded-lg text-[10px] ${activeTab === 'playlists' ? 'bg-white/20 text-current' : 'bg-slate-200/50 text-slate-500'}`}>{playlists.length}</span>
                                     </button>
                                 )}
                             </div>
+
 
                             {activeTab === 'beats' && (
                                 <>
