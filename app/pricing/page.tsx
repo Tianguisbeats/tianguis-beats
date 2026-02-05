@@ -310,43 +310,54 @@ export default function PricingPage() {
 
                 <div className="max-w-6xl mx-auto px-4 text-center mt-8">
                     {/* Header Section */}
-                    <div className="mb-10">
-                        <h1 className="text-5xl md:text-6xl font-black tracking-tighter uppercase mb-2 text-slate-900 leading-none">
-                            Elige tu <span className="text-blue-600">Plan</span>
+                    <div className="mb-14">
+                        <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase mb-4 text-slate-900 leading-none">
+                            Elige tu <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Plan</span>
                         </h1>
-                        <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.3em] mb-10">
-                            Transforma tu pasión en un negocio rentable
+                        <p className="text-[12px] text-slate-400 font-black uppercase tracking-[0.4em] mb-12 max-w-lg mx-auto leading-relaxed">
+                            Genera ingresos haciendo lo que más te gusta
                         </p>
 
                         {/* Founder Invitation */}
-                        <div className="mb-12 inline-flex">
-                            <div className="bg-yellow-400/10 border-2 border-yellow-400 text-yellow-700 px-6 py-3 rounded-2xl flex items-center gap-3 animate-pulse">
-                                <Star size={16} fill="currentColor" />
-                                <span className="text-[10px] font-black uppercase tracking-widest">
-                                    Sé de los primeros 100 y obtén estatus <span className="underline">Founder</span> para siempre
+                        <div className="mb-14 inline-flex">
+                            <div className="bg-gradient-to-r from-yellow-400/20 to-amber-500/10 border border-amber-200 text-amber-700 px-8 py-4 rounded-[2rem] flex items-center gap-4 animate-pulse shadow-xl shadow-amber-500/5">
+                                <div className="p-2 bg-amber-400 rounded-xl text-white">
+                                    <Star size={16} fill="currentColor" />
+                                </div>
+                                <span className="text-[11px] font-black uppercase tracking-widest text-left">
+                                    Sé de los primeros 100 y obtén estatus <span className="underline decoration-2 underline-offset-4">Founder</span> para siempre
                                 </span>
                             </div>
                         </div>
 
-                        {/* Toggle Container */}
-                        <div className="flex flex-col items-center gap-4">
-                            <div className="inline-flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200">
+                        {/* Premium Toggle Container */}
+                        <div className="flex flex-col items-center gap-6">
+                            <div className="relative inline-flex items-center bg-slate-100/50 p-2 rounded-[2rem] border border-slate-200 shadow-inner backdrop-blur-sm">
                                 <button
                                     onClick={() => setBillingCycle('monthly')}
-                                    className={`px-10 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'monthly' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
+                                    className={`relative z-10 px-12 py-4 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${billingCycle === 'monthly' ? 'text-white' : 'text-slate-400 hover:text-slate-600'}`}
                                 >
+                                    {billingCycle === 'monthly' && (
+                                        <div className="absolute inset-0 bg-slate-900 rounded-[1.5rem] -z-10 shadow-xl animate-in fade-in zoom-in-95 duration-300"></div>
+                                    )}
                                     Mensual
                                 </button>
                                 <button
                                     onClick={() => setBillingCycle('yearly')}
-                                    className={`px-10 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'yearly' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:text-slate-600'}`}
+                                    className={`relative z-10 px-12 py-4 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${billingCycle === 'yearly' ? 'text-white' : 'text-slate-400 hover:text-slate-600'}`}
                                 >
+                                    {billingCycle === 'yearly' && (
+                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[1.5rem] -z-10 shadow-xl shadow-blue-600/20 animate-in fade-in zoom-in-95 duration-300"></div>
+                                    )}
                                     Anual
                                 </button>
                             </div>
-                            <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest animate-bounce">
-                                ¡25% OFF! (Recibe 3 meses gratis al año) 🎁
-                            </p>
+                            <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full border border-blue-100">
+                                <div className="w-2 h-2 bg-blue-500 rounded-full animate-ping"></div>
+                                <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]">
+                                    ¡25% OFF! (3 meses gratis al año) 🎁
+                                </p>
+                            </div>
                         </div>
                     </div>
 

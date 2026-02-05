@@ -29,9 +29,7 @@ const COUNTRIES = [
 
 // Social Media Icons Mapping
 const SOCIAL_ICONS: Record<string, any> = {
-    instagram: { icon: Instagram, color: "hover:text-pink-600" },
-    youtube: { icon: Youtube, color: "hover:text-red-600" },
-    twitter: { icon: Twitter, color: "hover:text-blue-400" },
+    web: { icon: Globe, color: "hover:text-blue-500" },
     tiktok: {
         path: "M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77-1.52v-3.4a4.85 4.85 0 0 1-1-.1z",
         color: "hover:text-black dark:hover:text-white"
@@ -41,39 +39,42 @@ const SOCIAL_ICONS: Record<string, any> = {
         color: "hover:text-green-500"
     },
     applemusic: {
-        icon: Music, // Lucide Music icon is close enough for Apple Music visually usually
+        icon: Music,
         color: "hover:text-rose-500"
     },
     tidal: {
         path: "M12.01 2.24L9.77 4.48l2.24 2.24 2.24-2.24-2.24-2.24zM5.29 6.72L3.05 8.96l2.24 2.24 2.24-2.24-2.24-2.24zM12.01 11.2l-2.24 2.24 2.24 2.24 2.24-2.24-2.24-2.24zM18.73 6.72l-2.24 2.24 2.24 2.24 2.24-2.24-2.24-2.24z",
         color: "hover:text-black dark:hover:text-white"
-    },
-    amazon: {
-        path: "M13.5 12c-1.5 1.5-3.5 2-5 2-1.5 0-3-.5-4-2 .5 1 2 2 4 2 1.5 0 3-.5 4.5-1.5.5-.3 1-.8 1-1s-.3-1-.5-.5zm-2-1c.5-.5 1-1.5 1-2.5 0-1.5-1-2.5-2.5-2.5-1 0-2 .5-2.5 1.5-.5-1-1.5-1.5-2.5-1.5-1.5 0-2.5 1-2.5 2.5 0 .5 0 1 .5 1.5-1 .5-1.5 1.5-1.5 2.5 0 1.5 1 2.5 2.5 2.5 1.5 0 2.5-1 4-2.5 1.5 1.5 2.5 2.5 4 2.5 1.5 0 2.5-1 2.5-2.5 0-1-.5-2-1.5-2.5.5-1.5 0-3-1.5-3z",
-        color: "hover:text-cyan-500"
     }
 };
 
-const SOCIAL_KEYS = ['instagram', 'youtube', 'tiktok', 'spotify', 'applemusic', 'tidal', 'amazon', 'twitter'];
+const SOCIAL_KEYS = ['instagram', 'youtube', 'tiktok', 'spotify', 'applemusic', 'tidal', 'web'];
 
 const getYouTubeEmbedUrl = (url: string) => {
     if (!url) return '';
     let videoId = '';
     try {
-        if (url.includes('youtu.be/')) {
-            videoId = url.split('youtu.be/')[1].split(/[?#]/)[0];
-        } else if (url.includes('youtube.com/watch')) {
+        // Handle standard watch URLs
+        if (url.includes('youtube.com/watch')) {
             const urlObj = new URL(url);
             videoId = urlObj.searchParams.get('v') || '';
-        } else if (url.includes('youtube.com/embed/')) {
+        }
+        // Handle short URLs (youtu.be)
+        else if (url.includes('youtu.be/')) {
+            videoId = url.split('youtu.be/')[1].split(/[?#]/)[0];
+        }
+        // Handle embed URLs
+        else if (url.includes('youtube.com/embed/')) {
             videoId = url.split('embed/')[1].split(/[?#]/)[0];
-        } else if (url.includes('youtube.com/shorts/')) {
+        }
+        // Handle Shorts URLs
+        else if (url.includes('youtube.com/shorts/')) {
             videoId = url.split('shorts/')[1].split(/[?#]/)[0];
         }
     } catch (e) {
         console.error("Error parsing YouTube URL:", e);
     }
-    return videoId ? `https://www.youtube.com/embed/${videoId}` : '';
+    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0` : '';
 };
 
 /**
@@ -634,15 +635,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     setIsEditing(true);
                                                 }
                                             }}
-                                            className={`px-6 py-2 rounded-full border-2 font-black text-[10px] uppercase tracking-widest transition-all ${isEditing ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-900 border-slate-200 hover:border-slate-400'}`}
+                                            className={`px-8 py-2.5 rounded-full border-2 font-black text-[10px] uppercase tracking-widest transition-all shadow-sm ${isEditing ? 'bg-slate-900 text-white border-slate-900 shadow-slate-900/20' : 'bg-white text-slate-900 border-slate-200 hover:border-slate-400 hover:shadow-md'}`}
                                         >
-                                            {isEditing ? (
-                                                (editBio !== (profile?.bio || '') ||
-                                                    editArtisticName !== (profile?.artistic_name || '') ||
-                                                    editCountry !== (profile?.country || '') ||
-                                                    JSON.stringify(editSocials) !== JSON.stringify(profile?.social_links || {}))
-                                                    ? 'Guardar Cambios' : 'Cancelar'
-                                            ) : 'Editar Perfil'}
+                                            {isEditing ? (hasChanges() ? 'Guardar Cambios' : 'Aceptar') : 'Editar Perfil'}
                                         </button>
                                     ) : (
                                         <button
@@ -697,7 +692,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 <div className="space-y-6">
                                     <div className="flex items-center justify-between">
                                         <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Plan</span>
-                                        <span className={`text-xs font-black uppercase px-3 py-1.5 rounded-xl ${profile.subscription_tier === 'premium' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : profile.subscription_tier === 'pro' ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'}`}>{profile.subscription_tier}</span>
+                                        <span className={`text-xs font-black uppercase px-3 py-1.5 rounded-xl ${profile.subscription_tier === 'premium' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : profile.subscription_tier === 'pro' ? 'bg-amber-400 text-slate-900 border border-amber-500/20' : 'bg-slate-200 text-slate-600'}`}>{profile.subscription_tier}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Verificación</span>
@@ -721,28 +716,31 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
 
                             {/* Video Sidebar (Moved below Status) */}
-                            {profile.video_destacado_url && (
-                                <div className={`rounded-[2.5rem] overflow-hidden border ${profile.tema_perfil === 'dark' ? 'border-slate-700 bg-slate-800' :
+                            {profile.subscription_tier === 'premium' && profile.video_destacado_url && getYouTubeEmbedUrl(profile.video_destacado_url) && (
+                                <div className={`rounded-[2.5rem] overflow-hidden border animate-in fade-in slide-in-from-bottom-4 duration-700 ${profile.tema_perfil === 'dark' ? 'border-slate-700 bg-slate-800' :
                                     profile.tema_perfil === 'neon' ? 'border-green-900 bg-black shadow-[0_0_15px_rgba(74,222,128,0.1)]' :
                                         profile.tema_perfil === 'gold' ? 'border-amber-900/50 bg-slate-900' :
                                             'border-slate-100 bg-white shadow-xl shadow-slate-200/50'
                                     }`}>
-                                    <div className="aspect-video">
+                                    <div className="aspect-video bg-black/20">
                                         <iframe
                                             width="100%"
                                             height="100%"
                                             src={getYouTubeEmbedUrl(profile.video_destacado_url)}
-                                            title="Featured Video"
+                                            title="Video Destacado"
                                             frameBorder="0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                             allowFullScreen
+                                            className="opacity-0 animate-fade-in duration-1000"
+                                            onLoad={(e) => (e.currentTarget.style.opacity = '1')}
                                         ></iframe>
                                     </div>
-                                    <div className="p-5 text-center">
-                                        <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${profile.tema_perfil === 'neon' ? 'text-green-600' :
+                                    <div className="p-5 text-center bg-gradient-to-t from-black/5 to-transparent">
+                                        <span className={`text-[11px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 ${profile.tema_perfil === 'neon' ? 'text-green-600' :
                                             profile.tema_perfil === 'gold' ? 'text-amber-500' :
                                                 'text-slate-400'
                                             }`}>
+                                            <Youtube size={14} className="text-red-600" />
                                             Video Destacado
                                         </span>
                                     </div>
@@ -757,33 +755,39 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 }`}>
                                 {/* Integrated Socials Section (Now at the top) */}
                                 {!isEditing && (
-                                    <div className="flex flex-wrap gap-3 mb-8 pb-8 border-b border-slate-100/10">
-                                        {SOCIAL_KEYS.map(key => {
-                                            const url = profile.social_links?.[key as keyof typeof profile.social_links];
-                                            if (!url) return null;
+                                    <div className="mb-8 pb-8 border-b border-slate-100/10">
+                                        <h3 className={`text-[11px] font-black uppercase tracking-[0.2em] mb-6 ${profile.tema_perfil === 'neon' ? 'text-green-500' :
+                                            profile.tema_perfil === 'gold' ? 'text-amber-500' :
+                                                'text-slate-400'
+                                            }`}>Redes Sociales</h3>
+                                        <div className="flex flex-wrap gap-3">
+                                            {SOCIAL_KEYS.map(key => {
+                                                const url = profile.social_links?.[key as keyof typeof profile.social_links];
+                                                if (!url) return null;
 
-                                            let finalUrl = url.startsWith('http') ? url : `https://${key}.com/${url}`;
-                                            if (key === 'whatsapp') finalUrl = `https://wa.me/${url}`;
+                                                let finalUrl = url.startsWith('http') ? url : `https://${key}.com/${url}`;
+                                                if (key === 'whatsapp') finalUrl = `https://wa.me/${url}`;
 
-                                            const item = SOCIAL_ICONS[key];
-                                            if (!item) return null;
+                                                const item = SOCIAL_ICONS[key];
+                                                if (!item) return null;
 
-                                            return (
-                                                <a key={key} href={finalUrl} target="_blank" rel="noopener noreferrer"
-                                                    className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm group border ${profile.tema_perfil === 'light'
-                                                        ? 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-900 hover:text-white'
-                                                        : 'bg-white/5 border-white/5 text-white hover:bg-white hover:text-black'
-                                                        }`}>
-                                                    {item.icon ? (
-                                                        <item.icon size={18} />
-                                                    ) : (
-                                                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4.5 h-4.5">
-                                                            <path d={item.path} />
-                                                        </svg>
-                                                    )}
-                                                </a>
-                                            )
-                                        })}
+                                                return (
+                                                    <a key={key} href={finalUrl} target="_blank" rel="noopener noreferrer"
+                                                        className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm group border ${profile.tema_perfil === 'light'
+                                                            ? 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-900 hover:text-white'
+                                                            : 'bg-white/5 border-white/5 text-white hover:bg-white hover:text-black'
+                                                            }`}>
+                                                        {item.icon ? (
+                                                            <item.icon size={18} />
+                                                        ) : (
+                                                            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4.5 h-4.5">
+                                                                <path d={item.path} />
+                                                            </svg>
+                                                        )}
+                                                    </a>
+                                                )
+                                            })}
+                                        </div>
                                     </div>
                                 )}
 
@@ -841,13 +845,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 onClick={() => setIsEditing(false)}
                                                 className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
                                             >
-                                                Cancelar
+                                                {hasChanges() ? 'Descartar' : 'Cerrar'}
                                             </button>
                                             <button
                                                 onClick={handleUpdateProfile}
                                                 disabled={saving || !hasChanges()}
                                                 className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg ${hasChanges()
-                                                    ? 'bg-blue-600 text-white hover:bg-blue-500'
+                                                    ? 'bg-blue-600 text-white hover:bg-blue-500 shadow-blue-500/20'
                                                     : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                                                     }`}
                                             >
