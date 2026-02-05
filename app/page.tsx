@@ -60,7 +60,7 @@ export default function Home() {
               </div>
               <input
                 type="text"
-                placeholder="Escribe 'Reggaeton oscuro a 90bpm' o pega un link..."
+                placeholder="Escribe corridos tumbados o pega un link..."
                 className="flex-1 bg-transparent border-none px-4 py-4 outline-none font-medium text-slate-800 text-lg placeholder:text-slate-300"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -73,22 +73,20 @@ export default function Home() {
                 Buscar
               </button>
             </div>
-            <div className="mt-4 flex flex-wrap justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-              <span>Sugerencias:</span>
-              <button className="hover:text-blue-600 transition-colors" onClick={() => setSearchQuery('Corridos Tumbados')}>🔥 Corridos</button>
-              <button className="hover:text-blue-600 transition-colors" onClick={() => setSearchQuery('Reggaeton Dark')}>🕶️ Reggaeton</button>
-              <button className="hover:text-blue-600 transition-colors" onClick={() => setSearchQuery('Trap Melódico')}>🎹 Trap</button>
-            </div>
+            <div className="mt-8"></div>
           </div>
         </div>
       </section>
 
       {/* 2. STATS / SOCIAL PROOF (Minimal Stripe-like) */}
       <section className="bg-white border-y border-slate-100 py-12">
-        <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-center md:justify-between items-center gap-8 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-          {['Sony Music', 'Warner Chappell', 'Universal', 'Spotify', 'BMI'].map((brand) => (
-            <span key={brand} className="text-xl font-black text-slate-300 uppercase tracking-tighter">{brand}</span>
-          ))}
+        <div className="max-w-7xl mx-auto px-6">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] text-center mb-10">Música Distribuida a través de</p>
+          <div className="flex flex-wrap justify-center md:justify-between items-center gap-12 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-700">
+            {['Sony Music', 'Warner Chappell', 'Universal', 'Spotify', 'BMI', 'Apple Music'].map((brand) => (
+              <span key={brand} className="text-xl md:text-2xl font-black text-slate-400 uppercase tracking-tighter hover:text-blue-600 transition-colors cursor-default">{brand}</span>
+            ))}
+          </div>
         </div>
       </section>
 

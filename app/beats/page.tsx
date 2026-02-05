@@ -216,6 +216,7 @@ function BeatsPageContent() {
           const { data: prodData, error: prodError } = await supabase
             .from('profiles')
             .select(`id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, created_at`)
+            .not('artistic_name', 'is', null)
             .limit(100);
 
           if (prodError) throw prodError;
@@ -507,7 +508,7 @@ function BeatsPageContent() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <h3 className="text-xl font-black uppercase tracking-tight text-slate-900">{p.artistic_name}</h3>
-                            {p.is_verified && <div className="p-1 bg-blue-500 text-white rounded-full"><Award size={10} /></div>}
+                            {p.is_verified && <img src="/verified-badge.png" alt="Verificado" className="w-5 h-5 object-contain" />}
                           </div>
                           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-3">@{p.username}</p>
                           <div className="flex gap-2">
@@ -516,13 +517,13 @@ function BeatsPageContent() {
                               }`}>
                               {p.subscription_tier || 'Free'}
                             </span>
-                            {p.is_founder && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-[8px] font-black uppercase tracking-widest">Founder</span>}
+                            {p.is_founder && <Crown size={14} className="text-amber-500 fill-amber-500" />}
                           </div>
                         </div>
-                        <Link href={`/${p.username}`} className="p-4 bg-slate-900 text-white rounded-2xl hover:bg-blue-600 transition-all active:scale-95">
-                          <ArrowLeft className="rotate-180" size={20} />
-                        </Link>
                       </div>
+                      <Link href={`/${p.username}`} className="p-4 bg-slate-900 text-white rounded-2xl hover:bg-blue-600 transition-all active:scale-95">
+                        <ArrowLeft className="rotate-180" size={20} />
+                      </Link>
                     </div>
                   ))}
                 </div>
@@ -559,9 +560,9 @@ function BeatsPageContent() {
             </div>
           </div>
         </div>
-      </main>
+      </main >
 
       <Footer />
-    </div>
+    </div >
   );
 }

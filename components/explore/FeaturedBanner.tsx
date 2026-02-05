@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Music, TrendingUp, ChevronRight, ChevronLeft, Users, Sparkles, Star, Zap, Crown, Flame, Instagram, Twitter, Globe, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Music, TrendingUp, ChevronRight, ChevronLeft, Users, Sparkles, Star, Zap, Crown, Flame, Instagram, Twitter, Globe } from "lucide-react";
 import { Beat } from "@/lib/types";
 
 interface FeaturedBannerProps {
@@ -69,13 +69,16 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                 {/* Background Image with Blur */}
                 <div key={`${activeTab}-${currentIndex}`} className="absolute inset-0 z-0 animate-fade-in transition-opacity duration-1000 ease-in-out">
                     <img
-                        src={activeTab === 'beats' ? (currentItem as Beat).portadabeat_url || '' :
+                        src={activeTab === 'beats' ?
+                            ((currentItem as Beat).genre === 'Corridos Tumbados 🇲🇽' ? 'https://images.unsplash.com/photo-1593030230495-9f5e04cb2a01?q=80&w=2070&auto=format&fit=crop' :
+                                (currentItem as Beat).genre === 'Trap' ? 'https://images.unsplash.com/photo-1514525253361-bee84384c484?q=80&w=2070&auto=format&fit=crop' :
+                                    (currentItem as Beat).portadabeat_url || '') :
                             activeTab === 'artists' ? (currentItem.foto_perfil || `https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop`) :
                                 currentItem.image}
                         alt="Background"
                         className={`w-full h-full object-cover ${activeTab === 'moods' ? 'opacity-70 blur-none' : 'opacity-30 blur-3xl'} scale-110 transition-all duration-1000`}
                     />
-                    <div className={`absolute inset-0 ${activeTab === 'moods' ? 'bg-black/40' : 'bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent'}`}></div>
+                    <div className={`absolute inset-0 ${activeTab === 'moods' ? 'bg-black/60' : 'bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent'}`}></div>
                 </div>
 
                 {/* Navigation Arrows */}
@@ -101,7 +104,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                     {/* Media Content */}
                     <div key={`media-${activeTab}-${currentIndex}`} className="relative shrink-0 animate-fade-in-up">
                         {activeTab !== 'moods' && (
-                            <div className="w-48 h-48 md:w-72 md:h-72 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/80 border border-white/10 rotate-1 hover:rotate-0 transition-all duration-700 flex items-center justify-center">
+                            <div className="w-48 h-48 md:w-72 md:h-72 rounded-[3.5rem] overflow-hidden shadow-2xl shadow-black/60 transition-all duration-700 flex items-center justify-center">
                                 <img
                                     src={activeTab === 'beats' ? (currentItem as Beat).portadabeat_url || '' : (currentItem.foto_perfil || `https://images.unsplash.com/photo-1514525253361-bee84384c484?q=80&w=2070&auto=format&fit=crop`)}
                                     className="w-full h-full object-cover"
@@ -129,7 +132,9 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                             {activeTab === 'beats' ? (currentItem as Beat).title : activeTab === 'artists' ? currentItem.artistic_name : currentItem.label}
                             {activeTab === 'artists' && (
                                 <span className="inline-flex items-center gap-3 ml-4">
-                                    {currentItem.is_verified && <CheckCircle2 size={24} className="text-blue-400" />}
+                                    {currentItem.is_verified && (
+                                        <img src="/verified-badge.png" alt="Verificado" className="w-6 h-6 object-contain" />
+                                    )}
                                     {currentItem.is_founder && <Crown size={24} className="text-amber-400 fill-amber-400" />}
                                 </span>
                             )}
@@ -138,10 +143,10 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                         {activeTab === 'artists' && (
                             <div className="mb-8 space-y-6">
                                 <div className="flex flex-wrap gap-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                    <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+                                    <span className="flex items-center gap-2 px-0 py-1.5">
                                         <Globe size={12} className="text-blue-400" /> {currentItem.country || 'México'}
                                     </span>
-                                    <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+                                    <span className="flex items-center gap-2 px-0 py-1.5">
                                         <Users size={12} className="text-purple-400" /> Miembro desde {new Date(currentItem.created_at || Date.now()).getFullYear()}
                                     </span>
                                 </div>
@@ -150,13 +155,13 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                                 </p>
                                 <div className="flex items-center justify-center md:justify-start gap-4">
                                     {currentItem.social_links?.instagram && (
-                                        <Link href={currentItem.social_links.instagram} target="_blank" className="p-2.5 bg-white/5 rounded-xl hover:bg-white/10 transition-all text-slate-400 hover:text-white border border-white/5 shadow-lg"><Instagram size={18} /></Link>
+                                        <Link href={currentItem.social_links.instagram} target="_blank" className="p-2.5 hover:scale-110 transition-all text-slate-400 hover:text-white"><Instagram size={18} /></Link>
                                     )}
                                     {currentItem.social_links?.twitter && (
-                                        <Link href={currentItem.social_links.twitter} target="_blank" className="p-2.5 bg-white/5 rounded-xl hover:bg-white/10 transition-all text-slate-400 hover:text-white border border-white/5 shadow-lg"><Twitter size={18} /></Link>
+                                        <Link href={currentItem.social_links.twitter} target="_blank" className="p-2.5 hover:scale-110 transition-all text-slate-400 hover:text-white"><Twitter size={18} /></Link>
                                     )}
                                     {currentItem.social_links?.website && (
-                                        <Link href={currentItem.social_links.website} target="_blank" className="p-2.5 bg-white/10 rounded-xl hover:bg-white/20 transition-all text-slate-300 hover:text-white border border-white/10 shadow-lg"><Globe size={18} /></Link>
+                                        <Link href={currentItem.social_links.website} target="_blank" className="p-2.5 hover:scale-110 transition-all text-slate-300 hover:text-white"><Globe size={18} /></Link>
                                     )}
                                 </div>
                             </div>
@@ -172,8 +177,8 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
 
                         {activeTab === 'beats' && (
                             <div className="flex flex-col md:flex-row items-center gap-6 md:gap-12 mb-10">
-                                <Link href={`/${(currentItem as Beat).producer_username}`} className="flex items-center gap-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-[2rem] px-6 py-4 hover:bg-white/20 transition-all group/prod shadow-2xl">
-                                    <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white/30 shadow-lg">
+                                <Link href={`/${(currentItem as Beat).producer_username}`} className="flex items-center gap-4 bg-transparent rounded-[2rem] px-0 py-4 hover:opacity-80 transition-all group/prod">
+                                    <div className="w-14 h-14 rounded-full overflow-hidden transition-all duration-300">
                                         <img
                                             src={(currentItem as Beat).producer_foto_perfil || `https://ui-avatars.com/api/?name=${(currentItem as Beat).producer_artistic_name}`}
                                             className="w-full h-full object-cover group-hover/prod:scale-110 transition-transform"
@@ -184,7 +189,9 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                                         <div className="flex items-center gap-2">
                                             <p className="text-lg font-black text-white">{(currentItem as Beat).producer_artistic_name}</p>
                                             <div className="flex items-center gap-1.5 ml-1">
-                                                {(currentItem as Beat).producer_is_verified && <CheckCircle2 size={16} className="text-blue-400" />}
+                                                {(currentItem as Beat).producer_is_verified && (
+                                                    <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain" />
+                                                )}
                                                 {(currentItem as Beat).producer_is_founder && <Crown size={16} className="text-amber-400 fill-amber-400" />}
                                             </div>
                                         </div>
