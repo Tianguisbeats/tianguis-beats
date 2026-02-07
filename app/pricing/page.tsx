@@ -202,8 +202,8 @@ export default function PricingPage() {
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-[10px] font-black uppercase tracking-widest mb-6 border border-accent/20">
                         <Sparkles size={14} /> Elige tu camino al éxito
                     </div>
-                    <h1 className="text-5xl md:text-8xl font-black text-foreground tracking-tighter mb-6 lowercase font-heading leading-tight">
-                        Elige tu <span className="text-accent italic">plan</span>
+                    <h1 className="text-5xl md:text-8xl font-black text-foreground tracking-tighter mb-6 font-heading leading-tight">
+                        Elige tu <span className="text-accent italic">Plan</span>
                     </h1>
                     <p className="max-w-2xl mx-auto text-lg text-muted font-medium mb-12">
                         Desde creadores emergentes hasta profesionales establecidos. Tenemos la infraestructura necesaria para escalar tu negocio musical.
@@ -257,7 +257,7 @@ export default function PricingPage() {
                                         <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${isPremium ? 'bg-amber-400/10 text-amber-500' : isPro ? 'bg-accent text-white' : 'bg-muted/10 text-muted'}`}>
                                             {isPremium ? <Crown size={28} fill="currentColor" /> : isPro ? <Star size={28} fill="currentColor" /> : <Zap size={28} />}
                                         </div>
-                                        <h3 className="text-2xl font-black text-foreground mb-2 font-heading lowercase tracking-tighter">{plan.name}</h3>
+                                        <h3 className="text-2xl font-black text-foreground mb-2 font-heading tracking-tighter">{plan.name}</h3>
                                         <p className="text-muted text-sm font-medium">{plan.description}</p>
                                     </div>
                                     <div className="mb-8">
@@ -284,7 +284,7 @@ export default function PricingPage() {
                                         {isCurrentPlan ? 'Tu Plan Actual' : isScheduled ? 'Programado' : plan.tier === 'free' ? 'Empezar Gratis' : `Suscribirse ${plan.name}`}
                                     </button>
 
-                                    <Link href="/help" className="mt-4 text-center text-[10px] font-black uppercase tracking-widest text-muted hover:text-accent transition-colors">
+                                    <Link href={`/pricing/${plan.tier}`} className="mt-4 text-center text-[10px] font-black uppercase tracking-widest text-muted hover:text-accent transition-colors">
                                         Saber más sobre el plan
                                     </Link>
 

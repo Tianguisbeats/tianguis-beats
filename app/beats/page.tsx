@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Filter, Music, SlidersHorizontal, ArrowLeft, Crown, Clock, TrendingUp, Sparkles, Trophy, Gem, Zap, Star, Users, Award, Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { Filter, Music, SlidersHorizontal, ArrowLeft, Crown, Clock, TrendingUp, Sparkles, Trophy, Gem, Zap, Star, Users, Award, Heart, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Beat } from "@/lib/types";
@@ -439,8 +439,8 @@ function BeatsPageContent() {
                     <SlidersHorizontal size={20} />
                   </button>
                   <div className="flex flex-col">
-                    <h2 className="text-xl font-black text-foreground uppercase tracking-tight font-heading lowercase">
-                      Catalogo
+                    <h2 className="text-xl font-black text-foreground uppercase tracking-tight font-heading">
+                      Explorar
                     </h2>
                     <p className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Tianguis Beats</p>
                   </div>
@@ -526,74 +526,66 @@ function BeatsPageContent() {
                 </div>
               ) : viewMode === 'producers' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10 animate-fade-in-up">
-                  {producers.map(p => (
-                    <div key={p.id} className="group bg-card rounded-[3rem] p-8 border border-border shadow-soft hover:shadow-2xl hover:shadow-accent/5 transition-all duration-500 hover:-translate-y-2 flex flex-col items-center text-center relative overflow-hidden h-full">
-                      <div className={`absolute top-0 left-0 w-full h-2 ${p.subscription_tier === 'premium' ? 'bg-amber-400' : p.subscription_tier === 'pro' ? 'bg-accent' : 'bg-border'}`} />
+                  {producers.length > 0 ? producers.filter(p => {
+                    const query = filterState.searchQuery.toLowerCase();
+                    return !query || (p.artistic_name?.toLowerCase().includes(query) || p.username?.toLowerCase().includes(query));
+                  }).map(p => (
+                    <Link
+                      key={p.id}
+                      href={`/${p.username}`}
+                      className="group bg-card/60 rounded-[2.5rem] p-5 border border-border shadow-sm hover:shadow-xl hover:shadow-accent/5 transition-all duration-500 hover:-translate-y-1 flex items-center gap-5 relative overflow-hidden"
+                    >
+                      {/* Premium Accent */}
+                      {p.subscription_tier === 'premium' && (
+                        <div className="absolute top-0 right-0 p-1.5 bg-amber-500 text-white rounded-bl-2xl shadow-lg z-10 animate-pulse">
+                          <Crown size={12} fill="currentColor" />
+                        </div>
+                      )}
 
-                      {/* Avatar */}
-                      <div className="relative mt-2 mb-4">
-                        <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full p-1 border-2 transition-all duration-700 group-hover:scale-110 ${p.subscription_tier === 'premium' ? 'border-amber-400 shadow-xl shadow-amber-500/20' : 'border-border hover:border-accent'}`}>
+                      {/* Avatar Mini */}
+                      <div className="relative shrink-0">
+                        <div className={`w-16 h-16 rounded-full p-0.5 border-2 transition-all duration-700 group-hover:scale-110 ${p.subscription_tier === 'premium' ? 'border-amber-400' : 'border-border group-hover:border-accent'}`}>
                           <img
                             src={p.foto_perfil || `https://ui-avatars.com/api/?name=${p.artistic_name || p.username}&background=random`}
                             className="w-full h-full object-cover rounded-full"
                             alt={p.artistic_name || p.username}
                           />
                         </div>
-                        {p.subscription_tier === 'premium' && (
-                          <div className="absolute -top-1 -right-1 p-2 bg-amber-500 text-white rounded-xl shadow-xl animate-bounce">
-                            <Crown size={14} fill="currentColor" />
-                          </div>
-                        )}
                       </div>
 
-                      {/* Info */}
-                      <div className="flex-1 w-full">
-                        <div className="flex items-center justify-center gap-1.5 mb-0.5">
-                          <h3 className="text-xl font-black uppercase tracking-tighter text-foreground group-hover:text-accent transition-colors truncate max-w-[180px] font-heading lowercase">
+                      {/* Info Mini */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="text-sm font-black uppercase tracking-tight text-foreground group-hover:text-accent transition-colors truncate font-heading">
                             {p.artistic_name || p.username}
                           </h3>
-                          {p.is_verified && <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain" />}
+                          {p.is_verified && <Check size={14} className="text-blue-500 shrink-0" />}
                         </div>
-                        <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-3">@{p.username}</p>
+                        <p className="text-[9px] font-bold text-muted uppercase tracking-widest truncate">@{p.username}</p>
 
-                        <p className="text-xs text-muted font-medium leading-relaxed italic mb-6 line-clamp-2 px-2 min-h-[40px] font-body">
-                          "{p.bio || "Productor destacado en Tianguis Beats con estilo único."}"
-                        </p>
-
-                        {/* Social Links (Mini) */}
-                        <div className="flex justify-center gap-2 mb-6">
-                          {p.social_links && typeof p.social_links === 'object' && !Array.isArray(p.social_links) && Object.entries(p.social_links).slice(0, 4).map(([key, url]: [string, any]) => {
-                            if (!url || typeof url !== 'string') return null;
-                            return (
-                              <div key={key} className="w-8 h-8 rounded-lg bg-accent-soft border border-border flex items-center justify-center text-muted hover:text-accent transition-colors min-h-[32px] min-w-[32px]">
-                                <span className="text-[8px] font-black uppercase">{key.substring(0, 2)}</span>
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        <div className="flex justify-center gap-1.5 mb-6">
-                          <span className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest ${p.subscription_tier === 'premium' ? 'bg-amber-500/10 text-amber-500' :
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className={`px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-widest ${p.subscription_tier === 'premium' ? 'bg-amber-500/10 text-amber-500' :
                             p.subscription_tier === 'pro' ? 'bg-accent/10 text-accent' : 'bg-muted/10 text-muted'
                             }`}>
                             {p.subscription_tier || 'Free'}
                           </span>
                           {p.is_founder && (
-                            <span className="px-3 py-1.5 bg-foreground text-background rounded-lg text-[8px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg shadow-black/10">
-                              <Crown size={10} fill="currentColor" className="text-amber-400" /> Founder
-                            </span>
+                            <span className="text-amber-500"><Crown size={10} fill="currentColor" /></span>
                           )}
                         </div>
                       </div>
 
-                      <Link
-                        href={`/${p.username}`}
-                        className="w-full py-5 bg-foreground text-background rounded-[2rem] font-black uppercase text-[11px] tracking-widest hover:bg-accent hover:text-white transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl shadow-black/5 min-h-[56px]"
-                      >
-                        Ver Perfil Principal <ChevronRight size={16} />
-                      </Link>
+                      <div className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0">
+                        <ChevronRight size={16} />
+                      </div>
+                    </Link>
+                  )) : (
+                    <div className="col-span-full text-center py-20 bg-card/40 rounded-[2.5rem] border border-dashed border-border">
+                      <Users className="mx-auto text-muted mb-4" size={40} />
+                      <h3 className="text-lg font-black uppercase tracking-tighter">No se encontraron artistas</h3>
+                      <p className="text-xs text-muted max-w-xs mx-auto mt-2">Prueba ajustando tus filtros de búsqueda.</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               ) : beats.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10 animate-fade-in-up">
