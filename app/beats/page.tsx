@@ -91,6 +91,9 @@ function BeatsPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  // Separamos el loading del banner del loading del grid principal
+  const [isBannerLoading, setIsBannerLoading] = useState<boolean>(true);
+
   // Load Filters from URL
   useEffect(() => {
     const q = searchParams.get('q');
@@ -154,39 +157,39 @@ function BeatsPageContent() {
     };
   };
 
-  // Re-defining internal component helpers deleted in previous step
   const BannerSkeleton = () => (
-    <div className="w-full h-[450px] md:h-[520px] bg-card rounded-[3.5rem] animate-pulse mb-8 border border-border shadow-soft flex items-center justify-center">
+    <div className="w-full h-[380px] bg-card rounded-[2.5rem] animate-pulse mb-8 border border-border shadow-soft flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-20 h-20 bg-accent-soft rounded-full animate-pulse"></div>
-        <div className="h-4 w-40 bg-accent-soft rounded-full"></div>
+        <div className="w-16 h-16 bg-accent-soft rounded-full animate-pulse"></div>
+        <div className="h-3 w-32 bg-accent-soft rounded-full"></div>
       </div>
     </div>
   );
 
   const BeatSkeleton = () => (
-    <div className="bg-card rounded-[3rem] p-6 border border-border shadow-soft animate-pulse flex flex-col h-full">
-      <div className="aspect-square bg-accent-soft rounded-[2.5rem] mb-6"></div>
-      <div className="h-6 bg-accent-soft rounded-full w-3/4 mb-4"></div>
-      <div className="h-4 bg-accent-soft rounded-full w-1/2 mb-8"></div>
-      <div className="mt-auto flex justify-between items-center bg-accent-soft/30 p-4 rounded-3xl">
-        <div className="h-6 bg-accent-soft rounded-full w-16"></div>
-        <div className="h-10 bg-accent-soft rounded-2xl w-24"></div>
+    <div className="bg-card rounded-[2.5rem] p-6 border border-border shadow-soft animate-pulse flex flex-col h-full">
+      <div className="aspect-square bg-accent-soft rounded-[2rem] mb-6"></div>
+      <div className="h-5 bg-accent-soft rounded-full w-3/4 mb-4"></div>
+      <div className="h-3 bg-accent-soft rounded-full w-1/2 mb-8"></div>
+      <div className="mt-auto flex justify-between items-center bg-accent-soft/30 p-4 rounded-2xl">
+        <div className="h-5 bg-accent-soft rounded-full w-12"></div>
+        <div className="h-8 bg-accent-soft rounded-xl w-20"></div>
       </div>
     </div>
   );
 
   const TabButton = ({ mode, label, icon: Icon }: { mode: string; label: string; icon: any; color?: string }) => {
     const isActive = viewMode === mode;
+    const isCT = mode === 'corridos_tumbados';
     return (
       <button
         onClick={() => setViewMode(mode as any)}
         className={`snap-center flex-shrink-0 flex items-center gap-3 px-8 py-4 rounded-t-3xl font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-300 whitespace-nowrap min-h-[56px] relative ${isActive
-          ? 'bg-background text-accent border-x border-t border-border -mb-[1px] z-10'
+          ? `bg-background ${isCT ? 'text-green-500' : 'text-accent'} border-x border-t border-border -mb-[1px] z-10`
           : 'bg-card/50 text-muted hover:text-foreground border-transparent hover:bg-card'
           }`}
       >
-        <Icon size={16} strokeWidth={isActive ? 3 : 2} className={isActive ? 'text-accent' : ''} />
+        <Icon size={16} strokeWidth={isActive ? 3 : 2} className={isActive ? (isCT ? 'text-green-500' : 'text-accent') : ''} />
         <span>{label}</span>
       </button>
     );
@@ -196,6 +199,52 @@ function BeatsPageContent() {
     return ["Todos", ...GENRES];
   }, []);
 
+  // Effect specialized for Banner & Background data
+  useEffect(() => {
+    async function loadBillboard() {
+      try {
+        setIsBannerLoading(true);
+        // Fetch Trending Beats
+        const { data: trendData } = await supabase
+          .from('beats')
+          .select(`
+            id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count,
+            producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
+          `)
+          .eq('is_public', true)
+          .order('play_count', { ascending: false, nullsFirst: false })
+          .limit(10);
+
+        if (trendData) {
+          const trendTransformed = await Promise.all(trendData.map(transformBeat));
+          setTrendingBeats(trendTransformed);
+        }
+
+        // Fetch Trending Producers
+        const { data: trendProd } = await supabase
+          .from('profiles')
+          .select('id, artistic_name, username, foto_perfil, subscription_tier, is_verified, is_founder, bio, fecha_creacion')
+          .not('username', 'is', null)
+          .order('subscription_tier', { ascending: false }) // Initial sort by tier
+          .limit(20);
+
+        if (trendProd) {
+          const sortedProd = trendProd.sort((a, b) => {
+            const order: any = { premium: 0, pro: 1, free: 2 };
+            return (order[a.subscription_tier as any] ?? 3) - (order[b.subscription_tier as any] ?? 3);
+          }).slice(0, 5);
+          setTrendingProducers(sortedProd);
+        }
+      } catch (err) {
+        console.error("Billboard Error:", err);
+      } finally {
+        setIsBannerLoading(false);
+      }
+    }
+    loadBillboard();
+  }, []);
+
+  // Main Catalog Effect
   useEffect(() => {
     let cancel = false;
 
@@ -204,62 +253,12 @@ function BeatsPageContent() {
         setLoading(true);
         setErrorMsg(null);
 
-        let query = supabase
-          .from("beats")
-          .select(`
-            id, title, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count, sale_count, like_count,
-            is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active,
-            producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
-          `)
-          .eq("is_public", true);
-
-        // Apply Common Filters
-        if (filterState.genre !== 'Todos') query = query.eq('genre', filterState.genre);
-        if (filterState.subgenre) query = query.eq('subgenre', filterState.subgenre);
-        if (filterState.mood) query = query.ilike('mood', `%${filterState.mood}%`);
-        if (filterState.bpmMin) query = query.gte('bpm', filterState.bpmMin);
-        if (filterState.bpmMax) query = query.lte('bpm', filterState.bpmMax);
-        if (filterState.key) query = query.eq('musical_key', filterState.key);
-        if (filterState.scale) query = query.eq('musical_scale', filterState.scale);
-        if (filterState.searchQuery.trim()) query = query.or(`title.ilike.%${filterState.searchQuery.trim()}%,genre.ilike.%${filterState.searchQuery.trim()}%,subgenre.ilike.%${filterState.searchQuery.trim()}%`);
-
-        // Apply View Mode Specific Sorting/Filtering
-        switch (viewMode) {
-          case 'new':
-            query = query.order("created_at", { ascending: false });
-            break;
-          case 'trending':
-            query = query.order("play_count", { ascending: false, nullsFirst: false });
-            break;
-          case 'best_sellers':
-            query = query.order("sale_count", { ascending: false, nullsFirst: false });
-            break;
-          case 'hidden_gems':
-            // High likes, low plays (Joyas)
-            query = query.order("like_count", { ascending: false }).lte('play_count', 2000);
-            break;
-          case 'exclusives': // This will be "Tianguis IA" / Exposición Premium
-            query = query.not('producer_id', 'is', null);
-            break;
-          case 'recommended':
-            // Simple personalization fallback
-            query = query.order("play_count", { ascending: false });
-            break;
-          case 'corridos_tumbados':
-            query = query.eq('genre', 'Corridos Tumbados 🇲🇽').order("created_at", { ascending: false });
-            break;
-          default: // 'all'
-            query = query.order("created_at", { ascending: false });
-            break;
-        }
-
         if (viewMode === 'producers') {
-          // Fetch more fields needed for the producer card
           const { data: prodData, error: prodError } = await supabase
             .from('profiles')
-            .select(`id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, created_at, social_links`)
+            .select(`id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, fecha_creacion, social_links`)
             .not('username', 'is', null)
-            .limit(100);
+            .limit(150);
 
           if (prodError) throw prodError;
 
@@ -268,7 +267,7 @@ function BeatsPageContent() {
             const tierA = order[a.subscription_tier as any] ?? 3;
             const tierB = order[b.subscription_tier as any] ?? 3;
             if (tierA !== tierB) return tierA - tierB;
-            return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+            return new Date(b.fecha_creacion || 0).getTime() - new Date(a.fecha_creacion || 0).getTime();
           });
           setProducers(sortedProd);
           setBeats([]);
@@ -304,6 +303,37 @@ function BeatsPageContent() {
           setBeats(skTransformed as any);
           setProducers([]);
         } else {
+          let query = supabase
+            .from("beats")
+            .select(`
+              id, title, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count, sale_count, like_count,
+              is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active,
+              producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
+            `)
+            .eq("is_public", true);
+
+          // Apply Common Filters
+          if (filterState.genre !== 'Todos') query = query.eq('genre', filterState.genre);
+          if (filterState.subgenre) query = query.eq('subgenre', filterState.subgenre);
+          if (filterState.mood) query = query.ilike('mood', `%${filterState.mood}%`);
+          if (filterState.bpmMin) query = query.gte('bpm', filterState.bpmMin);
+          if (filterState.bpmMax) query = query.lte('bpm', filterState.bpmMax);
+          if (filterState.key) query = query.eq('musical_key', filterState.key);
+          if (filterState.scale) query = query.eq('musical_scale', filterState.scale);
+          if (filterState.searchQuery.trim()) query = query.or(`title.ilike.%${filterState.searchQuery.trim()}%,genre.ilike.%${filterState.searchQuery.trim()}%,subgenre.ilike.%${filterState.searchQuery.trim()}%`);
+
+          // Apply View Mode Specific Sorting/Filtering
+          switch (viewMode) {
+            case 'new': query = query.order("created_at", { ascending: false }); break;
+            case 'trending': query = query.order("play_count", { ascending: false, nullsFirst: false }); break;
+            case 'best_sellers': query = query.order("sale_count", { ascending: false, nullsFirst: false }); break;
+            case 'hidden_gems': query = query.order("like_count", { ascending: false }).lte('play_count', 2000); break;
+            case 'recommended': query = query.order("play_count", { ascending: false }); break;
+            case 'exclusives': query = query.not('producer_id', 'is', null); break;
+            case 'corridos_tumbados': query = query.eq('genre', 'Corridos Tumbados 🇲🇽').order("created_at", { ascending: false }); break;
+            default: query = query.order("created_at", { ascending: false }); break;
+          }
+
           const { data, error } = await query.limit(50);
 
           if (cancel) return;
@@ -321,67 +351,12 @@ function BeatsPageContent() {
             const tierA = tierOrder[a.producer_tier as any] ?? 3;
             const tierB = tierOrder[b.producer_tier as any] ?? 3;
             if (tierA !== tierB) return tierA - tierB;
-            // Secondary sort by date
             return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
           });
 
           setBeats(transformed);
           setProducers([]);
         }
-
-        // Fetch Trending Data for Banner (ALWAYS FETCH for global banner persistence)
-        const { data: trendData } = await supabase
-          .from('beats')
-          .select(`
-                    id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count,
-                    producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
-                `)
-          .eq('is_public', true)
-          .order('play_count', { ascending: false, nullsFirst: false })
-          .limit(10);
-
-        if (trendData) {
-          const trendTransformed = await Promise.all(trendData.map(transformBeat));
-          setTrendingBeats(trendTransformed);
-        }
-
-        // Fetch Trending Producers (Artists of the Week)
-        const { data: playsData } = await supabase
-          .from('beats')
-          .select('producer_id, play_count')
-          .not('producer_id', 'is', null)
-          .order('play_count', { ascending: false })
-          .limit(200);
-
-        const playsMap: Record<string, number> = {};
-        playsData?.forEach(b => {
-          playsMap[b.producer_id] = (playsMap[b.producer_id] || 0) + (b.play_count || 0);
-        });
-
-        const { data: trendProd } = await supabase
-          .from('profiles')
-          .select('id, artistic_name, username, foto_perfil, subscription_tier, is_verified, is_founder, bio, country, created_at, social_links')
-          .not('username', 'is', null)
-          .limit(100);
-
-        if (trendProd) {
-          const sortedProd = trendProd.map(p => {
-            const totalPlays = playsMap[p.id] || 0;
-            const tierMultiplier = p.subscription_tier === 'premium' ? 2.0 : p.subscription_tier === 'pro' ? 1.5 : 1.0;
-            return { ...p, score: totalPlays * tierMultiplier };
-          })
-            .sort((a, b) => {
-              const order: any = { premium: 0, pro: 1, free: 2 };
-              const tierA = order[a.subscription_tier as any] ?? 3;
-              const tierB = order[b.subscription_tier as any] ?? 3;
-              if (tierA !== tierB) return tierA - tierB;
-              return b.score - a.score;
-            })
-            .slice(0, 10);
-
-          setTrendingProducers(sortedProd);
-        }
-
       } catch (err) {
         console.error(err);
         setErrorMsg("Error al cargar.");
@@ -394,6 +369,16 @@ function BeatsPageContent() {
     return () => { cancel = true; };
   }, [filterState, viewMode]);
 
+  const filteredProducers = useMemo(() => {
+    if (viewMode !== 'producers') return [];
+    const query = filterState.searchQuery.toLowerCase().trim();
+    if (!query) return producers;
+    return producers.filter(p =>
+      p.artistic_name?.toLowerCase().includes(query) ||
+      p.username?.toLowerCase().includes(query)
+    );
+  }, [producers, filterState.searchQuery, viewMode]);
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-accent selection:text-white flex flex-col transition-colors duration-300">
       <Navbar />
@@ -401,10 +386,10 @@ function BeatsPageContent() {
       <main className="flex-1 pt-8 pb-20 relative">
         <div className="max-w-[1700px] mx-auto px-4 sm:px-10">
 
-          {/* Featured Banner (Persistent) */}
-          {loading ? (
+          {/* Featured Banner (PERSISTENT & NON-BLOCKING) */}
+          {isBannerLoading && trendingBeats.length === 0 ? (
             <BannerSkeleton />
-          ) : !errorMsg && trendingBeats.length > 0 && (
+          ) : (
             <FeaturedBanner
               trendingBeats={trendingBeats}
               trendingProducers={trendingProducers}
@@ -500,36 +485,16 @@ function BeatsPageContent() {
                   </button>
                 </div>
 
-
               </div>
 
-
-
-              {viewMode === 'premium_spotlight' && (
-                <div className="mb-8 p-8 bg-gradient-to-r from-amber-500/10 to-orange-500/5 rounded-[2.5rem] border border-amber-500/20 flex items-start gap-6 animate-fade-in-up">
-                  <div className="p-4 bg-amber-500 text-white rounded-2xl shadow-xl shadow-amber-500/20">
-                    <Crown size={28} />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-black text-amber-500 uppercase tracking-tight mb-2 font-heading">Selección Tianguis</h3>
-                    <p className="text-sm font-medium text-muted leading-relaxed font-body">
-                      Descubre beats exclusivos de nuestros productores Premium y Pro. Calidad garantizada.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Grid */}
+              {/* Grid Section */}
               {loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
                   {[...Array(8)].map((_, i) => <BeatSkeleton key={i} />)}
                 </div>
               ) : viewMode === 'producers' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10 animate-fade-in-up">
-                  {producers.length > 0 ? producers.filter(p => {
-                    const query = filterState.searchQuery.toLowerCase();
-                    return !query || (p.artistic_name?.toLowerCase().includes(query) || p.username?.toLowerCase().includes(query));
-                  }).map(p => (
+                  {filteredProducers.length > 0 ? filteredProducers.map(p => (
                     <Link
                       key={p.id}
                       href={`/${p.username}`}
@@ -582,7 +547,7 @@ function BeatsPageContent() {
                   )) : (
                     <div className="col-span-full text-center py-20 bg-card/40 rounded-[2.5rem] border border-dashed border-border">
                       <Users className="mx-auto text-muted mb-4" size={40} />
-                      <h3 className="text-lg font-black uppercase tracking-tighter">No se encontraron artistas</h3>
+                      <h3 className="text-lg font-black uppercase tracking-tighter">No se han encontrado artistas</h3>
                       <p className="text-xs text-muted max-w-xs mx-auto mt-2">Prueba ajustando tus filtros de búsqueda.</p>
                     </div>
                   )}
@@ -613,7 +578,7 @@ function BeatsPageContent() {
                       setFilterState({ searchQuery: "", genre: "Todos", subgenre: "", bpmMin: "", bpmMax: "", key: "", scale: "", mood: "", priceRange: [0, 10000] });
                       setViewMode('all');
                     }}
-                    className="px-12 py-5 bg-foreground text-background rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] hover:bg-accent hover:text-white transition-all active:scale-95 min-h-[56px]"
+                    className="px-12 py-5 bg-accent text-white rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] hover:bg-accent/90 transition-all active:scale-95 min-h-[56px]"
                   >
                     Limpiar Filtros
                   </button>

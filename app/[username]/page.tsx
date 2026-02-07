@@ -451,7 +451,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             </div>
             <h1 className="text-2xl font-black uppercase tracking-tighter text-foreground mb-2">Usuario no encontrado</h1>
             <p className="text-muted text-sm font-bold uppercase tracking-widest mb-8">Ese tianguis aún no se ha puesto</p>
-            <Link href="/" className="px-8 py-3 bg-foreground text-background rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-accent transition-all">
+            <Link href="/" className="px-8 py-3 bg-accent text-white rounded-full font-black text-[10px] uppercase tracking-widest hover:opacity-90 transition-all">
                 Volver al Inicio
             </Link>
         </div>
@@ -647,7 +647,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     ) : (
                                         <button
                                             onClick={handleFollowToggle}
-                                            className={`px-8 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 ${isFollowing ? 'bg-white border-2 border-slate-200 text-slate-900' : 'bg-slate-900 text-white hover:bg-blue-600'}`}
+                                            className={`px-8 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 ${isFollowing ? 'bg-white border-2 border-slate-200 text-slate-900' : 'bg-accent text-white hover:bg-accent/90'}`}
                                         >
                                             {isFollowing ? <><Check size={14} /> Siguiendo</> : <><UserPlus size={14} /> Seguir</>}
                                         </button>

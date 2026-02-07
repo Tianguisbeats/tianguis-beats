@@ -156,7 +156,7 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                         onClick={handleAddToCart}
                         className={`w-9 h-9 md:w-10 md:h-10 rounded-[0.8rem] flex items-center justify-center transition-all shadow-xl active:scale-95 min-h-[36px] min-w-[36px] ${itemInCart
                             ? 'bg-green-500 text-white shadow-green-500/30'
-                            : 'bg-foreground text-background hover:bg-accent hover:text-white shadow-accent/10 border border-border'
+                            : 'bg-accent text-white hover:bg-accent/90 shadow-accent/10 border border-transparent'
                             }`}
                     >
                         {itemInCart ? <Check size={20} strokeWidth={4} /> : <ShoppingCart size={18} />}

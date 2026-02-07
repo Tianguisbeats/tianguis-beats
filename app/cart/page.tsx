@@ -170,7 +170,7 @@ export default function CartPage() {
                                         </button>
                                     </div>
 
-                                    <button className="w-full bg-blue-600 text-white py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.2em] hover:bg-white hover:text-blue-600 transition-all shadow-xl shadow-blue-500/20 mb-8 flex items-center justify-center gap-3">
+                                    <button className="w-full bg-accent text-white py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.2em] hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 mb-8 flex items-center justify-center gap-3">
                                         Finalizar Compra
                                         <ArrowRight size={18} />
                                     </button>
@@ -191,7 +191,7 @@ export default function CartPage() {
                             </div>
                             <h2 className="text-4xl font-black uppercase tracking-tight mb-4">Tu carrito está vacío</h2>
                             <p className="text-muted font-medium text-lg mb-12 max-w-sm">Parece que aún no has seleccionado el sonido de tu próximo hit.</p>
-                            <Link href="/beats" className="bg-foreground text-background px-12 py-5 rounded-full font-black uppercase text-[11px] tracking-[0.2em] hover:bg-accent hover:text-white transition-all shadow-xl shadow-black/10 flex items-center gap-4">
+                            <Link href="/beats" className="bg-accent text-white px-12 py-5 rounded-full font-black uppercase text-[11px] tracking-[0.2em] hover:bg-accent/90 transition-all shadow-xl shadow-accent/10 flex items-center gap-4">
                                 Explorar Catálogo
                                 <ArrowRight size={18} />
                             </Link>

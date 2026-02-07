@@ -34,8 +34,8 @@ export default function Home() {
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card/50 backdrop-blur-sm mb-8 animate-fade-in-up">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
             </span>
             <span className="text-[10px] font-bold uppercase tracking-widest text-muted animate-pulse-slow">
               🇲🇽 La Tienda de Beats #1 en México
@@ -70,7 +70,7 @@ export default function Home() {
               </div>
               <button
                 onClick={() => window.location.href = `/beats?q=${searchQuery}`}
-                className="bg-foreground text-background px-8 py-4 md:py-3 rounded-[1.5rem] md:rounded-full font-black uppercase text-[10px] tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg min-h-[56px] flex items-center justify-center"
+                className="bg-accent text-white px-8 py-4 md:py-3 rounded-[1.5rem] md:rounded-full font-black uppercase text-[10px] tracking-widest hover:bg-accent/90 transition-all shadow-lg min-h-[56px] flex items-center justify-center"
               >
                 Buscar
               </button>
@@ -232,7 +232,7 @@ export default function Home() {
             <span className="italic">romperla?</span>
           </h2>
           <div className="flex justify-center gap-4">
-            <Link href="/beats" className="bg-foreground text-background px-12 py-5 rounded-full font-black uppercase text-[12px] tracking-widest hover:scale-105 transition-transform flex items-center gap-2 min-h-[64px] shadow-2xl">
+            <Link href="/beats" className="bg-accent text-white px-12 py-5 rounded-full font-black uppercase text-[12px] tracking-widest hover:scale-105 transition-transform flex items-center gap-2 min-h-[64px] shadow-2xl">
               Explorar Beats <Music size={18} />
             </Link>
           </div>

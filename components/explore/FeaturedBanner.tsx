@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Music, TrendingUp, ChevronRight, ChevronLeft, Users, Sparkles, Star, Zap, Crown, Flame, Instagram, Twitter, Globe, Pause, Play } from "lucide-react";
+import { ArrowRight, Music, TrendingUp, ChevronRight, ChevronLeft, Users, Sparkles, Star, Zap, Crown, Flame, Instagram, Twitter, Globe, Pause, Play, Check } from "lucide-react";
 import { Beat } from "@/lib/types";
 import { usePlayer } from "@/context/PlayerContext";
 
@@ -18,162 +18,164 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
     const [currentIndex, setCurrentIndex] = useState(0);
     const { playBeat, currentBeat, isPlaying } = usePlayer();
 
-    const items = trendingBeats;
-    const currentItem = items?.[currentIndex];
+    // Alternar 5 Beats y 5 Artistas de forma balanceada (Billboard Top 10)
+    const combinedItems = [];
+    for (let i = 0; i < 5; i++) {
+        if (trendingBeats[i]) combinedItems.push({ type: 'beat', data: trendingBeats[i] });
+        if (trendingProducers[i]) combinedItems.push({ type: 'producer', data: trendingProducers[i] });
+    }
 
-    const isThisPlaying = (currentItem as Beat)?.id === currentBeat?.id && isPlaying;
+    const currentItem = combinedItems?.[currentIndex];
+    const isBeat = currentItem?.type === 'beat';
+    const itemData = currentItem?.data;
+
+    const isThisPlaying = isBeat && (itemData as Beat)?.id === currentBeat?.id && isPlaying;
 
     const handlePlayForBanner = (e: React.MouseEvent) => {
         e.preventDefault();
-        playBeat(currentItem as Beat);
+        if (isBeat) playBeat(itemData as Beat);
     };
 
-    // Auto-rotate every 6 seconds
+    // Rotación automática cada 7 segundos para dar tiempo de lectura
     useEffect(() => {
         const timer = setInterval(() => {
-            if (items.length > 0) {
-                setCurrentIndex((prev) => (prev + 1) % items.length);
+            if (combinedItems.length > 0) {
+                setCurrentIndex((prev) => (prev + 1) % combinedItems.length);
             }
-        }, 6000);
+        }, 7000);
         return () => clearInterval(timer);
-    }, [items]);
+    }, [combinedItems.length]);
 
     if (!currentItem) return null;
 
-    const nextItem = () => setCurrentIndex((prev) => (prev + 1) % items.length);
-    const prevItem = () => setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
+    const nextItem = () => setCurrentIndex((prev) => (prev + 1) % combinedItems.length);
+    const prevItem = () => setCurrentIndex((prev) => (prev - 1 + combinedItems.length) % combinedItems.length);
 
     const getLiquidColors = () => {
-        const genre = (currentItem as Beat)?.genre;
+        if (!isBeat) return 'from-amber-500/30 via-orange-600/30 to-slate-900/40';
+        const genre = (itemData as Beat)?.genre;
         if (genre?.includes('Corridos')) return 'from-emerald-500/40 via-green-600/40 to-red-900/40';
         if (genre?.includes('Trap')) return 'from-purple-600/40 via-fuchsia-600/40 to-blue-900/40';
-        if (genre?.includes('Reggaeton')) return 'from-orange-500/40 via-rose-600/40 to-purple-900/40';
         return 'from-blue-600/40 via-purple-600/40 to-blue-900/40';
     };
 
     return (
-        <div className="w-full mb-10 group">
-            <div className="relative w-full rounded-[3.5rem] bg-slate-950 overflow-hidden text-white min-h-[520px] md:min-h-[480px] flex items-center shadow-2xl shadow-accent/5 transition-colors duration-300">
+        <div className="w-full mb-8 group">
+            {/* Reduced height from 520px to 420px for a more compact and professional look */}
+            <div className="relative w-full rounded-[3rem] bg-slate-950 overflow-hidden text-white min-h-[420px] md:min-h-[400px] flex items-center shadow-2xl shadow-accent/5 transition-all duration-500">
 
                 {/* Liquid Background Effect */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                    <div className={`absolute -top-1/4 -left-1/4 w-full h-full bg-gradient-to-br ${getLiquidColors()} rounded-full blur-[120px] animate-pulse duration-[10000ms] opacity-60`}></div>
-                    <div className={`absolute -bottom-1/4 -right-1/4 w-full h-full bg-gradient-to-tl ${getLiquidColors()} rounded-full blur-[120px] animate-pulse duration-[8000ms] opacity-60`}></div>
-                    <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 h-1/2 bg-white/5 rounded-full blur-[80px]`}></div>
+                    <div className={`absolute -top-1/4 -left-1/4 w-full h-full bg-gradient-to-br ${getLiquidColors()} rounded-full blur-[100px] animate-pulse duration-[10000ms] opacity-50`}></div>
+                    <div className={`absolute -bottom-1/4 -right-1/4 w-full h-full bg-gradient-to-tl ${getLiquidColors()} rounded-full blur-[100px] animate-pulse duration-[8000ms] opacity-50`}></div>
                 </div>
 
-                {/* Background Image with Blur */}
-                <div key={`bg-${currentIndex}`} className="absolute inset-0 z-0 animate-fade-in transition-opacity duration-1000 ease-in-out">
-                    <img
-                        src={(currentItem as Beat).genre === 'Corridos Tumbados 🇲🇽' ? 'https://images.unsplash.com/photo-1593030230495-9f5e04cb2a01?q=80&w=2070&auto=format&fit=crop' :
-                            (currentItem as Beat).genre === 'Trap' ? 'https://images.unsplash.com/photo-1514525253361-bee84384c484?q=80&w=2070&auto=format&fit=crop' :
-                                (currentItem as Beat).portadabeat_url || ''}
-                        alt="Background"
-                        className="w-full h-full object-cover opacity-20 blur-3xl scale-125 transition-all duration-1000"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/40 to-transparent"></div>
-                </div>
+                {/* Content */}
+                <div className="relative z-10 w-full p-6 md:px-16 md:py-8 flex flex-col md:flex-row items-center gap-8 md:gap-16">
 
-                {/* Navigation Arrows */}
-                {items.length > 1 && (
-                    <>
-                        <button
-                            onClick={prevItem}
-                            className="absolute left-6 z-40 p-4 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-xl transition-all opacity-0 group-hover:opacity-100 border border-white/10 sm:block hidden hover:scale-110 active:scale-90 min-h-[56px] min-w-[56px] flex items-center justify-center"
-                        >
-                            <ChevronLeft size={28} />
-                        </button>
-                        <button
-                            onClick={nextItem}
-                            className="absolute right-6 z-40 p-4 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-xl transition-all opacity-0 group-hover:opacity-100 border border-white/10 sm:block hidden hover:scale-110 active:scale-90 min-h-[56px] min-w-[56px] flex items-center justify-center"
-                        >
-                            <ChevronRight size={28} />
-                        </button>
-                    </>
-                )}
-
-                <div className="relative z-10 w-full p-6 md:p-20 flex flex-col md:flex-row items-center gap-8 md:gap-24">
-
-                    {/* Media Content */}
-                    <div key={`media-${currentIndex}`} className="relative shrink-0 animate-fade-in-up">
-                        <div className="w-48 h-48 md:w-80 md:h-80 rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-2xl shadow-black transition-all duration-1000 flex items-center justify-center p-2 bg-white/5 backdrop-blur-sm border border-white/10">
+                    {/* Media Content - Compact Size */}
+                    <div key={`media-${currentIndex}-${currentItem.type}`} className="relative shrink-0 animate-in fade-in zoom-in duration-700">
+                        <div className={`w-40 h-40 md:w-64 md:h-64 rounded-[2.5rem] md:rounded-[3rem] overflow-hidden shadow-2xl shadow-black/50 border border-white/10 relative ${!isBeat ? 'p-1 bg-gradient-to-br from-amber-400 to-orange-600' : ''}`}>
                             <img
-                                src={(currentItem as Beat).portadabeat_url || ''}
-                                className="w-full h-full object-cover rounded-[2.5rem] md:rounded-[3.5rem]"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${(currentItem as Beat).title}&background=3b82f6&color=fff`;
-                                }}
+                                src={isBeat ? (itemData as Beat).portadabeat_url || '' : (itemData as any).foto_perfil || `https://ui-avatars.com/api/?name=${(itemData as any).artistic_name || (itemData as any).username}&background=random`}
+                                className={`w-full h-full object-cover ${!isBeat ? 'rounded-[2.4rem] md:rounded-[2.9rem]' : ''}`}
+                                alt="Feature Content"
                             />
+                            {!isBeat && (itemData as any).subscription_tier === 'premium' && (
+                                <div className="absolute top-4 right-4 bg-amber-500 text-white p-2 rounded-xl shadow-lg animate-bounce">
+                                    <Crown size={16} fill="currentColor" />
+                                </div>
+                            )}
                         </div>
                     </div>
 
                     {/* Info Section */}
-                    <div key={`content-${currentIndex}`} className="flex-1 text-center md:text-left animate-fade-in-up">
-                        <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] mb-6 md:mb-10 backdrop-blur-2xl border bg-accent/30 border-accent/40 text-blue-200">
-                            <Flame size={16} className="text-orange-400 animate-pulse" /> 🔥 Top Hits
+                    <div key={`content-${currentIndex}-${currentItem.type}`} className="flex-1 text-center md:text-left animate-in slide-in-from-right-8 fade-in duration-700">
+                        <div className={`inline-flex items-center gap-3 px-5 py-2 rounded-full text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] mb-4 md:mb-6 backdrop-blur-3xl border ${isBeat ? 'bg-accent/20 border-accent/30 text-blue-200' : 'bg-amber-500/20 border-amber-500/30 text-amber-200'}`}>
+                            {isBeat ? <Flame size={14} className="text-orange-400" /> : <Star size={14} className="text-amber-400" />}
+                            {isBeat ? 'Top Hit de la Semana' : 'Artista Destacado'}
                         </div>
 
-                        <h1 className="text-3xl md:text-7xl font-black tracking-tighter mb-4 md:mb-6 leading-[0.9] bg-clip-text text-transparent bg-gradient-to-br from-white to-white/40 lowercase font-heading">
-                            {(currentItem as Beat).title}
+                        <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight mb-3 md:mb-4 leading-[1.1] font-heading lowercase">
+                            {isBeat ? (itemData as Beat).title : (itemData as any).artistic_name || (itemData as any).username}
                         </h1>
 
-                        <div className="flex flex-col md:flex-row items-center gap-6 md:gap-16 mb-8 md:mb-12">
-                            <Link href={`/${(currentItem as Beat).producer_username}`} className="flex items-center gap-4 md:gap-5 bg-white/5 hover:bg-white/10 rounded-[2rem] md:rounded-[2.5rem] px-5 py-3 md:px-6 md:py-4 transition-all group/prod backdrop-blur-md border border-white/5">
-                                <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-accent p-0.5 transition-all duration-300 group-hover/prod:scale-110">
-                                    <img
-                                        src={(currentItem as Beat).producer_foto_perfil || `https://ui-avatars.com/api/?name=${(currentItem as Beat).producer_artistic_name}`}
-                                        className="w-full h-full object-cover rounded-full"
-                                    />
-                                </div>
-                                <div className="text-left">
-                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none mb-1 md:mb-2">Producido por</p>
-                                    <div className="flex items-center gap-2.5">
-                                        <p className="text-lg md:text-xl font-black text-white lowercase">{(currentItem as Beat).producer_artistic_name}</p>
-                                        <div className="flex items-center gap-2 ml-1">
-                                            {(currentItem as Beat).producer_is_verified && (
-                                                <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 md:w-5 md:h-5 object-contain" />
-                                            )}
-                                            {(currentItem as Beat).producer_is_founder && <Crown className="text-amber-400 fill-amber-400 w-4 h-4 md:w-[18px] md:h-[18px]" />}
-                                        </div>
+                        {isBeat ? (
+                            <div className="flex flex-col md:flex-row items-center gap-4 mb-6 md:mb-8">
+                                <Link href={`/${(itemData as Beat).producer_username}`} className="flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-full px-4 py-2 transition-all border border-white/5 group">
+                                    <div className="w-8 h-8 rounded-full overflow-hidden border border-accent">
+                                        <img src={(itemData as Beat).producer_foto_perfil || ''} className="w-full h-full object-cover" />
                                     </div>
+                                    <span className="text-sm font-black lowercase text-white">{(itemData as Beat).producer_artistic_name}</span>
+                                    {(itemData as Beat).producer_is_verified && <Check size={12} className="text-blue-400" />}
+                                </Link>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-lg">{(itemData as Beat).genre}</span>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-lg">{(itemData as Beat).bpm} BPM</span>
+                            </div>
+                        ) : (
+                            <div className="mb-6 md:mb-8">
+                                <p className="text-sm md:text-base text-slate-300 max-w-xl line-clamp-2 md:line-clamp-3 font-medium opacity-80 leading-relaxed mb-4">
+                                    {(itemData as any).bio || "Productor verificado de la escena nacional mexicana. Descubre su sonido único."}
+                                </p>
+                                <div className="flex items-center gap-3">
+                                    <div className="flex -space-x-2">
+                                        {[1, 2, 3].map(i => <div key={i} className="w-7 h-7 rounded-full border-2 border-slate-950 bg-slate-800" />)}
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">+50 Beats Publicados</span>
                                 </div>
-                            </Link>
-                        </div>
+                            </div>
+                        )}
 
-                        <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-6 items-center mt-4 text-white">
-                            <button
-                                onClick={handlePlayForBanner}
-                                className={`w-16 h-16 md:w-20 md:h-20 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center transition-all shadow-2xl active:scale-95 border backdrop-blur-md min-h-[64px] min-w-[64px] ${isThisPlaying ? 'bg-white text-accent border-white' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}`}
-                            >
-                                {isThisPlaying ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" className="ml-1" />}
-                            </button>
-                            <Link
-                                href={`/beats/${currentItem.id}`}
-                                className="px-10 py-5 md:px-16 md:py-6 rounded-[2rem] md:rounded-[2.5rem] font-black uppercase text-[12px] md:text-[14px] tracking-[0.25em] transition-all shadow-3xl active:scale-95 flex items-center gap-3 md:gap-4 group/btn-main min-h-[56px] bg-accent text-white shadow-accent/40 hover:bg-blue-500 hover:scale-105"
-                            >
-                                Ver Detalles
-                                <ChevronRight size={20} className="group-hover/btn-main:translate-x-2 transition-transform" />
-                            </Link>
+                        <div className="flex flex-wrap justify-center md:justify-start gap-4 items-center">
+                            {isBeat ? (
+                                <>
+                                    <button
+                                        onClick={handlePlayForBanner}
+                                        className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-all shadow-xl active:scale-95 border backdrop-blur-md ${isThisPlaying ? 'bg-white text-accent border-white' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}`}
+                                    >
+                                        {isThisPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
+                                    </button>
+                                    <Link
+                                        href={`/beats/${(itemData as Beat).id}`}
+                                        className="px-8 py-4 md:px-10 md:py-5 bg-accent text-white rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-blue-500 hover:scale-105 transition-all shadow-xl shadow-accent/20 flex items-center gap-2 group/btn"
+                                    >
+                                        Obtener Beat
+                                        <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
+                                    </Link>
+                                </>
+                            ) : (
+                                <Link
+                                    href={`/${(itemData as any).username}`}
+                                    className="px-8 py-4 md:px-10 md:py-5 bg-white text-slate-900 rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-slate-100 hover:scale-105 transition-all shadow-xl flex items-center gap-2 group/btn"
+                                >
+                                    Ver Perfil de Artista
+                                    <Users size={18} />
+                                </Link>
+                            )}
 
-                            {/* Progress Indicator */}
-                            <div className="flex items-center gap-4 md:gap-8 bg-white/5 border border-white/10 rounded-2xl md:rounded-3xl px-6 py-4 md:px-8 md:py-5 shadow-3xl backdrop-blur-2xl">
-                                <div className="flex gap-2 md:gap-3">
-                                    {items.map((_, i) => (
-                                        <button
-                                            key={i}
-                                            onClick={(e) => { e.preventDefault(); setCurrentIndex(i); }}
-                                            className={`h-2 md:h-2.5 rounded-full transition-all duration-700 ${i === currentIndex ? 'w-8 md:w-12 bg-white shadow-[0_0_20px_rgba(255,255,255,0.8)]' : 'w-2 md:w-2.5 bg-white/20 hover:bg-white/40'}`}
-                                        />
-                                    ))}
-                                </div>
-                                <span className="text-[10px] md:text-[12px] font-black text-slate-300 uppercase tracking-[0.2em] w-12 md:w-16 text-center tabular-nums">
-                                    {(currentIndex + 1).toString().padStart(2, '0')} <span className="text-slate-600">/</span> {items.length.toString().padStart(2, '0')}
-                                </span>
+                            {/* Progress Dots - More Minimal */}
+                            <div className="flex items-center gap-3 ml-2">
+                                {combinedItems.map((_, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => setCurrentIndex(i)}
+                                        className={`h-1.5 rounded-full transition-all duration-500 ${i === currentIndex ? 'w-6 bg-white shadow-[0_0_10px_white]' : 'w-1.5 bg-white/20 hover:bg-white/50'}`}
+                                    />
+                                ))}
                             </div>
                         </div>
                     </div>
+
+                    {/* Navigation Mini-Buttons (Hidden on mobile) */}
+                    <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={prevItem} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all hover:scale-110"><ChevronLeft size={20} /></button>
+                        <button onClick={nextItem} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all hover:scale-110"><ChevronRight size={20} /></button>
+                    </div>
+
                 </div>
             </div>
         </div>
     );
 }
+
+

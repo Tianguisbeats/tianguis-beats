@@ -182,7 +182,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
             <div className="min-h-screen bg-background flex flex-col items-center justify-center">
                 <h1 className="text-4xl font-black text-foreground mb-4">404</h1>
                 <p className="text-muted font-bold uppercase tracking-widest text-xs">Beat no encontrado</p>
-                <Link href="/beats" className="mt-8 px-6 py-3 bg-foreground text-background rounded-full font-bold text-xs uppercase tracking-widest hover:bg-accent hover:text-white transition-all">
+                <Link href="/beats" className="mt-8 px-6 py-3 bg-accent text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-accent/90 transition-all">
                     Regresar a Explorar
                 </Link>
             </div>
@@ -218,7 +218,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             {/* Play Button Overlay */}
                             <button
                                 onClick={() => playBeat(beat as any)}
-                                className="absolute -bottom-6 -right-6 w-20 h-20 bg-foreground text-background rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-black/20 hover:bg-accent hover:text-white hover:shadow-accent/30 hover:scale-110 transition-all active:scale-95 z-20"
+                                className="absolute -bottom-6 -right-6 w-20 h-20 bg-accent text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-accent/20 hover:bg-blue-500 hover:scale-110 transition-all active:scale-95 z-20"
                             >
                                 {isPlaying && currentBeat?.id === beat.id ? <Pause size={30} fill="currentColor" /> : <Play size={30} fill="currentColor" className="ml-1" />}
                             </button>
@@ -279,7 +279,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             </div>
 
                             <div className="flex gap-4 justify-center md:justify-start mt-4">
-                                <button onClick={handleLike} className={`px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-3 transition-all ${isLiked ? 'bg-red-500 text-white shadow-xl shadow-red-500/30 hover:scale-105' : 'bg-foreground text-background hover:bg-accent hover:text-white shadow-xl shadow-black/10'}`}>
+                                <button onClick={handleLike} className={`px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-3 transition-all ${isLiked ? 'bg-red-500 text-white shadow-xl shadow-red-500/30 hover:scale-105' : 'bg-accent text-white hover:bg-accent/90 shadow-xl shadow-accent/10'}`}>
                                     <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
                                     {isLiked ? 'Te gusta' : 'Dar Like'}
                                 </button>
@@ -385,7 +385,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
                                 <button
                                     onClick={handleAddToCart}
-                                    className="w-full py-5 bg-foreground text-background rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-accent hover:text-white transition-all shadow-xl shadow-black/10 flex items-center justify-center gap-3"
+                                    className="w-full py-5 bg-accent text-white rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 flex items-center justify-center gap-3"
                                 >
                                     <ShoppingCart size={18} />
                                     Añadir {selectedLicense} al Carrito
