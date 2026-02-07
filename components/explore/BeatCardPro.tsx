@@ -40,11 +40,7 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
     };
 
     const getGenreStyles = () => {
-        const g = beat.genre || '';
-        if (g.includes('Corridos')) return 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-100/50 dark:border-emerald-800/30 hover:shadow-emerald-500/10';
-        if (g.includes('Trap')) return 'bg-purple-50/50 dark:bg-purple-900/10 border-purple-100/50 dark:border-purple-800/30 hover:shadow-purple-500/10';
-        if (g.includes('Reggaeton')) return 'bg-rose-50/50 dark:bg-rose-900/10 border-rose-100/50 dark:border-rose-800/30 hover:shadow-rose-500/10';
-        return 'bg-card border-border hover:shadow-accent/10';
+        return 'bg-card border-border hover:shadow-accent/5';
     };
 
     const handleAddToCart = (e: React.MouseEvent) => {

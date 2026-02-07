@@ -18,8 +18,8 @@ import FeaturedBanner from "@/components/explore/FeaturedBanner";
 export default function BeatsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
       </div>
     }>
       <BeatsPageContent />
@@ -176,18 +176,21 @@ function BeatsPageContent() {
     </div>
   );
 
-  const TabButton = ({ mode, label, icon: Icon, color }: { mode: string; label: string; icon: any; color: string }) => (
-    <button
-      onClick={() => setViewMode(mode as any)}
-      className={`snap-center flex-shrink-0 flex items-center gap-3 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-500 whitespace-nowrap min-h-[56px] border ${viewMode === mode
-        ? `${color} text-white shadow-xl shadow-accent/20 scale-105 border-transparent`
-        : 'bg-card text-muted hover:text-foreground border-border hover:border-accent'
-        }`}
-    >
-      <Icon size={16} strokeWidth={viewMode === mode ? 3 : 2} className={viewMode === mode ? 'animate-pulse' : ''} />
-      <span>{label}</span>
-    </button>
-  );
+  const TabButton = ({ mode, label, icon: Icon }: { mode: string; label: string; icon: any; color?: string }) => {
+    const isActive = viewMode === mode;
+    return (
+      <button
+        onClick={() => setViewMode(mode as any)}
+        className={`snap-center flex-shrink-0 flex items-center gap-3 px-8 py-4 rounded-t-3xl font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-300 whitespace-nowrap min-h-[56px] relative ${isActive
+          ? 'bg-background text-accent border-x border-t border-border -mb-[1px] z-10'
+          : 'bg-card/50 text-muted hover:text-foreground border-transparent hover:bg-card'
+          }`}
+      >
+        <Icon size={16} strokeWidth={isActive ? 3 : 2} className={isActive ? 'text-accent' : ''} />
+        <span>{label}</span>
+      </button>
+    );
+  };
 
   const genresFromData = useMemo(() => {
     return ["Todos", ...GENRES];
@@ -464,18 +467,18 @@ function BeatsPageContent() {
 
                   <div
                     id="tabs-container"
-                    className="flex items-center gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-4 px-4 md:px-20 scroll-smooth justify-start"
+                    className="flex items-end gap-1 overflow-x-auto no-scrollbar snap-x snap-mandatory px-4 md:px-10 scroll-smooth justify-start border-b border-border"
                   >
-                    <TabButton mode="all" label="Todos" icon={Music} color="bg-accent shadow-accent/20" />
-                    <TabButton mode="corridos_tumbados" label="Corridos 🇲🇽" icon={Zap} color="bg-orange-600 shadow-orange-500/20" />
-                    <TabButton mode="new" label="Nuevos" icon={Clock} color="bg-emerald-500 shadow-emerald-500/20" />
-                    <TabButton mode="trending" label="Tendencias" icon={TrendingUp} color="bg-rose-500 shadow-rose-500/20" />
-                    <TabButton mode="best_sellers" label="Más comprados" icon={Trophy} color="bg-amber-600 shadow-amber-600/20" />
-                    <TabButton mode="hidden_gems" label="Joyas" icon={Gem} color="bg-cyan-500 shadow-cyan-500/20" />
-                    <TabButton mode="exclusives" label="Tianguis IA" icon={Sparkles} color="bg-indigo-600 shadow-indigo-600/20" />
-                    <TabButton mode="recommended" label="Recomendados IA" icon={Zap} color="bg-accent shadow-accent/20" />
-                    <TabButton mode="sound_kits" label="Sound Kits" icon={Music} color="bg-purple-600 shadow-purple-500/20" />
-                    <TabButton mode="producers" label="Artistas" icon={Users} color="bg-accent shadow-accent/20" />
+                    <TabButton mode="all" label="Todos" icon={Music} />
+                    <TabButton mode="corridos_tumbados" label="Corridos 🇲🇽" icon={Zap} />
+                    <TabButton mode="new" label="Nuevos" icon={Clock} />
+                    <TabButton mode="trending" label="Tendencias" icon={TrendingUp} />
+                    <TabButton mode="best_sellers" label="Más comprados" icon={Trophy} />
+                    <TabButton mode="hidden_gems" label="Joyas" icon={Gem} />
+                    <TabButton mode="exclusives" label="Tianguis IA" icon={Sparkles} />
+                    <TabButton mode="recommended" label="Recomendados IA" icon={Zap} />
+                    <TabButton mode="sound_kits" label="Sound Kits" icon={Music} />
+                    <TabButton mode="producers" label="Artistas" icon={Users} />
                   </div>
 
                   {/* Right Arrow Button */}
@@ -559,8 +562,8 @@ function BeatsPageContent() {
 
                         {/* Social Links (Mini) */}
                         <div className="flex justify-center gap-3 mb-8">
-                          {p.social_links && Object.entries(p.social_links).slice(0, 4).map(([key, url]) => {
-                            if (!url) return null;
+                          {p.social_links && typeof p.social_links === 'object' && !Array.isArray(p.social_links) && Object.entries(p.social_links).slice(0, 4).map(([key, url]: [string, any]) => {
+                            if (!url || typeof url !== 'string') return null;
                             return (
                               <div key={key} className="w-10 h-10 rounded-xl bg-accent-soft border border-border flex items-center justify-center text-muted hover:text-accent transition-colors min-h-[40px] min-w-[40px]">
                                 <span className="text-[10px] font-black uppercase">{key.substring(0, 2)}</span>

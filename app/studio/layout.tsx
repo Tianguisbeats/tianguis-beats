@@ -20,14 +20,14 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+        <div className="min-h-screen bg-background font-sans text-foreground transition-colors duration-300">
             <Navbar />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 flex flex-col md:flex-row gap-8">
                 {/* Sidebar */}
                 <aside className="w-full md:w-64 shrink-0">
-                    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 sticky top-24">
-                        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6 flex items-center gap-2">
+                    <div className="bg-card rounded-3xl p-6 shadow-sm border border-border sticky top-24">
+                        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-6 flex items-center gap-2">
                             <Settings size={14} />
                             Tianguis Studio
                         </h2>
@@ -40,8 +40,8 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                         key={item.href}
                                         href={item.href}
                                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${isActive
-                                            ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10'
-                                            : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                                            ? 'bg-foreground text-background shadow-lg shadow-black/10'
+                                            : 'text-muted hover:bg-accent-soft hover:text-foreground'
                                             }`}
                                     >
                                         {item.icon}
@@ -50,11 +50,11 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                 );
                             })}
 
-                            <div className="h-px bg-slate-100 my-4"></div>
+                            <div className="h-px bg-border my-4"></div>
 
                             <Link
                                 href="/"
-                                className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm text-slate-400 hover:bg-slate-50 hover:text-slate-900"
+                                className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm text-muted hover:bg-accent-soft hover:text-foreground"
                             >
                                 <Home size={18} />
                                 Volver al Inicio

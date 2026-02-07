@@ -439,19 +439,19 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     };
 
     if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-white">
-            <Loader2 className="animate-spin text-slate-300" size={32} />
+        <div className="min-h-screen flex items-center justify-center bg-background">
+            <Loader2 className="animate-spin text-muted" size={32} />
         </div>
     );
 
     if (!profile && !loading) return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white pt-32 p-4 text-center">
-            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-6">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-background pt-32 p-4 text-center">
+            <div className="w-20 h-20 bg-card rounded-full flex items-center justify-center text-muted mb-6">
                 <Users size={40} />
             </div>
-            <h1 className="text-2xl font-black uppercase tracking-tighter text-slate-900 mb-2">Usuario no encontrado</h1>
-            <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-8">Ese tianguis aún no se ha puesto</p>
-            <Link href="/" className="px-8 py-3 bg-slate-900 text-white rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all">
+            <h1 className="text-2xl font-black uppercase tracking-tighter text-foreground mb-2">Usuario no encontrado</h1>
+            <p className="text-muted text-sm font-bold uppercase tracking-widest mb-8">Ese tianguis aún no se ha puesto</p>
+            <Link href="/" className="px-8 py-3 bg-foreground text-background rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-accent transition-all">
                 Volver al Inicio
             </Link>
         </div>
@@ -463,7 +463,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         <div className={`min-h-screen font-sans flex flex-col transition-colors duration-500 ${profile.tema_perfil === 'dark' ? 'bg-[#0F172A] text-white selection:bg-white selection:text-slate-900' :
             profile.tema_perfil === 'neon' ? 'bg-[#09090b] text-white selection:bg-green-400 selection:text-black' :
                 profile.tema_perfil === 'gold' ? 'bg-[#1a1610] text-amber-50 font-serif selection:bg-amber-400 selection:text-black' :
-                    'bg-white text-slate-900 selection:bg-blue-600 selection:text-white'
+                    'bg-background text-foreground selection:bg-accent selection:text-white'
             }`} style={{
                 '--accent': profile.color_acento || '#2563eb'
             } as React.CSSProperties}>
@@ -644,7 +644,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     setIsEditing(true);
                                                 }
                                             }}
-                                            className={`px-8 py-2.5 rounded-full border-2 font-black text-[10px] uppercase tracking-widest transition-all shadow-sm ${isEditing ? 'bg-slate-900 text-white border-slate-900 shadow-slate-900/20' : 'bg-white text-slate-900 border-slate-200 hover:border-slate-400 hover:shadow-md'}`}
+                                            className={`px-8 py-2.5 rounded-full border-2 font-black text-[10px] uppercase tracking-widest transition-all shadow-sm ${isEditing ? 'bg-foreground text-background border-foreground shadow-black/20' : 'bg-background text-foreground border-border hover:border-accent hover:shadow-md'}`}
                                         >
                                             {isEditing ? (hasChanges() ? 'Guardar Cambios' : 'Aceptar') : 'Editar Perfil'}
                                         </button>
@@ -669,21 +669,21 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className={`flex items-center justify-around rounded-3xl p-6 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
                                 profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-[0_0_20px_rgba(74,222,128,0.05)]' :
                                     profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50 shadow-xl' :
-                                        'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
+                                        'bg-card border-border shadow-soft'
                                 }`}>
                                 <div className="text-center">
-                                    <span className={`block text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{followersCount}</span>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Seguidores</span>
+                                    <span className={`block text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-foreground' : 'text-white'}`}>{followersCount}</span>
+                                    <span className="text-[10px] font-bold text-muted uppercase tracking-widest">Seguidores</span>
                                 </div>
-                                <div className="h-8 w-px bg-slate-100"></div>
+                                <div className="h-8 w-px bg-border"></div>
                                 <div className="text-center">
-                                    <span className={`block text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{beats.length}</span>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Beats</span>
+                                    <span className={`block text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-foreground' : 'text-white'}`}>{beats.length}</span>
+                                    <span className="text-[10px] font-bold text-muted uppercase tracking-widest">Beats</span>
                                 </div>
-                                <div className="h-8 w-px bg-slate-100"></div>
+                                <div className="h-8 w-px bg-border"></div>
                                 <div className="text-center">
-                                    <span className={`block text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{followingCount}</span>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Seguidos</span>
+                                    <span className={`block text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-foreground' : 'text-white'}`}>{followingCount}</span>
+                                    <span className="text-[10px] font-bold text-muted uppercase tracking-widest">Seguidos</span>
                                 </div>
                             </div>
 
@@ -691,12 +691,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className={`rounded-[2.5rem] p-8 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
                                 profile.tema_perfil === 'neon' ? 'bg-zinc-900 border-zinc-800' :
                                     profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/30' :
-                                        'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
+                                        'bg-card border-border shadow-soft'
                                 }`}>
                                 <h3 className={`text-[11px] font-black uppercase tracking-[0.2em] mb-8 font-outfit ${profile.tema_perfil === 'dark' ? 'text-slate-400' :
                                     profile.tema_perfil === 'neon' ? 'text-green-600' :
                                         profile.tema_perfil === 'gold' ? 'text-amber-500' :
-                                            'text-slate-400'
+                                            'text-muted'
                                     }`}>Estatus Tianguis</h3>
                                 <div className="space-y-6">
                                     <div className="flex items-center justify-between">

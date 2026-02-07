@@ -80,20 +80,20 @@ export default function CustomizePage() {
         setSaving(false);
     };
 
-    if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-slate-400" /></div>;
+    if (loading) return <div className="flex justify-center p-12 text-muted"><Loader2 className="animate-spin" /></div>;
 
     // Restrict access to Premium users only
     if (userTier !== 'premium') {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
-                <div className="bg-amber-100 p-6 rounded-full mb-6 text-amber-600">
+                <div className="bg-accent-soft p-6 rounded-full mb-6 text-accent">
                     <Palette size={48} />
                 </div>
-                <h1 className="text-3xl font-black text-slate-900 mb-4">Personalización Premium</h1>
-                <p className="text-slate-500 max-w-md mb-8">
+                <h1 className="text-3xl font-black text-foreground mb-4">Personalización Premium</h1>
+                <p className="text-muted max-w-md mb-8">
                     Desbloquea temas oscuros, colores personalizados y video de bienvenida. Haz que tu marca destaque.
                 </p>
-                <Link href="/pricing" className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-slate-800 transition-all">
+                <Link href="/pricing" className="bg-foreground text-background px-8 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all">
                     Mejorar a Premium
                 </Link>
             </div>
@@ -104,13 +104,13 @@ export default function CustomizePage() {
         <div className="max-w-4xl">
             <div className="flex justify-between items-center mb-8">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">Personalizar Perfil</h1>
-                    <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">Define la identidad visual de tu tienda</p>
+                    <h1 className="text-3xl font-black text-foreground tracking-tighter uppercase">Personalizar Perfil</h1>
+                    <p className="text-muted font-bold text-xs uppercase tracking-widest mt-1">Define la identidad visual de tu tienda</p>
                 </div>
                 <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex items-center gap-2 bg-slate-900 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg"
+                    className="flex items-center gap-2 bg-foreground text-background px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg"
                 >
                     {saving ? <Loader2 size={16} className="animate-spin" /> : "Guardar Cambios"}
                 </button>
@@ -118,12 +118,12 @@ export default function CustomizePage() {
 
             <div className="grid md:grid-cols-2 gap-8">
                 {/* Theme Selector */}
-                <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
+                <div className="bg-card p-8 rounded-[2rem] border border-border shadow-sm">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="bg-purple-50 text-purple-600 p-2 rounded-lg">
+                        <div className="bg-purple-500/10 text-purple-600 p-2 rounded-lg">
                             <Layout size={20} />
                         </div>
-                        <h3 className="font-bold text-slate-900">Tema del Perfil</h3>
+                        <h3 className="font-bold text-foreground">Tema del Perfil</h3>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -133,10 +133,10 @@ export default function CustomizePage() {
                                 onClick={() => setPreferences({ ...preferences, tema_perfil: theme.id })}
                                 className={`relative p-4 rounded-xl border-2 text-left transition-all ${preferences.tema_perfil === theme.id ? 'border-purple-600 ring-2 ring-purple-100' : 'border-slate-100 hover:border-slate-200'}`}
                             >
-                                <div className={`aspect-video rounded-lg mb-3 ${theme.bg} ${theme.text} flex items-center justify-center text-[10px] font-black uppercase tracking-widest border border-black/5`}>
+                                <div className={`aspect-video rounded-lg mb-3 ${theme.bg} ${theme.text} flex items-center justify-center text-[10px] font-black uppercase tracking-widest border border-border`}>
                                     Preview
                                 </div>
-                                <span className="text-xs font-bold text-slate-700 block">{theme.name}</span>
+                                <span className="text-xs font-bold text-muted block">{theme.name}</span>
                                 {preferences.tema_perfil === theme.id && (
                                     <div className="absolute top-2 right-2 bg-purple-600 text-white p-1 rounded-full">
                                         <Check size={12} />
@@ -149,12 +149,12 @@ export default function CustomizePage() {
 
                 <div className="space-y-8">
                     {/* Accent Color */}
-                    <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
+                    <div className="bg-card p-8 rounded-[2rem] border border-border shadow-sm">
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="bg-blue-50 text-blue-600 p-2 rounded-lg">
+                            <div className="bg-accent-soft text-accent p-2 rounded-lg">
                                 <Palette size={20} />
                             </div>
-                            <h3 className="font-bold text-slate-900">Color de Acento</h3>
+                            <h3 className="font-bold text-foreground">Color de Acento</h3>
                         </div>
 
                         <div className="flex flex-wrap gap-4">
@@ -162,7 +162,7 @@ export default function CustomizePage() {
                                 <button
                                     key={acc.color}
                                     onClick={() => setPreferences({ ...preferences, color_acento: acc.color })}
-                                    className={`w-12 h-12 rounded-full border-4 transition-all ${preferences.color_acento === acc.color ? 'border-slate-900 scale-110' : 'border-transparent hover:scale-110'}`}
+                                    className={`w-12 h-12 rounded-full border-4 transition-all ${preferences.color_acento === acc.color ? 'border-foreground scale-110' : 'border-transparent hover:scale-110'}`}
                                     style={{ backgroundColor: acc.color }}
                                     title={acc.name}
                                 >
@@ -181,22 +181,22 @@ export default function CustomizePage() {
                     </div>
 
                     {/* Featured Video */}
-                    <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
+                    <div className="bg-card p-8 rounded-[2rem] border border-border shadow-sm">
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="bg-red-50 text-red-600 p-2 rounded-lg">
+                            <div className="bg-red-500/10 text-red-600 p-2 rounded-lg">
                                 <Video size={20} />
                             </div>
-                            <h3 className="font-bold text-slate-900">Video Destacado</h3>
+                            <h3 className="font-bold text-foreground">Video Destacado</h3>
                         </div>
 
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">YouTube URL</label>
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-1">YouTube URL</label>
                         <input
                             value={preferences.video_destacado_url}
                             onChange={e => setPreferences({ ...preferences, video_destacado_url: e.target.value })}
                             placeholder="https://youtube.com/watch?v=..."
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-600 text-xs focus:outline-none focus:ring-2 focus:ring-slate-900"
+                            className="w-full bg-background border border-border rounded-xl px-4 py-3 font-medium text-muted text-xs focus:outline-none focus:ring-2 focus:ring-accent"
                         />
-                        <p className="text-[10px] text-slate-400 mt-2">
+                        <p className="text-[10px] text-muted mt-2">
                             Este video aparecerá en la parte superior de tu perfil (Solo Premium).
                         </p>
                     </div>

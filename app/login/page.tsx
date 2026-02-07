@@ -78,7 +78,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col">
+        <div className="min-h-screen bg-background text-foreground font-sans selection:bg-accent selection:text-white flex flex-col transition-colors duration-300">
             <Navbar />
 
             <main className="flex-1 flex items-center justify-center pt-24 pb-20 px-4">
@@ -92,7 +92,7 @@ export default function LoginPage() {
                         </h1>
                     </div>
 
-                    <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] p-8 md:p-12 shadow-sm">
+                    <div className="bg-card border-2 border-border rounded-[2.5rem] p-8 md:p-12 shadow-soft">
                         <form onSubmit={handleLogin} className="space-y-6">
                             {error && (
                                 <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-xs font-bold rounded-xl text-center">
@@ -111,16 +111,16 @@ export default function LoginPage() {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="usuario o email@ejemplo.com"
-                                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-16 pr-6 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                        className="w-full bg-accent-soft border-2 border-border rounded-2xl pl-16 pr-6 py-4 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50"
                                         required
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Contraseña</label>
+                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-2 ml-1">Contraseña</label>
                                 <div className="relative group">
-                                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-accent transition-colors">
                                         <Lock size={20} />
                                     </div>
                                     <input
@@ -128,7 +128,7 @@ export default function LoginPage() {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••"
-                                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-16 pr-12 py-4 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                        className="w-full bg-accent-soft border-2 border-border rounded-2xl pl-16 pr-12 py-4 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50"
                                         required
                                     />
                                     <button
@@ -160,9 +160,9 @@ export default function LoginPage() {
                             </div>
 
                             <button
-                                type="submit"
+                                onClick={handleLogin}
                                 disabled={loading}
-                                className="w-full bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-3 disabled:opacity-50 mt-4 group"
+                                className="w-full bg-accent text-white py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-slate-900 dark:hover:bg-slate-800 transition-all shadow-xl shadow-accent/20 flex items-center justify-center gap-3 disabled:opacity-50 mt-4 group"
                             >
                                 {loading ? (
                                     <Loader2 className="animate-spin" size={18} />

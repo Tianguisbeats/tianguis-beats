@@ -228,8 +228,8 @@ export default function UploadPage() {
             type="button"
             onClick={onToggle}
             disabled={disabled}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-100 text-slate-400' :
-                active ? 'bg-green-100 text-green-600 hover:bg-green-200' : 'bg-red-50 text-red-500 hover:bg-red-100'
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${disabled ? 'opacity-50 cursor-not-allowed bg-accent-soft text-muted' :
+                active ? 'bg-green-100/10 text-green-500 hover:bg-green-100/20' : 'bg-red-50/10 text-red-500 hover:bg-red-50/20'
                 }`}
         >
             {active ? <Eye size={12} /> : <EyeOff size={12} />}
@@ -238,14 +238,14 @@ export default function UploadPage() {
     );
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
+        <div className="min-h-screen bg-background text-foreground font-sans flex flex-col transition-colors duration-300">
             <Navbar />
 
             {/* Background Accents */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/30 blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-100/30 blur-[120px] rounded-full" />
-                <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-amber-50/40 blur-[100px] rounded-full" />
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/5 blur-[120px] rounded-full" />
+                <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-amber-500/5 blur-[100px] rounded-full" />
             </div>
             <main className="flex-1 pb-20 relative">
                 <div className="max-w-4xl mx-auto px-4 mt-8">
@@ -253,30 +253,30 @@ export default function UploadPage() {
                     {/* Header Minimalista */}
                     <div className="mb-10 pl-2 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
                         <div>
-                            <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-slate-900 mb-1 flex items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground mb-1 flex items-center gap-3">
                                 <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Publicar</span>
-                                <span className="text-slate-900">Beat</span>
+                                <span className="text-foreground">Beat</span>
                                 <Zap className="text-amber-400 fill-amber-400" size={32} />
                             </h1>
-                            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] flex items-center gap-2">
+                            <p className="text-muted font-bold uppercase tracking-widest text-[10px] flex items-center gap-2">
                                 <Edit2 size={12} className="text-blue-500" /> agrega los datos de tu Beat
                             </p>
                         </div>
                         {isFree && (
-                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-[2rem] px-8 py-5 flex flex-col items-center md:items-end shadow-sm">
+                            <div className="bg-card/40 backdrop-blur-sm border border-border rounded-[2rem] px-8 py-5 flex flex-col items-center md:items-end shadow-sm">
                                 <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                                     <Zap size={14} className="fill-blue-500" /> Tu Límite (Gratis)
                                 </span>
                                 <div className="flex items-center gap-4">
-                                    <div className="h-2 w-32 bg-white/50 rounded-full overflow-hidden border border-blue-100 shadow-inner">
+                                    <div className="h-2 w-32 bg-background/50 rounded-full overflow-hidden border border-border shadow-inner">
                                         <div
                                             className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]"
                                             style={{ width: `${(beatCount / 5) * 100}%` }}
                                         />
                                     </div>
                                     <div className="flex flex-col items-center">
-                                        <span className="text-sm font-black text-slate-900 leading-none">{beatCount}/5</span>
-                                        <span className="text-[8px] font-bold text-slate-400 uppercase">Beats</span>
+                                        <span className="text-sm font-black text-foreground leading-none">{beatCount}/5</span>
+                                        <span className="text-[8px] font-bold text-muted uppercase">Beats</span>
                                     </div>
                                 </div>
                                 {beatCount >= 5 && (
@@ -286,7 +286,7 @@ export default function UploadPage() {
                         )}
                     </div>
 
-                    <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm">
+                    <div className="bg-card rounded-[2rem] p-8 border border-border shadow-sm transition-colors">
                         {error && (
                             <div className="bg-red-50 text-red-600 p-4 rounded-xl text-xs font-bold mb-6 flex items-center gap-2">
                                 <AlertCircle size={16} /> {error}
@@ -304,25 +304,25 @@ export default function UploadPage() {
                             <div className="grid md:grid-cols-2 gap-8">
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Título</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Título</label>
                                         <input
                                             type="text"
                                             value={title}
                                             onChange={(e) => setTitle(e.target.value)}
-                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500 focus:bg-white transition-all"
+                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent focus:bg-card transition-all"
                                             placeholder="Nombre del Beat"
                                             required
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Género</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Género</label>
                                         <select
                                             value={genre}
                                             onChange={(e) => {
                                                 setGenre(e.target.value);
                                                 setSubgenre(''); // Reset subgenre on genre change
                                             }}
-                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none"
+                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all appearance-none"
                                             required
                                         >
                                             <option value="">Seleccionar</option>
@@ -332,13 +332,13 @@ export default function UploadPage() {
 
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Subgénero</label>
-                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mr-1">(Opcional)</span>
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Subgénero</label>
+                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest mr-1">(Opcional)</span>
                                         </div>
                                         <select
                                             value={subgenre}
                                             onChange={(e) => setSubgenre(e.target.value)}
-                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                             disabled={!genre || !SUBGENRES[genre]}
                                         >
                                             <option value="">{genre ? 'Ninguno / Automático' : 'Selecciona un género primero'}</option>
@@ -350,29 +350,29 @@ export default function UploadPage() {
 
                                     <div className="grid grid-cols-3 gap-4">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">BPM</label>
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">BPM</label>
                                             <input
                                                 type="number"
                                                 value={bpm}
                                                 onChange={(e) => setBpm(e.target.value)}
-                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500 transition-all"
+                                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all"
                                                 placeholder="140"
                                                 required
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Escala</label>
-                                            <select value={musicalScale} onChange={(e) => setMusicalScale(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Escala</label>
+                                            <select value={musicalScale} onChange={(e) => setMusicalScale(e.target.value)} className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all font-heading">
                                                 <option value="">Escala</option>
                                                 {SCALES.map(s => <option key={s} value={s}>{s}</option>)}
                                             </select>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nota</label>
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Nota</label>
                                             <select
                                                 value={musicalKey}
                                                 onChange={(e) => setMusicalKey(e.target.value)}
-                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all"
+                                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all font-heading"
                                                 disabled={!musicalScale}
                                                 required
                                             >
@@ -385,7 +385,7 @@ export default function UploadPage() {
 
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Artwork (Sugerido 3000x3000px - Original)</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Artwork (Sugerido 3000x3000px - Original)</label>
                                         <div className="relative">
                                             <input
                                                 type="file"
@@ -412,10 +412,10 @@ export default function UploadPage() {
                                                 className="hidden"
                                                 id="cover"
                                             />
-                                            <label htmlFor="cover" className="flex items-center gap-4 p-3 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 hover:border-slate-300 transition-all h-[116px] overflow-hidden">
+                                            <label htmlFor="cover" className="flex items-center gap-4 p-3 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-background hover:border-accent transition-all h-[116px] overflow-hidden">
                                                 {coverFile ? (
                                                     <div className="flex items-center gap-3 w-full">
-                                                        <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center shrink-0 overflow-hidden border border-slate-200 shadow-sm">
+                                                        <div className="w-16 h-16 bg-background rounded-lg flex items-center justify-center shrink-0 overflow-hidden border border-border shadow-sm">
                                                             <img
                                                                 src={URL.createObjectURL(coverFile)}
                                                                 className="w-full h-full object-cover"
@@ -426,12 +426,12 @@ export default function UploadPage() {
                                                             />
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <p className="text-xs font-bold text-slate-900 truncate">{coverFile.name}</p>
+                                                            <p className="text-xs font-bold text-foreground truncate">{coverFile.name}</p>
                                                             <p className="text-[10px] text-green-500 font-bold uppercase">Listo para subir</p>
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <div className="flex flex-col items-center justify-center w-full text-slate-400">
+                                                    <div className="flex flex-col items-center justify-center w-full text-muted">
                                                         <Upload size={20} className="mb-2" />
                                                         <span className="text-[9px] font-bold uppercase">Click para subir</span>
                                                     </div>
@@ -440,7 +440,7 @@ export default function UploadPage() {
                                         </div>
                                     </div>
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Vibe (Elige 3 opciones)</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Vibe (Elige 3 opciones)</label>
                                         <div className="flex flex-wrap gap-2">
                                             {MOODS.map(mood => (
                                                 <button
@@ -448,8 +448,8 @@ export default function UploadPage() {
                                                     type="button"
                                                     onClick={() => handleMoodToggle(mood.label)}
                                                     className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${selectedMoods.includes(mood.label)
-                                                        ? 'bg-slate-900 text-white'
-                                                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                                        ? 'bg-foreground text-background'
+                                                        : 'bg-accent-soft text-muted hover:text-foreground'
                                                         }`}
                                                 >
                                                     <span className="mr-1">{mood.emoji}</span> {mood.label}
@@ -465,18 +465,18 @@ export default function UploadPage() {
                             {/* 2. Archivos y Licencias */}
                             <div className="space-y-6">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-1">COSTOS Y ARCHIVOS DEL BEAT</h3>
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Activa/Desactiva licencias 👁️</span>
+                                    <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-1">COSTOS Y ARCHIVOS DEL BEAT</h3>
+                                    <span className="text-[10px] font-black text-muted uppercase tracking-widest">Activa/Desactiva licencias 👁️</span>
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     {/* MP3 Tagged + Licencia Base */}
-                                    <div className="flex flex-col gap-4 p-6 bg-green-50/30 rounded-3xl border border-green-100 hover:bg-green-50/50 transition-colors group">
+                                    <div className="flex flex-col gap-4 p-6 bg-green-500/5 rounded-3xl border border-green-500/20 hover:bg-green-500/10 transition-colors group">
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
-                                                <span className="text-[10px] font-black text-green-700 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                                <span className="text-[10px] font-black text-green-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
                                                     <Music size={14} className="text-green-500" /> MP3 Tag (Muestra)
                                                 </span>
-                                                <span className="text-[9px] font-bold text-green-500/70 uppercase tracking-widest">Obligatorio • Max 20MB</span>
+                                                <span className="text-[9px] font-bold text-green-500/50 uppercase tracking-widest">Obligatorio • Max 20MB</span>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
@@ -491,7 +491,7 @@ export default function UploadPage() {
                                                 className="hidden"
                                                 id="preview-file"
                                             />
-                                            <label htmlFor="preview-file" className="flex-1 px-4 py-3 bg-white border-2 border-dashed border-green-200 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-green-400 hover:bg-green-50 transition-all text-center truncate">
+                                            <label htmlFor="preview-file" className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-green-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-green-500 hover:bg-green-500/10 transition-all text-center truncate">
                                                 {previewFile ? previewFile.name : 'Seleccionar MP3 (Muestra)'}
                                             </label>
                                             {previewFile && <CheckCircle2 size={20} className="text-green-500 animate-in zoom-in" />}
@@ -499,23 +499,23 @@ export default function UploadPage() {
                                     </div>
 
                                     {/* MP3 320 KBPS (High Quality) */}
-                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border transition-all ${isMp3Active ? 'bg-amber-50/30 border-amber-100 hover:bg-amber-50/50' : 'bg-slate-50/50 border-slate-100 opacity-75 grayscale'}`}>
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border transition-all ${isMp3Active ? 'bg-amber-500/5 border-amber-500/20 hover:bg-amber-500/10' : 'bg-background border-border opacity-75 grayscale'}`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
-                                                <span className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                                <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
                                                     <Music size={14} className="text-amber-500" /> MP3 MASTER HQ
                                                 </span>
-                                                <span className="text-[9px] font-bold text-amber-500/70 uppercase tracking-widest">Calidad 320 KBPS • Sin Tags</span>
+                                                <span className="text-[9px] font-bold text-amber-500/50 uppercase tracking-widest">Calidad 320 KBPS • Sin Tags</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Toggle active={isMp3Active} onToggle={() => setIsMp3Active(!isMp3Active)} />
-                                                <div className="flex items-center gap-2 bg-white rounded-xl px-2 py-1.5 border-2 border-amber-100 shadow-sm">
+                                                <div className="flex items-center gap-2 bg-background rounded-xl px-2 py-1.5 border-2 border-amber-500/20 shadow-sm">
                                                     <span className="text-[10px] font-black text-amber-500">$</span>
                                                     <input
                                                         type="number"
                                                         value={standardPrice}
                                                         onChange={(e) => setStandardPrice(e.target.value)}
-                                                        className="w-10 text-[10px] font-black outline-none text-slate-900"
+                                                        className="w-10 text-[10px] font-black outline-none text-foreground bg-transparent"
                                                     />
                                                 </div>
                                             </div>
@@ -532,7 +532,7 @@ export default function UploadPage() {
                                                 className="hidden"
                                                 id="hq-file"
                                             />
-                                            <label htmlFor="hq-file" className="flex-1 px-4 py-3 bg-white border-2 border-dashed border-amber-200 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-amber-400 hover:bg-amber-50 transition-all text-center truncate">
+                                            <label htmlFor="hq-file" className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-amber-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-amber-500 hover:bg-amber-500/10 transition-all text-center truncate">
                                                 {hqMp3File ? hqMp3File.name : 'Seleccionar MP3 (HQ)'}
                                             </label>
                                             {hqMp3File && <CheckCircle2 size={20} className="text-green-500 animate-in zoom-in" />}
@@ -540,34 +540,34 @@ export default function UploadPage() {
                                     </div>
 
                                     {/* WAV + Precio */}
-                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' :
-                                        isWavActive ? 'bg-blue-50/30 border-blue-100 hover:bg-blue-50/50' : 'bg-slate-50/50 border-slate-100 opacity-75'
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-background border-border grayscale opacity-60' :
+                                        isWavActive ? 'bg-blue-500/5 border-blue-500/20 hover:bg-blue-500/10' : 'bg-background border-border opacity-75'
                                         }`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${isFree ? 'text-slate-400' : 'text-blue-700'}`}>
-                                                        <Music size={14} className={isFree ? 'text-slate-400' : 'text-blue-500'} /> Archivo WAV
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${isFree ? 'text-muted' : 'text-blue-500'}`}>
+                                                        <Music size={14} className={isFree ? 'text-muted' : 'text-blue-500'} /> Archivo WAV
                                                     </span>
-                                                    {isFree && <Lock size={12} className="text-slate-400" />}
+                                                    {isFree && <Lock size={12} className="text-muted" />}
                                                 </div>
-                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${isFree ? 'text-slate-300' : 'text-blue-500/70'}`}>Alta Fidelidad • 24 bit</span>
+                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${isFree ? 'text-muted/50' : 'text-blue-500/50'}`}>Alta Fidelidad • 24 bit</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 {isFree && (
-                                                    <Link href="/pricing" className="text-[8px] font-black text-blue-600 bg-white border-2 border-blue-100 px-2.5 py-1.5 rounded-full uppercase hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                                                    <Link href="/pricing" className="text-[8px] font-black text-blue-500 bg-background border-2 border-blue-500/20 px-2.5 py-1.5 rounded-full uppercase hover:bg-blue-500 hover:text-white transition-all shadow-sm">
                                                         Mejorar a Pro
                                                     </Link>
                                                 )}
                                                 {!isFree && <Toggle active={isWavActive} onToggle={() => setIsWavActive(!isWavActive)} />}
-                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 ${isFree ? 'bg-slate-50 border-slate-100' : 'bg-white border-blue-100 shadow-sm'}`}>
-                                                    <span className={`text-[10px] font-black mr-1 ${isFree ? 'text-slate-300' : 'text-blue-400'}`}>$</span>
+                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 ${isFree ? 'bg-background/50 border-border' : 'bg-background border-blue-500/20 shadow-sm'}`}>
+                                                    <span className={`text-[10px] font-black mr-1 ${isFree ? 'text-muted/30' : 'text-blue-400'}`}>$</span>
                                                     <input
                                                         type="number"
                                                         disabled={isFree}
                                                         value={wavPrice}
                                                         onChange={(e) => setWavPrice(e.target.value)}
-                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${isFree ? 'text-slate-300' : 'text-slate-900'}`}
+                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${isFree ? 'text-muted/50' : 'text-foreground'}`}
                                                     />
                                                 </div>
                                             </div>
@@ -585,7 +585,7 @@ export default function UploadPage() {
                                                     className="hidden"
                                                     id="wav-file"
                                                 />
-                                                <label htmlFor="wav-file" className="flex-1 px-4 py-3 bg-white border-2 border-dashed border-blue-200 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all text-center truncate">
+                                                <label htmlFor="wav-file" className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-blue-500 hover:bg-blue-500/10 transition-all text-center truncate">
                                                     {wavFile ? wavFile.name : 'Seleccionar WAV'}
                                                 </label>
                                                 {wavFile && <CheckCircle2 size={20} className="text-green-500 animate-in zoom-in" />}
@@ -594,34 +594,34 @@ export default function UploadPage() {
                                     </div>
 
                                     {/* Stems + Precio */}
-                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' :
-                                        isStemsActive ? 'bg-purple-50 border-purple-200 hover:bg-purple-100/50' : 'bg-slate-50/50 border-slate-100 opacity-75'
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-background border-border grayscale opacity-60' :
+                                        isStemsActive ? 'bg-purple-500/5 border-purple-500/20 hover:bg-purple-500/10' : 'bg-background border-border opacity-75'
                                         }`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${!isPremium ? 'text-slate-400' : 'text-purple-700'}`}>
-                                                        <Hash size={14} className={!isPremium ? 'text-slate-400' : 'text-purple-500'} /> Stems
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${!isPremium ? 'text-muted' : 'text-purple-500'}`}>
+                                                        <Hash size={14} className={!isPremium ? 'text-muted' : 'text-purple-500'} /> Stems
                                                     </span>
-                                                    {!isPremium && <Lock size={12} className="text-slate-400" />}
+                                                    {!isPremium && <Lock size={12} className="text-muted" />}
                                                 </div>
-                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${!isPremium ? 'text-slate-300' : 'text-purple-500/70'}`}>Pistas separadas • .ZIP</span>
+                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${!isPremium ? 'text-muted/50' : 'text-purple-500/50'}`}>Pistas separadas • .ZIP</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 {!isPremium && (
-                                                    <Link href="/pricing" className="text-[8px] font-black text-blue-600 bg-white border-2 border-blue-100 px-2.5 py-1.5 rounded-full uppercase hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                                                    <Link href="/pricing" className="text-[8px] font-black text-blue-500 bg-background border-2 border-blue-500/20 px-2.5 py-1.5 rounded-full uppercase hover:bg-blue-600 hover:text-white transition-all shadow-sm">
                                                         Mejorar a Premium
                                                     </Link>
                                                 )}
                                                 {isPremium && <Toggle active={isStemsActive} onToggle={() => setIsStemsActive(!isStemsActive)} />}
-                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 ${!isPremium ? 'bg-slate-50 border-slate-100' : 'bg-white border-purple-100 shadow-sm'}`}>
-                                                    <span className={`text-[10px] font-black mr-1 ${!isPremium ? 'text-slate-300' : 'text-purple-400'}`}>$</span>
+                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 ${!isPremium ? 'bg-background/50 border-border' : 'bg-background border-purple-500/20 shadow-sm'}`}>
+                                                    <span className={`text-[10px] font-black mr-1 ${!isPremium ? 'text-muted/30' : 'text-purple-400'}`}>$</span>
                                                     <input
                                                         type="number"
                                                         disabled={!isPremium}
                                                         value={stemsPrice}
                                                         onChange={(e) => setStemsPrice(e.target.value)}
-                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${!isPremium ? 'text-slate-300' : 'text-slate-900'}`}
+                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${!isPremium ? 'text-muted/50' : 'text-foreground'}`}
                                                     />
                                                 </div>
                                             </div>
@@ -639,7 +639,7 @@ export default function UploadPage() {
                                                     className="hidden"
                                                     id="stems-file"
                                                 />
-                                                <label htmlFor="stems-file" className="flex-1 px-4 py-3 bg-white border-2 border-dashed border-purple-200 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-all text-center truncate">
+                                                <label htmlFor="stems-file" className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-purple-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-purple-500 hover:bg-purple-500/10 transition-all text-center truncate">
                                                     {stemsFile ? stemsFile.name : 'Seleccionar Stems'}
                                                 </label>
                                                 {stemsFile && <CheckCircle2 size={20} className="text-green-500 animate-in zoom-in" />}
@@ -649,18 +649,18 @@ export default function UploadPage() {
                                 </div>
 
                                 {/* Licencia Exclusiva Full Width */}
-                                <div className={`p-8 rounded-3xl border transition-all ${isExclusive ? 'border-pink-500 bg-pink-50/50 shadow-xl shadow-pink-500/10' : 'bg-slate-50 border-slate-100'}`}>
+                                <div className={`p-8 rounded-3xl border transition-all ${isExclusive ? 'border-pink-500/50 bg-pink-500/5 shadow-xl shadow-pink-500/10' : 'bg-background border-border'}`}>
                                     <div className="flex justify-between items-center">
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
-                                                <span className={`text-[11px] font-black uppercase tracking-widest mb-1 ${!isPremium ? 'text-slate-300' : 'text-pink-600'}`}>Licencia Exclusiva</span>
-                                                {!isPremium && <Lock size={12} className="text-slate-400" />}
+                                                <span className={`text-[11px] font-black uppercase tracking-widest mb-1 ${!isPremium ? 'text-muted/30' : 'text-pink-500'}`}>Licencia Exclusiva</span>
+                                                {!isPremium && <Lock size={12} className="text-muted" />}
                                             </div>
-                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Tu beat se retirará automáticamente tras la compra</span>
+                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest leading-none">Tu beat se retirará automáticamente tras la compra</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             {!isPremium && (
-                                                <Link href="/pricing" className="text-[8px] font-black text-blue-600 border border-blue-200 px-2 py-1 rounded-full uppercase hover:bg-blue-600 hover:text-white transition-all">
+                                                <Link href="/pricing" className="text-[8px] font-black text-blue-500 border border-blue-500/20 px-2 py-1 rounded-full uppercase hover:bg-blue-600 hover:text-white transition-all">
                                                     Mejorar a Premium
                                                 </Link>
                                             )}
@@ -668,8 +668,8 @@ export default function UploadPage() {
                                                 setIsExclusive(!isExclusive);
                                                 if (!isExclusive) setExclusivePrice(exclusivePrice || '5000');
                                             }} />}
-                                            <div className={`flex items-center rounded-lg px-3 py-2 border ${!isPremium ? 'bg-slate-100' : 'bg-white border-slate-200'}`}>
-                                                <span className="text-[10px] font-black text-slate-400 mr-1">$</span>
+                                            <div className={`flex items-center rounded-lg px-3 py-2 border ${!isPremium ? 'bg-background/50 border-border' : 'bg-background border-border'}`}>
+                                                <span className="text-[10px] font-black text-muted mr-1">$</span>
                                                 <input
                                                     type="number"
                                                     disabled={!isPremium}
@@ -679,7 +679,7 @@ export default function UploadPage() {
                                                         setExclusivePrice(val);
                                                         setIsExclusive(val !== '' && parseInt(val) > 0);
                                                     }}
-                                                    className="w-16 text-xs font-black outline-none bg-transparent"
+                                                    className="w-16 text-xs font-black outline-none bg-transparent text-foreground"
                                                     placeholder="0"
                                                 />
                                             </div>
@@ -691,7 +691,7 @@ export default function UploadPage() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-5 bg-gradient-to-r from-slate-900 to-blue-900 text-white rounded-2xl font-black uppercase tracking-[0.3em] text-xs hover:from-blue-600 hover:to-indigo-600 transition-all shadow-xl shadow-blue-900/20 active:scale-95 flex items-center justify-center gap-3 border-t border-white/10"
+                                className="w-full py-5 bg-foreground text-background rounded-2xl font-black uppercase tracking-[0.3em] text-xs hover:bg-accent hover:text-white transition-all shadow-xl shadow-black/10 active:scale-95 flex items-center justify-center gap-3 border-t border-white/10"
                             >
                                 {loading ? (
                                     <>

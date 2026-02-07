@@ -136,7 +136,7 @@ export default function SignupPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col">
+        <div className="min-h-screen bg-background text-foreground font-sans selection:bg-accent selection:text-white flex flex-col transition-colors duration-300">
             <Navbar />
 
             <main className="flex-1 flex items-center justify-center pt-24 pb-20 px-4">
@@ -166,7 +166,7 @@ export default function SignupPage() {
                                 </p>
                             </div>
 
-                            <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] p-8 md:p-10 shadow-sm">
+                            <div className="bg-card border-2 border-border rounded-[2.5rem] p-8 md:p-10 shadow-soft">
                                 <form onSubmit={handleSignup} className="space-y-5">
                                     {error && (
                                         <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-xs font-bold rounded-xl text-center">
@@ -176,30 +176,30 @@ export default function SignupPage() {
 
                                     <div className="grid md:grid-cols-2 gap-5">
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Nombre Completo</label>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-2 ml-1">Nombre Completo</label>
                                             <input
                                                 type="text"
                                                 value={fullName}
                                                 onChange={(e) => setFullName(e.target.value)}
                                                 placeholder="Nombres Apellidos"
-                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                                className="w-full bg-accent-soft border-2 border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50"
                                                 required
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Username</label>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-2 ml-1">Username</label>
                                             <div className="relative">
                                                 <input
                                                     type="text"
                                                     value={username}
                                                     onChange={handleUsernameChange}
                                                     placeholder="tu_username"
-                                                    className={`w-full bg-slate-50 border-2 rounded-2xl px-5 py-3.5 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300 ${isUsernameAvailable === false ? 'border-red-400' : isUsernameAvailable === true ? 'border-green-400' : 'border-slate-100 focus:border-blue-600'}`}
+                                                    className={`w-full bg-accent-soft border-2 rounded-2xl px-5 py-3.5 outline-none transition-all font-bold text-foreground placeholder:text-muted/50 ${isUsernameAvailable === false ? 'border-red-400' : isUsernameAvailable === true ? 'border-green-400' : 'border-border focus:border-accent'}`}
                                                     required
                                                 />
                                                 <div className="absolute right-4 top-1/2 -translate-y-1/2">
                                                     {isCheckingName ? (
-                                                        <Loader2 size={16} className="animate-spin text-slate-400" />
+                                                        <Loader2 size={16} className="animate-spin text-muted" />
                                                     ) : isUsernameAvailable === true ? (
                                                         <Check size={16} className="text-green-500" />
                                                     ) : isUsernameAvailable === false ? (
@@ -213,56 +213,56 @@ export default function SignupPage() {
                                         </div>
 
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Nombre Artístico</label>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-2 ml-1">Nombre Artístico</label>
                                             <input
                                                 type="text"
                                                 value={artisticName}
                                                 onChange={(e) => setArtisticName(e.target.value)}
                                                 placeholder="Tu nombre de artista"
-                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                                className="w-full bg-accent-soft border-2 border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50"
                                                 required
                                             />
                                         </div>
 
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Fecha de Nacimiento</label>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-2 ml-1">Fecha de Nacimiento</label>
                                             <input
                                                 type="date"
                                                 value={birthDate}
                                                 onChange={(e) => setBirthDate(e.target.value)}
-                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 outline-none focus:border-blue-600 transition-all font-bold text-slate-900"
+                                                className="w-full bg-accent-soft border-2 border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground"
                                                 required
                                             />
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Email</label>
+                                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-2 ml-1">Email</label>
                                         <input
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="tu@email.com"
-                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                                            className="w-full bg-accent-soft border-2 border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50"
                                             required
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Contraseña</label>
+                                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-2 ml-1">Contraseña</label>
                                         <div className="relative">
                                             <input
                                                 type={showPassword ? "text" : "password"}
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 placeholder="••••••••"
-                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 outline-none focus:border-blue-600 transition-all font-bold text-slate-900 placeholder:text-slate-300 pr-12"
+                                                className="w-full bg-accent-soft border-2 border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50 pr-12"
                                                 required
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-accent transition-colors"
                                             >
                                                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                             </button>
@@ -272,7 +272,7 @@ export default function SignupPage() {
                                     <button
                                         type="submit"
                                         disabled={loading || isUsernameAvailable === false}
-                                        className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-3 group disabled:opacity-50 mt-2"
+                                        className="w-full bg-accent text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-slate-900 dark:hover:bg-slate-800 transition-all shadow-lg shadow-accent/20 flex items-center justify-center gap-3 group disabled:opacity-50 mt-2"
                                     >
                                         {loading ? (
                                             <Loader2 className="animate-spin" size={18} />
