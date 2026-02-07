@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Music, Menu, X, User, LayoutDashboard, LogOut, Check, Settings, CheckCircle2, Crown, ShoppingCart } from 'lucide-react';
+import { Music, Menu, X, User, LayoutDashboard, LogOut, Check, Settings, CheckCircle2, Crown, ShoppingCart, ArrowRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
@@ -166,8 +166,16 @@ export default function Navbar() {
                             </div>
                         </div>
 
-                        <div className="md:hidden">
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2">
+                        <div className="flex items-center gap-2 md:hidden">
+                            <Link href="/cart" className="relative p-2 text-slate-400 hover:text-blue-600 transition-colors group">
+                                <ShoppingCart size={22} strokeWidth={2.5} />
+                                {itemCount > 0 && (
+                                    <span className="absolute top-0 right-0 bg-blue-600 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-lg animate-in fade-in zoom-in duration-300">
+                                        {itemCount}
+                                    </span>
+                                )}
+                            </Link>
+                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-900">
                                 {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                             </button>
                         </div>
@@ -176,34 +184,72 @@ export default function Navbar() {
 
                 {/* Mobile Menu */}
                 {isMenuOpen && (
-                    <div className="md:hidden bg-white border-b border-slate-100 pb-6 px-4">
-                        <div className="flex flex-col gap-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                            <Link href="/beats" className="hover:text-blue-600 transition-colors py-2">Explorar Tianguis</Link>
-                            <Link href="/pricing" className="hover:text-blue-600 transition-colors py-2">Planes</Link>
+                    <div className="md:hidden bg-white border-b border-slate-100 pb-8 px-4 animate-in slide-in-from-top duration-300">
+                        <div className="flex flex-col gap-2 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                            <Link href="/beats" className="hover:text-blue-600 transition-colors py-4 border-b border-slate-50 flex items-center justify-between">
+                                Explorar Tianguis <ArrowRight size={14} className="text-slate-300" />
+                            </Link>
+                            <Link href="/pricing" className="hover:text-blue-600 transition-colors py-4 border-b border-slate-50 flex items-center justify-between">
+                                Planes <ArrowRight size={14} className="text-slate-300" />
+                            </Link>
 
-                            <div className="flex flex-col gap-3 pt-4 border-t border-slate-50">
+                            <div className="flex flex-col gap-3 mt-4">
                                 {user ? (
                                     <>
-                                        <Link href={`/${profile?.username || 'profile'}`} className="flex items-center justify-center gap-2 py-3 text-slate-900 font-black">
-                                            <User size={16} />
-                                            Mi Perfil
+                                        <div className="bg-slate-50 p-4 rounded-2xl flex items-center gap-3 mb-2">
+                                            <div className="w-10 h-10 rounded-lg overflow-hidden border-2 border-white shadow-sm">
+                                                {profile?.foto_perfil ? (
+                                                    <img src={profile.foto_perfil} alt="Perfil" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-slate-400 bg-white">
+                                                        <User size={20} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-slate-900 lowercase">@{profile?.username}</span>
+                                                <span className="text-[8px] text-blue-600 uppercase tracking-widest">{profile?.subscription_tier}</span>
+                                            </div>
+                                        </div>
+
+                                        <Link href="/upload" className="flex items-center gap-3 py-3 text-slate-900 font-bold px-2">
+                                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                                                <Music size={16} />
+                                            </div>
+                                            Sube tu Beat
                                         </Link>
+
+                                        <Link href="/studio" className="flex items-center gap-3 py-3 text-slate-900 font-bold px-2">
+                                            <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
+                                                <Settings size={16} />
+                                            </div>
+                                            Tianguis Studio
+                                        </Link>
+
+                                        <Link href={`/${profile?.username || 'profile'}`} className="flex items-center gap-3 py-3 text-slate-900 font-bold px-2">
+                                            <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
+                                                <User size={16} />
+                                            </div>
+                                            Mi Perfil Público
+                                        </Link>
+
                                         <button
                                             onClick={handleLogout}
-                                            className="bg-red-50 text-red-600 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em]"
+                                            className="mt-4 bg-red-50 text-red-600 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2"
                                         >
+                                            <LogOut size={16} />
                                             Cerrar Sesión
                                         </button>
                                     </>
                                 ) : (
-                                    <>
-                                        <Link href="/login" className="flex items-center justify-center gap-2 py-3 border-2 border-slate-100 rounded-xl font-black text-slate-900 uppercase">
+                                    <div className="grid grid-cols-1 gap-3 pt-2">
+                                        <Link href="/login" className="flex items-center justify-center gap-2 py-4 border-2 border-slate-100 rounded-2xl font-black text-slate-900 uppercase">
                                             Log In
                                         </Link>
-                                        <Link href="/signup" className="flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl font-black uppercase">
+                                        <Link href="/signup" className="flex items-center justify-center gap-2 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase shadow-lg shadow-slate-900/20">
                                             Sign Up
                                         </Link>
-                                    </>
+                                    </div>
                                 )}
                             </div>
                         </div>

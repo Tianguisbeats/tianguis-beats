@@ -25,7 +25,7 @@ export default function Home() {
       <Navbar />
 
       {/* 1. HERO SECTION: Minimalist Tech */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 overflow-hidden">
+      <section className="relative pt-24 pb-16 lg:pt-48 lg:pb-32 px-4 overflow-hidden">
         {/* Background Gradients */}
         <div className="absolute top-0 left-0 w-full h-[80vh] bg-white -z-20"></div>
         <div className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-green-500/5 rounded-full blur-[120px] -z-10"></div>
@@ -42,12 +42,12 @@ export default function Home() {
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl lg:text-9xl font-black text-slate-900 tracking-tighter mb-8 leading-[0.9]">
+          <h1 className="text-4xl md:text-7xl lg:text-9xl font-black text-slate-900 tracking-tighter mb-8 leading-[0.9]">
             La Casa de los <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">Corridos Tumbados.</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-slate-500 font-medium max-w-3xl mx-auto mb-12 leading-relaxed tracking-tight">
+          <p className="text-base md:text-xl text-slate-500 font-medium max-w-3xl mx-auto mb-12 leading-relaxed tracking-tight px-4">
             La plataforma definitiva para el sonido que conquistó el mundo. Únete a productores verificados, vende tus beats y lleva el movimiento al siguiente nivel.
           </p>
 
@@ -103,18 +103,18 @@ export default function Home() {
       </section>
 
       {/* 3. AI FEATURES (The "Vitaminada" Section) */}
-      <section className="py-32 px-4 bg-slate-50 overflow-hidden">
+      <section className="py-20 px-4 bg-slate-50 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-20">
-            <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter mb-6">
+          <div className="mb-12 md:mb-20">
+            <h2 className="text-3xl md:text-6xl font-black text-slate-900 tracking-tighter mb-6">
               Poder <span className="text-blue-600">Ilimitado.</span>
             </h2>
-            <p className="text-xl text-slate-500 max-w-xl font-medium">
+            <p className="text-lg md:text-xl text-slate-500 max-w-xl font-medium">
               Herramientas de próxima generación integradas directamente en tu flujo de trabajo. No es solo un marketplace, es tu estudio inteligente.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Feature 1 */}
             <div className="bg-white p-10 rounded-[2rem] border border-slate-100 hover:border-blue-100 hover:shadow-2xl hover:shadow-blue-900/5 transition-all group">
               <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">

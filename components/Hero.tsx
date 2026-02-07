@@ -62,7 +62,7 @@ export default function Hero({
     };
 
     return (
-        <header className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-white">
+        <header className="relative pt-24 pb-16 lg:pt-48 lg:pb-32 overflow-hidden bg-white">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none opacity-40">
                 <div className="absolute top-20 right-10 w-96 h-96 bg-blue-100 rounded-full blur-[120px]"></div>
                 <div className="absolute bottom-20 left-10 w-80 h-80 bg-cyan-100 rounded-full blur-[100px]"></div>
@@ -74,12 +74,12 @@ export default function Hero({
                     La plataforma #1 de beats en México 🇲🇽
                 </div>
 
-                <h1 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter mb-8 leading-[0.85]">
+                <h1 className="text-5xl md:text-8xl font-black text-slate-900 tracking-tighter mb-8 leading-[0.85]">
                     Tu sonido.<br />
                     <span className="text-blue-600 underline decoration-blue-100 underline-offset-8">Tu negocio.</span>
                 </h1>
 
-                <p className="max-w-2xl mx-auto text-xl text-slate-500 font-medium leading-relaxed mb-12">
+                <p className="max-w-2xl mx-auto text-base md:text-xl text-slate-500 font-medium leading-relaxed mb-12 px-4 md:px-0">
                     "Vende tus beats a artistas de todo el mundo. Encuentra el sonido perfecto para tu próximo hit."
                 </p>
 

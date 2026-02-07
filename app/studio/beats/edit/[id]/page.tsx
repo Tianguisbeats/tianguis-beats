@@ -245,7 +245,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             <Navbar />
 
             <main className="flex-1 pb-20">
-                <div className="max-w-4xl mx-auto px-4 mt-8">
+                <div className="max-w-4xl mx-auto px-4 mt-4 md:mt-8">
 
                     <Link href="/studio/beats" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-blue-600 transition-all mb-8 group">
                         <ChevronLeft size={14} className="group-hover:-translate-x-1" />
@@ -261,7 +261,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                         </p>
                     </div>
 
-                    <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-sm relative overflow-hidden">
+                    <div className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-10 border border-slate-100 shadow-sm relative overflow-hidden">
 
                         {error && (
                             <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-[10px] font-black uppercase mb-8 flex items-center gap-3">
@@ -274,9 +274,9 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                             </div>
                         )}
 
-                        <form onSubmit={handleUpdate} className="space-y-12">
+                        <form onSubmit={handleUpdate} className="space-y-8 md:space-y-12">
 
-                            <div className="grid md:grid-cols-2 gap-10">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
                                 {/* METADATA */}
                                 <div className="space-y-6">
                                     <div className="space-y-2">
@@ -322,7 +322,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                         </select>
                                     </div>
 
-                                    <div className="grid grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">BPM</label>
                                             <input
@@ -406,7 +406,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Activa/Desactiva licencias 👁️</span>
                                 </div>
 
-                                <div className="grid md:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {/* MP3 HQ */}
                                     <div className={`flex flex-col gap-4 p-6 rounded-3xl border transition-all ${isMp3Active ? 'bg-amber-50/30 border-amber-100 hover:bg-amber-50/50' : 'bg-slate-50/50 border-slate-100 opacity-75 grayscale'}`}>
                                         <div className="flex items-center justify-between">
