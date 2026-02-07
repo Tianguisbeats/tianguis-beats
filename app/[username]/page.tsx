@@ -581,11 +581,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div>
                                     <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-3 mb-3 text-center md:text-left pt-12">
-                                        <h1 className={`text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter leading-none ${profile.tema_perfil === 'neon' ? 'text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]' :
-                                            profile.tema_perfil === 'gold' ? 'text-amber-300 drop-shadow-lg' :
-                                                profile.tema_perfil === 'dark' ? 'text-white' :
-                                                    'text-slate-900'
-                                            }`}>
+                                        <h1 className={`text-5xl md:text-7xl lg:text-9xl font-black uppercase tracking-tighter leading-[0.8] mb-4 text-white drop-shadow-2xl`}>
                                             {profile.artistic_name || profile.username}
                                         </h1>
                                         {profile.is_verified && (
@@ -747,11 +743,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             )}
 
                             {/* Bio Box (Trayectoria + Socials Integrated) */}
-                            <div className={`border rounded-[2.5rem] p-8 shadow-sm mb-0 relative overflow-hidden ${profile.tema_perfil === 'dark' ? 'bg-slate-800/50 border-slate-700/50 text-slate-300' :
-                                profile.tema_perfil === 'neon' ? 'bg-zinc-900/50 border-zinc-800 text-zinc-300' :
-                                    profile.tema_perfil === 'gold' ? 'bg-[#2a241c] border-amber-900/30 text-amber-100' :
-                                        'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
-                                }`}>
+                            <div className={`border rounded-[2.5rem] p-8 shadow-sm mb-0 relative overflow-hidden bg-slate-900/50 border-slate-800 text-foreground`}>
                                 {/* Integrated Socials Section (Now at the top) */}
                                 {!isEditing && (
                                     <div className="mb-8 pb-8 border-b border-slate-100/10">

@@ -87,7 +87,7 @@ export default function LoginPage() {
                         <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl transform -rotate-3 shadow-xl shadow-blue-600/20 mb-6">
                             <Music className="text-white w-8 h-8" />
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase mb-2 text-slate-900">
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase mb-2 text-foreground">
                             Bienvenido al <span className="text-blue-600">Estudio</span>
                         </h1>
                     </div>

@@ -158,8 +158,8 @@ export default function SignupPage() {
                                 <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl transform rotate-3 shadow-xl shadow-blue-600/20 mb-6">
                                     <Music className="text-white w-8 h-8" />
                                 </div>
-                                <h1 className="text-4xl font-black tracking-tighter uppercase mb-3 text-slate-900">
-                                    Únete al <span className="text-blue-600">Tianguis</span>
+                                <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase mb-2 text-foreground">
+                                    Bienvenido al <span className="text-blue-600">Estudio</span>
                                 </h1>
                                 <p className="text-slate-500 font-medium">
                                     Crea tu cuenta y descubre el mejor catálogo de beats.
@@ -272,7 +272,7 @@ export default function SignupPage() {
                                     <button
                                         type="submit"
                                         disabled={loading || isUsernameAvailable === false}
-                                        className="w-full bg-accent text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-slate-900 dark:hover:bg-slate-800 transition-all shadow-lg shadow-accent/20 flex items-center justify-center gap-3 group disabled:opacity-50 mt-2"
+                                        className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-3 group disabled:opacity-50 mt-2"
                                     >
                                         {loading ? (
                                             <Loader2 className="animate-spin" size={18} />

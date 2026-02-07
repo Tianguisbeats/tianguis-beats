@@ -7,7 +7,7 @@ import Link from 'next/link';
 import {
     Upload, Music, Image as ImageIcon, CheckCircle2,
     AlertCircle, Loader2, Info, ChevronLeft, Hash, Lock,
-    Check, Trash2, Edit2, Zap, Eye, EyeOff
+    Check, Trash2, Edit2, Zap, Eye, EyeOff, Crown
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -244,21 +244,32 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
         <div className="min-h-screen bg-background text-foreground font-body flex flex-col pt-20 transition-colors duration-300">
             <Navbar />
 
-            <main className="flex-1 pb-20">
-                <div className="max-w-4xl mx-auto px-4 mt-4 md:mt-8">
-
-                    <Link href="/studio/beats" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-accent transition-all mb-8 group min-h-[48px]">
-                        <ChevronLeft size={14} className="group-hover:-translate-x-1" />
-                        Volver a mi inventario
-                    </Link>
-
-                    <div className="mb-10">
-                        <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground font-heading">
-                            Editar <span className="text-accent">"{title}"</span>
-                        </h1>
-                        <p className="text-muted font-bold uppercase tracking-widest text-[10px] flex items-center gap-2 mt-2">
-                            <Edit2 size={12} className="text-accent" /> agrega los datos de tu Beat
-                        </p>
+            <main className="flex-1 p-4 md:p-8 pt-4">
+                <div className="max-w-5xl mx-auto space-y-8">
+                    {/* Header compactado */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-card p-8 rounded-[2.5rem] border border-border shadow-sm">
+                        <div className="flex items-center gap-4">
+                            <Link href="/studio/beats" className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-background border border-border text-muted hover:text-accent hover:border-accent transition-all shrink-0">
+                                <ChevronLeft size={18} />
+                            </Link>
+                            <div>
+                                <h1 className="text-2xl font-black uppercase tracking-tighter text-foreground font-heading">
+                                    Editar <span className="text-accent">"{title}"</span>
+                                </h1>
+                                <p className="text-muted font-bold uppercase tracking-widest text-[10px] flex items-center gap-2 mt-1">
+                                    <Edit2 size={12} className="text-accent" /> agrega los datos de tu Beat
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            form="updateBeatForm" // Link to the form below
+                            disabled={saving}
+                            className="bg-foreground text-background py-3 px-6 rounded-full font-black uppercase text-[12px] tracking-[0.2em] hover:bg-accent hover:text-white transition-all shadow-2xl shadow-accent/10 flex items-center justify-center gap-3 disabled:opacity-50 min-h-[48px] md:min-w-[200px]"
+                        >
+                            {saving ? <Loader2 className="animate-spin" size={20} /> : <Check size={20} />}
+                            {saving ? 'Guardando Cambios...' : 'Guardar y Publicar'}
+                        </button>
                     </div>
 
                     <div className="bg-card rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-10 border border-border shadow-sm relative overflow-hidden">
@@ -274,7 +285,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                             </div>
                         )}
 
-                        <form onSubmit={handleUpdate} className="space-y-8 md:space-y-12">
+                        <form onSubmit={handleUpdate} id="updateBeatForm" className="space-y-8 md:space-y-12">
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
                                 {/* METADATA */}
@@ -501,23 +512,32 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
                                     {/* EXCLUSIVA */}
                                     <div className={`p-6 rounded-2xl border space-y-4 transition-all ${!isPremium ? 'opacity-50 pointer-events-none grayscale' :
-                                        isExclusive ? 'bg-pink-50/50 border-pink-500 shadow-xl shadow-pink-500/10' : 'bg-slate-50 border-slate-100'
+                                        isExclusive ? 'bg-blue-50/10 border-blue-500/50 shadow-xl shadow-blue-500/5' : 'bg-slate-50/5 border-slate-100/10'
                                         }`}>
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center gap-2">
-                                                <span className={`text-[11px] font-black uppercase tracking-widest ${isExclusive ? 'text-pink-600' : ''}`}>Licencia Exclusiva</span>
-                                                {!isPremium ? <Lock size={12} /> :
-                                                    <Toggle
-                                                        active={isExclusive}
-                                                        onToggle={() => {
-                                                            setIsExclusive(!isExclusive);
-                                                            if (!isExclusive) setExclusivePrice(exclusivePrice || '5000');
-                                                        }}
-                                                    />
-                                                }
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`p-2 rounded-xl ${isExclusive ? 'bg-blue-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                                                    <Crown size={20} />
+                                                </div>
+                                                <div>
+                                                    <h4 className={`text-sm font-black uppercase tracking-tight ${isExclusive ? 'text-blue-500' : 'text-slate-400'}`}>Licencia Exclusiva</h4>
+                                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Venta única y total</p>
+                                                </div>
                                             </div>
-                                            <div className={`flex items-center rounded-lg px-3 py-2 border ${isExclusive ? 'bg-white border-pink-200' : 'bg-white border-slate-200'}`}>
-                                                <span className={`text-[10px] font-black mr-1 ${isExclusive ? 'text-pink-300' : 'text-slate-300'}`}>$</span>
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    className="sr-only peer"
+                                                    checked={isExclusive}
+                                                    onChange={(e) => setIsExclusive(e.target.checked)}
+                                                />
+                                                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                            </label>
+                                        </div>
+
+                                        <div className="flex items-center gap-4">
+                                            <div className={`flex-1 flex items-center rounded-lg px-3 py-2 border ${isExclusive ? 'bg-background border-blue-500/30' : 'bg-background border-border'}`}>
+                                                <span className={`text-[10px] font-black mr-1 ${isExclusive ? 'text-blue-400' : 'text-slate-400'}`}>$</span>
                                                 <input
                                                     type="number"
                                                     value={exclusivePrice}
@@ -526,13 +546,11 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                                         setExclusivePrice(val);
                                                         if (val && parseInt(val) > 0) setIsExclusive(true);
                                                     }}
-                                                    className={`w-16 text-xs font-bold outline-none bg-transparent ${isExclusive ? 'text-white' : 'text-slate-900'}`}
+                                                    className={`w-full text-xs font-bold outline-none bg-transparent text-foreground`}
+                                                    placeholder="Precio"
                                                 />
                                             </div>
                                         </div>
-                                        <p className={`text-[8px] font-black uppercase ${isExclusive ? 'text-white/60' : 'text-slate-400'}`}>
-                                            {isExclusive ? 'Este beat dejará de estar a la venta tras su compra.' : 'Activa poniendo un precio mayor a 0, o haz click en el ojo.'}
-                                        </p>
                                     </div>
                                 </div>
                             </div>

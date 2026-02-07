@@ -8,7 +8,6 @@ import { supabase } from '@/lib/supabase';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import ThemeToggle from '@/components/ThemeToggle';
 
 export default function PricingPage() {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
@@ -28,15 +27,15 @@ export default function PricingPage() {
 
     useEffect(() => {
         const fetchUser = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setSession(session);
+            const { data: { session: currentSession } } = await supabase.auth.getSession();
+            setSession(currentSession);
 
-            if (session?.user) {
+            if (currentSession?.user) {
                 try {
                     const { data, error } = await supabase
                         .from('profiles')
                         .select('subscription_tier, termina_suscripcion, comenzar_suscripcion')
-                        .eq('id', session.user.id)
+                        .eq('id', currentSession.user.id)
                         .single();
 
                     if (data && !error) {
@@ -52,6 +51,47 @@ export default function PricingPage() {
         };
         fetchUser();
     }, []);
+
+    const plans = [
+        {
+            tier: 'free',
+            name: 'Gratis',
+            description: 'Ideal para empezar a compartir tu música.',
+            price: 0,
+            features: [
+                "5 Beats públicos",
+                "Comisión del 15%",
+                "Estadísticas básicas",
+                "Perfil de productor"
+            ]
+        },
+        {
+            tier: 'pro',
+            name: 'Pro Productor',
+            description: 'Herramientas profesionales para escalar.',
+            price: billingCycle === 'monthly' ? 149 : 111,
+            features: [
+                "Beats Ilimitados",
+                "0% COMISIÓN",
+                "MP3 + WAV",
+                "Servicios habilitados",
+                "Soporte 24/7"
+            ]
+        },
+        {
+            tier: 'premium',
+            name: 'Elite Premium',
+            description: 'Potencia comercial máxima.',
+            price: billingCycle === 'monthly' ? 349 : 261,
+            features: [
+                "Stems (Pistas)",
+                "Venta Exclusiva",
+                "Sound Kits",
+                "Impulso Algorítmico",
+                "0% COMISIÓN"
+            ]
+        }
+    ];
 
     const handleSelectPlan = (plan: any) => {
         if (!session) {
@@ -170,19 +210,28 @@ export default function PricingPage() {
                     </p>
 
                     {/* Cycle Toggle */}
-                    <div className="inline-flex p-1.5 bg-card border border-border rounded-full items-center gap-2">
-                        <button
-                            onClick={() => setBillingCycle('monthly')}
-                            className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'monthly' ? 'bg-accent text-white shadow-lg' : 'text-muted hover:text-foreground'}`}
-                        >
-                            Mensual
-                        </button>
-                        <button
-                            onClick={() => setBillingCycle('yearly')}
-                            className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'yearly' ? 'bg-accent text-white shadow-lg' : 'text-muted hover:text-foreground'}`}
-                        >
-                            Anual (Ahorra 15%)
-                        </button>
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="inline-flex p-1.5 bg-card border border-border rounded-full items-center gap-2 relative">
+                            <button
+                                onClick={() => setBillingCycle('monthly')}
+                                className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'monthly' ? 'bg-accent text-white shadow-lg' : 'text-muted hover:text-foreground'}`}
+                            >
+                                Mensual
+                            </button>
+                            <button
+                                onClick={() => setBillingCycle('yearly')}
+                                className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'yearly' ? 'bg-accent text-white shadow-lg' : 'text-muted hover:text-foreground'}`}
+                            >
+                                Anual
+                            </button>
+                            {/* 25% OFF Badge */}
+                            <div className="absolute -top-4 -right-4 bg-blue-600 text-white text-[8px] font-black px-2 py-1 rounded-lg rotate-12 shadow-lg">
+                                25% OFF + 3 MESES GRATIS
+                            </div>
+                        </div>
+                        <p className={`text-[10px] font-bold uppercase tracking-widest transition-all ${billingCycle === 'yearly' ? 'text-accent' : 'text-muted'}`}>
+                            {billingCycle === 'yearly' ? 'Ahorras un 25% anual y obtienes 3 meses gratis' : 'Cambia a anual para ahorrar'}
+                        </p>
                     </div>
                 </div>
             </section>
@@ -191,106 +240,81 @@ export default function PricingPage() {
             <section className="pb-32 relative z-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+                        {plans.map((plan) => {
+                            const isCurrentPlan = (userTier || 'free').toLowerCase() === plan.tier;
+                            const isScheduled = comenzarSuscripcion === plan.tier;
+                            const isPremium = plan.tier === 'premium';
+                            const isPro = plan.tier === 'pro';
 
-                        {/* Free Plan */}
-                        <div className="group relative bg-card/40 backdrop-blur-xl rounded-[3rem] p-8 md:p-10 border border-border hover:border-accent/40 transition-all duration-500 hover:-translate-y-2 flex flex-col">
-                            <div className="mb-8">
-                                <div className="w-14 h-14 rounded-2xl bg-muted/10 flex items-center justify-center text-muted mb-6">
-                                    <Zap size={28} />
-                                </div>
-                                <h3 className="text-2xl font-black text-foreground mb-2 font-heading lowercase tracking-tighter">Explorador</h3>
-                                <p className="text-muted text-sm font-medium">Ideal para empezar a compartir tu música.</p>
-                            </div>
-                            <div className="mb-8">
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-5xl font-black text-foreground tracking-tighter">$0</span>
-                                    <span className="text-muted font-black uppercase text-[10px] tracking-widest">MXN/Mes</span>
-                                </div>
-                            </div>
-                            <ul className="space-y-4 mb-10 flex-1">
-                                {["5 Beats públicos", "Comisión del 15%", "Estadísticas básicas", "Perfil de productor"].map((feature, i) => (
-                                    <li key={i} className="flex items-center gap-3 text-sm font-medium text-foreground">
-                                        <Check size={16} className="text-accent" /> {feature}
-                                    </li>
-                                ))}
-                            </ul>
-                            <button
-                                onClick={() => handleSelectPlan({ tier: 'free', name: 'Explorador', price: 0 })}
-                                className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${userTier === 'free' ? 'bg-muted/10 text-muted cursor-default' : 'bg-foreground text-background hover:bg-accent hover:text-white'}`}
-                            >
-                                {userTier === 'free' ? 'Tu Plan Actual' : 'Empezar Gratis'}
-                            </button>
-                        </div>
+                            return (
+                                <div key={plan.tier} className={`group relative bg-card/40 backdrop-blur-xl rounded-[3rem] p-8 md:p-10 border transition-all duration-500 hover:-translate-y-2 flex flex-col ${isPro ? 'border-accent shadow-2xl shadow-accent/10 scale-105 z-20' : 'border-border hover:border-accent/40'}`}>
+                                    {isPro && (
+                                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-accent text-white px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl">
+                                            Más Popular
+                                        </div>
+                                    )}
+                                    <div className="mb-8">
+                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${isPremium ? 'bg-amber-400/10 text-amber-500' : isPro ? 'bg-accent text-white' : 'bg-muted/10 text-muted'}`}>
+                                            {isPremium ? <Crown size={28} fill="currentColor" /> : isPro ? <Star size={28} fill="currentColor" /> : <Zap size={28} />}
+                                        </div>
+                                        <h3 className="text-2xl font-black text-foreground mb-2 font-heading lowercase tracking-tighter">{plan.name}</h3>
+                                        <p className="text-muted text-sm font-medium">{plan.description}</p>
+                                    </div>
+                                    <div className="mb-8">
+                                        <div className="flex items-baseline gap-1">
+                                            <span className="text-5xl font-black text-foreground tracking-tighter">${plan.price}</span>
+                                            <span className="text-muted font-black uppercase text-[10px] tracking-widest">MXN/Mes</span>
+                                        </div>
+                                    </div>
+                                    <ul className="space-y-4 mb-10 flex-1">
+                                        {plan.features.map((feature, i) => (
+                                            <li key={i} className="flex items-center gap-3 text-sm font-medium text-foreground">
+                                                <Check size={isPro ? 18 : 16} className={isPremium ? 'text-amber-500' : 'text-accent'} strokeWidth={isPro ? 3 : 2} /> {feature}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <button
+                                        onClick={() => handleSelectPlan(plan)}
+                                        disabled={isCurrentPlan || isScheduled}
+                                        className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${isCurrentPlan || isScheduled
+                                            ? 'bg-muted/10 text-muted cursor-default'
+                                            : isPro ? 'bg-accent text-white hover:bg-foreground hover:shadow-xl' : 'bg-foreground text-background hover:bg-accent hover:text-white'
+                                            }`}
+                                    >
+                                        {isCurrentPlan ? 'Tu Plan Actual' : isScheduled ? 'Programado' : plan.tier === 'free' ? 'Empezar Gratis' : `Suscribirse ${plan.name}`}
+                                    </button>
 
-                        {/* Pro Plan */}
-                        <div className="group relative bg-card backdrop-blur-xl rounded-[3rem] p-8 md:p-10 border-2 border-accent transition-all duration-500 hover:-translate-y-2 flex flex-col shadow-2xl shadow-accent/10 scale-105 z-20">
-                            <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-accent text-white px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl">
-                                Más Popular
-                            </div>
-                            <div className="mb-8">
-                                <div className="w-14 h-14 rounded-2xl bg-accent text-white flex items-center justify-center mb-6">
-                                    <Star size={28} fill="currentColor" />
+                                    {/* Expiration Info */}
+                                    {isCurrentPlan && terminaSuscripcion && (
+                                        <p className="mt-4 text-center text-[9px] font-black uppercase tracking-widest text-muted">
+                                            Vence el: {new Date(terminaSuscripcion).toLocaleDateString()}
+                                        </p>
+                                    )}
                                 </div>
-                                <h3 className="text-2xl font-black text-foreground mb-2 font-heading lowercase tracking-tighter">Pro Productor</h3>
-                                <p className="text-muted text-sm font-medium">Herramientas profesionales para escalar.</p>
-                            </div>
-                            <div className="mb-8">
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-5xl font-black text-foreground tracking-tighter">${billingCycle === 'monthly' ? '149' : '111'}</span>
-                                    <span className="text-muted font-black uppercase text-[10px] tracking-widest">MXN/Mes</span>
-                                </div>
-                            </div>
-                            <ul className="space-y-4 mb-10 flex-1">
-                                {["Beats Ilimitados", "0% COMISIÓN", "MP3 + WAV", "Servicios habilitados", "Soporte 24/7"].map((feature, i) => (
-                                    <li key={i} className="flex items-center gap-3 text-sm font-medium text-foreground">
-                                        <Check size={18} className="text-accent" strokeWidth={3} /> {feature}
-                                    </li>
-                                ))}
-                            </ul>
-                            <button
-                                onClick={() => handleSelectPlan({ tier: 'pro', name: 'Pro', price: billingCycle === 'monthly' ? 149 : 1340 })}
-                                className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${userTier === 'pro' ? 'bg-muted/10 text-muted cursor-default' : 'bg-accent text-white hover:bg-foreground hover:shadow-xl'}`}
-                            >
-                                {userTier === 'pro' ? 'Tu Plan Actual' : 'Suscribirse Pro'}
-                            </button>
-                        </div>
-
-                        {/* Premium Plan */}
-                        <div className="group relative bg-card/40 backdrop-blur-xl rounded-[3rem] p-8 md:p-10 border border-border hover:border-amber-400/40 transition-all duration-500 hover:-translate-y-2 flex flex-col">
-                            <div className="mb-8">
-                                <div className="w-14 h-14 rounded-2xl bg-amber-400/10 text-amber-500 flex items-center justify-center mb-6">
-                                    <Crown size={28} fill="currentColor" />
-                                </div>
-                                <h3 className="text-2xl font-black text-foreground mb-2 font-heading lowercase tracking-tighter">Elite Premium</h3>
-                                <p className="text-muted text-sm font-medium">Potencia comercial máxima.</p>
-                            </div>
-                            <div className="mb-8">
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-5xl font-black text-foreground tracking-tighter">${billingCycle === 'monthly' ? '349' : '261'}</span>
-                                    <span className="text-muted font-black uppercase text-[10px] tracking-widest">MXN/Mes</span>
-                                </div>
-                            </div>
-                            <ul className="space-y-4 mb-10 flex-1">
-                                {["Stems (Pistas)", "Venta Exclusiva", "Sound Kits", "Impulso Algorítmico", "Comisión 0%"].map((feature, i) => (
-                                    <li key={i} className="flex items-center gap-3 text-sm font-medium text-foreground">
-                                        <Check size={16} className="text-amber-500" /> {feature}
-                                    </li>
-                                ))}
-                            </ul>
-                            <button
-                                onClick={() => handleSelectPlan({ tier: 'premium', name: 'Premium', price: billingCycle === 'monthly' ? 349 : 3140 })}
-                                className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${userTier === 'premium' ? 'bg-muted/10 text-muted cursor-default' : 'bg-foreground text-background hover:bg-amber-400 hover:text-white'}`}
-                            >
-                                {userTier === 'premium' ? 'Tu Plan Actual' : 'Obtener Elite'}
-                            </button>
-                        </div>
+                            );
+                        })}
                     </div>
 
                     <div className="mt-20 text-center">
-                        <p className="text-muted font-bold text-sm mb-6">¿Necesitas un plan personalizado para tu sello discográfico?</p>
-                        <Link href="/help" className="inline-flex items-center gap-2 text-accent font-black uppercase text-[10px] tracking-widest hover:gap-4 transition-all">
-                            Habla con nuestro equipo de ventas <ArrowRight size={14} />
-                        </Link>
+                        <p className="text-foreground text-sm font-black uppercase tracking-[0.3em] mb-4">Cancela cuando quieras</p>
+                        <p className="text-muted text-[10px] font-bold uppercase tracking-widest mb-8">Sin contratos forzosos • Garantía de satisfacción • Soporte 24/7</p>
+
+                        {/* Cancel Button */}
+                        {session && (userTier === 'pro' || userTier === 'premium') && (
+                            <button
+                                onClick={() => handleSelectPlan(plans.find(p => p.tier === 'free'))}
+                                className="text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-600 border-b border-transparent hover:border-red-600 transition-all pb-0.5 opacity-60 hover:opacity-100"
+                            >
+                                Cancelar Suscripción
+                            </button>
+                        )}
+
+                        <div className="mt-12">
+                            <p className="text-muted font-bold text-sm mb-6">¿Necesitas un plan personalizado para tu sello discográfico?</p>
+                            <Link href="/help" className="inline-flex items-center gap-2 text-accent font-black uppercase text-[10px] tracking-widest hover:gap-4 transition-all">
+                                Habla con nuestro equipo de ventas <ArrowRight size={14} />
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </section>

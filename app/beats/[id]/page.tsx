@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { Beat } from '@/lib/types';
-import { Crown, Youtube, Zap, Package, Tag, Layers, Activity, Calendar } from 'lucide-react';
+import { Crown, Youtube, Zap, Package, Tag, Layers, Activity, Calendar, Check } from 'lucide-react';
 
 // Extend Beat interface to include detail columns
 interface BeatDetail extends Beat {
@@ -269,10 +269,8 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 <div className="flex flex-wrap items-center gap-2">
                                     {beat.mood?.split(',').map((m: string) => {
                                         const moodLabel = m.trim();
-                                        const moodInfo = (require('@/lib/constants').MOODS as any[]).find((mood: any) => mood.label === moodLabel);
                                         return (
-                                            <span key={moodLabel} className="px-3 py-1 bg-white border border-slate-100 rounded-lg text-[9px] font-black uppercase tracking-widest text-slate-500 shadow-sm flex items-center gap-1.5">
-                                                <span className="text-sm leading-none">{moodInfo?.emoji || '✨'}</span>
+                                            <span key={moodLabel} className="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-300 hover:text-white transition-colors cursor-default">
                                                 {moodLabel}
                                             </span>
                                         );
@@ -299,10 +297,13 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 <div className="flex flex-col justify-center px-4 bg-card/50 backdrop-blur-sm rounded-2xl border border-border py-2">
                                     <span className="text-[8px] font-black text-muted uppercase tracking-[0.2em] mb-1 leading-none text-center">Lanzamiento</span>
                                     <div className="flex items-center gap-2 text-foreground">
-                                        <Calendar size={14} className="text-accent" />
-                                        <span className="text-[11px] font-black uppercase tracking-widest">
-                                            {new Date(beat.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                        </span>
+                                        <div className="flex flex-wrap gap-2">
+                                            {beat.mood && beat.mood.split(',').map((mood: string) => (
+                                                <span key={mood} className="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-300 hover:text-white transition-colors cursor-default">
+                                                    {mood.trim()}
+                                                </span>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -312,8 +313,14 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
                 {/* 2. WAVEFORM VISUALIZER */}
                 <div className="max-w-6xl mx-auto px-4 -mt-10 relative z-20 mb-8">
-                    <div className="bg-card p-6 rounded-[2.5rem] shadow-xl shadow-black/5 border border-border">
-                        <WaveformPlayer url={beat.mp3_url || ''} height={100} waveColor="#94a3b8" progressColor="var(--accent)" />
+                    <div className="bg-black p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-blue-600/20 transition-all duration-700"></div>
+                        <WaveformPlayer
+                            url={beat.mp3_url || ''}
+                            height={150}
+                            waveColor="#334155"
+                            progressColor="#3b82f6"
+                        />
                     </div>
                 </div>
 
@@ -400,7 +407,11 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     {/* RIGHT COLUMN: Statistics & Details (Prioritizing Comments) */}
                     <div className="lg:col-span-4 space-y-8">
                         <section>
-                            <div className="bg-card p-6 rounded-[2.5rem] border border-border shadow-sm min-h-[400px]">
+                            <div className="bg-black/40 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/5 shadow-sm min-h-[400px]">
+                                <h3 className="text-xl font-black uppercase tracking-tighter text-white mb-8 flex items-center gap-3 lowercase font-heading">
+                                    <span className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white"><Check size={16} /></span>
+                                    comentarios
+                                </h3>
                                 <CommentSection beatId={id} />
                             </div>
                         </section>
