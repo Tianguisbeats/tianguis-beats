@@ -431,12 +431,12 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                                 <Toggle active={isMp3Active} onToggle={() => setIsMp3Active(!isMp3Active)} />
                                                 <div className={`flex items-center gap-2 bg-white rounded-xl px-2 py-1.5 border-2 shadow-sm transition-all ${isMp3Active ? 'border-accent' : 'border-slate-100 opacity-50'}`}>
                                                     <span className={`text-[10px] font-black ${isMp3Active ? 'text-accent' : 'text-slate-300'}`}>$</span>
-                                                    <input 
-                                                        type="number" 
-                                                        value={standardPrice} 
+                                                    <input
+                                                        type="number"
+                                                        value={standardPrice}
                                                         disabled={!isMp3Active}
-                                                        onChange={(e) => setStandardPrice(e.target.value)} 
-                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${isMp3Active ? 'text-slate-900' : 'text-slate-300'}`} 
+                                                        onChange={(e) => setStandardPrice(e.target.value)}
+                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${isMp3Active ? 'text-slate-900' : 'text-slate-300'}`}
                                                     />
                                                 </div>
                                             </div>
@@ -451,9 +451,9 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                     </div>
 
                                     {/* WAV */}
-                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' : 
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' :
                                         isWavActive ? 'bg-blue-50/30 border-blue-100 hover:bg-blue-50/50' : 'bg-slate-50/50 border-slate-100 opacity-75'
-                                    }`}>
+                                        }`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
@@ -468,12 +468,12 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                                 {!isFree && <Toggle active={isWavActive} onToggle={() => setIsWavActive(!isWavActive)} />}
                                                 <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${isFree ? 'bg-slate-50 border-slate-100' : (isWavActive ? 'bg-white border-accent shadow-sm' : 'bg-slate-50 border-slate-100 opacity-50')}`}>
                                                     <span className={`text-[10px] font-black mr-1 ${isFree ? 'text-slate-300' : (isWavActive ? 'text-accent' : 'text-slate-300')}`}>$</span>
-                                                    <input 
-                                                        type="number" 
-                                                        disabled={isFree || !isWavActive} 
-                                                        value={wavPrice} 
-                                                        onChange={(e) => setWavPrice(e.target.value)} 
-                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${(isFree || !isWavActive) ? 'text-slate-300' : 'text-slate-900'}`} 
+                                                    <input
+                                                        type="number"
+                                                        disabled={isFree || !isWavActive}
+                                                        value={wavPrice}
+                                                        onChange={(e) => setWavPrice(e.target.value)}
+                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${(isFree || !isWavActive) ? 'text-slate-300' : 'text-slate-900'}`}
                                                     />
                                                 </div>
                                             </div>
@@ -490,9 +490,9 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                     </div>
 
                                     {/* STEMS */}
-                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' : 
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-slate-100/30 border-slate-100 grayscale opacity-60' :
                                         isStemsActive ? 'bg-purple-50 border-purple-200 hover:bg-purple-100/50' : 'bg-slate-50/50 border-slate-100 opacity-75'
-                                    }`}>
+                                        }`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
@@ -507,12 +507,12 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                                 {isPremium && <Toggle active={isStemsActive} onToggle={() => setIsStemsActive(!isStemsActive)} />}
                                                 <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${!isPremium ? 'bg-slate-50 border-slate-100' : (isStemsActive ? 'bg-white border-accent shadow-sm' : 'bg-slate-50 border-slate-100 opacity-50')}`}>
                                                     <span className={`text-[10px] font-black mr-1 ${!isPremium ? 'text-slate-300' : (isStemsActive ? 'text-accent' : 'text-slate-300')}`}>$</span>
-                                                    <input 
-                                                        type="number" 
-                                                        disabled={!isPremium || !isStemsActive} 
-                                                        value={stemsPrice} 
-                                                        onChange={(e) => setStemsPrice(e.target.value)} 
-                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${(!isPremium || !isStemsActive) ? 'text-slate-300' : 'text-slate-900'}`} 
+                                                    <input
+                                                        type="number"
+                                                        disabled={!isPremium || !isStemsActive}
+                                                        value={stemsPrice}
+                                                        onChange={(e) => setStemsPrice(e.target.value)}
+                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${(!isPremium || !isStemsActive) ? 'text-slate-300' : 'text-slate-900'}`}
                                                     />
                                                 </div>
                                             </div>
@@ -531,7 +531,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                     {/* EXCLUSIVA */}
                                     <div className={`p-6 rounded-3xl border space-y-4 transition-all ${!isPremium ? 'opacity-50 pointer-events-none grayscale' :
                                         isExclusive ? 'bg-rose-50/20 border-rose-500/50 shadow-xl shadow-rose-500/5' : 'bg-slate-50/5 border-slate-100/10'
-                                    }`}>
+                                        }`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
                                                 <div className={`p-2 rounded-xl transition-all ${isExclusive ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/30' : 'bg-slate-200 text-slate-400'}`}>
@@ -564,23 +564,19 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={saving}
+                                    className="w-full max-w-5xl mx-auto bg-accent text-white py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.2em] hover:bg-accent/90 transition-all shadow-2xl shadow-accent/20 flex items-center justify-center gap-4 disabled:opacity-50 min-h-[64px] mb-20 mt-10"
+                                >
+                                    {saving ? <Loader2 className="animate-spin" size={20} /> : <Check size={20} />}
+                                    {saving ? 'Guardando Cambios...' : 'Guardar y Publicar'}
+                                </button>
+                        </form>
                     </div>
-                </div>
-
-                <button
-                    type="submit"
-                    form="updateBeatForm"
-                    disabled={saving}
-                    className="w-full max-w-5xl mx-auto bg-accent text-white py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.2em] hover:bg-accent/90 transition-all shadow-2xl shadow-accent/20 flex items-center justify-center gap-4 disabled:opacity-50 min-h-[64px] mb-20"
-                >
-                    {saving ? <Loader2 className="animate-spin" size={20} /> : <Check size={20} />}
-                    {saving ? 'Guardando Cambios...' : 'Guardar y Publicar'}
-                </button>
-            </main >
-
-        <Footer />
-        </div >
+            </main>
+            <Footer />
+        </div>
     );
 }
