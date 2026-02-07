@@ -217,8 +217,8 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     };
 
     if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-white">
-            <Loader2 className="animate-spin text-blue-600" size={40} />
+        <div className="min-h-screen flex items-center justify-center bg-background">
+            <Loader2 className="animate-spin text-accent" size={40} />
         </div>
     );
 
@@ -231,8 +231,8 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             type="button"
             onClick={onToggle}
             disabled={disabled}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-100 text-slate-400' :
-                active ? 'bg-green-100 text-green-600 hover:bg-green-200' : 'bg-red-50 text-red-500 hover:bg-red-100'
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${disabled ? 'opacity-50 cursor-not-allowed bg-accent-soft text-muted' :
+                active ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-200' : 'bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 hover:bg-red-100'
                 }`}
         >
             {active ? <Eye size={12} /> : <EyeOff size={12} />}
@@ -241,27 +241,27 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     );
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col pt-20">
+        <div className="min-h-screen bg-background text-foreground font-body flex flex-col pt-20 transition-colors duration-300">
             <Navbar />
 
             <main className="flex-1 pb-20">
                 <div className="max-w-4xl mx-auto px-4 mt-4 md:mt-8">
 
-                    <Link href="/studio/beats" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-blue-600 transition-all mb-8 group">
+                    <Link href="/studio/beats" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-accent transition-all mb-8 group min-h-[48px]">
                         <ChevronLeft size={14} className="group-hover:-translate-x-1" />
                         Volver a mi inventario
                     </Link>
 
                     <div className="mb-10">
-                        <h1 className="text-4xl font-black uppercase tracking-tighter text-slate-900">
-                            Editar <span className="text-blue-600">"{title}"</span>
+                        <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground font-heading">
+                            Editar <span className="text-accent">"{title}"</span>
                         </h1>
-                        <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] flex items-center gap-2 mt-2">
-                            <Edit2 size={12} className="text-blue-500" /> agrega los datos de tu Beat
+                        <p className="text-muted font-bold uppercase tracking-widest text-[10px] flex items-center gap-2 mt-2">
+                            <Edit2 size={12} className="text-accent" /> agrega los datos de tu Beat
                         </p>
                     </div>
 
-                    <div className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-10 border border-slate-100 shadow-sm relative overflow-hidden">
+                    <div className="bg-card rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-10 border border-border shadow-sm relative overflow-hidden">
 
                         {error && (
                             <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-[10px] font-black uppercase mb-8 flex items-center gap-3">
@@ -280,69 +280,69 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                 {/* METADATA */}
                                 <div className="space-y-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Título</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted">Título</label>
                                         <input
                                             type="text"
                                             value={title}
                                             onChange={(e) => setTitle(e.target.value)}
-                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500 transition-all"
+                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-4 text-sm font-bold outline-none focus:border-accent transition-all text-foreground min-h-[56px]"
                                             required
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Género</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted">Género</label>
                                         <select
                                             value={genre}
                                             onChange={(e) => {
                                                 setGenre(e.target.value);
                                                 setSubgenre('');
                                             }}
-                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none"
+                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all appearance-none text-foreground min-h-[56px]"
                                         >
                                             <option value="">Seleccionar</option>
-                                            {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
+                                            {GENRES.map(g => <option key={g} value={g} className="bg-card text-foreground">{g}</option>)}
                                         </select>
                                     </div>
 
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Subgénero</label>
-                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">(Opcional)</span>
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted">Subgénero</label>
+                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest">(Opcional)</span>
                                         </div>
                                         <select
                                             value={subgenre}
                                             onChange={(e) => setSubgenre(e.target.value)}
-                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-foreground min-h-[56px]"
                                             disabled={!genre || !SUBGENRES[genre]}
                                         >
                                             <option value="">{genre ? 'Ninguno / Automático' : 'Selecciona un género primero'}</option>
                                             {genre && SUBGENRES[genre]?.map(sg => (
-                                                <option key={sg} value={sg}>{sg}</option>
+                                                <option key={sg} value={sg} className="bg-card text-foreground">{sg}</option>
                                             ))}
                                         </select>
                                     </div>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">BPM</label>
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted">BPM</label>
                                             <input
                                                 type="number"
                                                 value={bpm}
                                                 onChange={(e) => setBpm(e.target.value)}
-                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500 transition-all"
+                                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-4 text-sm font-bold outline-none focus:border-accent transition-all text-foreground min-h-[56px]"
                                                 required
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Escala</label>
-                                            <select value={musicalScale} onChange={(e) => setMusicalScale(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all">
-                                                {SCALES.map(s => <option key={s} value={s}>{s}</option>)}
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted">Escala</label>
+                                            <select value={musicalScale} onChange={(e) => setMusicalScale(e.target.value)} className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all text-foreground min-h-[56px]">
+                                                {SCALES.map(s => <option key={s} value={s} className="bg-card text-foreground">{s}</option>)}
                                             </select>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nota</label>
-                                            <select value={musicalKey} onChange={(e) => setMusicalKey(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 transition-all">
-                                                {KEYS_BASE.map(k => <option key={k} value={k}>{k}</option>)}
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted">Nota</label>
+                                            <select value={musicalKey} onChange={(e) => setMusicalKey(e.target.value)} className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all text-foreground min-h-[56px]">
+                                                {KEYS_BASE.map(k => <option key={k} value={k} className="bg-card text-foreground">{k}</option>)}
                                             </select>
                                         </div>
                                     </div>
@@ -351,42 +351,42 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                 {/* ARTWORK & MOOD */}
                                 <div className="space-y-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Artwork</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted">Artwork</label>
                                         <input
                                             type="file"
                                             id="cover"
                                             className="hidden"
                                             onChange={(e) => setCoverFile(e.target.files?.[0] || null)}
                                         />
-                                        <label htmlFor="cover" className="flex items-center gap-4 p-4 border-2 border-dashed border-slate-100 rounded-2xl cursor-pointer hover:bg-slate-50 transition-all h-[120px]">
-                                            <div className="w-20 h-20 bg-white rounded-lg overflow-hidden border border-slate-100 shadow-sm shrink-0">
+                                        <label htmlFor="cover" className="flex items-center gap-4 p-4 border-2 border-dashed border-border rounded-2xl cursor-pointer hover:bg-background transition-all h-[120px]">
+                                            <div className="w-20 h-20 bg-background rounded-lg overflow-hidden border border-border shadow-sm shrink-0">
                                                 {coverFile ? (
                                                     <img src={URL.createObjectURL(coverFile)} className="w-full h-full object-cover" />
                                                 ) : existingPortada ? (
                                                     <img src={existingPortada} className="w-full h-full object-cover" />
                                                 ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-slate-300"><ImageIcon size={24} /></div>
+                                                    <div className="w-full h-full flex items-center justify-center text-muted/30"><ImageIcon size={24} /></div>
                                                 )}
                                             </div>
                                             <div>
-                                                <span className="text-[10px] font-black uppercase text-blue-600 block mb-1">Cambiar Portada</span>
-                                                <p className="text-[8px] font-bold text-slate-400 uppercase leading-snug">Original recomendada:</p>
-                                                <p className="text-[8px] font-bold text-slate-400 uppercase leading-snug">3000 x 3000 PX</p>
+                                                <span className="text-[10px] font-black uppercase text-accent block mb-1">Cambiar Portada</span>
+                                                <p className="text-[8px] font-bold text-muted uppercase leading-snug">Original recomendada:</p>
+                                                <p className="text-[8px] font-bold text-muted uppercase leading-snug">3000 x 3000 PX</p>
                                             </div>
                                         </label>
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Vibe (3 opciones)</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Vibe (3 opciones)</label>
                                         <div className="flex flex-wrap gap-1.5">
                                             {MOODS.map(mood => (
                                                 <button
                                                     key={mood.label}
                                                     type="button"
                                                     onClick={() => handleMoodToggle(mood.label)}
-                                                    className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${selectedMoods.includes(mood.label)
-                                                        ? 'bg-slate-900 text-white'
-                                                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                                    className={`px-3 py-2 rounded-lg text-[9px] font-black uppercase transition-all min-h-[40px] ${selectedMoods.includes(mood.label)
+                                                        ? 'bg-foreground text-background'
+                                                        : 'bg-background text-muted hover:bg-accent-soft'
                                                         }`}
                                                 >
                                                     <span className="mr-1">{mood.emoji}</span> {mood.label}
@@ -540,7 +540,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                             <button
                                 type="submit"
                                 disabled={saving}
-                                className="w-full bg-slate-900 text-white py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.2em] hover:bg-blue-600 transition-all shadow-2xl shadow-slate-900/10 flex items-center justify-center gap-4 disabled:opacity-50"
+                                className="w-full bg-foreground text-background py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.2em] hover:bg-accent hover:text-white transition-all shadow-2xl shadow-accent/10 flex items-center justify-center gap-4 disabled:opacity-50 min-h-[64px]"
                             >
                                 {saving ? <Loader2 className="animate-spin" size={20} /> : <Check size={20} />}
                                 {saving ? 'Guardando Cambios...' : 'Guardar y Publicar'}

@@ -4,22 +4,39 @@
   --background: #ffffff;
   --foreground: #0f172a;
   --accent: #1e40af;
-  /* Royal Blue for authority */
   --accent-soft: #f8fafc;
+  --card: #ffffff;
+  --border: #f1f5f9;
+  --muted: #64748b;
+}
+
+[data-theme='dark'] {
+  --background: #020617;
+  --foreground: #f8fafc;
+  --accent: #3b82f6;
+  --accent-soft: #1e293b;
+  --card: #0f172a;
+  --border: #1e293b;
+  --muted: #94a3b8;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-accent: var(--accent);
-  --font-sans: var(--font-outfit), var(--font-geist-sans), sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
+  --color-accent-soft: var(--accent-soft);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --font-heading: var(--font-kanit), sans-serif;
+  --font-body: var(--font-montserrat), sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
+  transition: background-color 0.3s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -31,7 +48,13 @@ body {
   h4,
   h5,
   h6 {
+    font-family: var(--font-heading);
     @apply tracking-tighter;
+  }
+
+  button,
+  a.button {
+    @apply min-h-[48px] min-w-[48px] flex items-center justify-center;
   }
 }
 
@@ -49,5 +72,5 @@ body {
 }
 
 .username-highlight {
-  @apply transition-all duration-300 hover:text-blue-600 hover:drop-shadow-[0_0_8px_rgba(37,99,235,0.3)] cursor-pointer;
+  @apply transition-all duration-300 hover:text-blue-600 hover:drop-shadow-[0_0_8px_rgba(37, 99, 235, 0.3)] cursor-pointer;
 }

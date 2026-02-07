@@ -44,12 +44,12 @@ export default function AdvancedFilterSidebar({
         <>
             {/* Mobile Overlay */}
             {isOpen && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden" onClick={onClose}></div>
+                <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden" onClick={onClose}></div>
             )}
 
             {/* Sidebar Container */}
             <aside className={`
-        fixed top-0 left-0 h-full w-[320px] bg-white border-r border-slate-100 shadow-2xl z-50 overflow-y-auto no-scrollbar
+        fixed top-0 left-0 h-full w-[320px] bg-card border-r border-border shadow-2xl z-50 overflow-y-auto no-scrollbar
         transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:h-[calc(100vh-6rem)] lg:shadow-none lg:border-none lg:bg-transparent lg:w-[280px] lg:block
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
@@ -57,30 +57,30 @@ export default function AdvancedFilterSidebar({
 
                     {/* Header Mobile */}
                     <div className="flex items-center justify-between lg:hidden mb-6">
-                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Filtros</h3>
-                        <button onClick={onClose} className="p-2 bg-slate-100 rounded-full text-slate-500">
+                        <h3 className="text-xl font-black text-foreground uppercase tracking-tight font-heading">Filtros</h3>
+                        <button onClick={onClose} className="p-3 bg-accent-soft rounded-full text-muted min-h-[48px] min-w-[48px] flex items-center justify-center">
                             <X size={20} />
                         </button>
                     </div>
 
                     {/* Search Input (Sidebar version) */}
                     <div className="space-y-3">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Búsqueda</label>
+                        <label className="text-[10px] font-black text-muted uppercase tracking-widest">Búsqueda</label>
                         <input
                             type="text"
                             placeholder="Buscar..."
                             value={filterState.searchQuery}
                             onChange={(e) => updateFilter('searchQuery', e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500 transition-all"
+                            className="w-full bg-background border border-border rounded-xl px-4 py-4 text-sm font-bold outline-none focus:border-accent transition-all text-foreground min-h-[56px]"
                         />
                     </div>
 
-                    <div className="h-[1px] bg-slate-100"></div>
+                    <div className="h-[1px] bg-border"></div>
 
                     {/* Genres */}
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Género</label>
+                            <label className="text-[10px] font-black text-muted uppercase tracking-widest">Género</label>
                         </div>
                         <select
                             value={filterState.genre}
@@ -88,10 +88,10 @@ export default function AdvancedFilterSidebar({
                                 updateFilter('genre', e.target.value);
                                 updateFilter('subgenre', '');
                             }}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer"
+                            className="w-full bg-background border border-border rounded-xl px-4 py-4 text-sm font-bold outline-none focus:border-accent transition-all appearance-none cursor-pointer text-foreground min-h-[56px]"
                         >
                             {genres.map(g => (
-                                <option key={g} value={g}>{g}</option>
+                                <option key={g} value={g} className="bg-card text-foreground">{g}</option>
                             ))}
                         </select>
                     </div>
@@ -99,45 +99,45 @@ export default function AdvancedFilterSidebar({
                     {/* Subgenres (Conditional) */}
                     {filterState.genre !== 'Todos' && SUBGENRES[filterState.genre] && (
                         <div className="space-y-3 animate-fade-in">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subgénero</label>
+                            <label className="text-[10px] font-black text-muted uppercase tracking-widest">Subgénero</label>
                             <select
                                 value={filterState.subgenre}
                                 onChange={(e) => updateFilter('subgenre', e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer"
+                                className="w-full bg-background border border-border rounded-xl px-4 py-4 text-sm font-bold outline-none focus:border-accent transition-all appearance-none cursor-pointer text-foreground min-h-[56px]"
                             >
-                                <option value="">Todos los subgéneros</option>
+                                <option value="" className="bg-card text-foreground">Todos los subgéneros</option>
                                 {SUBGENRES[filterState.genre].map(sg => (
-                                    <option key={sg} value={sg}>{sg}</option>
+                                    <option key={sg} value={sg} className="bg-card text-foreground">{sg}</option>
                                 ))}
                             </select>
                         </div>
                     )}
 
-                    <div className="h-[1px] bg-slate-100"></div>
+                    <div className="h-[1px] bg-border"></div>
 
                     {/* Moods */}
                     <div className="space-y-3">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Vibe / Mood</label>
+                        <label className="text-[10px] font-black text-muted uppercase tracking-widest">Vibe / Mood</label>
                         <select
                             value={filterState.mood}
                             onChange={(e) => updateFilter('mood', e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer"
+                            className="w-full bg-background border border-border rounded-xl px-4 py-4 text-sm font-bold outline-none focus:border-accent transition-all appearance-none cursor-pointer text-foreground min-h-[56px]"
                         >
-                            <option value="">Cualquier Vibe</option>
+                            <option value="" className="bg-card text-foreground">Cualquier Vibe</option>
                             {MOODS.map(m => (
-                                <option key={m.label} value={m.label}>{m.emoji} {m.label}</option>
+                                <option key={m.label} value={m.label} className="bg-card text-foreground">{m.emoji} {m.label}</option>
                             ))}
                         </select>
                     </div>
 
-                    <div className="h-[1px] bg-slate-100"></div>
+                    <div className="h-[1px] bg-border"></div>
 
                     {/* BPM (Rango) */}
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">BPM (Rango)</label>
+                            <label className="text-[10px] font-black text-muted uppercase tracking-widest">BPM (Rango)</label>
                             {(filterState.bpmMin || filterState.bpmMax) && (
-                                <button onClick={() => { updateFilter('bpmMin', ''); updateFilter('bpmMax', ''); }} className="text-[9px] font-bold text-red-500 uppercase hover:underline">Limpiar</button>
+                                <button onClick={() => { updateFilter('bpmMin', ''); updateFilter('bpmMax', ''); }} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
                             )}
                         </div>
                         <div className="flex items-center gap-2">
@@ -146,15 +146,15 @@ export default function AdvancedFilterSidebar({
                                 placeholder="Min"
                                 value={filterState.bpmMin || ''}
                                 onChange={(e) => updateFilter('bpmMin', e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:border-blue-500"
+                                className="w-full bg-background border border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent text-foreground min-h-[48px]"
                             />
-                            <span className="text-slate-300">-</span>
+                            <span className="text-muted">-</span>
                             <input
                                 type="number"
                                 placeholder="Max"
                                 value={filterState.bpmMax || ''}
                                 onChange={(e) => updateFilter('bpmMax', e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:border-blue-500"
+                                className="w-full bg-background border border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent text-foreground min-h-[48px]"
                             />
                         </div>
                     </div>
@@ -163,28 +163,28 @@ export default function AdvancedFilterSidebar({
                     {/* Key & Scale */}
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tonalidad & Escala</label>
+                            <label className="text-[10px] font-black text-muted uppercase tracking-widest">Tonalidad & Escala</label>
                             {(filterState.key || filterState.scale) && (
-                                <button onClick={() => { updateFilter('key', ''); updateFilter('scale', ''); }} className="text-[9px] font-bold text-red-500 uppercase hover:underline">Limpiar</button>
+                                <button onClick={() => { updateFilter('key', ''); updateFilter('scale', ''); }} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
                             )}
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                             <select
                                 value={filterState.key}
                                 onChange={(e) => updateFilter('key', e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-blue-500 appearance-none"
+                                className="w-full bg-background border border-border text-foreground rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent appearance-none min-h-[48px]"
                             >
-                                <option value="">Nota</option>
-                                {KEYS.map(k => <option key={k} value={k}>{k}</option>)}
+                                <option value="" className="bg-card">Nota</option>
+                                {KEYS.map(k => <option key={k} value={k} className="bg-card">{k}</option>)}
                             </select>
                             <select
                                 value={filterState.scale}
                                 onChange={(e) => updateFilter('scale', e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-blue-500 appearance-none"
+                                className="w-full bg-background border border-border text-foreground rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent appearance-none min-h-[48px]"
                             >
-                                <option value="">Escala</option>
-                                <option value="Major">Mayor</option>
-                                <option value="Minor">Menor</option>
+                                <option value="" className="bg-card">Escala</option>
+                                <option value="Major" className="bg-card">Mayor</option>
+                                <option value="Minor" className="bg-card">Menor</option>
                             </select>
                         </div>
                     </div>

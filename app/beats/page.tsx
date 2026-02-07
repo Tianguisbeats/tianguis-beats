@@ -154,6 +154,45 @@ function BeatsPageContent() {
     };
   };
 
+  // Re-defining internal component helpers deleted in previous step
+  const BannerSkeleton = () => (
+    <div className="w-full h-[450px] md:h-[520px] bg-card rounded-[3.5rem] animate-pulse mb-8 border border-border shadow-soft flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-20 h-20 bg-accent-soft rounded-full animate-pulse"></div>
+        <div className="h-4 w-40 bg-accent-soft rounded-full"></div>
+      </div>
+    </div>
+  );
+
+  const BeatSkeleton = () => (
+    <div className="bg-card rounded-[3rem] p-6 border border-border shadow-soft animate-pulse flex flex-col h-full">
+      <div className="aspect-square bg-accent-soft rounded-[2.5rem] mb-6"></div>
+      <div className="h-6 bg-accent-soft rounded-full w-3/4 mb-4"></div>
+      <div className="h-4 bg-accent-soft rounded-full w-1/2 mb-8"></div>
+      <div className="mt-auto flex justify-between items-center bg-accent-soft/30 p-4 rounded-3xl">
+        <div className="h-6 bg-accent-soft rounded-full w-16"></div>
+        <div className="h-10 bg-accent-soft rounded-2xl w-24"></div>
+      </div>
+    </div>
+  );
+
+  const TabButton = ({ mode, label, icon: Icon, color }: { mode: string; label: string; icon: any; color: string }) => (
+    <button
+      onClick={() => setViewMode(mode as any)}
+      className={`snap-center flex-shrink-0 flex items-center gap-3 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-500 whitespace-nowrap min-h-[56px] border ${viewMode === mode
+        ? `${color} text-white shadow-xl shadow-accent/20 scale-105 border-transparent`
+        : 'bg-card text-muted hover:text-foreground border-border hover:border-accent'
+        }`}
+    >
+      <Icon size={16} strokeWidth={viewMode === mode ? 3 : 2} className={viewMode === mode ? 'animate-pulse' : ''} />
+      <span>{label}</span>
+    </button>
+  );
+
+  const genresFromData = useMemo(() => {
+    return ["Todos", ...GENRES];
+  }, []);
+
   useEffect(() => {
     let cancel = false;
 
@@ -352,46 +391,12 @@ function BeatsPageContent() {
     return () => { cancel = true; };
   }, [filterState, viewMode]);
 
-  // Extract Genres for Sidebar
-  const genresFromData = useMemo(() => {
-    return ["Todos", ...GENRES];
-  }, []);
-
-  const BannerSkeleton = () => (
-    <div className="w-full h-[350px] md:h-[380px] bg-slate-200 rounded-[2.5rem] animate-pulse mb-8"></div>
-  );
-
-  const BeatSkeleton = () => (
-    <div className="bg-white rounded-[2.5rem] p-4 border border-slate-100 shadow-sm animate-pulse">
-      <div className="aspect-square bg-slate-100 rounded-3xl mb-4"></div>
-      <div className="h-4 bg-slate-100 rounded-full w-3/4 mb-3"></div>
-      <div className="h-3 bg-slate-100 rounded-full w-1/2 mb-6"></div>
-      <div className="flex justify-between items-center px-1">
-        <div className="h-8 bg-slate-100 rounded-2xl w-20"></div>
-        <div className="h-10 bg-slate-100 rounded-2xl w-24"></div>
-      </div>
-    </div>
-  );
-
-  const TabButton = ({ mode, label, icon: Icon, color }: { mode: string; label: string; icon: any; color: string }) => (
-    <button
-      onClick={() => setViewMode(mode as any)}
-      className={`snap-center flex-shrink-0 flex items-center gap-2.5 px-6 py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-wider transition-all duration-300 ${viewMode === mode
-        ? `${color} text-white shadow-xl scale-105 ring-4 ring-white`
-        : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-100'
-        }`}
-    >
-      <Icon size={16} strokeWidth={viewMode === mode ? 3 : 2} />
-      {label}
-    </button>
-  );
-
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-600 selection:text-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-accent selection:text-white flex flex-col transition-colors duration-300">
       <Navbar />
 
       <main className="flex-1 pt-8 pb-20 relative">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
+        <div className="max-w-[1700px] mx-auto px-4 sm:px-10">
 
           {/* Featured Banner (Persistent) */}
           {loading ? (
@@ -423,16 +428,19 @@ function BeatsPageContent() {
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
 
                 {/* Mobile Sidebar Toggle */}
-                <div className="flex items-center gap-3 lg:hidden w-full">
+                <div className="flex items-center gap-3 lg:hidden w-full bg-card/50 backdrop-blur-md p-4 rounded-3xl border border-border shadow-soft mb-6">
                   <button
                     onClick={() => setIsSidebarOpen(true)}
-                    className="p-3 bg-white border border-slate-200 rounded-xl shadow-sm hover:bg-slate-50 active:scale-95 transition-all text-slate-600"
+                    className="p-4 bg-accent text-white rounded-2xl shadow-xl shadow-accent/20 active:scale-95 transition-all min-h-[56px] min-w-[56px] flex items-center justify-center"
                   >
                     <SlidersHorizontal size={20} />
                   </button>
-                  <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight ml-auto">
-                    Catalogo
-                  </h2>
+                  <div className="flex flex-col">
+                    <h2 className="text-xl font-black text-foreground uppercase tracking-tight font-heading lowercase">
+                      Catalogo
+                    </h2>
+                    <p className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Tianguis Beats</p>
+                  </div>
                 </div>
 
                 {/* Tabs with Horizontal Scroll & Arrows */}
@@ -458,16 +466,16 @@ function BeatsPageContent() {
                     id="tabs-container"
                     className="flex items-center gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-4 px-4 md:px-20 scroll-smooth justify-start"
                   >
-                    <TabButton mode="all" label="Todos" icon={Music} color="bg-blue-600 shadow-blue-500/20" />
+                    <TabButton mode="all" label="Todos" icon={Music} color="bg-accent shadow-accent/20" />
                     <TabButton mode="corridos_tumbados" label="Corridos 🇲🇽" icon={Zap} color="bg-orange-600 shadow-orange-500/20" />
                     <TabButton mode="new" label="Nuevos" icon={Clock} color="bg-emerald-500 shadow-emerald-500/20" />
                     <TabButton mode="trending" label="Tendencias" icon={TrendingUp} color="bg-rose-500 shadow-rose-500/20" />
                     <TabButton mode="best_sellers" label="Más comprados" icon={Trophy} color="bg-amber-600 shadow-amber-600/20" />
                     <TabButton mode="hidden_gems" label="Joyas" icon={Gem} color="bg-cyan-500 shadow-cyan-500/20" />
                     <TabButton mode="exclusives" label="Tianguis IA" icon={Sparkles} color="bg-indigo-600 shadow-indigo-600/20" />
-                    <TabButton mode="recommended" label="Recomendados IA" icon={Zap} color="bg-blue-600 shadow-blue-500/20" />
+                    <TabButton mode="recommended" label="Recomendados IA" icon={Zap} color="bg-accent shadow-accent/20" />
                     <TabButton mode="sound_kits" label="Sound Kits" icon={Music} color="bg-purple-600 shadow-purple-500/20" />
-                    <TabButton mode="producers" label="Artistas" icon={Users} color="bg-blue-600 shadow-blue-500/20" />
+                    <TabButton mode="producers" label="Artistas" icon={Users} color="bg-accent shadow-accent/20" />
                   </div>
 
                   {/* Right Arrow Button */}
@@ -483,9 +491,9 @@ function BeatsPageContent() {
                         }
                       }
                     }}
-                    className="absolute right-4 top-[calc(50%-8px)] -translate-y-1/2 z-20 p-2.5 bg-white border border-slate-200 rounded-full shadow-lg hover:bg-slate-50 transition-all hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
+                    className="absolute right-4 top-[calc(50%-8px)] -translate-y-1/2 z-20 p-3 bg-card border border-border rounded-full shadow-lg hover:bg-accent-soft transition-all hidden md:flex items-center justify-center hover:scale-110 active:scale-95 min-h-[48px] min-w-[48px]"
                   >
-                    <ChevronRight size={18} className="text-slate-600" />
+                    <ChevronRight size={18} className="text-foreground" />
                   </button>
                 </div>
 
@@ -495,13 +503,13 @@ function BeatsPageContent() {
 
 
               {viewMode === 'premium_spotlight' && (
-                <div className="mb-8 p-6 bg-gradient-to-r from-amber-100 to-orange-50 rounded-3xl border border-amber-200 flex items-start gap-4 animate-fade-in-up">
-                  <div className="p-3 bg-amber-500 text-white rounded-2xl shadow-lg shadow-amber-500/20">
-                    <Crown size={24} />
+                <div className="mb-8 p-8 bg-gradient-to-r from-amber-500/10 to-orange-500/5 rounded-[2.5rem] border border-amber-500/20 flex items-start gap-6 animate-fade-in-up">
+                  <div className="p-4 bg-amber-500 text-white rounded-2xl shadow-xl shadow-amber-500/20">
+                    <Crown size={28} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-black text-amber-900 uppercase tracking-tight mb-1">Selección Tianguis</h3>
-                    <p className="text-sm font-medium text-amber-800/80 leading-relaxed">
+                    <h3 className="text-2xl font-black text-amber-500 uppercase tracking-tight mb-2 font-heading">Selección Tianguis</h3>
+                    <p className="text-sm font-medium text-muted leading-relaxed font-body">
                       Descubre beats exclusivos de nuestros productores Premium y Pro. Calidad garantizada.
                     </p>
                   </div>
@@ -510,19 +518,18 @@ function BeatsPageContent() {
 
               {/* Grid */}
               {loading ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
                   {[...Array(8)].map((_, i) => <BeatSkeleton key={i} />)}
                 </div>
               ) : viewMode === 'producers' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in-up">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10 animate-fade-in-up">
                   {producers.map(p => (
-                    <div key={p.id} className="group bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 hover:-translate-y-2 flex flex-col items-center text-center relative overflow-hidden h-full">
-                      {/* Background Decoration */}
-                      <div className={`absolute top-0 left-0 w-full h-2 ${p.subscription_tier === 'premium' ? 'bg-amber-400' : p.subscription_tier === 'pro' ? 'bg-blue-500' : 'bg-slate-200'}`} />
+                    <div key={p.id} className="group bg-card rounded-[3rem] p-8 border border-border shadow-soft hover:shadow-2xl hover:shadow-accent/5 transition-all duration-500 hover:-translate-y-2 flex flex-col items-center text-center relative overflow-hidden h-full">
+                      <div className={`absolute top-0 left-0 w-full h-2 ${p.subscription_tier === 'premium' ? 'bg-amber-400' : p.subscription_tier === 'pro' ? 'bg-accent' : 'bg-border'}`} />
 
                       {/* Avatar */}
                       <div className="relative mt-4 mb-6">
-                        <div className={`w-28 h-28 rounded-full p-1.5 border-2 transition-all duration-700 group-hover:scale-110 ${p.subscription_tier === 'premium' ? 'border-amber-400 shadow-xl shadow-amber-500/20' : 'border-slate-100 hover:border-blue-400'}`}>
+                        <div className={`w-28 h-28 rounded-full p-1.5 border-2 transition-all duration-700 group-hover:scale-110 ${p.subscription_tier === 'premium' ? 'border-amber-400 shadow-xl shadow-amber-500/20' : 'border-border hover:border-accent'}`}>
                           <img
                             src={p.foto_perfil || `https://ui-avatars.com/api/?name=${p.artistic_name || p.username}&background=random`}
                             className="w-full h-full object-cover rounded-full"
@@ -530,7 +537,7 @@ function BeatsPageContent() {
                           />
                         </div>
                         {p.subscription_tier === 'premium' && (
-                          <div className="absolute -top-1 -right-1 p-2.5 bg-amber-500 text-white rounded-2xl shadow-xl animate-bounce">
+                          <div className="absolute -top-1 -right-1 p-3 bg-amber-500 text-white rounded-2xl shadow-xl animate-bounce">
                             <Crown size={18} fill="currentColor" />
                           </div>
                         )}
@@ -539,24 +546,23 @@ function BeatsPageContent() {
                       {/* Info */}
                       <div className="flex-1 w-full">
                         <div className="flex items-center justify-center gap-2 mb-1">
-                          <h3 className="text-2xl font-black uppercase tracking-tighter text-slate-900 group-hover:text-blue-600 transition-colors truncate max-w-[200px]">
+                          <h3 className="text-2xl font-black uppercase tracking-tighter text-foreground group-hover:text-accent transition-colors truncate max-w-[200px] font-heading lowercase">
                             {p.artistic_name || p.username}
                           </h3>
                           {p.is_verified && <img src="/verified-badge.png" alt="Verificado" className="w-5 h-5 object-contain" />}
                         </div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">@{p.username}</p>
+                        <p className="text-[10px] font-black text-muted uppercase tracking-widest mb-4">@{p.username}</p>
 
-                        <p className="text-sm text-slate-500 font-medium leading-relaxed italic mb-8 line-clamp-3 px-2 min-h-[60px]">
+                        <p className="text-sm text-muted font-medium leading-relaxed italic mb-8 line-clamp-3 px-2 min-h-[60px] font-body">
                           "{p.bio || "Productor destacado en Tianguis Beats con estilo único."}"
                         </p>
 
                         {/* Social Links (Mini) */}
                         <div className="flex justify-center gap-3 mb-8">
-                          {p.social_links && Object.keys(p.social_links).slice(0, 4).map(key => {
-                            const url = p.social_links[key];
+                          {p.social_links && Object.entries(p.social_links).slice(0, 4).map(([key, url]) => {
                             if (!url) return null;
                             return (
-                              <div key={key} className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors">
+                              <div key={key} className="w-10 h-10 rounded-xl bg-accent-soft border border-border flex items-center justify-center text-muted hover:text-accent transition-colors min-h-[40px] min-w-[40px]">
                                 <span className="text-[10px] font-black uppercase">{key.substring(0, 2)}</span>
                               </div>
                             );
@@ -564,13 +570,13 @@ function BeatsPageContent() {
                         </div>
 
                         <div className="flex justify-center gap-2 mb-8">
-                          <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${p.subscription_tier === 'premium' ? 'bg-amber-100 text-amber-700' :
-                            p.subscription_tier === 'pro' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'
+                          <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${p.subscription_tier === 'premium' ? 'bg-amber-500/10 text-amber-500' :
+                            p.subscription_tier === 'pro' ? 'bg-accent/10 text-accent' : 'bg-muted/10 text-muted'
                             }`}>
                             {p.subscription_tier || 'Free'}
                           </span>
                           {p.is_founder && (
-                            <span className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg shadow-black/10">
+                            <span className="px-4 py-2 bg-foreground text-background rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg shadow-black/10">
                               <Crown size={12} fill="currentColor" className="text-amber-400" /> Founder
                             </span>
                           )}
@@ -579,7 +585,7 @@ function BeatsPageContent() {
 
                       <Link
                         href={`/${p.username}`}
-                        className="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black uppercase text-[11px] tracking-widest hover:bg-blue-600 transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl shadow-slate-900/10"
+                        className="w-full py-5 bg-foreground text-background rounded-[2rem] font-black uppercase text-[11px] tracking-widest hover:bg-accent hover:text-white transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl shadow-black/5 min-h-[56px]"
                       >
                         Ver Perfil Principal <ChevronRight size={16} />
                       </Link>
@@ -587,18 +593,20 @@ function BeatsPageContent() {
                   ))}
                 </div>
               ) : beats.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in-up">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10 animate-fade-in-up">
                   {beats.map((beat) => (
-                    <BeatCardPro key={beat.id} beat={beat} />
+                    <div key={beat.id} className="h-full">
+                      <BeatCardPro beat={beat} />
+                    </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-32 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm">
-                  <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                    <Music className="text-slate-300 w-10 h-10" />
+                <div className="text-center py-32 bg-card rounded-[3rem] border border-dashed border-border shadow-soft">
+                  <div className="w-24 h-24 bg-accent-soft rounded-3xl flex items-center justify-center mx-auto mb-8">
+                    <Music className="text-accent w-10 h-10" />
                   </div>
-                  <h3 className="text-2xl font-black uppercase tracking-tight mb-2">Sin resultados</h3>
-                  <p className="text-slate-500 font-medium mb-6">
+                  <h3 className="text-2xl font-black uppercase tracking-tight mb-4 font-heading">Sin resultados</h3>
+                  <p className="text-muted font-medium mb-10 max-w-sm mx-auto font-body">
                     {viewMode === 'premium_spotlight'
                       ? "No hay beats premium que coincidan con tus filtros."
                       : viewMode === 'sound_kits'
@@ -610,7 +618,7 @@ function BeatsPageContent() {
                       setFilterState({ searchQuery: "", genre: "Todos", subgenre: "", bpmMin: "", bpmMax: "", key: "", scale: "", mood: "", priceRange: [0, 10000] });
                       setViewMode('all');
                     }}
-                    className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline"
+                    className="px-12 py-5 bg-foreground text-background rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] hover:bg-accent hover:text-white transition-all active:scale-95 min-h-[56px]"
                   >
                     Limpiar Filtros
                   </button>

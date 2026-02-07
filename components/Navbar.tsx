@@ -6,6 +6,7 @@ import { Music, Menu, X, User, LayoutDashboard, LogOut, Check, Settings, CheckCi
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
+import ThemeToggle from '@/components/ThemeToggle';
 
 /**
  * Componente Navbar: Barra de navegación principal.
@@ -63,11 +64,11 @@ export default function Navbar() {
 
     return (
         <div className="relative w-full z-50 h-20">
-            <nav className="fixed top-0 left-0 right-0 w-full bg-slate-50 border-b border-slate-100 shadow-sm z-50">
+            <nav className="fixed top-0 left-0 right-0 w-full bg-background border-b border-border shadow-sm z-50 transition-colors duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
                         {/* Logo Area */}
-                        <Link href="/" className="flex items-center gap-3 group">
+                        <Link href="/" className="flex items-center gap-3 group min-h-[48px]">
                             <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-xl shadow-slate-900/10 group-hover:scale-110 transition-transform overflow-hidden">
                                 {hasLogo ? (
                                     <img src={logoUrl} alt="Tianguis Beats Logo" className="w-full h-full object-contain p-1 invert" />
@@ -75,52 +76,52 @@ export default function Navbar() {
                                     <Music size={24} fill="currentColor" />
                                 )}
                             </div>
-                            <span className="text-xl font-black text-slate-900 tracking-tighter uppercase">
-                                Tianguis<span className="text-blue-600">Beats</span>
+                            <span className="text-xl font-heading font-black text-foreground tracking-tighter uppercase whitespace-nowrap">
+                                Tianguis<span className="text-accent">Beats</span>
                             </span>
                         </Link>
 
                         <div className="hidden md:flex items-center gap-8">
-                            <div className="flex items-baseline space-x-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                                <Link href="/beats" className="hover:text-blue-600 transition-colors">Explorar Tianguis</Link>
+                            <div className="flex items-baseline space-x-6 text-[10px] font-black text-muted uppercase tracking-[0.2em]">
+                                <Link href="/beats" className="hover:text-accent transition-colors py-2">Explorar Tianguis</Link>
                                 {!user && (
-                                    <Link href="/pricing" className="hover:text-blue-600 transition-colors">Planes</Link>
+                                    <Link href="/pricing" className="hover:text-accent transition-colors py-2">Planes</Link>
                                 )}
                             </div>
 
-                            <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-4">
+                                <ThemeToggle />
 
                                 {user ? (
                                     <div className="flex items-center gap-6">
-
-                                        <Link href="/upload" className="bg-blue-600 text-white px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 transition-all shadow-lg shadow-blue-600/20 transform hover:-translate-y-0.5">
+                                        <Link href="/upload" className="bg-accent text-white px-5 py-3 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 dark:hover:bg-slate-800 transition-all shadow-lg shadow-accent/20 transform hover:-translate-y-0.5 min-h-[48px] flex items-center">
                                             Sube tu Beat
                                         </Link>
 
-                                        <Link href="/cart" className="relative p-2 text-slate-400 hover:text-blue-600 transition-colors group">
+                                        <Link href="/cart" className="relative w-12 h-12 flex items-center justify-center text-muted hover:text-accent transition-colors group">
                                             <ShoppingCart size={22} strokeWidth={2.5} />
                                             {itemCount > 0 && (
-                                                <span className="absolute top-0 right-0 bg-blue-600 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-lg animate-in fade-in zoom-in duration-300">
+                                                <span className="absolute top-1 right-1 bg-accent text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-background shadow-lg animate-in fade-in zoom-in duration-300">
                                                     {itemCount}
                                                 </span>
                                             )}
                                         </Link>
 
-                                        <div className="flex items-center gap-4 border-l border-slate-100 pl-6">
-                                            <Link href={`/${profile?.username || 'profile'}`} className="group flex items-center gap-3">
-                                                <div className={`w-8 h-8 rounded-lg overflow-hidden border-2 transition-all duration-300 ${profile?.subscription_tier === 'premium' ? 'border-blue-600 shadow-lg shadow-blue-600/20' :
-                                                    profile?.subscription_tier === 'pro' ? 'border-amber-400' : 'border-slate-200'
+                                        <div className="flex items-center gap-4 border-l border-border pl-6">
+                                            <Link href={`/${profile?.username || 'profile'}`} className="group flex items-center gap-3 min-h-[48px]">
+                                                <div className={`w-10 h-10 rounded-lg overflow-hidden border-2 transition-all duration-300 ${profile?.subscription_tier === 'premium' ? 'border-accent shadow-lg shadow-accent/20' :
+                                                    profile?.subscription_tier === 'pro' ? 'border-amber-400' : 'border-border'
                                                     }`}>
                                                     {profile?.foto_perfil ? (
                                                         <img src={profile.foto_perfil} alt="Perfil" className="w-full h-full object-cover" />
                                                     ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
-                                                            <User size={16} />
+                                                        <div className="w-full h-full flex items-center justify-center text-muted bg-accent-soft">
+                                                            <User size={18} />
                                                         </div>
                                                     )}
                                                 </div>
                                                 <div className="flex items-center gap-1">
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 group-hover:text-blue-600 transition-colors flex items-center gap-1.5">
+                                                    <span className="text-[10px] font-black font-heading uppercase tracking-[0.2em] text-foreground group-hover:text-accent transition-colors flex items-center gap-1.5">
                                                         {profile?.username || 'Perfil'}
                                                     </span>
                                                     {profile?.is_verified && (
@@ -132,51 +133,52 @@ export default function Navbar() {
                                                 </div>
                                             </Link>
 
-                                            <Link href="/studio" className="text-slate-400 hover:text-slate-900 transition-colors" title="Tianguis Studio">
-                                                <Settings size={18} />
+                                            <Link href="/studio" className="w-12 h-12 flex items-center justify-center text-muted hover:text-foreground transition-colors" title="Tianguis Studio">
+                                                <Settings size={20} />
                                             </Link>
 
                                             <button
                                                 onClick={handleLogout}
-                                                className="text-slate-400 hover:text-red-500 transition-colors"
+                                                className="w-12 h-12 flex items-center justify-center text-muted hover:text-red-500 transition-colors"
                                                 title="Salir"
                                             >
-                                                <LogOut size={18} />
+                                                <LogOut size={20} />
                                             </button>
                                         </div>
                                     </div>
                                 ) : (
-                                    <>
-                                        <Link href="/cart" className="relative p-2 text-slate-400 hover:text-blue-600 transition-colors group mr-2">
+                                    <div className="flex items-center gap-4">
+                                        <Link href="/cart" className="relative w-12 h-12 flex items-center justify-center text-muted hover:text-accent transition-colors group">
                                             <ShoppingCart size={22} strokeWidth={2.5} />
                                             {itemCount > 0 && (
-                                                <span className="absolute top-0 right-0 bg-blue-600 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-lg animate-in fade-in zoom-in duration-300">
+                                                <span className="absolute top-1 right-1 bg-accent text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-background shadow-lg animate-in fade-in zoom-in duration-300">
                                                     {itemCount}
                                                 </span>
                                             )}
                                         </Link>
-                                        <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 border-2 border-slate-900 px-5 py-2 rounded-full hover:bg-slate-50 transition-all">
+                                        <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground border-2 border-foreground px-6 py-3 rounded-full hover:bg-accent-soft transition-all min-h-[48px] flex items-center">
                                             Log In
                                         </Link>
-                                        <Link href="/signup" className="text-[10px] font-black uppercase tracking-[0.2em] text-white bg-slate-900 border-2 border-slate-900 px-5 py-2 rounded-full hover:bg-blue-600 hover:border-blue-600 transition-all shadow-lg shadow-slate-900/20">
+                                        <Link href="/signup" className="text-[10px] font-black uppercase tracking-[0.2em] text-white bg-foreground border-2 border-foreground px-6 py-3 rounded-full hover:bg-accent hover:border-accent transition-all shadow-lg shadow-foreground/20 min-h-[48px] flex items-center">
                                             Sign Up
                                         </Link>
-                                    </>
+                                    </div>
                                 )}
                             </div>
                         </div>
 
                         <div className="flex items-center gap-2 md:hidden">
-                            <Link href="/cart" className="relative p-2 text-slate-400 hover:text-blue-600 transition-colors group">
-                                <ShoppingCart size={22} strokeWidth={2.5} />
+                            <ThemeToggle />
+                            <Link href="/cart" className="relative w-12 h-12 flex items-center justify-center text-muted hover:text-accent transition-colors group">
+                                <ShoppingCart size={24} strokeWidth={2.5} />
                                 {itemCount > 0 && (
-                                    <span className="absolute top-0 right-0 bg-blue-600 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-lg animate-in fade-in zoom-in duration-300">
+                                    <span className="absolute top-1 right-1 bg-accent text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-background shadow-lg animate-in fade-in zoom-in duration-300">
                                         {itemCount}
                                     </span>
                                 )}
                             </Link>
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-900">
-                                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-12 h-12 flex items-center justify-center text-foreground p-2">
+                                {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
                             </button>
                         </div>
                     </div>
@@ -184,69 +186,69 @@ export default function Navbar() {
 
                 {/* Mobile Menu */}
                 {isMenuOpen && (
-                    <div className="md:hidden bg-white border-b border-slate-100 pb-8 px-4 animate-in slide-in-from-top duration-300">
-                        <div className="flex flex-col gap-2 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                            <Link href="/beats" className="hover:text-blue-600 transition-colors py-4 border-b border-slate-50 flex items-center justify-between">
-                                Explorar Tianguis <ArrowRight size={14} className="text-slate-300" />
+                    <div className="md:hidden bg-background border-b border-border pb-8 px-4 animate-in slide-in-from-top duration-300">
+                        <div className="flex flex-col gap-2 text-[10px] font-black text-muted uppercase tracking-[0.2em]">
+                            <Link href="/beats" className="hover:text-accent transition-colors py-5 border-b border-border flex items-center justify-between min-h-[48px]">
+                                Explorar Tianguis <ArrowRight size={16} className="text-muted/30" />
                             </Link>
-                            <Link href="/pricing" className="hover:text-blue-600 transition-colors py-4 border-b border-slate-50 flex items-center justify-between">
-                                Planes <ArrowRight size={14} className="text-slate-300" />
+                            <Link href="/pricing" className="hover:text-accent transition-colors py-5 border-b border-border flex items-center justify-between min-h-[48px]">
+                                Planes <ArrowRight size={16} className="text-muted/30" />
                             </Link>
 
                             <div className="flex flex-col gap-3 mt-4">
                                 {user ? (
                                     <>
-                                        <div className="bg-slate-50 p-4 rounded-2xl flex items-center gap-3 mb-2">
-                                            <div className="w-10 h-10 rounded-lg overflow-hidden border-2 border-white shadow-sm">
+                                        <div className="bg-accent-soft p-4 rounded-2xl flex items-center gap-3 mb-2 border border-border">
+                                            <div className="w-12 h-12 rounded-lg overflow-hidden border-2 border-background shadow-sm">
                                                 {profile?.foto_perfil ? (
                                                     <img src={profile.foto_perfil} alt="Perfil" className="w-full h-full object-cover" />
                                                 ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-slate-400 bg-white">
-                                                        <User size={20} />
+                                                    <div className="w-full h-full flex items-center justify-center text-muted bg-background">
+                                                        <User size={24} />
                                                     </div>
                                                 )}
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-slate-900 lowercase">@{profile?.username}</span>
-                                                <span className="text-[8px] text-blue-600 uppercase tracking-widest">{profile?.subscription_tier}</span>
+                                                <span className="text-foreground lowercase font-bold">@{profile?.username}</span>
+                                                <span className="text-[9px] text-accent uppercase tracking-widest">{profile?.subscription_tier}</span>
                                             </div>
                                         </div>
 
-                                        <Link href="/upload" className="flex items-center gap-3 py-3 text-slate-900 font-bold px-2">
-                                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                                                <Music size={16} />
+                                        <Link href="/upload" className="flex items-center gap-4 py-4 text-foreground font-black px-2 min-h-[48px] hover:bg-accent-soft rounded-xl transition-colors">
+                                            <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center">
+                                                <Music size={20} />
                                             </div>
                                             Sube tu Beat
                                         </Link>
 
-                                        <Link href="/studio" className="flex items-center gap-3 py-3 text-slate-900 font-bold px-2">
-                                            <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
-                                                <Settings size={16} />
+                                        <Link href="/studio" className="flex items-center gap-4 py-4 text-foreground font-black px-2 min-h-[48px] hover:bg-accent-soft rounded-xl transition-colors">
+                                            <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-muted flex items-center justify-center">
+                                                <Settings size={20} />
                                             </div>
                                             Tianguis Studio
                                         </Link>
 
-                                        <Link href={`/${profile?.username || 'profile'}`} className="flex items-center gap-3 py-3 text-slate-900 font-bold px-2">
-                                            <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
-                                                <User size={16} />
+                                        <Link href={`/${profile?.username || 'profile'}`} className="flex items-center gap-4 py-4 text-foreground font-black px-2 min-h-[48px] hover:bg-accent-soft rounded-xl transition-colors">
+                                            <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-muted flex items-center justify-center">
+                                                <User size={20} />
                                             </div>
                                             Mi Perfil Público
                                         </Link>
 
                                         <button
                                             onClick={handleLogout}
-                                            className="mt-4 bg-red-50 text-red-600 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2"
+                                            className="mt-4 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 min-h-[48px]"
                                         >
-                                            <LogOut size={16} />
+                                            <LogOut size={18} />
                                             Cerrar Sesión
                                         </button>
                                     </>
                                 ) : (
-                                    <div className="grid grid-cols-1 gap-3 pt-2">
-                                        <Link href="/login" className="flex items-center justify-center gap-2 py-4 border-2 border-slate-100 rounded-2xl font-black text-slate-900 uppercase">
+                                    <div className="grid grid-cols-1 gap-4 pt-2">
+                                        <Link href="/login" className="flex items-center justify-center gap-2 py-5 border-2 border-border rounded-2xl font-black text-foreground uppercase min-h-[48px] hover:bg-accent-soft">
                                             Log In
                                         </Link>
-                                        <Link href="/signup" className="flex items-center justify-center gap-2 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase shadow-lg shadow-slate-900/20">
+                                        <Link href="/signup" className="flex items-center justify-center gap-2 py-5 bg-foreground text-background rounded-2xl font-black uppercase shadow-lg shadow-foreground/20 min-h-[48px] hover:bg-accent hover:text-white transition-colors">
                                             Sign Up
                                         </Link>
                                     </div>
