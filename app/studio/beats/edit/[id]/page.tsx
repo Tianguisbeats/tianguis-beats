@@ -564,15 +564,16 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <button
-                                    type="submit"
-                                    disabled={saving}
-                                    className="w-full max-w-5xl mx-auto bg-accent text-white py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.2em] hover:bg-accent/90 transition-all shadow-2xl shadow-accent/20 flex items-center justify-center gap-4 disabled:opacity-50 min-h-[64px] mb-20 mt-10"
-                                >
-                                    {saving ? <Loader2 className="animate-spin" size={20} /> : <Check size={20} />}
-                                    {saving ? 'Guardando Cambios...' : 'Guardar y Publicar'}
-                                </button>
+                            <button
+                                type="submit"
+                                disabled={saving}
+                                className="w-full max-w-5xl mx-auto bg-accent text-white py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.2em] hover:bg-accent/90 transition-all shadow-2xl shadow-accent/20 flex items-center justify-center gap-4 disabled:opacity-50 min-h-[64px] mb-20 mt-10"
+                            >
+                                {saving ? <Loader2 className="animate-spin" size={20} /> : <Check size={20} />}
+                                {saving ? 'Guardando Cambios...' : 'Guardar y Publicar'}
+                            </button>
                         </form>
                     </div>
             </main>
