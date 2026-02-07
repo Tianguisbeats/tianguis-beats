@@ -83,8 +83,6 @@ export default function StudioBeatsPage() {
                         <thead>
                             <tr className="border-b border-border">
                                 <th className="py-4 pl-4 text-[10px] font-black uppercase tracking-widest text-muted">Beat</th>
-                                <th className="py-4 text-[10px] font-black uppercase tracking-widest text-muted text-center">Stats</th>
-                                <th className="py-4 text-[10px] font-black uppercase tracking-widest text-muted text-center">Precio</th>
                                 <th className="py-4 pr-4 text-[10px] font-black uppercase tracking-widest text-muted text-right">Acciones</th>
                             </tr>
                         </thead>
@@ -101,38 +99,23 @@ export default function StudioBeatsPage() {
                                             </div>
                                             <div>
                                                 <h4 className="font-black text-foreground text-sm">{beat.title}</h4>
-                                                <span className="text-[10px] font-bold text-muted uppercase tracking-wider">{beat.bpm} BPM • {beat.musical_key || '-'}</span>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="py-4 text-center">
-                                        <div className="inline-flex items-center gap-4 bg-background px-3 py-1 rounded-full border border-border shadow-sm">
-                                            <div className="flex items-center gap-1 text-[10px] font-bold text-muted">
-                                                <Play size={10} /> {beat.play_count || 0}
-                                            </div>
-                                            <div className="w-px h-3 bg-border"></div>
-                                            <div className="flex items-center gap-1 text-[10px] font-bold text-muted">
-                                                <span className="text-red-400">♥</span> {beat.like_count || 0}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="py-4 text-center">
-                                        <span className="font-black text-foreground text-sm">${beat.price_mxn}</span>
-                                    </td>
+
                                     <td className="py-4 pr-4 text-right">
-                                        <div className="flex items-center justify-end gap-2">
+                                        <div className="flex items-center justify-end gap-3">
                                             <Link
                                                 href={`/studio/beats/edit/${beat.id}`}
-                                                className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center text-muted hover:text-accent hover:border-accent transition-colors"
-                                                title="Editar Beat"
+                                                className="bg-accent text-white px-5 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-foreground hover:text-background transition-all shadow-md flex items-center gap-2"
                                             >
-                                                <Edit size={14} />
+                                                <Edit size={12} /> Editar
                                             </Link>
                                             <button
                                                 onClick={() => handleDelete(beat.id)}
-                                                className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center text-muted hover:text-red-500 hover:border-red-500 transition-colors"
+                                                className="bg-red-500 text-white px-5 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all shadow-md flex items-center gap-2"
                                             >
-                                                <Trash2 size={14} />
+                                                <Trash2 size={12} /> Eliminar
                                             </button>
                                         </div>
                                     </td>

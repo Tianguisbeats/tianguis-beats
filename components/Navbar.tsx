@@ -90,8 +90,6 @@ export default function Navbar() {
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <ThemeToggle />
-
                                 {user ? (
                                     <div className="flex items-center gap-6">
                                         <Link href="/upload" className="bg-accent text-white px-5 py-3 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 dark:hover:bg-slate-800 transition-all shadow-lg shadow-accent/20 transform hover:-translate-y-0.5 min-h-[48px] flex items-center">
@@ -137,6 +135,8 @@ export default function Navbar() {
                                                 <Settings size={20} />
                                             </Link>
 
+                                            <ThemeToggle />
+
                                             <button
                                                 onClick={handleLogout}
                                                 className="w-12 h-12 flex items-center justify-center text-muted hover:text-red-500 transition-colors"
@@ -156,6 +156,7 @@ export default function Navbar() {
                                                 </span>
                                             )}
                                         </Link>
+                                        <ThemeToggle />
                                         <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground border-2 border-foreground px-6 py-3 rounded-full hover:bg-accent-soft transition-all min-h-[48px] flex items-center">
                                             Log In
                                         </Link>

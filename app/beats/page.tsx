@@ -531,8 +531,8 @@ function BeatsPageContent() {
                       <div className={`absolute top-0 left-0 w-full h-2 ${p.subscription_tier === 'premium' ? 'bg-amber-400' : p.subscription_tier === 'pro' ? 'bg-accent' : 'bg-border'}`} />
 
                       {/* Avatar */}
-                      <div className="relative mt-4 mb-6">
-                        <div className={`w-28 h-28 rounded-full p-1.5 border-2 transition-all duration-700 group-hover:scale-110 ${p.subscription_tier === 'premium' ? 'border-amber-400 shadow-xl shadow-amber-500/20' : 'border-border hover:border-accent'}`}>
+                      <div className="relative mt-2 mb-4">
+                        <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full p-1 border-2 transition-all duration-700 group-hover:scale-110 ${p.subscription_tier === 'premium' ? 'border-amber-400 shadow-xl shadow-amber-500/20' : 'border-border hover:border-accent'}`}>
                           <img
                             src={p.foto_perfil || `https://ui-avatars.com/api/?name=${p.artistic_name || p.username}&background=random`}
                             className="w-full h-full object-cover rounded-full"
@@ -540,47 +540,47 @@ function BeatsPageContent() {
                           />
                         </div>
                         {p.subscription_tier === 'premium' && (
-                          <div className="absolute -top-1 -right-1 p-3 bg-amber-500 text-white rounded-2xl shadow-xl animate-bounce">
-                            <Crown size={18} fill="currentColor" />
+                          <div className="absolute -top-1 -right-1 p-2 bg-amber-500 text-white rounded-xl shadow-xl animate-bounce">
+                            <Crown size={14} fill="currentColor" />
                           </div>
                         )}
                       </div>
 
                       {/* Info */}
                       <div className="flex-1 w-full">
-                        <div className="flex items-center justify-center gap-2 mb-1">
-                          <h3 className="text-2xl font-black uppercase tracking-tighter text-foreground group-hover:text-accent transition-colors truncate max-w-[200px] font-heading lowercase">
+                        <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                          <h3 className="text-xl font-black uppercase tracking-tighter text-foreground group-hover:text-accent transition-colors truncate max-w-[180px] font-heading lowercase">
                             {p.artistic_name || p.username}
                           </h3>
-                          {p.is_verified && <img src="/verified-badge.png" alt="Verificado" className="w-5 h-5 object-contain" />}
+                          {p.is_verified && <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain" />}
                         </div>
-                        <p className="text-[10px] font-black text-muted uppercase tracking-widest mb-4">@{p.username}</p>
+                        <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-3">@{p.username}</p>
 
-                        <p className="text-sm text-muted font-medium leading-relaxed italic mb-8 line-clamp-3 px-2 min-h-[60px] font-body">
+                        <p className="text-xs text-muted font-medium leading-relaxed italic mb-6 line-clamp-2 px-2 min-h-[40px] font-body">
                           "{p.bio || "Productor destacado en Tianguis Beats con estilo único."}"
                         </p>
 
                         {/* Social Links (Mini) */}
-                        <div className="flex justify-center gap-3 mb-8">
+                        <div className="flex justify-center gap-2 mb-6">
                           {p.social_links && typeof p.social_links === 'object' && !Array.isArray(p.social_links) && Object.entries(p.social_links).slice(0, 4).map(([key, url]: [string, any]) => {
                             if (!url || typeof url !== 'string') return null;
                             return (
-                              <div key={key} className="w-10 h-10 rounded-xl bg-accent-soft border border-border flex items-center justify-center text-muted hover:text-accent transition-colors min-h-[40px] min-w-[40px]">
-                                <span className="text-[10px] font-black uppercase">{key.substring(0, 2)}</span>
+                              <div key={key} className="w-8 h-8 rounded-lg bg-accent-soft border border-border flex items-center justify-center text-muted hover:text-accent transition-colors min-h-[32px] min-w-[32px]">
+                                <span className="text-[8px] font-black uppercase">{key.substring(0, 2)}</span>
                               </div>
                             );
                           })}
                         </div>
 
-                        <div className="flex justify-center gap-2 mb-8">
-                          <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${p.subscription_tier === 'premium' ? 'bg-amber-500/10 text-amber-500' :
+                        <div className="flex justify-center gap-1.5 mb-6">
+                          <span className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest ${p.subscription_tier === 'premium' ? 'bg-amber-500/10 text-amber-500' :
                             p.subscription_tier === 'pro' ? 'bg-accent/10 text-accent' : 'bg-muted/10 text-muted'
                             }`}>
                             {p.subscription_tier || 'Free'}
                           </span>
                           {p.is_founder && (
-                            <span className="px-4 py-2 bg-foreground text-background rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg shadow-black/10">
-                              <Crown size={12} fill="currentColor" className="text-amber-400" /> Founder
+                            <span className="px-3 py-1.5 bg-foreground text-background rounded-lg text-[8px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg shadow-black/10">
+                              <Crown size={10} fill="currentColor" className="text-amber-400" /> Founder
                             </span>
                           )}
                         </div>
