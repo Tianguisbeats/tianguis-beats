@@ -67,7 +67,7 @@ export default function PricingPage() {
         },
         {
             tier: 'pro',
-            name: 'Pro Productor',
+            name: 'Pro',
             description: 'Herramientas profesionales para escalar.',
             price: billingCycle === 'monthly' ? 149 : 111,
             features: [
@@ -80,7 +80,7 @@ export default function PricingPage() {
         },
         {
             tier: 'premium',
-            name: 'Elite Premium',
+            name: 'Premium',
             description: 'Potencia comercial máxima.',
             price: billingCycle === 'monthly' ? 349 : 261,
             features: [
@@ -203,7 +203,7 @@ export default function PricingPage() {
                         <Sparkles size={14} /> Elige tu camino al éxito
                     </div>
                     <h1 className="text-5xl md:text-8xl font-black text-foreground tracking-tighter mb-6 lowercase font-heading leading-tight">
-                        Planes que <span className="text-accent italic">potencian</span> tu carrera
+                        Elige tu <span className="text-accent italic">plan</span>
                     </h1>
                     <p className="max-w-2xl mx-auto text-lg text-muted font-medium mb-12">
                         Desde creadores emergentes hasta profesionales establecidos. Tenemos la infraestructura necesaria para escalar tu negocio musical.
@@ -284,6 +284,10 @@ export default function PricingPage() {
                                         {isCurrentPlan ? 'Tu Plan Actual' : isScheduled ? 'Programado' : plan.tier === 'free' ? 'Empezar Gratis' : `Suscribirse ${plan.name}`}
                                     </button>
 
+                                    <Link href="/help" className="mt-4 text-center text-[10px] font-black uppercase tracking-widest text-muted hover:text-accent transition-colors">
+                                        Saber más sobre el plan
+                                    </Link>
+
                                     {/* Expiration Info */}
                                     {isCurrentPlan && terminaSuscripcion && (
                                         <p className="mt-4 text-center text-[9px] font-black uppercase tracking-widest text-muted">
@@ -297,24 +301,18 @@ export default function PricingPage() {
 
                     <div className="mt-20 text-center">
                         <p className="text-foreground text-sm font-black uppercase tracking-[0.3em] mb-4">Cancela cuando quieras</p>
-                        <p className="text-muted text-[10px] font-bold uppercase tracking-widest mb-8">Sin contratos forzosos • Garantía de satisfacción • Soporte 24/7</p>
 
-                        {/* Cancel Button */}
+                        {/* Cancel Button - Subtle and below cancel text */}
                         {session && (userTier === 'pro' || userTier === 'premium') && (
                             <button
                                 onClick={() => handleSelectPlan(plans.find(p => p.tier === 'free'))}
-                                className="text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-600 border-b border-transparent hover:border-red-600 transition-all pb-0.5 opacity-60 hover:opacity-100"
+                                className="block mx-auto mb-6 text-[9px] font-bold uppercase tracking-widest text-muted hover:text-red-400 transition-all opacity-40 hover:opacity-100"
                             >
                                 Cancelar Suscripción
                             </button>
                         )}
 
-                        <div className="mt-12">
-                            <p className="text-muted font-bold text-sm mb-6">¿Necesitas un plan personalizado para tu sello discográfico?</p>
-                            <Link href="/help" className="inline-flex items-center gap-2 text-accent font-black uppercase text-[10px] tracking-widest hover:gap-4 transition-all">
-                                Habla con nuestro equipo de ventas <ArrowRight size={14} />
-                            </Link>
-                        </div>
+                        <p className="text-muted text-[10px] font-bold uppercase tracking-widest mb-8">Sin contratos forzosos • Garantía de satisfacción • Soporte 24/7</p>
                     </div>
                 </div>
             </section>
