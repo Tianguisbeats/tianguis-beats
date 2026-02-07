@@ -576,6 +576,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                             </button>
                         </form>
                     </div>
+                </div>
             </main>
             <Footer />
         </div>
