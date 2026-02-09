@@ -49,8 +49,8 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
                         <h3 className="text-xl font-black text-foreground tracking-tighter lowercase font-heading truncate max-w-[200px]">
                             {artist.artistic_name || artist.username}
                         </h3>
-                        {artist.is_verified && <Check size={16} className="text-blue-500 shrink-0" />}
-                        {artist.is_founder && <Crown size={14} className="text-amber-500 fill-amber-500 shrink-0" />}
+                        {artist.is_verified && <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain shrink-0" />}
+                        {artist.is_founder && <Crown size={14} className="text-yellow-400 fill-yellow-400 shrink-0" />}
                     </div>
                     <p className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">@{artist.username}</p>
                 </div>
@@ -66,8 +66,8 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
                 <div className="flex flex-col">
                     <span className="text-[8px] text-muted font-black uppercase tracking-[0.2em] mb-1 italic">Nivel</span>
                     <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isPremium ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
-                            isPro ? 'bg-accent/10 text-accent border border-accent/20' :
-                                'bg-muted/10 text-muted border border-muted/20'
+                        isPro ? 'bg-accent/10 text-accent border border-accent/20' :
+                            'bg-muted/10 text-muted border border-muted/20'
                         }`}>
                         {artist.subscription_tier || 'Free'}
                     </span>

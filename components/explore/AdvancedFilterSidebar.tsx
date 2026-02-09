@@ -63,9 +63,13 @@ export default function AdvancedFilterSidebar({
                         </button>
                     </div>
 
-                    {/* Search Input (Sidebar version) */}
                     <div className="space-y-3">
-                        <label className="text-[10px] font-black text-muted uppercase tracking-widest">Búsqueda</label>
+                        <div className="flex items-center justify-between">
+                            <label className="text-[10px] font-black text-muted uppercase tracking-widest">Búsqueda</label>
+                            {filterState.searchQuery && (
+                                <button onClick={() => updateFilter('searchQuery', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
+                            )}
+                        </div>
                         <input
                             type="text"
                             placeholder="Buscar..."
@@ -77,10 +81,12 @@ export default function AdvancedFilterSidebar({
 
                     <div className="h-[1px] bg-border"></div>
 
-                    {/* Genres */}
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
                             <label className="text-[10px] font-black text-muted uppercase tracking-widest">Género</label>
+                            {filterState.genre !== 'Todos' && (
+                                <button onClick={() => { updateFilter('genre', 'Todos'); updateFilter('subgenre', ''); }} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
+                            )}
                         </div>
                         <select
                             value={filterState.genre}
@@ -96,10 +102,14 @@ export default function AdvancedFilterSidebar({
                         </select>
                     </div>
 
-                    {/* Subgenres (Conditional) */}
                     {filterState.genre !== 'Todos' && SUBGENRES[filterState.genre] && (
                         <div className="space-y-3 animate-fade-in">
-                            <label className="text-[10px] font-black text-muted uppercase tracking-widest">Subgénero</label>
+                            <div className="flex items-center justify-between">
+                                <label className="text-[10px] font-black text-muted uppercase tracking-widest">Subgénero</label>
+                                {filterState.subgenre && (
+                                    <button onClick={() => updateFilter('subgenre', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
+                                )}
+                            </div>
                             <select
                                 value={filterState.subgenre}
                                 onChange={(e) => updateFilter('subgenre', e.target.value)}
@@ -117,7 +127,12 @@ export default function AdvancedFilterSidebar({
 
                     {/* Moods */}
                     <div className="space-y-3">
-                        <label className="text-[10px] font-black text-muted uppercase tracking-widest">Vibe / Mood</label>
+                        <div className="flex items-center justify-between">
+                            <label className="text-[10px] font-black text-muted uppercase tracking-widest">Vibe / Mood</label>
+                            {filterState.mood && (
+                                <button onClick={() => updateFilter('mood', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
+                            )}
+                        </div>
                         <select
                             value={filterState.mood}
                             onChange={(e) => updateFilter('mood', e.target.value)}

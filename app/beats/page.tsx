@@ -227,7 +227,7 @@ function BeatsPageContent() {
         // Fetch Trending Producers
         const { data: trendProd } = await supabase
           .from('profiles')
-          .select('id, artistic_name, username, foto_perfil, subscription_tier, is_verified, is_founder, bio, fecha_creacion')
+          .select('id, artistic_name, username, foto_perfil, subscription_tier, is_verified, is_founder, bio, created_at')
           .not('username', 'is', null)
           .order('subscription_tier', { ascending: false }) // Initial sort by tier
           .limit(20);
@@ -260,7 +260,7 @@ function BeatsPageContent() {
         if (viewMode === 'producers') {
           const { data: prodData, error: prodError } = await supabase
             .from('profiles')
-            .select(`id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, fecha_creacion, social_links`)
+            .select(`id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, created_at, social_links`)
             .not('username', 'is', null)
             .limit(150);
 
@@ -271,7 +271,7 @@ function BeatsPageContent() {
             const tierA = order[a.subscription_tier as any] ?? 3;
             const tierB = order[b.subscription_tier as any] ?? 3;
             if (tierA !== tierB) return tierA - tierB;
-            return new Date(b.fecha_creacion || 0).getTime() - new Date(a.fecha_creacion || 0).getTime();
+            return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
           });
           setProducers(sortedProd);
           setBeats([]);

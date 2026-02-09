@@ -169,7 +169,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                                     <button
                                         key={i}
                                         onClick={() => setCurrentIndex(i)}
-                                        className={`h-[3px] rounded-full transition-all duration-500 ${i === currentIndex ? 'w-8 bg-white shadow-[0_0_8px_white]' : 'w-2 bg-white/20 hover:bg-white/50'}`}
+                                        className={`h-[2px] rounded-full transition-all duration-500 ${i === currentIndex ? 'w-8 bg-white' : 'w-4 bg-white/20 hover:bg-white/50'}`}
                                     />
                                 ))}
                             </div>
