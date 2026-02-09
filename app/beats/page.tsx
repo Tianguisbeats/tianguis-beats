@@ -236,8 +236,8 @@ function BeatsPageContent() {
           const sortedProd = trendProd.sort((a, b) => {
             const order: any = { premium: 0, pro: 1, free: 2 };
             return (order[a.subscription_tier as any] ?? 3) - (order[b.subscription_tier as any] ?? 3);
-          }).slice(0, 5);
-          setTrendingProducers(sortedProd);
+          });
+          setTrendingProducers(sortedProd.slice(0, 5));
         }
       } catch (err) {
         console.error("Billboard Error:", err);
@@ -467,7 +467,7 @@ function BeatsPageContent() {
                     <TabButton mode="exclusives" label="Tianguis IA" icon={Sparkles} />
                     <TabButton mode="recommended" label="Recomendados IA" icon={Zap} />
                     <TabButton mode="sound_kits" label="Sound Kits" icon={Music} />
-                    <TabButton mode="producers" label="Artistas" icon={Users} />
+                    <TabButton mode="producers" label="Artistas Top" icon={Users} />
                   </div>
 
                   {/* Right Arrow Button */}

@@ -115,7 +115,7 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                                 <img src="/verified-badge.png" className="w-3.5 h-3.5 object-contain" alt="Verificado" />
                             )}
                             {beat.producer_is_founder && (
-                                <Crown size={12} className="text-amber-500 fill-amber-500" />
+                                <Crown size={12} className="text-yellow-400 fill-yellow-400" />
                             )}
                         </div>
                     </div>

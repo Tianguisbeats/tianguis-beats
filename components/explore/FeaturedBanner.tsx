@@ -107,18 +107,16 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                                         <img src={(itemData as Beat).producer_foto_perfil || ''} className="w-full h-full object-cover" />
                                     </div>
                                     <span className="text-sm font-black lowercase text-white">{(itemData as Beat).producer_artistic_name}</span>
-                                    {(itemData as Beat).producer_is_verified && <Check size={12} className="text-blue-400" />}
-                                    {(itemData as Beat).producer_is_founder && <Crown size={12} className="text-amber-500 fill-amber-500" />}
+                                    {(itemData as Beat).producer_is_verified && <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain" />}
+                                    {(itemData as Beat).producer_is_founder && <Crown size={14} className="text-yellow-400 fill-yellow-400" />}
                                 </Link>
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-lg">{(itemData as Beat).genre}</span>
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-lg">{(itemData as Beat).bpm} BPM</span>
                             </div>
                         ) : (
                             <>
                                 <div className="flex items-center gap-2 mb-4">
                                     <h2 className="text-sm font-black uppercase text-amber-500 tracking-widest flex items-center gap-2">
-                                        {(itemData as any).is_verified && <Check size={14} className="text-blue-400" />}
-                                        {(itemData as any).is_founder && <Crown size={14} className="text-amber-500 fill-amber-500" />}
+                                        {(itemData as any).is_verified && <img src="/verified-badge.png" alt="Verificado" className="w-5 h-5 object-contain" />}
+                                        {(itemData as any).is_founder && <Crown size={16} className="text-yellow-400 fill-yellow-400" />}
                                         PRODUCCIÓN VERIFICADA
                                     </h2>
                                 </div>
@@ -171,7 +169,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                                     <button
                                         key={i}
                                         onClick={() => setCurrentIndex(i)}
-                                        className={`h-1 rounded-full transition-all duration-500 ${i === currentIndex ? 'w-4 bg-white shadow-[0_0_8px_white]' : 'w-1 bg-white/20 hover:bg-white/50'}`}
+                                        className={`h-[3px] rounded-full transition-all duration-500 ${i === currentIndex ? 'w-8 bg-white shadow-[0_0_8px_white]' : 'w-2 bg-white/20 hover:bg-white/50'}`}
                                     />
                                 ))}
                             </div>
