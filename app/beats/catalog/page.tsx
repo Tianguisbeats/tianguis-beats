@@ -222,7 +222,7 @@ function CatalogContent() {
                         <div className="flex items-center justify-between mb-8">
                             <Link href="/beats" className="flex items-center gap-2 text-muted hover:text-accent font-black uppercase text-[10px] tracking-widest transition-all">
                                 <ArrowLeft size={14} strokeWidth={3} />
-                                Volver a Explorar
+                                Regresar al Tianguis
                             </Link>
                             <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-3 bg-accent text-white rounded-xl shadow-lg active:scale-95 transition-all">
                                 <SlidersHorizontal size={16} />

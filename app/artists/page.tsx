@@ -64,7 +64,7 @@ function ArtistsContent() {
                     <div className="max-w-7xl mx-auto px-6 lg:px-10 relative">
                         <Link href="/beats" className="inline-flex items-center gap-2 text-muted hover:text-accent font-black uppercase text-[10px] tracking-widest transition-all mb-10 group">
                             <ArrowLeft size={14} strokeWidth={3} className="group-hover:-translate-x-1 transition-transform" />
-                            Regresar al Hub
+                            Regresar al Tianguis
                         </Link>
 
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">

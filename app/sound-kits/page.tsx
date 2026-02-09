@@ -58,7 +58,7 @@ function SoundKitsContent() {
                         <div className="max-w-2xl">
                             <Link href="/beats" className="inline-flex items-center gap-2 text-muted hover:text-accent font-black uppercase text-[10px] tracking-widest transition-all mb-6 group">
                                 <ArrowLeft size={14} strokeWidth={3} className="group-hover:-translate-x-1 transition-transform" />
-                                Regresar al Hub
+                                Regresar al Tianguis
                             </Link>
                             <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter mb-6 font-heading leading-none">
                                 Sound Kits
