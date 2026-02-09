@@ -606,11 +606,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         </h1>
                                         <div className="flex items-center gap-2 translate-y-2 md:translate-y-4">
                                             {profile.is_verified && (
-                                                <img src="/verified-badge.png" alt="Verificado" className="w-8 h-8 object-contain hover:scale-110 transition-transform cursor-help" title="Verificado" />
+                                                <img src="/verified-badge.png" alt="Verificado" className="w-8 h-8 md:w-10 md:h-10 object-contain hover:scale-110 transition-transform cursor-help shadow-blue-500/20 shadow-2xl" title="Verificado" />
                                             )}
                                             {profile.is_founder && (
                                                 <div className="flex items-center justify-center text-amber-500 hover:rotate-12 transition-transform cursor-help" title="Founder">
-                                                    <Crown size={32} fill="currentColor" />
+                                                    <Crown className="w-8 h-8 md:w-10 md:h-10" fill="currentColor" />
                                                 </div>
                                             )}
                                         </div>
@@ -667,7 +667,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     { label: 'Beats', value: beats.length, icon: Music, color: 'text-accent' },
                                     { label: 'Siguiendo', value: followingCount, icon: UserPlus, color: 'text-emerald-500' }
                                 ].map((stat, i) => (
-                                    <div key={i} className="bg-white dark:bg-slate-800/40 border border-slate-100 dark:border-white/5 rounded-[2rem] p-5 text-center shadow-soft hover:shadow-xl hover:-translate-y-1 transition-all group">
+                                    <div key={i} className="bg-white dark:bg-slate-900/60 border border-slate-100 dark:border-white/5 rounded-[2rem] p-5 text-center shadow-soft dark:shadow-[0_20px_50px_rgba(8,112,184,0.08)] hover:shadow-xl hover:-translate-y-1 transition-all group">
                                         <stat.icon size={16} className={`${stat.color} mx-auto mb-2 opacity-60 group-hover:opacity-100 transition-opacity`} />
                                         <span className="block text-2xl font-black tracking-tighter text-slate-900 dark:text-white">{stat.value}</span>
                                         <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{stat.label}</span>
@@ -691,7 +691,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     <div className="flex items-center justify-between group">
                                         <span className="text-sm font-bold text-slate-400 dark:text-white/60">Identidad</span>
                                         <span className="text-[10px] font-black uppercase px-5 py-2 rounded-2xl bg-blue-500/10 dark:bg-blue-600/20 border border-blue-400/20 text-blue-600 flex items-center gap-2 group-hover:scale-105 transition-transform">
-                                            <Check size={12} strokeWidth={4} /> {profile.is_verified ? 'Verificado' : 'En proceso'}
+                                            {profile.is_verified ? (
+                                                <><img src="/verified-badge.png" className="w-4 h-4 object-contain shadow-blue-500/20 shadow-xl" /> Verificado</>
+                                            ) : 'En proceso'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between group">
@@ -721,8 +723,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             )}
 
                             {/* Trayectoria y Socials */}
-                            <div className="bg-white dark:bg-slate-800/40 border border-slate-100 dark:border-white/5 rounded-[3rem] p-10 shadow-soft">
-                                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] mb-10 text-muted">Trayectoria</h3>
+                            <div className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-white/10 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-slate-400/5 dark:bg-white/5 blur-[60px] rounded-full pointer-events-none" />
+                                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] mb-10 text-slate-400 dark:text-white/40 flex items-center gap-3">
+                                    <Edit3 size={14} className="text-accent" /> Trayectoria
+                                </h3>
 
                                 {isEditing ? (
                                     <div className="space-y-6">
