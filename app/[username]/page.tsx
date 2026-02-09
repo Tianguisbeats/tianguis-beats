@@ -163,13 +163,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     // Transform internal storage paths to public URLs with encoding for spaces
                     const transformedBeats = await Promise.all(beatsData.map(async (b: any) => {
                         const path = b.mp3_tag_url || b.mp3_url || '';
-                        const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
+                        let publicUrl = '';
 
-                        const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
-
-                        const { data: { publicUrl } } = supabase.storage
-                            .from(bucket)
-                            .getPublicUrl(encodedPath);
+                        if (path.startsWith('http')) {
+                            publicUrl = path;
+                        } else {
+                            const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
+                            const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+                            const { data } = supabase.storage
+                                .from(bucket)
+                                .getPublicUrl(encodedPath);
+                            publicUrl = data.publicUrl;
+                        }
 
                         // Resolve Cover URL
                         const finalCoverUrl = b.portadabeat_url?.startsWith('http')
@@ -218,9 +223,16 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         // Transform URLs for playlist beats (reusing logic)
                         const transformedPLBeats = await Promise.all(playlistBeats.map(async (b: any) => {
                             const path = b.mp3_tag_url || b.mp3_url || '';
-                            const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-                            const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
-                            const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
+                            let publicUrl = '';
+
+                            if (path.startsWith('http')) {
+                                publicUrl = path;
+                            } else {
+                                const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
+                                const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+                                const { data } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
+                                publicUrl = data.publicUrl;
+                            }
 
                             const finalCoverUrl = b.portadabeat_url?.startsWith('http')
                                 ? b.portadabeat_url
@@ -628,7 +640,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     {isOwner ? (
                                         <button
                                             onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}
-                                            className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center gap-3 ${isEditing ? 'bg-foreground text-background' : 'bg-white text-foreground border border-slate-100 hover:shadow-2xl hover:-translate-y-1'}`}
+                                            className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center gap-3 ${isEditing ? 'bg-foreground text-background' : 'bg-white dark:bg-slate-900 text-foreground dark:text-white border border-slate-100 dark:border-white/10 hover:shadow-2xl hover:-translate-y-1'}`}
                                         >
                                             {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Personalizar</>}
                                         </button>
@@ -655,9 +667,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     { label: 'Beats', value: beats.length, icon: Music, color: 'text-accent' },
                                     { label: 'Siguiendo', value: followingCount, icon: UserPlus, color: 'text-emerald-500' }
                                 ].map((stat, i) => (
-                                    <div key={i} className="bg-white border border-slate-100 rounded-[2rem] p-5 text-center shadow-soft hover:shadow-xl hover:-translate-y-1 transition-all group">
+                                    <div key={i} className="bg-white dark:bg-slate-900/50 border border-slate-100 dark:border-white/10 rounded-[2rem] p-5 text-center shadow-soft hover:shadow-xl hover:-translate-y-1 transition-all group">
                                         <stat.icon size={16} className={`${stat.color} mx-auto mb-2 opacity-60 group-hover:opacity-100 transition-opacity`} />
-                                        <span className="block text-2xl font-black tracking-tighter">{stat.value}</span>
+                                        <span className="block text-2xl font-black tracking-tighter text-foreground dark:text-white">{stat.value}</span>
                                         <span className="text-[9px] font-black text-muted uppercase tracking-widest">{stat.label}</span>
                                     </div>
                                 ))}
@@ -672,7 +684,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 <div className="space-y-8">
                                     <div className="flex items-center justify-between group">
                                         <span className="text-sm font-bold text-white/60">Suscripción</span>
-                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border transition-all ${profile.subscription_tier === 'premium' ? 'bg-blue-600 border-blue-400 text-white shadow-lg shadow-blue-500/20' : profile.subscription_tier === 'pro' ? 'bg-amber-400 border-amber-300 text-slate-900' : 'bg-white/5 border-white/10 text-white/60'}`}>
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border transition-all ${profile.subscription_tier === 'premium' ? 'bg-blue-600/10 dark:bg-blue-600 border-blue-400/30 dark:border-blue-400 text-blue-600 dark:text-white shadow-lg dark:shadow-blue-500/20' : profile.subscription_tier === 'pro' ? 'bg-amber-400 border-amber-300 text-slate-900' : 'bg-white/5 border-white/10 text-white/60'}`}>
                                             {profile.subscription_tier}
                                         </span>
                                     </div>
@@ -726,7 +738,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             )}
 
                             {/* Trayectoria y Socials */}
-                            <div className="bg-white border border-slate-100 rounded-[3rem] p-10 shadow-soft">
+                            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/10 rounded-[3rem] p-10 shadow-soft">
                                 <h3 className="text-[11px] font-black uppercase tracking-[0.3em] mb-10 text-muted">Trayectoria</h3>
 
                                 {isEditing ? (
@@ -735,7 +747,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             <textarea
                                                 value={editBio}
                                                 onChange={(e) => setEditBio(e.target.value)}
-                                                className="w-full h-40 bg-slate-50 rounded-[2rem] p-6 text-sm font-medium border-transparent focus:border-accent outline-none resize-none text-slate-900 shadow-inner"
+                                                className="w-full h-40 bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] p-6 text-sm font-medium border-transparent focus:border-accent outline-none resize-none text-slate-900 dark:text-white shadow-inner"
                                                 placeholder="Tu historia comienza aquí..."
                                             />
                                         </div>
@@ -746,7 +758,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     placeholder={key}
                                                     value={editSocials[key] || ''}
                                                     onChange={e => setEditSocials({ ...editSocials, [key]: e.target.value })}
-                                                    className="w-full bg-slate-50 rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest border-transparent focus:border-accent text-slate-900"
+                                                    className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest border-transparent focus:border-accent text-slate-900 dark:text-white"
                                                 />
                                             ))}
                                         </div>
@@ -756,7 +768,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 <input
                                                     value={editVideoUrl}
                                                     onChange={(e) => setEditVideoUrl(e.target.value)}
-                                                    className="w-full bg-slate-50 rounded-xl px-4 py-3 text-[10px] font-bold border-transparent focus:border-accent"
+                                                    className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 text-[10px] font-bold border-transparent focus:border-accent dark:text-white"
                                                     placeholder="URL de Video..."
                                                 />
                                             </div>
@@ -764,12 +776,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                 ) : (
                                     <>
-                                        <p className="text-sm font-medium leading-relaxed text-slate-600 mb-10 whitespace-pre-line italic">
+                                        <p className="text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-400 mb-10 whitespace-pre-line italic">
                                             {profile.bio || "Este productor aún no ha compartido su trayectoria."}
                                         </p>
 
-                                        <div className="pt-10 border-t border-slate-100">
-                                            <h4 className="text-[9px] font-black uppercase tracking-[0.3em] mb-6 text-slate-400">Conectar</h4>
+                                        <div className="pt-10 border-t border-slate-100 dark:border-white/10">
+                                            <h4 className="text-[9px] font-black uppercase tracking-[0.3em] mb-6 text-slate-400 dark:text-white/40">Conectar</h4>
                                             <div className="flex flex-wrap gap-3">
                                                 {SOCIAL_KEYS.map(key => {
                                                     const url = profile.social_links?.[key as keyof typeof profile.social_links];
@@ -778,7 +790,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     let finalUrl = url.startsWith('http') ? url : `https://${key}.com/${url}`;
                                                     return (
                                                         <a key={key} href={finalUrl} target="_blank" rel="noopener noreferrer"
-                                                            className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-900 border border-slate-100 hover:bg-accent hover:text-white hover:border-accent transition-all hover:-translate-y-1 shadow-sm">
+                                                            className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center text-slate-900 dark:text-white border border-slate-100 dark:border-white/10 hover:bg-accent hover:text-white hover:border-accent transition-all hover:-translate-y-1 shadow-sm">
                                                             {item.icon ? <item.icon size={18} /> : <svg viewBox="0 0 24 24" fill="currentColor" className="w-4.5 h-4.5"><path d={item.path} /></svg>}
                                                         </a>
                                                     );

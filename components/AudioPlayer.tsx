@@ -90,20 +90,20 @@ export default function AudioPlayer() {
 
                             <div className="min-w-0 flex-1">
                                 <Link href={`/beats/${currentBeat.id}`} className="block group">
-                                    <h4 className="font-heading font-black text-sm md:text-base text-foreground truncate uppercase tracking-tight group-hover:text-accent transition-colors">
+                                    <h4 className="font-heading font-black text-sm md:text-base text-slate-900 dark:text-white truncate uppercase tracking-tight group-hover:text-accent transition-colors">
                                         {currentBeat.title}
                                     </h4>
                                 </Link>
-                                <div className="flex items-center gap-1.5 mt-0.5">
+                                <div className="flex items-center gap-2 mt-0.5">
                                     <Link
                                         href={`/${currentBeat.producer_username || (typeof currentBeat.producer === 'object' ? currentBeat.producer?.username : currentBeat.producer)}`}
                                         className="flex items-center gap-1.5 truncate group"
                                     >
-                                        <span className="text-[10px] font-black text-muted uppercase tracking-[0.15em] group-hover:text-accent transition-colors">
+                                        <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] group-hover:text-accent transition-colors">
                                             @{currentBeat.producer_username || (typeof currentBeat.producer === 'object' ? currentBeat.producer?.username : currentBeat.producer)}
                                         </span>
-                                        {currentBeat.is_verified && <img src="/verified-badge.png" className="w-3 h-3 object-contain" alt="V" />}
-                                        {currentBeat.is_founder && <Crown size={12} className="text-amber-400" fill="currentColor" />}
+                                        {currentBeat.is_verified && <img src="/verified-badge.png" className="w-4 h-4 object-contain" alt="V" />}
+                                        {currentBeat.is_founder && <Crown size={14} className="text-amber-500" fill="currentColor" />}
                                     </Link>
                                 </div>
                             </div>

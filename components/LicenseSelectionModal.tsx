@@ -75,7 +75,15 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
             price: license.price,
             image: beat.portadabeat_url || undefined,
             subtitle: `Prod. by ${beat.producer_artistic_name || beat.producer_username || 'Tianguis Producer'}`,
-            metadata: { license: selectedType, beatId: beat.id }
+            metadata: {
+                licenseType: selectedType.toLowerCase(),
+                beatId: beat.id,
+                producer_id: beat.producer_id,
+                producer_name: beat.producer_artistic_name,
+                mp3_url: beat.mp3_url,
+                wav_url: beat.wav_url,
+                stems_url: beat.stems_url
+            }
         });
 
         onClose();

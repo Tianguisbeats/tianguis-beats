@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
     Trash2,
     ArrowRight,
@@ -13,16 +14,20 @@ import {
     Music,
     Plus,
     Minus,
-    Star
+    Star,
+    Loader2
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { supabase } from '@/lib/supabase';
 
 export default function CartPage() {
     const { items, removeItem, total, itemCount, clearCart } = useCart();
+    const router = useRouter();
     const [coupon, setCoupon] = useState('');
     const [discountApplied, setDiscountApplied] = useState(false);
+    const [checkingOut, setCheckingOut] = useState(false);
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat("es-MX", {
@@ -38,6 +43,58 @@ export default function CartPage() {
             alert("¡Cupón aplicado! 20% de descuento incluido.");
         } else {
             alert("Código no válido.");
+        }
+    };
+
+    const handleCheckout = async () => {
+        setCheckingOut(true);
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            router.push('/login?redirect=/cart');
+            return;
+        }
+
+        try {
+            // Registrar cada venta en la base de datos
+            for (const item of items) {
+                // Si es un beat
+                if (item.type === 'beat') {
+                    const { error } = await supabase.from('sales').insert({
+                        buyer_id: user.id,
+                        seller_id: item.metadata?.producer_id || '99999999-9999-9999-9999-999999999999', // Fallback si no hay metadata
+                        beat_id: item.id,
+                        amount: discountApplied ? item.price * 0.8 : item.price,
+                        license_type: item.metadata?.licenseType || 'basic'
+                    });
+                    if (error) console.error("Error registrando venta de beat:", error);
+                }
+                // Si es un sound kit
+                else if (item.type === 'license' && item.metadata?.isSoundKit) {
+                    const { error } = await supabase.from('sales').insert({
+                        buyer_id: user.id,
+                        seller_id: item.metadata?.producer_id || '99999999-9999-9999-9999-999999999999',
+                        amount: discountApplied ? item.price * 0.8 : item.price,
+                        license_type: 'SOUNDKIT'
+                    });
+                    if (error) console.error("Error registrando venta de sound kit:", error);
+                }
+            }
+
+            // Guardar en localStorage para la página de éxito (simulación)
+            localStorage.setItem('last_purchase', JSON.stringify(items.map(i => ({
+                ...i,
+                price: discountApplied ? i.price * 0.8 : i.price,
+                licenseType: i.metadata?.licenseType || 'basic'
+            }))));
+
+            clearCart();
+            router.push('/checkout/success');
+        } catch (err) {
+            console.error("Error en checkout:", err);
+            alert("Hubo un problema procesando tu compra.");
+        } finally {
+            setCheckingOut(false);
         }
     };
 
@@ -170,9 +227,22 @@ export default function CartPage() {
                                         </button>
                                     </div>
 
-                                    <button className="w-full bg-accent text-white py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.2em] hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 mb-8 flex items-center justify-center gap-3">
-                                        Finalizar Compra
-                                        <ArrowRight size={18} />
+                                    <button
+                                        onClick={handleCheckout}
+                                        disabled={checkingOut}
+                                        className="w-full bg-accent text-white py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.2em] hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 mb-8 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {checkingOut ? (
+                                            <>
+                                                <Loader2 size={18} className="animate-spin" />
+                                                Procesando...
+                                            </>
+                                        ) : (
+                                            <>
+                                                Finalizar Compra
+                                                <ArrowRight size={18} />
+                                            </>
+                                        )}
                                     </button>
 
                                     <div className="flex items-center justify-center gap-3 text-[9px] font-black uppercase tracking-widest text-white/30">

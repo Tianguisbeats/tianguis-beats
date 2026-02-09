@@ -32,11 +32,11 @@ export default function PlaylistSection({ playlists, isOwner, onEdit }: Playlist
                                 <ListMusic size={16} className="text-blue-600" />
                                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Colección</span>
                             </div>
-                            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-slate-900 leading-none">
+                            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-white leading-none">
                                 {playlist.name}
                             </h2>
                             {playlist.description && (
-                                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-3">
+                                <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-widest mt-3">
                                     {playlist.description}
                                 </p>
                             )}
