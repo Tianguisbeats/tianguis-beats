@@ -108,22 +108,34 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                                     </div>
                                     <span className="text-sm font-black lowercase text-white">{(itemData as Beat).producer_artistic_name}</span>
                                     {(itemData as Beat).producer_is_verified && <Check size={12} className="text-blue-400" />}
+                                    {(itemData as Beat).producer_is_founder && <Crown size={12} className="text-amber-500 fill-amber-500" />}
                                 </Link>
                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-lg">{(itemData as Beat).genre}</span>
                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-lg">{(itemData as Beat).bpm} BPM</span>
                             </div>
                         ) : (
-                            <div className="mb-6 md:mb-8">
-                                <p className="text-sm md:text-base text-slate-300 max-w-xl line-clamp-2 md:line-clamp-3 font-medium opacity-80 leading-relaxed mb-4">
+                            <>
+                                <div className="flex items-center gap-2 mb-4">
+                                    <h2 className="text-sm font-black uppercase text-amber-500 tracking-widest flex items-center gap-2">
+                                        {(itemData as any).is_verified && <Check size={14} className="text-blue-400" />}
+                                        {(itemData as any).is_founder && <Crown size={14} className="text-amber-500 fill-amber-500" />}
+                                        PRODUCCIÓN VERIFICADA
+                                    </h2>
+                                </div>
+                                <p className="text-xs md:text-sm text-slate-300 max-w-xl line-clamp-2 md:line-clamp-3 font-medium opacity-80 leading-relaxed mb-6">
                                     {(itemData as any).bio || "Productor verificado de la escena nacional mexicana. Descubre su sonido único."}
                                 </p>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex -space-x-2">
-                                        {[1, 2, 3].map(i => <div key={i} className="w-7 h-7 rounded-full border-2 border-slate-950 bg-slate-800" />)}
+                                <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/10">
+                                        <Music size={14} className="text-accent" />
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">50+ Beats</span>
                                     </div>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">+50 Beats Publicados</span>
+                                    <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/10">
+                                        <Users size={14} className="text-accent" />
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Artista Popular</span>
+                                    </div>
                                 </div>
-                            </div>
+                            </>
                         )}
 
                         <div className="flex flex-wrap justify-center md:justify-start gap-4 items-center">
@@ -159,7 +171,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                                     <button
                                         key={i}
                                         onClick={() => setCurrentIndex(i)}
-                                        className={`h-1.5 rounded-full transition-all duration-500 ${i === currentIndex ? 'w-6 bg-white shadow-[0_0_10px_white]' : 'w-1.5 bg-white/20 hover:bg-white/50'}`}
+                                        className={`h-1 rounded-full transition-all duration-500 ${i === currentIndex ? 'w-4 bg-white shadow-[0_0_8px_white]' : 'w-1 bg-white/20 hover:bg-white/50'}`}
                                     />
                                 ))}
                             </div>
@@ -174,7 +186,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
 
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 

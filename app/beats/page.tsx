@@ -13,6 +13,7 @@ import { GENRES } from "@/lib/constants";
 // New Components
 import AdvancedFilterSidebar from "@/components/explore/AdvancedFilterSidebar";
 import BeatCardPro from "@/components/explore/BeatCardPro";
+import ArtistCard from "@/components/explore/ArtistCard";
 import FeaturedBanner from "@/components/explore/FeaturedBanner";
 
 export default function BeatsPage() {
@@ -96,12 +97,15 @@ function BeatsPageContent() {
 
   // Load Filters from URL
   useEffect(() => {
+    const v = searchParams.get('view');
     const q = searchParams.get('q');
     const g = searchParams.get('genre');
     const m = searchParams.get('mood');
     const k = searchParams.get('key');
     const s = searchParams.get('scale');
     const b = searchParams.get('bpm');
+
+    if (v) setViewMode(v as ViewMode);
 
     setFilterState(prev => ({
       ...prev,
@@ -495,55 +499,7 @@ function BeatsPageContent() {
               ) : viewMode === 'producers' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10 animate-fade-in-up">
                   {filteredProducers.length > 0 ? filteredProducers.map(p => (
-                    <Link
-                      key={p.id}
-                      href={`/${p.username}`}
-                      className="group bg-card/60 rounded-[2.5rem] p-5 border border-border shadow-sm hover:shadow-xl hover:shadow-accent/5 transition-all duration-500 hover:-translate-y-1 flex items-center gap-5 relative overflow-hidden"
-                    >
-                      {/* Premium Accent */}
-                      {p.subscription_tier === 'premium' && (
-                        <div className="absolute top-0 right-0 p-1.5 bg-amber-500 text-white rounded-bl-2xl shadow-lg z-10 animate-pulse">
-                          <Crown size={12} fill="currentColor" />
-                        </div>
-                      )}
-
-                      {/* Avatar Mini */}
-                      <div className="relative shrink-0">
-                        <div className={`w-16 h-16 rounded-full p-0.5 border-2 transition-all duration-700 group-hover:scale-110 ${p.subscription_tier === 'premium' ? 'border-amber-400' : 'border-border group-hover:border-accent'}`}>
-                          <img
-                            src={p.foto_perfil || `https://ui-avatars.com/api/?name=${p.artistic_name || p.username}&background=random`}
-                            className="w-full h-full object-cover rounded-full"
-                            alt={p.artistic_name || p.username}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Info Mini */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <h3 className="text-sm font-black uppercase tracking-tight text-foreground group-hover:text-accent transition-colors truncate font-heading">
-                            {p.artistic_name || p.username}
-                          </h3>
-                          {p.is_verified && <Check size={14} className="text-blue-500 shrink-0" />}
-                        </div>
-                        <p className="text-[9px] font-bold text-muted uppercase tracking-widest truncate">@{p.username}</p>
-
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className={`px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-widest ${p.subscription_tier === 'premium' ? 'bg-amber-500/10 text-amber-500' :
-                            p.subscription_tier === 'pro' ? 'bg-accent/10 text-accent' : 'bg-muted/10 text-muted'
-                            }`}>
-                            {p.subscription_tier || 'Free'}
-                          </span>
-                          {p.is_founder && (
-                            <span className="text-amber-500"><Crown size={10} fill="currentColor" /></span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0">
-                        <ChevronRight size={16} />
-                      </div>
-                    </Link>
+                    <ArtistCard key={p.id} artist={p} />
                   )) : (
                     <div className="col-span-full text-center py-20 bg-card/40 rounded-[2.5rem] border border-dashed border-border">
                       <Users className="mx-auto text-muted mb-4" size={40} />

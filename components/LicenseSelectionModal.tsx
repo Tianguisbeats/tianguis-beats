@@ -121,8 +121,8 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
     const activeColor = colorMap[currentLicense.color] || colorMap.blue;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" onClick={onClose}></div>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose}></div>
 
             <div className="relative bg-white w-full max-w-4xl rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.3)] overflow-hidden animate-in zoom-in slide-in-from-bottom-8 duration-500">
                 <button
@@ -189,16 +189,16 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                         disabled={!lic.isActive}
                                         onClick={() => setSelectedType(lic.id)}
                                         className={`relative p-5 rounded-3xl border-2 transition-all text-left flex flex-col justify-between group ${selectedType === lic.id
-                                                ? `${licColor.border} ${licColor.bg} shadow-xl shadow-slate-200`
-                                                : !lic.isActive
-                                                    ? 'border-slate-50 bg-slate-50 opacity-40 grayscale cursor-not-allowed'
-                                                    : 'border-slate-100 hover:border-slate-300'
+                                            ? `${licColor.border} ${licColor.bg} shadow-xl shadow-slate-200`
+                                            : !lic.isActive
+                                                ? 'border-slate-50 bg-slate-50 opacity-40 grayscale cursor-not-allowed'
+                                                : 'border-slate-100 hover:border-slate-300'
                                             }`}
                                     >
                                         <div className="flex justify-between items-start mb-4">
                                             <div className={`p-3 rounded-2xl ${selectedType === lic.id
-                                                    ? `${licColor.bgSolid} text-white`
-                                                    : 'bg-slate-100 text-slate-400'
+                                                ? `${licColor.bgSolid} text-white`
+                                                : 'bg-slate-100 text-slate-400'
                                                 }`}>
                                                 {lic.icon}
                                             </div>
@@ -243,8 +243,8 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                             onClick={handleAddToCart}
                             disabled={!currentLicense}
                             className={`w-full py-6 rounded-2xl font-black uppercase text-[12px] tracking-[0.3em] transition-all shadow-2xl flex items-center justify-center gap-4 group active:scale-95 ${currentLicense
-                                    ? `bg-slate-900 text-white ${activeColor.hover} shadow-slate-900/10`
-                                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                ? `bg-slate-900 text-white ${activeColor.hover} shadow-slate-900/10`
+                                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                                 }`}
                         >
                             <ShoppingCart size={20} className="group-hover:scale-110 transition-transform" />

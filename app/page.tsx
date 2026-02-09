@@ -80,7 +80,7 @@ export default function Home() {
           {/* Dedicated CT Button */}
           <div className="flex justify-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <Link
-              href={`/beats?genre=${encodeURIComponent("Corridos Tumbados 🇲🇽")}`}
+              href={`/beats?view=corridos_tumbados`}
               className="group relative inline-flex items-center gap-3 px-10 py-5 bg-card border border-border text-foreground rounded-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-accent/20 min-h-[56px]"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
