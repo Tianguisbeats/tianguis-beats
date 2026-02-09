@@ -7,19 +7,19 @@ import { Users, ArrowLeft, Loader2, Star, Instagram, Twitter, Globe, Crown, Chec
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-export default function ArtistsPage() {
+export default function ProducersPage() {
     return (
         <Suspense fallback={
             <div className="min-h-screen flex items-center justify-center bg-background">
                 <Loader2 className="animate-spin text-accent" size={48} />
             </div>
         }>
-            <ArtistsContent />
+            <ProducersContent />
         </Suspense>
     );
 }
 
-function ArtistsContent() {
+function ProducersContent() {
     const [artists, setArtists] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -27,11 +27,13 @@ function ArtistsContent() {
         async function fetchArtists() {
             try {
                 setLoading(true);
-                // Query más robusta: quitamos campos que podrían no existir si hubo cambio de esquema
+                // Query más robusta: Filtramos directamente en el servidor los que tienen username
                 const { data, error } = await supabase
                     .from('profiles')
                     .select('id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, created_at')
-                    .limit(100);
+                    .not('username', 'is', null) // Asegurar que tengan al menos username
+                    .order('subscription_tier', { ascending: false })
+                    .limit(200);
 
                 if (error) {
                     console.error("Supabase error fetching artists:", error);

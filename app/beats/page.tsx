@@ -109,7 +109,7 @@ function HubContent() {
             </Link>
 
             {/* Artists Card */}
-            <Link href="/artists" className="group relative h-[500px] rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-blue-500/40 transition-all duration-700 shadow-2xl hover:shadow-blue-500/10">
+            <Link href="/productores" className="group relative h-[500px] rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-blue-500/40 transition-all duration-700 shadow-2xl hover:shadow-blue-500/10">
               <img src="https://images.unsplash.com/photo-1598653222000-6b7b7a552625?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-40 group-hover:opacity-60" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col items-center justify-end p-12 text-center">
                 <h3 className="text-4xl font-black text-white uppercase tracking-tighter mb-2 italic">Productores</h3>
