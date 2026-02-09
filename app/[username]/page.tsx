@@ -640,14 +640,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     {isOwner ? (
                                         <button
                                             onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}
-                                            className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center gap-3 ${isEditing ? 'bg-foreground text-background' : 'bg-white dark:bg-slate-800 text-foreground dark:text-white border border-slate-100 dark:border-white/10 hover:shadow-2xl hover:-translate-y-1'}`}
+                                            className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center gap-3 ${isEditing ? 'bg-foreground text-background' : 'bg-white dark:bg-slate-900/80 text-foreground dark:text-white border border-slate-100 dark:border-white/20 hover:shadow-2xl hover:-translate-y-1 backdrop-blur-md'}`}
                                         >
                                             {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Personalizar</>}
                                         </button>
                                     ) : (
                                         <button
                                             onClick={handleFollowToggle}
-                                            className={`h-14 px-12 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center gap-3 active:scale-95 shadow-xl ${isFollowing ? 'bg-white text-slate-900 border border-slate-100' : 'bg-accent text-white hover:bg-accent/90 hover:shadow-accent/30'}`}
+                                            className={`h-14 px-12 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center gap-3 active:scale-95 shadow-xl ${isFollowing ? 'bg-white dark:bg-slate-900/60 text-slate-900 dark:text-white border border-slate-100 dark:border-white/10 shadow-soft dark:shadow-[0_20px_50px_rgba(8,112,184,0.1)]' : 'bg-accent text-white hover:bg-accent/90 hover:shadow-accent/30'}`}
                                         >
                                             {isFollowing ? <><UserCheck size={18} /> Siguiendo</> : <><UserPlus size={18} /> Seguir</>}
                                         </button>
@@ -803,7 +803,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <button
                                             key={tab.id}
                                             onClick={() => setActiveTab(tab.id as 'beats' | 'playlists' | 'services' | 'sound_kits')}
-                                            className={`relative py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === tab.id ? 'text-foreground' : 'text-muted hover:text-foreground'}`}
+                                            className={`relative py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === tab.id ? 'text-foreground dark:text-white' : 'text-muted hover:text-foreground dark:hover:text-white'}`}
                                         >
                                             <tab.icon size={16} />
                                             {tab.label}
@@ -839,7 +839,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         </div>
                                         <Link
                                             href={`/${username}/beats`}
-                                            className="h-14 px-8 bg-foreground/5 hover:bg-foreground/10 border border-foreground/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-foreground transition-all flex items-center gap-3 active:scale-95 group"
+                                            className="h-14 px-8 bg-foreground/5 dark:bg-white/5 hover:bg-foreground/10 dark:hover:bg-white/10 border border-foreground/5 dark:border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-foreground dark:text-white transition-all flex items-center gap-3 active:scale-95 group"
                                         >
                                             Ver Catálogo Completo <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
                                         </Link>
@@ -895,9 +895,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     ) : (
                                         <div className="grid md:grid-cols-2 gap-4">
                                             {services.map(service => (
-                                                <div key={service.id} className={`p-6 rounded-[2rem] border shadow-sm hover:shadow-md transition-all group ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
+                                                <div key={service.id} className={`p-6 rounded-[2rem] border shadow-sm hover:shadow-md transition-all group ${profile.tema_perfil === 'dark' ? 'bg-slate-900/40 border-white/10 backdrop-blur-md' :
                                                     profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-green-900/20' :
-                                                        profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50' :
+                                                        profile.tema_perfil === 'gold' ? 'bg-slate-900/80 border-amber-900/50' :
                                                             'bg-white border-slate-100'
                                                     }`}>
                                                     <div className="flex justify-between items-start mb-4">
@@ -931,20 +931,20 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                     {/* Acciones de Colecciones (Solo Dueño) */}
                                     {isOwner && (
-                                        <div className="mt-12 flex flex-wrap items-center justify-center gap-4 py-8 border-y border-slate-50 bg-slate-50/30 rounded-[2.5rem]">
+                                        <div className="mt-12 flex flex-wrap items-center justify-center gap-4 py-8 border-y border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-white/5 rounded-[2.5rem]">
                                             <button
                                                 onClick={() => {
                                                     setEditingPlaylist(null);
                                                     setIsPlaylistModalOpen(true);
                                                 }}
-                                                className="px-8 py-4 bg-blue-50 text-blue-600 border border-blue-100 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-3 shadow-sm hover:shadow-xl hover:shadow-blue-600/10 active:scale-95"
+                                                className="px-8 py-4 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-3 shadow-sm hover:shadow-xl hover:shadow-blue-600/10 active:scale-95"
                                             >
                                                 <Plus size={18} /> Nueva Playlist
                                             </button>
 
                                             <button
                                                 onClick={() => setIsReordering(!isReordering)}
-                                                className={`px-8 py-4 border rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-3 shadow-sm active:scale-95 ${isReordering ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300'}`}
+                                                className={`px-8 py-4 border rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-3 shadow-sm active:scale-95 ${isReordering ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-xl' : 'bg-white dark:bg-slate-900/60 text-slate-400 dark:text-slate-500 border-slate-100 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'}`}
                                             >
                                                 {isReordering ? <><MoveVertical size={18} className="animate-bounce" /> Reordenando...</> : <><MoveVertical size={18} /> Organizar Colecciones</>}
                                             </button>
@@ -953,7 +953,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                     {/* Reordering Controls (Only visible when isReordering is true) */}
                                     {isReordering && (
-                                        <div className="mt-8 p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100 animate-in fade-in slide-in-from-top-4">
+                                        <div className="mt-8 p-6 bg-blue-50/50 dark:bg-blue-900/20 rounded-[2rem] border border-blue-100 dark:border-blue-500/20 animate-in fade-in slide-in-from-top-4">
                                             <div className="flex items-center justify-between mb-6">
                                                 <h3 className="text-[10px] font-black uppercase tracking-widest text-blue-600">Cambiar orden de aparición</h3>
                                                 <button
@@ -968,10 +968,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             </div>
                                             <div className="space-y-2">
                                                 {playlists.map((pl, idx) => (
-                                                    <div key={pl.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+                                                    <div key={pl.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-white/5 shadow-sm">
                                                         <div className="flex items-center gap-4">
-                                                            <span className="text-[10px] font-black text-slate-300 w-4">#{idx + 1}</span>
-                                                            <span className="text-xs font-bold text-slate-700">{pl.name}</span>
+                                                            <span className="text-[10px] font-black text-slate-300 dark:text-slate-600 w-4">#{idx + 1}</span>
+                                                            <span className="text-xs font-bold text-slate-700 dark:text-white">{pl.name}</span>
                                                         </div>
                                                         <div className="flex gap-2">
                                                             <button
@@ -1078,9 +1078,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             ) : (
                                                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                                     {soundKits.map(kit => (
-                                                        <div key={kit.id} className={`p-6 rounded-[2rem] border shadow-sm hover:shadow-md transition-all group ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
+                                                        <div key={kit.id} className={`p-6 rounded-[2rem] border shadow-sm hover:shadow-md transition-all group ${profile.tema_perfil === 'dark' ? 'bg-slate-900/40 border-white/10 backdrop-blur-md' :
                                                             profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-green-900/20' :
-                                                                profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50' :
+                                                                profile.tema_perfil === 'gold' ? 'bg-slate-900/80 border-amber-900/50' :
                                                                     'bg-white border-slate-100'
                                                             }`}>
                                                             <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden relative">

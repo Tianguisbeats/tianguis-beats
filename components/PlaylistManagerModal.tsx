@@ -138,9 +138,9 @@ export default function PlaylistManagerModal({
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={onClose} />
 
-            <div className="relative bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]">
+            <div className="relative bg-white dark:bg-slate-950 w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100 dark:border-white/10 flex flex-col max-h-[90vh]">
                 {/* Header */}
                 <div className="p-8 bg-slate-900 text-white flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -151,7 +151,7 @@ export default function PlaylistManagerModal({
                             <h2 className="text-xl font-black uppercase tracking-tighter">
                                 {existingPlaylist ? 'Editar Playlist' : 'Nueva Playlist'}
                             </h2>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Personaliza tu colección</p>
+                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Personaliza tu colección</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-400 hover:text-white">
@@ -170,7 +170,7 @@ export default function PlaylistManagerModal({
                                 placeholder="Eje: Mis Favoritas, Trap 2024..."
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:bg-white focus:border-blue-600 transition-all"
+                                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-white/10 rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-slate-300 dark:placeholder:text-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:bg-white dark:focus:bg-slate-900 focus:border-blue-600 transition-all"
                             />
                         </div>
                         <div>
@@ -179,7 +179,7 @@ export default function PlaylistManagerModal({
                                 placeholder="Escribe algo sobre esta colección..."
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-medium placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:bg-white focus:border-blue-600 transition-all h-24 resize-none"
+                                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-white/10 rounded-2xl px-6 py-4 text-sm font-medium placeholder:text-slate-300 dark:placeholder:text-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:bg-white dark:focus:bg-slate-900 focus:border-blue-600 transition-all h-24 resize-none"
                             />
                         </div>
                     </div>
@@ -193,11 +193,11 @@ export default function PlaylistManagerModal({
                                     const beat = allBeats.find(b => b.id === id);
                                     if (!beat) return null;
                                     return (
-                                        <div key={id} className="flex items-center gap-3 bg-white border border-slate-100 p-2 rounded-2xl shadow-sm">
+                                        <div key={id} className="flex items-center gap-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 p-2 rounded-2xl shadow-sm">
                                             <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
                                                 <img src={beat.portadabeat_url || ''} className="w-full h-full object-cover" alt="" />
                                             </div>
-                                            <span className="flex-1 text-[10px] font-black uppercase truncate">{beat.title}</span>
+                                            <span className="flex-1 text-[10px] font-black uppercase truncate text-slate-900 dark:text-white">{beat.title}</span>
                                             <div className="flex gap-1">
                                                 <button
                                                     onClick={() => moveBeat(index, 'up')}
@@ -234,8 +234,8 @@ export default function PlaylistManagerModal({
                                     key={beat.id}
                                     onClick={() => handleToggleBeat(beat.id)}
                                     className={`flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${selectedBeatIds.includes(beat.id)
-                                        ? 'bg-blue-50 border-blue-200 shadow-sm'
-                                        : 'bg-slate-50 border-slate-100 hover:bg-white hover:border-slate-200'
+                                        ? 'bg-blue-50 dark:bg-blue-600/10 border-blue-200 dark:border-blue-600/40 shadow-sm'
+                                        : 'bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-white/5 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-white/10'
                                         }`}
                                 >
                                     <div className="w-10 h-10 bg-white rounded-lg border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
@@ -246,8 +246,8 @@ export default function PlaylistManagerModal({
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className={`text-xs font-black uppercase truncate ${selectedBeatIds.includes(beat.id) ? 'text-blue-900' : 'text-slate-900'}`}>{beat.title}</p>
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{beat.genre} • {beat.bpm} BPM</p>
+                                        <p className={`text-xs font-black uppercase truncate ${selectedBeatIds.includes(beat.id) ? 'text-blue-900 dark:text-blue-400' : 'text-slate-900 dark:text-white'}`}>{beat.title}</p>
+                                        <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{beat.genre} • {beat.bpm} BPM</p>
                                     </div>
                                     <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${selectedBeatIds.includes(beat.id) ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-400'
                                         }`}>
@@ -260,10 +260,10 @@ export default function PlaylistManagerModal({
                 </div>
 
                 {/* Footer */}
-                <div className="p-8 bg-slate-50 border-t border-slate-100 flex items-center gap-4">
+                <div className="p-8 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-white/10 flex items-center gap-4">
                     <button
                         onClick={onClose}
-                        className="px-6 py-4 bg-white text-slate-400 border border-slate-200 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 hover:text-slate-600 transition-all"
+                        className="px-6 py-4 bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 dark:hover:bg-white hover:text-slate-600 dark:hover:text-slate-900 transition-all"
                     >
                         Cancelar
                     </button>

@@ -132,10 +132,10 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose}></div>
 
-            <div className="relative bg-white w-full max-w-4xl rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.3)] overflow-hidden animate-in zoom-in slide-in-from-bottom-8 duration-500">
+            <div className="relative bg-white dark:bg-slate-950 w-full max-w-4xl rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.3)] overflow-hidden animate-in zoom-in slide-in-from-bottom-8 duration-500 border border-transparent dark:border-white/10">
                 <button
                     onClick={onClose}
-                    className="absolute top-8 right-8 p-3 bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 rounded-2xl transition-all z-20 group"
+                    className="absolute top-8 right-8 p-3 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/40 hover:text-red-500 rounded-2xl transition-all z-20 group"
                 >
                     <X size={20} className="group-hover:rotate-90 transition-transform" />
                 </button>
@@ -182,10 +182,10 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                     </div>
 
                     {/* Interaction Section */}
-                    <div className="flex-1 p-12 bg-white">
+                    <div className="flex-1 p-12 bg-white dark:bg-slate-950">
                         <div className="mb-10">
-                            <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter mb-2">LICENCIAS DISPONIBLES</h2>
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Selecciona el uso que le darás a tu beat</p>
+                            <h2 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-2">LICENCIAS DISPONIBLES</h2>
+                            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Selecciona el uso que le darás a tu beat</p>
                         </div>
 
                         <div className="grid sm:grid-cols-2 gap-4 mb-10">
@@ -197,16 +197,16 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                         disabled={!lic.isActive}
                                         onClick={() => setSelectedType(lic.id)}
                                         className={`relative p-5 rounded-3xl border-2 transition-all text-left flex flex-col justify-between group ${selectedType === lic.id
-                                            ? `${licColor.border} ${licColor.bg} shadow-xl shadow-slate-200`
+                                            ? `${licColor.border} ${licColor.bg} shadow-xl dark:shadow-none`
                                             : !lic.isActive
-                                                ? 'border-slate-50 bg-slate-50 opacity-40 grayscale cursor-not-allowed'
-                                                : 'border-slate-100 hover:border-slate-300'
+                                                ? 'border-slate-50 dark:border-white/5 bg-slate-50 dark:bg-white/5 opacity-40 grayscale cursor-not-allowed'
+                                                : 'border-slate-100 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'
                                             }`}
                                     >
                                         <div className="flex justify-between items-start mb-4">
                                             <div className={`p-3 rounded-2xl ${selectedType === lic.id
                                                 ? `${licColor.bgSolid} text-white`
-                                                : 'bg-slate-100 text-slate-400'
+                                                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500'
                                                 }`}>
                                                 {lic.icon}
                                             </div>
@@ -217,11 +217,11 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                             )}
                                         </div>
                                         <div>
-                                            <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${selectedType === lic.id ? licColor.text : 'text-slate-400'
+                                            <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${selectedType === lic.id ? (activeColor.text) : 'text-slate-400 dark:text-slate-500'
                                                 }`}>{lic.name}</p>
                                             <div className="flex items-baseline gap-1">
-                                                <p className="text-xl font-black text-slate-900">${lic.price}</p>
-                                                <span className="text-[9px] font-bold text-slate-400">MXN</span>
+                                                <p className="text-xl font-black text-slate-900 dark:text-white">${lic.price}</p>
+                                                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500">MXN</span>
                                             </div>
                                         </div>
                                     </button>
@@ -230,14 +230,14 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                         </div>
 
                         {/* Feature List */}
-                        <div className={`rounded-3xl p-8 mb-10 transition-colors duration-500 ${activeColor.bg} border ${activeColor.border}`}>
-                            <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-6 flex items-center gap-2">
+                        <div className={`rounded-3xl p-8 mb-10 transition-colors duration-500 ${selectedType === currentLicense.id ? activeColor.bg : 'bg-slate-50 dark:bg-slate-900'} border ${selectedType === currentLicense.id ? activeColor.border : 'border-slate-100 dark:border-white/10'}`}>
+                            <h4 className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-6 flex items-center gap-2">
                                 <ShieldCheck size={14} className={activeColor.text} />
                                 Ventajas de esta licencia:
                             </h4>
                             <ul className="grid sm:grid-cols-1 gap-4">
                                 {currentLicense?.features.map((feat: string, i: number) => (
-                                    <li key={i} className="flex items-center gap-4 text-[11px] font-bold text-slate-700">
+                                    <li key={i} className="flex items-center gap-4 text-[11px] font-bold text-slate-700 dark:text-slate-300">
                                         <div className={`rounded-full p-1 ${activeColor.bgSolid} text-white`}>
                                             <Check size={8} strokeWidth={4} />
                                         </div>
@@ -251,8 +251,8 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                             onClick={handleAddToCart}
                             disabled={!currentLicense}
                             className={`w-full py-6 rounded-2xl font-black uppercase text-[12px] tracking-[0.3em] transition-all shadow-2xl flex items-center justify-center gap-4 group active:scale-95 ${currentLicense
-                                ? `bg-slate-900 text-white ${activeColor.hover} shadow-slate-900/10`
-                                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                ? `bg-slate-900 dark:bg-white text-white dark:text-slate-900 ${activeColor.hover} dark:hover:bg-slate-100 shadow-slate-900/10`
+                                : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
                                 }`}
                         >
                             <ShoppingCart size={20} className="group-hover:scale-110 transition-transform" />
