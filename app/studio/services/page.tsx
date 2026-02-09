@@ -237,123 +237,136 @@ export default function ServicesManagerPage() {
     }
 
     return (
-        <div className="space-y-8">
-            <div className="flex justify-between items-center">
+        <div className="space-y-12">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-foreground tracking-tighter uppercase">Mis Servicios</h1>
-                    <p className="text-muted font-bold text-xs uppercase tracking-widest mt-1">Gestiona tu oferta profesional</p>
+                    <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-3">Servicios <span className="text-muted/40">& Sound Kits</span></h1>
+                    <div className="flex items-center gap-4">
+                        <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Briefcase size={12} className="text-accent" />
+                            Potencia tu Marca
+                        </p>
+                        <div className="h-3 w-px bg-border" />
+                        <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em]">Exclusivo Premium</p>
+                    </div>
                 </div>
                 <button
                     onClick={() => { setCurrentService({}); setIsEditing(true); }}
-                    className="flex items-center gap-2 bg-foreground text-background px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg"
+                    className="bg-foreground text-background px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.15em] hover:bg-accent hover:text-white transition-all shadow-xl active:scale-95 flex items-center gap-3 w-fit"
                 >
-                    <Plus size={16} />
-                    Nuevo Servicio
+                    <Plus size={16} /> Crear Servicio
                 </button>
             </div>
 
-            {/* Empty State */}
-            {services.length === 0 && !isEditing && (
-                <div className="bg-card rounded-[2.5rem] border-2 border-dashed border-border p-12 text-center">
-                    <Briefcase className="w-16 h-16 text-muted/30 mx-auto mb-4" />
-                    <h3 className="text-lg font-bold text-foreground mb-2">No tienes servicios activos</h3>
-                    <p className="text-muted text-sm mb-6">Comienza a monetizar tus habilidades ofreciendo Mezcla, Mastering o Beats a medida.</p>
-                    <button
-                        onClick={() => { setCurrentService({}); setIsEditing(true); }}
-                        className="text-accent font-bold uppercase tracking-widest text-xs hover:underline"
-                    >
-                        Crear mi primer servicio
-                    </button>
-                </div>
-            )}
-
-            {/* List */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {services.map(service => (
-                    <div key={service.id} className="bg-card p-6 rounded-2xl border border-border shadow-sm hover:shadow-md transition-all group">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="bg-accent-soft text-accent p-3 rounded-xl">
-                                <Briefcase size={20} />
-                            </div>
-                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onClick={() => { setCurrentService(service); setIsEditing(true); }} className="p-2 hover:bg-background rounded-lg text-muted hover:text-accent">
-                                    <Edit3 size={16} />
-                                </button>
-                                <button onClick={() => handleDelete(service.id)} className="p-2 hover:bg-background rounded-lg text-muted hover:text-red-500">
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
+            {/* Services Section */}
+            <div>
+                {services.length === 0 && !isEditing ? (
+                    <div className="p-20 text-center bg-background/50 rounded-[3rem] border-2 border-dashed border-border/60">
+                        <div className="w-20 h-20 bg-card rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-muted/20 shadow-inner">
+                            <Briefcase size={32} strokeWidth={1.5} />
                         </div>
-                        <h3 className="font-bold text-lg text-foreground mb-1">{service.titulo}</h3>
-                        <p className="text-muted text-xs mb-4 line-clamp-2">{service.descripcion}</p>
-
-                        <div className="flex items-center gap-4 text-xs font-bold text-muted border-t border-border pt-4">
-                            <div className="flex items-center gap-1">
-                                <DollarSign size={14} />
-                                ${service.precio} MXN
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <Clock size={14} />
-                                {service.tiempo_entrega_dias} Días
-                            </div>
-                        </div>
+                        <h3 className="text-xl font-black text-foreground uppercase tracking-tight mb-2">Sin servicios activos</h3>
+                        <p className="text-muted text-xs font-bold uppercase tracking-widest max-w-xs mx-auto mb-10 opacity-60 leading-relaxed">
+                            Monetiza tu experiencia ofreciendo mezcla, máster o producciones personalizadas.
+                        </p>
+                        <button
+                            onClick={() => { setCurrentService({}); setIsEditing(true); }}
+                            className="text-accent font-black text-[10px] uppercase tracking-[0.3em] hover:underline"
+                        >
+                            Configurar mi primer servicio
+                        </button>
                     </div>
-                ))}
+                ) : (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {services.map(service => (
+                            <div key={service.id} className="bg-card/30 hover:bg-card border border-border/40 hover:border-accent/30 rounded-[2.5rem] p-8 transition-all duration-300 group flex flex-col h-full">
+                                <div className="flex justify-between items-start mb-8">
+                                    <div className="w-12 h-12 bg-accent/10 text-accent rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110">
+                                        <Briefcase size={24} />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => { setCurrentService(service); setIsEditing(true); }} className="w-10 h-10 bg-background border border-border/50 text-foreground rounded-xl flex items-center justify-center hover:bg-foreground hover:text-background transition-all">
+                                            <Edit3 size={16} />
+                                        </button>
+                                        <button onClick={() => handleDelete(service.id)} className="w-10 h-10 bg-background border border-border/50 text-red-500/60 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                                <h3 className="font-black text-xl text-foreground mb-3 tracking-tight">{service.titulo}</h3>
+                                <p className="text-muted text-[11px] font-bold uppercase tracking-wide leading-relaxed mb-8 grow line-clamp-3 group-hover:text-foreground/80 transition-colors">
+                                    {service.descripcion}
+                                </p>
+
+                                <div className="flex items-center justify-between pt-6 border-t border-border/50">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-muted uppercase tracking-widest mb-1">Inversión</span>
+                                        <span className="font-black text-lg text-foreground tracking-tighter">${service.precio} <span className="text-[10px] opacity-40">MXN</span></span>
+                                    </div>
+                                    <div className="flex flex-col items-end">
+                                        <span className="text-[10px] font-black text-muted uppercase tracking-widest mb-1">Entrega</span>
+                                        <div className="flex items-center gap-1.5 font-black text-xs text-foreground/80">
+                                            <Clock size={14} className="text-accent" />
+                                            {service.tiempo_entrega_dias} Días
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            <div className="h-px bg-border my-12" />
+            <div className="h-px bg-border/50 my-16" />
 
             {/* Sound Kits Section */}
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-foreground tracking-tighter uppercase flex items-center gap-3">
+                    <h2 className="text-3xl font-black text-foreground tracking-tighter uppercase flex items-center gap-4">
                         Sound Kits
-                        <span className="bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-widest shadow-lg shadow-amber-500/30">Premium</span>
-                    </h1>
-                    <p className="text-muted font-bold text-xs uppercase tracking-widest mt-1">Vende tus librerías y bancos de sonidos</p>
+                        <span className="bg-gradient-to-r from-amber-400 to-orange-600 text-white text-[9px] px-3 py-1 rounded-full font-black uppercase tracking-widest shadow-xl shadow-amber-500/20">Elite Feature</span>
+                    </h2>
+                    <p className="text-muted font-bold text-xs uppercase tracking-widest mt-2">Vende tus librerías y bancos de sonidos exclusivos</p>
                 </div>
                 <button
                     onClick={() => { setCurrentKit({}); setIsEditingKit(true); }}
-                    className="flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-accent-soft hover:text-accent transition-all shadow-lg"
+                    className="bg-accent text-white px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.15em] hover:bg-foreground hover:text-background transition-all shadow-[0_20px_40px_-10px_rgba(37,99,235,0.3)] active:scale-95 flex items-center gap-3 w-fit"
                 >
-                    <Plus size={16} />
-                    Nuevo Sound Kit
+                    <Plus size={16} /> Subir Sound Kit
                 </button>
             </div>
 
-            {soundKits.length === 0 && !isEditingKit && (
-                <div className="bg-card rounded-[2.5rem] border-2 border-dashed border-border p-12 text-center">
-                    <Package className="w-16 h-16 text-muted/30 mx-auto mb-4" />
-                    <h3 className="text-lg font-bold text-foreground mb-2">Aún no tienes librerías</h3>
-                    <p className="text-muted text-sm mb-6">Sube tus mejores samples, presets o loops en formato .zip o .rar.</p>
-                </div>
-            )}
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
                 {soundKits.map(kit => (
-                    <div key={kit.id} className="bg-card p-6 rounded-2xl border border-border shadow-sm hover:shadow-md transition-all group">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="bg-amber-500/10 text-amber-500 p-3 rounded-xl">
-                                <Package size={20} />
+                    <div key={kit.id} className="bg-card/30 hover:bg-card border border-border/40 hover:border-amber-500/30 rounded-[2.5rem] p-8 transition-all duration-300 group flex flex-col h-full">
+                        <div className="flex justify-between items-start mb-8 text-amber-500">
+                            <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110">
+                                <Package size={24} />
                             </div>
-                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onClick={() => { setCurrentKit(kit); setIsEditingKit(true); }} className="p-2 hover:bg-background rounded-lg text-muted hover:text-accent">
+                            <div className="flex gap-2">
+                                <button onClick={() => { setCurrentKit(kit); setIsEditingKit(true); }} className="w-10 h-10 bg-background border border-border/50 text-foreground rounded-xl flex items-center justify-center hover:bg-foreground hover:text-background transition-all">
                                     <Edit3 size={16} />
                                 </button>
-                                <button onClick={() => handleDeleteKit(kit.id)} className="p-2 hover:bg-background rounded-lg text-muted hover:text-red-500">
+                                <button onClick={() => handleDeleteKit(kit.id)} className="w-10 h-10 bg-background border border-border/50 text-red-500/60 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
                                     <Trash2 size={16} />
                                 </button>
                             </div>
                         </div>
-                        <h3 className="font-bold text-lg text-foreground mb-1">{kit.title}</h3>
-                        <p className="text-muted text-xs mb-4 line-clamp-2">{kit.description}</p>
-                        <div className="flex items-center justify-between text-xs font-bold border-t border-border pt-4">
-                            <div className="flex items-center gap-1 text-foreground font-black">
-                                <DollarSign size={14} />
-                                ${kit.price} MXN
+                        <h3 className="font-black text-xl text-foreground mb-3 tracking-tight">{kit.title}</h3>
+                        <p className="text-muted text-[11px] font-bold uppercase tracking-wide leading-relaxed mb-8 grow line-clamp-3">
+                            {kit.description}
+                        </p>
+                        <div className="flex items-center justify-between pt-6 border-t border-border/50">
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-black text-muted uppercase tracking-widest mb-1">Precio</span>
+                                <span className="font-black text-lg text-foreground tracking-tighter">${kit.price} <span className="text-[10px] opacity-40">MXN</span></span>
                             </div>
-                            <div className="text-accent flex items-center gap-1">
-                                <FileArchive size={14} /> Digital
+                            <div className="flex flex-col items-end">
+                                <span className="text-[10px] font-black text-muted uppercase tracking-widest mb-1">Formato</span>
+                                <div className="flex items-center gap-1.5 font-black text-[10px] text-amber-600 uppercase tracking-widest">
+                                    <FileArchive size={14} />
+                                    Digital ZIP
+                                </div>
                             </div>
                         </div>
                     </div>

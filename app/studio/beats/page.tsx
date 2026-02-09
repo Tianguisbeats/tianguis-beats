@@ -58,71 +58,95 @@ export default function StudioBeatsPage() {
     if (loading) return <div className="p-8 text-center text-muted font-bold">Cargando tu inventario...</div>;
 
     return (
-        <div className="bg-card rounded-[2.5rem] p-8 border border-border shadow-sm min-h-[500px]">
-            <div className="flex items-center justify-between mb-8">
+        <div className="space-y-12">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground mb-2">Tus Beats</h1>
-                    <p className="text-muted text-xs font-bold uppercase tracking-widest">Gestión de catálogo</p>
+                    <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-3">Inventario <span className="text-muted/40">de Beats</span></h1>
+                    <div className="flex items-center gap-4">
+                        <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-accent" />
+                            {(beats.length)} Beats Activos
+                        </p>
+                        <div className="h-3 w-px bg-border" />
+                        <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em]">Sincronizado con Catálogo</p>
+                    </div>
                 </div>
-                <Link href="/upload" className="bg-accent text-white px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-foreground hover:text-background transition-colors shadow-xl shadow-accent/20">
-                    Subir Nuevo
+                <Link
+                    href="/upload"
+                    className="bg-accent text-white px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.15em] hover:bg-foreground hover:text-background transition-all shadow-[0_20px_40px_-10px_rgba(37,99,235,0.3)] hover:-translate-y-1 active:scale-95 flex items-center gap-3 w-fit"
+                >
+                    Subir Nuevo Beat
                 </Link>
             </div>
 
             {beats.length === 0 ? (
-                <div className="text-center py-20 bg-background rounded-3xl border-2 border-dashed border-border">
-                    <div className="w-16 h-16 bg-card rounded-2xl flex items-center justify-center mx-auto mb-4 text-muted/30">
-                        <AlertCircle size={32} />
+                <div className="p-20 text-center bg-background/50 rounded-[3rem] border-2 border-dashed border-border/60">
+                    <div className="w-24 h-24 bg-card rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-muted/20 shadow-inner">
+                        <AlertCircle size={48} strokeWidth={1.5} />
                     </div>
-                    <h3 className="font-black text-foreground mb-2">No has subido beats</h3>
-                    <p className="text-muted text-sm mb-6">Empieza a construir tu legado hoy.</p>
+                    <h3 className="text-2xl font-black text-foreground uppercase tracking-tight mb-3">Tu galería está vacía</h3>
+                    <p className="text-muted text-sm mb-10 max-w-sm mx-auto font-medium">Es momento de compartir tu talento con el mundo. Tus beats aparecerán aquí una vez que los subas.</p>
+                    <Link href="/upload" className="text-accent font-black text-[10px] uppercase tracking-[0.3em] hover:underline">
+                        Comenzar Ahora
+                    </Link>
                 </div>
             ) : (
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="border-b border-border">
-                                <th className="py-4 pl-4 text-[10px] font-black uppercase tracking-widest text-muted">Beat</th>
-                                <th className="py-4 pr-4 text-[10px] font-black uppercase tracking-widest text-muted text-right">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {beats.map((beat) => (
-                                <tr key={beat.id} className="group border-b border-border hover:bg-background/50 transition-colors">
-                                    <td className="py-4 pl-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-accent-soft shrink-0 relative group-hover:shadow-md transition-all">
-                                                {beat.portadabeat_url && <img src={beat.portadabeat_url} className="w-full h-full object-cover" />}
-                                                <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                                                    <Play size={16} className="text-white fill-current" />
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <h4 className="font-black text-foreground text-sm">{beat.title}</h4>
-                                            </div>
+                <div className="grid gap-4">
+                    {beats.map((beat) => (
+                        <div
+                            key={beat.id}
+                            className="bg-card/30 hover:bg-card dark:hover:bg-white/5 border border-border/50 hover:border-accent/30 rounded-[2rem] p-5 transition-all duration-300 group flex items-center justify-between gap-6"
+                        >
+                            <div className="flex items-center gap-6 flex-1 min-w-0">
+                                <div className="w-20 h-20 rounded-2xl overflow-hidden bg-background shrink-0 relative shadow-sm group-hover:shadow-xl transition-all duration-500">
+                                    {beat.portadabeat_url ? (
+                                        <img src={beat.portadabeat_url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={beat.title} />
+                                    ) : (
+                                        <div className="w-full h-full bg-slate-100 dark:bg-zinc-900 flex items-center justify-center text-muted font-black text-xs italic">
+                                            {beat.title.charAt(0)}
                                         </div>
-                                    </td>
+                                    )}
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-[2px]">
+                                        <Play size={20} className="text-white fill-current" />
+                                    </div>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-3 mb-1">
+                                        <h4 className="font-black text-foreground text-lg tracking-tight truncate">{beat.title}</h4>
+                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${beat.is_public ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                                            {beat.is_public ? 'Público' : 'Privado'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-4 text-muted text-[10px] font-bold uppercase tracking-widest">
+                                        <span className="flex items-center gap-1.5"><div className="w-1 h-1 rounded-full bg-border" /> {beat.genre || 'Género'}</span>
+                                        <span className="flex items-center gap-1.5"><div className="w-1 h-1 rounded-full bg-border" /> {beat.bpm} BPM</span>
+                                        <span className="flex items-center gap-1.5 text-foreground/80 font-black"><div className="w-1 h-1 rounded-full bg-accent" /> ${beat.price_mxn} MXN</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                                    <td className="py-4 pr-4 text-right">
-                                        <div className="flex items-center justify-end gap-3">
-                                            <Link
-                                                href={`/studio/beats/edit/${beat.id}`}
-                                                className="bg-accent text-white px-5 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-foreground hover:text-background transition-all shadow-md flex items-center gap-2"
-                                            >
-                                                <Edit size={12} /> Editar
-                                            </Link>
-                                            <button
-                                                onClick={() => handleDelete(beat.id)}
-                                                className="bg-red-500 text-white px-5 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all shadow-md flex items-center gap-2"
-                                            >
-                                                <Trash2 size={12} /> Eliminar
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            <div className="flex items-center gap-3">
+                                <Link
+                                    href={`/studio/beats/edit/${beat.id}`}
+                                    className="w-12 h-12 bg-background border border-border/50 text-foreground rounded-2xl flex items-center justify-center hover:bg-foreground hover:text-background hover:border-foreground transition-all duration-300 group/btn"
+                                    title="Editar"
+                                >
+                                    <Edit size={18} className="transition-transform group-hover/btn:scale-110" />
+                                </Link>
+                                <button
+                                    onClick={() => handleDelete(beat.id)}
+                                    className="w-12 h-12 bg-background border border-border/50 text-red-500/60 rounded-2xl flex items-center justify-center hover:bg-red-500 hover:text-white hover:border-red-500 transition-all duration-300 group/btn"
+                                    title="Eliminar"
+                                >
+                                    <Trash2 size={18} className="transition-transform group-hover/btn:scale-110" />
+                                </button>
+                                <div className="hidden md:flex ml-4 pl-4 border-l border-border/50 flex-col items-end">
+                                    <span className="text-[14px] font-black text-foreground tracking-tighter">{(beat.play_count || 0)}</span>
+                                    <span className="text-[8px] font-black uppercase tracking-widest text-muted/60">Plays</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             )}
         </div>

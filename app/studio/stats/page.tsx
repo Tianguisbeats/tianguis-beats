@@ -64,53 +64,90 @@ export default function StudioStatsPage() {
     );
 
     return (
-        <div className="bg-card rounded-[2.5rem] p-8 border border-border shadow-sm min-h-[500px]">
-            <div className="flex items-center justify-between mb-8">
+        <div className="space-y-12">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground mb-2">Estadísticas</h1>
-                    <p className="text-muted text-xs font-bold uppercase tracking-widest">Tu impacto en números</p>
+                    <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-3">Tu <span className="text-muted/40">Rendimiento</span></h1>
+                    <div className="flex items-center gap-4">
+                        <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Activity size={12} className="text-accent" />
+                            Datos en Tiempo Real
+                        </p>
+                        <div className="h-3 w-px bg-border" />
+                        <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em]">Sincronizado hoy</p>
+                    </div>
                 </div>
-                <div className="bg-background px-4 py-2 rounded-full border border-border">
-                    <span className="text-[10px] font-black uppercase text-muted">Total Histórico</span>
+                <div className="bg-background px-6 py-3 rounded-2xl border border-border/50">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-muted">Total Histórico</span>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                <div className="bg-blue-500/10 p-6 rounded-[2rem] border border-blue-500/20">
-                    <div className="flex items-center gap-3 mb-4 text-blue-500">
-                        <Play size={20} fill="currentColor" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Total Plays</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Plays Card */}
+                <div className="group relative bg-[#f8fafc] dark:bg-white/5 p-8 rounded-[2.5rem] border border-border/50 hover:border-blue-500/30 transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700" />
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-8 text-blue-500">
+                            <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center">
+                                <Play size={20} fill="currentColor" />
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Total Plays</span>
+                        </div>
+                        <div className="flex items-baseline gap-2 mb-2">
+                            <span className="text-6xl font-black text-foreground tracking-tighter">
+                                {new Intl.NumberFormat('es-MX').format(stats.totalPlays)}
+                            </span>
+                        </div>
+                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Reproducciones acumuladas</p>
                     </div>
-                    <span className="text-4xl font-black text-foreground tracking-tighter block mb-2">
-                        {new Intl.NumberFormat('es-MX').format(stats.totalPlays)}
-                    </span>
-                    <span className="text-[10px] font-bold text-muted uppercase">Reproducciones totales</span>
                 </div>
 
-                <div className="bg-red-500/10 p-6 rounded-[2rem] border border-red-500/20">
-                    <div className="flex items-center gap-3 mb-4 text-red-500">
-                        <Heart size={20} fill="currentColor" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Total Likes</span>
+                {/* Likes Card */}
+                <div className="group relative bg-[#fff7f7] dark:bg-white/5 p-8 rounded-[2.5rem] border border-border/50 hover:border-red-500/30 transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700" />
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-8 text-red-500">
+                            <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center">
+                                <Heart size={20} fill="currentColor" />
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Total Likes</span>
+                        </div>
+                        <div className="flex items-baseline gap-2 mb-2">
+                            <span className="text-6xl font-black text-foreground tracking-tighter">
+                                {new Intl.NumberFormat('es-MX').format(stats.totalLikes)}
+                            </span>
+                        </div>
+                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Apoyo de la comunidad</p>
                     </div>
-                    <span className="text-4xl font-black text-foreground tracking-tighter block mb-2">
-                        {new Intl.NumberFormat('es-MX').format(stats.totalLikes)}
-                    </span>
-                    <span className="text-[10px] font-bold text-muted uppercase">Me gusta recibidos</span>
                 </div>
 
-                <div className="bg-emerald-500/10 p-6 rounded-[2rem] border border-emerald-100/20">
-                    <div className="flex items-center gap-3 mb-4 text-emerald-500">
-                        <Activity size={20} />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Conversión</span>
+                {/* Conversion/Sales Card */}
+                <div className="group relative bg-[#f0fdf4] dark:bg-white/5 p-8 rounded-[2.5rem] border border-border/50 hover:border-emerald-500/30 transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700" />
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-8 text-emerald-600">
+                            <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+                                <Activity size={20} />
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Conversión</span>
+                        </div>
+                        <div className="flex items-baseline gap-2 mb-2 text-emerald-600 dark:text-emerald-500">
+                            <span className="text-6xl font-black tracking-tighter">{stats.conversionRate}<span className="text-2xl ml-1">%</span></span>
+                        </div>
+                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest">{stats.totalSales} Ventas totales</p>
                     </div>
-                    <span className="text-4xl font-black text-foreground tracking-tighter block mb-2">{stats.conversionRate}%</span>
-                    <span className="text-[10px] font-bold text-muted uppercase">{stats.totalSales} Ventas totales</span>
                 </div>
             </div>
 
-            <div className="text-center py-12 bg-background rounded-3xl border-2 border-dashed border-border opacity-50">
-                <BarChart className="w-12 h-12 text-muted/30 mx-auto mb-4" />
-                <p className="text-muted font-bold text-sm">Visualización avanzada próximamente...</p>
+            {/* Bottom visualizer placeholder refined */}
+            <div className="relative p-12 bg-background/50 rounded-[3rem] border-2 border-dashed border-border/60 overflow-hidden text-center">
+                <div className="relative z-10">
+                    <BarChart className="w-16 h-16 text-muted/20 mx-auto mb-6" strokeWidth={1} />
+                    <h3 className="text-lg font-black text-foreground uppercase tracking-tight mb-2">Gráficas Detalladas</h3>
+                    <p className="text-muted text-xs font-bold uppercase tracking-widest max-w-xs mx-auto">
+                        Estamos preparando visualizaciones avanzadas de retención y geolocalización.
+                    </p>
+                </div>
             </div>
         </div>
     );

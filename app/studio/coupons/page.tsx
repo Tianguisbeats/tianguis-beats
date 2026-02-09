@@ -126,72 +126,89 @@ export default function CouponsPage() {
     }
 
     return (
-        <div className="space-y-8">
-            <div className="flex justify-between items-center">
+        <div className="space-y-12">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-foreground tracking-tighter uppercase">Cupones</h1>
-                    <p className="text-muted font-bold text-xs uppercase tracking-widest mt-1">Crea descuentos para tus clientes</p>
+                    <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-3">Cupones <span className="text-muted/40">& Promos</span></h1>
+                    <div className="flex items-center gap-4">
+                        <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Ticket size={12} className="text-accent" />
+                            Estrategia de Ventas
+                        </p>
+                        <div className="h-3 w-px bg-border" />
+                        <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em]">Fidelización Pro</p>
+                    </div>
                 </div>
                 <button
                     onClick={() => { setCurrentCoupon({}); setIsEditing(true); }}
-                    className="flex items-center gap-2 bg-foreground text-background px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg"
+                    className="bg-foreground text-background px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.15em] hover:bg-accent hover:text-white transition-all shadow-xl active:scale-95 flex items-center gap-3 w-fit"
                 >
-                    <Plus size={16} />
-                    Nuevo Cupón
+                    <Plus size={16} /> Nuevo Cupón
                 </button>
             </div>
 
-            {/* Empty State */}
-            {coupons.length === 0 && !isEditing && (
-                <div className="bg-card rounded-[2.5rem] border-2 border-dashed border-border p-12 text-center">
-                    <Ticket className="w-16 h-16 text-muted/30 mx-auto mb-4" />
-                    <h3 className="text-lg font-bold text-foreground mb-2">No tienes cupones activos</h3>
-                    <p className="text-muted text-sm mb-6">Ofrece descuentos limitados para fidelizar a tu audiencia.</p>
+            {/* Coupons List / Empty State */}
+            {coupons.length === 0 && !isEditing ? (
+                <div className="p-20 text-center bg-background/50 rounded-[3rem] border-2 border-dashed border-border/60">
+                    <div className="w-20 h-20 bg-card rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-muted/20 shadow-inner">
+                        <Ticket size={32} strokeWidth={1.5} />
+                    </div>
+                    <h3 className="text-xl font-black text-foreground uppercase tracking-tight mb-2">No hay promociones</h3>
+                    <p className="text-muted text-xs font-bold uppercase tracking-widest max-w-xs mx-auto mb-10 opacity-60 leading-relaxed">
+                        Crea códigos de descuento exclusivos para atraer más clientes y cerrar ventas rápidamente.
+                    </p>
                     <button
                         onClick={() => { setCurrentCoupon({}); setIsEditing(true); }}
-                        className="text-accent font-bold uppercase tracking-widest text-xs hover:underline"
+                        className="text-accent font-black text-[10px] uppercase tracking-[0.3em] hover:underline"
                     >
-                        Crear mi primer cupón
+                        Generar mi primer código
                     </button>
                 </div>
+            ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {coupons.map(coupon => (
+                        <div key={coupon.id} className={`group bg-card/30 hover:bg-card border border-border/40 hover:border-accent/30 rounded-[2.5rem] p-8 transition-all duration-300 flex flex-col h-full ${!coupon.is_active && 'opacity-60 grayscale'}`}>
+                            <div className="flex justify-between items-start mb-10">
+                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${coupon.is_active ? 'bg-green-500/10 text-green-500' : 'bg-background text-muted'}`}>
+                                    <Ticket size={24} />
+                                </div>
+                                <div className="flex gap-2">
+                                    <button onClick={() => toggleStatus(coupon)} title={coupon.is_active ? "Desactivar" : "Activar"} className={`w-10 h-10 border border-border/50 rounded-xl flex items-center justify-center transition-all ${coupon.is_active ? 'bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white' : 'bg-background text-muted hover:text-foreground'}`}>
+                                        {coupon.is_active ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+                                    </button>
+                                    <button onClick={() => handleDelete(coupon.id)} className="w-10 h-10 bg-background border border-border/50 text-red-500/60 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="mb-8">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <h3 className="font-black text-3xl text-foreground tracking-tighter uppercase">{coupon.codigo}</h3>
+                                    <div className="px-3 py-1 bg-green-500 text-white rounded-full text-[10px] font-black tracking-widest">
+                                        -{coupon.porcentaje_descuento}%
+                                    </div>
+                                </div>
+                                <p className="text-muted text-[9px] font-black uppercase tracking-[0.2em]">Descuento directo en el checkout</p>
+                            </div>
+
+                            <div className="mt-auto space-y-3 pt-6 border-t border-border/50">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[9px] font-black text-muted uppercase tracking-[0.2em]">Redenciones</span>
+                                    <span className="text-xs font-black text-foreground tracking-tight">{coupon.usos_actuales} <span className="text-[10px] opacity-40">/ {coupon.usos_maximos || '∞'}</span></span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[9px] font-black text-muted uppercase tracking-[0.2em]">Válido hasta</span>
+                                    <div className="flex items-center gap-1.5 text-xs font-black text-foreground/80 tracking-tight">
+                                        <Calendar size={12} className="text-accent/60" />
+                                        {coupon.fecha_expiracion ? new Date(coupon.fecha_expiracion).toLocaleDateString() : 'Eterno'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             )}
-
-            {/* List */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {coupons.map(coupon => (
-                    <div key={coupon.id} className={`bg-card p-6 rounded-2xl border transition-all group ${coupon.is_active ? 'border-border shadow-sm hover:shadow-md' : 'border-border opacity-60'}`}>
-                        <div className="flex justify-between items-start mb-4">
-                            <div className={`p-3 rounded-xl ${coupon.is_active ? 'bg-green-500/10 text-green-500' : 'bg-background text-muted'}`}>
-                                <Ticket size={20} />
-                            </div>
-                            <div className="flex gap-2">
-                                <button onClick={() => toggleStatus(coupon)} className={`p-2 rounded-lg ${coupon.is_active ? 'text-green-500 hover:bg-green-500/10' : 'text-muted hover:bg-background'}`}>
-                                    {coupon.is_active ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
-                                </button>
-                                <button onClick={() => handleDelete(coupon.id)} className="p-2 hover:bg-background rounded-lg text-muted hover:text-red-500">
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="flex items-baseline gap-2 mb-1">
-                            <h3 className="font-black text-2xl text-foreground tracking-tight">{coupon.codigo}</h3>
-                            <span className="text-sm font-bold text-green-500">-{coupon.porcentaje_descuento}%</span>
-                        </div>
-
-                        <div className="space-y-2 text-xs font-bold text-muted border-t border-border pt-4 mt-4">
-                            <div className="flex items-center justify-between">
-                                <span>Usos:</span>
-                                <span className="text-foreground">{coupon.usos_actuales} / {coupon.usos_maximos || '∞'}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span>Expira:</span>
-                                <span className="text-foreground">{coupon.fecha_expiracion ? new Date(coupon.fecha_expiracion).toLocaleDateString() : 'Nunca'}</span>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
 
             {/* Create/Edit Modal */}
             {isEditing && (

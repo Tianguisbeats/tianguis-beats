@@ -20,52 +20,65 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
     ];
 
     return (
-        <div className="min-h-screen bg-background font-sans text-foreground transition-colors duration-300">
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#050505] font-sans text-foreground transition-all duration-500">
             <Navbar />
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 flex flex-col md:flex-row gap-8">
-                {/* Sidebar */}
-                <aside className="w-full md:w-64 shrink-0">
-                    <div className="bg-card rounded-3xl p-6 shadow-sm border border-border sticky top-24">
-                        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-6 flex items-center gap-2">
-                            <Settings size={14} />
-                            Tianguis Studio
-                        </h2>
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 pt-32 pb-20 flex flex-col lg:flex-row gap-12">
+                {/* Sidebar Navigation */}
+                <aside className="w-full lg:w-72 shrink-0">
+                    <div className="sticky top-32 space-y-10">
+                        <div className="px-4">
+                            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-muted/60 mb-2">Plataforma</h2>
+                            <h1 className="text-2xl font-black uppercase tracking-tighter text-foreground">Tianguis <span className="text-accent">Studio</span></h1>
+                        </div>
 
-                        <nav className="space-y-2">
+                        <nav className="space-y-1">
                             {navItems.map((item) => {
                                 const isActive = pathname === item.href;
                                 return (
                                     <Link
                                         key={item.href}
                                         href={item.href}
-                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${isActive
-                                            ? 'bg-foreground text-background shadow-lg shadow-black/10'
-                                            : 'text-muted hover:bg-accent-soft hover:text-foreground'
+                                        className={`flex items-center gap-4 px-6 py-4 rounded-[1.25rem] transition-all duration-300 font-bold text-[13px] uppercase tracking-wider group ${isActive
+                                            ? 'bg-foreground text-background shadow-2xl shadow-black/10 scale-[1.02]'
+                                            : 'text-muted hover:bg-card hover:text-foreground hover:translate-x-1'
                                             }`}
                                     >
-                                        {item.icon}
+                                        <span className={`transition-transform duration-500 ${isActive ? 'rotate-0' : 'group-hover:scale-120'}`}>
+                                            {item.icon}
+                                        </span>
                                         {item.name}
                                     </Link>
                                 );
                             })}
+                        </nav>
 
-                            <div className="h-px bg-border my-4"></div>
-
+                        <div className="px-6 pt-6 border-t border-border/50">
                             <Link
                                 href="/"
-                                className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm text-muted hover:bg-accent-soft hover:text-foreground"
+                                className="flex items-center gap-4 py-4 text-muted hover:text-foreground transition-all font-black text-[11px] uppercase tracking-[0.2em] group"
                             >
-                                <Home size={18} />
+                                <div className="w-8 h-8 rounded-xl bg-card flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all">
+                                    <Home size={16} />
+                                </div>
                                 Volver al Inicio
                             </Link>
-                        </nav>
+                        </div>
+
+                        {/* Producer Tier Quick Status (Optional Visual) */}
+                        <div className="p-6 rounded-[2rem] bg-gradient-to-br from-slate-900 to-black text-white relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-20 h-20 bg-accent/20 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700" />
+                            <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-1">Membresía</p>
+                            <h4 className="text-sm font-black uppercase tracking-tight">Pro Vitaminado</h4>
+                        </div>
                     </div>
                 </aside>
 
-                {/* Main Content */}
-                <main className="flex-1">
-                    {children}
+                {/* Main Experience Area */}
+                <main className="flex-1 min-h-[70vh]">
+                    <div className="bg-white dark:bg-[#0a0a0a] rounded-[3.5rem] p-10 lg:p-14 border border-border/40 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.05)] h-full">
+                        {children}
+                    </div>
                 </main>
             </div>
         </div>
