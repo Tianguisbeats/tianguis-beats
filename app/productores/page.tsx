@@ -30,7 +30,7 @@ function ProducersContent() {
                 // Query más robusta: Filtramos directamente en el servidor los que tienen username
                 const { data, error } = await supabase
                     .from('profiles')
-                    .select('id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, created_at')
+                    .select('id, username, artistic_name, full_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, fecha_de_creacion')
                     .not('username', 'is', null) // Asegurar que tengan al menos username
                     .order('subscription_tier', { ascending: false })
                     .limit(200);
@@ -50,7 +50,7 @@ function ProducersContent() {
                     const tierB = tier_order[(b.subscription_tier || 'free').toLowerCase()] ?? 3;
 
                     if (tierA !== tierB) return tierA - tierB;
-                    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+                    return new Date(b.fecha_de_creacion || 0).getTime() - new Date(a.fecha_de_creacion || 0).getTime();
                 });
 
                 setArtists(sorted);
