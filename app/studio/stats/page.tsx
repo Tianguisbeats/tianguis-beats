@@ -67,7 +67,7 @@ export default function StudioStatsPage() {
         <div className="space-y-12">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-3">Tu <span className="text-muted/40">Rendimiento</span></h1>
+                    <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-3">Tu <span className="text-accent">Rendimiento</span></h1>
                     <div className="flex items-center gap-4">
                         <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
                             <Activity size={12} className="text-accent" />

@@ -129,7 +129,7 @@ export default function CouponsPage() {
         <div className="space-y-12">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-3">Cupones <span className="text-muted/40">& Promos</span></h1>
+                    <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-3">Cupones <span className="text-accent">& Promos</span></h1>
                     <div className="flex items-center gap-4">
                         <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
                             <Ticket size={12} className="text-accent" />
@@ -165,9 +165,10 @@ export default function CouponsPage() {
                     </button>
                 </div>
             ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
                     {coupons.map(coupon => (
-                        <div key={coupon.id} className={`group bg-card/30 hover:bg-card border border-border/40 hover:border-accent/30 rounded-[2.5rem] p-8 transition-all duration-300 flex flex-col h-full ${!coupon.is_active && 'opacity-60 grayscale'}`}>
+                        <div key={coupon.id} className={`group bg-slate-900/60 hover:bg-[#0c0c0f] border border-white/5 hover:border-accent/30 rounded-[3rem] p-10 transition-all duration-500 flex flex-col h-full shadow-2xl relative overflow-hidden ${!coupon.is_active && 'opacity-60 grayscale'}`}>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-[50px] rounded-full pointer-events-none" />
                             <div className="flex justify-between items-start mb-10">
                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${coupon.is_active ? 'bg-green-500/10 text-green-500' : 'bg-background text-muted'}`}>
                                     <Ticket size={24} />
@@ -182,14 +183,14 @@ export default function CouponsPage() {
                                 </div>
                             </div>
 
-                            <div className="mb-8">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <h3 className="font-black text-3xl text-foreground tracking-tighter uppercase">{coupon.codigo}</h3>
-                                    <div className="px-3 py-1 bg-green-500 text-white rounded-full text-[10px] font-black tracking-widest">
-                                        -{coupon.porcentaje_descuento}%
+                            <div className="mb-10 relative z-10">
+                                <div className="flex flex-wrap items-center gap-4 mb-3">
+                                    <h3 className="font-black text-4xl text-white tracking-widest uppercase">{coupon.codigo}</h3>
+                                    <div className="px-4 py-2 bg-accent text-white rounded-2xl text-[12px] font-black tracking-widest shadow-lg shadow-accent/20">
+                                        -{coupon.porcentaje_descuento}% OFF
                                     </div>
                                 </div>
-                                <p className="text-muted text-[9px] font-black uppercase tracking-[0.2em]">Descuento directo en el checkout</p>
+                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">Descuento directo en el checkout</p>
                             </div>
 
                             <div className="mt-auto space-y-3 pt-6 border-t border-border/50">

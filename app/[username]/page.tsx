@@ -896,13 +896,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     ) : (
                                         <div className="grid md:grid-cols-2 gap-4">
                                             {services.map(service => (
-                                                <div key={service.id} className={`p-6 rounded-[2rem] border shadow-sm hover:shadow-md transition-all group ${profile.tema_perfil === 'dark' ? 'bg-slate-900/40 border-white/10 backdrop-blur-md' :
+                                                <div key={service.id} className={`p-8 rounded-[2.5rem] border shadow-sm hover:shadow-2xl transition-all group relative overflow-hidden ${profile.tema_perfil === 'dark' ? 'bg-slate-900/40 border-white/10 backdrop-blur-md' :
                                                     profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-green-900/20' :
                                                         profile.tema_perfil === 'gold' ? 'bg-slate-900/80 border-amber-900/50' :
                                                             'bg-white border-slate-100'
                                                     }`}>
                                                     <div className="flex justify-between items-start mb-4">
-                                                        <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                                        <span className="bg-accent/10 text-accent px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest">
                                                             {service.tipo_servicio}
                                                         </span>
                                                         <span className={`text-xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>${service.precio}</span>
@@ -910,12 +910,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     <h3 className={`font-bold text-lg mb-2 group-hover:text-indigo-600 transition-colors ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{service.titulo}</h3>
                                                     <p className={`text-xs mb-6 line-clamp-3 leading-relaxed ${profile.tema_perfil === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>{service.descripcion}</p>
 
-                                                    <div className={`flex items-center justify-between pt-4 border-t ${profile.tema_perfil === 'light' ? 'border-slate-50' : 'border-white/10'}`}>
-                                                        <div className="flex items-center gap-1 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-                                                            <Clock size={12} />
+                                                    <div className={`flex items-center justify-between pt-6 border-t ${profile.tema_perfil === 'light' ? 'border-slate-50' : 'border-white/5'}`}>
+                                                        <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-widest">
+                                                            <Clock size={14} className="text-accent/60" />
                                                             {service.tiempo_entrega_dias} Días hábiles
                                                         </div>
-                                                        <button className="bg-slate-900 text-white px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">
+                                                        <button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-accent dark:hover:bg-accent hover:text-white dark:hover:text-white transition-all shadow-xl active:scale-95">
                                                             Contratar
                                                         </button>
                                                     </div>
@@ -1065,15 +1065,17 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <>
                                             {/* Logic for Visitors OR Premium Owner */}
                                             {soundKits.length === 0 ? (
-                                                <div className="bg-slate-50/50 rounded-2xl p-12 text-center border border-dashed border-slate-200">
-                                                    <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                                                    <h3 className="text-lg font-bold text-slate-900 mb-2">Aún no hay Sound Kits disponibles</h3>
+                                                <div className="bg-white/5 dark:bg-slate-900/20 rounded-[3rem] p-24 text-center border-2 border-dashed border-slate-200/50 dark:border-white/5 backdrop-blur-sm">
+                                                    <div className="w-24 h-24 bg-accent/10 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 text-accent animate-pulse">
+                                                        <Package size={40} />
+                                                    </div>
+                                                    <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-3">Aún no hay Sound Kits disponibles</h3>
                                                     {isOwner ? (
-                                                        <Link href="/studio/services" className="text-blue-600 font-bold uppercase tracking-widest text-xs hover:underline mt-2 inline-block">
+                                                        <Link href="/studio/services" className="bg-accent text-white px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all inline-block shadow-xl shadow-accent/20">
                                                             Subir mi primer Kit
                                                         </Link>
                                                     ) : (
-                                                        <p className="text-slate-400 text-sm">Este productor no ha subido librerías aún.</p>
+                                                        <p className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Este productor no ha subido librerías aún</p>
                                                     )}
                                                 </div>
                                             ) : (
