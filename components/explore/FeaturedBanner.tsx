@@ -49,7 +49,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                 {/* Dynamic Background */}
                 <div className="absolute inset-0 overflow-hidden">
                     <img
-                        src={isBeat ? (data as Beat).portadabeat_url : (data as any).foto_perfil || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop"}
+                        src={(isBeat ? (data as Beat).portadabeat_url : (data as any).foto_perfil) || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop"}
                         className="w-full h-full object-cover opacity-30 blur-2xl scale-125 transition-all duration-1000 ease-in-out"
                         alt="Background Glow"
                     />
@@ -65,7 +65,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                         <div className="relative shrink-0 perspective-1000 group/art">
                             <div className="w-48 h-48 md:w-80 md:h-80 rounded-[3rem] overflow-hidden rotate-3 group-hover/art:rotate-0 transition-transform duration-700 shadow-2xl border border-white/10 relative">
                                 <img
-                                    src={isBeat ? (data as Beat).portadabeat_url : (data as any).foto_perfil || `https://ui-avatars.com/api/?name=${(data as any).artistic_name || (data as any).username}&background=random`}
+                                    src={(isBeat ? (data as Beat).portadabeat_url : (data as any).foto_perfil) || `https://ui-avatars.com/api/?name=${(data as any).artistic_name || (data as any).username}&background=random`}
                                     className="w-full h-full object-cover"
                                     alt="Artwork"
                                 />
@@ -106,7 +106,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                             <div className="flex items-center gap-6 mb-10 text-slate-400">
                                 {isBeat ? (
                                     <Link href={`/${(data as Beat).producer_username}`} className="flex items-center gap-3 group/prod">
-                                        <img src={(data as Beat).producer_foto_perfil} className="w-8 h-8 rounded-full border border-white/10 group-hover/prod:border-accent transition-colors" />
+                                        <img src={(data as Beat).producer_foto_perfil || ''} className="w-8 h-8 rounded-full border border-white/10 group-hover/prod:border-accent transition-colors" />
                                         <span className="text-sm font-bold uppercase tracking-widest group-hover/prod:text-white transition-colors">{(data as Beat).producer_artistic_name}</span>
                                     </Link>
                                 ) : (
