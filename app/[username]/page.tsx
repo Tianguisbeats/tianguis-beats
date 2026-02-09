@@ -903,8 +903,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             <Briefcase size={20} />
                                         </div>
                                         <div>
-                                            <h2 className={`text-3xl font-black uppercase tracking-tighter ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>Servicios Profesionales</h2>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Contrata talento experto</p>
+                                            <h2 className={`text-3xl font-black uppercase tracking-tighter ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white drop-shadow-sm'}`}>Servicios Profesionales</h2>
+                                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Contrata talento experto para tu próximo hit</p>
                                         </div>
                                     </div>
 
@@ -928,11 +928,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     ) : (
                                         <div className="grid md:grid-cols-2 gap-4">
                                             {services.map(service => (
-                                                <div key={service.id} className={`p-8 rounded-[2.5rem] border shadow-sm hover:shadow-2xl transition-all group relative overflow-hidden ${profile.tema_perfil === 'dark' ? 'bg-slate-900/40 border-white/10 backdrop-blur-md' :
-                                                    profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-green-900/20' :
-                                                        profile.tema_perfil === 'gold' ? 'bg-slate-900/80 border-amber-900/50' :
-                                                            'bg-white border-slate-100'
+                                                <div key={service.id} className={`p-8 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md ${profile.tema_perfil === 'dark' ? 'bg-[#08080a]/60 border-white/10 hover:border-accent/40 shadow-2xl shadow-black/50' :
+                                                    profile.tema_perfil === 'neon' ? 'bg-black/80 border-green-900 shadow-green-900/20' :
+                                                        profile.tema_perfil === 'gold' ? 'bg-[#1a1610]/80 border-amber-900/50' :
+                                                            'bg-white border-slate-100 hover:shadow-xl'
                                                     }`}>
+                                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     <div className="flex justify-between items-start mb-4">
                                                         <span className="bg-accent/10 text-accent px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest">
                                                             {service.tipo_servicio}
@@ -1071,8 +1072,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             <Package size={20} />
                                         </div>
                                         <div>
-                                            <h2 className={`text-3xl font-black uppercase tracking-tighter ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>Sound Kits</h2>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Librerías de sonidos oficiales</p>
+                                            <h2 className={`text-3xl font-black uppercase tracking-tighter ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white drop-shadow-sm'}`}>Sound Kits</h2>
+                                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Librerías de sonidos oficiales y presets</p>
                                         </div>
                                     </div>
 
@@ -1113,10 +1114,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             ) : (
                                                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                                     {soundKits.map(kit => (
-                                                        <div key={kit.id} className={`p-6 rounded-[2rem] border shadow-sm hover:shadow-md transition-all group ${profile.tema_perfil === 'dark' ? 'bg-slate-900/40 border-white/10 backdrop-blur-md' :
-                                                            profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-green-900/20' :
-                                                                profile.tema_perfil === 'gold' ? 'bg-slate-900/80 border-amber-900/50' :
-                                                                    'bg-white border-slate-100'
+                                                        <div key={kit.id} className={`p-6 rounded-[2rem] border transition-all group backdrop-blur-md ${profile.tema_perfil === 'dark' ? 'bg-[#08080a]/60 border-white/10 hover:border-amber-500/40 shadow-2xl shadow-black/50' :
+                                                            profile.tema_perfil === 'neon' ? 'bg-black/80 border-green-900 shadow-green-900/20' :
+                                                                profile.tema_perfil === 'gold' ? 'bg-[#1a1610]/80 border-amber-900/50' :
+                                                                    'bg-white border-slate-100 hover:shadow-xl'
                                                             }`}>
                                                             <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden relative">
                                                                 {kit.cover_url ? (

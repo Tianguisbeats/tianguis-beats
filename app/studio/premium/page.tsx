@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Crown, Video, Loader2, Check, MessageSquare, Mail, ShieldCheck, Zap } from 'lucide-react';
+import { Crown, Video, Loader2, Check, MessageSquare, Mail, ShieldCheck, Zap, Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
@@ -233,11 +233,16 @@ export default function PremiumHubPage() {
                                 <ShieldCheck className="text-accent" /> Identidad Verificada
                             </h3>
                             <p className="text-slate-400 text-xs font-medium leading-relaxed mb-6">
-                                Como usuario Premium, tu perfil muestra automáticamente el sello de "Productor Verificado", aumentando la confianza de los compradores.
+                                Los usuarios Premium son elegibles para obtener el sello de "Productor Verificado". Este proceso requiere la validación de tu identidad y catálogo para garantizar la seguridad de la comunidad.
                             </p>
-                            <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/10 inline-flex items-center gap-2">
-                                <Check size={14} className="text-accent" />
-                                <span className="text-[10px] text-white font-black uppercase tracking-widest">Sello Activo</span>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <button className="bg-accent text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-accent/20">
+                                    Solicitar Verificación
+                                </button>
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/10 inline-flex items-center gap-2">
+                                    <Clock size={14} className="text-slate-500" />
+                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-nowrap">Pendiente de Solicitud</span>
+                                </div>
                             </div>
                         </div>
                     </div>
