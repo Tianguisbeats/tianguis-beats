@@ -90,7 +90,7 @@ export default function BeatCard({ beat }: BeatCardProps) {
             {/* Content Section */}
             <div className="px-8 pt-0 pb-8 flex flex-col flex-1">
                 <Link href={`/beats/${beat.id}`} className="block mt-4 mb-5">
-                    <h3 className="font-black text-[#0F172A] text-2xl tracking-tighter leading-none truncate hover:text-blue-600 transition-colors lowercase">
+                    <h3 className="font-black text-[#0F172A] text-3xl tracking-tighter leading-none truncate hover:text-blue-600 transition-colors lowercase">
                         {beat.title}
                     </h3>
                 </Link>

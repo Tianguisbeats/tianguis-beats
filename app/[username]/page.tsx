@@ -6,7 +6,7 @@ import {
     Check, Instagram, Youtube, Twitter,
     Share2, MoreHorizontal, Calendar, MapPin,
     Music, Play, Users, Crown, Settings, Camera,
-    Edit3, CheckCircle2, Copy, Trash2, Layout,
+    Edit3, CheckCircle2, Copy, Trash2, Layout, PlayCircle,
     BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save, ChevronUp, ChevronDown, List, Briefcase, Clock, DollarSign, Package
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -471,9 +471,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             <Navbar />
 
             <main className="flex-1 pb-20">
-                {/* 1. Portada */}
+                {/* 1. Portada Refinada */}
                 <div
-                    className={`relative h-56 md:h-96 bg-slate-100 group overflow-hidden ${isAdjustingCover ? 'cursor-ns-resize ring-4 ring-blue-500 ring-inset z-50' : ''}`}
+                    className={`relative h-[40vh] md:h-[50vh] bg-slate-100 group overflow-hidden ${isAdjustingCover ? 'cursor-ns-resize ring-4 ring-accent ring-inset z-50' : ''}`}
                     onMouseDown={(e) => {
                         if (!isAdjustingCover) return;
                         (e.currentTarget as any)._isDragging = true;
@@ -483,173 +483,158 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     onMouseMove={(e) => {
                         if (!(e.currentTarget as any)._isDragging) return;
                         const delta = e.clientY - (e.currentTarget as any)._startY;
-                        // Sensitivity: 0.2% per pixel
                         let newOffset = (e.currentTarget as any)._startOffset - (delta * 0.2);
                         newOffset = Math.max(0, Math.min(100, newOffset));
                         setTempOffset(newOffset);
                     }}
-                    onMouseUp={(e) => {
-                        (e.currentTarget as any)._isDragging = false;
-                    }}
-                    onMouseLeave={(e) => {
-                        (e.currentTarget as any)._isDragging = false;
-                    }}
+                    onMouseUp={(e) => { (e.currentTarget as any)._isDragging = false; }}
+                    onMouseLeave={(e) => { (e.currentTarget as any)._isDragging = false; }}
                 >
                     {profile.portada_perfil ? (
                         <img
                             src={profile.portada_perfil}
-                            className="w-full h-full object-cover pointer-events-none select-none"
+                            className="w-full h-full object-cover pointer-events-none select-none transition-opacity duration-700"
                             style={{ objectPosition: `center ${isAdjustingCover ? tempOffset : (profile.ajuste_portada ?? 50)}%` }}
                             alt="Cover"
                         />
                     ) : (
-                        <div className="w-full h-full bg-gradient-to-r from-slate-200 to-slate-100" />
+                        <div className="w-full h-full bg-gradient-to-br from-slate-200 via-slate-100 to-white" />
                     )}
 
+                    {/* Overlay Gradiente para legibilidad */}
+                    <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-background via-background/40 to-transparent" />
+
                     {isOwner && !isAdjustingCover && (
-                        <div className="absolute top-4 right-4 flex gap-2">
+                        <div className="absolute top-6 right-6 flex gap-3 z-20">
                             <button
                                 onClick={() => setIsAdjustingCover(true)}
-                                className="bg-black/50 hover:bg-black/70 text-white px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm transition-all flex items-center gap-2"
+                                className="bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest backdrop-blur-md transition-all flex items-center gap-2 border border-white/10"
                             >
-                                <Edit3 size={14} /> Ajustar
+                                <Edit3 size={14} /> Posición
                             </button>
-                            <label className="bg-white/90 hover:bg-white text-slate-900 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest cursor-pointer shadow-xl transition-all flex items-center gap-2 border border-slate-200">
-                                <Camera size={14} className="text-blue-600" /> Cambiar Portada
+                            <label className="bg-white text-slate-900 px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer shadow-2xl transition-all flex items-center gap-2 hover:scale-105 active:scale-95">
+                                <Camera size={14} className="text-accent" /> Portada
                                 <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUploadMedia('cover', e)} />
                             </label>
                         </div>
                     )}
 
                     {isAdjustingCover && (
-                        <div className="absolute inset-x-0 bottom-8 flex justify-center z-50 animate-in slide-in-from-bottom-4 duration-500">
-                            <div className="bg-slate-900/90 backdrop-blur-xl px-2 py-2 rounded-[2rem] shadow-2xl border border-white/10 flex items-center gap-2">
+                        <div className="absolute inset-x-0 bottom-12 flex justify-center z-50 animate-in slide-in-from-bottom-4 duration-500 px-4">
+                            <div className="bg-slate-900/90 backdrop-blur-2xl px-3 py-3 rounded-3xl shadow-2xl border border-white/10 flex flex-wrap items-center gap-2">
                                 <div className="px-6 py-3">
-                                    <p className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
-                                        <Layout size={14} className="text-blue-400" /> Arrastra para ajustar
+                                    <p className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-xl bg-accent/20 flex items-center justify-center">
+                                            <Layout size={14} className="text-accent" />
+                                        </div>
+                                        Arrastra para ajustar posición
                                     </p>
                                 </div>
-                                <div className="h-8 w-px bg-white/10 mx-2" />
-                                <button
-                                    onClick={() => {
-                                        setIsAdjustingCover(false);
-                                        setTempOffset(profile.ajuste_portada ?? 50);
-                                    }}
-                                    className="px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all"
-                                >
-                                    Cancelar
-                                </button>
-                                <button
-                                    onClick={handleSaveAdjustment}
-                                    disabled={saving}
-                                    className="px-8 py-3 bg-blue-600 text-white rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-blue-500 transition-all shadow-xl shadow-blue-600/20 flex items-center gap-2"
-                                >
-                                    {saving ? <Loader2 size={14} className="animate-spin" /> : 'Guardar Posición'}
-                                </button>
+                                <div className="hidden sm:block h-8 w-px bg-white/10 mx-2" />
+                                <div className="flex gap-2 w-full sm:w-auto">
+                                    <button
+                                        onClick={() => {
+                                            setIsAdjustingCover(false);
+                                            setTempOffset(profile.ajuste_portada ?? 50);
+                                        }}
+                                        className="flex-1 sm:flex-none px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={handleSaveAdjustment}
+                                        disabled={saving}
+                                        className="flex-1 sm:flex-none px-8 py-4 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 flex items-center justify-center gap-2"
+                                    >
+                                        {saving ? <Loader2 size={14} className="animate-spin" /> : 'Guardar Cambios'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}
                 </div>
 
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="relative -mt-8 mb-8 flex flex-col md:flex-row items-end gap-6">
-
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    {/* Header Info Vitaminado */}
+                    <div className="flex flex-col md:flex-row items-center md:items-end gap-8 -mt-24 md:-mt-32 mb-16">
                         {/* Avatar */}
-                        <div className="relative group shrink-0 mx-auto md:mx-0">
-                            <div className={`w-40 h-40 rounded-full border-4 shadow-2xl overflow-hidden transition-all duration-500 ${profile.subscription_tier === 'premium'
-                                ? 'border-blue-600 shadow-blue-500/30'
+                        <div className="relative group shrink-0">
+                            <div className={`w-48 h-48 md:w-56 md:h-56 rounded-[3rem] border-[6px] shadow-2xl overflow-hidden transition-all duration-700 bg-background ${profile.subscription_tier === 'premium'
+                                ? 'border-blue-500/50'
                                 : profile.subscription_tier === 'pro'
-                                    ? 'border-amber-400 shadow-amber-400/30'
-                                    : 'border-white shadow-lg'
+                                    ? 'border-amber-400/50'
+                                    : 'border-white'
                                 }`}>
                                 {profile.foto_perfil ? (
-                                    <img src={profile.foto_perfil} className="w-full h-full object-cover" alt="Avatar" />
+                                    <img src={profile.foto_perfil} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Avatar" />
                                 ) : (
-                                    <div className={`w-full h-full flex items-center justify-center ${profile.tema_perfil === 'neon' ? 'bg-black text-green-500' : profile.tema_perfil === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-300'}`}><Users size={48} /></div>
+                                    <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-300">
+                                        <Users size={64} />
+                                    </div>
                                 )}
                             </div>
                             {isOwner && (
-                                <label className="absolute bottom-2 right-2 w-8 h-8 bg-slate-900 text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors border-2 border-white shadow-sm">
-                                    <Camera size={14} />
+                                <label className="absolute -bottom-2 -right-2 w-12 h-12 bg-white text-slate-900 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-accent hover:text-white transition-all border-4 border-background shadow-xl hover:scale-110 active:scale-95">
+                                    <Camera size={20} />
                                     <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUploadMedia('avatar', e)} />
                                 </label>
                             )}
                         </div>
 
                         {/* Info Header */}
-                        <div className="flex-1 text-center md:text-left pb-4">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                <div>
-                                    <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-3 mb-3 text-center md:text-left pt-12">
-                                        <h1 className={`text-5xl md:text-7xl lg:text-9xl font-black uppercase tracking-tighter leading-[0.8] mb-4 text-white drop-shadow-2xl`}>
+                        <div className="flex-1 text-center md:text-left">
+                            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 w-full">
+                                <div className="space-y-4">
+                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                                        <h1 className="text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.85] text-foreground drop-shadow-sm">
                                             {profile.artistic_name || profile.username}
                                         </h1>
-                                        {profile.is_verified && (
-                                            <div title="Verificado" className="self-center md:self-end md:mb-2 translate-y-[-2px]">
-                                                <img src="/verified-badge.png" alt="Verificado" className="w-5 h-5 object-contain" />
-                                            </div>
-                                        )}
-                                        {profile.is_founder && (
-                                            <div title="Founder" className="text-[#FDE047] self-center md:self-end md:mb-2 ml-[-4px]">
-                                                <Crown size={22} fill="currentColor" />
-                                            </div>
-                                        )}
+                                        <div className="flex items-center gap-2 translate-y-2 md:translate-y-4">
+                                            {profile.is_verified && (
+                                                <img src="/verified-badge.png" alt="Verificado" className="w-8 h-8 object-contain hover:scale-110 transition-transform cursor-help" title="Verificado" />
+                                            )}
+                                            {profile.is_founder && (
+                                                <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-amber-400 shadow-xl border border-white/10 hover:rotate-12 transition-transform cursor-help" title="Founder">
+                                                    <Crown size={22} fill="currentColor" />
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="flex items-center justify-center md:justify-start gap-2 mt-1">
-                                        <p className={`font-bold uppercase tracking-widest text-[10px] ${profile.tema_perfil === 'light' ? 'text-slate-400' : 'text-slate-500'}`}>
-                                            @{profile.username}
-                                        </p>
-                                        <span className="text-slate-300">•</span>
+
+                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-[11px] font-black uppercase tracking-[0.2em] text-muted">
+                                        <span className="text-accent underline decoration-2 underline-offset-4">@{profile.username}</span>
+                                        <span className="opacity-30">•</span>
                                         {isEditing ? (
-                                            <div className="relative group/country">
-                                                <select
-                                                    value={editCountry}
-                                                    onChange={(e) => setEditCountry(e.target.value)}
-                                                    className="bg-slate-50 rounded-lg px-2 py-1 text-[10px] font-black uppercase tracking-widest border border-slate-200 focus:border-blue-500 outline-none appearance-none pr-6 text-slate-600"
-                                                >
-                                                    <option value="">País</option>
-                                                    {COUNTRIES.map(c => (
-                                                        <option key={c} value={c}>{c}</option>
-                                                    ))}
-                                                </select>
-                                                <Edit3 size={10} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                            </div>
+                                            <select
+                                                value={editCountry}
+                                                onChange={(e) => setEditCountry(e.target.value)}
+                                                className="bg-accent/5 rounded-lg px-2 py-1 text-accent outline-none border border-accent/20"
+                                            >
+                                                <option value="">País</option>
+                                                {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                            </select>
                                         ) : (
-                                            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] flex items-center gap-1">
-                                                {profile.country || "Selecciona tu país o nacionalidad"}
-                                            </p>
+                                            <span className="flex items-center gap-1.5"><MapPin size={12} className="text-accent" /> {profile.country || "Planeta Tierra"}</span>
                                         )}
-                                        <span className="text-slate-300">•</span>
-                                        <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
-                                            Miembro desde {profile.fecha_de_creacion ? new Date(profile.fecha_de_creacion).getFullYear() : (new Date().getFullYear())}
-                                        </p>
+                                        <span className="opacity-30">•</span>
+                                        <span className="flex items-center gap-1.5"><Calendar size={12} /> {profile.fecha_de_creacion ? new Date(profile.fecha_de_creacion).getFullYear() : '2025'}</span>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-center gap-3">
+                                <div className="flex items-center justify-center gap-4">
                                     {isOwner ? (
                                         <button
-                                            onClick={() => {
-                                                if (isEditing) {
-                                                    if (hasChanges()) {
-                                                        handleUpdateProfile();
-                                                    } else {
-                                                        setIsEditing(false);
-                                                    }
-                                                } else {
-                                                    setIsEditing(true);
-                                                }
-                                            }}
-                                            className={`px-8 py-2.5 rounded-full border-2 font-black text-[10px] uppercase tracking-widest transition-all shadow-sm ${isEditing ? 'bg-foreground text-background border-foreground shadow-black/20' : 'bg-background text-foreground border-border hover:border-accent hover:shadow-md'}`}
+                                            onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}
+                                            className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center gap-3 ${isEditing ? 'bg-foreground text-background' : 'bg-white text-foreground border border-slate-100 hover:shadow-2xl hover:-translate-y-1'}`}
                                         >
-                                            {isEditing ? (hasChanges() ? 'Guardar Cambios' : 'Aceptar') : 'Editar Perfil'}
+                                            {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Personalizar</>}
                                         </button>
                                     ) : (
                                         <button
                                             onClick={handleFollowToggle}
-                                            className={`px-8 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 ${isFollowing ? 'bg-white border-2 border-slate-200 text-slate-900' : 'bg-accent text-white hover:bg-accent/90'}`}
+                                            className={`h-14 px-12 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center gap-3 active:scale-95 shadow-xl ${isFollowing ? 'bg-white text-slate-900 border border-slate-100' : 'bg-accent text-white hover:bg-accent/90 hover:shadow-accent/30'}`}
                                         >
-                                            {isFollowing ? <><Check size={14} /> Siguiendo</> : <><UserPlus size={14} /> Seguir</>}
+                                            {isFollowing ? <><UserCheck size={18} /> Siguiendo</> : <><UserPlus size={18} /> Seguir</>}
                                         </button>
                                     )}
                                 </div>
@@ -658,329 +643,222 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     </div>
 
                     <div className="grid lg:grid-cols-12 gap-12">
-                        {/* Sidebar */}
+                        {/* Sidebar Vitaminado */}
                         <div className="lg:col-span-4 space-y-8">
-
-                            {/* Stats */}
-                            <div className={`flex items-center justify-around rounded-3xl p-6 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
-                                profile.tema_perfil === 'neon' ? 'bg-black border-green-900 shadow-[0_0_20px_rgba(74,222,128,0.05)]' :
-                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/50 shadow-xl' :
-                                        'bg-card border-border shadow-soft'
-                                }`}>
-                                <div className="text-center">
-                                    <span className={`block text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-foreground' : 'text-white'}`}>{followersCount}</span>
-                                    <span className="text-[10px] font-bold text-muted uppercase tracking-widest">Seguidores</span>
-                                </div>
-                                <div className="h-8 w-px bg-border"></div>
-                                <div className="text-center">
-                                    <span className={`block text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-foreground' : 'text-white'}`}>{beats.length}</span>
-                                    <span className="text-[10px] font-bold text-muted uppercase tracking-widest">Beats</span>
-                                </div>
-                                <div className="h-8 w-px bg-border"></div>
-                                <div className="text-center">
-                                    <span className={`block text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-foreground' : 'text-white'}`}>{followingCount}</span>
-                                    <span className="text-[10px] font-bold text-muted uppercase tracking-widest">Seguidos</span>
-                                </div>
+                            {/* Estadísticas Premium */}
+                            <div className="grid grid-cols-3 gap-3">
+                                {[
+                                    { label: 'Seguidores', value: followersCount, icon: Users, color: 'text-blue-500' },
+                                    { label: 'Beats', value: beats.length, icon: Music, color: 'text-accent' },
+                                    { label: 'Siguiendo', value: followingCount, icon: UserPlus, color: 'text-emerald-500' }
+                                ].map((stat, i) => (
+                                    <div key={i} className="bg-white border border-slate-100 rounded-[2rem] p-5 text-center shadow-soft hover:shadow-xl hover:-translate-y-1 transition-all group">
+                                        <stat.icon size={16} className={`${stat.color} mx-auto mb-2 opacity-60 group-hover:opacity-100 transition-opacity`} />
+                                        <span className="block text-2xl font-black tracking-tighter">{stat.value}</span>
+                                        <span className="text-[9px] font-black text-muted uppercase tracking-widest">{stat.label}</span>
+                                    </div>
+                                ))}
                             </div>
 
-                            {/* Status Sidebar */}
-                            <div className={`rounded-[2.5rem] p-8 border ${profile.tema_perfil === 'dark' ? 'bg-slate-800 border-slate-700' :
-                                profile.tema_perfil === 'neon' ? 'bg-zinc-900 border-zinc-800' :
-                                    profile.tema_perfil === 'gold' ? 'bg-slate-800 border-amber-900/30' :
-                                        'bg-card border-border shadow-soft'
-                                }`}>
-                                <h3 className={`text-[11px] font-black uppercase tracking-[0.2em] mb-8 font-outfit ${profile.tema_perfil === 'dark' ? 'text-slate-400' :
-                                    profile.tema_perfil === 'neon' ? 'text-green-600' :
-                                        profile.tema_perfil === 'gold' ? 'text-amber-500' :
-                                            'text-muted'
-                                    }`}>Estatus Tianguis</h3>
-                                <div className="space-y-6">
-                                    <div className="flex items-center justify-between">
-                                        <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Plan</span>
-                                        <span className={`text-xs font-black uppercase px-3 py-1.5 rounded-xl ${profile.subscription_tier === 'premium' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : profile.subscription_tier === 'pro' ? 'bg-amber-400 text-slate-900 border border-amber-500/20' : 'bg-slate-200 text-slate-600'}`}>{profile.subscription_tier}</span>
+                            {/* Estatus Tianguis Premium */}
+                            <div className="bg-slate-900 rounded-[3rem] p-10 text-white relative overflow-hidden shadow-2xl">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-accent/20 blur-[60px] rounded-full pointer-events-none" />
+                                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] mb-10 text-white/40 flex items-center gap-3">
+                                    <ShieldCheck size={14} className="text-accent" /> Estatus Tianguis
+                                </h3>
+                                <div className="space-y-8">
+                                    <div className="flex items-center justify-between group">
+                                        <span className="text-sm font-bold text-white/60">Suscripción</span>
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border transition-all ${profile.subscription_tier === 'premium' ? 'bg-blue-600 border-blue-400 text-white shadow-lg shadow-blue-500/20' : profile.subscription_tier === 'pro' ? 'bg-amber-400 border-amber-300 text-slate-900' : 'bg-white/5 border-white/10 text-white/60'}`}>
+                                            {profile.subscription_tier}
+                                        </span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Verificación</span>
+                                        <span className="text-sm font-bold text-white/60">Identidad</span>
                                         {profile.is_verified ? (
-                                            <span className="text-xs font-black uppercase text-blue-600 flex items-center gap-2">
+                                            <div className="flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-4 py-2 rounded-xl">
                                                 <img src="/verified-badge.png" className="w-4 h-4" />
-                                                Verificado
-                                            </span>
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-blue-400">Verificado</span>
+                                            </div>
                                         ) : (
-                                            <span className="text-xs font-black uppercase text-slate-400">Sin Verificar</span>
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-white/20 italic">No verificado</span>
                                         )}
                                     </div>
                                     {profile.is_founder && (
                                         <div className="flex items-center justify-between">
-                                            <span className={`text-xs font-bold ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>Insignia</span>
-                                            <span className="text-xs font-black uppercase text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-amber-100"><Crown size={12} fill="#FDE047" className="text-[#FDE047]" /> Founder</span>
+                                            <span className="text-sm font-bold text-white/60">Rango</span>
+                                            <div className="bg-amber-500/10 border border-amber-500/20 px-4 py-2 rounded-xl flex items-center gap-2">
+                                                <Crown size={14} className="text-amber-400" fill="currentColor" />
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-amber-400">Founder</span>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
+
+                                {/* Link a Catálogo (Premium Visibility) */}
+                                <Link
+                                    href={`/${username}/beats`}
+                                    className="mt-12 w-full h-14 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl flex items-center justify-center gap-3 transition-all group active:scale-95"
+                                >
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/80 group-hover:text-white transition-colors">Ver Catálogo Completo</span>
+                                    <LayoutGrid size={16} className="text-accent group-hover:scale-110 transition-transform" />
+                                </Link>
                             </div>
 
-
-                            {/* Video Sidebar (Moved below Status) */}
+                            {/* Video Destacado (Minimalista) */}
                             {profile.subscription_tier === 'premium' && profile.video_destacado_url && getYouTubeEmbedUrl(profile.video_destacado_url) && (
-                                <div className={`rounded-[2.5rem] overflow-hidden border animate-in fade-in slide-in-from-bottom-4 duration-700 ${profile.tema_perfil === 'dark' ? 'border-slate-700 bg-slate-800' :
-                                    profile.tema_perfil === 'neon' ? 'border-green-900 bg-black shadow-[0_0_15px_rgba(74,222,128,0.1)]' :
-                                        profile.tema_perfil === 'gold' ? 'border-amber-900/50 bg-slate-900' :
-                                            'border-slate-100 bg-white shadow-xl shadow-slate-200/50'
-                                    }`}>
-                                    <div className="aspect-video bg-black">
+                                <div className="space-y-4">
+                                    <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted ml-2">Video Destacado</h3>
+                                    <div className="rounded-[3rem] overflow-hidden border border-slate-100 shadow-2xl aspect-video bg-slate-900 group relative">
                                         <iframe
-                                            width="100%"
-                                            height="100%"
+                                            width="100%" height="100%"
                                             src={getYouTubeEmbedUrl(profile.video_destacado_url)}
-                                            title="Video Destacado"
-                                            frameBorder="0"
+                                            title="Video Destacado" frameBorder="0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                             allowFullScreen
-                                            className="w-full h-full"
+                                            className="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity"
                                         ></iframe>
                                     </div>
                                 </div>
                             )}
 
-                            {/* Bio Box (Trayectoria + Socials Integrated) */}
-                            <div className={`border rounded-[2.5rem] p-8 shadow-sm mb-0 relative overflow-hidden bg-slate-900/50 border-slate-800 text-foreground`}>
-                                {/* Integrated Socials Section (Now at the top) */}
-                                {!isEditing && (
-                                    <div className="mb-8 pb-8 border-b border-slate-100/10">
-                                        <h3 className={`text-[11px] font-black uppercase tracking-[0.2em] mb-6 ${profile.tema_perfil === 'neon' ? 'text-green-500' :
-                                            profile.tema_perfil === 'gold' ? 'text-amber-500' :
-                                                'text-slate-400'
-                                            }`}>Redes Sociales</h3>
-                                        <div className="flex flex-wrap gap-3">
-                                            {SOCIAL_KEYS.map(key => {
-                                                const url = profile.social_links?.[key as keyof typeof profile.social_links];
-                                                if (!url) return null;
-
-                                                let finalUrl = url.startsWith('http') ? url : `https://${key}.com/${url}`;
-                                                if (key === 'whatsapp') finalUrl = `https://wa.me/${url}`;
-
-                                                const item = SOCIAL_ICONS[key];
-                                                if (!item) return null;
-
-                                                return (
-                                                    <a key={key} href={finalUrl} target="_blank" rel="noopener noreferrer"
-                                                        className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm group border ${profile.tema_perfil === 'light'
-                                                            ? 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-900 hover:text-white'
-                                                            : 'bg-white/5 border-white/5 text-white hover:bg-white hover:text-black'
-                                                            }`}>
-                                                        {item.icon ? (
-                                                            <item.icon size={18} />
-                                                        ) : (
-                                                            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4.5 h-4.5">
-                                                                <path d={item.path} />
-                                                            </svg>
-                                                        )}
-                                                    </a>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <h3 className={`text-[11px] font-black uppercase tracking-[0.2em] mb-6 ${profile.tema_perfil === 'neon' ? 'text-green-500' :
-                                    profile.tema_perfil === 'gold' ? 'text-amber-500' :
-                                        'text-slate-400'
-                                    }`}>Trayectoria</h3>
+                            {/* Trayectoria y Socials */}
+                            <div className="bg-white border border-slate-100 rounded-[3rem] p-10 shadow-soft">
+                                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] mb-10 text-muted">Trayectoria</h3>
 
                                 {isEditing ? (
-                                    <div className="space-y-4">
+                                    <div className="space-y-6">
                                         <div>
-                                            <label className="text-[9px] font-black uppercase text-slate-400 mb-2 block">Biografía</label>
                                             <textarea
                                                 value={editBio}
                                                 onChange={(e) => setEditBio(e.target.value)}
-                                                className="w-full h-32 bg-slate-50 rounded-xl p-4 text-sm font-medium border border-transparent focus:border-blue-500 outline-none resize-none text-slate-900"
-                                                placeholder="Escribe tu historia..."
+                                                className="w-full h-40 bg-slate-50 rounded-[2rem] p-6 text-sm font-medium border-transparent focus:border-accent outline-none resize-none text-slate-900 shadow-inner"
+                                                placeholder="Tu historia comienza aquí..."
                                             />
                                         </div>
-
-                                        <div className="grid grid-cols-2 gap-2">
+                                        <div className="grid grid-cols-2 gap-3">
                                             {SOCIAL_KEYS.map(key => (
-                                                <div key={key}>
-                                                    <label className="text-[8px] font-black uppercase text-slate-400 mb-1 block">{key}</label>
-                                                    <input
-                                                        placeholder={`Usuario/Link ${key}`}
-                                                        value={editSocials[key] || ''}
-                                                        onChange={e => setEditSocials({ ...editSocials, [key]: e.target.value })}
-                                                        className="w-full bg-slate-50 rounded-lg px-3 py-2 text-xs font-medium border-transparent focus:border-blue-500 text-slate-900"
-                                                    />
-                                                </div>
+                                                <input
+                                                    key={key}
+                                                    placeholder={key}
+                                                    value={editSocials[key] || ''}
+                                                    onChange={e => setEditSocials({ ...editSocials, [key]: e.target.value })}
+                                                    className="w-full bg-slate-50 rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest border-transparent focus:border-accent text-slate-900"
+                                                />
                                             ))}
                                         </div>
-
-                                        <div>
-                                            <div className="flex items-center justify-between mb-2">
-                                                <label className="text-[9px] font-black uppercase text-slate-400 block">Video Destacado (YouTube)</label>
-                                                <span className="text-[8px] font-black bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full uppercase tracking-widest">Premium</span>
+                                        {profile.subscription_tier === 'premium' && (
+                                            <div className="pt-4 border-t border-slate-100">
+                                                <label className="text-[8px] font-black uppercase text-accent mb-2 block">Link YouTube Premium</label>
+                                                <input
+                                                    value={editVideoUrl}
+                                                    onChange={(e) => setEditVideoUrl(e.target.value)}
+                                                    className="w-full bg-slate-50 rounded-xl px-4 py-3 text-[10px] font-bold border-transparent focus:border-accent"
+                                                    placeholder="URL de Video..."
+                                                />
                                             </div>
-                                            <input
-                                                type="text"
-                                                value={editVideoUrl}
-                                                onChange={(e) => setEditVideoUrl(e.target.value)}
-                                                disabled={profile.subscription_tier !== 'premium'}
-                                                className={`w-full rounded-xl p-4 text-sm font-medium border border-transparent outline-none transition-all ${profile.subscription_tier === 'premium'
-                                                    ? 'bg-slate-50 focus:border-blue-500 text-slate-900'
-                                                    : 'bg-slate-100 text-slate-400 cursor-not-allowed grayscale'
-                                                    }`}
-                                                placeholder={profile.subscription_tier === 'premium' ? "Link de YouTube o Shorts..." : "Mejora a Premium para destacar un video"}
-                                            />
-                                        </div>
-
-                                        <div className="flex gap-2 pt-4">
-                                            <button
-                                                onClick={() => setIsEditing(false)}
-                                                className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
-                                            >
-                                                {hasChanges() ? 'Descartar' : 'Cerrar'}
-                                            </button>
-                                            <button
-                                                onClick={handleUpdateProfile}
-                                                disabled={saving || !hasChanges()}
-                                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg ${hasChanges()
-                                                    ? 'bg-blue-600 text-white hover:bg-blue-500 shadow-blue-500/20'
-                                                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                                                    }`}
-                                            >
-                                                {saving ? 'Guardando...' : 'Guardar Cambios'}
-                                            </button>
-                                        </div>
+                                        )}
                                     </div>
                                 ) : (
-                                    <p className={`text-sm font-medium leading-relaxed ${profile.tema_perfil === 'light' ? 'text-slate-600' : 'text-slate-300'}`}>
-                                        {profile.bio || "Sin biografía aún."}
-                                    </p>
+                                    <>
+                                        <p className="text-sm font-medium leading-relaxed text-slate-600 mb-10 whitespace-pre-line italic">
+                                            {profile.bio || "Este productor aún no ha compartido su trayectoria."}
+                                        </p>
+
+                                        <div className="pt-10 border-t border-slate-100">
+                                            <h4 className="text-[9px] font-black uppercase tracking-[0.3em] mb-6 text-slate-400">Conectar</h4>
+                                            <div className="flex flex-wrap gap-3">
+                                                {SOCIAL_KEYS.map(key => {
+                                                    const url = profile.social_links?.[key as keyof typeof profile.social_links];
+                                                    if (!url) return null;
+                                                    const item = SOCIAL_ICONS[key];
+                                                    let finalUrl = url.startsWith('http') ? url : `https://${key}.com/${url}`;
+                                                    return (
+                                                        <a key={key} href={finalUrl} target="_blank" rel="noopener noreferrer"
+                                                            className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-900 border border-slate-100 hover:bg-accent hover:text-white hover:border-accent transition-all hover:-translate-y-1 shadow-sm">
+                                                            {item.icon ? <item.icon size={18} /> : <svg viewBox="0 0 24 24" fill="currentColor" className="w-4.5 h-4.5"><path d={item.path} /></svg>}
+                                                        </a>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    </>
                                 )}
                             </div>
-
-
-
                         </div>
 
                         {/* Beats Feed */}
                         <div className="lg:col-span-8">
-                            <div className={`flex items-center gap-2 mb-10 p-1 rounded-[1.8rem] overflow-x-auto no-scrollbar border ${profile.tema_perfil === 'light' ? 'bg-slate-50/50 border-slate-100' : 'bg-white/5 border-white/10'}`}>
-                                {/* 1. Beats */}
-                                <button
-                                    onClick={() => setActiveTab('beats')}
-                                    className={`px-6 py-3 rounded-[1.3rem] font-black text-[10px] uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2.5 ${activeTab === 'beats'
-                                        ? (profile.tema_perfil === 'light' ? 'bg-white text-blue-600 shadow-md border border-blue-50' : 'bg-white text-black shadow-lg shadow-white/10')
-                                        : 'text-slate-400 hover:text-slate-600'
-                                        }`}
-                                >
-                                    <Music size={14} className={activeTab === 'beats' ? 'text-blue-500' : 'text-slate-300'} />
-                                    Beats
-                                    <span className={`px-2 py-0.5 rounded-md text-[9px] ${activeTab === 'beats' ? 'bg-blue-600 text-white' : 'bg-slate-200/50 text-slate-500'}`}>{beats.length}</span>
-                                </button>
-
-                                {/* 2. Colecciones */}
-                                <button
-                                    onClick={() => setActiveTab('playlists')}
-                                    className={`px-6 py-3 rounded-[1.3rem] font-black text-[10px] uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2.5 ${activeTab === 'playlists'
-                                        ? (profile.tema_perfil === 'light' ? 'bg-white text-purple-600 shadow-md border border-purple-50' : 'bg-white text-black shadow-lg shadow-white/10')
-                                        : 'text-slate-400 hover:text-slate-600'
-                                        }`}
-                                >
-                                    <Layout size={14} className={activeTab === 'playlists' ? 'text-purple-500' : 'text-slate-300'} />
-                                    Colecciones
-                                    <span className={`px-2 py-0.5 rounded-md text-[9px] ${activeTab === 'playlists' ? 'bg-purple-600 text-white' : 'bg-slate-200/50 text-slate-500'}`}>{playlists.length}</span>
-                                </button>
-
-                                {/* 3. Servicios (Premium Lock for Free/Pro) */}
-                                <div className="relative group/tab">
-                                    <button
-                                        onClick={() => {
-                                            if (profile.subscription_tier === 'premium' || isOwner) {
-                                                setActiveTab('services');
-                                            } else {
-                                                router.push('/pricing');
-                                            }
-                                        }}
-                                        className={`px-6 py-3 rounded-[1.3rem] font-black text-[10px] uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2.5 ${activeTab === 'services'
-                                            ? 'bg-blue-600 text-white shadow-md'
-                                            : 'text-slate-400 hover:text-slate-600'
-                                            }`}
-                                    >
-                                        <Briefcase size={14} className={activeTab === 'services' ? 'text-white' : 'text-slate-300'} />
-                                        Servicios
-                                        {(profile.subscription_tier !== 'premium' && !isOwner) && (
-                                            <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-2 py-0.5 rounded-full text-[7px] font-black uppercase tracking-tighter shadow-sm">
-                                                Premium
-                                            </div>
-                                        )}
-                                        {services.length > 0 && (profile.subscription_tier === 'premium' || isOwner) && (
-                                            <span className={`px-2 py-0.5 rounded-md text-[9px] ${activeTab === 'services' ? 'bg-white text-blue-600' : 'bg-slate-200/50 text-slate-500'}`}>{services.length}</span>
-                                        )}
-                                    </button>
-                                </div>
-
-                                {/* 4. Sound Kits (Premium Lock for Free/Pro) */}
-                                <div className="relative group/tab">
-                                    <button
-                                        onClick={() => {
-                                            if (profile.subscription_tier === 'premium' || isOwner) {
-                                                setActiveTab('sound_kits');
-                                            } else {
-                                                router.push('/pricing');
-                                            }
-                                        }}
-                                        className={`px-6 py-3 rounded-[1.3rem] font-black text-[10px] uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2.5 ${activeTab === 'sound_kits'
-                                            ? (profile.tema_perfil === 'light' ? 'bg-amber-400 text-slate-900 shadow-md border border-amber-300' : 'bg-amber-500 text-black shadow-lg shadow-amber-500/20')
-                                            : 'text-slate-400 hover:text-slate-600'
-                                            }`}
-                                    >
-                                        <Zap size={14} className={activeTab === 'sound_kits' ? 'text-slate-900' : 'text-slate-300'} />
-                                        Sound Kits
-                                        {(profile.subscription_tier !== 'premium' && !isOwner) && (
-                                            <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-2 py-0.5 rounded-full text-[7px] font-black uppercase tracking-tighter shadow-sm">
-                                                Premium
-                                            </div>
-                                        )}
-                                        {soundKits.length > 0 && (profile.subscription_tier === 'premium' || isOwner) && (
-                                            <span className={`px-2 py-0.5 rounded-md text-[9px] ${activeTab === 'sound_kits' ? 'bg-white/50 text-current' : 'bg-slate-200/50 text-slate-500'}`}>{soundKits.length}</span>
-                                        )}
-                                    </button>
+                            {/* 3. Navegación de Contenido (Tabs) */}
+                            <div className="flex items-center justify-between gap-4 border-b border-slate-100 mb-12 overflow-x-auto pb-px scrollbar-hide">
+                                <div className="flex gap-10">
+                                    {[
+                                        { id: 'beats', label: 'Beats', icon: Music },
+                                        { id: 'playlists', label: 'Colecciones', icon: PlayCircle },
+                                        { id: 'services', label: 'Servicios', icon: Briefcase }
+                                    ].map((tab) => (
+                                        <button
+                                            key={tab.id}
+                                            onClick={() => setActiveTab(tab.id as 'beats' | 'playlists' | 'services' | 'sound_kits')}
+                                            className={`relative py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === tab.id ? 'text-foreground' : 'text-muted hover:text-foreground'}`}
+                                        >
+                                            <tab.icon size={16} />
+                                            {tab.label}
+                                            {activeTab === tab.id && (
+                                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-accent rounded-full animate-in fade-in zoom-in duration-300" />
+                                            )}
+                                        </button>
+                                    ))}
+                                    {/* Link a Sound Kits (Solo si es Premium/Dueño) */}
+                                    {(profile.subscription_tier === 'premium' || isOwner) && (
+                                        <button
+                                            onClick={() => setActiveTab('sound_kits')}
+                                            className={`py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === 'sound_kits' ? 'text-amber-500' : 'text-muted hover:text-amber-400'}`}
+                                        >
+                                            <Zap size={16} /> Sound Kits
+                                            <div className="bg-amber-100 text-amber-600 px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-tighter">Gold</div>
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
 
                             {activeTab === 'beats' && (
-                                <>
-                                    <div className="flex items-center justify-between mb-8">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
-                                                <Music size={20} />
+                                <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2">
+                                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center text-accent">
+                                                    <Music size={24} />
+                                                </div>
+                                                <h2 className="text-4xl font-black uppercase tracking-tighter text-foreground">Recién Horneados🔥</h2>
                                             </div>
-                                            <div>
-                                                <h2 className={`text-3xl font-black uppercase tracking-tighter ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>Recién Horneados 🔥</h2>
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Últimas creaciones del productor</p>
-                                            </div>
+                                            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.3em] ml-1">Descubre lo último que ha salido del estudio</p>
                                         </div>
                                         <Link
                                             href={`/${username}/beats`}
-                                            className="flex items-center gap-2 px-6 py-3 bg-blue-50 border border-blue-100 rounded-full text-[10px] font-black uppercase tracking-widest text-blue-600 hover:bg-blue-600 hover:text-white transition-all border-dashed"
+                                            className="h-14 px-8 bg-foreground/5 hover:bg-foreground/10 border border-foreground/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-foreground transition-all flex items-center gap-3 active:scale-95 group"
                                         >
-                                            Ver catálogo completo <ChevronRight size={14} />
+                                            Ver Catálogo Completo <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
                                         </Link>
                                     </div>
 
                                     {beats.length > 0 ? (
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                             {beats.slice(0, 6).map((beat) => (
-                                                <BeatCardPro key={beat.id} beat={beat} />
+                                                <div key={beat.id} className="group relative">
+                                                    <BeatCardPro beat={beat} />
+                                                </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="bg-slate-50 rounded-2xl p-12 text-center">
-                                            <Music size={48} className="text-slate-200 mx-auto mb-4" />
-                                            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No hay beats públicos</p>
+                                        <div className="bg-slate-50 rounded-[3rem] p-24 text-center border-2 border-dashed border-slate-100">
+                                            <Music size={48} className="text-slate-200 mx-auto mb-6" />
+                                            <h3 className="text-xl font-black uppercase text-slate-400 mb-2">Sin beats todavía</h3>
+                                            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Este productor aún no ha publicado sus obras</p>
                                         </div>
                                     )}
-                                </>
+                                </div>
                             )}
 
                             {activeTab === 'services' && (

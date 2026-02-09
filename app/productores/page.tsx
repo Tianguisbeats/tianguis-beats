@@ -147,18 +147,19 @@ function ProducersContent() {
                                                             <span className="text-[9px] font-black uppercase tracking-widest">Pro</span>
                                                         </div>
                                                     )}
+                                                </div>
+                                                <div className="flex items-center gap-2">
                                                     {artist.is_founder && (
-                                                        <div className="bg-slate-950/80 text-amber-400 px-4 py-1.5 rounded-full flex items-center gap-2 shadow-xl border border-white/10 backdrop-blur-md">
-                                                            <Crown size={12} fill="currentColor" />
-                                                            <span className="text-[9px] font-black uppercase tracking-widest">Founder</span>
+                                                        <div className="w-10 h-10 bg-slate-950/80 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center justify-center text-amber-400 shadow-2xl">
+                                                            <Crown size={20} fill="currentColor" />
+                                                        </div>
+                                                    )}
+                                                    {artist.is_verified && (
+                                                        <div className="w-10 h-10 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center justify-center text-white shadow-2xl">
+                                                            <img src="/verified-badge.png" className="w-6 h-6 object-contain" alt="Verificado" />
                                                         </div>
                                                     )}
                                                 </div>
-                                                {artist.is_verified && (
-                                                    <div className="w-10 h-10 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center justify-center text-white shadow-2xl">
-                                                        <img src="/verified-badge.png" className="w-6 h-6 object-contain" alt="Verificado" />
-                                                    </div>
-                                                )}
                                             </div>
 
                                             {/* Info Overlays */}

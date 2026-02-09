@@ -89,8 +89,8 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
 
             {/* Content Section */}
             <div className="px-3 md:px-4 pt-0 pb-4 flex flex-col flex-1">
-                <Link href={`/beats/${beat.id}`} className="block mt-1 mb-1 min-h-[24px] flex items-center">
-                    <h3 className="font-black text-foreground text-sm md:text-base tracking-tighter leading-none truncate hover:text-accent transition-colors lowercase font-heading">
+                <Link href={`/beats/${beat.id}`} className="block mt-1 mb-1 min-h-[32px] flex items-center">
+                    <h3 className="font-black text-foreground text-xl md:text-2xl tracking-tighter leading-none truncate hover:text-accent transition-colors lowercase font-heading">
                         {beat.title}
                     </h3>
                 </Link>
