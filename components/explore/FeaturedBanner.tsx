@@ -159,25 +159,25 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                     <>
                                         <button
                                             onClick={() => playBeat(data as Beat)}
-                                            className={`h-16 w-16 md:h-20 md:w-20 rounded-[2rem] flex items-center justify-center transition-all duration-300 shadow-2xl active:scale-95 ${isThisPlaying ? 'bg-white text-accent' : 'bg-accent text-white hover:scale-110'}`}
+                                            className={`h-12 w-12 md:h-14 md:w-14 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-xl active:scale-95 ${isThisPlaying ? 'bg-white text-accent' : 'bg-accent text-white hover:scale-110'}`}
                                         >
-                                            {isThisPlaying ? <Pause size={30} fill="currentColor" /> : <Play size={30} fill="currentColor" className="ml-1.5" />}
+                                            {isThisPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
                                         </button>
                                         <Link
                                             href={`/beats/${(data as Beat).id}`}
-                                            className="px-10 h-16 md:h-20 bg-white/5 hover:bg-white/10 border border-white/10 rounded-[2rem] text-white flex items-center gap-4 group/btn transition-all active:scale-95"
+                                            className="px-6 h-12 md:h-14 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white flex items-center gap-3 group/btn transition-all active:scale-95"
                                         >
-                                            <span className="text-[11px] font-black uppercase tracking-widest">Ver Detalles</span>
-                                            <ArrowRight size={18} className="group-hover/btn:translate-x-2 transition-transform" />
+                                            <span className="text-[9px] font-black uppercase tracking-widest">Ver Detalles</span>
+                                            <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                                         </Link>
                                     </>
                                 ) : (
                                     <Link
                                         href={`/${prodInfo.username}`}
-                                        className="px-12 h-20 bg-accent text-white rounded-[2rem] flex items-center gap-4 group/btn transition-all shadow-xl shadow-accent/40 active:scale-95"
+                                        className="px-8 h-14 bg-accent text-white rounded-2xl flex items-center gap-3 group/btn transition-all shadow-lg shadow-accent/40 active:scale-95"
                                     >
-                                        <span className="text-[11px] font-black uppercase tracking-widest">Ver Perfil Completo</span>
-                                        <Users size={20} className="group-hover/btn:rotate-12 transition-transform" />
+                                        <span className="text-[9px] font-black uppercase tracking-widest">Ver Perfil</span>
+                                        <Users size={16} className="group-hover/btn:rotate-12 transition-transform" />
                                     </Link>
                                 )}
                             </div>

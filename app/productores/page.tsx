@@ -136,21 +136,27 @@ function ProducersContent() {
                                             <div className="absolute top-8 left-8 right-8 flex justify-between items-start pointer-events-none">
                                                 <div className="flex flex-col gap-2">
                                                     {isPremium && (
-                                                        <div className="bg-amber-500 text-white px-4 py-1.5 rounded-full flex items-center gap-2 shadow-xl border border-white/20 backdrop-blur-md animate-pulse">
-                                                            <Crown size={12} fill="currentColor" />
+                                                        <div className="bg-blue-600 text-white px-4 py-1.5 rounded-full flex items-center gap-2 shadow-xl border border-white/20 backdrop-blur-md animate-pulse">
+                                                            <Star size={12} fill="currentColor" />
                                                             <span className="text-[9px] font-black uppercase tracking-widest">Premium</span>
                                                         </div>
                                                     )}
                                                     {isPro && (
-                                                        <div className="bg-blue-600 text-white px-4 py-1.5 rounded-full flex items-center gap-2 shadow-xl border border-white/20 backdrop-blur-md">
-                                                            <Star size={12} fill="currentColor" />
+                                                        <div className="bg-amber-500 text-white px-4 py-1.5 rounded-full flex items-center gap-2 shadow-xl border border-white/20 backdrop-blur-md">
+                                                            <Award size={12} fill="currentColor" />
                                                             <span className="text-[9px] font-black uppercase tracking-widest">Pro</span>
+                                                        </div>
+                                                    )}
+                                                    {artist.is_founder && (
+                                                        <div className="bg-slate-950/80 text-amber-400 px-4 py-1.5 rounded-full flex items-center gap-2 shadow-xl border border-white/10 backdrop-blur-md">
+                                                            <Crown size={12} fill="currentColor" />
+                                                            <span className="text-[9px] font-black uppercase tracking-widest">Founder</span>
                                                         </div>
                                                     )}
                                                 </div>
                                                 {artist.is_verified && (
                                                     <div className="w-10 h-10 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center justify-center text-white shadow-2xl">
-                                                        <CheckCheck size={20} className="text-blue-400" />
+                                                        <img src="/verified-badge.png" className="w-6 h-6 object-contain" alt="Verificado" />
                                                     </div>
                                                 )}
                                             </div>
