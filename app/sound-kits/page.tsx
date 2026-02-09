@@ -64,7 +64,7 @@ function SoundKitsContent() {
                                 Sound Kits
                             </h1>
                             <p className="text-xl text-muted font-medium max-w-lg">
-                                Herramientas de élite para productores mexicanos. Drum kits, presets y samples de alta gama.
+                                Drum kits, presets y samples de alta gama.
                             </p>
                         </div>
                         <div className="hidden md:flex flex-col items-end">

@@ -131,12 +131,12 @@ function CatalogContent() {
         return (
             <button
                 onClick={() => setViewMode(mode as any)}
-                className={`snap-center flex-shrink-0 flex items-center gap-3 px-8 py-4 rounded-t-3xl font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-300 whitespace-nowrap min-h-[56px] relative ${isActive
+                className={`snap-center flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-t-2xl font-black text-[9px] uppercase tracking-[0.2em] transition-all duration-300 whitespace-nowrap min-h-[48px] relative ${isActive
                     ? `bg-background ${isCT ? 'text-green-500' : 'text-accent'} border-x border-t border-border -mb-[1px] z-10`
                     : 'bg-card/50 text-muted hover:text-foreground border-transparent hover:bg-card'
                     }`}
             >
-                <Icon size={16} strokeWidth={isActive ? 3 : 2} className={isActive ? (isCT ? 'text-green-500' : 'text-accent') : ''} />
+                <Icon size={14} strokeWidth={isActive ? 3 : 2} className={isActive ? (isCT ? 'text-green-500' : 'text-accent') : ''} />
                 <span>{label}</span>
             </button>
         );
@@ -230,7 +230,17 @@ function CatalogContent() {
                         </div>
 
                         <div className="relative w-full mb-12 group/tabs">
-                            <div id="tabs-container" className="flex items-end gap-1 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth justify-start border-b border-border">
+                            <button
+                                onClick={() => {
+                                    const container = document.getElementById('tabs-container');
+                                    if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
+                                }}
+                                className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-card border border-border rounded-full shadow-lg hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
+                            >
+                                <ChevronLeft size={18} />
+                            </button>
+
+                            <div id="tabs-container" className="flex items-end gap-1 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth justify-start border-b border-border px-10">
                                 <TabButton mode="all" label="Todos" icon={Music} />
                                 <TabButton mode="corridos_tumbados" label="Corridos 🇲🇽" icon={Zap} />
                                 <TabButton mode="new" label="Nuevos" icon={Clock} />
@@ -239,14 +249,24 @@ function CatalogContent() {
                                 <TabButton mode="hidden_gems" label="Joyas" icon={Gem} />
                                 <TabButton mode="recommended" label="Recomendados IA" icon={Zap} />
                             </div>
+
+                            <button
+                                onClick={() => {
+                                    const container = document.getElementById('tabs-container');
+                                    if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
+                                }}
+                                className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-card border border-border rounded-full shadow-lg hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
+                            >
+                                <ChevronRight size={18} />
+                            </button>
                         </div>
 
                         {loading ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
-                                {[...Array(8)].map((_, i) => <BeatSkeleton key={i} />)}
+                            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
+                                {[...Array(10)].map((_, i) => <BeatSkeleton key={i} />)}
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
+                            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
                                 {beats.length > 0 ? beats.map((beat) => (
                                     <div key={beat.id} className="h-full">
                                         <BeatCardPro beat={beat} />
