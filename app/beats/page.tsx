@@ -271,7 +271,17 @@ function BeatsPageContent() {
             if (tierA !== tierB) return tierA - tierB;
             return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
           });
-          setProducers(sortedProd);
+          // Manual search filter if needed
+          if (filterState.searchQuery) {
+            const query = filterState.searchQuery.toLowerCase();
+            const filteredProd = sortedProd.filter(p =>
+              (p.artistic_name?.toLowerCase().includes(query)) ||
+              (p.username?.toLowerCase().includes(query))
+            );
+            setProducers(filteredProd);
+          } else {
+            setProducers(sortedProd);
+          }
           setBeats([]);
         } else if (viewMode === 'sound_kits') {
           const { data: skData, error: skError } = await supabase

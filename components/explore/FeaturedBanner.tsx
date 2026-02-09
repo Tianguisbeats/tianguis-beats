@@ -135,13 +135,12 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                                 </div>
                             </>
                         )}
-
-                        <div className="flex flex-wrap justify-center md:justify-start gap-4 items-center">
+                        <div className="flex flex-wrap justify-center md:justify-start gap-4 items-center mt-8">
                             {isBeat ? (
                                 <>
                                     <button
                                         onClick={handlePlayForBanner}
-                                        className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-all shadow-xl active:scale-95 border backdrop-blur-md ${isThisPlaying ? 'bg-white text-accent border-white' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}`}
+                                        className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-all shadow-xl active:scale-95 border backdrop-blur-md min-h-0 min-w-0 ${isThisPlaying ? 'bg-white text-accent border-white' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}`}
                                     >
                                         {isThisPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
                                     </button>
@@ -162,30 +161,30 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                                     <Users size={18} />
                                 </Link>
                             )}
-
-                            {/* Progress Indicators - Minimal Lines */}
-                            <div className="flex items-center gap-2 ml-2">
-                                {combinedItems.map((_, i) => (
-                                    <button
-                                        key={i}
-                                        onClick={() => setCurrentIndex(i)}
-                                        className={`h-[2px] rounded-full transition-all duration-500 min-h-0 min-w-0 p-0 border-0 ${i === currentIndex ? 'w-8 bg-white' : 'w-4 bg-white/20 hover:bg-white/50'}`}
-                                        aria-label={`Go to slide ${i + 1}`}
-                                    />
-                                ))}
-                            </div>
                         </div>
                     </div>
 
                     {/* Navigation Mini-Buttons (Hidden on mobile) */}
                     <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={prevItem} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all hover:scale-110"><ChevronLeft size={20} /></button>
-                        <button onClick={nextItem} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all hover:scale-110"><ChevronRight size={20} /></button>
+                        <button onClick={prevItem} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all hover:scale-110 min-h-0 min-w-0"><ChevronLeft size={20} /></button>
+                        <button onClick={nextItem} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all hover:scale-110 min-h-0 min-w-0"><ChevronRight size={20} /></button>
                     </div>
 
                 </div>
+
+                {/* Progress Indicators - Centered Bottom */}
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+                    {combinedItems.map((_, i) => (
+                        <button
+                            key={i}
+                            onClick={() => setCurrentIndex(i)}
+                            className={`h-[2px] rounded-full transition-all duration-500 min-h-0 min-w-0 p-0 border-0 ${i === currentIndex ? 'w-10 bg-white' : 'w-4 bg-white/20 hover:bg-white/50'}`}
+                            aria-label={`Go to slide ${i + 1}`}
+                        />
+                    ))}
+                </div>
             </div>
-        </div >
+        </div>
     );
 }
 

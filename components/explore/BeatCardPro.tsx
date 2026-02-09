@@ -108,7 +108,7 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                     </div>
                     <div className="flex flex-col truncate">
                         <div className="flex items-center gap-1.5">
-                            <p className="text-[10px] md:text-[11px] font-black uppercase text-muted tracking-[0.15em] truncate group-hover/prod:text-accent transition-colors">
+                            <p className="text-xs md:text-sm font-black uppercase text-muted tracking-[0.15em] truncate group-hover/prod:text-accent transition-colors">
                                 {beat.producer_artistic_name}
                             </p>
                             {beat.producer_is_verified && (
