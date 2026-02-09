@@ -1,0 +1,276 @@
+"use client";
+
+import React, { useEffect, useMemo, useState, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { Music, SlidersHorizontal, ArrowLeft, Clock, TrendingUp, Sparkles, Trophy, Gem, Zap, ChevronLeft, ChevronRight } from "lucide-react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { Beat } from "@/lib/types";
+import { GENRES } from "@/lib/constants";
+import AdvancedFilterSidebar from "@/components/explore/AdvancedFilterSidebar";
+import BeatCardPro from "@/components/explore/BeatCardPro";
+
+export default function BeatsCatalogPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+            </div>
+        }>
+            <CatalogContent />
+        </Suspense>
+    );
+}
+
+type ViewMode = 'all' | 'new' | 'trending' | 'best_sellers' | 'hidden_gems' | 'recommended' | 'exclusives' | 'corridos_tumbados';
+
+function CatalogContent() {
+    const [beats, setBeats] = useState<Beat[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [viewMode, setViewMode] = useState<ViewMode>('all');
+
+    const [filterState, setFilterState] = useState({
+        searchQuery: "",
+        genre: "Todos",
+        subgenre: "",
+        bpmMin: "" as number | string,
+        bpmMax: "" as number | string,
+        key: "",
+        scale: "",
+        mood: "",
+        priceRange: [0, 10000] as [number, number]
+    });
+
+    const searchParams = useSearchParams();
+    const router = useRouter();
+
+    useEffect(() => {
+        const v = searchParams.get('view');
+        const q = searchParams.get('q');
+        const g = searchParams.get('genre');
+        const m = searchParams.get('mood');
+        const k = searchParams.get('key');
+        const s = searchParams.get('scale');
+        const b = searchParams.get('bpm');
+
+        if (v) setViewMode(v as ViewMode);
+
+        setFilterState(prev => ({
+            ...prev,
+            searchQuery: q || prev.searchQuery,
+            genre: g || prev.genre,
+            mood: m || prev.mood,
+            key: k || prev.key,
+            scale: s || prev.scale,
+            bpmMin: b ? parseInt(b) : prev.bpmMin,
+            bpmMax: b ? parseInt(b) : prev.bpmMax,
+            subgenre: searchParams.get('subgenre') || prev.subgenre,
+        }));
+    }, [searchParams]);
+
+    const transformBeat = async (b: any) => {
+        const path = b.mp3_tag_url || b.mp3_url || '';
+        const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
+        const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+        const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
+
+        let finalCoverUrl = b.portadabeat_url;
+        if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
+            const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(finalCoverUrl);
+            finalCoverUrl = cpUrl;
+        }
+
+        return {
+            id: b.id,
+            title: b.title,
+            producer: b.producer?.artistic_name || 'Productor Anónimo',
+            producer_username: b.producer?.username || b.producer?.artistic_name,
+            producer_is_verified: b.producer?.is_verified,
+            producer_is_founder: b.producer?.is_founder,
+            producer_foto_perfil: b.producer?.foto_perfil,
+            producer_tier: b.producer?.subscription_tier,
+            producer_artistic_name: b.producer?.artistic_name,
+            price_mxn: b.price_mxn,
+            bpm: b.bpm,
+            genre: b.genre,
+            musical_key: b.musical_key,
+            musical_scale: b.musical_scale,
+            mood: b.mood,
+            portadabeat_url: finalCoverUrl,
+            mp3_url: publicUrl,
+            created_at: b.created_at,
+            play_count: b.play_count,
+            sale_count: b.sale_count,
+            like_count: b.like_count,
+            is_mp3_active: b.is_mp3_active,
+            is_wav_active: b.is_wav_active,
+            is_stems_active: b.is_stems_active,
+            is_exclusive_active: b.is_exclusive_active
+        };
+    };
+
+    const BeatSkeleton = () => (
+        <div className="bg-card rounded-[2.5rem] p-6 border border-border shadow-soft animate-pulse flex flex-col h-full">
+            <div className="aspect-square bg-accent-soft rounded-[2rem] mb-6"></div>
+            <div className="h-5 bg-accent-soft rounded-full w-3/4 mb-4"></div>
+            <div className="h-3 bg-accent-soft rounded-full w-1/2 mb-8"></div>
+            <div className="mt-auto flex justify-between items-center bg-accent-soft/30 p-4 rounded-2xl">
+                <div className="h-5 bg-accent-soft rounded-full w-12"></div>
+                <div className="h-8 bg-accent-soft rounded-xl w-20"></div>
+            </div>
+        </div>
+    );
+
+    const TabButton = ({ mode, label, icon: Icon }: { mode: string; label: string; icon: any }) => {
+        const isActive = viewMode === mode;
+        const isCT = mode === 'corridos_tumbados';
+        return (
+            <button
+                onClick={() => setViewMode(mode as any)}
+                className={`snap-center flex-shrink-0 flex items-center gap-3 px-8 py-4 rounded-t-3xl font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-300 whitespace-nowrap min-h-[56px] relative ${isActive
+                    ? `bg-background ${isCT ? 'text-green-500' : 'text-accent'} border-x border-t border-border -mb-[1px] z-10`
+                    : 'bg-card/50 text-muted hover:text-foreground border-transparent hover:bg-card'
+                    }`}
+            >
+                <Icon size={16} strokeWidth={isActive ? 3 : 2} className={isActive ? (isCT ? 'text-green-500' : 'text-accent') : ''} />
+                <span>{label}</span>
+            </button>
+        );
+    };
+
+    const genresFromData = useMemo(() => ["Todos", ...GENRES], []);
+
+    useEffect(() => {
+        let cancel = false;
+        async function load() {
+            try {
+                setLoading(true);
+                setErrorMsg(null);
+
+                let query = supabase
+                    .from("beats")
+                    .select(`
+            id, title, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count, sale_count, like_count,
+            is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active,
+            producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
+          `)
+                    .eq("is_public", true);
+
+                if (filterState.genre !== 'Todos') query = query.eq('genre', filterState.genre);
+                if (filterState.subgenre) query = query.eq('subgenre', filterState.subgenre);
+                if (filterState.mood) query = query.ilike('mood', `%${filterState.mood}%`);
+                if (filterState.bpmMin) query = query.gte('bpm', filterState.bpmMin);
+                if (filterState.bpmMax) query = query.lte('bpm', filterState.bpmMax);
+                if (filterState.key) query = query.eq('musical_key', filterState.key);
+                if (filterState.scale) query = query.eq('musical_scale', filterState.scale);
+                if (filterState.searchQuery.trim()) query = query.or(`title.ilike.%${filterState.searchQuery.trim()}%,genre.ilike.%${filterState.searchQuery.trim()}%,subgenre.ilike.%${filterState.searchQuery.trim()}%`);
+
+                switch (viewMode) {
+                    case 'new': query = query.order("created_at", { ascending: false }); break;
+                    case 'trending': query = query.order("play_count", { ascending: false, nullsFirst: false }); break;
+                    case 'best_sellers': query = query.order("sale_count", { ascending: false, nullsFirst: false }); break;
+                    case 'hidden_gems': query = query.order("like_count", { ascending: false }).lte('play_count', 2000); break;
+                    case 'recommended': query = query.order("play_count", { ascending: false }); break;
+                    case 'corridos_tumbados': query = query.eq('genre', 'Corridos Tumbados 🇲🇽').order("created_at", { ascending: false }); break;
+                    default: query = query.order("created_at", { ascending: false }); break;
+                }
+
+                const { data, error } = await query.limit(50);
+                if (cancel) return;
+                if (error) { setErrorMsg(error.message); return; }
+
+                let transformed = await Promise.all((data || []).map(transformBeat));
+                const tierOrder: any = { premium: 0, pro: 1, free: 2 };
+                transformed.sort((a, b) => {
+                    const tierA = tierOrder[a.producer_tier as any] ?? 3;
+                    const tierB = tierOrder[b.producer_tier as any] ?? 3;
+                    if (tierA !== tierB) return tierA - tierB;
+                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                });
+
+                setBeats(transformed);
+            } catch (err) {
+                console.error(err);
+                setErrorMsg("Error al cargar.");
+            } finally {
+                setLoading(false);
+            }
+        }
+        load();
+        return () => { cancel = true; };
+    }, [filterState, viewMode]);
+
+    return (
+        <div className="min-h-screen bg-background text-foreground font-sans selection:bg-accent selection:text-white flex flex-col transition-colors duration-300">
+            <Navbar />
+            <main className="flex-1 pt-8 pb-20 relative px-4 sm:px-10 max-w-[1700px] mx-auto w-full">
+                <div className="flex flex-col lg:flex-row gap-8 items-start animate-fade-in">
+                    <AdvancedFilterSidebar
+                        filterState={filterState}
+                        setFilterState={setFilterState}
+                        genres={genresFromData}
+                        totalBeats={beats.length}
+                        isOpen={isSidebarOpen}
+                        onClose={() => setIsSidebarOpen(false)}
+                    />
+
+                    <div className="flex-1 w-full min-w-0">
+                        <div className="flex items-center justify-between mb-8">
+                            <Link href="/beats" className="flex items-center gap-2 text-muted hover:text-accent font-black uppercase text-[10px] tracking-widest transition-all">
+                                <ArrowLeft size={14} strokeWidth={3} />
+                                Volver a Explorar
+                            </Link>
+                            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-3 bg-accent text-white rounded-xl shadow-lg active:scale-95 transition-all">
+                                <SlidersHorizontal size={16} />
+                            </button>
+                        </div>
+
+                        <div className="relative w-full mb-12 group/tabs">
+                            <div id="tabs-container" className="flex items-end gap-1 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth justify-start border-b border-border">
+                                <TabButton mode="all" label="Todos" icon={Music} />
+                                <TabButton mode="corridos_tumbados" label="Corridos 🇲🇽" icon={Zap} />
+                                <TabButton mode="new" label="Nuevos" icon={Clock} />
+                                <TabButton mode="trending" label="Tendencias" icon={TrendingUp} />
+                                <TabButton mode="best_sellers" label="Más comprados" icon={Trophy} />
+                                <TabButton mode="hidden_gems" label="Joyas" icon={Gem} />
+                                <TabButton mode="recommended" label="Recomendados IA" icon={Zap} />
+                            </div>
+                        </div>
+
+                        {loading ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
+                                {[...Array(8)].map((_, i) => <BeatSkeleton key={i} />)}
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
+                                {beats.length > 0 ? beats.map((beat) => (
+                                    <div key={beat.id} className="h-full">
+                                        <BeatCardPro beat={beat} />
+                                    </div>
+                                )) : (
+                                    <div className="col-span-full text-center py-32 bg-card rounded-[3rem] border border-dashed border-border shadow-soft">
+                                        <h3 className="text-2xl font-black uppercase tracking-tight mb-4 font-heading">Sin resultados</h3>
+                                        <button
+                                            onClick={() => {
+                                                setFilterState({ searchQuery: "", genre: "Todos", subgenre: "", bpmMin: "", bpmMax: "", key: "", scale: "", mood: "", priceRange: [0, 10000] });
+                                                setViewMode('all');
+                                            }}
+                                            className="px-12 py-5 bg-accent text-white rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] transition-all active:scale-95"
+                                        >
+                                            Limpiar Filtros
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </main>
+            <Footer />
+        </div>
+    );
+}
