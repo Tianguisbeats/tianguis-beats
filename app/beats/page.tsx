@@ -412,15 +412,17 @@ function BeatsPageContent() {
       <main className="flex-1 pt-8 pb-20 relative">
         <div className="max-w-[1700px] mx-auto px-4 sm:px-10">
 
-          {/* Featured Banner (PERSISTENT) */}
-          {isBannerLoading && trendingBeats.length === 0 ? (
-            <BannerSkeleton />
-          ) : (
-            <FeaturedBanner
-              trendingBeats={trendingBeats}
-              trendingProducers={trendingProducers}
-              featuredMoods={featuredMoods}
-            />
+          {/* Featured Banner (Shown only on LANDING) */}
+          {activeSection === 'landing' && (
+            isBannerLoading && trendingBeats.length === 0 ? (
+              <BannerSkeleton />
+            ) : (
+              <FeaturedBanner
+                trendingBeats={trendingBeats}
+                trendingProducers={trendingProducers}
+                featuredMoods={featuredMoods}
+              />
+            )
           )}
 
           {activeSection === 'landing' ? (
@@ -429,9 +431,6 @@ function BeatsPageContent() {
                 <h2 className="text-4xl md:text-6xl font-black text-foreground uppercase tracking-tighter mb-4 font-heading">
                   Descubre todo lo que el tianguis tiene para ti
                 </h2>
-                <p className="text-muted text-lg font-medium max-w-2xl mx-auto">
-                  Descubre el mejor sonido para tus producciones y elige tu camino.
-                </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 px-4 md:px-0">
@@ -477,13 +476,6 @@ function BeatsPageContent() {
                   </div>
                 </div>
               </div>
-
-              {/* Quick Navigation Info */}
-              <div className="max-w-4xl mx-auto p-8 bg-card/30 backdrop-blur-sm rounded-[2.5rem] border border-border text-center">
-                <p className="text-sm text-muted font-medium italic">
-                  "El Tianguis es el punto de encuentro definitivo para la música urbana mexicana. Explora, crea y conecta."
-                </p>
-              </div>
             </div>
           ) : (
             <div className="flex flex-col lg:flex-row gap-8 items-start animate-fade-in">
@@ -519,11 +511,9 @@ function BeatsPageContent() {
                   </div>
                 </div>
 
-                {/* Toolbar & Tabs */}
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
-
-                  {activeSection === 'beats' && (
-                    <div className="relative w-full max-w-full group/tabs mb-6">
+                <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
+                  {activeSection === 'beats' ? (
+                    <div className="relative w-full max-w-full group/tabs">
                       <button
                         onClick={() => {
                           const container = document.getElementById('tabs-container');
@@ -558,14 +548,17 @@ function BeatsPageContent() {
                         <ChevronRight size={18} />
                       </button>
                     </div>
-                  )}
-
-                  {activeSection !== 'beats' && (
-                    <div className="flex flex-col">
-                      <h2 className="text-3xl font-black text-foreground uppercase tracking-tight font-heading">
+                  ) : (
+                    <div className="flex flex-col animate-in slide-in-from-left duration-500">
+                      <h2 className="text-5xl md:text-6xl font-black text-foreground uppercase tracking-tighter font-heading mb-2">
                         {activeSection === 'sound_kits' ? 'Sound Kits' : 'Artistas'}
                       </h2>
-                      <p className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Tianguis Beats</p>
+                      <div className="flex items-center gap-3">
+                        <div className="h-[2px] w-12 bg-accent rounded-full"></div>
+                        <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em]">
+                          {activeSection === 'sound_kits' ? 'Recursos Premium para Productores' : 'La Élite de la Escena Urbana'}
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
