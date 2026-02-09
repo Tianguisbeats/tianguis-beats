@@ -3,8 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Palette } from 'lucide-react';
+import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Crown } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import { supabase } from '@/lib/supabase';
 
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -13,11 +14,24 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         { name: 'Mis Beats', href: '/studio/beats', icon: <Music size={18} /> },
         { name: 'Mis Servicios', href: '/studio/services', icon: <Briefcase size={18} /> },
         { name: 'Cupones', href: '/studio/coupons', icon: <Ticket size={18} /> },
-        { name: 'Personalizar', href: '/studio/customize', icon: <Palette size={18} /> },
+        { name: 'Hub Premium', href: '/studio/premium', icon: <Crown size={18} /> },
         { name: 'Estadísticas', href: '/studio/stats', icon: <BarChart2 size={18} /> },
         { name: 'Ventas', href: '/studio/sales', icon: <DollarSign size={18} /> },
         { name: 'Mi Suscripción', href: '/pricing', icon: <Settings size={18} /> },
     ];
+
+    const [profile, setProfile] = React.useState<any>(null);
+
+    React.useEffect(() => {
+        const fetchProfile = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data } = await supabase.from('profiles').select('subscription_tier').eq('id', user.id).single();
+                setProfile(data);
+            }
+        };
+        fetchProfile();
+    }, []);
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-[#020205] font-sans text-foreground transition-all duration-500">
@@ -65,11 +79,21 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                             </Link>
                         </div>
 
-                        {/* Producer Tier Quick Status (Optional Visual) */}
-                        <div className="p-6 rounded-[2rem] bg-gradient-to-br from-slate-900 to-black text-white relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 w-20 h-20 bg-accent/20 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700" />
+                        {/* Producer Tier Quick Status */}
+                        <div className={`p-6 rounded-[2rem] relative overflow-hidden group transition-all duration-500 ${profile?.subscription_tier === 'premium' ? 'bg-gradient-to-br from-blue-600 to-indigo-900 text-white shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)]' :
+                            profile?.subscription_tier === 'pro' ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-900 shadow-[0_20px_50px_-10px_rgba(245,158,11,0.2)]' :
+                                'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-white/40 border border-slate-200 dark:border-white/5'
+                            }`}>
+                            <div className={`absolute top-0 right-0 w-20 h-20 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700 ${profile?.subscription_tier === 'premium' ? 'bg-white/20' :
+                                profile?.subscription_tier === 'pro' ? 'bg-white/40' :
+                                    'bg-slate-400/10'
+                                }`} />
                             <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-1">Membresía</p>
-                            <h4 className="text-sm font-black uppercase tracking-tight">Pro Vitaminado</h4>
+                            <h4 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
+                                {profile?.subscription_tier === 'premium' ? <><Crown size={14} /> Plan Premium</> :
+                                    profile?.subscription_tier === 'pro' ? <><Crown size={14} /> Plan Pro</> :
+                                        'Plan Gratuito'}
+                            </h4>
                         </div>
                     </div>
                 </aside>

@@ -41,6 +41,9 @@ export interface Profile {
     tema_perfil?: string;
     color_acento?: string;
     video_destacado_url?: string;
+    cta_text?: string;
+    cta_url?: string;
+    newsletter_active?: boolean;
     stripe_customer_id?: string;
     idioma_preferido?: string;
 }

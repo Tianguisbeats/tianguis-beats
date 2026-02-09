@@ -7,7 +7,7 @@ import {
     Share2, MoreHorizontal, Calendar, MapPin,
     Music, Play, Users, Crown, Settings, Camera,
     Edit3, CheckCircle2, Copy, Trash2, Layout, PlayCircle,
-    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save, ChevronUp, ChevronDown, List, Briefcase, Clock, DollarSign, Package
+    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save, ChevronUp, ChevronDown, List, Briefcase, Clock, DollarSign, Package, MessageSquare, Mail
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -134,7 +134,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             // 1. Get Profile
             const { data: profileData } = await supabase
                 .from('profiles')
-                .select('id, username, artistic_name, foto_perfil, portada_perfil, ajuste_portada, bio, country, social_links, is_verified, is_founder, subscription_tier, fecha_de_creacion, tema_perfil, color_acento, video_destacado_url')
+                .select('id, username, artistic_name, foto_perfil, portada_perfil, ajuste_portada, bio, country, social_links, is_verified, is_founder, subscription_tier, fecha_de_creacion, tema_perfil, color_acento, video_destacado_url, cta_text, cta_url, newsletter_active')
                 .eq('username', username)
                 .single();
 
@@ -637,7 +637,17 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-center gap-4">
+                                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                                    {!isOwner && profile.subscription_tier === 'premium' && profile.cta_text && profile.cta_url && (
+                                        <a
+                                            href={profile.cta_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="h-14 px-8 rounded-2xl bg-white dark:bg-white text-slate-900 border-2 border-slate-100 dark:border-white font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:scale-105 transition-all flex items-center gap-3 active:scale-95"
+                                        >
+                                            <MessageSquare size={18} className="text-accent" /> {profile.cta_text}
+                                        </a>
+                                    )}
                                     {isOwner ? (
                                         <button
                                             onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}
@@ -787,6 +797,28 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             </div>
                                         </div>
                                     </>
+                                )}
+
+                                {/* Premium Newsletter Form */}
+                                {profile.subscription_tier === 'premium' && profile.newsletter_active && (
+                                    <div className="mt-10 pt-10 border-t border-slate-100 dark:border-white/10">
+                                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-6 text-slate-400 dark:text-white/40 flex items-center gap-2">
+                                            <Mail size={12} className="text-accent" /> Comunidad VIP
+                                        </h4>
+                                        <p className="text-[11px] font-bold text-muted uppercase tracking-widest mb-6 px-1">
+                                            Suscríbete para recibir beats exclusivos y descuentos.
+                                        </p>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="email"
+                                                placeholder="Tu email..."
+                                                className="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 text-[10px] font-bold border-transparent focus:border-accent dark:text-white outline-none"
+                                            />
+                                            <button className="bg-accent text-white px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:opacity-90">
+                                                Unirse
+                                            </button>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         </div>

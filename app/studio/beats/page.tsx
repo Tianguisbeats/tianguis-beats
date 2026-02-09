@@ -122,8 +122,8 @@ export default function StudioBeatsPage() {
                                     </div>
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-3 mb-1">
-                                        <h4 className="font-black text-foreground text-lg tracking-tight truncate">{beat.title}</h4>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <h4 className="font-black text-foreground text-2xl tracking-tight truncate">{beat.title}</h4>
                                         <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${beat.is_public ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
                                             {beat.is_public ? 'Público' : 'Privado'}
                                         </span>
@@ -149,9 +149,9 @@ export default function StudioBeatsPage() {
                                 >
                                     <Trash2 size={20} className="transition-transform group-hover/btn:scale-110" />
                                 </button>
-                                <div className="hidden md:flex ml-4 pl-4 border-l border-border/50 flex-col items-end">
-                                    <span className="text-[14px] font-black text-foreground tracking-tighter">{(beat.play_count || 0)}</span>
-                                    <span className="text-[8px] font-black uppercase tracking-widest text-muted/60">Plays</span>
+                                <div className="hidden md:flex ml-4 pl-8 border-l border-border/50 flex-col items-center justify-center min-w-[80px]">
+                                    <span className="text-[18px] font-black text-foreground tracking-tighter">{(beat.play_count || 0)}</span>
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted/60">Plays</span>
                                 </div>
                             </div>
                         </div>
