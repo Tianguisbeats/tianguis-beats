@@ -228,8 +228,7 @@ function BeatsPageContent() {
         const { data: trendProd } = await supabase
           .from('profiles')
           .select('id, artistic_name, username, foto_perfil, subscription_tier, is_verified, is_founder, bio, created_at')
-          .not('username', 'is', null)
-          .order('subscription_tier', { ascending: false }) // Initial sort by tier
+          .order('subscription_tier', { ascending: false })
           .limit(20);
 
         if (trendProd) {
@@ -261,7 +260,6 @@ function BeatsPageContent() {
           const { data: prodData, error: prodError } = await supabase
             .from('profiles')
             .select(`id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, created_at, social_links`)
-            .not('username', 'is', null)
             .limit(150);
 
           if (prodError) throw prodError;

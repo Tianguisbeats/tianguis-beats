@@ -54,8 +54,8 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
     return (
         <div className={`group relative rounded-[2rem] overflow-hidden border transition-all duration-700 hover:-translate-y-1 flex flex-col h-full ${cardStyles}`}>
             {/* Image Section */}
-            <div className="relative aspect-square overflow-hidden p-3 pb-1">
-                <div className="w-full h-full rounded-[1.5rem] overflow-hidden relative shadow-inner group">
+            <div className="relative aspect-square overflow-hidden p-2 pb-0">
+                <div className="w-full h-full rounded-[1.2rem] overflow-hidden relative shadow-inner group">
                     {beat.portadabeat_url ? (
                         <img
                             src={beat.portadabeat_url}
@@ -79,26 +79,26 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                     <div className={`absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all flex items-center justify-center backdrop-blur-[1px] ${isThisPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                         <button
                             onClick={handlePlay}
-                            className="w-12 h-12 md:w-16 md:h-16 bg-background/95 text-accent rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all backdrop-blur-sm min-h-[48px] min-w-[48px]"
+                            className="w-10 h-10 md:w-12 md:h-12 bg-background/95 text-accent rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all backdrop-blur-sm min-h-0 min-w-0 p-0"
                         >
-                            {isThisPlaying ? <Pause fill="currentColor" size={24} /> : <Play fill="currentColor" size={24} className="ml-1" />}
+                            {isThisPlaying ? <Pause fill="currentColor" size={20} /> : <Play fill="currentColor" size={20} className="ml-1" />}
                         </button>
                     </div>
                 </div>
             </div>
 
             {/* Content Section */}
-            <div className="px-4 md:px-6 pt-0 pb-6 flex flex-col flex-1">
-                <Link href={`/beats/${beat.id}`} className="block mt-1 mb-2 min-h-[32px] flex items-center">
-                    <h3 className="font-black text-foreground text-base md:text-lg tracking-tighter leading-none truncate hover:text-accent transition-colors lowercase font-heading">
+            <div className="px-3 md:px-4 pt-0 pb-4 flex flex-col flex-1">
+                <Link href={`/beats/${beat.id}`} className="block mt-1 mb-1 min-h-[24px] flex items-center">
+                    <h3 className="font-black text-foreground text-sm md:text-base tracking-tighter leading-none truncate hover:text-accent transition-colors lowercase font-heading">
                         {beat.title}
                     </h3>
                 </Link>
 
                 {/* Producer Row */}
-                <Link href={`/${beat.producer_username || '#'}`} className="flex items-center gap-2 mb-4 group/prod min-h-[40px]">
+                <Link href={`/${beat.producer_username || '#'}`} className="flex items-center gap-2 mb-3 group/prod min-h-[32px]">
                     <div className="relative">
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-accent p-0.5 shadow-lg shadow-accent/10 transform transition-transform group-hover/prod:scale-110">
+                        <div className="w-6 h-6 md:w-8 md:h-8 rounded-full overflow-hidden border-2 border-accent p-0.5 shadow-lg shadow-accent/10 transform transition-transform group-hover/prod:scale-110">
                             <img
                                 src={beat.producer_foto_perfil || `https://ui-avatars.com/api/?name=${beat.producer_artistic_name}&background=random`}
                                 className="w-full h-full object-cover rounded-full"
@@ -139,27 +139,27 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                     </span>
                 </div>
 
-                <div className="mt-auto pt-3 border-t border-border flex items-center justify-between">
+                <div className="mt-auto pt-2 border-t border-border flex items-center justify-between">
                     <div className="flex flex-col">
-                        <span className="text-[8px] text-muted font-black uppercase tracking-[0.2em] mb-0.5 italic">Desde</span>
+                        <span className="text-[7px] text-muted font-black uppercase tracking-[0.2em] mb-0italic">Desde</span>
                         <div className="flex items-baseline gap-1">
-                            <span className="text-xl md:text-2xl font-black text-accent tracking-tighter">
+                            <span className="text-lg md:text-xl font-black text-accent tracking-tighter">
                                 {formatPriceMXN(beat.price_mxn).split('.')[0]}
                             </span>
                         </div>
-                        <button onClick={handleAddToCart} className="text-[8px] font-black text-muted uppercase tracking-[0.1em] mt-1 group/lic flex items-center gap-1 hover:text-accent transition-colors min-h-[24px]">
-                            VER LICENCIAS <ChevronRight size={8} className="group-hover/lic:translate-x-1 transition-transform" />
+                        <button onClick={handleAddToCart} className="text-[7px] font-black text-muted uppercase tracking-[0.1em] mt-0.5 group/lic flex items-center gap-1 hover:text-accent transition-colors min-h-0">
+                            LICENCIAS <ChevronRight size={6} className="group-hover/lic:translate-x-0.5 transition-transform" />
                         </button>
                     </div>
 
                     <button
                         onClick={handleAddToCart}
-                        className={`w-9 h-9 md:w-10 md:h-10 rounded-[0.8rem] flex items-center justify-center transition-all shadow-xl active:scale-95 min-h-[36px] min-w-[36px] ${itemInCart
+                        className={`w-8 h-8 md:w-9 md:h-9 rounded-[0.7rem] flex items-center justify-center transition-all shadow-xl active:scale-95 min-h-0 min-w-0 ${itemInCart
                             ? 'bg-green-500 text-white shadow-green-500/30'
                             : 'bg-accent text-white hover:bg-accent/90 shadow-accent/10 border border-transparent'
                             }`}
                     >
-                        {itemInCart ? <Check size={20} strokeWidth={4} /> : <ShoppingCart size={18} />}
+                        {itemInCart ? <Check size={16} strokeWidth={4} /> : <ShoppingCart size={16} />}
                     </button>
                 </div>
             </div>

@@ -163,13 +163,14 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                                 </Link>
                             )}
 
-                            {/* Progress Dots - More Minimal */}
-                            <div className="flex items-center gap-3 ml-2">
+                            {/* Progress Indicators - Minimal Lines */}
+                            <div className="flex items-center gap-2 ml-2">
                                 {combinedItems.map((_, i) => (
                                     <button
                                         key={i}
                                         onClick={() => setCurrentIndex(i)}
-                                        className={`h-[2px] rounded-full transition-all duration-500 ${i === currentIndex ? 'w-8 bg-white' : 'w-4 bg-white/20 hover:bg-white/50'}`}
+                                        className={`h-[2px] rounded-full transition-all duration-500 min-h-0 min-w-0 p-0 border-0 ${i === currentIndex ? 'w-8 bg-white' : 'w-4 bg-white/20 hover:bg-white/50'}`}
+                                        aria-label={`Go to slide ${i + 1}`}
                                     />
                                 ))}
                             </div>
