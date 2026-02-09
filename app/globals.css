@@ -68,9 +68,25 @@ body {
 }
 
 .click-highlight {
-  @apply transition-all duration-300 hover:text-blue-600 hover:scale-[1.01] active:scale-95 cursor-pointer;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.click-highlight:hover {
+  color: #2563eb;
+  transform: scale(1.01);
+}
+
+.click-highlight:active {
+  transform: scale(0.95);
 }
 
 .username-highlight {
-  @apply transition-all duration-300 hover:text-blue-600 hover:drop-shadow-[0_0_8px_rgba(37, 99, 235, 0.3)] cursor-pointer;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.username-highlight:hover {
+  color: #2563eb;
+  filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.3));
 }
