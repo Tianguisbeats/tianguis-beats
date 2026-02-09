@@ -41,6 +41,30 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
     const nextHit = () => setCurrentIndex((prev) => (prev + 1) % hits.length);
     const prevHit = () => setCurrentIndex((prev) => (prev - 1 + hits.length) % hits.length);
 
+    // Helper para obtener info del productor de forma segura
+    const getProducerInfo = () => {
+        if (isBeat) {
+            const beat = data as Beat;
+            const producerObj = beat.producer as any;
+            return {
+                artistic_name: producerObj?.artistic_name || beat.producer_artistic_name || "Productor",
+                username: producerObj?.username || beat.producer_username || "anonymous",
+                foto_perfil: producerObj?.foto_perfil || beat.producer_foto_perfil || "",
+                is_verified: producerObj?.is_verified || beat.producer_is_verified || false
+            };
+        } else {
+            const profile = data as any;
+            return {
+                artistic_name: profile.artistic_name || profile.username,
+                username: profile.username,
+                foto_perfil: profile.foto_perfil || "",
+                is_verified: profile.is_verified || false
+            };
+        }
+    };
+
+    const prodInfo = getProducerInfo();
+
     return (
         <div className="w-full mb-12 group relative">
             {/* Main Premium Container */}
@@ -65,7 +89,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                         <div className="relative shrink-0 perspective-1000 group/art">
                             <div className="w-48 h-48 md:w-80 md:h-80 rounded-[3rem] overflow-hidden rotate-3 group-hover/art:rotate-0 transition-transform duration-700 shadow-2xl border border-white/10 relative">
                                 <img
-                                    src={(isBeat ? (data as Beat).portadabeat_url : (data as any).foto_perfil) || `https://ui-avatars.com/api/?name=${(data as any).artistic_name || (data as any).username}&background=random`}
+                                    src={(isBeat ? (data as Beat).portadabeat_url : (data as any).foto_perfil) || `https://ui-avatars.com/api/?name=${prodInfo.artistic_name}&background=random`}
                                     className="w-full h-full object-cover"
                                     alt="Artwork"
                                 />
@@ -84,7 +108,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                             {/* Hit Badge Floating */}
                             <div className="absolute -top-4 -right-4 bg-white text-slate-950 px-6 py-2 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-2xl flex items-center gap-2 border border-white/20 select-none">
                                 <Flame size={14} className="text-orange-500 fill-orange-500 animate-pulse" />
-                                Hits de la semana
+                                {isBeat ? 'Hits de la semana' : 'Top Productor'}
                             </div>
                         </div>
 
@@ -94,27 +118,20 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                 <span className="bg-accent/10 border border-accent/20 text-accent text-[9px] font-black uppercase tracking-[0.4em] px-4 py-1.5 rounded-full">
                                     {isBeat ? 'Trending Track' : 'Featured Producer'}
                                 </span>
-                                {(isBeat ? (data as Beat).producer_is_verified : (data as any).is_verified) && (
+                                {prodInfo.is_verified && (
                                     <CheckCircle2 size={16} className="text-blue-400" />
                                 )}
                             </div>
 
                             <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter mb-4 font-heading leading-none group-hover:tracking-tight transition-all duration-700">
-                                {isBeat ? (data as Beat).title : (data as any).artistic_name || (data as any).username}
+                                {isBeat ? (data as Beat).title : prodInfo.artistic_name}
                             </h2>
 
                             <div className="flex items-center gap-6 mb-10 text-slate-400">
-                                {isBeat ? (
-                                    <Link href={`/${(data as Beat).producer_username}`} className="flex items-center gap-3 group/prod">
-                                        <img src={(data as Beat).producer_foto_perfil || ''} className="w-8 h-8 rounded-full border border-white/10 group-hover/prod:border-accent transition-colors" />
-                                        <span className="text-sm font-bold uppercase tracking-widest group-hover/prod:text-white transition-colors">{(data as Beat).producer_artistic_name}</span>
-                                    </Link>
-                                ) : (
-                                    <div className="flex items-center gap-2">
-                                        <Users size={18} className="text-accent" />
-                                        <span className="text-sm font-bold uppercase tracking-widest">Élite de la industria</span>
-                                    </div>
-                                )}
+                                <Link href={`/${prodInfo.username}`} className="flex items-center gap-3 group/prod">
+                                    <img src={prodInfo.foto_perfil || `https://ui-avatars.com/api/?name=${prodInfo.artistic_name}`} className="w-8 h-8 rounded-full border border-white/10 group-hover/prod:border-accent transition-colors" />
+                                    <span className="text-sm font-bold uppercase tracking-widest group-hover/prod:text-white transition-colors">{prodInfo.artistic_name}</span>
+                                </Link>
                                 <div className="h-4 w-[1px] bg-white/10"></div>
                                 <div className="flex items-center gap-2">
                                     <Sparkles size={16} className="text-yellow-400" />
@@ -141,7 +158,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                     </>
                                 ) : (
                                     <Link
-                                        href={`/${(data as any).username}`}
+                                        href={`/${prodInfo.username}`}
                                         className="px-12 h-20 bg-accent text-white rounded-[2rem] flex items-center gap-4 group/btn transition-all shadow-xl shadow-accent/40 active:scale-95"
                                     >
                                         <span className="text-[11px] font-black uppercase tracking-widest">Ver Perfil Completo</span>
@@ -163,13 +180,13 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                     </button>
                 </div>
 
-                {/* Vertical Indicators */}
-                <div className="absolute right-6 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-2">
+                {/* Horizontal Indicators - Centered Bottom */}
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
                     {hits.map((_, i) => (
                         <div
                             key={i}
                             onClick={() => setCurrentIndex(i)}
-                            className={`w-1 transition-all duration-500 rounded-full cursor-pointer ${i === currentIndex ? 'h-10 bg-accent' : 'h-4 bg-white/10 hover:bg-white/30'}`}
+                            className={`h-1 transition-all duration-500 rounded-full cursor-pointer ${i === currentIndex ? 'w-10 bg-accent' : 'w-4 bg-white/10 hover:bg-white/30'}`}
                         />
                     ))}
                 </div>

@@ -26,19 +26,27 @@ function ArtistsContent() {
     useEffect(() => {
         async function fetchArtists() {
             try {
+                setLoading(true);
+                // Query más robusta: quitamos campos que podrían no existir si hubo cambio de esquema
                 const { data, error } = await supabase
                     .from('profiles')
-                    .select('id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, created_at, social_links, country')
-                    .order('subscription_tier', { ascending: false })
+                    .select('id, username, artistic_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, created_at')
                     .limit(100);
 
-                if (error) throw error;
+                if (error) {
+                    console.error("Supabase error fetching artists:", error);
+                    throw error;
+                }
+
+                // Filtrar solo los que tienen al menos username o artistic_name
+                const validProfiles = (data || []).filter(p => p.username || p.artistic_name);
 
                 // Strict sorting: Premium -> Pro -> Free
-                const sorted = (data || []).sort((a, b) => {
-                    const order: any = { premium: 0, pro: 1, free: 2 };
-                    const tierA = order[a.subscription_tier as any] ?? 3;
-                    const tierB = order[b.subscription_tier as any] ?? 3;
+                const sorted = validProfiles.sort((a, b) => {
+                    const tier_order: any = { premium: 0, pro: 1, free: 2 };
+                    const tierA = tier_order[(a.subscription_tier || 'free').toLowerCase()] ?? 3;
+                    const tierB = tier_order[(b.subscription_tier || 'free').toLowerCase()] ?? 3;
+
                     if (tierA !== tierB) return tierA - tierB;
                     return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
                 });
@@ -88,7 +96,7 @@ function ArtistsContent() {
                                         </div>
                                     ))}
                                 </div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted">+100 Productores Activos</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-muted">+{artists.length > 0 ? artists.length : '...'} Productores Activos</p>
                             </div>
                         </div>
                     </div>
@@ -97,13 +105,16 @@ function ArtistsContent() {
                 <div className="max-w-7xl mx-auto px-6 lg:px-10">
                     {loading ? (
                         <div className="flex items-center justify-center py-40">
-                            <Loader2 className="animate-spin text-accent" size={40} />
+                            <div className="flex flex-col items-center gap-6">
+                                <Loader2 className="animate-spin text-accent" size={48} />
+                                <p className="text-xs font-black uppercase tracking-[0.3em] text-muted">Sincronizando con el Tianguis...</p>
+                            </div>
                         </div>
-                    ) : (
+                    ) : artists.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
                             {artists.map((artist) => {
-                                const isPremium = artist.subscription_tier === 'premium';
-                                const isPro = artist.subscription_tier === 'pro';
+                                const isPremium = (artist.subscription_tier || '').toLowerCase() === 'premium';
+                                const isPro = (artist.subscription_tier || '').toLowerCase() === 'pro';
 
                                 return (
                                     <Link
@@ -116,7 +127,7 @@ function ArtistsContent() {
                                             <img
                                                 src={artist.foto_perfil || `https://ui-avatars.com/api/?name=${artist.artistic_name || artist.username}&background=random&color=fff&size=512`}
                                                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0 opacity-90 group-hover:opacity-100"
-                                                alt={artist.artistic_name}
+                                                alt={artist.artistic_name || artist.username}
                                             />
 
                                             {/* Tier Overlays */}
@@ -128,7 +139,7 @@ function ArtistsContent() {
                                                             <span className="text-[9px] font-black uppercase tracking-widest">Premium</span>
                                                         </div>
                                                     )}
-                                                    {isPro && !isPremium && (
+                                                    {isPro && (
                                                         <div className="bg-blue-600 text-white px-4 py-1.5 rounded-full flex items-center gap-2 shadow-xl border border-white/20 backdrop-blur-md">
                                                             <Star size={12} fill="currentColor" />
                                                             <span className="text-[9px] font-black uppercase tracking-widest">Pro</span>
@@ -152,15 +163,9 @@ function ArtistsContent() {
                                                     {artist.artistic_name || artist.username}
                                                 </h3>
                                                 <div className="flex items-center gap-4 text-white/60">
-                                                    {artist.country && (
-                                                        <div className="flex items-center gap-1.5">
-                                                            <MapPin size={10} className="text-accent" />
-                                                            <span className="text-[9px] font-bold uppercase tracking-widest">{artist.country}</span>
-                                                        </div>
-                                                    )}
-                                                    <div className="flex items-center gap-1.5 border-l border-white/10 pl-4">
+                                                    <div className="flex items-center gap-1.5">
                                                         <Music size={10} className="text-accent" />
-                                                        <span className="text-[9px] font-bold uppercase tracking-widest">Productores</span>
+                                                        <span className="text-[9px] font-bold uppercase tracking-widest">Productor</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -169,18 +174,21 @@ function ArtistsContent() {
                                         {/* Metadata Box Minimal */}
                                         <div className="px-6 flex flex-col gap-4">
                                             <p className="text-xs text-muted leading-relaxed font-medium line-clamp-2 italic opacity-60 group-hover:opacity-100 transition-opacity">
-                                                {artist.bio || "Explora el sonido único de este productor bajacaliforniano."}
+                                                {artist.bio || "Este productor ha decidido que su música hable por él. Explora su catálogo completo."}
                                             </p>
-
-                                            <div className="flex items-center gap-4 opacity-40 group-hover:opacity-100 transition-all">
-                                                {artist.social_links?.instagram && <Instagram size={14} className="hover:text-accent cursor-pointer transition-colors" />}
-                                                {artist.social_links?.twitter && <Twitter size={14} className="hover:text-accent cursor-pointer transition-colors" />}
-                                                <LinkIcon size={14} className="hover:text-accent cursor-pointer transition-colors ml-auto" />
-                                            </div>
                                         </div>
                                     </Link>
                                 );
                             })}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center py-40 bg-card/20 rounded-[4rem] border border-dashed border-border">
+                            <Users className="text-muted mb-6 opacity-20" size={64} />
+                            <h3 className="text-2xl font-black uppercase tracking-tight font-heading mb-4 text-muted">Aún no hay artistas visibles</h3>
+                            <p className="text-muted text-sm max-w-xs text-center mb-8">Estamos vinculando las cuentas de los mejores productores de la plataforma.</p>
+                            <Link href="/beats" className="bg-accent text-white px-10 py-4 rounded-2xl font-black uppercase text-[11px] tracking-widest hover:scale-105 transition-all shadow-xl shadow-accent/20">
+                                Regresar al Tianguis
+                            </Link>
                         </div>
                     )}
                 </div>
