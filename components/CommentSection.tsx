@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Send, User, Trash2, Crown } from 'lucide-react';
+import { Send, User, Trash2, Crown, MessageCircle } from 'lucide-react';
 
 interface Comment {
     id: string;
@@ -120,72 +120,69 @@ export default function CommentSection({ beatId }: { beatId: string }) {
     };
 
     return (
-        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm mt-8">
-            <h3 className="font-black text-2xl uppercase tracking-tighter mb-8 text-slate-900">
-                Comentarios <span className="text-slate-300 ml-2">{comments.length}</span>
-            </h3>
-
-            {/* Input */}
-            <div className="flex gap-4 mb-8">
-                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                    <User size={20} className="text-slate-400" />
+        <div className="h-full flex flex-col">
+            {/* Input area rendered within the parent's container */}
+            <div className="flex gap-4 mb-10">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-white/5 flex items-center justify-center shrink-0">
+                    <User size={24} className="text-muted" />
                 </div>
-                <div className="flex-1 relative">
+                <div className="flex-1 relative group">
                     <textarea
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
                         placeholder="Deja un comentario..."
-                        className="w-full bg-slate-50 rounded-2xl p-4 pr-12 text-sm font-medium border border-transparent focus:border-blue-200 outline-none transition-all resize-none h-24"
+                        className="w-full bg-slate-50 dark:bg-white/5 rounded-[1.5rem] p-5 pr-14 text-sm font-medium border border-transparent focus:border-accent outline-none transition-all resize-none h-28"
                     />
                     <button
                         onClick={handlePostComment}
                         disabled={isLoading || !commentText.trim()}
-                        className="absolute bottom-3 right-3 w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-slate-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="absolute bottom-4 right-4 w-10 h-10 bg-accent text-white rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-accent/20"
                     >
-                        <Send size={14} />
+                        <Send size={16} />
                     </button>
                 </div>
             </div>
 
             {/* List */}
-            <div className="space-y-6">
+            <div className="space-y-8 flex-1">
                 {comments.length === 0 ? (
-                    <p className="text-center text-slate-400 text-xs font-bold uppercase tracking-widest py-8">Sé el primero en comentar</p>
+                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <MessageCircle size={40} className="text-muted/20 mb-4" />
+                        <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em]">Sé el primero en comentar</p>
+                    </div>
                 ) : (
                     comments.map(comment => (
                         <div key={comment.id} className="flex gap-4 group">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden border-2 transition-all ${comment.user.subscription_tier === 'premium' ? 'border-blue-500 shadow-sm shadow-blue-500/20' :
-                                comment.user.subscription_tier === 'pro' ? 'border-amber-400' :
-                                    'border-slate-100'
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden border-2 transition-all ${comment.user.subscription_tier === 'premium' ? 'border-blue-600 shadow-sm' :
+                                comment.user.subscription_tier === 'pro' ? 'border-amber-500' :
+                                    'border-border'
                                 }`}>
                                 {comment.user.foto_perfil ? (
                                     <img src={comment.user.foto_perfil} alt={comment.user.username} className="w-full h-full object-cover" />
                                 ) : (
-                                    <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300 italic font-black text-[10px]">
+                                    <div className="w-full h-full bg-slate-50 dark:bg-white/10 flex items-center justify-center text-muted italic font-black text-xs">
                                         {(comment.user.artistic_name || comment.user.username || 'U').charAt(0).toUpperCase()}
                                     </div>
                                 )}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-1">
-                                    <div className="flex items-center gap-1.5 flex-wrap">
-                                        <a href={`/${comment.user.username}`} className="text-xs font-black text-slate-900 uppercase tracking-tight hover:text-blue-600 transition-colors truncate max-w-[150px] username-highlight">
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <a href={`/${comment.user.username}`} className="text-xs font-black text-foreground uppercase tracking-tight hover:text-accent transition-colors truncate max-w-[150px]">
                                             {comment.user.artistic_name || comment.user.username}
                                         </a>
                                         {comment.user.is_verified && (
-                                            <img src="/verified-badge.png" className="w-3.5 h-3.5 object-contain" alt="Verificado" title="Usuario Verificado" />
+                                            <img src="/verified-badge.png" className="w-4 h-4 object-contain" alt="Verificado" />
                                         )}
                                         {comment.user.is_founder && (
-                                            <span title="Founder">
-                                                <Crown size={12} className="text-amber-400" fill="currentColor" />
-                                            </span>
+                                            <Crown size={14} className="text-amber-500" fill="currentColor" />
                                         )}
                                     </div>
-                                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest shrink-0">
+                                    <span className="text-[9px] font-black text-muted uppercase tracking-widest shrink-0">
                                         {new Date(comment.created_at).toLocaleDateString()}
                                     </span>
                                 </div>
-                                <p className="text-slate-500 text-sm leading-relaxed break-words">{comment.content}</p>
+                                <p className="text-muted text-sm leading-relaxed break-words font-medium">{comment.content}</p>
                             </div>
                             {currentUser === comment.user_id && (
                                 <button
@@ -194,9 +191,9 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                                             handleDelete(comment.id);
                                         }
                                     }}
-                                    className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1"
+                                    className="opacity-0 group-hover:opacity-100 text-muted hover:text-red-500 transition-all p-1"
                                 >
-                                    <Trash2 size={14} />
+                                    <Trash2 size={16} />
                                 </button>
                             )}
                         </div>

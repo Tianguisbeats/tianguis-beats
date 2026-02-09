@@ -563,10 +563,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         {/* Avatar */}
                         <div className="relative group shrink-0">
                             <div className={`w-48 h-48 md:w-56 md:h-56 rounded-[3rem] border-[6px] shadow-2xl overflow-hidden transition-all duration-700 bg-background ${profile.subscription_tier === 'premium'
-                                ? 'border-blue-500/50'
+                                ? 'border-blue-600'
                                 : profile.subscription_tier === 'pro'
-                                    ? 'border-amber-400/50'
-                                    : 'border-white'
+                                    ? 'border-amber-500'
+                                    : 'border-border'
                                 }`}>
                                 {profile.foto_perfil ? (
                                     <img src={profile.foto_perfil} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Avatar" />
@@ -597,8 +597,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 <img src="/verified-badge.png" alt="Verificado" className="w-8 h-8 object-contain hover:scale-110 transition-transform cursor-help" title="Verificado" />
                                             )}
                                             {profile.is_founder && (
-                                                <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-amber-400 shadow-xl border border-white/10 hover:rotate-12 transition-transform cursor-help" title="Founder">
-                                                    <Crown size={22} fill="currentColor" />
+                                                <div className="flex items-center justify-center text-amber-500 hover:rotate-12 transition-transform cursor-help" title="Founder">
+                                                    <Crown size={32} fill="currentColor" />
                                                 </div>
                                             )}
                                         </div>
@@ -793,7 +793,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         {/* Beats Feed */}
                         <div className="lg:col-span-8">
                             {/* 3. Navegación de Contenido (Tabs) */}
-                            <div className="flex items-center justify-between gap-4 border-b border-slate-100 mb-12 overflow-x-auto pb-px scrollbar-hide">
+                            <div className="flex items-center justify-between gap-4 border-b border-border mb-12 overflow-x-auto pb-px scrollbar-hide">
                                 <div className="flex gap-10">
                                     {[
                                         { id: 'beats', label: 'Beats', icon: Music },
@@ -819,7 +819,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             className={`py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === 'sound_kits' ? 'text-amber-500' : 'text-muted hover:text-amber-400'}`}
                                         >
                                             <Zap size={16} /> Sound Kits
-                                            <div className="bg-amber-100 text-amber-600 px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-tighter">Gold</div>
                                         </button>
                                     )}
                                 </div>

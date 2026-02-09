@@ -194,158 +194,171 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
             <Navbar />
 
             <main className="flex-1 pb-32">
-                {/* 1. HERO HEADER (Immersive Gradient) */}
-                <div className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-4 shadow-sm bg-background overflow-hidden border-b border-border">
-                    {/* Dynamic Ambient Background - "Liquid" Effect */}
-                    <div className="absolute inset-0 bg-background -z-20" />
-                    <div className="absolute top-[-20%] left-[-10%] w-[120vw] h-[120vw] bg-gradient-to-br from-accent/5 via-purple-500/5 to-pink-500/5 rounded-full blur-[120px] -z-10 animate-pulse duration-[8000ms]" />
-                    <div className="absolute bottom-[-20%] right-[-10%] w-[100vw] h-[100vw] bg-gradient-to-tr from-amber-500/5 via-orange-500/5 to-yellow-500/5 rounded-full blur-[100px] -z-10 animate-pulse duration-[10000ms] delay-1000" />
+                {/* 1. HERO HEADER (Minimalist Premium) */}
+                <div className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-4 shadow-sm bg-background overflow-hidden">
+                    {/* Ambient Background */}
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-accent/5 to-transparent -z-10" />
 
-                    <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
-                        {/* Artwork */}
-                        <div className="relative group shrink-0 w-64 h-64 md:w-80 md:h-80">
-                            {/* Liquid Animation Background for Card */}
-                            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-[3rem] blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-700 animate-spin-slow" />
-
-                            <div className="w-full h-full rounded-[2.5rem] bg-card shadow-2xl overflow-hidden border border-border relative z-10 transition-transform duration-500 group-hover:scale-[1.02] group-hover:-rotate-1">
+                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16">
+                        {/* Artwork with Level-up shadow */}
+                        <div className="relative group shrink-0">
+                            <div className="w-64 h-64 md:w-96 md:h-96 rounded-[3.5rem] bg-card shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden border border-border/50 relative z-10 transition-all duration-700 group-hover:scale-[1.03] group-hover:-rotate-1">
                                 {beat.portadabeat_url ? (
-                                    <img src={beat.portadabeat_url} className="w-full h-full object-cover" alt={beat.title} />
+                                    <img src={beat.portadabeat_url} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={beat.title} />
                                 ) : (
-                                    <div className="w-full h-full bg-accent-soft flex items-center justify-center text-muted"><Music2 size={80} /></div>
+                                    <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300"><Music2 size={100} /></div>
                                 )}
-                            </div>
 
-                            {/* Play Button Overlay */}
-                            <button
-                                onClick={() => playBeat(beat as any)}
-                                className="absolute -bottom-6 -right-6 w-20 h-20 bg-accent text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-accent/20 hover:bg-blue-500 hover:scale-110 transition-all active:scale-95 z-20"
-                            >
-                                {isPlaying && currentBeat?.id === beat.id ? <Pause size={30} fill="currentColor" /> : <Play size={30} fill="currentColor" className="ml-1" />}
-                            </button>
+                                {/* Overlay Play Button */}
+                                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+                                    <button
+                                        onClick={() => playBeat(beat as any)}
+                                        className="w-24 h-24 bg-white/90 text-accent rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform active:scale-95"
+                                    >
+                                        {isPlaying && currentBeat?.id === beat.id ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Text Info */}
-                        <div className="text-center md:text-left flex-1 space-y-6">
-                            <div className="space-y-2">
-                                <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-foreground leading-[0.9] uppercase tracking-tighter">
+                        {/* Info Content */}
+                        <div className="flex-1 text-center md:text-left space-y-8">
+                            <div className="space-y-4">
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mb-2">
+                                    <span className="px-5 py-2 rounded-2xl bg-accent text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-accent/20">
+                                        Nuevo lanzamiento
+                                    </span>
+                                    <div className="flex items-center gap-4 text-muted text-[10px] font-black uppercase tracking-[0.2em]">
+                                        <span className="flex items-center gap-2"><Speaker size={16} className="text-accent" /> {beat.play_count?.toLocaleString() || 0}</span>
+                                        <span className="flex items-center gap-2"><Heart size={16} className="text-red-500" /> {beat.like_count?.toLocaleString() || 0}</span>
+                                    </div>
+                                </div>
+
+                                <h1 className="text-5xl md:text-8xl lg:text-9xl font-black text-foreground leading-[1] uppercase tracking-tighter mb-4">
                                     {beat.title}
                                 </h1>
 
-                                {/* Producer Header - Now below title */}
-                                <Link href={`/${(beat.producer as any)?.username || ''}`} className="inline-flex items-center gap-3 bg-card/40 backdrop-blur-sm px-4 py-2 rounded-full border border-border/50 hover:bg-card/60 transition-all group">
-                                    <div className={`relative p-0.5 rounded-full border-2 ${(beat.producer as any)?.subscription_tier === 'premium' ? 'border-accent' :
-                                        (beat.producer as any)?.subscription_tier === 'pro' ? 'border-amber-400' :
+                                <Link href={`/${(beat.producer as any)?.username || ''}`} className="inline-flex items-center gap-4 group">
+                                    <div className={`p-1 rounded-2xl border-2 transition-all group-hover:scale-110 ${(beat.producer as any)?.subscription_tier === 'premium' ? 'border-blue-600' :
+                                        (beat.producer as any)?.subscription_tier === 'pro' ? 'border-amber-500' :
                                             'border-border'
                                         }`}>
-                                        <img src={(beat.producer as any)?.foto_perfil || "/logo.png"} className="w-8 h-8 rounded-full object-cover" alt="Prod" />
+                                        <img src={(beat.producer as any)?.foto_perfil || "/logo.png"} className="w-12 h-12 rounded-xl object-cover" alt="Prod" />
                                     </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <span className="block text-sm font-black text-foreground">{(beat.producer as any)?.artistic_name || (beat.producer as any)?.username}</span>
-                                        {(beat.producer as any)?.is_verified && <img src="/verified-badge.png" className="w-3.5 h-3.5" alt="V" />}
-                                        {(beat.producer as any)?.is_founder && <Crown size={14} className="text-amber-400" fill="currentColor" />}
+                                    <div className="text-left">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xl font-black text-foreground uppercase tracking-tighter group-hover:text-accent transition-colors">{(beat.producer as any)?.artistic_name || (beat.producer as any)?.username}</span>
+                                            {(beat.producer as any)?.is_verified && <img src="/verified-badge.png" className="w-5 h-5" alt="V" />}
+                                            {(beat.producer as any)?.is_founder && <Crown size={18} className="text-amber-500" fill="currentColor" />}
+                                        </div>
+                                        <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em]">Tianguis Producer</p>
                                     </div>
                                 </Link>
                             </div>
 
-                            {/* Technical Details Integrated into Hero */}
-                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                                <span className="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2">
-                                    <Tag size={12} /> {beat.genre}
-                                </span>
-                                <span className="px-4 py-2 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2">
-                                    <Activity size={12} /> {beat.bpm} BPM
-                                </span>
-                                <span className="px-4 py-2 rounded-xl bg-accent/10 text-accent border border-accent/20 text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2">
-                                    <Music2 size={12} /> {beat.musical_key || '?'}
-                                </span>
-                                <span className="px-4 py-2 rounded-xl bg-purple-500/10 text-purple-500 border border-purple-500/20 text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2">
-                                    <Layers size={12} /> {beat.musical_scale}
-                                </span>
-                                <div className="flex items-center gap-4 text-muted text-[10px] font-black uppercase tracking-widest pl-2">
-                                    <span className="flex items-center gap-1.5"><Speaker size={14} className="text-accent" /> {beat.play_count?.toLocaleString() || 0}</span>
-                                    <span className="flex items-center gap-1.5"><Heart size={14} className="text-red-500" /> {beat.like_count?.toLocaleString() || 0}</span>
-                                </div>
-                                <div className="h-6 w-px bg-border mx-1 hidden md:block" />
-                                <div className="flex flex-wrap items-center gap-2">
-                                    {beat.mood?.split(',').map((m: string) => {
-                                        const moodLabel = m.trim();
-                                        return (
-                                            <span key={moodLabel} className="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-300 hover:text-white transition-colors cursor-default">
-                                                {moodLabel}
-                                            </span>
-                                        );
-                                    })}
-                                </div>
+                            {/* Technical Grid */}
+                            <div className="grid grid-cols-2 md:flex md:flex-wrap gap-4">
+                                {[
+                                    { label: 'Género', val: beat.genre, icon: Tag, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                                    { label: 'Tempo', val: `${beat.bpm} BPM`, icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+                                    { label: 'Tonalidad', val: beat.musical_key || 'C', icon: Music2, color: 'text-accent', bg: 'bg-accent/10' },
+                                    { label: 'Escala', val: beat.musical_scale ? (beat.musical_scale.toUpperCase() === 'MINOR' ? 'Menor' : 'Mayor') : 'Mayor', icon: Layers, color: 'text-purple-500', bg: 'bg-purple-500/10' }
+                                ].map((stat, i) => (
+                                    <div key={i} className="flex-1 min-w-[120px] p-4 rounded-3xl bg-card border border-border/50 shadow-sm flex flex-col items-center md:items-start gap-2">
+                                        <span className={`p-2 rounded-xl ${stat.bg} ${stat.color}`}>
+                                            <stat.icon size={18} />
+                                        </span>
+                                        <div>
+                                            <p className="text-[8px] font-black uppercase text-muted tracking-widest">{stat.label}</p>
+                                            <p className="text-sm font-black text-foreground uppercase tracking-tight">{stat.val}</p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
 
-                            <div className="flex gap-4 justify-center md:justify-start mt-4">
-                                <button onClick={handleLike} className={`px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-3 transition-all ${isLiked ? 'bg-red-500 text-white shadow-xl shadow-red-500/30 hover:scale-105' : 'bg-accent text-white hover:bg-accent/90 shadow-xl shadow-accent/10'}`}>
-                                    <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
-                                    {isLiked ? 'Te gusta' : 'Dar Like'}
+                            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                                <button onClick={handleLike} className={`h-16 px-10 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${isLiked ? 'bg-red-500 text-white shadow-xl shadow-red-500/20' : 'bg-foreground text-background hover:bg-foreground/90 shadow-xl shadow-foreground/10'}`}>
+                                    <Heart size={20} fill={isLiked ? "currentColor" : "none"} />
+                                    {isLiked ? 'En tus favoritos' : 'Me gusta'}
                                 </button>
                                 <button
                                     onClick={() => {
                                         navigator.clipboard.writeText(window.location.href);
-                                        alert("¡Enlace copiado al portapapeles! 🚀");
+                                        // Simple toast notification system would go here
                                     }}
-                                    className="px-8 py-4 rounded-2xl bg-card text-foreground border-2 border-border font-black text-xs uppercase tracking-widest flex items-center gap-3 hover:border-accent transition-all hover:scale-105 active:scale-95"
+                                    className="h-16 px-10 rounded-2xl bg-card text-foreground border border-border font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-accent hover:text-white hover:border-accent transition-all group"
                                 >
-                                    <Share2 size={18} /> Compartir
+                                    <Share2 size={20} className="group-hover:rotate-12 transition-transform" /> Compartir
                                 </button>
-
-                                {/* Release Date next to action buttons */}
-                                <div className="flex flex-col justify-center px-4 bg-card/50 backdrop-blur-sm rounded-2xl border border-border py-2">
-                                    <span className="text-[8px] font-black text-muted uppercase tracking-[0.2em] mb-1 leading-none text-center">Lanzamiento</span>
-                                    <div className="flex items-center gap-2 text-foreground">
-                                        <div className="flex flex-wrap gap-2">
-                                            {beat.mood && beat.mood.split(',').map((mood: string) => (
-                                                <span key={mood} className="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-300 hover:text-white transition-colors cursor-default">
-                                                    {mood.trim()}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
+
+                            {/* Moods tags */}
+                            {beat.mood && (
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-4">
+                                    <span className="text-[9px] font-black text-muted uppercase tracking-[0.3em] mr-2">Vibras:</span>
+                                    {beat.mood.split(',').map((m: string) => (
+                                        <span key={m} className="px-5 py-2 rounded-full border border-border/60 text-[9px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:border-foreground transition-all">
+                                            {m.trim()}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
 
-                {/* 2. WAVEFORM VISUALIZER */}
-                <div className="max-w-6xl mx-auto px-4 -mt-10 relative z-20 mb-8">
-                    <div className="bg-black p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-blue-600/20 transition-all duration-700"></div>
-                        <WaveformPlayer
-                            url={beat.mp3_url || ''}
-                            height={150}
-                            waveColor="#334155"
-                            progressColor="#3b82f6"
-                        />
+                {/* 2. WAVEFORM VISUALIZER (Premium Design) */}
+                <div className="max-w-7xl mx-auto px-4 -mt-10 relative z-20 mb-16">
+                    <div className="bg-foreground p-10 rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-[100px] -mr-32 -mt-32 transition-all duration-700 group-hover:bg-accent/30" />
+                        <div className="relative z-10 flex flex-col gap-6">
+                            <div className="flex items-center justify-between text-background/60 text-[10px] font-black uppercase tracking-[0.3em]">
+                                <span>Preview Audio (HQ)</span>
+                                <div className="flex items-center gap-4">
+                                    <span className="flex items-center gap-2 text-accent"><Activity size={12} /> Live Waveform</span>
+                                    <span className="w-1.5 h-1.5 bg-accent rounded-full animate-ping" />
+                                </div>
+                            </div>
+                            <WaveformPlayer
+                                url={beat.mp3_url || ''}
+                                height={140}
+                                waveColor="rgba(255,255,255,0.1)"
+                                progressColor="var(--accent)"
+                            />
+                        </div>
                     </div>
                 </div>
 
 
-                {/* 3. MAIN CONTENT GRID */}
-                <div className="max-w-6xl mx-auto px-4 grid lg:grid-cols-12 gap-12">
-                    {/* LEFT COLUMN: Licenses */}
+                {/* 3. MAIN CONTENT (Licenses & Community) */}
+                <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-12 gap-16">
+                    {/* LEFT COLUMN: Licensing Experience */}
                     <div className="lg:col-span-8">
-                        <h2 className="text-2xl font-black uppercase tracking-tight text-foreground mb-8 flex items-center gap-2">
-                            <ShieldCheck className="text-accent" /> Licencias Disponibles
-                        </h2>
+                        <div className="flex items-center justify-between mb-10">
+                            <h2 className="text-3xl font-black uppercase tracking-tight text-foreground flex items-center gap-3">
+                                <ShieldCheck size={32} className="text-accent" /> Licencias <span className="text-muted">Disponibles</span>
+                            </h2>
+                            <Link href="/licensing" className="text-[10px] font-black uppercase tracking-widest text-accent hover:underline flex items-center gap-2">
+                                <Info size={14} /> Comparar planes
+                            </Link>
+                        </div>
 
                         {!selectedLicense ? (
-                            <div className="p-10 bg-card rounded-[2rem] text-center border-2 border-dashed border-border">
-                                <h3 className="text-xl font-black text-muted uppercase tracking-widest">Beat No Disponible</h3>
-                                <p className="text-muted text-sm mt-2">Este beat no tiene licencias activas para venta.</p>
+                            <div className="p-16 bg-card rounded-[3rem] text-center border-2 border-dashed border-border/50">
+                                <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 mx-auto mb-6">
+                                    <Package size={40} />
+                                </div>
+                                <h3 className="text-2xl font-black text-foreground uppercase tracking-tight">Beat No Disponible</h3>
+                                <p className="text-muted text-sm mt-2 max-w-sm mx-auto">Este beat no tiene licencias activas en este momento. Vuelve más tarde o contacta al productor.</p>
                             </div>
                         ) : (
-                            <>
-                                <div className="grid md:grid-cols-2 gap-4 mb-8">
+                            <div className="space-y-10">
+                                <div className="grid md:grid-cols-2 gap-6">
                                     {beat.is_mp3_active !== false && (
                                         <LicenseCard
                                             type="MP3"
                                             price={beat.price_mp3 || beat.price_mxn || 299}
-                                            features={['MP3 Alta Calidad', 'Ventas Ilimitadas', 'Untagged']}
+                                            features={['MP3 Alta Calidad (320kbps)', 'Uso comercial limitado', 'Entrega instantánea']}
                                             selected={selectedLicense === 'MP3'}
                                             onSelect={() => setSelectedLicense('MP3')}
                                             active={true}
@@ -355,7 +368,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                         <LicenseCard
                                             type="WAV"
                                             price={beat.price_wav || Math.ceil((beat.price_mxn || 299) * 1.5)}
-                                            features={['WAV + MP3', 'Calidad de Estudio', 'Untagged']}
+                                            features={['WAV + MP3', 'Calidad Profesional', 'Acuerdo de licencia']}
                                             selected={selectedLicense === 'WAV'}
                                             onSelect={() => setSelectedLicense('WAV')}
                                             active={true}
@@ -365,7 +378,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                         <LicenseCard
                                             type="STEMS"
                                             price={beat.price_stems || Math.ceil((beat.price_mxn || 299) * 2.5)}
-                                            features={['Trackout (Stems)', 'Control Total', 'WAV + MP3']}
+                                            features={['Separación de pistas (Stems)', 'Control total de la mezcla', 'Ideal para estudios']}
                                             selected={selectedLicense === 'STEMS'}
                                             onSelect={() => setSelectedLicense('STEMS')}
                                             active={true}
@@ -375,7 +388,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                         <LicenseCard
                                             type="ILIMITADA"
                                             price={beat.price_exclusive || 2999}
-                                            features={['Derechos Exclusivos', 'Tu Propiedad 100%', 'Eliminado de Tienda']}
+                                            features={['Propiedad Exclusiva', 'Eliminación del mercado', 'Derechos totales']}
                                             selected={selectedLicense === 'ILIMITADA'}
                                             onSelect={() => setSelectedLicense('ILIMITADA')}
                                             active={true}
@@ -385,36 +398,55 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
                                 <button
                                     onClick={handleAddToCart}
-                                    className="w-full py-5 bg-accent text-white rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 flex items-center justify-center gap-3"
+                                    className="w-full h-20 bg-accent text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs hover:bg-accent/90 transition-all shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)] flex items-center justify-center gap-4 group"
                                 >
-                                    <ShoppingCart size={18} />
+                                    <ShoppingCart size={22} className="group-hover:-translate-y-1 transition-transform" />
                                     Añadir {selectedLicense} al Carrito
                                 </button>
-                            </>
+                            </div>
                         )}
 
-                        {/* Description */}
+                        {/* Description Section */}
                         {beat.description && (
-                            <div className="mt-12 p-8 bg-card border border-border rounded-[2rem]">
-                                <h3 className="text-sm font-black uppercase tracking-widest text-muted mb-4 flex items-center gap-2">
-                                    <Info size={16} /> Sobre este Beat
+                            <div className="mt-20 pt-20 border-t border-border/50">
+                                <h3 className="text-xl font-black uppercase tracking-tighter text-foreground mb-8 flex items-center gap-3">
+                                    <Info size={24} className="text-accent" />
+                                    Notas del <span className="text-muted">Productor</span>
                                 </h3>
-                                <p className="text-muted leading-relaxed font-medium whitespace-pre-wrap">{beat.description}</p>
+                                <div className="p-10 bg-card/30 rounded-[2.5rem] border border-border/50">
+                                    <p className="text-muted leading-relaxed font-medium whitespace-pre-wrap text-lg italic">"{beat.description}"</p>
+                                </div>
                             </div>
                         )}
                     </div>
 
-                    {/* RIGHT COLUMN: Statistics & Details (Prioritizing Comments) */}
-                    <div className="lg:col-span-4 space-y-8">
-                        <section>
-                            <div className="bg-black/40 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/5 shadow-sm min-h-[400px]">
-                                <h3 className="text-xl font-black uppercase tracking-tighter text-white mb-8 flex items-center gap-3 lowercase font-heading">
-                                    <span className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white"><Check size={16} /></span>
-                                    comentarios
-                                </h3>
-                                <CommentSection beatId={id} />
+                    {/* RIGHT COLUMN: Community Hub */}
+                    <div className="lg:col-span-4">
+                        <div className="sticky top-32 space-y-12">
+                            <section>
+                                <div className="flex items-center gap-3 mb-8">
+                                    <div className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center text-background">
+                                        <MessageCircle size={20} />
+                                    </div>
+                                    <h3 className="text-2xl font-black uppercase tracking-tight">Comunidad</h3>
+                                </div>
+                                <div className="bg-card rounded-[2.5rem] p-8 border border-border/50 shadow-sm min-h-[500px]">
+                                    <CommentSection beatId={id} />
+                                </div>
+                            </section>
+
+                            {/* Suggestion for contact or similar */}
+                            <div className="p-8 rounded-[2rem] bg-gradient-to-br from-accent to-blue-700 text-white space-y-4">
+                                <p className="text-xs font-black uppercase tracking-widest opacity-80">¿Necesitas algo a medida?</p>
+                                <h4 className="text-xl font-black leading-tight">Trabaja directamente con el productor</h4>
+                                <Link
+                                    href={`/${(beat.producer as any)?.username || ''}`}
+                                    className="block w-full py-4 bg-white text-accent rounded-xl text-center font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-colors"
+                                >
+                                    Ver Servicios
+                                </Link>
                             </div>
-                        </section>
+                        </div>
                     </div>
                 </div>
             </main>

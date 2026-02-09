@@ -87,42 +87,46 @@ export default function WaveformPlayer({
     };
 
     return (
-        <div className="w-full bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-4">
+        <div className="w-full bg-transparent">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+                <div className="flex items-center gap-6">
                     <button
                         onClick={handleTogglePlay}
-                        className="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all"
+                        className="w-20 h-20 bg-background text-foreground rounded-[1.5rem] flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all text-accent"
                     >
-                        {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
+                        {isPlaying ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />}
                     </button>
 
                     <div className="flex items-center gap-2">
-                        <button onClick={() => handleSeek(-10)} className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
-                            <SkipBack size={20} />
+                        <button onClick={() => handleSeek(-10)} className="w-10 h-10 flex items-center justify-center text-background/40 hover:text-accent transition-colors">
+                            <SkipBack size={24} />
                         </button>
-                        <button onClick={() => handleSeek(10)} className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
-                            <SkipForward size={20} />
+                        <button onClick={() => handleSeek(10)} className="w-10 h-10 flex items-center justify-center text-background/40 hover:text-accent transition-colors">
+                            <SkipForward size={24} />
                         </button>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-6">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 font-mono">
-                        {formatTime(currentTime)} / {formatTime(duration)}
+                <div className="flex items-center gap-8">
+                    <div className="text-[12px] font-black uppercase tracking-[0.3em] text-background/60 font-mono">
+                        {formatTime(currentTime)} <span className="mx-2 text-background/20">/</span> {formatTime(duration)}
                     </div>
 
-                    <button onClick={handleMute} className="text-slate-400 hover:text-blue-600 transition-colors">
-                        {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                    <button onClick={handleMute} className="w-10 h-10 flex items-center justify-center text-background/40 hover:text-accent transition-colors">
+                        {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
                     </button>
                 </div>
             </div>
 
             <div ref={containerRef} className="cursor-pointer" />
 
-            <p className="mt-4 text-[9px] font-black uppercase tracking-[0.3em] text-slate-300 text-center">
-                Haz clic en la onda para navegar por la canción
-            </p>
+            <div className="mt-8 flex items-center justify-center gap-4">
+                <div className="h-px flex-1 bg-background/5" />
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-background/20">
+                    Interactúa con la onda para navegar
+                </p>
+                <div className="h-px flex-1 bg-background/5" />
+            </div>
         </div>
     );
 }
