@@ -640,7 +640,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     {isOwner ? (
                                         <button
                                             onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}
-                                            className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center gap-3 ${isEditing ? 'bg-foreground text-background' : 'bg-white dark:bg-slate-900 text-foreground dark:text-white border border-slate-100 dark:border-white/10 hover:shadow-2xl hover:-translate-y-1'}`}
+                                            className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center gap-3 ${isEditing ? 'bg-foreground text-background' : 'bg-white dark:bg-slate-800 text-foreground dark:text-white border border-slate-100 dark:border-white/10 hover:shadow-2xl hover:-translate-y-1'}`}
                                         >
                                             {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Personalizar</>}
                                         </button>
@@ -667,57 +667,40 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     { label: 'Beats', value: beats.length, icon: Music, color: 'text-accent' },
                                     { label: 'Siguiendo', value: followingCount, icon: UserPlus, color: 'text-emerald-500' }
                                 ].map((stat, i) => (
-                                    <div key={i} className="bg-white dark:bg-slate-900/50 border border-slate-100 dark:border-white/10 rounded-[2rem] p-5 text-center shadow-soft hover:shadow-xl hover:-translate-y-1 transition-all group">
+                                    <div key={i} className="bg-white dark:bg-slate-800/40 border border-slate-100 dark:border-white/5 rounded-[2rem] p-5 text-center shadow-soft hover:shadow-xl hover:-translate-y-1 transition-all group">
                                         <stat.icon size={16} className={`${stat.color} mx-auto mb-2 opacity-60 group-hover:opacity-100 transition-opacity`} />
-                                        <span className="block text-2xl font-black tracking-tighter text-foreground dark:text-white">{stat.value}</span>
-                                        <span className="text-[9px] font-black text-muted uppercase tracking-widest">{stat.label}</span>
+                                        <span className="block text-2xl font-black tracking-tighter text-slate-900 dark:text-white">{stat.value}</span>
+                                        <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{stat.label}</span>
                                     </div>
                                 ))}
                             </div>
 
                             {/* Estatus Tianguis Premium */}
-                            <div className="bg-slate-900 rounded-[3rem] p-10 text-white relative overflow-hidden shadow-2xl">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-accent/20 blur-[60px] rounded-full pointer-events-none" />
-                                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] mb-10 text-white/40 flex items-center gap-3">
+                            <div className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-white/10 rounded-[3rem] p-10 text-slate-900 dark:text-white relative overflow-hidden shadow-2xl">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 blur-[60px] rounded-full pointer-events-none" />
+                                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] mb-10 text-slate-400 dark:text-white/40 flex items-center gap-3">
                                     <ShieldCheck size={14} className="text-accent" /> Estatus Tianguis
                                 </h3>
                                 <div className="space-y-8">
                                     <div className="flex items-center justify-between group">
-                                        <span className="text-sm font-bold text-white/60">Suscripción</span>
+                                        <span className="text-sm font-bold text-slate-400 dark:text-white/60">Suscripción</span>
                                         <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border transition-all ${profile.subscription_tier === 'premium' ? 'bg-blue-600/10 dark:bg-blue-600 border-blue-400/30 dark:border-blue-400 text-blue-600 dark:text-white shadow-lg dark:shadow-blue-500/20' : profile.subscription_tier === 'pro' ? 'bg-amber-400 border-amber-300 text-slate-900' : 'bg-white/5 border-white/10 text-white/60'}`}>
                                             {profile.subscription_tier}
                                         </span>
                                     </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-white/60">Identidad</span>
-                                        {profile.is_verified ? (
-                                            <div className="flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-4 py-2 rounded-xl">
-                                                <img src="/verified-badge.png" className="w-4 h-4" />
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-blue-400">Verificado</span>
-                                            </div>
-                                        ) : (
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-white/20 italic">No verificado</span>
-                                        )}
+                                    <div className="flex items-center justify-between group">
+                                        <span className="text-sm font-bold text-slate-400 dark:text-white/60">Identidad</span>
+                                        <span className="text-[10px] font-black uppercase px-5 py-2 rounded-2xl bg-blue-500/10 dark:bg-blue-600/20 border border-blue-400/20 text-blue-600 flex items-center gap-2 group-hover:scale-105 transition-transform">
+                                            <Check size={12} strokeWidth={4} /> {profile.is_verified ? 'Verificado' : 'En proceso'}
+                                        </span>
                                     </div>
-                                    {profile.is_founder && (
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm font-bold text-white/60">Rango</span>
-                                            <div className="bg-amber-500/10 border border-amber-500/20 px-4 py-2 rounded-xl flex items-center gap-2">
-                                                <Crown size={14} className="text-amber-400" fill="currentColor" />
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-amber-400">Founder</span>
-                                            </div>
-                                        </div>
-                                    )}
+                                    <div className="flex items-center justify-between group">
+                                        <span className="text-sm font-bold text-slate-400 dark:text-white/60">Rango</span>
+                                        <span className="text-[10px] font-black uppercase px-5 py-2 rounded-2xl bg-amber-500/10 dark:bg-amber-400/20 border border-amber-400/20 text-amber-600 dark:text-amber-400 flex items-center gap-2 group-hover:scale-105 transition-transform">
+                                            <Crown size={12} fill="currentColor" /> {profile.is_founder ? 'Founder' : 'Usuario'}
+                                        </span>
+                                    </div>
                                 </div>
-
-                                {/* Link a Catálogo (Premium Visibility) */}
-                                <Link
-                                    href={`/${username}/beats`}
-                                    className="mt-12 w-full h-14 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl flex items-center justify-center gap-3 transition-all group active:scale-95"
-                                >
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/80 group-hover:text-white transition-colors">Ver Catálogo Completo</span>
-                                    <LayoutGrid size={16} className="text-accent group-hover:scale-110 transition-transform" />
-                                </Link>
                             </div>
 
                             {/* Video Destacado (Minimalista) */}
@@ -738,7 +721,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             )}
 
                             {/* Trayectoria y Socials */}
-                            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/10 rounded-[3rem] p-10 shadow-soft">
+                            <div className="bg-white dark:bg-slate-800/40 border border-slate-100 dark:border-white/5 rounded-[3rem] p-10 shadow-soft">
                                 <h3 className="text-[11px] font-black uppercase tracking-[0.3em] mb-10 text-muted">Trayectoria</h3>
 
                                 {isEditing ? (
