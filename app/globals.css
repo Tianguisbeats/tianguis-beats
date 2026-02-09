@@ -14,11 +14,13 @@
   --background: #020617;
   --foreground: #f8fafc;
   --accent: #3b82f6;
-  --accent-soft: #1e293b;
-  --card: #0f172a;
+  --accent-soft: #020617;
+  --card: #0a0a0a;
   --border: #1e293b;
   --muted: #94a3b8;
 }
+
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme inline {
   --color-background: var(--background);

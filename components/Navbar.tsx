@@ -64,7 +64,7 @@ export default function Navbar() {
 
     return (
         <div className="relative w-full z-50 h-20">
-            <nav className="fixed top-0 left-0 right-0 w-full bg-background border-b border-border shadow-sm z-50 transition-colors duration-300">
+            <nav className="fixed top-0 left-0 right-0 w-full bg-white/80 dark:bg-[#020205]/80 border-b border-border dark:border-white/5 backdrop-blur-xl shadow-sm z-50 transition-all duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
                         {/* Logo Area */}

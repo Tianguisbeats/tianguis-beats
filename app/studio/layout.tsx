@@ -20,7 +20,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
     ];
 
     return (
-        <div className="min-h-screen bg-[#fafafa] dark:bg-[#050505] font-sans text-foreground transition-all duration-500">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#020205] font-sans text-foreground transition-all duration-500">
             <Navbar />
 
             <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 pt-32 pb-20 flex flex-col lg:flex-row gap-12">
@@ -40,8 +40,8 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                         key={item.href}
                                         href={item.href}
                                         className={`flex items-center gap-4 px-6 py-4 rounded-[1.25rem] transition-all duration-300 font-bold text-[13px] uppercase tracking-wider group ${isActive
-                                            ? 'bg-foreground text-background shadow-2xl shadow-black/10 scale-[1.02]'
-                                            : 'text-muted hover:bg-card hover:text-foreground hover:translate-x-1'
+                                            ? 'bg-foreground dark:bg-white text-background dark:text-slate-900 shadow-2xl shadow-black/20 dark:shadow-white/5 scale-[1.02]'
+                                            : 'text-muted hover:bg-card dark:hover:bg-white/5 hover:text-foreground dark:hover:text-white hover:translate-x-1'
                                             }`}
                                     >
                                         <span className={`transition-transform duration-500 ${isActive ? 'rotate-0' : 'group-hover:scale-120'}`}>
@@ -76,8 +76,11 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
 
                 {/* Main Experience Area */}
                 <main className="flex-1 min-h-[70vh]">
-                    <div className="bg-white dark:bg-[#0a0a0a] rounded-[3.5rem] p-10 lg:p-14 border border-border/40 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.05)] h-full">
-                        {children}
+                    <div className="bg-white dark:bg-[#050508]/40 dark:backdrop-blur-3xl rounded-[3.5rem] p-10 lg:p-14 border border-border/40 dark:border-white/5 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.05)] h-full relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-accent/5 blur-[120px] rounded-full pointer-events-none" />
+                        <div className="relative z-10">
+                            {children}
+                        </div>
                     </div>
                 </main>
             </div>

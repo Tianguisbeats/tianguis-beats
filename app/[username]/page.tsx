@@ -475,7 +475,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     if (!profile) return null;
 
     return (
-        <div className={`min-h-screen font-sans flex flex-col transition-colors duration-500 ${profile.tema_perfil === 'dark' ? 'bg-[#0F172A] text-white selection:bg-white selection:text-slate-900' :
+        <div className={`min-h-screen font-sans flex flex-col transition-colors duration-500 ${profile.tema_perfil === 'dark' ? 'bg-[#020205] text-white selection:bg-white selection:text-slate-900' :
             profile.tema_perfil === 'neon' ? 'bg-[#09090b] text-white selection:bg-green-400 selection:text-black' :
                 profile.tema_perfil === 'gold' ? 'bg-[#1a1610] text-amber-50 font-serif selection:bg-amber-400 selection:text-black' :
                     'bg-background text-foreground selection:bg-accent selection:text-white'
@@ -517,7 +517,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     )}
 
                     {/* Overlay Gradiente para legibilidad */}
-                    <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-background via-background/40 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#020205] via-[#020205]/40 to-transparent dark:block hidden" />
+                    <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-background via-background/40 to-transparent dark:hidden" />
 
                     {isOwner && !isAdjustingCover && (
                         <div className="absolute top-6 right-6 flex gap-3 z-20">
@@ -640,14 +641,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     {isOwner ? (
                                         <button
                                             onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}
-                                            className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center gap-3 ${isEditing ? 'bg-foreground text-background' : 'bg-white dark:bg-slate-900/80 text-foreground dark:text-white border border-slate-100 dark:border-white/20 hover:shadow-2xl hover:-translate-y-1 backdrop-blur-md'}`}
+                                            className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center gap-3 ${isEditing ? 'bg-foreground dark:bg-white text-background dark:text-slate-900' : 'bg-white dark:bg-white/10 text-foreground dark:text-white border border-slate-100 dark:border-white/20 hover:shadow-2xl hover:-translate-y-1 backdrop-blur-md dark:hover:bg-white dark:hover:text-slate-900'}`}
                                         >
                                             {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Personalizar</>}
                                         </button>
                                     ) : (
                                         <button
                                             onClick={handleFollowToggle}
-                                            className={`h-14 px-12 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center gap-3 active:scale-95 shadow-xl ${isFollowing ? 'bg-white dark:bg-slate-900/60 text-slate-900 dark:text-white border border-slate-100 dark:border-white/10 shadow-soft dark:shadow-[0_20px_50px_rgba(8,112,184,0.1)]' : 'bg-accent text-white hover:bg-accent/90 hover:shadow-accent/30'}`}
+                                            className={`h-14 px-12 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center gap-3 active:scale-95 shadow-xl ${isFollowing ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white border border-slate-100 dark:border-white/10 shadow-soft dark:shadow-[0_20px_50px_rgba(8,112,184,0.1)] dark:hover:bg-white dark:hover:text-slate-900' : 'bg-accent text-white hover:bg-accent/90 hover:shadow-accent/30'}`}
                                         >
                                             {isFollowing ? <><UserCheck size={18} /> Siguiendo</> : <><UserPlus size={18} /> Seguir</>}
                                         </button>
