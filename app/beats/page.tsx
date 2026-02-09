@@ -28,9 +28,11 @@ export default function BeatsPage() {
   );
 }
 
-type ViewMode = 'all' | 'new' | 'trending' | 'best_sellers' | 'hidden_gems' | 'recommended' | 'exclusives' | 'premium_spotlight' | 'sound_kits' | 'producers' | 'mood_of_the_week' | 'corridos_tumbados';
+type ExploreSection = 'landing' | 'beats' | 'sound_kits' | 'artists';
+type ViewMode = 'all' | 'new' | 'trending' | 'best_sellers' | 'hidden_gems' | 'recommended' | 'exclusives' | 'producers' | 'sound_kits' | 'corridos_tumbados';
 
 function BeatsPageContent() {
+  const [activeSection, setActiveSection] = useState<ExploreSection>('landing');
   const [beats, setBeats] = useState<Beat[]>([]);
   const [producers, setProducers] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -105,6 +107,9 @@ function BeatsPageContent() {
     const s = searchParams.get('scale');
     const b = searchParams.get('bpm');
 
+    const sct = searchParams.get('section');
+    if (sct) setActiveSection(sct as ExploreSection);
+
     if (v) setViewMode(v as ViewMode);
 
     setFilterState(prev => ({
@@ -119,6 +124,15 @@ function BeatsPageContent() {
       subgenre: searchParams.get('subgenre') || prev.subgenre,
     }));
   }, [searchParams]);
+
+  // Sync section with view mode
+  useEffect(() => {
+    if (activeSection === 'sound_kits') setViewMode('sound_kits');
+    else if (activeSection === 'artists') setViewMode('producers');
+    else if (activeSection === 'beats' && (viewMode === 'sound_kits' || viewMode === 'producers')) {
+      setViewMode('all');
+    }
+  }, [activeSection]);
 
   const transformBeat = async (b: any) => {
     const path = b.mp3_tag_url || b.mp3_url || '';
@@ -398,7 +412,7 @@ function BeatsPageContent() {
       <main className="flex-1 pt-8 pb-20 relative">
         <div className="max-w-[1700px] mx-auto px-4 sm:px-10">
 
-          {/* Featured Banner (PERSISTENT & NON-BLOCKING) */}
+          {/* Featured Banner (PERSISTENT) */}
           {isBannerLoading && trendingBeats.length === 0 ? (
             <BannerSkeleton />
           ) : (
@@ -409,151 +423,201 @@ function BeatsPageContent() {
             />
           )}
 
-          <div className="flex flex-col lg:flex-row gap-8 items-start">
-
-            {/* Sidebar (Desktop) */}
-            <AdvancedFilterSidebar
-              filterState={filterState}
-              setFilterState={setFilterState}
-              genres={genresFromData}
-              totalBeats={beats.length}
-              isOpen={isSidebarOpen}
-              onClose={() => setIsSidebarOpen(false)}
-            />
-
-            {/* Main Content */}
-            <div className="flex-1 w-full min-w-0">
-
-              {/* Toolbar & Tabs */}
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
-
-                {/* Mobile Sidebar Toggle */}
-                <div className="flex items-center gap-3 lg:hidden w-full bg-card/50 backdrop-blur-md p-4 rounded-3xl border border-border shadow-soft mb-6">
-                  <button
-                    onClick={() => setIsSidebarOpen(true)}
-                    className="p-4 bg-accent text-white rounded-2xl shadow-xl shadow-accent/20 active:scale-95 transition-all min-h-[56px] min-w-[56px] flex items-center justify-center"
-                  >
-                    <SlidersHorizontal size={20} />
-                  </button>
-                  <div className="flex flex-col">
-                    <h2 className="text-xl font-black text-foreground uppercase tracking-tight font-heading">
-                      Explorar
-                    </h2>
-                    <p className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Tianguis Beats</p>
-                  </div>
-                </div>
-
-                {/* Tabs with Horizontal Scroll & Arrows */}
-                <div className="relative w-full max-w-full group/tabs mb-6">
-                  {/* Left Arrow Button */}
-                  <button
-                    onClick={() => {
-                      const container = document.getElementById('tabs-container');
-                      if (container) {
-                        if (container.scrollLeft <= 5) {
-                          container.scrollTo({ left: container.scrollWidth, behavior: 'smooth' });
-                        } else {
-                          container.scrollBy({ left: -300, behavior: 'smooth' });
-                        }
-                      }
-                    }}
-                    className="absolute -left-4 top-[calc(50%-8px)] -translate-y-1/2 z-20 p-2.5 bg-white border border-slate-200 rounded-full shadow-lg hover:bg-slate-50 transition-all hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
-                  >
-                    <ChevronLeft size={18} className="text-slate-600" />
-                  </button>
-
-                  <div
-                    id="tabs-container"
-                    className="flex items-end gap-1 overflow-x-auto no-scrollbar snap-x snap-mandatory px-4 md:px-10 scroll-smooth justify-start border-b border-border"
-                  >
-                    <TabButton mode="all" label="Todos" icon={Music} />
-                    <TabButton mode="corridos_tumbados" label="Corridos 🇲🇽" icon={Zap} />
-                    <TabButton mode="new" label="Nuevos" icon={Clock} />
-                    <TabButton mode="trending" label="Tendencias" icon={TrendingUp} />
-                    <TabButton mode="best_sellers" label="Más comprados" icon={Trophy} />
-                    <TabButton mode="hidden_gems" label="Joyas" icon={Gem} />
-                    <TabButton mode="exclusives" label="Tianguis IA" icon={Sparkles} />
-                    <TabButton mode="recommended" label="Recomendados IA" icon={Zap} />
-                    <TabButton mode="sound_kits" label="Sound Kits" icon={Music} />
-                    <TabButton mode="producers" label="Artistas Top" icon={Users} />
-                  </div>
-
-                  {/* Right Arrow Button */}
-                  <button
-                    onClick={() => {
-                      const container = document.getElementById('tabs-container');
-                      if (container) {
-                        const isAtEnd = container.scrollLeft + container.offsetWidth >= container.scrollWidth - 10;
-                        if (isAtEnd) {
-                          container.scrollTo({ left: 0, behavior: 'smooth' });
-                        } else {
-                          container.scrollBy({ left: 300, behavior: 'smooth' });
-                        }
-                      }
-                    }}
-                    className="absolute right-4 top-[calc(50%-8px)] -translate-y-1/2 z-20 p-3 bg-card border border-border rounded-full shadow-lg hover:bg-accent-soft transition-all hidden md:flex items-center justify-center hover:scale-110 active:scale-95 min-h-[48px] min-w-[48px]"
-                  >
-                    <ChevronRight size={18} className="text-foreground" />
-                  </button>
-                </div>
-
+          {activeSection === 'landing' ? (
+            <div className="animate-fade-in">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl md:text-6xl font-black text-foreground uppercase tracking-tighter mb-4 font-heading">
+                  Explora el Tianguis
+                </h2>
+                <p className="text-muted text-lg font-medium max-w-2xl mx-auto">
+                  Descubre el mejor sonido para tus producciones. Elige tu camino.
+                </p>
               </div>
 
-              {/* Grid Section */}
-              {loading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
-                  {[...Array(8)].map((_, i) => <BeatSkeleton key={i} />)}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 px-4 md:px-0">
+                {/* Beats Card */}
+                <div
+                  onClick={() => setActiveSection('beats')}
+                  className="group relative h-[450px] rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-accent/50 transition-all duration-500 shadow-xl hover:shadow-accent/10"
+                >
+                  <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-40" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent flex flex-col items-center justify-end p-10 text-center">
+                    <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-accent/20 group-hover:scale-110 transition-transform">
+                      <Music className="text-white" size={32} />
+                    </div>
+                    <h3 className="text-3xl font-black text-foreground uppercase tracking-tight mb-2">Beats</h3>
+                    <p className="text-muted text-xs font-bold uppercase tracking-widest">Catálogo Vitaminado</p>
+                  </div>
                 </div>
-              ) : viewMode === 'producers' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10 animate-fade-in-up">
-                  {filteredProducers.length > 0 ? filteredProducers.map(p => (
-                    <ArtistCard key={p.id} artist={p} />
-                  )) : (
-                    <div className="col-span-full text-center py-20 bg-card/40 rounded-[2.5rem] border border-dashed border-border">
-                      <Users className="mx-auto text-muted mb-4" size={40} />
-                      <h3 className="text-lg font-black uppercase tracking-tighter">No se han encontrado artistas</h3>
-                      <p className="text-xs text-muted max-w-xs mx-auto mt-2">Prueba ajustando tus filtros de búsqueda.</p>
+
+                {/* Sound Kits Card */}
+                <div
+                  onClick={() => setActiveSection('sound_kits')}
+                  className="group relative h-[450px] rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-accent/50 transition-all duration-500 shadow-xl hover:shadow-accent/10"
+                >
+                  <img src="https://images.unsplash.com/photo-1514328501138-024225d21c32?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-40" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent flex flex-col items-center justify-end p-10 text-center">
+                    <div className="w-16 h-16 bg-amber-500 rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-amber-500/20 group-hover:scale-110 transition-transform">
+                      <Zap className="text-white" size={32} />
+                    </div>
+                    <h3 className="text-3xl font-black text-foreground uppercase tracking-tight mb-2">Sound Kits</h3>
+                    <p className="text-muted text-xs font-bold uppercase tracking-widest">Drum kits y presets</p>
+                  </div>
+                </div>
+
+                {/* Artistas Card */}
+                <div
+                  onClick={() => setActiveSection('artists')}
+                  className="group relative h-[450px] rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-accent/50 transition-all duration-500 shadow-xl hover:shadow-accent/10"
+                >
+                  <img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-40" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent flex flex-col items-center justify-end p-10 text-center">
+                    <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                      <Users className="text-white" size={32} />
+                    </div>
+                    <h3 className="text-3xl font-black text-foreground uppercase tracking-tight mb-2">Artistas</h3>
+                    <p className="text-muted text-xs font-bold uppercase tracking-widest">Nuevos talentos y productores</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Navigation Info */}
+              <div className="max-w-4xl mx-auto p-8 bg-card/30 backdrop-blur-sm rounded-[2.5rem] border border-border text-center">
+                <p className="text-sm text-muted font-medium italic">
+                  "El Tianguis es el punto de encuentro definitivo para la música urbana mexicana. Explora, crea y conecta."
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col lg:flex-row gap-8 items-start animate-fade-in">
+              {/* Sidebar (Desktop) */}
+              <AdvancedFilterSidebar
+                filterState={filterState}
+                setFilterState={setFilterState}
+                genres={genresFromData}
+                totalBeats={beats.length}
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+              />
+
+              {/* Main Content */}
+              <div className="flex-1 w-full min-w-0">
+
+                <div className="flex items-center justify-between mb-8">
+                  <button
+                    onClick={() => setActiveSection('landing')}
+                    className="flex items-center gap-2 text-muted hover:text-accent font-black uppercase text-[10px] tracking-widest transition-all hover:-translate-x-1"
+                  >
+                    <ArrowLeft size={14} strokeWidth={3} />
+                    Volver al Inicio
+                  </button>
+
+                  <div className="flex items-center gap-3 lg:hidden">
+                    <button
+                      onClick={() => setIsSidebarOpen(true)}
+                      className="p-3 bg-accent text-white rounded-xl shadow-lg active:scale-95 transition-all"
+                    >
+                      <SlidersHorizontal size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Toolbar & Tabs */}
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+
+                  {activeSection === 'beats' && (
+                    <div className="relative w-full max-w-full group/tabs mb-6">
+                      <button
+                        onClick={() => {
+                          const container = document.getElementById('tabs-container');
+                          if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
+                        }}
+                        className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-card border border-border rounded-full shadow-lg hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
+                      >
+                        <ChevronLeft size={18} />
+                      </button>
+
+                      <div
+                        id="tabs-container"
+                        className="flex items-end gap-1 overflow-x-auto no-scrollbar snap-x snap-mandatory px-4 md:px-10 scroll-smooth justify-start border-b border-border"
+                      >
+                        <TabButton mode="all" label="Todos" icon={Music} />
+                        <TabButton mode="corridos_tumbados" label="Corridos 🇲🇽" icon={Zap} />
+                        <TabButton mode="new" label="Nuevos" icon={Clock} />
+                        <TabButton mode="trending" label="Tendencias" icon={TrendingUp} />
+                        <TabButton mode="best_sellers" label="Más comprados" icon={Trophy} />
+                        <TabButton mode="hidden_gems" label="Joyas" icon={Gem} />
+                        <TabButton mode="exclusives" label="Tianguis IA" icon={Sparkles} />
+                        <TabButton mode="recommended" label="Recomendados IA" icon={Zap} />
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          const container = document.getElementById('tabs-container');
+                          if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
+                        }}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-card border border-border rounded-full shadow-lg hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
+                      >
+                        <ChevronRight size={18} />
+                      </button>
+                    </div>
+                  )}
+
+                  {activeSection !== 'beats' && (
+                    <div className="flex flex-col">
+                      <h2 className="text-3xl font-black text-foreground uppercase tracking-tight font-heading">
+                        {activeSection === 'sound_kits' ? 'Sound Kits' : 'Artistas'}
+                      </h2>
+                      <p className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Tianguis Beats</p>
                     </div>
                   )}
                 </div>
-              ) : beats.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10 animate-fade-in-up">
-                  {beats.map((beat) => (
-                    <div key={beat.id} className="h-full">
-                      <BeatCardPro beat={beat} />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-32 bg-card rounded-[3rem] border border-dashed border-border shadow-soft">
-                  <div className="w-24 h-24 bg-accent-soft rounded-3xl flex items-center justify-center mx-auto mb-8">
-                    <Music className="text-accent w-10 h-10" />
+
+                {/* Grid Section */}
+                {loading ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
+                    {[...Array(8)].map((_, i) => <BeatSkeleton key={i} />)}
                   </div>
-                  <h3 className="text-2xl font-black uppercase tracking-tight mb-4 font-heading">Sin resultados</h3>
-                  <p className="text-muted font-medium mb-10 max-w-sm mx-auto font-body">
-                    {viewMode === 'premium_spotlight'
-                      ? "No hay beats premium que coincidan con tus filtros."
-                      : viewMode === 'sound_kits'
-                        ? "No hay sound kits disponibles en este momento."
-                        : "No encontramos beats con esos filtros."}
-                  </p>
-                  <button
-                    onClick={() => {
-                      setFilterState({ searchQuery: "", genre: "Todos", subgenre: "", bpmMin: "", bpmMax: "", key: "", scale: "", mood: "", priceRange: [0, 10000] });
-                      setViewMode('all');
-                    }}
-                    className="px-12 py-5 bg-accent text-white rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] hover:bg-accent/90 transition-all active:scale-95 min-h-[56px]"
-                  >
-                    Limpiar Filtros
-                  </button>
-                </div>
-              )}
+                ) : activeSection === 'artists' ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
+                    {producers.length > 0 ? producers.map(p => (
+                      <ArtistCard key={p.id} artist={p} />
+                    )) : (
+                      <div className="col-span-full text-center py-20 bg-card/40 rounded-[2.5rem] border border-dashed border-border">
+                        <Users className="mx-auto text-muted mb-4" size={40} />
+                        <h3 className="text-lg font-black uppercase tracking-tighter">No se han encontrado artistas</h3>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
+                    {beats.length > 0 ? beats.map((beat) => (
+                      <div key={beat.id} className="h-full">
+                        <BeatCardPro beat={beat} />
+                      </div>
+                    )) : (
+                      <div className="col-span-full text-center py-32 bg-card rounded-[3rem] border border-dashed border-border shadow-soft">
+                        <h3 className="text-2xl font-black uppercase tracking-tight mb-4 font-heading">Sin resultados</h3>
+                        <button
+                          onClick={() => {
+                            setFilterState({ searchQuery: "", genre: "Todos", subgenre: "", bpmMin: "", bpmMax: "", key: "", scale: "", mood: "", priceRange: [0, 10000] });
+                            setViewMode('all');
+                          }}
+                          className="px-12 py-5 bg-accent text-white rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] transition-all active:scale-95"
+                        >
+                          Limpiar Filtros
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
-      </main >
+      </main>
 
       <Footer />
-    </div >
+    </div>
   );
 }
