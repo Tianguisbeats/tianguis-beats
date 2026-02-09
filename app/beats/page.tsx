@@ -427,10 +427,10 @@ function BeatsPageContent() {
             <div className="animate-fade-in">
               <div className="text-center mb-16">
                 <h2 className="text-4xl md:text-6xl font-black text-foreground uppercase tracking-tighter mb-4 font-heading">
-                  Explora el Tianguis
+                  Descubre todo lo que el tianguis tiene para ti
                 </h2>
                 <p className="text-muted text-lg font-medium max-w-2xl mx-auto">
-                  Descubre el mejor sonido para tus producciones. Elige tu camino.
+                  Descubre el mejor sonido para tus producciones y elige tu camino.
                 </p>
               </div>
 
@@ -440,13 +440,12 @@ function BeatsPageContent() {
                   onClick={() => setActiveSection('beats')}
                   className="group relative h-[450px] rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-accent/50 transition-all duration-500 shadow-xl hover:shadow-accent/10"
                 >
-                  <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-40" />
+                  <img src="https://images.unsplash.com/photo-1559732284-d7474763bcee?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-40" />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent flex flex-col items-center justify-end p-10 text-center">
                     <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-accent/20 group-hover:scale-110 transition-transform">
                       <Music className="text-white" size={32} />
                     </div>
                     <h3 className="text-3xl font-black text-foreground uppercase tracking-tight mb-2">Beats</h3>
-                    <p className="text-muted text-xs font-bold uppercase tracking-widest">Catálogo Vitaminado</p>
                   </div>
                 </div>
 
@@ -455,13 +454,12 @@ function BeatsPageContent() {
                   onClick={() => setActiveSection('sound_kits')}
                   className="group relative h-[450px] rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-accent/50 transition-all duration-500 shadow-xl hover:shadow-accent/10"
                 >
-                  <img src="https://images.unsplash.com/photo-1514328501138-024225d21c32?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-40" />
+                  <img src="https://images.unsplash.com/photo-1516062423079-7c157a58ff62?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-40" />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent flex flex-col items-center justify-end p-10 text-center">
                     <div className="w-16 h-16 bg-amber-500 rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-amber-500/20 group-hover:scale-110 transition-transform">
                       <Zap className="text-white" size={32} />
                     </div>
                     <h3 className="text-3xl font-black text-foreground uppercase tracking-tight mb-2">Sound Kits</h3>
-                    <p className="text-muted text-xs font-bold uppercase tracking-widest">Drum kits y presets</p>
                   </div>
                 </div>
 
@@ -470,13 +468,12 @@ function BeatsPageContent() {
                   onClick={() => setActiveSection('artists')}
                   className="group relative h-[450px] rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-accent/50 transition-all duration-500 shadow-xl hover:shadow-accent/10"
                 >
-                  <img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-40" />
+                  <img src="https://images.unsplash.com/photo-1598653222000-6b7b7a552625?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-40" />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent flex flex-col items-center justify-end p-10 text-center">
                     <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-blue-500/20 group-hover:scale-110 transition-transform">
                       <Users className="text-white" size={32} />
                     </div>
                     <h3 className="text-3xl font-black text-foreground uppercase tracking-tight mb-2">Artistas</h3>
-                    <p className="text-muted text-xs font-bold uppercase tracking-widest">Nuevos talentos y productores</p>
                   </div>
                 </div>
               </div>

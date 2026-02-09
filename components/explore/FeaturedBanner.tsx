@@ -93,7 +93,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers, featu
                     <div key={`content-${currentIndex}-${currentItem.type}`} className="flex-1 text-center md:text-left animate-in slide-in-from-right-8 fade-in duration-700">
                         <div className={`inline-flex items-center gap-3 px-5 py-2 rounded-full text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] mb-4 md:mb-6 backdrop-blur-3xl border ${isBeat ? 'bg-accent/20 border-accent/30 text-blue-200' : 'bg-amber-500/20 border-amber-500/30 text-amber-200'}`}>
                             {isBeat ? <Flame size={14} className="text-orange-400" /> : <Star size={14} className="text-amber-400" />}
-                            {isBeat ? 'Top Hit de la Semana' : 'Artista Destacado'}
+                            {isBeat ? 'Hits de la Semana' : 'Artista Destacado'}
                         </div>
 
                         <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight mb-3 md:mb-4 leading-[1.1] font-heading lowercase">
