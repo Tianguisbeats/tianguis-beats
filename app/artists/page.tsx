@@ -82,7 +82,7 @@ function ArtistsContent() {
                                     <span className="text-accent text-[10px] font-black uppercase tracking-[0.4em]">Directorio de Élite</span>
                                 </div>
                                 <h1 className="text-6xl md:text-9xl font-black uppercase tracking-tighter mb-8 font-heading leading-none">
-                                    L@s <span className="text-accent">Duros</span>
+                                    L@s <span className="text-accent">Productores</span>
                                 </h1>
                                 <p className="text-xl text-muted font-medium max-w-xl leading-relaxed italic border-l-2 border-accent/20 pl-8">
                                     El motor creativo de la escena urbana en México. Descubre a los productores que están dictando las reglas del juego.
