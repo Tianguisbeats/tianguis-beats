@@ -176,14 +176,32 @@ export default function PricingPage() {
                             <h2 className="text-2xl font-black uppercase tracking-tighter text-foreground mb-4">
                                 {selectedPlan.type === 'downgrade' ? 'Confirmar Cambio' : 'Mejorar Plan'}
                             </h2>
-                            <ul className="space-y-2 mb-8 text-left">
-                                {selectedPlan.messages?.map((msg: string, i: number) => (
-                                    <li key={i} className="flex gap-2 text-sm text-muted font-medium">
-                                        <Check size={16} className="text-accent shrink-0 mt-0.5" /> {msg}
-                                    </li>
-                                ))}
-                            </ul>
-                            <button onClick={confirmAction} className="w-full py-4 bg-accent text-white rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-accent/20 hover:scale-[1.02] transition-transform">
+
+                            {selectedPlan.type === 'downgrade' && terminaSuscripcion && (
+                                <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">
+                                        Periodo Actual
+                                    </p>
+                                    <p className="text-sm font-bold text-foreground">
+                                        Tienes hasta el {new Date(terminaSuscripcion).toLocaleDateString()}
+                                    </p>
+                                </div>
+                            )}
+
+                            <div className="mb-6 text-left">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-muted mb-3">
+                                    {selectedPlan.type === 'downgrade' ? 'Lo que debes saber:' : 'Beneficios inmediatos:'}
+                                </p>
+                                <ul className="space-y-2">
+                                    {selectedPlan.messages?.map((msg: string, i: number) => (
+                                        <li key={i} className="flex gap-2 text-sm text-foreground/80 font-medium">
+                                            <Check size={16} className="text-accent shrink-0 mt-0.5" /> {msg}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <button onClick={confirmAction} className="w-full py-4 bg-accent text-white rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-accent/20 hover:scale-[1.02] transition-all">
                                 {selectedPlan.type === 'downgrade' ? 'Programar Cambio' : 'Ir al Carrito'}
                             </button>
                         </div>
@@ -241,20 +259,34 @@ export default function PricingPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
                         {plans.map((plan) => {
-                            const isCurrentPlan = (userTier || 'free').toLowerCase() === plan.tier;
+                            const currentTier = (userTier || 'free').toLowerCase();
+                            const isCurrentPlan = currentTier === plan.tier;
                             const isScheduled = comenzarSuscripcion === plan.tier;
+
+                            const tierOrder = ['free', 'pro', 'premium'];
+                            const currentIdx = tierOrder.indexOf(currentTier);
+                            const targetIdx = tierOrder.indexOf(plan.tier);
+                            const isUpgrade = targetIdx > currentIdx;
+                            const isDowngrade = targetIdx < currentIdx;
+
                             const isPremium = plan.tier === 'premium';
                             const isPro = plan.tier === 'pro';
+                            const isFree = plan.tier === 'free';
+
+                            // Plan specific colors
+                            const planColorClass = isPremium ? 'text-blue-500' : isPro ? 'text-amber-500' : 'text-slate-400';
+                            const planBgSoftClass = isPremium ? 'bg-blue-500/10' : isPro ? 'bg-amber-500/10' : 'bg-slate-500/10';
+                            const planBorderClass = isFree ? 'border-slate-300 dark:border-slate-700' : isPro ? 'border-amber-400/50' : 'border-blue-500/50';
 
                             return (
-                                <div key={plan.tier} className={`group relative bg-card/40 backdrop-blur-xl rounded-[3rem] p-8 md:p-10 border transition-all duration-500 hover:-translate-y-2 flex flex-col ${isPro ? 'border-accent shadow-2xl shadow-accent/10 scale-105 z-20' : 'border-border hover:border-accent/40'}`}>
+                                <div key={plan.tier} className={`group relative bg-card/40 backdrop-blur-xl rounded-[3rem] p-8 md:p-10 border transition-all duration-500 hover:-translate-y-2 flex flex-col ${isPro ? 'border-amber-500 shadow-2xl shadow-amber-500/10 scale-105 z-20' : `${planBorderClass} hover:border-accent/40`}`}>
                                     {isPro && (
-                                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-accent text-white px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl">
+                                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl">
                                             Más Popular
                                         </div>
                                     )}
                                     <div className="mb-8">
-                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${isPremium ? 'bg-amber-400/10 text-amber-500' : isPro ? 'bg-accent text-white' : 'bg-muted/10 text-muted'}`}>
+                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${planBgSoftClass} ${planColorClass}`}>
                                             {isPremium ? <Crown size={28} fill="currentColor" /> : isPro ? <Star size={28} fill="currentColor" /> : <Zap size={28} />}
                                         </div>
                                         <h3 className="text-2xl font-black text-foreground mb-2 font-heading tracking-tighter">{plan.name}</h3>
@@ -269,7 +301,7 @@ export default function PricingPage() {
                                     <ul className="space-y-4 mb-10 flex-1">
                                         {plan.features.map((feature, i) => (
                                             <li key={i} className="flex items-center gap-3 text-sm font-medium text-foreground">
-                                                <Check size={isPro ? 18 : 16} className={isPremium ? 'text-amber-500' : 'text-accent'} strokeWidth={isPro ? 3 : 2} /> {feature}
+                                                <Check size={isPro ? 18 : 16} className={planColorClass} strokeWidth={isPro ? 3 : 2} /> {feature}
                                             </li>
                                         ))}
                                     </ul>
@@ -278,13 +310,13 @@ export default function PricingPage() {
                                         disabled={isCurrentPlan || isScheduled}
                                         className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${isCurrentPlan || isScheduled
                                             ? 'bg-muted/10 text-muted cursor-default'
-                                            : isPro ? 'bg-accent text-white hover:bg-foreground hover:shadow-xl' : 'bg-foreground text-background hover:bg-accent hover:text-white'
+                                            : isPro ? 'bg-amber-500 text-white hover:bg-foreground hover:shadow-xl' : 'bg-foreground text-background hover:bg-accent hover:text-white'
                                             }`}
                                     >
-                                        {isCurrentPlan ? 'Tu Plan Actual' : isScheduled ? 'Programado' : plan.tier === 'free' ? 'Empezar Gratis' : `Suscribirse ${plan.name}`}
+                                        {isCurrentPlan ? 'Tu Plan Actual' : isScheduled ? 'Programado' : isUpgrade ? `Mejorar a ${plan.name}` : isDowngrade ? `Cambiar a ${plan.name}` : `Suscribirse ${plan.name}`}
                                     </button>
 
-                                    <Link href={`/pricing/${plan.tier}`} className="mt-4 text-center text-[10px] font-black uppercase tracking-widest text-muted hover:text-accent transition-colors">
+                                    <Link href={`/pricing/${plan.tier}`} className={`mt-4 text-center text-[10px] font-black uppercase tracking-widest text-muted hover:${planColorClass} transition-colors`}>
                                         Saber más sobre el plan
                                     </Link>
 

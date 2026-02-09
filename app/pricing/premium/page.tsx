@@ -65,12 +65,12 @@ export default function PremiumPlanPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col pt-20">
+        <div className="min-h-screen bg-background text-foreground font-sans flex flex-col pt-20 transition-colors duration-300">
             <Navbar />
 
             <main className="flex-1">
                 {/* Hero section - Vitaminized Blue/Gold */}
-                <section className="relative py-28 overflow-hidden bg-gradient-to-br from-blue-700 via-blue-900 to-slate-900 text-white">
+                <section className="relative py-28 overflow-hidden bg-gradient-to-br from-blue-700 via-blue-900 to-slate-950 text-white">
                     <div className="absolute top-0 right-0 w-1/2 h-full bg-blue-400/10 blur-[130px] rounded-full -translate-y-1/2 translate-x-1/2"></div>
                     <div className="absolute bottom-0 left-0 w-1/4 h-1/2 bg-blue-500/10 blur-[100px] rounded-full"></div>
 
@@ -88,7 +88,7 @@ export default function PremiumPlanPage() {
                                     Plan <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-blue-100 italic">PREMIUM</span>
                                 </h1>
                                 <p className="text-xl md:text-2xl text-blue-100/80 font-medium mb-12 max-w-xl leading-relaxed">
-                                    Domina el mercado global. Vende servicios, kits, exclusivas y obtén la exposición que tu carrera merece.
+                                    Domina el mercado global. Vende servicios, kits, exclusivas y obtén la exposición que tu career merece.
                                 </p>
 
                                 {loading ? (
@@ -99,7 +99,7 @@ export default function PremiumPlanPage() {
                                     </div>
                                 ) : (
                                     <Link href="/pricing" className="inline-block px-12 py-6 bg-white text-blue-900 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-blue-50 hover:scale-105 transition-all shadow-2xl shadow-blue-900/40 active:scale-95">
-                                        {isLoggedIn ? "Mejorar a Premium" : "Ser Premium — $349 MXN"}
+                                        {isLoggedIn ? (userTier === 'free' || userTier === 'pro' ? "Mejorar a Premium" : "Suscribirse Premium") : "Ser Premium — $349 MXN"}
                                     </Link>
                                 )}
                             </div>
@@ -127,16 +127,16 @@ export default function PremiumPlanPage() {
                 </section>
 
                 {/* Features Highlight */}
-                <section className="py-32 bg-white">
+                <section className="py-32 bg-background">
                     <div className="max-w-6xl mx-auto px-4">
                         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                             {mainFeatures.map((f, i) => (
-                                <div key={i} className="p-10 bg-slate-50 rounded-[3rem] border border-slate-100 hover:border-blue-200 transition-all group text-center">
-                                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-8 mx-auto shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
-                                        {f.icon && React.isValidElement(f.icon) ? React.cloneElement(f.icon as React.ReactElement<any>, { className: "group-hover:text-white transition-colors" }) : f.icon}
+                                <div key={i} className="p-10 bg-card/30 rounded-[3rem] border border-border hover:border-blue-500/50 transition-all group text-center">
+                                    <div className="w-16 h-16 bg-card rounded-2xl flex items-center justify-center mb-8 mx-auto shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
+                                        {f.icon && React.isValidElement(f.icon) ? React.cloneElement(f.icon as React.ReactElement<any>, { className: "text-blue-500 group-hover:text-white transition-colors" }) : f.icon}
                                     </div>
-                                    <h4 className="text-lg font-black uppercase tracking-tighter text-slate-900 mb-3 leading-tight">{f.title}</h4>
-                                    <p className="text-xs text-slate-500 font-bold leading-relaxed">{f.description}</p>
+                                    <h4 className="text-lg font-black uppercase tracking-tighter text-foreground mb-3 leading-tight">{f.title}</h4>
+                                    <p className="text-xs text-muted font-bold leading-relaxed">{f.description}</p>
                                 </div>
                             ))}
                         </div>
@@ -144,7 +144,7 @@ export default function PremiumPlanPage() {
                 </section>
 
                 {/* Vitaminized Content Section */}
-                <section className="py-32 bg-slate-50 relative overflow-hidden">
+                <section className="py-32 bg-card/30 relative overflow-hidden">
                     <div className="max-w-6xl mx-auto px-4 relative z-10">
                         <div className="grid md:grid-cols-2 gap-20 items-center">
                             <div className="order-2 md:order-1">
@@ -155,7 +155,7 @@ export default function PremiumPlanPage() {
                                         </div>
                                         <div>
                                             <h4 className="text-xl font-black uppercase tracking-tighter mb-2">Venta de Sound Kits</h4>
-                                            <p className="text-slate-500 font-medium leading-relaxed">Habilita tu propia tienda de librerías. El plan Premium te permite subir y vender Drum Kits, Sample Packs y bancos de sonidos sin límites.</p>
+                                            <p className="text-muted font-medium leading-relaxed">Habilita tu propia tienda de librerías. El plan Premium te permite subir y vender Drum Kits, Sample Packs y bancos de sonidos sin límites.</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-8 group">
@@ -164,7 +164,7 @@ export default function PremiumPlanPage() {
                                         </div>
                                         <div>
                                             <h4 className="text-xl font-black uppercase tracking-tighter mb-2">Servicios Master & Mix</h4>
-                                            <p className="text-slate-500 font-medium leading-relaxed">Ofrece servicios profesionales. Los clientes podrán contratarte para mezclar o masterizar sus temas directamente desde tu perfil.</p>
+                                            <p className="text-muted font-medium leading-relaxed">Ofrece servicios profesionales. Los clientes podrán contratarte para mezclar o masterizar sus temas directamente desde tu perfil.</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-8 group">
@@ -173,7 +173,7 @@ export default function PremiumPlanPage() {
                                         </div>
                                         <div>
                                             <h4 className="text-xl font-black uppercase tracking-tighter mb-2">Ecosistema Completo</h4>
-                                            <p className="text-slate-500 font-medium leading-relaxed">Beats, Servicios, Kits y Exclusivas. Todo centralizado en una plataforma diseñada para que solo te preocupes de crear.</p>
+                                            <p className="text-muted font-medium leading-relaxed">Beats, Servicios, Kits y Exclusivas. Todo centralizado en una plataforma diseñada para que solo te preocupes de crear.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -181,7 +181,7 @@ export default function PremiumPlanPage() {
                             <div className="order-1 md:order-2">
                                 <div className="relative group">
                                     <div className="absolute -inset-10 bg-blue-500/10 blur-[100px] rounded-full group-hover:bg-blue-500/20 transition-all"></div>
-                                    <div className="relative rounded-[4rem] overflow-hidden border-8 border-white shadow-3xl">
+                                    <div className="relative rounded-[4rem] overflow-hidden border-8 border-card shadow-3xl">
                                         <img
                                             src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop"
                                             alt="Studio"
@@ -200,22 +200,22 @@ export default function PremiumPlanPage() {
                 </section>
 
                 {/* Final CTA */}
-                <section className="py-32 text-center bg-white">
+                <section className="py-32 text-center bg-background">
                     <div className="max-w-4xl mx-auto px-4">
-                        <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-10">
+                        <div className="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-10">
                             <Diamond size={32} className="text-blue-500" />
                         </div>
-                        <h2 className="text-5xl md:text-6xl font-black uppercase tracking-tighter text-slate-900 mb-8 leading-none">Domina el mercado global.</h2>
-                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-16">Acceso inmediato a todas las herramientas de negocio</p>
+                        <h2 className="text-5xl md:text-6xl font-black uppercase tracking-tighter text-foreground mb-8 leading-none">Domina el mercado global.</h2>
+                        <p className="text-muted text-[10px] font-black uppercase tracking-[0.3em] mb-16">Acceso inmediato a todas las herramientas de negocio</p>
 
                         {loading ? (
-                            <div className="h-20 w-80 bg-slate-50 animate-pulse rounded-[2rem] mx-auto"></div>
+                            <div className="h-20 w-80 bg-card animate-pulse rounded-[2rem] mx-auto"></div>
                         ) : (
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                                 <Link
                                     href={isLoggedIn && userTier === 'premium' ? "#" : "/pricing"}
                                     className={`px-12 py-6 rounded-[2rem] font-black uppercase tracking-widest text-[10px] transition-all shadow-2xl hover:scale-105 active:scale-95 ${isLoggedIn && userTier === 'premium'
-                                        ? "bg-slate-100 text-slate-400 cursor-default shadow-none"
+                                        ? "bg-card text-muted cursor-default shadow-none"
                                         : "bg-blue-600 text-white hover:bg-slate-900 shadow-blue-600/30"
                                         }`}
                                 >
@@ -223,7 +223,7 @@ export default function PremiumPlanPage() {
                                 </Link>
 
                                 {!isLoggedIn && (
-                                    <Link href="/signup" className="px-12 py-6 bg-white border-2 border-slate-100 text-slate-400 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-slate-900 hover:text-slate-900 transition-all active:scale-95">
+                                    <Link href="/signup" className="px-12 py-6 bg-card border-2 border-border text-muted rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-slate-900 hover:text-foreground transition-all active:scale-95">
                                         Crear mi cuenta
                                     </Link>
                                 )}
