@@ -316,7 +316,12 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
     return (
         <div className="bg-background text-foreground font-sans flex flex-col transition-colors duration-300 w-full">
-            {/* Header Removed as requested for Studio Embedding */}
+            {/* Background Accents */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/5 blur-[120px] rounded-full" />
+                <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-amber-500/5 blur-[100px] rounded-full" />
+            </div>
 
             <div className="max-w-4xl mx-auto px-4 w-full">
                 <div className="mb-6 pl-1 flex items-center justify-between">
@@ -333,7 +338,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                     </div>
                 </div>
 
-                <div className="bg-card rounded-[2rem] p-6 md:p-8 border border-border shadow-sm transition-colors">
+                <div className="bg-card/40 backdrop-blur-xl rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl transition-all">
                     {error && (
                         <div className="bg-red-50 text-red-600 p-4 rounded-xl text-xs font-bold mb-6 flex items-center gap-2">
                             <AlertCircle size={16} /> {error}
@@ -680,12 +685,10 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                             </div>
                                             <div>
                                                 <h4 className="text-xl font-black text-foreground dark:text-white uppercase tracking-tighter">Licencia Exclusiva</h4>
-                                                <p className="text-[10px] font-black text-muted dark:text-slate-300 uppercase tracking-widest">Al venderse este con licencia exclusiva se va a deshabilitar su venta sólo se podrá reproducir</p>
+                                                <p className="text-[10px] font-black text-muted dark:text-slate-300 uppercase tracking-widest">al venderse este Beat con licencia exclusiva se va a deshabilitar su venta y sólo se podrá reproducir.</p>
                                             </div>
                                         </div>
-                                        <p className="text-sm font-medium text-muted dark:text-slate-300 max-w-xl">
-                                            Permite que un artista sea el dueño único de la obra musical.
-                                        </p>
+
                                     </div>
 
                                     <div className="flex flex-col md:items-end gap-4 min-w-[200px]">
