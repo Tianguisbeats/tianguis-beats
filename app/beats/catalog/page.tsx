@@ -172,12 +172,13 @@ function CatalogContent() {
                 if (filterState.scale) query = query.eq('musical_scale', filterState.scale);
                 if (filterState.searchQuery.trim()) {
                     const q = filterState.searchQuery.trim();
+                    // Búsqueda global en título, género, subgénero y beat_types
                     query = query.or(`title.ilike.%${q}%,genre.ilike.%${q}%,subgenre.ilike.%${q}%,beat_types.cs.{"${q}"}`);
                 }
 
                 if (filterState.refArtist.trim()) {
                     const ra = filterState.refArtist.trim();
-                    // Postgres contains operator for array
+                    // Uso del operador 'contains' para arrays en Supabase
                     query = query.contains('beat_types', [ra]);
                 }
 

@@ -82,7 +82,7 @@ export default function AdvancedFilterSidebar({
 
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black text-muted uppercase tracking-widest text-[#EF4444]">Beat Type (Referencia)</label>
+                            <label className="text-[10px] font-black text-muted uppercase tracking-widest text-[#EF4444]">Beat Type (Artistas Ref.)</label>
                             {filterState.refArtist && (
                                 <button onClick={() => updateFilter('refArtist', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
                             )}
