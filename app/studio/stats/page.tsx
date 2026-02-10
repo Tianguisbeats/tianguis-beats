@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { BarChart, Activity, Heart, Play } from 'lucide-react';
+import { BarChart, Activity, Heart, Play, DollarSign } from 'lucide-react';
 
 export default function StudioStatsPage() {
     const [stats, setStats] = React.useState({
@@ -121,20 +121,22 @@ export default function StudioStatsPage() {
                     </div>
                 </div>
 
-                {/* Conversion/Sales Card */}
+                {/* Sales Card */}
                 <div className="group relative bg-[#f0fdf4] dark:bg-white/5 p-8 rounded-[2.5rem] border border-border/50 hover:border-emerald-500/30 transition-all duration-500 overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700" />
                     <div className="relative z-10">
                         <div className="flex items-center gap-3 mb-8 text-emerald-600">
                             <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
-                                <Activity size={20} />
+                                <DollarSign size={20} />
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Conversión</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Total de Ventas</span>
                         </div>
                         <div className="flex items-baseline gap-2 mb-2 text-emerald-600 dark:text-emerald-500">
-                            <span className="text-6xl font-black tracking-tighter">{stats.conversionRate}<span className="text-2xl ml-1">%</span></span>
+                            <span className="text-6xl font-black tracking-tighter">
+                                {new Intl.NumberFormat('es-MX').format(stats.totalSales)}
+                            </span>
                         </div>
-                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest">{stats.totalSales} Ventas totales</p>
+                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Éxito comercial acumulado</p>
                     </div>
                 </div>
             </div>

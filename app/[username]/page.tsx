@@ -116,6 +116,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     const [editCountry, setEditCountry] = useState('');
     const [editSocials, setEditSocials] = useState<any>({});
     const [editVideoUrl, setEditVideoUrl] = useState('');
+    const [editVerifyInstagram, setEditVerifyInstagram] = useState('');
+    const [editVerifyYoutube, setEditVerifyYoutube] = useState('');
+    const [editVerifyTiktok, setEditVerifyTiktok] = useState('');
     const [saving, setSaving] = useState(false);
     const [isAdjustingCover, setIsAdjustingCover] = useState(false);
     const [tempOffset, setTempOffset] = useState(50);
@@ -148,7 +151,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             // 1. Get Profile
             const { data: profileData } = await supabase
                 .from('profiles')
-                .select('id, username, artistic_name, foto_perfil, portada_perfil, ajuste_portada, bio, country, social_links, is_verified, is_founder, subscription_tier, fecha_de_creacion, tema_perfil, color_acento, video_destacado_url, cta_text, cta_url, newsletter_active, links_active')
+                .select('id, username, artistic_name, foto_perfil, portada_perfil, ajuste_portada, bio, country, social_links, is_verified, is_founder, subscription_tier, fecha_de_creacion, tema_perfil, color_acento, video_destacado_url, cta_text, cta_url, newsletter_active, links_active, verify_instagram, verify_youtube, verify_tiktok')
                 .eq('username', username)
                 .single();
 
@@ -159,6 +162,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 setEditCountry(profileData.country || '');
                 setEditSocials(profileData.social_links || {});
                 setEditVideoUrl(profileData.video_destacado_url || '');
+                setEditVerifyInstagram(profileData.verify_instagram || '');
+                setEditVerifyYoutube(profileData.verify_youtube || '');
+                setEditVerifyTiktok(profileData.verify_tiktok || '');
                 setTempOffset(profileData.ajuste_portada ?? 50);
 
                 if (user?.id === profileData.id) {
@@ -352,6 +358,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             editArtisticName !== (profile.artistic_name || '') ||
             editCountry !== (profile.country || '') ||
             editVideoUrl !== (profile.video_destacado_url || '') ||
+            editVerifyInstagram !== (profile.verify_instagram || '') ||
+            editVerifyYoutube !== (profile.verify_youtube || '') ||
+            editVerifyTiktok !== (profile.verify_tiktok || '') ||
             socialsChanged
         );
     };
@@ -366,7 +375,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 country: editCountry,
                 artistic_name: editArtisticName,
                 social_links: editSocials,
-                video_destacado_url: editVideoUrl
+                video_destacado_url: editVideoUrl,
+                verify_instagram: editVerifyInstagram,
+                verify_youtube: editVerifyYoutube,
+                verify_tiktok: editVerifyTiktok
             })
             .eq('id', profile.id);
 
@@ -377,7 +389,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 country: editCountry,
                 artistic_name: editArtisticName,
                 social_links: editSocials,
-                video_destacado_url: editVideoUrl
+                video_destacado_url: editVideoUrl,
+                verify_instagram: editVerifyInstagram,
+                verify_youtube: editVerifyYoutube,
+                verify_tiktok: editVerifyTiktok
             });
             setIsEditing(false);
         } else {
@@ -758,13 +773,49 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             />
                                         </div>
                                         {/* Redes sociales removidas de aquí según solicitud */}
+                                        <div className="pt-6 border-t border-slate-100 dark:border-white/5 space-y-6">
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <ShieldCheck size={14} className="text-accent" />
+                                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-white/40">Redes para Verificación (Privado)</h4>
+                                            </div>
+                                            <div className="grid grid-cols-1 gap-4">
+                                                <div className="space-y-1.5">
+                                                    <label className="text-[9px] font-black uppercase text-muted tracking-widest ml-1">Link Instagram</label>
+                                                    <input
+                                                        value={editVerifyInstagram}
+                                                        onChange={(e) => setEditVerifyInstagram(e.target.value)}
+                                                        className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 text-[10px] font-bold border-transparent focus:border-accent dark:text-white outline-none transition-all"
+                                                        placeholder="https://instagram.com/tu_perfil"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <label className="text-[9px] font-black uppercase text-muted tracking-widest ml-1">Link YouTube</label>
+                                                    <input
+                                                        value={editVerifyYoutube}
+                                                        onChange={(e) => setEditVerifyYoutube(e.target.value)}
+                                                        className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 text-[10px] font-bold border-transparent focus:border-accent dark:text-white outline-none transition-all"
+                                                        placeholder="https://youtube.com/@tu_canal"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <label className="text-[9px] font-black uppercase text-muted tracking-widest ml-1">Link TikTok / Twitter</label>
+                                                    <input
+                                                        value={editVerifyTiktok}
+                                                        onChange={(e) => setEditVerifyTiktok(e.target.value)}
+                                                        className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 text-[10px] font-bold border-transparent focus:border-accent dark:text-white outline-none transition-all"
+                                                        placeholder="https://tiktok.com/@tu_perfil"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         {profile.subscription_tier === 'premium' && (
-                                            <div className="pt-4 border-t border-slate-100">
-                                                <label className="text-[8px] font-black uppercase text-accent mb-2 block">Link YouTube Premium</label>
+                                            <div className="pt-6 border-t border-slate-100 dark:border-white/5">
+                                                <label className="text-[9px] font-black uppercase text-accent mb-2 block tracking-widest">Link YouTube Destacado (Banner)</label>
                                                 <input
                                                     value={editVideoUrl}
                                                     onChange={(e) => setEditVideoUrl(e.target.value)}
-                                                    className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 text-[10px] font-bold border-transparent focus:border-accent dark:text-white"
+                                                    className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 text-[10px] font-bold border-transparent focus:border-accent dark:text-white outline-none transition-all"
                                                     placeholder="URL de Video..."
                                                 />
                                             </div>

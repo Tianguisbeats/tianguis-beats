@@ -45,6 +45,9 @@ export interface Profile {
     cta_url?: string;
     newsletter_active?: boolean;
     links_active?: boolean;
+    verify_instagram?: string | null;
+    verify_youtube?: string | null;
+    verify_tiktok?: string | null;
     stripe_customer_id?: string;
     idioma_preferido?: string;
 }
