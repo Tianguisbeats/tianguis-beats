@@ -38,6 +38,7 @@ export default function UploadPage() {
     const [musicalKey, setMusicalKey] = useState('');
     const [musicalScale, setMusicalScale] = useState('Menor');
     const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
+    const [beatType, setBeatType] = useState('');
 
     // License States
     const [isExclusive, setIsExclusive] = useState(false);
@@ -185,6 +186,7 @@ export default function UploadPage() {
                 musical_key: musicalKey,
                 musical_scale: musicalScale,
                 mood: selectedMoods.join(', '),
+                reference_artist: beatType,
                 portadabeat_url: portadabeat_url,
                 mp3_url: hqPath, // Archivo de Alta Calidad (Limpio)
                 mp3_tag_url: previewPath, // Archivo con tags para previsualización
@@ -454,6 +456,16 @@ export default function UploadPage() {
                                             ))}
                                         </div>
                                     </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Beat Type (Referencia)</label>
+                                        <input
+                                            type="text"
+                                            value={beatType}
+                                            onChange={(e) => setBeatType(e.target.value)}
+                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all"
+                                            placeholder="Junior H, Travis Scott, Bad Bunny..."
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
@@ -463,7 +475,7 @@ export default function UploadPage() {
                             <div className="space-y-6">
                                 <div className="flex items-center justify-between">
                                     <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-1">PRECIOS Y ARCHIVOS</h3>
-                                    <span className="text-[10px] font-black text-muted uppercase tracking-widest">Activa/Desactiva licencias 👁️</span>
+                                    <span className="text-[10px] font-black text-muted uppercase tracking-widest">Control de licencias 🔓</span>
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     {/* MP3 Tagged + Licencia Base */}
@@ -553,7 +565,7 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center gap-4">
                                                 {isFree && (
-                                                    <Link href="/pricing" className="text-[8px] font-black text-accent bg-background border-2 border-accent/20 px-2.5 py-1.5 rounded-full uppercase hover:bg-accent hover:text-white transition-all shadow-sm">
+                                                    <Link href="/pricing" className="bg-blue-600/20 text-blue-500 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border border-blue-500/30 hover:bg-blue-600/40 transition-all shadow-lg shadow-blue-500/10">
                                                         Mejorar a Pro
                                                     </Link>
                                                 )}
@@ -607,7 +619,7 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center gap-4">
                                                 {!isPremium && (
-                                                    <Link href="/pricing" className="text-[8px] font-black text-accent bg-background border-2 border-accent/20 px-2.5 py-1.5 rounded-full uppercase hover:bg-accent hover:text-white transition-all shadow-sm">
+                                                    <Link href="/pricing" className="bg-blue-600/20 text-blue-500 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border border-blue-500/30 hover:bg-blue-600/40 transition-all shadow-lg shadow-blue-500/10">
                                                         Mejorar a Premium
                                                     </Link>
                                                 )}
@@ -658,7 +670,7 @@ export default function UploadPage() {
                                         </div>
                                         <div className="flex items-center gap-4">
                                             {!isPremium && (
-                                                <Link href="/pricing" className="text-[8px] font-black text-accent border border-accent/20 px-3 py-1.5 rounded-full uppercase hover:bg-accent hover:text-white transition-all">
+                                                <Link href="/pricing" className="bg-blue-600/20 text-blue-500 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border border-blue-500/30 hover:bg-blue-600/40 transition-all shadow-lg shadow-blue-500/10">
                                                     Mejorar a Premium
                                                 </Link>
                                             )}
