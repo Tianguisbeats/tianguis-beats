@@ -81,7 +81,6 @@ export interface Beat {
     stems_url?: string | null;
 
     mood?: string | null;
-    reference_artist?: string | null;
 
     // Stats
     play_count?: number;

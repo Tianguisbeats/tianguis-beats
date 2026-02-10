@@ -135,7 +135,7 @@ export default function ProducerDashboard() {
                 wav_url: wavPath,
                 stems_url: stemsPath,
                 mood,
-                reference_artist: refArtist,
+                beat_types: refArtist ? refArtist.split(', ').map(s => s.trim()) : [],
                 is_exclusive: isExclusive,
                 tier_visibility: profile?.subscription_tier === 'premium' ? 2 : (profile?.subscription_tier === 'pro' ? 1 : 0)
             });

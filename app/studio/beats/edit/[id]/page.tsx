@@ -119,7 +119,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             setMusicalKey(beat.musical_key || '');
             setMusicalScale(beat.musical_scale || 'Menor');
             setSelectedMoods(beat.mood ? beat.mood.split(', ') : []);
-            setBeatTypes(beat.beat_types || (beat.reference_artist ? beat.reference_artist.split(', ') : []));
+            setBeatTypes(beat.beat_types || []);
 
             setStandardPrice(beat.price_mxn?.toString() || '0');
             setWavPrice(beat.price_wav_mxn?.toString() || '0');
@@ -148,7 +148,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                 musicalKey: beat.musical_key || '',
                 musicalScale: beat.musical_scale || 'Menor',
                 selectedMoods: beat.mood ? beat.mood.split(', ') : [],
-                beatTypes: beat.beat_types || (beat.reference_artist ? beat.reference_artist.split(', ') : []),
+                beatTypes: beat.beat_types || [],
                 standardPrice: beat.price_mxn?.toString() || '0',
                 wavPrice: beat.price_wav_mxn?.toString() || '0',
                 stemsPrice: beat.price_stems_mxn?.toString() || '0',
@@ -263,8 +263,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                 musical_key: musicalKey,
                 musical_scale: musicalScale,
                 mood: selectedMoods.join(', '),
-                beat_types: beatTypes, // Nuevo campo de array
-                reference_artist: beatTypes.join(', '), // Mantenemos legacy por ahora
+                beat_types: beatTypes,
                 portadabeat_url,
                 mp3_url,
                 mp3_tag_url,
