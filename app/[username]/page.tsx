@@ -798,7 +798,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     />
                                                 </div>
                                                 <div className="space-y-1.5">
-                                                    <label className="text-[9px] font-black uppercase text-muted tracking-widest ml-1">Link TikTok / Twitter</label>
+                                                    <label className="text-[9px] font-black uppercase text-muted tracking-widest ml-1">Link TikTok</label>
                                                     <input
                                                         value={editVerifyTiktok}
                                                         onChange={(e) => setEditVerifyTiktok(e.target.value)}

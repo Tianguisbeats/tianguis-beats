@@ -57,6 +57,13 @@ export default function VerificationPage() {
             .single();
 
         setProfile(profile);
+        if (profile) {
+            setForm(prev => ({
+                ...prev,
+                realName: profile.full_name || '',
+                artisticName: profile.artistic_name || ''
+            }));
+        }
 
         // 2. Fetch Beats (Count & Plays)
         const { data: beats } = await supabase
@@ -93,7 +100,7 @@ export default function VerificationPage() {
         // 5. Evaluate Requirements
         setChecks({
             plan: profile?.subscription_tier === 'pro' || profile?.subscription_tier === 'premium',
-            profileComplete: !!(profile?.foto_perfil && profile?.portada_perfil && profile?.bio),
+            profileComplete: !!(profile?.foto_perfil && profile?.portada_perfil && profile?.bio && profile?.artistic_name),
             activityMin: beatCount >= 5,
             socialsLinked: !!(profile?.verify_instagram && profile?.verify_youtube && profile?.verify_tiktok),
             performance: playCount >= 100 && (saleCount || 0) >= 1
@@ -222,26 +229,49 @@ export default function VerificationPage() {
                                 <p className="text-[10px] text-muted leading-tight">Suscripción activa requerida.</p>
                             </div>
                             {!checks.plan && (
-                                <Link href="/pricing" className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-transform flex items-center gap-2 shadow-lg">
+                                <Link href="/pricing" className="px-4 py-2 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 shadow-sm">
                                     <DollarSign size={10} /> Mejorar
                                 </Link>
                             )}
                         </div>
 
                         {/* Perfil */}
-                        <div className={`p-5 rounded-[2rem] border transition-all flex items-center gap-4 ${checks.profileComplete ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800' : 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800'}`}>
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${checks.profileComplete ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-400' : 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400'}`}>
-                                {checks.profileComplete ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+                        <div className={`p-5 rounded-[2rem] border transition-all flex flex-col gap-4 ${checks.profileComplete ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800' : 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800'}`}>
+                            <div className="flex items-center gap-4">
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${checks.profileComplete ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-400' : 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400'}`}>
+                                    {checks.profileComplete ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Perfil Completo</h3>
+                                    <p className="text-[10px] text-muted leading-tight">Configura tu presencia en el estudio.</p>
+                                </div>
+                                {!checks.profileComplete && profile?.username && (
+                                    <Link href={`/${profile.username}`} className="px-4 py-2 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 shadow-sm">
+                                        <Edit3 size={10} /> Editar
+                                    </Link>
+                                )}
                             </div>
-                            <div className="flex-1">
-                                <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Perfil Completo</h3>
-                                <p className="text-[10px] text-muted leading-tight">Avatar, portada y bio configurados.</p>
+
+                            {/* Sub-indicadores de perfil */}
+                            <div className="grid grid-cols-2 gap-2 pl-14">
+                                {[
+                                    { label: 'Foto Perfil', passed: !!profile?.foto_perfil },
+                                    { label: 'Portada', passed: !!profile?.portada_perfil },
+                                    { label: 'Smart Bio', passed: !!profile?.bio },
+                                    { label: 'Aka Artístico', passed: !!profile?.artistic_name }
+                                ].map((item, i) => (
+                                    <div key={i} className="flex items-center gap-1.5">
+                                        {item.passed ? (
+                                            <CheckCircle2 size={10} className="text-emerald-500" />
+                                        ) : (
+                                            <XCircle size={10} className="text-red-400 opacity-50" />
+                                        )}
+                                        <span className={`text-[8px] font-black uppercase tracking-widest ${item.passed ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`}>
+                                            {item.label}
+                                        </span>
+                                    </div>
+                                ))}
                             </div>
-                            {!checks.profileComplete && profile?.username && (
-                                <Link href={`/${profile.username}`} className="px-4 py-2 bg-slate-100 dark:bg-white/10 text-foreground dark:text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-white/20 transition-colors flex items-center gap-2">
-                                    <Edit3 size={10} /> Editar
-                                </Link>
-                            )}
                         </div>
 
                         {/* Beats */}
@@ -254,7 +284,7 @@ export default function VerificationPage() {
                                 <p className="text-[10px] text-muted leading-tight">Mínimo 5 beats en tu catálogo.</p>
                             </div>
                             {!checks.activityMin && (
-                                <Link href="/upload" className="px-4 py-2 bg-accent text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-accent/90 transition-colors flex items-center gap-2 shadow-lg shadow-accent/20">
+                                <Link href="/upload" className="px-4 py-2 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 shadow-sm">
                                     <Music size={10} /> Subir
                                 </Link>
                             )}
@@ -267,10 +297,10 @@ export default function VerificationPage() {
                             </div>
                             <div className="flex-1">
                                 <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Redes Conectadas</h3>
-                                <p className="text-[10px] text-muted leading-tight">Instagram, YouTube y TikTok/Twitter vinculados en Smart Bio.</p>
+                                <p className="text-[10px] text-muted leading-tight">Instagram, YouTube y TikTok vinculados en Smart Bio.</p>
                             </div>
                             {!checks.socialsLinked && profile?.username && (
-                                <Link href={`/${profile.username}`} className="px-4 py-2 bg-slate-100 dark:bg-white/10 text-foreground dark:text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-white/20 transition-colors flex items-center gap-2">
+                                <Link href={`/${profile.username}`} className="px-4 py-2 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 shadow-sm">
                                     <LinkIcon size={10} /> Vincular
                                 </Link>
                             )}
@@ -286,7 +316,7 @@ export default function VerificationPage() {
                                 <p className="text-[10px] text-muted leading-tight">100 plays Y al menos 1 venta.</p>
                             </div>
                             {!checks.performance && (
-                                <Link href="/studio/stats" className="px-4 py-2 bg-slate-100 dark:bg-white/10 text-foreground dark:text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-white/20 transition-colors flex items-center gap-2">
+                                <Link href="/studio/stats" className="px-4 py-2 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 shadow-sm">
                                     <BarChart2 size={10} /> Stats
                                 </Link>
                             )}
@@ -312,13 +342,13 @@ export default function VerificationPage() {
                     </h3>
 
                     <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-border shadow-xl">
-                        <div className="grid grid-cols-2 gap-6">
+                        <div className="grid grid-cols-2 gap-6 items-start">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-muted">Nombre Real</label>
                                 <input
                                     type="text"
                                     required
-                                    className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all"
+                                    className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all min-h-[44px]"
                                     placeholder="Como en tu INE/ID"
                                     value={form.realName}
                                     onChange={e => setForm({ ...form, realName: e.target.value })}
@@ -329,7 +359,7 @@ export default function VerificationPage() {
                                 <input
                                     type="text"
                                     required
-                                    className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all"
+                                    className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all min-h-[44px]"
                                     placeholder="Tu aka"
                                     value={form.artisticName}
                                     onChange={e => setForm({ ...form, artisticName: e.target.value })}
