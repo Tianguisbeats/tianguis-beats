@@ -66,7 +66,7 @@ export default function PremiumPlanPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-background text-foreground font-sans flex flex-col pt-20 transition-colors duration-300">
+        <div className="min-h-screen bg-background text-foreground font-sans flex flex-col transition-colors duration-300">
             <Navbar />
 
             <main className="flex-1">
@@ -184,14 +184,13 @@ export default function PremiumPlanPage() {
                                     <div className="absolute -inset-10 bg-blue-500/10 blur-[100px] rounded-full group-hover:bg-blue-500/20 transition-all"></div>
                                     <div className="relative rounded-[4rem] overflow-hidden border-8 border-card shadow-3xl">
                                         <img
-                                            src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop"
+                                            src="/images/pricing/producer-plan-premium.jpg"
                                             alt="Studio"
                                             className="w-full h-auto"
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 via-transparent to-transparent"></div>
                                         <div className="absolute bottom-10 left-10 right-10 p-8 bg-white/5 backdrop-blur-2xl rounded-[2rem] border border-white/10">
-                                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-300">Empieza hoy</span>
-                                            <p className="text-white text-lg font-black uppercase tracking-tighter mt-2">"El estándar para el 1% de los productores"</p>
+                                            <p className="text-white text-lg font-black uppercase tracking-tighter mt-2">Empieza hoy</p>
                                         </div>
                                     </div>
                                 </div>
@@ -220,7 +219,7 @@ export default function PremiumPlanPage() {
                                         : "bg-blue-600 text-white hover:bg-slate-900 dark:hover:bg-blue-500 shadow-blue-600/30"
                                         }`}
                                 >
-                                    {isLoggedIn && userTier === 'premium' ? "Tu Plan Actual" : isLoggedIn ? "Mejorar a Premium" : "Elegir Premium"}
+                                    {isLoggedIn && userTier === 'premium' ? "Tu Plan Actual" : "Mejorar a Premium"}
                                 </Link>
 
                                 {!isLoggedIn && (

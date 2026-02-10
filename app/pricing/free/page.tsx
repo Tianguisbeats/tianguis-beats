@@ -53,7 +53,7 @@ export default function FreePlanPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-background text-foreground font-sans flex flex-col pt-20 transition-colors duration-300">
+        <div className="min-h-screen bg-background text-foreground font-sans flex flex-col transition-colors duration-300">
             <Navbar />
 
             <main className="flex-1">
@@ -163,7 +163,7 @@ export default function FreePlanPage() {
                             <div className="relative">
                                 <div className="absolute -inset-4 bg-slate-500/10 blur-3xl rounded-full"></div>
                                 <img
-                                    src="https://images.unsplash.com/photo-1542333398-93f95b9d22aa?q=80&w=2070&auto=format&fit=crop"
+                                    src="/images/pricing/producer-plan-free.jpg"
                                     className="rounded-[4rem] shadow-2xl opacity-80 group-hover:opacity-100 transition-opacity border-2 border-white/10"
                                     alt="Comunidad de Productores"
                                 />
@@ -187,11 +187,11 @@ export default function FreePlanPage() {
                             <div className="h-20 w-64 bg-card animate-pulse rounded-[2rem] mx-auto"></div>
                         ) : isLoggedIn && userTier === 'free' ? (
                             <div className="inline-block px-16 py-7 bg-card text-muted border border-border rounded-[2rem] font-black uppercase tracking-widest text-[10px] cursor-default">
-                                Estás usando el Plan Gratis
+                                Tu Plan Actual
                             </div>
                         ) : isLoggedIn ? (
                             <Link href="/pricing" className="px-16 py-7 bg-card border-2 border-border text-foreground rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-silver-400 transition-all shadow-sm hover:scale-105 active:scale-95 inline-block">
-                                {userTier === 'pro' ? 'Cambiar a Gratis' : 'Mejorar Plan'}
+                                {userTier === 'pro' || userTier === 'premium' ? 'Incluido en tu Plan' : 'Cambiar a Gratis'}
                             </Link>
                         ) : (
                             <Link href="/signup" className="px-16 py-7 bg-foreground text-background rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-accent transition-all shadow-2xl shadow-foreground/20 hover:scale-105 active:scale-95 inline-block">

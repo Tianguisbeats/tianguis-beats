@@ -44,11 +44,7 @@ export default function ProPlanPage() {
             title: "Audio WAV Profesional",
             description: "Habilita la entrega de archivos WAV de alta calidad para los artistas más exigentes.",
             icon: <ShieldCheck className="text-amber-500" size={24} />
-        },
-        {
-            title: "Smart Bio Estándar",
-            description: "Enlace único para todas tus redes. Personalización básica para redirigir a tu audiencia.",
-            icon: <ShieldCheck className="text-amber-500" size={24} />
+
         }
     ];
 
@@ -61,7 +57,7 @@ export default function ProPlanPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-[#08080a] text-slate-900 dark:text-white font-sans flex flex-col pt-20">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#08080a] text-slate-900 dark:text-white font-sans flex flex-col">
             <Navbar />
 
             <main className="flex-1">
@@ -111,10 +107,6 @@ export default function ProPlanPage() {
                                                 <span className="text-sm font-black text-white">{item.value}</span>
                                             </div>
                                         ))}
-                                        <div className="flex items-center justify-between py-1 border-b border-white/5 last:border-0">
-                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Smart Bio</span>
-                                            <span className="text-sm font-black text-white">Estándar</span>
-                                        </div>
                                     </div>
                                     <div className="mt-10 pt-6 border-t border-white/5 flex items-center gap-3 text-amber-400 font-black text-[10px] uppercase tracking-widest">
                                         <ShieldCheck size={16} />
@@ -183,11 +175,11 @@ export default function ProPlanPage() {
                                     <div className="h-16 w-48 bg-white/10 animate-pulse rounded-2xl"></div>
                                 ) : isLoggedIn && userTier === 'pro' ? (
                                     <div className="px-10 py-5 bg-white/10 text-white border border-white/20 rounded-2xl font-black uppercase tracking-widest text-[10px] cursor-default">
-                                        Plan Activo
+                                        Tu Plan Actual
                                     </div>
                                 ) : (
                                     <Link href="/pricing" className="px-10 py-5 bg-amber-500 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all hover:scale-110 active:scale-95 shadow-xl shadow-amber-500/20">
-                                        {isLoggedIn && userTier === 'premium' ? "Es parte de tu Plan" : "Empezar con PRO"}
+                                        {isLoggedIn && userTier === 'premium' ? "Incluido en tu Plan" : "Empezar con PRO"}
                                     </Link>
                                 )}
                             </div>
