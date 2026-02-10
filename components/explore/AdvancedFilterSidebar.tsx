@@ -13,6 +13,7 @@ interface FilterState {
     key: string;
     scale: string;
     mood: string;
+    refArtist: string;
     priceRange: [number, number];
 }
 
@@ -72,9 +73,25 @@ export default function AdvancedFilterSidebar({
                         </div>
                         <input
                             type="text"
-                            placeholder="Buscar..."
+                            placeholder="Buscar título..."
                             value={filterState.searchQuery}
                             onChange={(e) => updateFilter('searchQuery', e.target.value)}
+                            className="w-full bg-background border border-border rounded-xl px-4 py-4 text-sm font-bold outline-none focus:border-accent transition-all text-foreground min-h-[56px]"
+                        />
+                    </div>
+
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <label className="text-[10px] font-black text-muted uppercase tracking-widest text-[#EF4444]">Beat Type (Referencia)</label>
+                            {filterState.refArtist && (
+                                <button onClick={() => updateFilter('refArtist', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
+                            )}
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Ej: Bad Bunny, Mora..."
+                            value={filterState.refArtist}
+                            onChange={(e) => updateFilter('refArtist', e.target.value)}
                             className="w-full bg-background border border-border rounded-xl px-4 py-4 text-sm font-bold outline-none focus:border-accent transition-all text-foreground min-h-[56px]"
                         />
                     </div>

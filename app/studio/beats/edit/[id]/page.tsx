@@ -9,6 +9,7 @@ import {
     AlertCircle, Loader2, Info, ChevronLeft, Hash, Lock,
     Link as LinkIcon, Edit2, Zap, Eye, EyeOff, Save, X, Crown, ShieldCheck
 } from 'lucide-react';
+import TagInput from '@/components/ui/TagInput';
 
 import { GENRES, MOODS, SUBGENRES } from '@/lib/constants';
 
@@ -37,7 +38,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     const [musicalKey, setMusicalKey] = useState('');
     const [musicalScale, setMusicalScale] = useState('Menor');
     const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
-    const [beatType, setBeatType] = useState('');
+    const [beatTypes, setBeatTypes] = useState<string[]>([]);
 
     // License States
     const [isExclusive, setIsExclusive] = useState(false);
@@ -118,7 +119,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             setMusicalKey(beat.musical_key || '');
             setMusicalScale(beat.musical_scale || 'Menor');
             setSelectedMoods(beat.mood ? beat.mood.split(', ') : []);
-            setBeatType(beat.reference_artist || '');
+            setBeatTypes(beat.beat_types || (beat.reference_artist ? beat.reference_artist.split(', ') : []));
 
             setStandardPrice(beat.price_mxn?.toString() || '0');
             setWavPrice(beat.price_wav_mxn?.toString() || '0');
@@ -147,7 +148,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                 musicalKey: beat.musical_key || '',
                 musicalScale: beat.musical_scale || 'Menor',
                 selectedMoods: beat.mood ? beat.mood.split(', ') : [],
-                beatType: beat.reference_artist || '',
+                beatTypes: beat.beat_types || (beat.reference_artist ? beat.reference_artist.split(', ') : []),
                 standardPrice: beat.price_mxn?.toString() || '0',
                 wavPrice: beat.price_wav_mxn?.toString() || '0',
                 stemsPrice: beat.price_stems_mxn?.toString() || '0',
@@ -180,7 +181,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
         musicalKey !== initialData.musicalKey ||
         musicalScale !== initialData.musicalScale ||
         JSON.stringify(selectedMoods.sort()) !== JSON.stringify(initialData.selectedMoods.sort()) ||
-        beatType !== initialData.beatType ||
+        JSON.stringify(beatTypes.sort()) !== JSON.stringify(initialData.beatTypes.sort()) ||
         standardPrice !== initialData.standardPrice ||
         wavPrice !== initialData.wavPrice ||
         stemsPrice !== initialData.stemsPrice ||
@@ -262,7 +263,8 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                 musical_key: musicalKey,
                 musical_scale: musicalScale,
                 mood: selectedMoods.join(', '),
-                reference_artist: beatType,
+                beat_types: beatTypes, // Nuevo campo de array
+                reference_artist: beatTypes.join(', '), // Mantenemos legacy por ahora
                 portadabeat_url,
                 mp3_url,
                 mp3_tag_url,
@@ -421,15 +423,12 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
                                 {/* Beat Type moved here */}
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Beat Type (Referencia)</label>
-                                    <input
-                                        type="text"
-                                        value={beatType}
-                                        onChange={(e) => setBeatType(e.target.value)}
-                                        className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all"
-                                        placeholder="Junior H, 808 Mafia, Metro Boomin..."
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Beat Type / Artistas de Referencia</label>
+                                    <TagInput
+                                        tags={beatTypes}
+                                        setTags={setBeatTypes}
+                                        placeholder="Añade artistas (ej: Bad Bunny, Mora...)"
                                     />
-                                    <p className="text-[9px] text-muted font-bold uppercase tracking-widest ml-1">Separa los artistas con comas para mejorar la recomendación</p>
                                 </div>
                             </div>
 

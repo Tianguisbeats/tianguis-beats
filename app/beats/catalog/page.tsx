@@ -42,6 +42,7 @@ function CatalogContent() {
         key: "",
         scale: "",
         mood: "",
+        refArtist: "",
         priceRange: [0, 10000] as [number, number]
     });
 
@@ -56,6 +57,7 @@ function CatalogContent() {
         const k = searchParams.get('key');
         const s = searchParams.get('scale');
         const b = searchParams.get('bpm');
+        const ra = searchParams.get('artist') || searchParams.get('refArtist');
 
         if (v) setViewMode(v as ViewMode);
 
@@ -66,6 +68,7 @@ function CatalogContent() {
             mood: m || prev.mood,
             key: k || prev.key,
             scale: s || prev.scale,
+            refArtist: ra || prev.refArtist,
             bpmMin: b ? parseInt(b) : prev.bpmMin,
             bpmMax: b ? parseInt(b) : prev.bpmMax,
             subgenre: searchParams.get('subgenre') || prev.subgenre,
@@ -167,7 +170,16 @@ function CatalogContent() {
                 if (filterState.bpmMax) query = query.lte('bpm', filterState.bpmMax);
                 if (filterState.key) query = query.eq('musical_key', filterState.key);
                 if (filterState.scale) query = query.eq('musical_scale', filterState.scale);
-                if (filterState.searchQuery.trim()) query = query.or(`title.ilike.%${filterState.searchQuery.trim()}%,genre.ilike.%${filterState.searchQuery.trim()}%,subgenre.ilike.%${filterState.searchQuery.trim()}%`);
+                if (filterState.searchQuery.trim()) {
+                    const q = filterState.searchQuery.trim();
+                    query = query.or(`title.ilike.%${q}%,genre.ilike.%${q}%,subgenre.ilike.%${q}%,beat_types.cs.{"${q}"}`);
+                }
+
+                if (filterState.refArtist.trim()) {
+                    const ra = filterState.refArtist.trim();
+                    // Postgres contains operator for array
+                    query = query.contains('beat_types', [ra]);
+                }
 
                 switch (viewMode) {
                     case 'new': query = query.order("created_at", { ascending: false }); break;
@@ -273,16 +285,8 @@ function CatalogContent() {
                                     </div>
                                 )) : (
                                     <div className="col-span-full text-center py-32 bg-card rounded-[3rem] border border-dashed border-border shadow-soft">
-                                        <h3 className="text-2xl font-black uppercase tracking-tight mb-4 font-heading">Sin resultados</h3>
-                                        <button
-                                            onClick={() => {
-                                                setFilterState({ searchQuery: "", genre: "Todos", subgenre: "", bpmMin: "", bpmMax: "", key: "", scale: "", mood: "", priceRange: [0, 10000] });
-                                                setViewMode('all');
-                                            }}
-                                            className="px-12 py-5 bg-accent text-white rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] transition-all active:scale-95"
-                                        >
-                                            Limpiar Filtros
-                                        </button>
+                                        <h3 className="text-2xl font-black uppercase tracking-tight mb-4 font-heading text-muted">Sin resultados</h3>
+                                        <p className="text-xs font-bold text-muted/50 uppercase tracking-[0.3em]">Intenta ajustar tus filtros o busca otro término</p>
                                     </div>
                                 )}
                             </div>

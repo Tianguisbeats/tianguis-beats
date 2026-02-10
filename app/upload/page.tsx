@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import TagInput from '@/components/ui/TagInput';
 
 import { GENRES, MOODS, SUBGENRES } from '@/lib/constants';
 
@@ -38,7 +39,7 @@ export default function UploadPage() {
     const [musicalKey, setMusicalKey] = useState('');
     const [musicalScale, setMusicalScale] = useState('Menor');
     const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
-    const [beatType, setBeatType] = useState('');
+    const [beatTypes, setBeatTypes] = useState<string[]>([]);
 
     // License States
     const [isExclusive, setIsExclusive] = useState(false);
@@ -186,7 +187,8 @@ export default function UploadPage() {
                 musical_key: musicalKey,
                 musical_scale: musicalScale,
                 mood: selectedMoods.join(', '),
-                reference_artist: beatType,
+                beat_types: beatTypes, // Nuevo campo de array
+                reference_artist: beatTypes.join(', '), // Mantenemos legacy por ahora
                 portadabeat_url: portadabeat_url,
                 mp3_url: hqPath, // Archivo de Alta Calidad (Limpio)
                 mp3_tag_url: previewPath, // Archivo con tags para previsualización
@@ -381,15 +383,12 @@ export default function UploadPage() {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Beat Type (Referencia)</label>
-                                        <input
-                                            type="text"
-                                            value={beatType}
-                                            onChange={(e) => setBeatType(e.target.value)}
-                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all"
-                                            placeholder="Junior H, 808 Mafia, Metro Boomin..."
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Beat Type / Artistas de Referencia</label>
+                                        <TagInput
+                                            tags={beatTypes}
+                                            setTags={setBeatTypes}
+                                            placeholder="Añade artistas (ej: Bad Bunny, Mora...)"
                                         />
-                                        <p className="text-[9px] text-muted font-bold uppercase tracking-widest ml-1">Separa los artistas con comas para mejorar la recomendación</p>
                                     </div>
                                 </div>
 
