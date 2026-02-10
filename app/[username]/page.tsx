@@ -616,16 +616,16 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 w-full">
                                 <div className="space-y-4">
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter leading-[0.85] text-foreground drop-shadow-sm">
+                                        <h1 className="text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.8] text-foreground drop-shadow-sm">
                                             {profile.artistic_name || profile.username}
                                         </h1>
-                                        <div className="flex items-center gap-2 translate-y-2 md:translate-y-4">
+                                        <div className="flex items-center gap-2 translate-y-3 md:translate-y-6">
                                             {profile.is_verified && (
-                                                <img src="/verified-badge.png" alt="Verificado" className="w-8 h-8 md:w-10 md:h-10 object-contain hover:scale-110 transition-transform cursor-help shadow-blue-500/20 shadow-2xl" title="Verificado" />
+                                                <img src="/verified-badge.png" alt="Verificado" className="w-6 h-6 md:w-8 md:h-8 object-contain hover:scale-110 transition-transform cursor-help shadow-blue-500/20 shadow-2xl" title="Verificado" />
                                             )}
                                             {profile.is_founder && (
                                                 <div className="flex items-center justify-center text-amber-500 hover:rotate-12 transition-transform cursor-help" title="Founder">
-                                                    <Crown className="w-8 h-8 md:w-10 md:h-10" fill="currentColor" />
+                                                    <Crown className="w-6 h-6 md:w-8 md:h-8" fill="currentColor" />
                                                 </div>
                                             )}
                                         </div>
