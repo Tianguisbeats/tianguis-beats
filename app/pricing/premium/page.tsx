@@ -189,8 +189,8 @@ export default function PremiumPlanPage() {
                                             className="w-full h-auto"
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 via-transparent to-transparent"></div>
-                                        <div className="absolute bottom-10 left-10 right-10 p-8 bg-white/5 backdrop-blur-2xl rounded-[2rem] border border-white/10">
-                                            <p className="text-white text-lg font-black uppercase tracking-tighter mt-2">Empieza hoy</p>
+                                        <div className="absolute bottom-10 left-0 right-0 text-center">
+                                            <p className="text-white text-lg font-black uppercase tracking-tighter mt-2 drop-shadow-md">Empieza hoy</p>
                                         </div>
                                     </div>
                                 </div>

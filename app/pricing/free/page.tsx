@@ -47,7 +47,7 @@ export default function FreePlanPage() {
         },
         {
             title: "Smart Bio",
-            description: "No incluida. Actualiza a PRO para desbloquear tu enlace único y conectar todas tus redes.",
+            description: "No incluida. Actualiza a PREMIUM para desbloquear tu enlace único y conectar todas tus redes.",
             icon: <Heart className="text-slate-300 dark:text-slate-600" size={24} />
         }
     ];
@@ -182,22 +182,6 @@ export default function FreePlanPage() {
                         <p className="text-muted text-[10px] font-black uppercase tracking-[0.3em] mb-16 leading-loose">
                             Tu carrera musical no espera. Sube tus mejores hits y forma parte de la red de productores más grande.
                         </p>
-
-                        {loading ? (
-                            <div className="h-20 w-64 bg-card animate-pulse rounded-[2rem] mx-auto"></div>
-                        ) : isLoggedIn && userTier === 'free' ? (
-                            <div className="inline-block px-16 py-7 bg-card text-muted border border-border rounded-[2rem] font-black uppercase tracking-widest text-[10px] cursor-default">
-                                Tu Plan Actual
-                            </div>
-                        ) : isLoggedIn ? (
-                            <Link href="/pricing" className="px-16 py-7 bg-card border-2 border-border text-foreground rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-silver-400 transition-all shadow-sm hover:scale-105 active:scale-95 inline-block">
-                                {userTier === 'pro' || userTier === 'premium' ? 'Incluido en tu Plan' : 'Cambiar a Gratis'}
-                            </Link>
-                        ) : (
-                            <Link href="/signup" className="px-16 py-7 bg-foreground text-background rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-accent transition-all shadow-2xl shadow-foreground/20 hover:scale-105 active:scale-95 inline-block">
-                                Crear mi cuenta GRATIS
-                            </Link>
-                        )}
                     </div>
                 </section>
             </main>
