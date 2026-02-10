@@ -1,4 +1,9 @@
 "use client";
+/**
+ * Beats Page (Explorar)
+ * Página principal para explorar y buscar beats en el marketplace.
+ * Incluye filtros, búsqueda y visualización de beats destacados.
+ */
 
 import React, { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
@@ -85,7 +90,7 @@ function HubContent() {
               Explora el Tianguis
             </h1>
             <p className="text-muted text-xl font-medium max-w-2xl mx-auto uppercase tracking-widest text-[10px]">
-              Elige tu camino hacia el próximo hit
+              Todo lo que necesitas para triunfar está aquí.
             </p>
           </div>
 

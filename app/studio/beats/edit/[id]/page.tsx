@@ -7,7 +7,7 @@ import Link from 'next/link';
 import {
     Upload, Music, Image as ImageIcon, CheckCircle2,
     AlertCircle, Loader2, Info, ChevronLeft, Hash, Lock,
-    Link as LinkIcon, Edit2, Zap, Eye, EyeOff, Save, X
+    Link as LinkIcon, Edit2, Zap, Eye, EyeOff, Save, X, Crown
 } from 'lucide-react';
 
 import { GENRES, MOODS, SUBGENRES } from '@/lib/constants';
@@ -427,7 +427,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                         value={beatType}
                                         onChange={(e) => setBeatType(e.target.value)}
                                         className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all"
-                                        placeholder="Junior H, Peso Pluma, Natanael Cano..."
+                                        placeholder="Junior H, 808 Mafia, Metro Boomin..."
                                     />
                                     <p className="text-[9px] text-muted font-bold uppercase tracking-widest ml-1">Separa los artistas con comas para mejorar la recomendación</p>
                                 </div>
@@ -562,10 +562,15 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                 </div>
 
                                 {/* WAV (Updated for Pro Button Visibility & Size) */}
-                                <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-background border-amber-500/20 shadow-lg shadow-amber-500/5' :
+                                <div className={`relative flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-background border-amber-500/30' :
                                     isWavActive ? 'bg-blue-500/5 border-blue-500/20 hover:bg-blue-500/10' : 'bg-background border-border opacity-75'
                                     }`}>
-                                    <div className="flex items-center justify-between">
+                                    {isFree && (
+                                        <Link href="/pricing" className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 bg-amber-500 text-slate-900 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-amber-400 shadow-xl shadow-amber-500/20 flex items-center gap-2 hover:scale-110 transition-transform whitespace-nowrap">
+                                            <Crown size={12} fill="currentColor" /> Mejorar a Pro
+                                        </Link>
+                                    )}
+                                    <div className={`flex items-center justify-between ${isFree ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
                                                 <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${isFree ? 'text-amber-500' : 'text-blue-500'}`}>
@@ -575,22 +580,16 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                             </div>
                                             <span className={`text-[9px] font-bold uppercase tracking-widest ${isFree ? 'text-amber-500/50' : 'text-blue-500/50'}`}>Alta Fidelidad • 24 bit</span>
                                         </div>
-                                        <div className="flex items-center gap-4">
-                                            {isFree && (
-                                                <Link href="/pricing" className="relative z-10 bg-amber-500 text-white px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border border-amber-400 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-500/20 flex items-center gap-2">
-                                                    <Zap size={10} className="fill-white" /> Mejorar a Pro
-                                                </Link>
-                                            )}
+                                        <div className={`flex items-center gap-4 ${isFree ? 'opacity-0 pointer-events-none' : ''}`}>
                                             {!isFree && <Toggle active={isWavActive} onToggle={() => setIsWavActive(!isWavActive)} />}
-
-                                            <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${isFree ? 'opacity-30 grayscale pointer-events-none bg-background border-border' : (isWavActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50')}`}>
-                                                <span className={`text-[10px] font-black mr-1 ${isFree ? 'text-muted' : (isWavActive ? 'text-accent' : 'text-muted/30')}`}>$</span>
+                                            <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${isWavActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50'}`}>
+                                                <span className={`text-[10px] font-black mr-1 ${isWavActive ? 'text-accent' : 'text-muted/30'}`}>$</span>
                                                 <input
                                                     type="number"
-                                                    disabled={isFree || !isWavActive}
+                                                    disabled={isFree}
                                                     value={wavPrice}
                                                     onChange={(e) => setWavPrice(e.target.value)}
-                                                    className={`w-10 text-[10px] font-black outline-none bg-transparent ${(isFree || !isWavActive) ? 'text-muted' : 'text-foreground'}`}
+                                                    className="w-10 text-[10px] font-black outline-none bg-transparent text-foreground"
                                                 />
                                             </div>
                                         </div>
@@ -619,9 +618,14 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                 </div>
 
                                 {/* STEMS (Updated for Premium Button Visibility & Size) */}
-                                <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-background border-blue-500/20 shadow-lg shadow-blue-500/5' :
+                                <div className={`relative flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-background border-blue-600/30' :
                                     isStemsActive ? 'bg-purple-500/5 border-purple-500/20 hover:bg-purple-500/10' : 'bg-background border-border opacity-75'
                                     }`}>
+                                    {!isPremium && (
+                                        <Link href="/pricing" className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-blue-500 shadow-xl shadow-blue-600/20 flex items-center gap-2 hover:scale-110 transition-transform whitespace-nowrap">
+                                            <Crown size={12} fill="currentColor" /> Mejorar a Premium
+                                        </Link>
+                                    )}
                                     <div className="flex items-center justify-between">
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">

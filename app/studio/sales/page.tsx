@@ -61,19 +61,19 @@ export default function StudioSalesPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Stats Summary - Pro Card */}
                 <div className="lg:col-span-12 xl:col-span-4 self-start">
-                    <div className="bg-slate-900 dark:bg-[#08080a] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl transition-all hover:scale-[1.01] duration-500 border border-white/10">
+                    <div className="bg-white dark:bg-[#08080a] rounded-[2.5rem] p-8 text-slate-900 dark:text-white relative overflow-hidden shadow-2xl transition-all hover:scale-[1.01] duration-500 border border-slate-100 dark:border-white/10 group">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-accent/20 blur-[60px] -mr-16 -mt-16 pointer-events-none" />
                         <div className="relative z-10">
-                            <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-8 border border-white/10">
+                            <div className="w-12 h-12 bg-slate-100 dark:bg-white/10 rounded-xl flex items-center justify-center mb-8 border border-slate-200 dark:border-white/10">
                                 <DollarSign size={24} className="text-accent" />
                             </div>
-                            <p className="text-white dark:text-white/80 font-black text-[9px] uppercase tracking-[0.3em] mb-2">Balance Acumulado</p>
-                            <h2 className="text-4xl font-black tracking-tighter mb-10 text-white">${totalRevenue.toLocaleString('es-MX')} <span className="text-xs font-bold text-white/60">MXN</span></h2>
+                            <p className="text-slate-500 dark:text-white/80 font-black text-[9px] uppercase tracking-[0.3em] mb-2">Balance Acumulado</p>
+                            <h2 className="text-4xl font-black tracking-tighter mb-10 text-slate-900 dark:text-white">${totalRevenue.toLocaleString('es-MX')} <span className="text-xs font-bold text-slate-400 dark:text-white/60">MXN</span></h2>
 
-                            <button className="w-full py-4 bg-accent text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-white hover:text-slate-900 transition-all shadow-xl active:scale-95">
+                            <button className="w-full py-4 bg-slate-900 dark:bg-accent text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-accent dark:hover:bg-white dark:hover:text-slate-900 transition-all shadow-xl active:scale-95">
                                 Retirar Fondos
                             </button>
-                            <p className="mt-4 text-[8px] font-bold text-white dark:text-white text-center uppercase tracking-widest">
+                            <p className="mt-4 text-[8px] font-bold text-slate-400 dark:text-white text-center uppercase tracking-widest">
                                 2-3 días hábiles para el retiro
                             </p>
                         </div>

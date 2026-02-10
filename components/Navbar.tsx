@@ -1,4 +1,9 @@
 "use client";
+/**
+ * Navbar.tsx
+ * Componente de navegación principal de la aplicación.
+ * Maneja la autenticación, navegación entre páginas y cambio de tema.
+ */
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -157,10 +162,10 @@ export default function Navbar() {
                                             )}
                                         </Link>
                                         <ThemeToggle />
-                                        <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground border-2 border-foreground px-6 py-3 rounded-full hover:bg-accent-soft transition-all min-h-[48px] flex items-center">
+                                        <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground border-2 border-foreground px-6 py-3 rounded-full hover:bg-accent-soft hover:text-accent hover:border-accent transition-all min-h-[48px] flex items-center">
                                             Log In
                                         </Link>
-                                        <Link href="/signup" className="text-[10px] font-black uppercase tracking-[0.2em] text-white bg-foreground border-2 border-foreground px-6 py-3 rounded-full hover:bg-accent hover:border-accent transition-all shadow-lg shadow-foreground/20 min-h-[48px] flex items-center">
+                                        <Link href="/signup" className="text-[10px] font-black uppercase tracking-[0.2em] text-white bg-slate-900 border-2 border-slate-900 px-6 py-3 rounded-full hover:bg-accent hover:border-accent transition-all shadow-lg shadow-slate-900/20 min-h-[48px] flex items-center">
                                             Sign Up
                                         </Link>
                                     </div>

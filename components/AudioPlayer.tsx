@@ -102,8 +102,12 @@ export default function AudioPlayer() {
                                         <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] group-hover:text-accent transition-colors">
                                             @{currentBeat.producer_username || (typeof currentBeat.producer === 'object' ? currentBeat.producer?.username : currentBeat.producer)}
                                         </span>
-                                        {currentBeat.is_verified && <img src="/verified-badge.png" className="w-4 h-4 object-contain" alt="V" />}
-                                        {currentBeat.is_founder && <Crown size={14} className="text-amber-500" fill="currentColor" />}
+                                        {(currentBeat.producer_is_verified || currentBeat.is_verified || (typeof currentBeat.producer === 'object' && currentBeat.producer?.is_verified)) && (
+                                            <img src="/verified-badge.png" className="w-4 h-4 object-contain" alt="V" />
+                                        )}
+                                        {(currentBeat.producer_is_founder || currentBeat.is_founder || (typeof currentBeat.producer === 'object' && currentBeat.producer?.is_founder)) && (
+                                            <Crown size={14} className="text-amber-500" fill="currentColor" />
+                                        )}
                                     </Link>
                                 </div>
                             </div>

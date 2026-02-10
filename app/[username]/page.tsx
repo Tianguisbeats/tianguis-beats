@@ -148,7 +148,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             // 1. Get Profile
             const { data: profileData } = await supabase
                 .from('profiles')
-                .select('id, username, artistic_name, foto_perfil, portada_perfil, ajuste_portada, bio, country, social_links, is_verified, is_founder, subscription_tier, fecha_de_creacion, tema_perfil, color_acento, video_destacado_url, cta_text, cta_url, newsletter_active')
+                .select('id, username, artistic_name, foto_perfil, portada_perfil, ajuste_portada, bio, country, social_links, is_verified, is_founder, subscription_tier, fecha_de_creacion, tema_perfil, color_acento, video_destacado_url, cta_text, cta_url, newsletter_active, links_active')
                 .eq('username', username)
                 .single();
 
@@ -652,6 +652,16 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 </div>
 
                                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+
+                                    {profile.links_active && (
+                                        <Link
+                                            href={`/${profile.username}/links`}
+                                            className="h-14 px-8 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center gap-3 bg-white dark:bg-white/10 text-slate-900 dark:text-white border border-slate-100 dark:border-white/10 shadow-xl hover:scale-105 active:scale-95"
+                                        >
+                                            <ListMusic size={18} />
+                                            Smart Bio
+                                        </Link>
+                                    )}
 
                                     {isOwner ? (
                                         <button
