@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Crown, Video, Loader2, Check, MessageSquare, Mail, ShieldCheck, Zap, Clock } from 'lucide-react';
+import { Crown, Video, Loader2, Check, MessageSquare, Mail, ShieldCheck, Zap, Clock, ChevronRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
@@ -19,7 +19,8 @@ export default function PremiumHubPage() {
         video_destacado_url: '',
         cta_text: '',
         cta_url: '',
-        newsletter_active: false
+        newsletter_active: false,
+        is_links_active: false
     });
 
     useEffect(() => {
@@ -32,7 +33,7 @@ export default function PremiumHubPage() {
 
         const { data: profile } = await supabase
             .from('profiles')
-            .select('subscription_tier, tema_perfil, color_acento, video_destacado_url, cta_text, cta_url, newsletter_active, is_verified')
+            .select('subscription_tier, tema_perfil, color_acento, video_destacado_url, cta_text, cta_url, newsletter_active, is_verified, links_active')
             .eq('id', user.id)
             .single();
 
@@ -47,7 +48,8 @@ export default function PremiumHubPage() {
                 video_destacado_url: profile.video_destacado_url || '',
                 cta_text: profile.cta_text || '',
                 cta_url: profile.cta_url || '',
-                newsletter_active: profile.newsletter_active || false
+                newsletter_active: profile.newsletter_active || false,
+                is_links_active: profile.links_active || false
             });
         }
         setLoading(false);
@@ -66,7 +68,8 @@ export default function PremiumHubPage() {
                 video_destacado_url: preferences.is_video_active ? preferences.video_destacado_url : '',
                 cta_text: preferences.is_cta_active ? preferences.cta_text : '',
                 cta_url: preferences.is_cta_active ? preferences.cta_url : '',
-                newsletter_active: preferences.newsletter_active
+                newsletter_active: preferences.newsletter_active,
+                links_active: preferences.is_links_active
             })
             .eq('id', user.id);
 
@@ -201,6 +204,36 @@ export default function PremiumHubPage() {
                                     placeholder="wa.me/..."
                                     className="w-full bg-slate-50 dark:bg-black/40 border border-slate-100 dark:border-white/5 rounded-2xl px-5 py-4 font-bold text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                                 />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Smart Link Bio */}
+                    <div className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm relative overflow-hidden transition-all">
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-4">
+                                <div className={`p-3 rounded-2xl transition-all ${preferences.is_links_active ? 'bg-indigo-500/10 text-indigo-500' : 'bg-slate-100 dark:bg-white/5 text-slate-400'}`}>
+                                    <Zap size={24} />
+                                </div>
+                                <div>
+                                    <h3 className={`font-black uppercase tracking-tight transition-all ${preferences.is_links_active ? 'text-foreground' : 'text-slate-400'}`}>Smart Link Bio</h3>
+                                    <p className="text-[10px] text-muted font-bold uppercase tracking-widest opacity-60">Tu tarjeta de presentación digital</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setPreferences({ ...preferences, is_links_active: !preferences.is_links_active })}
+                                className={`w-12 h-6 rounded-full transition-all relative ${preferences.is_links_active ? 'bg-accent' : 'bg-slate-200 dark:bg-white/10'}`}
+                            >
+                                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-all ${preferences.is_links_active ? 'left-7' : 'left-1'}`} />
+                            </button>
+                        </div>
+
+                        <div className={`transition-all duration-500 ${preferences.is_links_active ? 'opacity-100' : 'opacity-20 pointer-events-none grayscale blur-[2px]'}`}>
+                            <p className="text-sm text-muted font-medium mb-6">
+                                Activa una página dedicada con todos tus enlaces importantes optimizada para redes sociales.
+                            </p>
+                            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-accent hover:underline cursor-pointer opacity-80">
+                                Configurar Enlaces de Bio <ChevronRight size={14} />
                             </div>
                         </div>
                     </div>

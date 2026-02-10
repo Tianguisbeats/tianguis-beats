@@ -121,8 +121,22 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     const [tempOffset, setTempOffset] = useState(50);
     const [isReordering, setIsReordering] = useState(false);
     const [hasChangedOrder, setHasChangedOrder] = useState(false);
+    const [showFanCapture, setShowFanCapture] = useState(false);
+    const [hasShownFanCapture, setHasShownFanCapture] = useState(false);
 
     const { playBeat, currentBeat, isPlaying } = usePlayer();
+
+    // Fan Capture Logic (30s playback trigger)
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (isPlaying && currentBeat && !hasShownFanCapture && profile?.newsletter_active) {
+            timer = setTimeout(() => {
+                setShowFanCapture(true);
+                setHasShownFanCapture(true);
+            }, 30000); // 30 seconds
+        }
+        return () => clearTimeout(timer);
+    }, [isPlaying, currentBeat, hasShownFanCapture, profile?.newsletter_active]);
 
     // Fetch Data
     const fetchAll = async () => {
@@ -1165,6 +1179,45 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     />
                 )}
             </main>
+
+            {/* Fan Capture Popup */}
+            {showFanCapture && profile?.newsletter_active && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-500">
+                    <div className="bg-white dark:bg-[#08080a] w-full max-w-lg rounded-[2.5rem] p-10 relative overflow-hidden shadow-2xl border border-white/5">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 blur-[80px] -mr-32 -mt-32 pointer-events-none" />
+
+                        <button
+                            onClick={() => setShowFanCapture(false)}
+                            className="absolute top-6 right-6 w-10 h-10 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center text-muted hover:text-foreground transition-all"
+                        >
+                            <Plus size={20} className="rotate-45" />
+                        </button>
+
+                        <div className="relative z-10 text-center">
+                            <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-6 text-accent">
+                                <Mail size={32} />
+                            </div>
+                            <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground mb-4">Únete al <span className="text-accent">Inner Circle</span></h2>
+                            <p className="text-sm text-muted font-medium mb-8 leading-relaxed">
+                                Suscríbete para recibir beats exclusivos, cupones de descuento y noticias directas de <span className="text-foreground font-bold">{profile.artistic_name}</span>.
+                            </p>
+
+                            <form className="space-y-4">
+                                <input
+                                    type="email"
+                                    placeholder="tu@email.com"
+                                    className="w-full h-14 bg-slate-50 dark:bg-white/5 border-2 border-slate-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold outline-none focus:border-accent transition-all"
+                                    required
+                                />
+                                <button className="w-full h-14 bg-accent text-white rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 active:scale-95">
+                                    Suscribirme Ahora
+                                </button>
+                            </form>
+                            <p className="mt-6 text-[9px] font-bold text-muted uppercase tracking-widest opacity-40">Zero spam. Solo fuego.</p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <Footer />
         </div>

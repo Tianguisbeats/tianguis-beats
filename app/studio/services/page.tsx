@@ -279,7 +279,7 @@ export default function ServicesManagerPage() {
                 ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {services.map(service => (
-                            <div key={service.id} className="bg-card/30 hover:bg-card border border-border/40 hover:border-accent/30 rounded-[2.5rem] p-8 transition-all duration-300 group flex flex-col h-full">
+                            <div key={service.id} className="bg-white/50 dark:bg-[#08080a]/60 hover:bg-white dark:hover:bg-[#0c0c0f] border border-slate-100 dark:border-white/5 hover:border-accent/30 rounded-[2.5rem] p-8 transition-all duration-500 group flex flex-col h-full hover:-translate-y-2 hover:shadow-2xl hover:shadow-accent/10">
                                 <div className="flex justify-between items-start mb-8">
                                     <div className="w-12 h-12 bg-accent/10 text-accent rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110">
                                         <Briefcase size={24} />
@@ -322,9 +322,9 @@ export default function ServicesManagerPage() {
             {/* Sound Kits Section */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h2 className="text-3xl font-black text-foreground tracking-tighter uppercase flex items-center gap-4">
+                    <h2 className="text-3xl font-black text-foreground dark:text-white tracking-tighter uppercase flex items-center gap-4">
                         Sound Kits
-                        <span className="bg-gradient-to-r from-amber-400 to-orange-600 text-white text-[9px] px-3 py-1 rounded-full font-black uppercase tracking-widest shadow-xl shadow-amber-500/20">Elite Feature</span>
+                        <span className="bg-gradient-to-r from-amber-400 to-orange-600 text-white text-[9px] px-3 py-1 rounded-full font-black uppercase tracking-widest shadow-xl shadow-amber-500/20">Premium</span>
                     </h2>
                     <p className="text-muted font-bold text-xs uppercase tracking-widest mt-2">Vende tus librerías y bancos de sonidos exclusivos</p>
                 </div>
@@ -338,7 +338,7 @@ export default function ServicesManagerPage() {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
                 {soundKits.map(kit => (
-                    <div key={kit.id} className="bg-card/30 hover:bg-card border border-border/40 hover:border-amber-500/30 rounded-[2.5rem] p-8 transition-all duration-300 group flex flex-col h-full">
+                    <div key={kit.id} className="bg-white/50 dark:bg-[#08080a]/60 hover:bg-white dark:hover:bg-[#0c0c0f] border border-slate-100 dark:border-white/5 hover:border-amber-500/30 rounded-[2.5rem] p-8 transition-all duration-500 group flex flex-col h-full hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-500/10">
                         <div className="flex justify-between items-start mb-8 text-amber-500">
                             <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110">
                                 <Package size={24} />

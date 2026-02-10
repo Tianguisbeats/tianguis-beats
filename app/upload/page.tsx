@@ -228,12 +228,9 @@ export default function UploadPage() {
             type="button"
             onClick={onToggle}
             disabled={disabled}
-            className={`relative inline-flex items-center h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-200' : active ? 'bg-accent' : 'bg-slate-300'}`}
+            className={`w-12 h-6 rounded-full transition-all relative ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-200' : active ? 'bg-accent' : 'bg-slate-200 dark:bg-white/10'}`}
         >
-            <span
-                aria-hidden="true"
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${active ? 'translate-x-5' : 'translate-x-0'}`}
-            />
+            <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-all ${active ? 'left-7' : 'left-1'}`} />
         </button>
     );
 
