@@ -95,10 +95,19 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                         'Plan Gratuito'}
                             </h4>
 
-                            {profile?.is_verified && (
+                            {profile?.is_verified ? (
                                 <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-2 flex-nowrap min-w-fit">
                                     <ShieldCheck size={14} className={`${profile?.subscription_tier === 'premium' ? 'text-white' : 'text-accent'} shrink-0`} />
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 whitespace-nowrap">Verificado</span>
+                                </div>
+                            ) : (
+                                <div className="mt-4 pt-4 border-t border-white/10">
+                                    <Link href="/studio/verification" className="flex items-center gap-2 group/verify hover:opacity-80 transition-opacity">
+                                        <div className="w-5 h-5 rounded-full bg-slate-950/20 flex items-center justify-center">
+                                            <ShieldCheck size={10} className="text-white/60" />
+                                        </div>
+                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 border-b border-transparent group-hover/verify:border-white/40">Solicitar Verificación</span>
+                                    </Link>
                                 </div>
                             )}
                         </div>
