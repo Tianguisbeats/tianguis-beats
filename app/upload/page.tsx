@@ -550,39 +550,43 @@ export default function UploadPage() {
                                     </div>
 
                                     {/* WAV + Precio */}
-                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-background border-border grayscale opacity-60' :
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-background border-amber-500/20 shadow-lg shadow-amber-500/5' :
                                         isWavActive ? 'bg-blue-500/5 border-blue-500/20 hover:bg-blue-500/10' : 'bg-background border-border opacity-75'
                                         }`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${isFree ? 'text-muted' : 'text-blue-500'}`}>
-                                                        <Music size={14} className={isFree ? 'text-muted' : 'text-blue-500'} /> Archivo WAV
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${isFree ? 'text-amber-500' : 'text-blue-500'}`}>
+                                                        <Music size={14} className={isFree ? 'text-amber-500' : 'text-blue-500'} /> Archivo WAV
                                                     </span>
-                                                    {isFree && <Lock size={12} className="text-muted" />}
+                                                    {isFree && <Lock size={12} className="text-amber-500" />}
                                                 </div>
-                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${isFree ? 'text-muted/50' : 'text-blue-500/50'}`}>Alta Fidelidad • 24 bit</span>
+                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${isFree ? 'text-amber-500/50' : 'text-blue-500/50'}`}>Alta Fidelidad • 24 bit</span>
                                             </div>
                                             <div className="flex items-center gap-4">
                                                 {isFree && (
-                                                    <Link href="/pricing" className="bg-blue-600/20 text-blue-500 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border border-blue-500/30 hover:bg-blue-600/40 transition-all shadow-lg shadow-blue-500/10">
-                                                        Mejorar a Pro
+                                                    <Link href="/pricing" className="relative z-10 bg-amber-500 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-amber-400 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-500/20 flex items-center gap-2">
+                                                        <Zap size={12} className="fill-white" /> Mejorar a Pro
                                                     </Link>
                                                 )}
                                                 {!isFree && <Toggle active={isWavActive} onToggle={() => setIsWavActive(!isWavActive)} />}
-                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${isFree ? 'bg-background/50 border-border opacity-50' : (isWavActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50')}`}>
-                                                    <span className={`text-[10px] font-black mr-1 ${isFree ? 'text-muted/30' : (isWavActive ? 'text-accent' : 'text-muted/30')}`}>$</span>
+
+                                                {/* Precio Input Wrapper */}
+                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${isFree ? 'opacity-30 grayscale pointer-events-none bg-background border-border' : (isWavActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50')}`}>
+                                                    <span className={`text-[10px] font-black mr-1 ${isFree ? 'text-muted' : (isWavActive ? 'text-accent' : 'text-muted/30')}`}>$</span>
                                                     <input
                                                         type="number"
                                                         disabled={isFree || !isWavActive}
                                                         value={wavPrice}
                                                         onChange={(e) => setWavPrice(e.target.value)}
-                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${(isFree || !isWavActive) ? 'text-muted/50' : 'text-foreground'}`}
+                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${(isFree || !isWavActive) ? 'text-muted' : 'text-foreground'}`}
                                                     />
                                                 </div>
                                             </div>
                                         </div>
-                                        {!isFree && (
+
+                                        {/* File Input Logic */}
+                                        {!isFree ? (
                                             <div className="flex items-center gap-3">
                                                 <input
                                                     type="file"
@@ -600,43 +604,49 @@ export default function UploadPage() {
                                                 </label>
                                                 {wavFile && <CheckCircle2 size={20} className="text-green-500 animate-in zoom-in" />}
                                             </div>
+                                        ) : (
+                                            <div className="flex items-center gap-3 opacity-50 grayscale pointer-events-none select-none">
+                                                <div className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-border rounded-xl text-[9px] font-black uppercase tracking-widest text-center text-muted">
+                                                    Disponible en el Plan Pro
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
 
                                     {/* Stems + Precio */}
-                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-background border-border grayscale opacity-60' :
+                                    <div className={`flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-background border-blue-500/20 shadow-lg shadow-blue-500/5' :
                                         isStemsActive ? 'bg-purple-500/5 border-purple-500/20 hover:bg-purple-500/10' : 'bg-background border-border opacity-75'
                                         }`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${!isPremium ? 'text-muted' : 'text-purple-500'}`}>
-                                                        <Hash size={14} className={!isPremium ? 'text-muted' : 'text-purple-500'} /> Stems
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${!isPremium ? 'text-blue-500' : 'text-purple-500'}`}>
+                                                        <Hash size={14} className={!isPremium ? 'text-blue-500' : 'text-purple-500'} /> Stems
                                                     </span>
-                                                    {!isPremium && <Lock size={12} className="text-muted" />}
+                                                    {!isPremium && <Lock size={12} className="text-blue-500" />}
                                                 </div>
-                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${!isPremium ? 'text-muted/50' : 'text-purple-500/50'}`}>Pistas separadas • .ZIP</span>
+                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${!isPremium ? 'text-blue-500/50' : 'text-purple-500/50'}`}>Pistas separadas • .ZIP</span>
                                             </div>
                                             <div className="flex items-center gap-4">
                                                 {!isPremium && (
-                                                    <Link href="/pricing" className="bg-blue-600/20 text-blue-500 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border border-blue-500/30 hover:bg-blue-600/40 transition-all shadow-lg shadow-blue-500/10">
-                                                        Mejorar a Premium
+                                                    <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
+                                                        <Zap size={12} className="fill-white" /> Mejorar a Premium
                                                     </Link>
                                                 )}
                                                 {isPremium && <Toggle active={isStemsActive} onToggle={() => setIsStemsActive(!isStemsActive)} />}
-                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${!isPremium ? 'bg-background/50 border-border opacity-50' : (isStemsActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50')}`}>
-                                                    <span className={`text-[10px] font-black mr-1 ${!isPremium ? 'text-muted/30' : (isStemsActive ? 'text-accent' : 'text-muted/30')}`}>$</span>
+                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${!isPremium ? 'opacity-30 grayscale pointer-events-none bg-background border-border' : (isStemsActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50')}`}>
+                                                    <span className={`text-[10px] font-black mr-1 ${!isPremium ? 'text-muted' : (isStemsActive ? 'text-accent' : 'text-muted/30')}`}>$</span>
                                                     <input
                                                         type="number"
                                                         disabled={!isPremium || !isStemsActive}
                                                         value={stemsPrice}
                                                         onChange={(e) => setStemsPrice(e.target.value)}
-                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${(!isPremium || !isStemsActive) ? 'text-muted/50' : 'text-foreground'}`}
+                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${(!isPremium || !isStemsActive) ? 'text-muted' : 'text-foreground'}`}
                                                     />
                                                 </div>
                                             </div>
                                         </div>
-                                        {isPremium && (
+                                        {isPremium ? (
                                             <div className="flex items-center gap-3">
                                                 <input
                                                     type="file"
@@ -654,31 +664,38 @@ export default function UploadPage() {
                                                 </label>
                                                 {stemsFile && <CheckCircle2 size={20} className="text-green-500 animate-in zoom-in" />}
                                             </div>
+                                        ) : (
+                                            <div className="flex items-center gap-3 opacity-50 grayscale pointer-events-none select-none">
+                                                <div className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-border rounded-xl text-[9px] font-black uppercase tracking-widest text-center text-muted">
+                                                    Disponible en el Plan Premium
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
 
                                 {/* Licencia Exclusiva Full Width */}
-                                <div className={`p-8 rounded-3xl border transition-all ${isExclusive ? 'border-rose-500/50 bg-rose-500/5 shadow-xl shadow-rose-500/10' : 'bg-background border-border opacity-50'}`}>
+                                <div className={`p-8 rounded-3xl border transition-all ${!isPremium ? 'bg-background border-blue-500/20 shadow-xl shadow-blue-500/5' :
+                                    isExclusive ? 'border-rose-500/50 bg-rose-500/5 shadow-xl shadow-rose-500/10' : 'bg-background border-border opacity-50'}`}>
                                     <div className="flex justify-between items-center">
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
-                                                <span className={`text-[11px] font-black uppercase tracking-widest mb-1 ${!isPremium ? 'text-muted/30' : 'text-rose-500'}`}>Licencia Exclusiva</span>
-                                                {!isPremium && <Lock size={12} className="text-muted" />}
+                                                <span className={`text-[11px] font-black uppercase tracking-widest mb-1 ${!isPremium ? 'text-blue-500' : 'text-rose-500'}`}>Licencia Exclusiva</span>
+                                                {!isPremium && <Lock size={12} className="text-blue-500" />}
                                             </div>
-                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest leading-none">Tu beat se retirará automáticamente tras la compra</span>
+                                            <span className={`text-[9px] font-bold uppercase tracking-widest leading-none ${!isPremium ? 'text-blue-500/50' : 'text-muted'}`}>Tu beat se retirará automáticamente tras la compra</span>
                                         </div>
                                         <div className="flex items-center gap-4">
                                             {!isPremium && (
-                                                <Link href="/pricing" className="bg-blue-600/20 text-blue-500 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border border-blue-500/30 hover:bg-blue-600/40 transition-all shadow-lg shadow-blue-500/10">
-                                                    Mejorar a Premium
+                                                <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
+                                                    <Zap size={12} className="fill-white" /> Mejorar a Premium
                                                 </Link>
                                             )}
                                             {isPremium && <Toggle active={isExclusive} onToggle={() => {
                                                 setIsExclusive(!isExclusive);
                                                 if (!isExclusive) setExclusivePrice(exclusivePrice || '5000');
                                             }} />}
-                                            <div className={`flex items-center rounded-xl px-3 py-2 border transition-all ${isExclusive ? 'bg-background border-rose-500 shadow-sm' : 'bg-background border-border shadow-none'}`}>
+                                            <div className={`flex items-center rounded-xl px-3 py-2 border transition-all ${!isPremium ? 'opacity-30 grayscale pointer-events-none bg-background border-border' : (isExclusive ? 'bg-background border-rose-500 shadow-sm' : 'bg-background border-border shadow-none')}`}>
                                                 <span className={`text-[10px] font-black mr-1 ${isExclusive ? 'text-rose-500' : 'text-muted/30'}`}>$</span>
                                                 <input
                                                     type="number"
@@ -689,7 +706,7 @@ export default function UploadPage() {
                                                         setExclusivePrice(val);
                                                         setIsExclusive(val !== '' && parseInt(val) > 0);
                                                     }}
-                                                    className={`w-16 text-xs font-black outline-none bg-transparent ${isExclusive ? 'text-foreground' : 'text-muted/50'}`}
+                                                    className={`w-16 text-xs font-black outline-none bg-transparent ${(isExclusive && isPremium) ? 'text-foreground' : 'text-muted'}`}
                                                     placeholder="0"
                                                 />
                                             </div>
