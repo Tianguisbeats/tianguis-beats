@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Crown } from 'lucide-react';
+import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Crown, ShieldCheck } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { supabase } from '@/lib/supabase';
 
@@ -26,7 +26,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         const fetchProfile = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                const { data } = await supabase.from('profiles').select('subscription_tier').eq('id', user.id).single();
+                const { data } = await supabase.from('profiles').select('subscription_tier, is_verified').eq('id', user.id).single();
                 setProfile(data);
             }
         };
@@ -94,6 +94,13 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                     profile?.subscription_tier === 'pro' ? <><Crown size={14} /> Plan Pro</> :
                                         'Plan Gratuito'}
                             </h4>
+
+                            {profile?.is_verified && (
+                                <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-2">
+                                    <ShieldCheck size={12} className={profile?.subscription_tier === 'premium' ? 'text-white' : 'text-accent'} />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80">Productor Verificado</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </aside>

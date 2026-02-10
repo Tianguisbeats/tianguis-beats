@@ -1072,7 +1072,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             <Package size={20} />
                                         </div>
                                         <div>
-                                            <h2 className={`text-3xl font-black uppercase tracking-tighter ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white drop-shadow-sm'}`}>Sound Kits</h2>
+                                            <h2 className={`text-3xl font-black uppercase tracking-tighter ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white drop-shadow-md'}`}>Sound Kits</h2>
                                             <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Librerías de sonidos oficiales y presets</p>
                                         </div>
                                     </div>
@@ -1085,7 +1085,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border border-white/10">
                                                     <Crown size={32} className="text-amber-400" />
                                                 </div>
-                                                <h3 className="text-3xl font-black uppercase tracking-tighter mb-4">Característica Premium</h3>
+                                                <h3 className="text-3xl font-black uppercase tracking-tighter mb-4">Premium</h3>
                                                 <p className="text-slate-300 max-w-lg mx-auto mb-8 font-medium">
                                                     Vende tus propios Sample Packs, Drum Kits y Presets directamente desde tu perfil. Mejora tu cuenta para desbloquear esta sección y comenzar a generar ingresos pasivos.
                                                 </p>

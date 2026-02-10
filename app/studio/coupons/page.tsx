@@ -167,40 +167,40 @@ export default function CouponsPage() {
             ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
                     {coupons.map(coupon => (
-                        <div key={coupon.id} className={`group bg-slate-900/60 hover:bg-[#0c0c0f] border border-white/5 hover:border-accent/30 rounded-[3rem] p-10 transition-all duration-500 flex flex-col h-full shadow-2xl relative overflow-hidden ${!coupon.is_active && 'opacity-60 grayscale'}`}>
+                        <div key={coupon.id} className={`group bg-white dark:bg-[#08080a] border border-slate-200 dark:border-white/5 hover:border-accent/40 rounded-[2.5rem] p-8 transition-all duration-500 flex flex-col h-full shadow-sm hover:shadow-2xl hover:-translate-y-1 relative overflow-hidden ${!coupon.is_active && 'opacity-60 grayscale'}`}>
                             <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-[50px] rounded-full pointer-events-none" />
-                            <div className="flex justify-between items-start mb-10">
-                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${coupon.is_active ? 'bg-green-500/10 text-green-500' : 'bg-background text-muted'}`}>
+                            <div className="flex justify-between items-start mb-8">
+                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${coupon.is_active ? 'bg-accent/10 text-accent' : 'bg-slate-100 dark:bg-white/5 text-muted'}`}>
                                     <Ticket size={24} />
                                 </div>
                                 <div className="flex gap-2">
-                                    <button onClick={() => toggleStatus(coupon)} title={coupon.is_active ? "Desactivar" : "Activar"} className={`w-10 h-10 border border-border/50 rounded-xl flex items-center justify-center transition-all ${coupon.is_active ? 'bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white' : 'bg-background text-muted hover:text-foreground'}`}>
+                                    <button onClick={() => toggleStatus(coupon)} title={coupon.is_active ? "Desactivar" : "Activar"} className={`w-10 h-10 border border-slate-200 dark:border-white/10 rounded-xl flex items-center justify-center transition-all ${coupon.is_active ? 'bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white' : 'bg-slate-100 dark:bg-white/5 text-muted hover:text-foreground'}`}>
                                         {coupon.is_active ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
                                     </button>
-                                    <button onClick={() => handleDelete(coupon.id)} className="w-10 h-10 bg-background border border-border/50 text-red-500/60 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+                                    <button onClick={() => handleDelete(coupon.id)} className="w-10 h-10 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-rose-500/60 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all">
                                         <Trash2 size={16} />
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="mb-10 relative z-10">
+                            <div className="mb-8 relative z-10">
                                 <div className="flex flex-wrap items-center gap-4 mb-3">
-                                    <h3 className="font-black text-4xl text-white tracking-widest uppercase">{coupon.codigo}</h3>
-                                    <div className="px-4 py-2 bg-accent text-white rounded-2xl text-[12px] font-black tracking-widest shadow-lg shadow-accent/20">
+                                    <h3 className="font-black text-3xl text-slate-900 dark:text-white tracking-widest uppercase">{coupon.codigo}</h3>
+                                    <div className="px-4 py-1.5 bg-accent text-white rounded-xl text-[11px] font-black tracking-widest shadow-lg shadow-accent/20">
                                         -{coupon.porcentaje_descuento}% OFF
                                     </div>
                                 </div>
-                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">Descuento directo en el checkout</p>
+                                <p className="text-slate-500 dark:text-slate-400 text-[9px] font-black uppercase tracking-[0.2em]">Descuento directo en checkout</p>
                             </div>
 
-                            <div className="mt-auto space-y-3 pt-6 border-t border-border/50">
+                            <div className="mt-auto space-y-3 pt-6 border-t border-slate-100 dark:border-white/5">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[9px] font-black text-muted uppercase tracking-[0.2em]">Redenciones</span>
-                                    <span className="text-xs font-black text-foreground tracking-tight">{coupon.usos_actuales} <span className="text-[10px] opacity-40">/ {coupon.usos_maximos || '∞'}</span></span>
+                                    <span className="text-[9px] font-black text-slate-400 dark:text-muted uppercase tracking-[0.2em]">Redenciones</span>
+                                    <span className="text-xs font-black text-slate-900 dark:text-white tracking-tight">{coupon.usos_actuales} <span className="text-[10px] opacity-40">/ {coupon.usos_maximos || '∞'}</span></span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[9px] font-black text-muted uppercase tracking-[0.2em]">Válido hasta</span>
-                                    <div className="flex items-center gap-1.5 text-xs font-black text-foreground/80 tracking-tight">
+                                    <span className="text-[9px] font-black text-slate-400 dark:text-muted uppercase tracking-[0.2em]">Válido hasta</span>
+                                    <div className="flex items-center gap-1.5 text-xs font-black text-slate-700 dark:text-white/80 tracking-tight">
                                         <Calendar size={12} className="text-accent/60" />
                                         {coupon.fecha_expiracion ? new Date(coupon.fecha_expiracion).toLocaleDateString() : 'Eterno'}
                                     </div>
