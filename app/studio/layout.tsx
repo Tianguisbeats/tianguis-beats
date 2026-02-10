@@ -97,16 +97,16 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
 
                             {profile?.is_verified ? (
                                 <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-2 flex-nowrap min-w-fit">
-                                    <ShieldCheck size={14} className={`${profile?.subscription_tier === 'premium' ? 'text-white' : 'text-accent'} shrink-0`} />
+                                    <img src="/verified-badge.png" alt="Verificado" className="w-3.5 h-3.5 object-contain shadow-lg" />
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 whitespace-nowrap">Verificado</span>
                                 </div>
                             ) : (
-                                <div className="mt-4 pt-4 border-t border-white/10">
+                                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/10">
                                     <Link href="/studio/verification" className="flex items-center gap-2 group/verify hover:opacity-80 transition-opacity">
-                                        <div className="w-5 h-5 rounded-full bg-slate-950/20 flex items-center justify-center">
-                                            <ShieldCheck size={10} className="text-white/60" />
+                                        <div className="w-5 h-5 rounded-full bg-slate-950/5 dark:bg-white/10 flex items-center justify-center">
+                                            <ShieldCheck size={10} className="text-slate-900 dark:text-white/60" />
                                         </div>
-                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 border-b border-transparent group-hover/verify:border-white/40">Solicitar Verificación</span>
+                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-900 dark:text-white/80 border-b border-transparent group-hover/verify:border-slate-900 dark:group-hover/verify:border-white/40">Solicitar Verificación</span>
                                     </Link>
                                 </div>
                             )}

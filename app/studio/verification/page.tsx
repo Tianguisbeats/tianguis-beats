@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { ShieldCheck, CheckCircle2, XCircle, ChevronRight, Upload, AlertTriangle, Lock } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, XCircle, ChevronRight, Upload, AlertTriangle, Lock, Edit3, Link as LinkIcon, Music, BarChart2, DollarSign, Globe, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -191,15 +191,19 @@ export default function VerificationPage() {
 
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="mb-12">
-                <h1 className="text-4xl font-black uppercase tracking-tighter mb-4">Verificación de Productor</h1>
-                <p className="text-muted font-bold uppercase tracking-widest text-xs max-w-2xl leading-relaxed">
-                    La insignia de verificación confirma tu identidad y destaca tu perfil como un profesional de confianza.
-                    Completa los requisitos para solicitarla.
-                </p>
+            <div className="mb-12 text-center md:text-left">
+                <div className="flex flex-col md:flex-row items-center gap-6 mb-6">
+                    <img src="/verified-badge.png" alt="Verificado" className="w-16 h-16 md:w-20 md:h-20 object-contain shadow-2xl shadow-blue-500/20 rounded-full" />
+                    <div>
+                        <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-2">Solicitud de <span className="text-accent">Verificación</span></h1>
+                        <p className="text-muted font-bold uppercase tracking-widest text-xs max-w-xl leading-relaxed">
+                            La insignia de verificación confirma tu identidad y destaca tu perfil como un profesional de confianza.
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-16">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
                 {/* Requirements Checklist */}
                 <div>
                     <h3 className="text-lg font-black uppercase tracking-tight mb-8 flex items-center gap-3">
@@ -207,42 +211,94 @@ export default function VerificationPage() {
                         Requisitos Mínimos
                     </h3>
 
-                    <div className="space-y-6">
-                        <CheckItem
-                            label="Plan Activo"
-                            sub="Debes tener una suscripción Pro o Premium"
-                            passed={checks.plan}
-                            action={!checks.plan ? <Link href="/pricing" className="text-xs text-accent hover:underline font-bold ml-auto">Mejorar Plan</Link> : null}
-                        />
-                        <CheckItem
-                            label="Perfil Completo"
-                            sub="Foto de perfil, portada y biografía"
-                            passed={checks.profileComplete}
-                            action={!checks.profileComplete ? <Link href="/studio/stats" className="text-xs text-accent hover:underline font-bold ml-auto">Editar Perfil</Link> : null}
-                        />
-                        <CheckItem
-                            label="Actividad Constante"
-                            sub={`Mínimo 5 beats subidos (Tienes ${stats.beatCount})`}
-                            passed={checks.activityMin}
-                        />
-                        <CheckItem
-                            label="Redes Conectadas"
-                            sub="Instagram o YouTube vinculados"
-                            passed={checks.socialsLinked}
-                        />
-                        <CheckItem
-                            label="Validación de Mercado"
-                            sub={`100+ Plays o 1 Ventas (Tienes ${stats.playCount} plays, ${stats.saleCount} ventas)`}
-                            passed={checks.performance}
-                        />
+                    <div className="space-y-4">
+                        {/* Plan */}
+                        <div className={`p-5 rounded-[2rem] border transition-all flex items-center gap-4 ${checks.plan ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800' : 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800'}`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${checks.plan ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-400' : 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400'}`}>
+                                {checks.plan ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Plan Pro o Premium</h3>
+                                <p className="text-[10px] text-muted leading-tight">Suscripción activa requerida.</p>
+                            </div>
+                            {!checks.plan && (
+                                <Link href="/pricing" className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-transform flex items-center gap-2 shadow-lg">
+                                    <DollarSign size={10} /> Mejorar
+                                </Link>
+                            )}
+                        </div>
+
+                        {/* Perfil */}
+                        <div className={`p-5 rounded-[2rem] border transition-all flex items-center gap-4 ${checks.profileComplete ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800' : 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800'}`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${checks.profileComplete ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-400' : 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400'}`}>
+                                {checks.profileComplete ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Perfil Completo</h3>
+                                <p className="text-[10px] text-muted leading-tight">Avatar, portada y bio configurados.</p>
+                            </div>
+                            {!checks.profileComplete && profile?.username && (
+                                <Link href={`/${profile.username}`} className="px-4 py-2 bg-slate-100 dark:bg-white/10 text-foreground dark:text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-white/20 transition-colors flex items-center gap-2">
+                                    <Edit3 size={10} /> Editar
+                                </Link>
+                            )}
+                        </div>
+
+                        {/* Beats */}
+                        <div className={`p-5 rounded-[2rem] border transition-all flex items-center gap-4 ${checks.activityMin ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800' : 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800'}`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${checks.activityMin ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-400' : 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400'}`}>
+                                {checks.activityMin ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Actividad ({stats.beatCount}/5)</h3>
+                                <p className="text-[10px] text-muted leading-tight">Mínimo 5 beats en tu catálogo.</p>
+                            </div>
+                            {!checks.activityMin && (
+                                <Link href="/upload" className="px-4 py-2 bg-accent text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-accent/90 transition-colors flex items-center gap-2 shadow-lg shadow-accent/20">
+                                    <Music size={10} /> Subir
+                                </Link>
+                            )}
+                        </div>
+
+                        {/* Redes */}
+                        <div className={`p-5 rounded-[2rem] border transition-all flex items-center gap-4 ${checks.socialsLinked ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800' : 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800'}`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${checks.socialsLinked ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-400' : 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400'}`}>
+                                {checks.socialsLinked ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Redes Conectadas</h3>
+                                <p className="text-[10px] text-muted leading-tight">Instagram o YouTube vinculados.</p>
+                            </div>
+                            {!checks.socialsLinked && profile?.username && (
+                                <Link href={`/${profile.username}`} className="px-4 py-2 bg-slate-100 dark:bg-white/10 text-foreground dark:text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-white/20 transition-colors flex items-center gap-2">
+                                    <LinkIcon size={10} /> Vincular
+                                </Link>
+                            )}
+                        </div>
+
+                        {/* Stats */}
+                        <div className={`p-5 rounded-[2rem] border transition-all flex items-center gap-4 ${checks.performance ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800' : 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800'}`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${checks.performance ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-400' : 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400'}`}>
+                                {checks.performance ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Validación</h3>
+                                <p className="text-[10px] text-muted leading-tight">100 plays o 1 venta.</p>
+                            </div>
+                            {!checks.performance && (
+                                <Link href="/studio/stats" className="px-4 py-2 bg-slate-100 dark:bg-white/10 text-foreground dark:text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-white/20 transition-colors flex items-center gap-2">
+                                    <BarChart2 size={10} /> Stats
+                                </Link>
+                            )}
+                        </div>
                     </div>
 
                     {!allChecksPassed && (
-                        <div className="mt-8 p-6 bg-red-500/5 border border-red-500/20 rounded-2xl flex items-start gap-4">
-                            <AlertTriangle className="text-red-500 shrink-0 mt-1" size={20} />
+                        <div className="mt-8 p-6 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-3xl flex items-start gap-4">
+                            <Lock className="text-muted shrink-0 mt-1" size={20} />
                             <div>
-                                <h4 className="font-black text-red-500 uppercase text-xs tracking-widest mb-1">Requisitos Incompletos</h4>
-                                <p className="text-xs text-muted">Asegúrate de cumplir todos los puntos anteriores para desbloquear el formulario de solicitud.</p>
+                                <h4 className="font-black text-muted uppercase text-[10px] tracking-widest mb-1">Formulario Bloqueado</h4>
+                                <p className="text-xs text-muted">Completa todos los requisitos para desbloquear la solicitud oficial.</p>
                             </div>
                         </div>
                     )}
