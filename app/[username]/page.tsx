@@ -708,10 +708,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                     <div className="flex items-center justify-between group">
                                         <span className="text-sm font-bold text-slate-400 dark:text-white/60">Identidad</span>
-                                        <span className="text-[10px] font-black uppercase px-5 py-2 rounded-2xl bg-blue-500/10 dark:bg-blue-600/20 border border-blue-400/20 text-blue-600 flex items-center gap-2 group-hover:scale-105 transition-transform">
+                                        <span className="text-[10px] font-black uppercase px-5 py-2 rounded-2xl bg-slate-500/10 dark:bg-white/5 border border-slate-400/20 text-slate-400 flex items-center gap-2 group-hover:scale-105 transition-transform">
                                             {profile.is_verified ? (
                                                 <><img src="/verified-badge.png" className="w-4 h-4 object-contain shadow-blue-500/20 shadow-xl" /> Verificado</>
-                                            ) : 'En proceso'}
+                                            ) : 'Sin verificar'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between group">
@@ -757,17 +757,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 placeholder="Tu historia comienza aquí..."
                                             />
                                         </div>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            {SOCIAL_KEYS.map(key => (
-                                                <input
-                                                    key={key}
-                                                    placeholder={key}
-                                                    value={editSocials[key] || ''}
-                                                    onChange={e => setEditSocials({ ...editSocials, [key]: e.target.value })}
-                                                    className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest border-transparent focus:border-accent text-slate-900 dark:text-white"
-                                                />
-                                            ))}
-                                        </div>
+                                        {/* Redes sociales removidas de aquí según solicitud */}
                                         {profile.subscription_tier === 'premium' && (
                                             <div className="pt-4 border-t border-slate-100">
                                                 <label className="text-[8px] font-black uppercase text-accent mb-2 block">Link YouTube Premium</label>
@@ -923,29 +913,29 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="grid md:grid-cols-2 gap-6">
                                             {services.map(service => (
-                                                <div key={service.id} className={`p-8 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md ${profile.tema_perfil === 'dark' ? 'bg-[#020205] border-white/5 hover:border-accent/40 shadow-2xl shadow-black/50' :
+                                                <div key={service.id} className={`p-10 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md ${profile.tema_perfil === 'dark' ? 'bg-[#020205] border-white/10 hover:border-accent/40 shadow-2xl shadow-black/80' :
                                                     profile.tema_perfil === 'neon' ? 'bg-black/80 border-green-900 shadow-green-900/20' :
                                                         profile.tema_perfil === 'gold' ? 'bg-[#1a1610]/80 border-amber-900/50' :
-                                                            'bg-white dark:bg-[#020205] border-slate-100 dark:border-white/5 hover:shadow-xl dark:shadow-black/50'
+                                                            'bg-white dark:bg-[#020205] border-slate-100 dark:border-white/10 hover:shadow-xl dark:shadow-black/80'
                                                     }`}>
-                                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    <div className="flex justify-between items-start mb-4">
-                                                        <span className="bg-accent/10 text-accent px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                    <div className="flex justify-between items-start mb-6">
+                                                        <span className="bg-accent/20 text-accent px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">
                                                             {service.tipo_servicio}
                                                         </span>
-                                                        <span className={`text-xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>${service.precio}</span>
+                                                        <span className={`text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>${service.precio}</span>
                                                     </div>
-                                                    <h3 className={`font-bold text-lg mb-2 group-hover:text-indigo-600 transition-colors ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{service.titulo}</h3>
-                                                    <p className={`text-xs mb-6 line-clamp-3 leading-relaxed ${profile.tema_perfil === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>{service.descripcion}</p>
+                                                    <h3 className={`font-black text-xl mb-3 group-hover:text-accent transition-colors ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{service.titulo}</h3>
+                                                    <p className={`text-xs mb-8 line-clamp-3 leading-relaxed font-medium ${profile.tema_perfil === 'light' ? 'text-slate-500' : 'text-slate-300'}`}>{service.descripcion}</p>
 
-                                                    <div className={`flex items-center justify-between pt-6 border-t ${profile.tema_perfil === 'light' ? 'border-slate-50' : 'border-white/5'}`}>
-                                                        <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-widest">
-                                                            <Clock size={14} className="text-accent/60" />
+                                                    <div className={`flex items-center justify-between pt-6 border-t ${profile.tema_perfil === 'light' ? 'border-slate-100' : 'border-white/10'}`}>
+                                                        <div className="flex items-center gap-2 text-slate-400 dark:text-slate-200 text-[10px] font-black uppercase tracking-widest">
+                                                            <Clock size={16} className="text-accent" />
                                                             {service.tiempo_entrega_dias} Días hábiles
                                                         </div>
-                                                        <button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-accent dark:hover:bg-accent hover:text-white dark:hover:text-white transition-all shadow-xl active:scale-95">
+                                                        <button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-accent dark:hover:bg-accent hover:text-white dark:hover:text-white transition-all shadow-xl shadow-accent/10 active:scale-95">
                                                             Contratar
                                                         </button>
                                                     </div>
