@@ -782,14 +782,26 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center py-8">
-                                        {profile.links_active ? (
-                                            <Link
-                                                href={`/${profile.username}/links`}
-                                                className="w-full max-w-md h-16 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl hover:scale-105 active:scale-95 hover:shadow-2xl"
-                                            >
-                                                <ListMusic size={20} />
-                                                Ver Smart Bio
-                                            </Link>
+                                        {isOwner || profile.links_active ? (
+                                            <>
+                                                {isOwner && profile.subscription_tier !== 'premium' ? (
+                                                    <Link
+                                                        href="/pricing"
+                                                        className="w-full max-w-md h-16 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 bg-slate-900 dark:bg-white/10 text-white dark:text-white border border-transparent dark:border-white/10 shadow-xl hover:scale-105 active:scale-95 hover:bg-blue-600 dark:hover:bg-blue-600"
+                                                    >
+                                                        <Crown size={16} className="text-amber-500" />
+                                                        Desbloquear Smart Bio
+                                                    </Link>
+                                                ) : (
+                                                    <Link
+                                                        href={`/${profile.username}/links`}
+                                                        className="w-full max-w-md h-16 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl hover:scale-105 active:scale-95 hover:shadow-2xl"
+                                                    >
+                                                        <ListMusic size={20} />
+                                                        Ver Smart Bio
+                                                    </Link>
+                                                )}
+                                            </>
                                         ) : (
                                             <div className="text-center opacity-50">
                                                 <ListMusic size={48} className="mx-auto mb-4" />
@@ -916,7 +928,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 <div key={service.id} className={`p-8 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md ${profile.tema_perfil === 'dark' ? 'bg-[#020205] border-white/5 hover:border-accent/40 shadow-2xl shadow-black/50' :
                                                     profile.tema_perfil === 'neon' ? 'bg-black/80 border-green-900 shadow-green-900/20' :
                                                         profile.tema_perfil === 'gold' ? 'bg-[#1a1610]/80 border-amber-900/50' :
-                                                            'bg-white border-slate-100 hover:shadow-xl'
+                                                            'bg-white dark:bg-[#020205] border-slate-100 dark:border-white/5 hover:shadow-xl dark:shadow-black/50'
                                                     }`}>
                                                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     <div className="flex justify-between items-start mb-4">
@@ -938,7 +950,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                         </button>
                                                     </div>
                                                 </div>
-                                            ))}
+                                            ))
+                                            }
                                         </div>
                                     )}
                                 </div>

@@ -552,34 +552,41 @@ export default function UploadPage() {
 
                                     {/* WAV + Precio */}
                                     {/* WAV + Precio */}
-                                    <div className={`relative flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-background border-amber-500/30' :
+                                    <div className={`relative flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all overflow-hidden ${isFree ? 'bg-background border-amber-500/30' :
                                         isWavActive ? 'bg-blue-500/5 border-blue-500/20 hover:bg-blue-500/10' : 'bg-background border-border opacity-75'
                                         }`}>
                                         {isFree && (
-                                            <Link href="/pricing" className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 bg-amber-500 text-slate-900 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-amber-400 shadow-xl shadow-amber-500/20 flex items-center gap-2 hover:scale-110 transition-transform whitespace-nowrap">
-                                                <Crown size={12} fill="currentColor" /> Mejorar a Pro
-                                            </Link>
+                                            <div className="absolute inset-0 z-20 bg-background/60 backdrop-blur-[1px] flex items-center justify-center">
+                                                <Link href="/pricing" className="bg-amber-500 text-slate-900 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-400 shadow-xl shadow-amber-500/20 flex items-center gap-2 hover:scale-105 transition-transform whitespace-nowrap">
+                                                    <Crown size={14} fill="currentColor" /> Mejorar a Pro
+                                                </Link>
+                                            </div>
                                         )}
-                                        <div className={`flex items-center justify-between ${isFree ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
-                                            {!isFree && <Toggle active={isWavActive} onToggle={() => setIsWavActive(!isWavActive)} />}
-
-                                            {/* Precio Input Wrapper */}
-                                            <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${isFree ? 'opacity-30 grayscale pointer-events-none bg-background border-border' : (isWavActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50')}`}>
-                                                <span className={`text-[10px] font-black mr-1 ${isFree ? 'text-muted' : (isWavActive ? 'text-accent' : 'text-muted/30')}`}>$</span>
-                                                <input
-                                                    type="number"
-                                                    disabled={isFree || !isWavActive}
-                                                    value={wavPrice}
-                                                    onChange={(e) => setWavPrice(e.target.value)}
-                                                    className={`w-10 text-[10px] font-black outline-none bg-transparent ${(isFree || !isWavActive) ? 'text-muted' : 'text-foreground'}`}
-                                                />
+                                        <div className={`flex items-center justify-between ${isFree ? 'opacity-40 blur-[0.5px]' : ''}`}>
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${isFree ? 'text-amber-500' : 'text-blue-500'}`}>
+                                                        <Music size={14} className={isFree ? 'text-amber-500' : 'text-blue-500'} /> Archivo WAV
+                                                    </span>
+                                                    {isFree && <Lock size={12} className="text-amber-500" />}
+                                                </div>
+                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${isFree ? 'text-amber-500/50' : 'text-blue-500/50'}`}>Alta Fidelidad • 24 bit</span>
+                                            </div>
+                                            <div className={`flex items-center gap-4 ${isFree ? 'pointer-events-none' : ''}`}>
+                                                {!isFree && <Toggle active={isWavActive} onToggle={() => setIsWavActive(!isWavActive)} />}
+                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${isWavActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50'}`}>
+                                                    <span className={`text-[10px] font-black mr-1 ${isWavActive ? 'text-accent' : 'text-muted/30'}`}>$</span>
+                                                    <input
+                                                        type="number"
+                                                        disabled={isFree}
+                                                        value={wavPrice}
+                                                        onChange={(e) => setWavPrice(e.target.value)}
+                                                        className="w-10 text-[10px] font-black outline-none bg-transparent text-foreground"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    {/* File Input Logic */}
-                                    {!isFree ? (
-                                        <div className="flex items-center gap-3">
+                                        <div className={`flex items-center gap-3 ${isFree ? 'opacity-40 blur-[0.5px] pointer-events-none' : ''}`}>
                                             <input
                                                 type="file"
                                                 accept=".wav"
@@ -590,19 +597,14 @@ export default function UploadPage() {
                                                 }}
                                                 className="hidden"
                                                 id="wav-file"
+                                                disabled={isFree}
                                             />
                                             <label htmlFor="wav-file" className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-blue-500 hover:bg-blue-500/10 transition-all text-center truncate">
                                                 {wavFile ? wavFile.name : 'Seleccionar WAV'}
                                             </label>
                                             {wavFile && <CheckCircle2 size={20} className="text-green-500 animate-in zoom-in" />}
                                         </div>
-                                    ) : (
-                                        <div className="flex items-center gap-3 opacity-50 grayscale pointer-events-none select-none">
-                                            <div className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-border rounded-xl text-[9px] font-black uppercase tracking-widest text-center text-muted">
-                                                Disponible en el Plan Pro
-                                            </div>
-                                        </div>
-                                    )}
+                                    </div>
                                 </div>
 
                                 {/* Stems + Precio */}
