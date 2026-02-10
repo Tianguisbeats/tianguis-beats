@@ -133,7 +133,7 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                         <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                     </button>
                     <div>
-                        <h1 className="text-4xl font-black text-foreground uppercase tracking-tighter">
+                        <h1 className="text-2xl sm:text-4xl font-black text-foreground uppercase tracking-tighter">
                             Lista de amigos de <span className="text-accent underline decoration-4 underline-offset-8">@{profile?.artistic_name || profile?.username}</span>
                         </h1>
                         <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mt-3">Miembros de la comunidad Tianguis</p>
@@ -183,10 +183,10 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                             <Link
                                 key={user.id}
                                 href={`/${user.username}`}
-                                className="bg-card/40 backdrop-blur-md border border-border/50 p-6 rounded-[2.5rem] flex items-center justify-between group hover:border-accent hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
+                                className="bg-card/40 backdrop-blur-md border border-border/50 p-4 sm:p-6 rounded-[2.5rem] flex items-center justify-between group hover:border-accent hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
                             >
-                                <div className="flex items-center gap-6">
-                                    <div className={`relative w-20 h-20 rounded-[2rem] overflow-hidden border-2 transition-transform duration-500 group-hover:scale-105 ${user.subscription_tier === 'premium' ? 'border-blue-500' :
+                                <div className="flex items-center gap-4 sm:gap-6">
+                                    <div className={`relative w-16 h-16 md:w-20 md:h-20 rounded-[2rem] overflow-hidden border-2 transition-transform duration-500 group-hover:scale-105 ${user.subscription_tier === 'premium' ? 'border-blue-500' :
                                         user.subscription_tier === 'pro' ? 'border-amber-500' : 'border-border'
                                         }`}>
                                         <img
@@ -197,7 +197,7 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <div className="flex items-center gap-2">
-                                            <h3 className="text-2xl font-black text-foreground group-hover:text-accent transition-colors lowercase font-heading leading-tight">
+                                            <h3 className="text-lg sm:text-2xl font-black text-foreground group-hover:text-accent transition-colors lowercase font-heading leading-tight">
                                                 {user.artistic_name || user.username}
                                             </h3>
                                             <div className="flex items-center gap-1.5 ml-1">
@@ -213,7 +213,7 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                                 {currentUserId !== user.id && (
                                     <button
                                         onClick={(e) => handleFollowToggle(user.id, e)}
-                                        className={`px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg ${userFollowingSet.has(user.id)
+                                        className={`px-6 py-3 sm:px-8 sm:py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg ${userFollowingSet.has(user.id)
                                             ? 'bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 hover:bg-red-50 hover:text-red-500 hover:border-red-200 dark:hover:bg-red-500/10 dark:hover:text-red-400'
                                             : 'bg-foreground dark:bg-white text-background dark:text-slate-900 hover:bg-accent dark:hover:bg-accent hover:text-white dark:hover:text-white shadow-accent/10'
                                             }`}

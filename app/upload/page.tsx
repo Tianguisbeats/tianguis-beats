@@ -253,10 +253,10 @@ export default function UploadPage() {
                     {/* Header Minimalista */}
                     <div className="mb-10 pl-2 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
                         <div>
-                            <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground mb-1 flex items-center gap-3">
+                            <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-foreground mb-1 flex items-center gap-3">
                                 <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Publicar</span>
                                 <span className="text-foreground">Beat</span>
-                                <Zap className="text-amber-400 fill-amber-400" size={32} />
+                                <Zap className="text-amber-400 fill-amber-400 w-6 h-6 md:w-8 md:h-8" />
                             </h1>
                             <p className="text-muted font-bold uppercase tracking-widest text-[10px] flex items-center gap-2">
                                 <Edit2 size={12} className="text-blue-500" /> agrega los datos de tu Beat
@@ -286,7 +286,7 @@ export default function UploadPage() {
                         )}
                     </div>
 
-                    <div className="bg-card rounded-[2rem] p-8 border border-border shadow-sm transition-colors">
+                    <div className="bg-card rounded-[2rem] p-5 md:p-8 border border-border shadow-sm transition-colors">
                         {error && (
                             <div className="bg-red-50 text-red-600 p-4 rounded-xl text-xs font-bold mb-6 flex items-center gap-2">
                                 <AlertCircle size={16} /> {error}
@@ -309,7 +309,7 @@ export default function UploadPage() {
                                             type="text"
                                             value={title}
                                             onChange={(e) => setTitle(e.target.value)}
-                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent focus:bg-card transition-all"
+                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-sm font-bold outline-none focus:border-accent focus:bg-card transition-all"
                                             placeholder="Nombre del Beat"
                                             required
                                         />
@@ -322,7 +322,7 @@ export default function UploadPage() {
                                                 setGenre(e.target.value);
                                                 setSubgenre(''); // Reset subgenre on genre change
                                             }}
-                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all appearance-none"
+                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all appearance-none"
                                             required
                                         >
                                             <option value="">Seleccionar</option>
@@ -338,7 +338,7 @@ export default function UploadPage() {
                                         <select
                                             value={subgenre}
                                             onChange={(e) => setSubgenre(e.target.value)}
-                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                             disabled={!genre || !SUBGENRES[genre]}
                                         >
                                             <option value="">{genre ? 'Ninguno / Automático' : 'Selecciona un género primero'}</option>
@@ -348,21 +348,21 @@ export default function UploadPage() {
                                         </select>
                                     </div>
 
-                                    <div className="grid grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">BPM</label>
                                             <input
                                                 type="number"
                                                 value={bpm}
                                                 onChange={(e) => setBpm(e.target.value)}
-                                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all"
+                                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-sm font-bold outline-none focus:border-accent transition-all"
                                                 placeholder="140"
                                                 required
                                             />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Escala</label>
-                                            <select value={musicalScale} onChange={(e) => setMusicalScale(e.target.value)} className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all font-heading">
+                                            <select value={musicalScale} onChange={(e) => setMusicalScale(e.target.value)} className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all font-heading">
                                                 <option value="">Escala</option>
                                                 {SCALES.map(s => <option key={s} value={s}>{s}</option>)}
                                             </select>
@@ -372,7 +372,7 @@ export default function UploadPage() {
                                             <select
                                                 value={musicalKey}
                                                 onChange={(e) => setMusicalKey(e.target.value)}
-                                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all font-heading"
+                                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all font-heading"
                                                 disabled={!musicalScale}
                                                 required
                                             >

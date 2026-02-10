@@ -616,7 +616,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 w-full">
                                 <div className="space-y-4">
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                                        <h1 className="text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.8] text-foreground drop-shadow-sm">
+                                        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.8] text-foreground drop-shadow-sm">
                                             {profile.artistic_name || profile.username}
                                         </h1>
                                         <div className="flex items-center gap-2 translate-y-3 md:translate-y-6">
@@ -675,7 +675,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         </div>
                     </div>
 
-                    <div className="grid lg:grid-cols-12 gap-12">
+                    <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
                         {/* Sidebar Vitaminado */}
                         <div className="lg:col-span-4 space-y-8">
                             {/* Estadísticas Premium */}
@@ -913,7 +913,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="grid md:grid-cols-2 gap-6">
+                                        <div className="grid md:grid-cols-2 gap-4 md:gap-6">
                                             {services.map(service => (
                                                 <div key={service.id} className={`p-10 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md ${profile.tema_perfil === 'dark' ? 'bg-[#020205] border-white/10 hover:border-accent/40 shadow-2xl shadow-black/80' :
                                                     profile.tema_perfil === 'neon' ? 'bg-black/80 border-green-900 shadow-green-900/20' :

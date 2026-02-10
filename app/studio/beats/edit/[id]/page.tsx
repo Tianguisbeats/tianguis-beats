@@ -352,7 +352,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                     type="text"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent focus:bg-card transition-all"
+                                    className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-sm font-bold outline-none focus:border-accent focus:bg-card transition-all"
                                     required
                                 />
                             </div>
@@ -364,7 +364,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                         setGenre(e.target.value);
                                         setSubgenre('');
                                     }}
-                                    className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all appearance-none"
+                                    className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all appearance-none"
                                     required
                                 >
                                     <option value="">Seleccionar</option>
@@ -380,7 +380,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                 <select
                                     value={subgenre}
                                     onChange={(e) => setSubgenre(e.target.value)}
-                                    className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                     disabled={!genre || !SUBGENRES[genre]}
                                 >
                                     <option value="">{genre ? 'Ninguno / Automático' : 'Selecciona un género primero'}</option>
@@ -390,27 +390,27 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                 </select>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">BPM</label>
                                     <input
                                         type="number"
                                         value={bpm}
                                         onChange={(e) => setBpm(e.target.value)}
-                                        className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all"
+                                        className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-sm font-bold outline-none focus:border-accent transition-all"
                                         required
                                     />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Escala</label>
-                                    <select value={musicalScale} onChange={(e) => setMusicalScale(e.target.value)} className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all font-heading">
+                                    <select value={musicalScale} onChange={(e) => setMusicalScale(e.target.value)} className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all font-heading">
                                         <option value="">Escala</option>
                                         {SCALES.map(s => <option key={s} value={s}>{s}</option>)}
                                     </select>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Nota</label>
-                                    <select value={musicalKey} onChange={(e) => setMusicalKey(e.target.value)} className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent transition-all font-heading">
+                                    <select value={musicalKey} onChange={(e) => setMusicalKey(e.target.value)} className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all font-heading">
                                         <option value="">-</option>
                                         {KEYS_BASE.map(k => <option key={k} value={k}>{k}</option>)}
                                     </select>
