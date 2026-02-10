@@ -91,10 +91,26 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
             setPlayCountTracked(null);
         }
 
-        setCurrentBeat(beat);
-        audioRef.current.src = beat.mp3_url || '';
-        audioRef.current.play();
-        setIsPlaying(true);
+        // Resolve URL if it's a relative path from Supabase Storage
+        let finalUrl = beat.mp3_tag_url || beat.mp3_url || '';
+
+        if (finalUrl && !finalUrl.startsWith('http')) {
+            const encodedPath = finalUrl.split('/').map((s: string) => encodeURIComponent(s)).join('/');
+            const bucket = finalUrl.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+            const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
+            finalUrl = publicUrl;
+        }
+
+        setCurrentBeat({ ...beat, mp3_url: finalUrl });
+        audioRef.current.src = finalUrl;
+
+        try {
+            await audioRef.current.play();
+            setIsPlaying(true);
+        } catch (err) {
+            console.error("Playback error:", err);
+            setIsPlaying(false);
+        }
     };
 
     const togglePlay = () => {

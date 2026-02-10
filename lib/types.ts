@@ -76,6 +76,7 @@ export interface Beat {
     // Archivos
     portadabeat_url?: string | null;
     mp3_url?: string;
+    mp3_tag_url?: string | null;
     wav_url?: string | null;
     stems_url?: string | null;
 
@@ -86,6 +87,7 @@ export interface Beat {
     play_count?: number;
     sale_count?: number;
     like_count?: number;
+    comment_count?: number;
 
     is_exclusive?: boolean;
     exclusive_price_mxn?: number | null;

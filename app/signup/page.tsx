@@ -272,7 +272,7 @@ export default function SignupPage() {
                                     <button
                                         type="submit"
                                         disabled={loading || isUsernameAvailable === false}
-                                        className="w-full bg-blue-600 dark:bg-blue-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-blue-700 dark:hover:bg-blue-400 transition-all shadow-xl shadow-blue-600/20 dark:shadow-blue-500/40 flex items-center justify-center gap-3 group disabled:opacity-50 mt-2"
+                                        className="w-full bg-blue-600 dark:bg-blue-600/20 text-white dark:text-blue-400 py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-blue-600/20 flex items-center justify-center gap-3 group disabled:opacity-50 mt-2 border-2 border-blue-600 dark:border-blue-500/30 hover:bg-blue-700 dark:hover:bg-blue-600/40 hover:scale-[1.02] active:scale-95"
                                     >
                                         {loading ? (
                                             <Loader2 className="animate-spin" size={18} />

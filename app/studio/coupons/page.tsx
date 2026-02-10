@@ -177,6 +177,9 @@ export default function CouponsPage() {
                                     <button onClick={() => toggleStatus(coupon)} title={coupon.is_active ? "Desactivar" : "Activar"} className={`w-10 h-10 border border-slate-200 dark:border-white/10 rounded-xl flex items-center justify-center transition-all ${coupon.is_active ? 'bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white' : 'bg-slate-100 dark:bg-white/5 text-muted hover:text-foreground'}`}>
                                         {coupon.is_active ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
                                     </button>
+                                    <button onClick={() => { setCurrentCoupon(coupon); setIsEditing(true); }} className="w-10 h-10 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-blue-500 rounded-xl flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all">
+                                        <Edit3 size={16} />
+                                    </button>
                                     <button onClick={() => handleDelete(coupon.id)} className="w-10 h-10 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-rose-500/60 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all">
                                         <Trash2 size={16} />
                                     </button>
@@ -216,7 +219,7 @@ export default function CouponsPage() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in">
                     <div className="bg-card rounded-3xl p-8 max-w-md w-full shadow-2xl overflow-hidden border border-border">
                         <h2 className="text-xl font-black uppercase tracking-tighter mb-6 text-foreground">
-                            Nuevo Cupón
+                            {currentCoupon?.id ? 'Editar Cupón' : 'Nuevo Cupón'}
                         </h2>
 
                         <form onSubmit={handleSave} className="space-y-4">
@@ -283,7 +286,7 @@ export default function CouponsPage() {
                                     disabled={saving}
                                     className="flex-1 bg-foreground text-background py-3 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-accent hover:text-white transition-colors shadow-lg"
                                 >
-                                    {saving ? "Guardando..." : "Crear Cupón"}
+                                    {saving ? "Guardando..." : (currentCoupon?.id ? "Guardar Cambios" : "Crear Cupón")}
                                 </button>
                             </div>
                         </form>

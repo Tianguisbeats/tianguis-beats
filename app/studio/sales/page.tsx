@@ -67,13 +67,13 @@ export default function StudioSalesPage() {
                             <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-8 border border-white/10">
                                 <DollarSign size={24} className="text-accent" />
                             </div>
-                            <p className="text-white/40 font-black text-[9px] uppercase tracking-[0.3em] mb-2">Balance Acumulado</p>
-                            <h2 className="text-4xl font-black tracking-tighter mb-10 text-white">${totalRevenue.toLocaleString('es-MX')} <span className="text-xs font-bold opacity-30">MXN</span></h2>
+                            <p className="text-white dark:text-white/80 font-black text-[9px] uppercase tracking-[0.3em] mb-2">Balance Acumulado</p>
+                            <h2 className="text-4xl font-black tracking-tighter mb-10 text-white">${totalRevenue.toLocaleString('es-MX')} <span className="text-xs font-bold text-white/60">MXN</span></h2>
 
                             <button className="w-full py-4 bg-accent text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-white hover:text-slate-900 transition-all shadow-xl active:scale-95">
                                 Retirar Fondos
                             </button>
-                            <p className="mt-4 text-[8px] font-bold text-white/20 text-center uppercase tracking-widest">
+                            <p className="mt-4 text-[8px] font-bold text-white dark:text-white text-center uppercase tracking-widest">
                                 2-3 días hábiles para el retiro
                             </p>
                         </div>
