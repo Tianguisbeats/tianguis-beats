@@ -27,6 +27,8 @@ export default function PlaylistManagerModal({
     const [selectedBeatIds, setSelectedBeatIds] = useState<string[]>([]);
     const [saving, setSaving] = useState(false);
 
+    const [hasChanges, setHasChanges] = useState(false);
+
     useEffect(() => {
         if (existingPlaylist) {
             setName(existingPlaylist.name || '');
@@ -37,7 +39,25 @@ export default function PlaylistManagerModal({
             setDescription('');
             setSelectedBeatIds([]);
         }
+        setHasChanges(false);
     }, [existingPlaylist, isOpen]);
+
+    // Check for changes
+    useEffect(() => {
+        if (!existingPlaylist) {
+            setHasChanges(!!name.trim() || selectedBeatIds.length > 0);
+            return;
+        }
+
+        const currentIds = [...selectedBeatIds].sort().join(',');
+        const originalIds = existingPlaylist.beats.map((b: any) => b.id).sort().join(',');
+
+        const isNameChanged = name !== (existingPlaylist.name || '');
+        const isDescChanged = description !== (existingPlaylist.description || '');
+        const isBeatsChanged = currentIds !== originalIds;
+
+        setHasChanges(isNameChanged || isDescChanged || isBeatsChanged);
+    }, [name, description, selectedBeatIds, existingPlaylist]);
 
     const handleToggleBeat = (beatId: string) => {
         setSelectedBeatIds(prev =>
@@ -151,7 +171,7 @@ export default function PlaylistManagerModal({
                             <h2 className="text-xl font-black uppercase tracking-tighter">
                                 {existingPlaylist ? 'Editar Playlist' : 'Nueva Playlist'}
                             </h2>
-                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Personaliza tu colección</p>
+                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Mueve u organiza la playlist</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-400 hover:text-white">
@@ -263,24 +283,34 @@ export default function PlaylistManagerModal({
                 <div className="p-8 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-white/10 flex items-center gap-4">
                     <button
                         onClick={onClose}
-                        className="px-6 py-4 bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 dark:hover:bg-white hover:text-slate-600 dark:hover:text-slate-900 transition-all"
+                        className="px-6 py-4 bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 dark:hover:bg-white hover:text-slate-600 dark:hover:text-slate-900 transition-all hidden sm:block"
                     >
                         Cancelar
                     </button>
-                    <button
-                        onClick={handleSave}
-                        disabled={saving || !name.trim()}
-                        className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 hover:bg-blue-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:bg-slate-300"
-                    >
-                        {saving ? (
-                            <Loader2 className="animate-spin" size={18} />
-                        ) : (
-                            <>
-                                <Plus size={18} />
-                                {existingPlaylist ? 'Actualizar Playlist' : 'Crear Playlist'}
-                            </>
-                        )}
-                    </button>
+                    {!hasChanges && existingPlaylist ? (
+                        <button
+                            onClick={onClose}
+                            className="flex-1 bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-slate-300 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-3"
+                        >
+                            <X size={18} />
+                            Cancelar
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handleSave}
+                            disabled={saving || !name.trim()}
+                            className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 hover:bg-blue-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:bg-slate-300"
+                        >
+                            {saving ? (
+                                <Loader2 className="animate-spin" size={18} />
+                            ) : (
+                                <>
+                                    <Plus size={18} />
+                                    {existingPlaylist ? 'Actualizar Playlist' : 'Crear Playlist'}
+                                </>
+                            )}
+                        </button>
+                    )}
                     {existingPlaylist && (
                         <button
                             onClick={handleDelete}

@@ -499,7 +499,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
             <Navbar />
 
-            <main className="flex-1 pb-20">
+            <main className="flex-1 pb-40">
                 {/* 1. Portada Refinada */}
                 <div
                     className={`relative h-[40vh] md:h-[50vh] bg-slate-100 group overflow-hidden ${isAdjustingCover ? 'cursor-ns-resize ring-4 ring-accent ring-inset z-50' : ''}`}
@@ -616,7 +616,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 w-full">
                                 <div className="space-y-4">
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                                        <h1 className="text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.85] text-foreground drop-shadow-sm">
+                                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter leading-[0.85] text-foreground drop-shadow-sm">
                                             {profile.artistic_name || profile.username}
                                         </h1>
                                         <div className="flex items-center gap-2 translate-y-2 md:translate-y-4">
@@ -653,15 +653,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
 
-                                    {profile.links_active && (
-                                        <Link
-                                            href={`/${profile.username}/links`}
-                                            className="h-14 px-8 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center gap-3 bg-white dark:bg-white/10 text-slate-900 dark:text-white border border-slate-100 dark:border-white/10 shadow-xl hover:scale-105 active:scale-95"
-                                        >
-                                            <ListMusic size={18} />
-                                            Smart Bio
-                                        </Link>
-                                    )}
+
 
                                     {isOwner ? (
                                         <button
@@ -752,7 +744,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-white/10 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-slate-400/5 dark:bg-white/5 blur-[60px] rounded-full pointer-events-none" />
                                 <h3 className="text-[11px] font-black uppercase tracking-[0.3em] mb-10 text-slate-400 dark:text-white/40 flex items-center gap-3">
-                                    <Edit3 size={14} className="text-accent" /> Trayectoria
+                                    <ListMusic size={14} className="text-accent" /> Smart Bio
                                 </h3>
 
                                 {isEditing ? (
@@ -789,50 +781,28 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         )}
                                     </div>
                                 ) : (
-                                    <>
-                                        <p className="text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-400 mb-10 whitespace-pre-line italic">
-                                            {profile.bio || "Este productor aún no ha compartido su trayectoria."}
-                                        </p>
-
-                                        <div className="pt-10 border-t border-slate-100 dark:border-white/10">
-                                            <h4 className="text-[9px] font-black uppercase tracking-[0.3em] mb-6 text-slate-400 dark:text-white/40">Conectar</h4>
-                                            <div className="flex flex-wrap gap-3">
-                                                {SOCIAL_KEYS.map(key => {
-                                                    const url = profile.social_links?.[key as keyof typeof profile.social_links];
-                                                    if (!url) return null;
-                                                    const item = SOCIAL_ICONS[key];
-                                                    let finalUrl = url.startsWith('http') ? url : `https://${key}.com/${url}`;
-                                                    return (
-                                                        <a key={key} href={finalUrl} target="_blank" rel="noopener noreferrer"
-                                                            className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center text-slate-900 dark:text-white border border-slate-100 dark:border-white/10 hover:bg-accent hover:text-white hover:border-accent transition-all hover:-translate-y-1 shadow-sm">
-                                                            {item.icon ? <item.icon size={18} /> : <svg viewBox="0 0 24 24" fill="currentColor" className="w-4.5 h-4.5"><path d={item.path} /></svg>}
-                                                        </a>
-                                                    );
-                                                })}
+                                    <div className="flex flex-col items-center justify-center py-8">
+                                        {profile.links_active ? (
+                                            <Link
+                                                href={`/${profile.username}/links`}
+                                                className="w-full max-w-md h-16 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl hover:scale-105 active:scale-95 hover:shadow-2xl"
+                                            >
+                                                <ListMusic size={20} />
+                                                Ver Smart Bio
+                                            </Link>
+                                        ) : (
+                                            <div className="text-center opacity-50">
+                                                <ListMusic size={48} className="mx-auto mb-4" />
+                                                <p className="text-[10px] font-bold uppercase tracking-widest">Smart Bio no activa</p>
                                             </div>
-                                        </div>
-                                    </>
-                                )}
+                                        )}
 
-                                {/* Premium Newsletter Form */}
-                                {profile.subscription_tier === 'premium' && profile.newsletter_active && (
-                                    <div className="mt-10 pt-10 border-t border-slate-100 dark:border-white/10">
-                                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-6 text-slate-400 dark:text-white/40 flex items-center gap-2">
-                                            <Mail size={12} className="text-accent" /> Comunidad VIP
-                                        </h4>
-                                        <p className="text-[11px] font-bold text-muted uppercase tracking-widest mb-6 px-1">
-                                            Suscríbete para recibir beats exclusivos y descuentos.
-                                        </p>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="email"
-                                                placeholder="Tu email..."
-                                                className="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 text-[10px] font-bold border-transparent focus:border-accent dark:text-white outline-none"
-                                            />
-                                            <button className="bg-accent text-white px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:opacity-90">
-                                                Unirse
-                                            </button>
-                                        </div>
+                                        {/* Bio Text (Optional/Reduced) */}
+                                        {profile.bio && (
+                                            <p className="mt-8 text-xs font-medium text-center text-slate-500 dark:text-slate-400 max-w-lg mx-auto line-clamp-3 italic">
+                                                "{profile.bio}"
+                                            </p>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -902,10 +872,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="bg-slate-50 rounded-[3rem] p-24 text-center border-2 border-dashed border-slate-100">
-                                            <Music size={48} className="text-slate-200 mx-auto mb-6" />
-                                            <h3 className="text-xl font-black uppercase text-slate-400 mb-2">Sin beats todavía</h3>
-                                            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Este productor aún no ha publicado sus obras</p>
+                                        <div className="bg-[#020205] rounded-[3rem] p-24 text-center border border-white/5 shadow-2xl">
+                                            <Music size={48} className="text-slate-800 mx-auto mb-6" />
+                                            <h3 className="text-xl font-black uppercase text-white mb-2">Sin beats todavía</h3>
+                                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Este productor aún no ha publicado sus obras</p>
                                         </div>
                                     )}
                                 </div>
@@ -943,7 +913,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     ) : (
                                         <div className="grid md:grid-cols-2 gap-4">
                                             {services.map(service => (
-                                                <div key={service.id} className={`p-8 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md ${profile.tema_perfil === 'dark' ? 'bg-[#08080a]/60 border-white/10 hover:border-accent/40 shadow-2xl shadow-black/50' :
+                                                <div key={service.id} className={`p-8 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md ${profile.tema_perfil === 'dark' ? 'bg-[#020205] border-white/5 hover:border-accent/40 shadow-2xl shadow-black/50' :
                                                     profile.tema_perfil === 'neon' ? 'bg-black/80 border-green-900 shadow-green-900/20' :
                                                         profile.tema_perfil === 'gold' ? 'bg-[#1a1610]/80 border-amber-900/50' :
                                                             'bg-white border-slate-100 hover:shadow-xl'
@@ -1198,7 +1168,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-6 text-accent">
                                 <Mail size={32} />
                             </div>
-                            <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground mb-4">Únete al <span className="text-accent">Inner Circle</span></h2>
+                            <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground mb-4">Únete al <span className="text-accent">Círculo Exclusivo</span></h2>
                             <p className="text-sm text-muted font-medium mb-8 leading-relaxed">
                                 Suscríbete para recibir beats exclusivos, cupones de descuento y noticias directas de <span className="text-foreground font-bold">{profile.artistic_name}</span>.
                             </p>
@@ -1214,7 +1184,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     Suscribirme Ahora
                                 </button>
                             </form>
-                            <p className="mt-6 text-[9px] font-bold text-muted uppercase tracking-widest opacity-40">Zero spam. Solo fuego.</p>
+                            <p className="mt-6 text-[9px] font-bold text-muted uppercase tracking-widest opacity-40">Zero spam. Solo promociones.</p>
                         </div>
                     </div>
                 </div>
