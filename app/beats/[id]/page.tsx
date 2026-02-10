@@ -88,7 +88,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 setLoading(true);
                 const { data, error } = await supabase
                     .from('beats')
-                    .select('id, title, genre, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, description, play_count, like_count, created_at, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
+                    .select('id, title, genre, beat_type, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, description, play_count, like_count, created_at, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
                     .eq('id', id)
                     .single();
 
@@ -260,6 +260,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             <div className="grid grid-cols-2 md:flex md:flex-wrap gap-4">
                                 {[
                                     { label: 'Género', val: beat.genre, icon: Tag, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                                    { label: 'Tipo', val: (beat as any).beat_type || 'Licencia', icon: Zap, color: 'text-blue-500', bg: 'bg-blue-500/10' },
                                     { label: 'Tempo', val: `${beat.bpm} BPM`, icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
                                     { label: 'Tonalidad', val: beat.musical_key || 'C', icon: Music2, color: 'text-accent', bg: 'bg-accent/10' },
                                     { label: 'Escala', val: beat.musical_scale ? (beat.musical_scale.toUpperCase() === 'MINOR' ? 'Menor' : 'Mayor') : 'Mayor', icon: Layers, color: 'text-purple-500', bg: 'bg-purple-500/10' }

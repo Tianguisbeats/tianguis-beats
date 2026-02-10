@@ -21,6 +21,8 @@ interface HeroProps {
     setActiveBpm?: (bpm: string) => void;
     activeKey?: string;
     setActiveKey?: (key: string) => void;
+    activeBeatType?: string;
+    setActiveBeatType?: (type: string) => void;
 }
 
 export default function Hero({
@@ -33,7 +35,9 @@ export default function Hero({
     activeBpm,
     setActiveBpm,
     activeKey,
-    setActiveKey
+    setActiveKey,
+    activeBeatType,
+    setActiveBeatType
 }: HeroProps) {
     const router = useRouter();
 
@@ -57,6 +61,7 @@ export default function Hero({
         // key -> key (new)
 
         if (activeKey) params.set('key', activeKey);
+        if (activeBeatType && activeBeatType !== 'Tipo') params.set('type', activeBeatType);
 
         router.push(`/beats?${params.toString()}`);
     };
@@ -168,6 +173,23 @@ export default function Hero({
                                     {['C', 'Cm', 'C#', 'C#m', 'D', 'Dm', 'D#', 'D#m', 'E', 'Em', 'F', 'Fm', 'F#', 'F#m', 'G', 'Gm', 'G#', 'G#m', 'A', 'Am', 'A#', 'A#m', 'B', 'Bm'].map(k => (
                                         <option key={k} value={k}>{k}</option>
                                     ))}
+                                </select>
+                            </div>
+
+                            <div className="h-8 w-[2px] bg-border hidden md:block"></div>
+
+                            {/* Beat Type Filter */}
+                            <div className="px-2 border border-border md:border-none rounded-xl md:rounded-none">
+                                <select
+                                    className="bg-transparent border-none focus:ring-0 text-[10px] font-black uppercase tracking-widest text-muted cursor-pointer w-full md:w-auto h-12 flex items-center"
+                                    value={activeBeatType}
+                                    onChange={(e) => setActiveBeatType?.(e.target.value)}
+                                >
+                                    <option value="Tipo">Tipo</option>
+                                    <option value="Beat">Beat</option>
+                                    <option value="Acapella">Acapella</option>
+                                    <option value="Loop">Loop</option>
+                                    <option value="Song">Song</option>
                                 </select>
                             </div>
                         </div>

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import {
     Upload, Music, Image as ImageIcon, CheckCircle2,
     AlertCircle, Loader2, Info, ChevronLeft, Hash, Lock,
-    Link as LinkIcon, Edit2, Zap, Eye, EyeOff, Save, X, Crown
+    Link as LinkIcon, Edit2, Zap, Eye, EyeOff, Save, X, Crown, ShieldCheck
 } from 'lucide-react';
 
 import { GENRES, MOODS, SUBGENRES } from '@/lib/constants';
@@ -561,16 +561,18 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                     </div>
                                 </div>
 
-                                {/* WAV (Updated for Pro Button Visibility & Size) */}
-                                <div className={`relative flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${isFree ? 'bg-background border-amber-500/30' :
+                                {/* WAV + PRECIO */}
+                                <div className={`relative flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all overflow-hidden ${isFree ? 'bg-background border-amber-500/30' :
                                     isWavActive ? 'bg-blue-500/5 border-blue-500/20 hover:bg-blue-500/10' : 'bg-background border-border opacity-75'
                                     }`}>
                                     {isFree && (
-                                        <Link href="/pricing" className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 bg-amber-500 text-slate-900 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-amber-400 shadow-xl shadow-amber-500/20 flex items-center gap-2 hover:scale-110 transition-transform whitespace-nowrap">
-                                            <Crown size={12} fill="currentColor" /> Mejorar a Pro
-                                        </Link>
+                                        <div className="absolute inset-0 z-20 bg-background/60 backdrop-blur-[1px] flex items-center justify-center">
+                                            <Link href="/pricing" className="bg-amber-500 text-slate-900 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-400 shadow-xl shadow-amber-500/20 flex items-center gap-2 hover:scale-105 transition-transform whitespace-nowrap">
+                                                <Crown size={14} fill="currentColor" /> Mejorar a Pro
+                                            </Link>
+                                        </div>
                                     )}
-                                    <div className={`flex items-center justify-between ${isFree ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
+                                    <div className={`flex items-center justify-between ${isFree ? 'opacity-40 blur-[0.5px]' : ''}`}>
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
                                                 <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${isFree ? 'text-amber-500' : 'text-blue-500'}`}>
@@ -580,7 +582,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                             </div>
                                             <span className={`text-[9px] font-bold uppercase tracking-widest ${isFree ? 'text-amber-500/50' : 'text-blue-500/50'}`}>Alta Fidelidad • 24 bit</span>
                                         </div>
-                                        <div className={`flex items-center gap-4 ${isFree ? 'opacity-0 pointer-events-none' : ''}`}>
+                                        <div className={`flex items-center gap-4 ${isFree ? 'pointer-events-none' : ''}`}>
                                             {!isFree && <Toggle active={isWavActive} onToggle={() => setIsWavActive(!isWavActive)} />}
                                             <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${isWavActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50'}`}>
                                                 <span className={`text-[10px] font-black mr-1 ${isWavActive ? 'text-accent' : 'text-muted/30'}`}>$</span>
@@ -594,39 +596,33 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                             </div>
                                         </div>
                                     </div>
-                                    {!isFree ? (
-                                        <div className="flex items-center gap-3">
-                                            <input
-                                                type="file"
-                                                accept=".wav"
-                                                onChange={(e) => setWavFile(validateFile(e.target.files?.[0] || null, ['wav'], 'WAV', 200))}
-                                                className="hidden"
-                                                id="wav-file"
-                                            />
-                                            <label htmlFor="wav-file" className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-blue-500 hover:bg-blue-500/10 transition-all text-center truncate">
-                                                {wavFile ? wavFile.name : (existingWav ? 'Actualizar WAV' : 'Subir WAV')}
-                                            </label>
-                                            {(wavFile || existingWav) && <CheckCircle2 size={20} className="text-green-500" />}
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-3 opacity-50 grayscale pointer-events-none select-none">
-                                            <div className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-border rounded-xl text-[9px] font-black uppercase tracking-widest text-center text-muted">
-                                                Disponible en el Plan Pro
-                                            </div>
-                                        </div>
-                                    )}
+                                    <div className={`flex items-center gap-3 ${isFree ? 'opacity-40 blur-[0.5px] pointer-events-none' : ''}`}>
+                                        <input
+                                            type="file"
+                                            accept=".wav"
+                                            onChange={(e) => setWavFile(validateFile(e.target.files?.[0] || null, ['wav'], 'WAV', 200))}
+                                            className="hidden"
+                                            id="wav-file"
+                                        />
+                                        <label htmlFor="wav-file" className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-blue-500 hover:bg-blue-500/10 transition-all text-center truncate">
+                                            {wavFile ? wavFile.name : (existingWav ? 'Actualizar WAV' : 'Subir WAV')}
+                                        </label>
+                                        {(wavFile || existingWav) && <CheckCircle2 size={20} className="text-green-500" />}
+                                    </div>
                                 </div>
 
-                                {/* STEMS (Updated for Premium Button Visibility & Size) */}
+                                {/* STEMS (Pistas separadas) */}
                                 <div className={`relative flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-background border-blue-600/30' :
                                     isStemsActive ? 'bg-purple-500/5 border-purple-500/20 hover:bg-purple-500/10' : 'bg-background border-border opacity-75'
                                     }`}>
                                     {!isPremium && (
-                                        <Link href="/pricing" className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-blue-500 shadow-xl shadow-blue-600/20 flex items-center gap-2 hover:scale-110 transition-transform whitespace-nowrap">
-                                            <Crown size={12} fill="currentColor" /> Mejorar a Premium
-                                        </Link>
+                                        <div className="absolute inset-0 z-20 bg-background/60 backdrop-blur-[1px] flex items-center justify-center">
+                                            <Link href="/pricing" className="bg-blue-600 text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-500 shadow-xl shadow-blue-600/20 flex items-center gap-2 hover:scale-105 transition-transform whitespace-nowrap">
+                                                <Crown size={14} fill="currentColor" /> Desbloquear Premium
+                                            </Link>
+                                        </div>
                                     )}
-                                    <div className="flex items-center justify-between">
+                                    <div className={`flex items-center justify-between ${!isPremium ? 'opacity-40 blur-[0.5px]' : ''}`}>
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
                                                 <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${!isPremium ? 'text-blue-500' : 'text-purple-500'}`}>
@@ -637,11 +633,6 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                             <span className={`text-[9px] font-bold uppercase tracking-widest ${!isPremium ? 'text-blue-500/50' : 'text-purple-500/50'}`}>Pistas separadas • .ZIP</span>
                                         </div>
                                         <div className="flex items-center gap-4">
-                                            {!isPremium && (
-                                                <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
-                                                    <Zap size={10} className="fill-white" /> Mejorar a Premium
-                                                </Link>
-                                            )}
                                             {isPremium && <Toggle active={isStemsActive} onToggle={() => setIsStemsActive(!isStemsActive)} />}
                                             <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${!isPremium ? 'opacity-30 grayscale pointer-events-none bg-background border-border' : (isStemsActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50')}`}>
                                                 <span className={`text-[10px] font-black mr-1 ${!isPremium ? 'text-muted' : (isStemsActive ? 'text-accent' : 'text-muted/30')}`}>$</span>
@@ -655,65 +646,66 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                             </div>
                                         </div>
                                     </div>
-                                    {isPremium ? (
-                                        <div className="flex items-center gap-3">
-                                            <input
-                                                type="file"
-                                                accept=".zip,.rar"
-                                                onChange={(e) => setStemsFile(validateFile(e.target.files?.[0] || null, ['zip', 'rar'], 'Stems', 500))}
-                                                className="hidden"
-                                                id="stems-file"
-                                            />
-                                            <label htmlFor="stems-file" className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-purple-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-purple-500 hover:bg-purple-500/10 transition-all text-center truncate">
-                                                {stemsFile ? stemsFile.name : (existingStems ? 'Actualizar Stems' : 'Subir Stems')}
-                                            </label>
-                                            {(stemsFile || existingStems) && <CheckCircle2 size={20} className="text-green-500" />}
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-3 opacity-50 grayscale pointer-events-none select-none">
-                                            <div className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-border rounded-xl text-[9px] font-black uppercase tracking-widest text-center text-muted">
-                                                Disponible en el Plan Premium
-                                            </div>
-                                        </div>
-                                    )}
+                                    <div className={`flex items-center gap-3 ${!isPremium ? 'opacity-40 blur-[0.5px] pointer-events-none' : ''}`}>
+                                        <input
+                                            type="file"
+                                            accept=".zip,.rar"
+                                            onChange={(e) => setStemsFile(validateFile(e.target.files?.[0] || null, ['zip', 'rar'], 'Stems', 500))}
+                                            className="hidden"
+                                            id="stems-file"
+                                        />
+                                        <label htmlFor="stems-file" className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-purple-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-purple-500 hover:bg-purple-500/10 transition-all text-center truncate">
+                                            {stemsFile ? stemsFile.name : (existingStems ? 'Actualizar Stems' : 'Subir Stems')}
+                                        </label>
+                                        {(stemsFile || existingStems) && <CheckCircle2 size={20} className="text-green-500" />}
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Licencia Exclusiva Full Width (Updated for Premium Button Visibility & Size) */}
-                            <div className={`p-8 rounded-3xl border transition-all ${!isPremium ? 'bg-background border-blue-500/20 shadow-xl shadow-blue-500/5' :
+                            {/* Licencia Exclusiva Full Width */}
+                            <div className={`relative p-10 rounded-[2.5rem] border transition-all overflow-hidden ${!isPremium ? 'bg-background border-blue-500/20 shadow-xl shadow-blue-500/5' :
                                 isExclusive ? 'border-rose-500/50 bg-rose-500/5 shadow-xl shadow-rose-500/10' : 'bg-background border-border opacity-50'}`}>
-                                <div className="flex justify-between items-center">
-                                    <div className="flex flex-col">
-                                        <div className="flex items-center gap-2">
-                                            <span className={`text-[11px] font-black uppercase tracking-widest mb-1 ${!isPremium ? 'text-blue-500' : 'text-rose-500'}`}>Licencia Exclusiva</span>
-                                            {!isPremium && <Lock size={12} className="text-blue-500" />}
-                                        </div>
-                                        <span className={`text-[9px] font-bold uppercase tracking-widest leading-none ${!isPremium ? 'text-blue-500/50' : 'text-muted'}`}>Tu beat se retirará automáticamente tras la compra</span>
+
+                                {!isPremium && (
+                                    <div className="absolute inset-0 z-20 bg-background/60 backdrop-blur-[1px] flex items-center justify-center">
+                                        <Link href="/pricing" className="bg-blue-600 text-white px-8 py-4 rounded-2xl text-[12px] font-black uppercase tracking-widest border border-blue-500 shadow-2xl shadow-blue-600/30 flex items-center gap-3 hover:scale-105 transition-transform">
+                                            <Crown size={18} fill="currentColor" /> Desbloquear a Premium
+                                        </Link>
                                     </div>
-                                    <div className="flex items-center gap-4">
-                                        {!isPremium && (
-                                            <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
-                                                <Zap size={10} className="fill-white" /> Mejorar a Premium
-                                            </Link>
-                                        )}
-                                        {isPremium && <Toggle active={isExclusive} onToggle={() => {
-                                            setIsExclusive(!isExclusive);
-                                            if (!isExclusive) setExclusivePrice(exclusivePrice || '5000');
-                                        }} />}
-                                        <div className={`flex items-center rounded-xl px-3 py-2 border transition-all ${!isPremium ? 'opacity-30 grayscale pointer-events-none bg-background border-border' : (isExclusive ? 'bg-background border-rose-500 shadow-sm' : 'bg-background border-border shadow-none')}`}>
-                                            <span className={`text-[10px] font-black mr-1 ${isExclusive ? 'text-rose-500' : 'text-muted/30'}`}>$</span>
-                                            <input
-                                                type="number"
-                                                disabled={!isPremium || !isExclusive}
-                                                value={exclusivePrice}
-                                                onChange={(e) => {
-                                                    const val = e.target.value;
-                                                    setExclusivePrice(val);
-                                                    setIsExclusive(val !== '' && parseInt(val) > 0);
-                                                }}
-                                                className={`w-16 text-xs font-black outline-none bg-transparent ${(isExclusive && isPremium) ? 'text-foreground' : 'text-muted'}`}
-                                                placeholder="0"
-                                            />
+                                )}
+
+                                <div className={`flex flex-col md:flex-row md:items-center justify-between gap-8 ${!isPremium ? 'opacity-40 blur-[0.5px]' : ''}`}>
+                                    <div className="flex-1 space-y-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500">
+                                                <Crown size={24} />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-xl font-black text-foreground dark:text-white uppercase tracking-tighter">Licencia Exclusiva</h4>
+                                                <p className="text-[10px] font-black text-muted dark:text-slate-300 uppercase tracking-widest">Venta total de derechos • Eliminación del catálogo</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm font-medium text-muted dark:text-slate-300 max-w-xl">
+                                            Al activar esta licencia, permites que un artista sea el dueño único de la obra. El beat se marcará como "Vendido" automáticamente tras la compra.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex flex-col md:items-end gap-4 min-w-[200px]">
+                                        <div className="flex items-center gap-4">
+                                            {isPremium && <Toggle active={isExclusive} onToggle={() => setIsExclusive(!isExclusive)} />}
+                                            <div className={`flex items-center rounded-2xl px-4 py-3 border-2 transition-all ${!isPremium ? 'opacity-30 grayscale pointer-events-none bg-background' : (isExclusive ? 'bg-background border-rose-500/50 shadow-sm' : 'bg-background border-border opacity-50')}`}>
+                                                <span className={`text-lg font-black mr-2 ${isExclusive ? 'text-rose-500' : 'text-muted/30'}`}>$</span>
+                                                <input
+                                                    type="number"
+                                                    disabled={!isPremium || !isExclusive}
+                                                    value={exclusivePrice}
+                                                    onChange={(e) => setExclusivePrice(e.target.value)}
+                                                    className={`w-24 text-xl font-black outline-none bg-transparent ${isExclusive ? 'text-foreground dark:text-white' : 'text-muted'}`}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-[10px] font-black text-rose-500/60 uppercase tracking-widest">
+                                            <ShieldCheck size={14} /> Transacción Protegida
                                         </div>
                                     </div>
                                 </div>

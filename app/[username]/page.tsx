@@ -681,15 +681,15 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             {/* Estadísticas Premium */}
                             <div className="grid grid-cols-3 gap-3">
                                 {[
-                                    { label: 'Seguidores', value: followersCount, icon: Users, color: 'text-blue-500' },
-                                    { label: 'Beats', value: beats.length, icon: Music, color: 'text-accent' },
-                                    { label: 'Siguiendo', value: followingCount, icon: UserPlus, color: 'text-emerald-500' }
+                                    { label: 'Seguidores', value: followersCount, icon: Users, color: 'text-blue-500', href: '#' },
+                                    { label: 'Beats', value: beats.length, icon: Music, color: 'text-accent', href: `/${username}/beats` },
+                                    { label: 'Siguiendo', value: followingCount, icon: UserPlus, color: 'text-emerald-500', href: '#' }
                                 ].map((stat, i) => (
-                                    <div key={i} className="bg-white dark:bg-slate-900/60 border border-slate-100 dark:border-white/5 rounded-[2rem] p-5 text-center shadow-soft dark:shadow-[0_20px_50px_rgba(8,112,184,0.08)] hover:shadow-xl hover:-translate-y-1 transition-all group">
+                                    <Link key={i} href={stat.href} className="bg-white dark:bg-slate-900/60 border border-slate-100 dark:border-white/5 rounded-[2rem] p-5 text-center shadow-soft dark:shadow-[0_20px_50px_rgba(8,112,184,0.08)] hover:shadow-xl hover:-translate-y-1 transition-all group">
                                         <stat.icon size={16} className={`${stat.color} mx-auto mb-2 opacity-60 group-hover:opacity-100 transition-opacity`} />
                                         <span className="block text-2xl font-black tracking-tighter text-slate-900 dark:text-white">{stat.value}</span>
                                         <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{stat.label}</span>
-                                    </div>
+                                    </Link>
                                 ))}
                             </div>
 
@@ -708,7 +708,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                     <div className="flex items-center justify-between group">
                                         <span className="text-sm font-bold text-slate-400 dark:text-white/60">Identidad</span>
-                                        <span className="text-[10px] font-black uppercase px-5 py-2 rounded-2xl bg-slate-500/10 dark:bg-white/5 border border-slate-400/20 text-slate-400 flex items-center gap-2 group-hover:scale-105 transition-transform">
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border transition-all ${profile.is_verified ? 'bg-blue-600/10 border-blue-400/50 text-blue-500 shadow-lg shadow-blue-500/20' : 'bg-slate-500/10 dark:bg-white/5 border-slate-400/20 text-slate-400'}`}>
                                             {profile.is_verified ? (
                                                 <><img src="/verified-badge.png" className="w-4 h-4 object-contain shadow-blue-500/20 shadow-xl" /> Verificado</>
                                             ) : 'Sin verificar'}
@@ -716,8 +716,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                     <div className="flex items-center justify-between group">
                                         <span className="text-sm font-bold text-slate-400 dark:text-white/60">Rango</span>
-                                        <span className="text-[10px] font-black uppercase px-5 py-2 rounded-2xl bg-amber-500/10 dark:bg-amber-400/20 border border-amber-400/20 text-amber-600 dark:text-amber-400 flex items-center gap-2 group-hover:scale-105 transition-transform">
-                                            <Crown size={12} fill="currentColor" /> {profile.is_founder ? 'Founder' : 'Usuario'}
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.is_founder ? 'bg-amber-500/10 dark:bg-amber-400/20 border-amber-400/20 text-amber-600 dark:text-amber-400' : 'bg-slate-500/5 dark:bg-white/5 border-white/10 text-slate-400'}`}>
+                                            {profile.is_founder ? <><Crown size={12} fill="currentColor" /> Founder</> : 'Sin rango'}
                                         </span>
                                     </div>
                                 </div>
@@ -817,7 +817,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 <div className="flex gap-10">
                                     {[
                                         { id: 'beats', label: 'Beats', icon: Music },
-                                        { id: 'playlists', label: 'Colecciones', icon: LayoutGrid },
+                                        { id: 'playlists', label: 'Playlists', icon: LayoutGrid },
                                         { id: 'services', label: 'Servicios', icon: Briefcase }
                                     ].map((tab) => (
                                         <button
@@ -968,7 +968,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 onClick={() => setIsReordering(!isReordering)}
                                                 className={`px-8 py-4 border rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-3 shadow-sm active:scale-95 ${isReordering ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-xl' : 'bg-white dark:bg-slate-900/60 text-slate-400 dark:text-slate-500 border-slate-100 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'}`}
                                             >
-                                                {isReordering ? <><MoveVertical size={18} className="animate-bounce" /> Reordenando...</> : <><MoveVertical size={18} /> Organizar Colecciones</>}
+                                                {isReordering ? <><MoveVertical size={18} className="animate-bounce" /> Reordenando...</> : <><MoveVertical size={18} /> Organizar Playlists</>}
                                             </button>
                                         </div>
                                     )}

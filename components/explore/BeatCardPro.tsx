@@ -99,8 +99,8 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                 <Link href={`/${beat.producer_username || '#'}`} className="flex items-center gap-2 mb-3 group/prod min-h-[32px]">
                     <div className="relative">
                         <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full overflow-hidden border-2 p-0.5 transform transition-transform group-hover/prod:scale-110 ${beat.producer_tier === 'premium' ? 'border-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)]' :
-                                beat.producer_tier === 'pro' ? 'border-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.6)]' :
-                                    'border-accent shadow-lg shadow-accent/10'
+                            beat.producer_tier === 'pro' ? 'border-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.6)]' :
+                                'border-border shadow-lg shadow-black/5'
                             }`}>
                             <img
                                 src={beat.producer_foto_perfil || `https://ui-avatars.com/api/?name=${beat.producer_artistic_name}&background=random`}
