@@ -708,9 +708,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                     <div className="flex items-center justify-between group">
                                         <span className="text-sm font-bold text-slate-400 dark:text-white/60">Identidad</span>
-                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border transition-all ${profile.is_verified ? 'bg-blue-600/10 border-blue-400/50 text-blue-500 shadow-lg shadow-blue-500/20' : 'bg-slate-500/10 dark:bg-white/5 border-slate-400/20 text-slate-400'}`}>
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.is_verified ? 'bg-blue-600/10 border-blue-400/50 text-blue-500 shadow-lg shadow-blue-500/20' : 'bg-slate-500/10 dark:bg-white/5 border-slate-400/20 text-slate-400'}`}>
                                             {profile.is_verified ? (
-                                                <><img src="/verified-badge.png" className="w-4 h-4 object-contain shadow-blue-500/20 shadow-xl" /> Verificado</>
+                                                <><img src="/verified-badge.png" className="w-4 h-4 object-contain shadow-blue-500/20 shadow-xl" alt="✓" /> Verificado</>
                                             ) : 'Sin verificar'}
                                         </span>
                                     </div>
