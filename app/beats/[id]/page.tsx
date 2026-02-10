@@ -14,6 +14,7 @@ import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { Beat } from '@/lib/types';
 import { Crown, Youtube, Zap, Package, Tag, Layers, Activity, Calendar, Check } from 'lucide-react';
+import BeatCardPro from '@/components/explore/BeatCardPro';
 
 // Extend Beat interface to include detail columns
 interface BeatDetail extends Beat {
@@ -41,6 +42,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
     const id = resolvedParams.id;
 
     const [beat, setBeat] = useState<BeatDetail | null>(null);
+    const [relatedBeats, setRelatedBeats] = useState<Beat[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedLicense, setSelectedLicense] = useState<'MP3' | 'WAV' | 'STEMS' | 'ILIMITADA' | null>(null);
     const [isLiked, setIsLiked] = useState(false);
@@ -109,12 +111,74 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     const rawData = data as any;
                     const producerObj = Array.isArray(rawData.producer) ? rawData.producer[0] : rawData.producer;
 
-                    setBeat({
+                    const beatData = {
                         ...data,
                         producer: producerObj,
                         mp3_url: publicUrl,
                         portadabeat_url: finalCoverUrl
-                    } as BeatDetail);
+                    } as BeatDetail;
+
+                    setBeat(beatData);
+
+                    // Fetch Related Beats
+                    const fetchRelated = async () => {
+                        let query = supabase
+                            .from('beats')
+                            .select('id, title, genre, beat_type, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
+                            .neq('id', data.id)
+                            .limit(10);
+
+                        // Priority 1: Genre
+                        if (data.genre) {
+                            query = query.eq('genre', data.genre);
+                        }
+
+                        let { data: related } = await query;
+
+                        // Priority 2: Beat Type (if not enough related by genre)
+                        if ((!related || related.length < 4) && data.beat_type) {
+                            const { data: byType } = await supabase
+                                .from('beats')
+                                .select('id, title, genre, beat_type, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
+                                .neq('id', data.id)
+                                .eq('beat_type', data.beat_type)
+                                .limit(10);
+
+                            if (byType) {
+                                related = [...(related || []), ...byType.filter(b => !related?.some(r => r.id === b.id))];
+                            }
+                        }
+
+                        // Priority 3: Moods (if still not enough)
+                        if ((!related || related.length < 4) && data.mood) {
+                            const firstMood = data.mood.split(',')[0].trim();
+                            const { data: byMood } = await supabase
+                                .from('beats')
+                                .select('id, title, genre, beat_type, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
+                                .neq('id', data.id)
+                                .ilike('mood', `%${firstMood}%`)
+                                .limit(10);
+
+                            if (byMood) {
+                                related = [...(related || []), ...byMood.filter(b => !related?.some(r => r.id === b.id))];
+                            }
+                        }
+
+                        // Map producer metadata to top level if needed for BeatCardPro
+                        const mappedRelated = (related || []).map(r => ({
+                            ...r,
+                            producer_artistic_name: (r.producer as any)?.artistic_name,
+                            producer_username: (r.producer as any)?.username,
+                            producer_foto_perfil: (r.producer as any)?.foto_perfil,
+                            producer_is_verified: (r.producer as any)?.is_verified,
+                            producer_is_founder: (r.producer as any)?.is_founder,
+                            producer_tier: (r.producer as any)?.subscription_tier
+                        }));
+
+                        setRelatedBeats(mappedRelated as any);
+                    };
+
+                    fetchRelated();
 
                     // Log visit & efficient play count increment
                     // We only increment play count on explicit play usually, but user asked to check why plays aren't saving.
@@ -450,6 +514,43 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         </div>
                     </div>
                 </div>
+
+                {/* Related Beats Section */}
+                {relatedBeats.length > 0 && (
+                    <div className="max-w-7xl mx-auto px-4 mt-32 mb-16">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                            <div className="space-y-4">
+                                <span className="px-5 py-2 rounded-2xl bg-accent/10 text-accent text-[10px] font-black uppercase tracking-[0.2em] inline-block">
+                                    Explora más
+                                </span>
+                                <h2 className="text-4xl md:text-6xl font-black text-foreground uppercase tracking-tighter leading-none">
+                                    Relacionados <span className="text-muted">al Beat</span>
+                                </h2>
+                            </div>
+                            <Link href="/beats" className="group flex items-center gap-3 text-muted hover:text-accent transition-colors">
+                                <span className="text-xs font-black uppercase tracking-widest">Ver todo el catálogo</span>
+                                <div className="w-10 h-10 rounded-full border border-border flex items-center justify-center group-hover:bg-accent group-hover:border-accent group-hover:text-white transition-all">
+                                    <ChevronRight size={20} />
+                                </div>
+                            </Link>
+                        </div>
+
+                        {/* Horizontal Scroll Container */}
+                        <div className="relative group/carousel">
+                            <div className="flex overflow-x-auto gap-6 pb-12 snap-x scrollbar-hide scroll-smooth no-scrollbar">
+                                {relatedBeats.map((relatedBeat) => (
+                                    <div key={relatedBeat.id} className="min-w-[280px] md:min-w-[340px] snap-start">
+                                        <BeatCardPro beat={relatedBeat} />
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Fades for scroll indication */}
+                            <div className="absolute top-0 right-0 h-full w-24 bg-gradient-to-l from-background to-transparent pointer-events-none opacity-0 group-hover/carousel:opacity-100 transition-opacity" />
+                            <div className="absolute top-0 left-0 h-full w-24 bg-gradient-to-r from-background to-transparent pointer-events-none opacity-0 group-hover/carousel:opacity-100 transition-opacity" />
+                        </div>
+                    </div>
+                )}
             </main>
             <Footer />
         </div>

@@ -2,11 +2,13 @@
 
 import { Beat } from '@/lib/types';
 import Link from 'next/link';
-import { Play, Pause, ShoppingCart, Check, Music, Crown, ChevronRight, Flame } from 'lucide-react';
+import { Play, Pause, ShoppingCart, Check, Music, Crown, ChevronRight, Flame, Heart } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import LicenseSelectionModal from '@/components/LicenseSelectionModal';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 interface BeatCardProProps {
     beat: Beat;
@@ -25,9 +27,64 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
     const { currentBeat, isPlaying, playBeat } = usePlayer();
     const { addItem, isInCart } = useCart();
     const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
+    const [isLiked, setIsLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(beat.like_count || 0);
+    const router = useRouter();
 
     const isThisPlaying = currentBeat?.id === beat.id && isPlaying;
     const itemInCart = isInCart(beat.id);
+
+    // Initial like state
+    useEffect(() => {
+        const checkLikeStatus = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { count } = await supabase
+                    .from('likes')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('beat_id', beat.id)
+                    .eq('user_id', user.id);
+                setIsLiked(!!count);
+            }
+        };
+        checkLikeStatus();
+    }, [beat.id]);
+
+    const handleLike = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            router.push('/login');
+            return;
+        }
+
+        if (isLiked) {
+            const { error } = await supabase
+                .from('likes')
+                .delete()
+                .eq('beat_id', beat.id)
+                .eq('user_id', user.id);
+
+            if (!error) {
+                setIsLiked(false);
+                setLikeCount(prev => Math.max(0, prev - 1));
+            }
+        } else {
+            const { error } = await supabase
+                .from('likes')
+                .insert({
+                    beat_id: beat.id,
+                    user_id: user.id
+                });
+
+            if (!error) {
+                setIsLiked(true);
+                setLikeCount(prev => prev + 1);
+            }
+        }
+    };
 
     const handlePlay = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -155,15 +212,24 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                         </button>
                     </div>
 
-                    <button
-                        onClick={handleAddToCart}
-                        className={`w-8 h-8 md:w-9 md:h-9 rounded-[0.7rem] flex items-center justify-center transition-all shadow-xl active:scale-95 min-h-0 min-w-0 ${itemInCart
-                            ? 'bg-green-500 text-white shadow-green-500/30'
-                            : 'bg-accent text-white hover:bg-accent/90 shadow-accent/10 border border-transparent'
-                            }`}
-                    >
-                        {itemInCart ? <Check size={16} strokeWidth={4} /> : <ShoppingCart size={16} />}
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={handleLike}
+                            className={`w-8 h-8 md:w-9 md:h-9 rounded-[0.7rem] flex items-center justify-center transition-all bg-card border border-border shadow-sm active:scale-95 min-h-0 min-w-0 ${isLiked ? 'text-red-500' : 'text-muted hover:text-red-500'}`}
+                        >
+                            <Heart size={16} fill={isLiked ? "currentColor" : "none"} strokeWidth={isLiked ? 0 : 2.5} />
+                        </button>
+
+                        <button
+                            onClick={handleAddToCart}
+                            className={`w-8 h-8 md:w-9 md:h-9 rounded-[0.7rem] flex items-center justify-center transition-all shadow-xl active:scale-95 min-h-0 min-w-0 ${itemInCart
+                                ? 'bg-green-500 text-white shadow-green-500/30'
+                                : 'bg-accent text-white hover:bg-accent/90 shadow-accent/10 border border-transparent'
+                                }`}
+                        >
+                            {itemInCart ? <Check size={16} strokeWidth={4} /> : <ShoppingCart size={16} />}
+                        </button>
+                    </div>
                 </div>
             </div>
 
