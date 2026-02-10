@@ -380,6 +380,16 @@ export default function UploadPage() {
                                             </select>
                                         </div>
                                     </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Beat Type (Referencia)</label>
+                                        <input
+                                            type="text"
+                                            value={beatType}
+                                            onChange={(e) => setBeatType(e.target.value)}
+                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all"
+                                            placeholder="Junior H, Travis Scott, Bad Bunny..."
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="space-y-4">
@@ -455,16 +465,6 @@ export default function UploadPage() {
                                                 </button>
                                             ))}
                                         </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Beat Type (Referencia)</label>
-                                        <input
-                                            type="text"
-                                            value={beatType}
-                                            onChange={(e) => setBeatType(e.target.value)}
-                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all"
-                                            placeholder="Junior H, Travis Scott, Bad Bunny..."
-                                        />
                                     </div>
                                 </div>
                             </div>
@@ -565,8 +565,8 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center gap-4">
                                                 {isFree && (
-                                                    <Link href="/pricing" className="relative z-10 bg-amber-500 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-amber-400 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-500/20 flex items-center gap-2">
-                                                        <Zap size={12} className="fill-white" /> Mejorar a Pro
+                                                    <Link href="/pricing" className="relative z-10 bg-amber-500 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-amber-400 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-500/20 flex items-center gap-2">
+                                                        <Zap size={10} className="fill-white" /> Mejorar a Pro
                                                     </Link>
                                                 )}
                                                 {!isFree && <Toggle active={isWavActive} onToggle={() => setIsWavActive(!isWavActive)} />}
@@ -629,8 +629,8 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center gap-4">
                                                 {!isPremium && (
-                                                    <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
-                                                        <Zap size={12} className="fill-white" /> Mejorar a Premium
+                                                    <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
+                                                        <Zap size={10} className="fill-white" /> Mejorar a Premium
                                                     </Link>
                                                 )}
                                                 {isPremium && <Toggle active={isStemsActive} onToggle={() => setIsStemsActive(!isStemsActive)} />}
@@ -687,8 +687,8 @@ export default function UploadPage() {
                                         </div>
                                         <div className="flex items-center gap-4">
                                             {!isPremium && (
-                                                <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
-                                                    <Zap size={12} className="fill-white" /> Mejorar a Premium
+                                                <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
+                                                    <Zap size={10} className="fill-white" /> Mejorar a Premium
                                                 </Link>
                                             )}
                                             {isPremium && <Toggle active={isExclusive} onToggle={() => {
