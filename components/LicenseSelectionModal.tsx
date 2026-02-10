@@ -56,8 +56,8 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
         }
     ];
 
-    // Filter only active licenses
-    const activeLicenses = allLicenses.filter(l => l.isActive);
+    // Filter only active licenses (Disable all if sold)
+    const activeLicenses = beat.is_sold ? [] : allLicenses.filter(l => l.isActive);
 
     // Default to the first active license
     const [selectedType, setSelectedType] = React.useState<string>(activeLicenses[0]?.id || 'MP3');
@@ -248,15 +248,26 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                         </div>
 
                         <button
-                            onClick={handleAddToCart}
-                            disabled={!currentLicense}
-                            className={`w-full py-6 rounded-2xl font-black uppercase text-[12px] tracking-[0.3em] transition-all shadow-2xl flex items-center justify-center gap-4 group active:scale-95 ${currentLicense
-                                ? `bg-slate-900 dark:bg-white text-white dark:text-slate-900 ${activeColor.hover} dark:hover:bg-slate-100 shadow-slate-900/10`
-                                : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
+                            onClick={!beat.is_sold ? handleAddToCart : undefined}
+                            disabled={!currentLicense || beat.is_sold}
+                            className={`w-full py-6 rounded-2xl font-black uppercase text-[12px] tracking-[0.3em] transition-all shadow-2xl flex items-center justify-center gap-4 group active:scale-95 ${beat.is_sold
+                                    ? 'bg-red-500/10 text-red-500 cursor-not-allowed shadow-none border border-red-500/20'
+                                    : currentLicense
+                                        ? `bg-slate-900 dark:bg-white text-white dark:text-slate-900 ${activeColor.hover} dark:hover:bg-slate-100 shadow-slate-900/10`
+                                        : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
                                 }`}
                         >
-                            <ShoppingCart size={20} className="group-hover:scale-110 transition-transform" />
-                            Añadir al Carrito
+                            {beat.is_sold ? (
+                                <>
+                                    <ShieldCheck size={20} />
+                                    Beat Vendido
+                                </>
+                            ) : (
+                                <>
+                                    <ShoppingCart size={20} className="group-hover:scale-110 transition-transform" />
+                                    Añadir al Carrito
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>

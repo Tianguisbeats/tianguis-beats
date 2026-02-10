@@ -681,11 +681,11 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                             </div>
                                             <div>
                                                 <h4 className="text-xl font-black text-foreground dark:text-white uppercase tracking-tighter">Licencia Exclusiva</h4>
-                                                <p className="text-[10px] font-black text-muted dark:text-slate-300 uppercase tracking-widest">Venta total de derechos • Eliminación del catálogo</p>
+                                                <p className="text-[10px] font-black text-muted dark:text-slate-300 uppercase tracking-widest">Al venderse este con licencia exclusiva se va a deshabilitar su venta sólo se podrá reproducir</p>
                                             </div>
                                         </div>
                                         <p className="text-sm font-medium text-muted dark:text-slate-300 max-w-xl">
-                                            Al activar esta licencia, permites que un artista sea el dueño único de la obra. El beat se marcará como "Vendido" automáticamente tras la compra.
+                                            Permite que un artista sea el dueño único de la obra musical.
                                         </p>
                                     </div>
 

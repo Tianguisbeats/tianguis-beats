@@ -8,21 +8,31 @@ interface LicenseProps {
     active: boolean;
     onSelect: () => void;
     selected?: boolean;
+    isSold?: boolean;
 }
 
-export default function LicenseCard({ type, price, features, active, onSelect, selected }: LicenseProps) {
+export default function LicenseCard({ type, price, features, active, onSelect, selected, isSold }: LicenseProps) {
     if (!active) return null;
 
     return (
         <div
-            onClick={onSelect}
-            className={`relative p-8 rounded-[2.5rem] border-2 cursor-pointer transition-all duration-500 group
-                ${selected
-                    ? 'bg-foreground text-background border-foreground shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] scale-[1.02]'
-                    : 'bg-card border-border/50 text-foreground hover:border-accent hover:shadow-xl hover:-translate-y-1'
+            onClick={!isSold ? onSelect : undefined}
+            className={`relative p-8 rounded-[2.5rem] border-2 transition-all duration-500 group
+                ${isSold
+                    ? 'bg-background border-dashed border-border opacity-60 cursor-not-allowed'
+                    : selected
+                        ? 'bg-foreground text-background border-foreground shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] scale-[1.02] cursor-pointer'
+                        : 'bg-card border-border/50 text-foreground hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer'
                 }
             `}
         >
+            {isSold && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center rotate-[-12deg]">
+                    <div className="bg-red-500 text-white font-black px-8 py-2 rounded-xl text-2xl uppercase tracking-[0.2em] shadow-2xl border-4 border-white/20">
+                        Vendido
+                    </div>
+                </div>
+            )}
             <div className="flex justify-between items-start mb-6">
                 <div>
                     <h3 className="font-black text-xl uppercase tracking-tighter leading-none mb-1">{type} License</h3>

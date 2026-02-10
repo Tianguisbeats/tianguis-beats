@@ -110,6 +110,7 @@ export interface Beat {
     is_wav_active?: boolean;
     is_stems_active?: boolean;
     is_exclusive_active?: boolean;
+    is_sold?: boolean;
     created_at: string;
 }
 

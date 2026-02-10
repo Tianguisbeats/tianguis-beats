@@ -26,6 +26,7 @@ interface BeatDetail extends Beat {
     is_wav_active?: boolean;
     is_stems_active?: boolean;
     is_exclusive_active?: boolean;
+    is_sold?: boolean;
     moods?: string[];
     description?: string;
     portadabeat_url?: string | null;
@@ -54,6 +55,10 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
     // Determine initial selected license based on availability
     useEffect(() => {
         if (beat) {
+            if (beat.is_sold) {
+                setSelectedLicense(null);
+                return;
+            }
             if (beat.is_mp3_active !== false) setSelectedLicense('MP3');
             else if (beat.is_wav_active !== false) setSelectedLicense('WAV');
             else if (beat.is_stems_active !== false) setSelectedLicense('STEMS');
@@ -63,7 +68,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
     }, [beat]);
 
     const handleAddToCart = () => {
-        if (!beat || !selectedLicense) return;
+        if (!beat || !selectedLicense || beat.is_sold) return;
 
         const priceMap = {
             'MP3': beat.price_mp3 || beat.price_mxn || 299,
@@ -91,7 +96,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 setLoading(true);
                 const { data, error: fetchError } = await supabase
                     .from('beats')
-                    .select('id, title, genre, beat_type, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, description, play_count, like_count, created_at, beat_types, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
+                    .select('id, title, genre, beat_type, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active, is_sold, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, description, play_count, like_count, created_at, beat_types, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
                     .eq('id', id)
                     .single();
 
@@ -111,7 +116,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     finalCoverUrl = cpUrl;
                 }
 
-                // Handle producer as object (sometimes is returned as array if not .single() or ambiguous)
+                // Handle producer as object
                 const rawData = data as any;
                 const producerObj = Array.isArray(rawData.producer) ? rawData.producer[0] : rawData.producer;
 
@@ -125,29 +130,29 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 setBeat(beatData as BeatDetail);
 
                 // Fetch Related Beats
-                const fetchRelated = async () => {
+                const fetchRelated = async (beatForRelated: any) => {
                     let query = supabase
                         .from('beats')
                         .select('id, title, genre, beat_type, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, beat_types, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
-                        .neq('id', data.id)
+                        .neq('id', beatForRelated.id)
                         .limit(10);
 
                     // Priority 1: Overlap in beat_types
-                    if (data.beat_types && data.beat_types.length > 0) {
-                        query = query.filter('beat_types', 'ov', data.beat_types);
-                    } else if (data.genre) {
-                        query = query.eq('genre', data.genre);
+                    if (beatForRelated.beat_types && beatForRelated.beat_types.length > 0) {
+                        query = query.filter('beat_types', 'ov', beatForRelated.beat_types);
+                    } else if (beatForRelated.genre) {
+                        query = query.eq('genre', beatForRelated.genre);
                     }
 
                     let { data: related } = await query;
 
                     // Priority 2: Genre fallback
-                    if ((!related || related.length < 4) && data.genre) {
+                    if ((!related || related.length < 4) && beatForRelated.genre) {
                         const { data: byGenre } = await supabase
                             .from('beats')
                             .select('id, title, genre, beat_type, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, beat_types, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
-                            .neq('id', data.id)
-                            .eq('genre', data.genre)
+                            .neq('id', beatForRelated.id)
+                            .eq('genre', beatForRelated.genre)
                             .limit(10);
 
                         if (byGenre) {
@@ -156,12 +161,12 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     }
 
                     // Priority 3: Moods
-                    if ((!related || related.length < 4) && data.mood) {
-                        const firstMood = data.mood.split(',')[0].trim();
+                    if ((!related || related.length < 4) && beatForRelated.mood) {
+                        const firstMood = beatForRelated.mood.split(',')[0].trim();
                         const { data: byMood } = await supabase
                             .from('beats')
                             .select('id, title, genre, beat_type, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, beat_types, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
-                            .neq('id', data.id)
+                            .neq('id', beatForRelated.id)
                             .ilike('mood', `%${firstMood}%`)
                             .limit(10);
 
@@ -183,7 +188,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     setRelatedBeats(mappedRelated as any);
                 };
 
-                fetchRelated();
+                fetchRelated(data);
 
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
@@ -208,8 +213,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
     const handleLike = async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-            const confirmLogin = confirm("Necesitas iniciar sesión para dar Like. ¿Ir al login?");
-            if (confirmLogin) router.push('/login');
+            if (confirm("Necesitas iniciar sesión para dar Like. ¿Ir al login?")) router.push('/login');
             return;
         }
 
@@ -417,6 +421,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                             selected={selectedLicense === 'MP3'}
                                             onSelect={() => setSelectedLicense('MP3')}
                                             active={true}
+                                            isSold={beat.is_sold}
                                         />
                                     )}
                                     {beat.is_wav_active !== false && (
@@ -427,6 +432,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                             selected={selectedLicense === 'WAV'}
                                             onSelect={() => setSelectedLicense('WAV')}
                                             active={true}
+                                            isSold={beat.is_sold}
                                         />
                                     )}
                                     {beat.is_stems_active !== false && (
@@ -437,6 +443,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                             selected={selectedLicense === 'STEMS'}
                                             onSelect={() => setSelectedLicense('STEMS')}
                                             active={true}
+                                            isSold={beat.is_sold}
                                         />
                                     )}
                                     {beat.is_exclusive_active !== false && (
@@ -447,16 +454,30 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                             selected={selectedLicense === 'ILIMITADA'}
                                             onSelect={() => setSelectedLicense('ILIMITADA')}
                                             active={true}
+                                            isSold={beat.is_sold}
                                         />
                                     )}
                                 </div>
 
                                 <button
                                     onClick={handleAddToCart}
-                                    className="w-full h-20 bg-accent text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs hover:bg-accent/90 transition-all shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)] flex items-center justify-center gap-4 group"
+                                    disabled={beat.is_sold}
+                                    className={`w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs transition-all flex items-center justify-center gap-4 group ${beat.is_sold
+                                            ? 'bg-slate-200 text-slate-500 cursor-not-allowed shadow-none'
+                                            : 'bg-accent text-white hover:bg-accent/90 shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)]'
+                                        }`}
                                 >
-                                    <ShoppingCart size={22} className="group-hover:-translate-y-1 transition-transform" />
-                                    Añadir {selectedLicense} al Carrito
+                                    {beat.is_sold ? (
+                                        <>
+                                            <ShieldCheck size={22} />
+                                            Este beat ya ha sido vendido
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ShoppingCart size={22} className="group-hover:-translate-y-1 transition-transform" />
+                                            Añadir {selectedLicense} al Carrito
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         )}

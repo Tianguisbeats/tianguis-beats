@@ -293,15 +293,15 @@ export default function ServicesManagerPage() {
                                         </button>
                                     </div>
                                 </div>
-                                <h3 className="font-black text-xl text-foreground mb-3 tracking-tight">{service.titulo}</h3>
-                                <p className="text-muted text-[11px] font-bold uppercase tracking-wide leading-relaxed mb-8 grow line-clamp-3 group-hover:text-foreground/80 transition-colors">
+                                <h3 className="font-black text-xl text-foreground dark:text-white mb-3 tracking-tight group-hover:text-accent transition-colors">{service.titulo}</h3>
+                                <p className="text-muted text-[11px] font-bold uppercase tracking-wide leading-relaxed mb-8 grow line-clamp-3 group-hover:text-foreground/80 dark:group-hover:text-white/80 transition-colors">
                                     {service.descripcion}
                                 </p>
 
                                 <div className="flex items-center justify-between pt-6 border-t border-border/50">
                                     <div className="flex flex-col">
                                         <span className="text-[10px] font-black text-muted uppercase tracking-widest mb-1">Inversión</span>
-                                        <span className="font-black text-lg text-foreground tracking-tighter">${service.precio} <span className="text-[10px] opacity-40">MXN</span></span>
+                                        <span className="font-black text-lg text-foreground dark:text-white tracking-tighter group-hover:text-accent transition-colors">${service.precio} <span className="text-[10px] opacity-40">MXN</span></span>
                                     </div>
                                     <div className="flex flex-col items-end">
                                         <span className="text-[10px] font-black text-muted uppercase tracking-widest mb-1">Entrega</span>

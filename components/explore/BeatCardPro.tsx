@@ -2,7 +2,7 @@
 
 import { Beat } from '@/lib/types';
 import Link from 'next/link';
-import { Play, Pause, ShoppingCart, Check, Music, Crown, ChevronRight, Flame, Heart } from 'lucide-react';
+import { Play, Pause, ShoppingCart, Check, Music, Crown, ChevronRight, Flame, Heart, ShieldCheck } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { useState, useEffect } from 'react';
@@ -134,12 +134,18 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
 
                     {/* Play Button Overlay */}
                     <div className={`absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all flex items-center justify-center backdrop-blur-[1px] ${isThisPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                        <button
-                            onClick={handlePlay}
-                            className="w-10 h-10 md:w-12 md:h-12 bg-background/95 text-accent rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all backdrop-blur-sm min-h-0 min-w-0 p-0"
-                        >
-                            {isThisPlaying ? <Pause fill="currentColor" size={20} /> : <Play fill="currentColor" size={20} className="ml-1" />}
-                        </button>
+                        {beat.is_sold ? (
+                            <div className="bg-red-500/90 text-white font-black px-4 py-2 rounded-xl text-xs uppercase tracking-widest shadow-2xl border border-white/20 rotate-[-12deg]">
+                                Vendido
+                            </div>
+                        ) : (
+                            <button
+                                onClick={handlePlay}
+                                className="w-10 h-10 md:w-12 md:h-12 bg-background/95 text-accent rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all backdrop-blur-sm min-h-0 min-w-0 p-0"
+                            >
+                                {isThisPlaying ? <Pause fill="currentColor" size={20} /> : <Play fill="currentColor" size={20} className="ml-1" />}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -207,8 +213,13 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                                 {formatPriceMXN(beat.price_mxn).split('.')[0]}
                             </span>
                         </div>
-                        <button onClick={handleAddToCart} className="text-[7px] font-black text-muted uppercase tracking-[0.1em] mt-0.5 group/lic flex items-center gap-1 hover:text-accent transition-colors min-h-0">
-                            LICENCIAS <ChevronRight size={6} className="group-hover/lic:translate-x-0.5 transition-transform" />
+                        <button
+                            onClick={!beat.is_sold ? handleAddToCart : undefined}
+                            className={`text-[7px] font-black uppercase tracking-[0.1em] mt-0.5 group/lic flex items-center gap-1 transition-colors min-h-0 ${beat.is_sold ? 'text-slate-400 cursor-not-allowed' : 'text-muted hover:text-accent'
+                                }`}
+                        >
+                            {beat.is_sold ? 'NO DISPONIBLE' : 'LICENCIAS'}
+                            {!beat.is_sold && <ChevronRight size={6} className="group-hover/lic:translate-x-0.5 transition-transform" />}
                         </button>
                     </div>
 
@@ -221,13 +232,15 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                         </button>
 
                         <button
-                            onClick={handleAddToCart}
-                            className={`w-8 h-8 md:w-9 md:h-9 rounded-[0.7rem] flex items-center justify-center transition-all shadow-xl active:scale-95 min-h-0 min-w-0 ${itemInCart
-                                ? 'bg-green-500 text-white shadow-green-500/30'
-                                : 'bg-accent text-white hover:bg-accent/90 shadow-accent/10 border border-transparent'
+                            onClick={!beat.is_sold ? handleAddToCart : undefined}
+                            className={`w-8 h-8 md:w-9 md:h-9 rounded-[0.7rem] flex items-center justify-center transition-all shadow-xl active:scale-95 min-h-0 min-w-0 ${beat.is_sold
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
+                                : itemInCart
+                                    ? 'bg-green-500 text-white shadow-green-500/30'
+                                    : 'bg-accent text-white hover:bg-accent/90 shadow-accent/10 border border-transparent'
                                 }`}
                         >
-                            {itemInCart ? <Check size={16} strokeWidth={4} /> : <ShoppingCart size={16} />}
+                            {beat.is_sold ? <ShieldCheck size={16} /> : itemInCart ? <Check size={16} strokeWidth={4} /> : <ShoppingCart size={16} />}
                         </button>
                     </div>
                 </div>

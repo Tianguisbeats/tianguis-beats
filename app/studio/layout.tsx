@@ -96,9 +96,9 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                             </h4>
 
                             {profile?.is_verified && (
-                                <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-2">
-                                    <ShieldCheck size={12} className={profile?.subscription_tier === 'premium' ? 'text-white' : 'text-accent'} />
-                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80">Productor Verificado</span>
+                                <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-2 flex-nowrap min-w-fit">
+                                    <ShieldCheck size={14} className={`${profile?.subscription_tier === 'premium' ? 'text-white' : 'text-accent'} shrink-0`} />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 whitespace-nowrap">Verificado</span>
                                 </div>
                             )}
                         </div>
