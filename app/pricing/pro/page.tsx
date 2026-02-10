@@ -121,7 +121,7 @@ export default function ProPlanPage() {
                 {/* Features Highlights */}
                 <section className="py-32 bg-white dark:bg-black/20">
                     <div className="max-w-6xl mx-auto px-4">
-                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div className="grid md:grid-cols-3 gap-8">
                             {mainFeatures.map((f, i) => (
                                 <div key={i} className="p-12 bg-slate-50 dark:bg-white/5 rounded-[3.5rem] border border-slate-100 dark:border-white/10 hover:border-amber-200 transition-all group">
                                     <div className="w-16 h-16 bg-white dark:bg-white/10 rounded-2xl flex items-center justify-center mb-10 shadow-sm border border-slate-100 dark:border-white/5 group-hover:scale-110 group-hover:bg-amber-50 dark:group-hover:bg-amber-500/10 group-hover:border-amber-100 transition-all duration-500">
@@ -165,23 +165,11 @@ export default function ProPlanPage() {
                                 ))}
                             </div>
 
-                            <div className="mt-16 bg-slate-900 text-white p-10 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-8 group">
+                            <div className="mt-16 bg-amber-500 text-slate-900 p-10 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-center gap-8 group text-center">
                                 <div>
-                                    <h4 className="text-2xl font-black uppercase tracking-tighter mb-2 group-hover:text-amber-400 transition-colors">¿Listo para la Independencia?</h4>
-                                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em]">Convierte tu pasión en una empresa rentable</p>
+                                    <h4 className="text-2xl font-black uppercase tracking-tighter mb-2">¿Listo para la Independencia?</h4>
+                                    <p className="text-slate-900/70 text-[10px] font-bold uppercase tracking-[0.3em] max-w-lg mx-auto">Convierte tu pasión en una empresa rentable</p>
                                 </div>
-
-                                {loading ? (
-                                    <div className="h-16 w-48 bg-white/10 animate-pulse rounded-2xl"></div>
-                                ) : isLoggedIn && userTier === 'pro' ? (
-                                    <div className="px-10 py-5 bg-white/10 text-white border border-white/20 rounded-2xl font-black uppercase tracking-widest text-[10px] cursor-default">
-                                        Tu Plan Actual
-                                    </div>
-                                ) : (
-                                    <Link href="/pricing" className="px-10 py-5 bg-amber-500 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all hover:scale-110 active:scale-95 shadow-xl shadow-amber-500/20">
-                                        {isLoggedIn && userTier === 'premium' ? "Incluido en tu Plan" : "Empezar con PRO"}
-                                    </Link>
-                                )}
                             </div>
                         </div>
                     </div>
