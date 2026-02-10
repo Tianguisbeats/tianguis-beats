@@ -710,31 +710,31 @@ export default function UploadPage() {
                                     </div>
                                 </div>
                             </div>
-                    </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-5 bg-accent text-white rounded-2xl font-black uppercase tracking-[0.3em] text-xs hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 active:scale-95 flex items-center justify-center gap-3 border-t border-white/10"
-                    >
-                        {loading ? (
-                            <>
-                                <Loader2 className="animate-spin" size={20} />
-                                Publicando Beat...
-                            </>
-                        ) : (
-                            <>
-                                <Upload size={18} />
-                                Publicar Beat en el Tianguis
-                            </>
-                        )}
-                    </button>
-                </form>
-        </div>
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full py-5 bg-accent text-white rounded-2xl font-black uppercase tracking-[0.3em] text-xs hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 active:scale-95 flex items-center justify-center gap-3 border-t border-white/10"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="animate-spin" size={20} />
+                                        Publicando Beat...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Upload size={18} />
+                                        Publicar Beat en el Tianguis
+                                    </>
+                                )}
+                            </button>
+                        </form>
+                    </div>
                 </div >
             </main >
 
-        <Footer />
+            <Footer />
         </div >
     );
 }

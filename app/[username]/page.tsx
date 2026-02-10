@@ -542,8 +542,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             >
                                 <Edit3 size={14} /> Posición
                             </button>
-                            <label className="bg-white text-slate-900 px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer shadow-2xl transition-all flex items-center gap-2 hover:scale-105 active:scale-95">
-                                <Camera size={14} className="text-accent" /> Portada
+                            <label className="bg-blue-600 text-white px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer shadow-xl shadow-blue-600/20 transition-all flex items-center gap-2 hover:scale-105 active:scale-95 border border-blue-500">
+                                <Camera size={14} className="text-white" /> Portada
                                 <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUploadMedia('cover', e)} />
                             </label>
                         </div>
@@ -851,7 +851,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <button
                                             key={tab.id}
                                             onClick={() => setActiveTab(tab.id as 'beats' | 'playlists' | 'services' | 'sound_kits')}
-                                            className={`relative py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === tab.id ? 'text-foreground dark:text-white' : 'text-muted hover:text-foreground dark:hover:text-white'}`}
+                                            className={`relative py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === tab.id ? 'text-foreground dark:text-blue-50 dark:drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'text-muted hover:text-foreground dark:hover:text-white'}`}
                                         >
                                             <tab.icon size={16} />
                                             {tab.label}
@@ -918,7 +918,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             <Briefcase size={20} />
                                         </div>
                                         <div>
-                                            <h2 className={`text-3xl font-black uppercase tracking-tighter ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white drop-shadow-sm'}`}>Servicios Profesionales</h2>
+                                            <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900 dark:text-white drop-shadow-sm">Servicios Profesionales</h2>
                                             <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Contrata talento experto para tu próximo hit</p>
                                         </div>
                                     </div>
@@ -1087,7 +1087,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             <Package size={20} />
                                         </div>
                                         <div>
-                                            <h2 className={`text-3xl font-black uppercase tracking-tighter ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white drop-shadow-md'}`}>Sound Kits</h2>
+                                            <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900 dark:text-white drop-shadow-md">Sound Kits</h2>
                                             <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Librerías de sonidos oficiales y presets</p>
                                         </div>
                                     </div>
