@@ -130,9 +130,6 @@ export default function StudioBeatsPage() {
                                 <h4 className="font-black text-foreground text-xl tracking-tight truncate mb-1">{beat.title}</h4>
                                 <div className="flex items-center justify-between text-muted text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
                                     <span className="flex items-center gap-2">Sincronizado</span>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-foreground">{(beat.play_count || 0)}</span> Plays
-                                    </div>
                                 </div>
                             </div>
 

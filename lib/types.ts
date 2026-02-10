@@ -44,6 +44,7 @@ export interface Profile {
     cta_text?: string;
     cta_url?: string;
     newsletter_active?: boolean;
+    links_active?: boolean;
     stripe_customer_id?: string;
     idioma_preferido?: string;
 }

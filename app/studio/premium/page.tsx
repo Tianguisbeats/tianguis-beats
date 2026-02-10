@@ -13,12 +13,7 @@ export default function PremiumHubPage() {
 
     const [preferences, setPreferences] = useState({
         is_video_active: false,
-        is_cta_active: false,
-        tema_perfil: 'dark',
-        color_acento: '#2563eb',
         video_destacado_url: '',
-        cta_text: '',
-        cta_url: '',
         newsletter_active: false,
         is_links_active: false
     });
@@ -33,7 +28,7 @@ export default function PremiumHubPage() {
 
         const { data: profile } = await supabase
             .from('profiles')
-            .select('subscription_tier, tema_perfil, color_acento, video_destacado_url, cta_text, cta_url, newsletter_active, is_verified, links_active')
+            .select('subscription_tier, video_destacado_url, newsletter_active, is_verified, links_active')
             .eq('id', user.id)
             .single();
 
@@ -42,12 +37,7 @@ export default function PremiumHubPage() {
             setIsVerified(profile.is_verified || false);
             setPreferences({
                 is_video_active: !!profile.video_destacado_url,
-                is_cta_active: !!profile.cta_text,
-                tema_perfil: profile.tema_perfil || 'dark',
-                color_acento: profile.color_acento || '#2563eb',
                 video_destacado_url: profile.video_destacado_url || '',
-                cta_text: profile.cta_text || '',
-                cta_url: profile.cta_url || '',
                 newsletter_active: profile.newsletter_active || false,
                 is_links_active: profile.links_active || false
             });
@@ -63,25 +53,15 @@ export default function PremiumHubPage() {
         const { error } = await supabase
             .from('profiles')
             .update({
-                tema_perfil: preferences.tema_perfil,
-                color_acento: preferences.color_acento,
                 video_destacado_url: preferences.is_video_active ? preferences.video_destacado_url : '',
-                cta_text: preferences.is_cta_active ? preferences.cta_text : '',
-                cta_url: preferences.is_cta_active ? preferences.cta_url : '',
                 newsletter_active: preferences.newsletter_active,
                 links_active: preferences.is_links_active
             })
             .eq('id', user.id);
 
-        if (error) {
-            alert("Error al guardar cambios");
-        } else {
-            // Success silent or small feedback
-        }
         setSaving(false);
     };
 
-    // Auto-save logic on changes
     useEffect(() => {
         if (!loading) {
             const timer = setTimeout(() => {
@@ -101,7 +81,7 @@ export default function PremiumHubPage() {
                 </div>
                 <h1 className="text-4xl font-black text-foreground uppercase tracking-tighter mb-4">Hub de Beneficios <span className="text-accent">Premium</span></h1>
                 <p className="text-muted max-w-md mb-10 font-medium leading-relaxed">
-                    Eleva tu perfil al siguiente nivel con video destacado, botones de contacto personalizados y herramientas de marketing exclusivas.
+                    Eleva tu perfil al siguiente nivel con video destacado y herramientas de marketing exclusivas.
                 </p>
                 <Link href="/pricing" className="bg-accent text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-xl shadow-accent/20">
                     <Zap size={16} fill="currentColor" className="inline mr-2" /> Mejorar a Premium
@@ -165,50 +145,10 @@ export default function PremiumHubPage() {
                             </p>
                         </div>
                     </div>
+                </div>
 
-                    {/* Custom Call to Action */}
-                    <div className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm relative overflow-hidden transition-all">
-                        <div className="flex items-center justify-between mb-8">
-                            <div className="flex items-center gap-4">
-                                <div className={`p-3 rounded-2xl transition-all ${preferences.is_cta_active ? 'bg-blue-500/10 text-blue-600' : 'bg-slate-100 dark:bg-white/5 text-slate-400'}`}>
-                                    <MessageSquare size={24} />
-                                </div>
-                                <div>
-                                    <h3 className={`font-black uppercase tracking-tight transition-all ${preferences.is_cta_active ? 'text-foreground' : 'text-slate-400'}`}>Botón de Acción</h3>
-                                    <p className="text-[10px] text-muted font-bold uppercase tracking-widest opacity-60">Convierte fans en clientes</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setPreferences({ ...preferences, is_cta_active: !preferences.is_cta_active })}
-                                className={`w-12 h-6 rounded-full transition-all relative ${preferences.is_cta_active ? 'bg-accent' : 'bg-slate-200 dark:bg-white/10'}`}
-                            >
-                                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-all ${preferences.is_cta_active ? 'left-7' : 'left-1'}`} />
-                            </button>
-                        </div>
-
-                        <div className={`space-y-4 transition-all duration-500 ${preferences.is_cta_active ? 'opacity-100' : 'opacity-20 pointer-events-none grayscale blur-[2px]'}`}>
-                            <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-2">Texto del Botón</label>
-                                <input
-                                    value={preferences.cta_text}
-                                    onChange={e => setPreferences({ ...preferences, cta_text: e.target.value })}
-                                    placeholder="Ej. ¡Contratar Ahora!"
-                                    className="w-full bg-slate-50 dark:bg-black/40 border border-slate-100 dark:border-white/5 rounded-2xl px-5 py-4 font-bold text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-2">Enlace Directo</label>
-                                <input
-                                    value={preferences.cta_url}
-                                    onChange={e => setPreferences({ ...preferences, cta_url: e.target.value })}
-                                    placeholder="wa.me/..."
-                                    className="w-full bg-slate-50 dark:bg-black/40 border border-slate-100 dark:border-white/5 rounded-2xl px-5 py-4 font-bold text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Smart Link Bio */}
+                <div className="space-y-8">
+                    {/* Smart Link Bio & Fan Capture Card */}
                     <div className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm relative overflow-hidden transition-all">
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">
@@ -232,42 +172,29 @@ export default function PremiumHubPage() {
                             <p className="text-sm text-muted font-medium mb-6">
                                 Activa una página dedicada con todos tus enlaces importantes optimizada para redes sociales.
                             </p>
-                            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-accent hover:underline cursor-pointer opacity-80">
-                                Configurar Enlaces de Bio <ChevronRight size={14} />
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div className="space-y-8">
-                    {/* Newsletter / Fan Capture */}
-                    <div className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm relative overflow-hidden transition-all">
-                        <div className="flex items-center justify-between mb-8">
-                            <div className="flex items-center gap-4">
-                                <div className={`p-3 rounded-2xl transition-all ${preferences.newsletter_active ? 'bg-amber-500/10 text-amber-500' : 'bg-slate-100 dark:bg-white/5 text-slate-400'}`}>
-                                    <Mail size={24} />
+                            {/* Newsletter Toggle integrated within Smart Link */}
+                            <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-slate-100 dark:border-white/5 mb-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <Mail size={18} className={preferences.newsletter_active ? 'text-amber-500' : 'text-muted'} />
+                                        <span className={`text-[11px] font-black uppercase tracking-widest ${preferences.newsletter_active ? 'text-foreground' : 'text-muted'}`}>Captura de Fans</span>
+                                    </div>
+                                    <button
+                                        onClick={() => setPreferences({ ...preferences, newsletter_active: !preferences.newsletter_active })}
+                                        className={`w-10 h-5 rounded-full transition-all relative ${preferences.newsletter_active ? 'bg-amber-500' : 'bg-slate-200 dark:bg-white/10'}`}
+                                    >
+                                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white shadow-sm transition-all ${preferences.newsletter_active ? 'left-6' : 'left-1'}`} />
+                                    </button>
                                 </div>
-                                <div>
-                                    <h3 className={`font-black uppercase tracking-tight transition-all ${preferences.newsletter_active ? 'text-foreground' : 'text-slate-400'}`}>Captura de Fans</h3>
-                                    <p className="text-[10px] text-muted font-bold uppercase tracking-widest opacity-60">Tu propia base de datos</p>
-                                </div>
+                                <p className="text-[10px] text-muted font-medium italic">
+                                    Si se activa, se mostrará un formulario de newsletter en tu Smart Link.
+                                </p>
                             </div>
-                            <button
-                                onClick={() => setPreferences({ ...preferences, newsletter_active: !preferences.newsletter_active })}
-                                className={`w-12 h-6 rounded-full transition-all relative ${preferences.newsletter_active ? 'bg-accent' : 'bg-slate-200 dark:bg-white/10'}`}
-                            >
-                                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-all ${preferences.newsletter_active ? 'left-7' : 'left-1'}`} />
-                            </button>
-                        </div>
 
-                        <div className={`transition-all duration-500 ${preferences.newsletter_active ? 'opacity-100' : 'opacity-20 pointer-events-none grayscale blur-[2px]'}`}>
-                            <p className="text-sm text-muted font-medium mb-6">
-                                Un formulario elegante aparecerá en tu perfil para que tus fans dejen su email.
-                            </p>
-                            <div className="p-4 rounded-xl border border-dashed border-accent/20 bg-accent/5">
-                                <div className="h-2 w-full bg-accent/10 rounded-full mb-2" />
-                                <div className="h-2 w-2/3 bg-accent/10 rounded-full" />
-                            </div>
+                            <Link href={`/${preferences.is_links_active ? 'links' : ''}`} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-accent hover:underline cursor-pointer opacity-80">
+                                Ver mi Smart Link <ChevronRight size={14} />
+                            </Link>
                         </div>
                     </div>
 

@@ -70,6 +70,14 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
         </div>
     );
 
+    if (!profile.links_active) return (
+        <div className="min-h-screen bg-[#020205] flex flex-col items-center justify-center text-white p-6">
+            <h1 className="text-4xl font-black uppercase tracking-tighter mb-4 text-white/20">Página no disponible</h1>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-8">El Smart Link no está habilitado actualmente</p>
+            <Link href={`/${username}`} className="text-accent hover:underline font-bold uppercase tracking-widest text-xs">Ver Perfil Principal</Link>
+        </div>
+    );
+
     const socialLinks = profile.social_links || {};
     const accentColor = profile.color_acento || '#2563eb';
 
@@ -175,6 +183,37 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                         </a>
                     )}
                 </div>
+
+                {/* Newsletter / Fan Capture Section */}
+                {profile.subscription_tier === 'premium' && profile.newsletter_active && (
+                    <div className="mt-12 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        <div className="bg-white dark:bg-white/5 border border-white/10 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 blur-[50px] -mr-16 -mt-16 pointer-events-none" />
+
+                            <div className="relative z-10 text-center">
+                                <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-amber-500">
+                                    <Mail size={24} />
+                                </div>
+                                <h3 className="text-xl font-black uppercase tracking-tighter mb-2">Únete al <span className="text-amber-500">Inner Circle</span></h3>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-6 opacity-60">
+                                    Recibe beats exclusivos y noticias directas
+                                </p>
+
+                                <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+                                    <input
+                                        type="email"
+                                        placeholder="tu@email.com"
+                                        className="w-full h-12 bg-slate-900/50 border border-white/10 rounded-xl px-4 text-xs font-bold outline-none focus:border-amber-500 transition-all text-center"
+                                        required
+                                    />
+                                    <button className="w-full h-12 bg-amber-500 text-slate-900 rounded-xl font-black uppercase tracking-[0.2em] text-[9px] hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10 active:scale-95">
+                                        Suscribirme
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Footer Branding */}
                 <div className="mt-20 text-center relative z-10">

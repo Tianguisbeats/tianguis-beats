@@ -652,16 +652,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 </div>
 
                                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                                    {!isOwner && profile.subscription_tier === 'premium' && profile.cta_text && profile.cta_url && (
-                                        <a
-                                            href={profile.cta_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="h-14 px-8 rounded-2xl bg-white dark:bg-white text-slate-900 border-2 border-slate-100 dark:border-white font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:scale-105 transition-all flex items-center gap-3 active:scale-95"
-                                        >
-                                            <MessageSquare size={18} className="text-accent" /> {profile.cta_text}
-                                        </a>
-                                    )}
+
                                     {isOwner ? (
                                         <button
                                             onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}

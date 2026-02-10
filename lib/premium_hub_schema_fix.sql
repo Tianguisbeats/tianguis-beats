@@ -1,21 +1,20 @@
--- ==============================================================================
--- BASE_DATOS v6.5: SOPORTE PARA PREMIUM HUB & MARKETING TOOLS
--- Fecha: 2026-02-09
--- ==============================================================================
+-- SQL para habilitar Smart Link Bio y Fan Capture en Tianguis Beats
 
--- 1. AGREGAR CAMPOS DE PERSONALIZACIÓN SI NO EXISTEN
+-- 1. Añadir columna para el estado de los enlaces sociales (Smart Link Bio)
 ALTER TABLE public.profiles 
-ADD COLUMN IF NOT EXISTS tema_perfil TEXT DEFAULT 'dark',
-ADD COLUMN IF NOT EXISTS color_acento TEXT DEFAULT '#2563eb',
-ADD COLUMN IF NOT EXISTS video_destacado_url TEXT;
+ADD COLUMN IF NOT EXISTS links_active BOOLEAN DEFAULT false;
 
--- 2. AGREGAR NUEVAS HERRAMIENTAS DE MARKETING (PREMIUM HUB)
-ALTER TABLE public.profiles 
-ADD COLUMN IF NOT EXISTS cta_text TEXT,
-ADD COLUMN IF NOT EXISTS cta_url TEXT,
-ADD COLUMN IF NOT EXISTS newsletter_active BOOLEAN DEFAULT FALSE;
+-- 2. Asegurarse de que las columnas de marketing premium existan y tengan valores por defecto
+-- (video destacado, llamada a la acción y newsletter)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'profiles' AND COLUMN_NAME = 'links_active') THEN
+        ALTER TABLE public.profiles ADD COLUMN links_active BOOLEAN DEFAULT false;
+    END IF;
 
--- 3. NOTA PARA EL DESARROLLADOR
--- Estos campos permiten que el perfil público renderice el Video Destacado,
--- el Botón de Acción Directa (CTA) y el formulario de Newsletter.
--- Sin estos campos, las consultas de perfil fallarán con error 42703 (columna indefinida).
+    -- Podríamos añadir índices aquí si fuera necesario para búsquedas rápidas por username
+END $$;
+
+-- Comentario informativo: 
+-- Ejecuta este script en el SQL Editor de Supabase para que los toggles de "Smart Link Bio" 
+-- en el Hub Premium puedan guardar su estado correctamente en la base de datos.
