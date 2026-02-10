@@ -423,7 +423,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                 <TagInput
                                     tags={beatTypes}
                                     setTags={setBeatTypes}
-                                    placeholder="Añade artistas (ej: Bad Bunny, Mora...)"
+                                    placeholder="Ej: 808 Mafia, Tainy, Zaytoven..."
                                 />
                             </div>
                         </div>

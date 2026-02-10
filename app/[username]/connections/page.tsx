@@ -4,7 +4,7 @@ import React, { useEffect, useState, use } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
     ArrowLeft, Users, UserPlus, UserCheck,
-    Music, Loader2, Search, MapPin, CheckCircle2, Crown
+    Loader2, Search, Crown
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -23,6 +23,7 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
     const [following, setFollowing] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    const [userFollowingSet, setUserFollowingSet] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         const fetchConnections = async () => {
@@ -56,6 +57,16 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                 setFollowers(followersData?.map(f => f.profiles).filter(Boolean) || []);
                 setFollowing(followingData?.map(f => f.profiles).filter(Boolean) || []);
 
+                // 4. Get Current User's following list to show follow buttons correctly
+                if (user) {
+                    const { data: myFollowing } = await supabase
+                        .from('follows')
+                        .select('following_id')
+                        .eq('follower_id', user.id);
+
+                    setUserFollowingSet(new Set(myFollowing?.map(f => f.following_id) || []));
+                }
+
             } catch (err) {
                 console.error("Error fetching connections:", err);
             } finally {
@@ -65,6 +76,31 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
 
         fetchConnections();
     }, [username]);
+
+    const handleFollowToggle = async (targetUserId: string, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!currentUserId) return router.push('/login');
+        if (targetUserId === currentUserId) return;
+
+        const isFollowing = userFollowingSet.has(targetUserId);
+
+        try {
+            if (isFollowing) {
+                await supabase.from('follows').delete().eq('follower_id', currentUserId).eq('following_id', targetUserId);
+                const newSet = new Set(userFollowingSet);
+                newSet.delete(targetUserId);
+                setUserFollowingSet(newSet);
+            } else {
+                await supabase.from('follows').insert({ follower_id: currentUserId, following_id: targetUserId });
+                const newSet = new Set(userFollowingSet);
+                newSet.add(targetUserId);
+                setUserFollowingSet(newSet);
+            }
+        } catch (error) {
+            console.error("Error toggling follow:", error);
+        }
+    };
 
     const filteredList = (activeTab === 'followers' ? followers : following).filter(u =>
         u.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -89,28 +125,28 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
 
             <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-12">
                 {/* Header Navigation */}
-                <div className="flex items-center gap-4 mb-10">
+                <div className="flex items-center gap-6 mb-12">
                     <button
                         onClick={() => router.back()}
-                        className="p-3 bg-card border border-border rounded-2xl text-muted hover:text-accent hover:border-accent transition-all shadow-sm"
+                        className="p-4 bg-card border border-border rounded-2xl text-muted hover:text-accent hover:border-accent transition-all shadow-sm group"
                     >
-                        <ArrowLeft size={20} />
+                        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                     </button>
                     <div>
-                        <h1 className="text-3xl font-black text-foreground uppercase tracking-tighter">
-                            Conexiones de <span className="text-accent">@{profile?.username}</span>
+                        <h1 className="text-4xl font-black text-foreground uppercase tracking-tighter">
+                            Lista de amigos de <span className="text-accent underline decoration-4 underline-offset-8">@{profile?.artistic_name || profile?.username}</span>
                         </h1>
-                        <p className="text-[10px] font-black text-muted uppercase tracking-widest mt-1">Descubre su red en el Tianguis</p>
+                        <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mt-3">Miembros de la comunidad Tianguis</p>
                     </div>
                 </div>
 
                 {/* Tab Switcher */}
-                <div className="flex gap-2 bg-card p-2 rounded-[2rem] border border-border mb-8 shadow-sm">
+                <div className="flex gap-2 bg-card/50 backdrop-blur-xl p-2 rounded-[2.5rem] border border-border/50 mb-10 shadow-sm">
                     <button
                         onClick={() => setActiveTab('followers')}
-                        className={`flex-1 py-4 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all flex items-center justify-center gap-2 ${activeTab === 'followers'
-                            ? 'bg-foreground text-background shadow-xl'
-                            : 'text-muted hover:bg-background'
+                        className={`flex-1 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all flex items-center justify-center gap-2 ${activeTab === 'followers'
+                            ? 'bg-foreground dark:bg-white text-background dark:text-slate-900 shadow-2xl'
+                            : 'text-muted hover:bg-background/50'
                             }`}
                     >
                         <Users size={14} />
@@ -118,9 +154,9 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                     </button>
                     <button
                         onClick={() => setActiveTab('following')}
-                        className={`flex-1 py-4 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all flex items-center justify-center gap-2 ${activeTab === 'following'
-                            ? 'bg-foreground text-background shadow-xl'
-                            : 'text-muted hover:bg-background'
+                        className={`flex-1 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all flex items-center justify-center gap-2 ${activeTab === 'following'
+                            ? 'bg-foreground dark:bg-white text-background dark:text-slate-900 shadow-2xl'
+                            : 'text-muted hover:bg-background/50'
                             }`}
                     >
                         <UserPlus size={14} />
@@ -129,28 +165,28 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                 </div>
 
                 {/* Search in List */}
-                <div className="relative mb-8">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-muted" size={18} />
+                <div className="relative mb-12">
+                    <Search className="absolute left-7 top-1/2 -translate-y-1/2 text-muted" size={18} />
                     <input
                         type="text"
-                        placeholder="Buscar por nombre o usuario..."
+                        placeholder="Buscar en la red..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-card border-border border-2 rounded-3xl pl-14 pr-6 py-5 text-sm font-bold outline-none focus:border-accent transition-all shadow-sm"
+                        className="w-full bg-card/30 border-border/50 border-2 rounded-[2rem] pl-16 pr-8 py-6 text-sm font-bold outline-none focus:border-accent transition-all shadow-sm"
                     />
                 </div>
 
                 {/* User List */}
-                <div className="grid gap-4">
+                <div className="grid gap-6">
                     {filteredList.length > 0 ? (
                         filteredList.map((user) => (
                             <Link
                                 key={user.id}
                                 href={`/${user.username}`}
-                                className="bg-card border border-border p-6 rounded-[2rem] flex items-center justify-between group hover:border-accent hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
+                                className="bg-card/40 backdrop-blur-md border border-border/50 p-6 rounded-[2.5rem] flex items-center justify-between group hover:border-accent hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
                             >
-                                <div className="flex items-center gap-5">
-                                    <div className={`relative w-16 h-16 rounded-[1.5rem] overflow-hidden border-2 ${user.subscription_tier === 'premium' ? 'border-blue-500' :
+                                <div className="flex items-center gap-6">
+                                    <div className={`relative w-20 h-20 rounded-[2rem] overflow-hidden border-2 transition-transform duration-500 group-hover:scale-105 ${user.subscription_tier === 'premium' ? 'border-blue-500' :
                                         user.subscription_tier === 'pro' ? 'border-amber-500' : 'border-border'
                                         }`}>
                                         <img
@@ -159,27 +195,38 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                                             alt={user.username}
                                         />
                                     </div>
-                                    <div className="flex flex-col">
+                                    <div className="flex flex-col gap-1">
                                         <div className="flex items-center gap-2">
-                                            <h3 className="text-xl font-black text-foreground group-hover:text-accent transition-colors lowercase font-heading leading-none">
+                                            <h3 className="text-2xl font-black text-foreground group-hover:text-accent transition-colors lowercase font-heading leading-tight">
                                                 {user.artistic_name || user.username}
                                             </h3>
-                                            {user.is_verified && <CheckCircle2 size={14} className="text-blue-500" />}
-                                            {user.is_founder && <Crown size={14} className="text-amber-500" />}
+                                            <div className="flex items-center gap-1.5 ml-1">
+                                                {user.is_verified && <img src="/verified-badge.png" className="w-5 h-5 shadow-lg shadow-blue-500/20" alt="V" />}
+                                                {user.is_founder && <Crown size={18} className="text-amber-500" fill="currentColor" />}
+                                            </div>
                                         </div>
-                                        <p className="text-[10px] font-black text-muted uppercase tracking-widest mt-1">@{user.username}</p>
-                                        <p className="text-[11px] text-muted line-clamp-1 mt-2 max-w-md font-medium">{user.bio || 'Sin biografía'}</p>
+                                        <p className="text-[11px] font-black text-muted uppercase tracking-[0.2em]">@{user.username}</p>
                                     </div>
                                 </div>
-                                <div className="bg-background p-3 rounded-2xl group-hover:bg-accent group-hover:text-white transition-all shadow-inner">
-                                    <Users size={18} />
-                                </div>
+
+                                {/* Follow Button */}
+                                {currentUserId !== user.id && (
+                                    <button
+                                        onClick={(e) => handleFollowToggle(user.id, e)}
+                                        className={`px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg ${userFollowingSet.has(user.id)
+                                            ? 'bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 hover:bg-red-50 hover:text-red-500 hover:border-red-200 dark:hover:bg-red-500/10 dark:hover:text-red-400'
+                                            : 'bg-foreground dark:bg-white text-background dark:text-slate-900 hover:bg-accent dark:hover:bg-accent hover:text-white dark:hover:text-white shadow-accent/10'
+                                            }`}
+                                    >
+                                        {userFollowingSet.has(user.id) ? 'Siguiendo' : 'Seguir'}
+                                    </button>
+                                )}
                             </Link>
                         ))
                     ) : (
-                        <div className="text-center py-24 bg-card/50 rounded-[3rem] border border-dashed border-border">
-                            <Users size={48} className="mx-auto text-muted/30 mb-4" />
-                            <p className="text-muted font-bold uppercase tracking-widest text-xs">No se encontraron resultados</p>
+                        <div className="text-center py-32 bg-card/20 rounded-[3.5rem] border border-dashed border-border/50">
+                            <Users size={64} className="mx-auto text-muted/20 mb-6" />
+                            <p className="text-muted font-black uppercase tracking-[0.3em] text-[10px]">Sin resultados en esta sección</p>
                         </div>
                     )}
                 </div>
