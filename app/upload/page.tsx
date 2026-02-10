@@ -387,8 +387,9 @@ export default function UploadPage() {
                                             value={beatType}
                                             onChange={(e) => setBeatType(e.target.value)}
                                             className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all"
-                                            placeholder="Junior H, Travis Scott, Bad Bunny..."
+                                            placeholder="Junior H, Peso Pluma, Natanael Cano..."
                                         />
+                                        <p className="text-[9px] text-muted font-bold uppercase tracking-widest ml-1">Separa los artistas con comas para mejorar la recomendación</p>
                                     </div>
                                 </div>
 
@@ -565,7 +566,7 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center gap-4">
                                                 {isFree && (
-                                                    <Link href="/pricing" className="relative z-10 bg-amber-500 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-amber-400 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-500/20 flex items-center gap-2">
+                                                    <Link href="/pricing" className="relative z-10 bg-amber-500 text-white px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border border-amber-400 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-500/20 flex items-center gap-2">
                                                         <Zap size={10} className="fill-white" /> Mejorar a Pro
                                                     </Link>
                                                 )}
@@ -629,7 +630,7 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center gap-4">
                                                 {!isPremium && (
-                                                    <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
+                                                    <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
                                                         <Zap size={10} className="fill-white" /> Mejorar a Premium
                                                     </Link>
                                                 )}
@@ -687,7 +688,7 @@ export default function UploadPage() {
                                         </div>
                                         <div className="flex items-center gap-4">
                                             {!isPremium && (
-                                                <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
+                                                <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
                                                     <Zap size={10} className="fill-white" /> Mejorar a Premium
                                                 </Link>
                                             )}

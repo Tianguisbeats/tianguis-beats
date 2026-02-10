@@ -7,7 +7,7 @@ import Link from 'next/link';
 import {
     Upload, Music, Image as ImageIcon, CheckCircle2,
     AlertCircle, Loader2, Info, ChevronLeft, Hash, Lock,
-    Link as LinkIcon, Edit2, Zap, Eye, EyeOff, Save
+    Link as LinkIcon, Edit2, Zap, Eye, EyeOff, Save, X
 } from 'lucide-react';
 
 import { GENRES, MOODS, SUBGENRES } from '@/lib/constants';
@@ -25,6 +25,9 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     const [userData, setUserData] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+
+    // Initial Data for Dirty Check
+    const [initialData, setInitialData] = useState<any>(null);
 
     // Form State
     const [title, setTitle] = useState('');
@@ -133,6 +136,28 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             setExistingStems(beat.stems_url);
             setExistingPreview(beat.mp3_tag_url);
 
+            setExistingPreview(beat.mp3_tag_url);
+
+            // Set Initial Data for comparison
+            setInitialData({
+                title: beat.title || '',
+                genre: beat.genre || '',
+                subgenre: beat.subgenre || '',
+                bpm: beat.bpm?.toString() || '',
+                musicalKey: beat.musical_key || '',
+                musicalScale: beat.musical_scale || 'Menor',
+                selectedMoods: beat.mood ? beat.mood.split(', ') : [],
+                beatType: beat.reference_artist || '',
+                standardPrice: beat.price_mxn?.toString() || '0',
+                wavPrice: beat.price_wav_mxn?.toString() || '0',
+                stemsPrice: beat.price_stems_mxn?.toString() || '0',
+                exclusivePrice: isExclusive && beat.exclusive_price_mxn ? beat.exclusive_price_mxn.toString() : '0',
+                isExclusive: beat.is_exclusive || false,
+                isMp3Active: beat.is_mp3_active !== false,
+                isWavActive: beat.is_wav_active !== false,
+                isStemsActive: beat.is_stems_active !== false,
+            });
+
             setLoading(false);
         };
         loadInitialData();
@@ -146,8 +171,39 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
         }
     };
 
+    // Dirty Check Logic
+    const hasChanges = initialData ? (
+        title !== initialData.title ||
+        genre !== initialData.genre ||
+        subgenre !== initialData.subgenre ||
+        bpm !== initialData.bpm ||
+        musicalKey !== initialData.musicalKey ||
+        musicalScale !== initialData.musicalScale ||
+        JSON.stringify(selectedMoods.sort()) !== JSON.stringify(initialData.selectedMoods.sort()) ||
+        beatType !== initialData.beatType ||
+        standardPrice !== initialData.standardPrice ||
+        wavPrice !== initialData.wavPrice ||
+        stemsPrice !== initialData.stemsPrice ||
+        exclusivePrice !== initialData.exclusivePrice ||
+        isExclusive !== initialData.isExclusive ||
+        isMp3Active !== initialData.isMp3Active ||
+        isWavActive !== initialData.isWavActive ||
+        isStemsActive !== initialData.isStemsActive ||
+        coverFile !== null ||
+        previewFile !== null ||
+        hqMp3File !== null ||
+        wavFile !== null ||
+        stemsFile !== null
+    ) : false;
+
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!hasChanges) {
+            router.back();
+            return;
+        }
+
         if (!userData) return;
 
         setSaving(true);
@@ -371,8 +427,9 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                         value={beatType}
                                         onChange={(e) => setBeatType(e.target.value)}
                                         className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all"
-                                        placeholder="Junior H, Travis Scott, Bad Bunny..."
+                                        placeholder="Junior H, Peso Pluma, Natanael Cano..."
                                     />
+                                    <p className="text-[9px] text-muted font-bold uppercase tracking-widest ml-1">Separa los artistas con comas para mejorar la recomendación</p>
                                 </div>
                             </div>
 
@@ -520,7 +577,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                         </div>
                                         <div className="flex items-center gap-4">
                                             {isFree && (
-                                                <Link href="/pricing" className="relative z-10 bg-amber-500 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-amber-400 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-500/20 flex items-center gap-2">
+                                                <Link href="/pricing" className="relative z-10 bg-amber-500 text-white px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border border-amber-400 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-500/20 flex items-center gap-2">
                                                     <Zap size={10} className="fill-white" /> Mejorar a Pro
                                                 </Link>
                                             )}
@@ -577,7 +634,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                         </div>
                                         <div className="flex items-center gap-4">
                                             {!isPremium && (
-                                                <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
+                                                <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
                                                     <Zap size={10} className="fill-white" /> Mejorar a Premium
                                                 </Link>
                                             )}
@@ -631,7 +688,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                     </div>
                                     <div className="flex items-center gap-4">
                                         {!isPremium && (
-                                            <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
+                                            <Link href="/pricing" className="relative z-10 bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border border-blue-500 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
                                                 <Zap size={10} className="fill-white" /> Mejorar a Premium
                                             </Link>
                                         )}
@@ -662,17 +719,26 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                         <button
                             type="submit"
                             disabled={saving}
-                            className="w-full py-5 bg-accent text-white rounded-2xl font-black uppercase tracking-[0.3em] text-xs hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 active:scale-95 flex items-center justify-center gap-3 border-t border-white/10"
+                            onClick={!hasChanges ? (e) => { e.preventDefault(); router.back(); } : undefined}
+                            className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 border-t border-white/10 ${hasChanges
+                                ? 'bg-accent text-white hover:bg-accent/90 shadow-accent/20'
+                                : 'bg-muted/10 text-muted hover:bg-muted/20 shadow-none'
+                                }`}
                         >
                             {saving ? (
                                 <>
                                     <Loader2 className="animate-spin" size={20} />
                                     Guardando...
                                 </>
-                            ) : (
+                            ) : hasChanges ? (
                                 <>
                                     <Save size={18} />
                                     Guardar Cambios
+                                </>
+                            ) : (
+                                <>
+                                    <X size={18} />
+                                    Cancelar
                                 </>
                             )}
                         </button>
