@@ -61,7 +61,8 @@ export default function PremiumPlanPage() {
         { label: "Comisión Venta", value: "0%" },
         { label: "Licencia Stems", value: "Habilitada" },
         { label: "Exclusivas", value: "Habilitadas" },
-        { label: "Sound Kits", value: "Ilimitados" }
+        { label: "Sound Kits", value: "Ilimitados" },
+        { label: "Smart Bio", value: "Premium" }
     ];
 
     return (
@@ -127,12 +128,12 @@ export default function PremiumPlanPage() {
                 </section>
 
                 {/* Features Highlight */}
-                <section className="py-32 bg-background">
+                <section className="py-32 bg-background dark:bg-[#020205]">
                     <div className="max-w-6xl mx-auto px-4">
                         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                             {mainFeatures.map((f, i) => (
-                                <div key={i} className="p-10 bg-card/30 rounded-[3rem] border border-border hover:border-blue-500/50 transition-all group text-center">
-                                    <div className="w-16 h-16 bg-card rounded-2xl flex items-center justify-center mb-8 mx-auto shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
+                                <div key={i} className="p-10 bg-card/30 dark:bg-white/5 rounded-[3rem] border border-border dark:border-white/10 hover:border-blue-500/50 transition-all group text-center">
+                                    <div className="w-16 h-16 bg-card dark:bg-white/10 rounded-2xl flex items-center justify-center mb-8 mx-auto shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
                                         {f.icon && React.isValidElement(f.icon) ? React.cloneElement(f.icon as React.ReactElement<any>, { className: "text-blue-500 group-hover:text-white transition-colors" }) : f.icon}
                                     </div>
                                     <h4 className="text-lg font-black uppercase tracking-tighter text-foreground mb-3 leading-tight">{f.title}</h4>
@@ -144,7 +145,7 @@ export default function PremiumPlanPage() {
                 </section>
 
                 {/* Vitaminized Content Section */}
-                <section className="py-32 bg-card/30 relative overflow-hidden">
+                <section className="py-32 bg-card/30 dark:bg-slate-950/50 relative overflow-hidden">
                     <div className="max-w-6xl mx-auto px-4 relative z-10">
                         <div className="grid md:grid-cols-2 gap-20 items-center">
                             <div className="order-2 md:order-1">
@@ -200,9 +201,9 @@ export default function PremiumPlanPage() {
                 </section>
 
                 {/* Final CTA */}
-                <section className="py-32 text-center bg-background">
+                <section className="py-32 text-center bg-background dark:bg-[#020205]">
                     <div className="max-w-4xl mx-auto px-4">
-                        <div className="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-10">
+                        <div className="w-20 h-20 bg-blue-500/10 dark:bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-10">
                             <Diamond size={32} className="text-blue-500" />
                         </div>
                         <h2 className="text-5xl md:text-6xl font-black uppercase tracking-tighter text-foreground mb-8 leading-none">Domina el mercado global.</h2>
@@ -215,15 +216,15 @@ export default function PremiumPlanPage() {
                                 <Link
                                     href={isLoggedIn && userTier === 'premium' ? "#" : "/pricing"}
                                     className={`px-12 py-6 rounded-[2rem] font-black uppercase tracking-widest text-[10px] transition-all shadow-2xl hover:scale-105 active:scale-95 ${isLoggedIn && userTier === 'premium'
-                                        ? "bg-card text-muted cursor-default shadow-none"
-                                        : "bg-blue-600 text-white hover:bg-slate-900 shadow-blue-600/30"
+                                        ? "bg-card dark:bg-white/10 text-muted cursor-default shadow-none"
+                                        : "bg-blue-600 text-white hover:bg-slate-900 dark:hover:bg-blue-500 shadow-blue-600/30"
                                         }`}
                                 >
                                     {isLoggedIn && userTier === 'premium' ? "Tu Plan Actual" : isLoggedIn ? "Mejorar a Premium" : "Elegir Premium"}
                                 </Link>
 
                                 {!isLoggedIn && (
-                                    <Link href="/signup" className="px-12 py-6 bg-card border-2 border-border text-muted rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-slate-900 hover:text-foreground transition-all active:scale-95">
+                                    <Link href="/signup" className="px-12 py-6 bg-card dark:bg-white/5 border-2 border-border dark:border-white/10 text-muted rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-slate-900 dark:hover:border-white/30 hover:text-foreground transition-all active:scale-95">
                                         Crear mi cuenta
                                     </Link>
                                 )}

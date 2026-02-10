@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Check, Music, TrendingUp, Zap, ArrowLeft, Heart } from 'lucide-react';
+import { Check, Music, TrendingUp, Zap, ArrowLeft, Heart, X } from 'lucide-react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 
@@ -44,6 +44,11 @@ export default function FreePlanPage() {
             title: "Estadísticas Básicas",
             description: "Visualiza cuántas personas han escuchado tus ritmos y monitorea tu crecimiento inicial.",
             icon: <TrendingUp className="text-slate-400" size={24} />
+        },
+        {
+            title: "Smart Bio",
+            description: "No incluida. Actualiza a PRO para desbloquear tu enlace único y conectar todas tus redes.",
+            icon: <Heart className="text-slate-300 dark:text-slate-600" size={24} />
         }
     ];
 
@@ -53,8 +58,8 @@ export default function FreePlanPage() {
 
             <main className="flex-1">
                 {/* Hero section - Vitaminized/Minimalist */}
-                <section className="relative py-24 bg-card/30 text-foreground overflow-hidden">
-                    <div className="absolute top-0 right-0 w-1/3 h-full bg-slate-400/10 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
+                <section className="relative py-24 bg-card/30 dark:bg-[#020205] text-foreground overflow-hidden">
+                    <div className="absolute top-0 right-0 w-1/3 h-full bg-slate-400/10 dark:bg-white/5 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
                     <div className="max-w-6xl mx-auto px-4 relative z-10">
                         <Link href="/pricing" className="inline-flex items-center gap-2 text-muted hover:text-foreground transition-colors text-xs font-bold uppercase tracking-widest mb-12">
                             <ArrowLeft size={14} /> Volver a planes
@@ -65,7 +70,8 @@ export default function FreePlanPage() {
                                 <div className="inline-flex items-center gap-2 bg-slate-400/10 text-slate-400 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] mb-6 border border-slate-400/20 backdrop-blur-sm">
                                     Punto de Inicio
                                 </div>
-                                <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none mb-8">
+
+                                <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none mb-8 text-slate-900 dark:text-white">
                                     Plan <span className="text-slate-400 drop-shadow-[0_0_10px_rgba(148,163,184,0.2)]">GRATIS</span>
                                 </h1>
                                 <p className="text-xl text-muted font-medium mb-10 max-w-lg leading-relaxed">
@@ -88,8 +94,8 @@ export default function FreePlanPage() {
                                     </Link>
                                 )}
                             </div>
-                            <div className="bg-card/50 backdrop-blur-xl p-12 rounded-[3.5rem] border border-border shadow-2xl relative overflow-hidden group hover:border-slate-400 transition-all">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-slate-500/5 -mr-16 -mt-16 rounded-full group-hover:scale-110 transition-transform"></div>
+                            <div className="bg-card/50 dark:bg-slate-900/50 backdrop-blur-xl p-12 rounded-[3.5rem] border border-border dark:border-white/10 shadow-2xl relative overflow-hidden group hover:border-slate-400 transition-all">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-slate-500/5 dark:bg-white/5 -mr-16 -mt-16 rounded-full group-hover:scale-110 transition-transform"></div>
                                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-10">Estructura del Plan</h4>
                                 <div className="space-y-6">
                                     {[
@@ -97,9 +103,10 @@ export default function FreePlanPage() {
                                         { label: "Comisión por Venta", value: "15%", icon: <Check size={14} className="text-slate-400" /> },
                                         { label: "Límite de Beats", value: "5 Activos", icon: <Check size={14} className="text-slate-400" /> },
                                         { label: "Calidad de Audio", value: "MP3 Estándar", icon: <Check size={14} className="text-slate-400" /> },
-                                        { label: "Tianguis Studio", value: "Acceso Básico", icon: <Check size={14} className="text-slate-400" /> }
+                                        { label: "Tianguis Studio", value: "Acceso Básico", icon: <Check size={14} className="text-slate-400" /> },
+                                        { label: "Smart Bio", value: "No incluida", icon: <X size={14} className="text-slate-300 dark:text-slate-600" /> }
                                     ].map((item, i) => (
-                                        <div key={i} className="flex items-center justify-between py-1 border-b border-dashed border-border last:border-0">
+                                        <div key={i} className="flex items-center justify-between py-1 border-b border-dashed border-border dark:border-white/10 last:border-0">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-6 h-6 rounded-full bg-slate-500/10 flex items-center justify-center shrink-0">
                                                     {item.icon}
@@ -116,12 +123,12 @@ export default function FreePlanPage() {
                 </section>
 
                 {/* Features Highlight */}
-                <section className="py-32 bg-background">
+                <section className="py-32 bg-background dark:bg-[#020205]">
                     <div className="max-w-6xl mx-auto px-4">
-                        <div className="grid md:grid-cols-3 gap-8">
+                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                             {limitsFeatures.map((f, i) => (
-                                <div key={i} className="p-12 bg-card/30 border border-border rounded-[3rem] hover:shadow-2xl hover:shadow-slate-500/10 transition-all group">
-                                    <div className="w-16 h-16 bg-card rounded-2xl flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-slate-500/10 transition-all duration-500">
+                                <div key={i} className="p-12 bg-card/30 dark:bg-white/5 border border-border dark:border-white/5 rounded-[3rem] hover:shadow-2xl hover:shadow-slate-500/10 transition-all group">
+                                    <div className="w-16 h-16 bg-card dark:bg-white/10 rounded-2xl flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-slate-500/10 dark:group-hover:bg-white/20 transition-all duration-500">
                                         {f.icon && React.isValidElement(f.icon) ? React.cloneElement(f.icon as React.ReactElement<any>, { className: "text-slate-400" }) : f.icon}
                                     </div>
                                     <h4 className="text-xl font-black uppercase tracking-tighter text-foreground mb-4">{f.title}</h4>
@@ -166,9 +173,9 @@ export default function FreePlanPage() {
                 </section>
 
                 {/* Final CTA */}
-                <section className="py-32 text-center bg-background">
+                <section className="py-32 text-center bg-background dark:bg-[#020205]">
                     <div className="max-w-3xl mx-auto px-4">
-                        <div className="w-20 h-20 bg-card rounded-full flex items-center justify-center mx-auto mb-12">
+                        <div className="w-20 h-20 bg-card dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-12">
                             <Heart size={32} className="text-muted" />
                         </div>
                         <h2 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-8 leading-none">Sin excusas. Únete hoy.</h2>
@@ -196,6 +203,6 @@ export default function FreePlanPage() {
             </main>
 
             <Footer />
-        </div>
+        </div >
     );
 }
