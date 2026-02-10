@@ -44,23 +44,13 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                 // 2. Get Followers
                 const { data: followersData } = await supabase
                     .from('follows')
-                    .select(`
-                        follower_id,
-                        profiles!follows_follower_id_fkey (
-                            id, username, artistic_name, foto_perfil, is_verified, is_founder, subscription_tier, bio
-                        )
-                    `)
+                    .select('profiles:follower_id (id, username, artistic_name, foto_perfil, is_verified, is_founder, subscription_tier, bio)')
                     .eq('following_id', profileData.id);
 
                 // 3. Get Following
                 const { data: followingData } = await supabase
                     .from('follows')
-                    .select(`
-                        following_id,
-                        profiles!follows_following_id_fkey (
-                            id, username, artistic_name, foto_perfil, is_verified, is_founder, subscription_tier, bio
-                        )
-                    `)
+                    .select('profiles:following_id (id, username, artistic_name, foto_perfil, is_verified, is_founder, subscription_tier, bio)')
                     .eq('follower_id', profileData.id);
 
                 setFollowers(followersData?.map(f => f.profiles).filter(Boolean) || []);
@@ -119,8 +109,8 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                     <button
                         onClick={() => setActiveTab('followers')}
                         className={`flex-1 py-4 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all flex items-center justify-center gap-2 ${activeTab === 'followers'
-                                ? 'bg-foreground text-background shadow-xl'
-                                : 'text-muted hover:bg-background'
+                            ? 'bg-foreground text-background shadow-xl'
+                            : 'text-muted hover:bg-background'
                             }`}
                     >
                         <Users size={14} />
@@ -129,8 +119,8 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                     <button
                         onClick={() => setActiveTab('following')}
                         className={`flex-1 py-4 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all flex items-center justify-center gap-2 ${activeTab === 'following'
-                                ? 'bg-foreground text-background shadow-xl'
-                                : 'text-muted hover:bg-background'
+                            ? 'bg-foreground text-background shadow-xl'
+                            : 'text-muted hover:bg-background'
                             }`}
                     >
                         <UserPlus size={14} />
@@ -161,7 +151,7 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                             >
                                 <div className="flex items-center gap-5">
                                     <div className={`relative w-16 h-16 rounded-[1.5rem] overflow-hidden border-2 ${user.subscription_tier === 'premium' ? 'border-blue-500' :
-                                            user.subscription_tier === 'pro' ? 'border-amber-500' : 'border-border'
+                                        user.subscription_tier === 'pro' ? 'border-amber-500' : 'border-border'
                                         }`}>
                                         <img
                                             src={user.foto_perfil || `https://ui-avatars.com/api/?name=${user.username}&background=random`}

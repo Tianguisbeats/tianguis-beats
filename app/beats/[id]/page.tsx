@@ -27,6 +27,7 @@ interface BeatDetail extends Beat {
     is_stems_active?: boolean;
     is_exclusive_active?: boolean;
     is_sold?: boolean;
+    beat_types?: string[] | null;
     moods?: string[];
     description?: string;
     portadabeat_url?: string | null;
@@ -96,7 +97,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 setLoading(true);
                 const { data, error: fetchError } = await supabase
                     .from('beats')
-                    .select('id, title, genre, beat_type, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active, is_sold, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, description, play_count, like_count, created_at, beat_types, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
+                    .select('id, title, genre, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active, is_sold, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, description, play_count, like_count, created_at, beat_types, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
                     .eq('id', id)
                     .single();
 
@@ -133,7 +134,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 const fetchRelated = async (beatForRelated: any) => {
                     let query = supabase
                         .from('beats')
-                        .select('id, title, genre, beat_type, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, beat_types, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
+                        .select('id, title, genre, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, beat_types, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
                         .neq('id', beatForRelated.id)
                         .limit(10);
 
@@ -150,7 +151,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     if ((!related || related.length < 4) && beatForRelated.genre) {
                         const { data: byGenre } = await supabase
                             .from('beats')
-                            .select('id, title, genre, beat_type, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, beat_types, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
+                            .select('id, title, genre, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, beat_types, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
                             .neq('id', beatForRelated.id)
                             .eq('genre', beatForRelated.genre)
                             .limit(10);
@@ -165,7 +166,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         const firstMood = beatForRelated.mood.split(',')[0].trim();
                         const { data: byMood } = await supabase
                             .from('beats')
-                            .select('id, title, genre, beat_type, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, beat_types, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
+                            .select('id, title, genre, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, beat_types, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
                             .neq('id', beatForRelated.id)
                             .ilike('mood', `%${firstMood}%`)
                             .limit(10);
@@ -322,7 +323,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             <div className="grid grid-cols-2 md:flex md:flex-wrap gap-4">
                                 {[
                                     { label: 'Género', val: beat.genre, icon: Tag, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                                    { label: 'Tipo', val: (beat as any).beat_type || 'Beat', icon: Zap, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                                    { label: 'Tipo', val: beat.beat_types?.[0] || 'Beat', icon: Zap, color: 'text-blue-500', bg: 'bg-blue-500/10' },
                                     { label: 'Tempo', val: `${beat.bpm} BPM`, icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
                                     { label: 'Tonalidad', val: beat.musical_key || 'C', icon: Music2, color: 'text-accent', bg: 'bg-accent/10' },
                                     { label: 'Escala', val: beat.musical_scale || 'Mayor', icon: Layers, color: 'text-purple-500', bg: 'bg-purple-500/10' }
@@ -463,8 +464,8 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     onClick={handleAddToCart}
                                     disabled={beat.is_sold}
                                     className={`w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs transition-all flex items-center justify-center gap-4 group ${beat.is_sold
-                                            ? 'bg-slate-200 text-slate-500 cursor-not-allowed shadow-none'
-                                            : 'bg-accent text-white hover:bg-accent/90 shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)]'
+                                        ? 'bg-slate-200 text-slate-500 cursor-not-allowed shadow-none'
+                                        : 'bg-accent text-white hover:bg-accent/90 shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)]'
                                         }`}
                                 >
                                     {beat.is_sold ? (

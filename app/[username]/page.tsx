@@ -681,9 +681,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             {/* Estadísticas Premium */}
                             <div className="grid grid-cols-3 gap-3">
                                 {[
-                                    { label: 'Seguidores', value: followersCount, icon: Users, color: 'text-blue-500', href: '#' },
+                                    { label: 'Seguidores', value: followersCount, icon: Users, color: 'text-blue-500', href: `/${username}/connections` },
                                     { label: 'Beats', value: beats.length, icon: Music, color: 'text-accent', href: `/${username}/beats` },
-                                    { label: 'Siguiendo', value: followingCount, icon: UserPlus, color: 'text-emerald-500', href: '#' }
+                                    { label: 'Siguiendo', value: followingCount, icon: UserPlus, color: 'text-emerald-500', href: `/${username}/connections` }
                                 ].map((stat, i) => (
                                     <Link key={i} href={stat.href} className="bg-white dark:bg-slate-900/60 border border-slate-100 dark:border-white/5 rounded-[2rem] p-5 text-center shadow-soft dark:shadow-[0_20px_50px_rgba(8,112,184,0.08)] hover:shadow-xl hover:-translate-y-1 transition-all group">
                                         <stat.icon size={16} className={`${stat.color} mx-auto mb-2 opacity-60 group-hover:opacity-100 transition-opacity`} />
