@@ -26,7 +26,7 @@ function formatPriceMXN(value?: number | null) {
 
 export default function BeatCardPro({ beat }: BeatCardProProps) {
     const { currentBeat, isPlaying, playBeat } = usePlayer();
-    const { addItem, isInCart } = useCart();
+    const { addItem, isInCart, currentUserId } = useCart();
     const { showToast } = useToast();
     const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
@@ -35,6 +35,7 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
 
     const isThisPlaying = currentBeat?.id === beat.id && isPlaying;
     const itemInCart = isInCart(beat.id);
+    const isOwner = currentUserId && beat.producer_id === currentUserId;
 
     // Initial like state
     useEffect(() => {
@@ -223,12 +224,13 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                             </span>
                         </div>
                         <button
-                            onClick={!beat.is_sold ? handleAddToCart : undefined}
-                            className={`text-[7px] font-black uppercase tracking-[0.1em] mt-0.5 group/lic flex items-center gap-1 transition-colors min-h-0 ${beat.is_sold ? 'text-slate-400 cursor-not-allowed' : 'text-muted hover:text-accent'
+                            onClick={!beat.is_sold && !isOwner ? handleAddToCart : undefined}
+                            disabled={!!(beat.is_sold || isOwner)}
+                            className={`text-[7px] font-black uppercase tracking-[0.1em] mt-0.5 group/lic flex items-center gap-1 transition-colors min-h-0 ${beat.is_sold || isOwner ? 'text-slate-400 cursor-not-allowed' : 'text-muted hover:text-accent'
                                 }`}
                         >
-                            {beat.is_sold ? 'NO DISPONIBLE' : 'LICENCIAS'}
-                            {!beat.is_sold && <ChevronRight size={6} className="group-hover/lic:translate-x-0.5 transition-transform" />}
+                            {beat.is_sold ? 'NO DISPONIBLE' : isOwner ? 'TU BEAT' : 'LICENCIAS'}
+                            {!beat.is_sold && !isOwner && <ChevronRight size={6} className="group-hover/lic:translate-x-0.5 transition-transform" />}
                         </button>
                     </div>
 
@@ -240,17 +242,19 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                             <Heart size={16} fill={isLiked ? "currentColor" : "none"} strokeWidth={isLiked ? 0 : 2.5} />
                         </button>
 
-                        <button
-                            onClick={!beat.is_sold ? handleAddToCart : undefined}
-                            className={`w-8 h-8 md:w-9 md:h-9 rounded-[0.7rem] flex items-center justify-center transition-all shadow-xl active:scale-95 min-h-0 min-w-0 ${beat.is_sold
-                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
-                                : itemInCart
-                                    ? 'bg-green-500 text-white shadow-green-500/30'
-                                    : 'bg-accent text-white hover:bg-accent/90 shadow-accent/10 border border-transparent'
-                                }`}
-                        >
-                            {beat.is_sold ? <ShieldCheck size={16} /> : itemInCart ? <Check size={16} strokeWidth={4} /> : <ShoppingCart size={16} />}
-                        </button>
+                        {!isOwner && (
+                            <button
+                                onClick={!beat.is_sold ? handleAddToCart : undefined}
+                                className={`w-8 h-8 md:w-9 md:h-9 rounded-[0.7rem] flex items-center justify-center transition-all shadow-xl active:scale-95 min-h-0 min-w-0 ${beat.is_sold
+                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
+                                    : itemInCart
+                                        ? 'bg-green-500 text-white shadow-green-500/30'
+                                        : 'bg-accent text-white hover:bg-accent/90 shadow-accent/10 border border-transparent'
+                                    }`}
+                            >
+                                {beat.is_sold ? <ShieldCheck size={16} /> : itemInCart ? <Check size={16} strokeWidth={4} /> : <ShoppingCart size={16} />}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
