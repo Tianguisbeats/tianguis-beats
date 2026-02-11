@@ -428,7 +428,7 @@ export default function CartPage() {
                             <ArrowRight size={24} className="group-hover:translate-x-3 transition-transform duration-500" />
                         </Link>
                     </div>
-                )
+                )}
 
             </main >
 
