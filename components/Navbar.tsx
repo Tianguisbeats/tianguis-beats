@@ -165,7 +165,7 @@ export default function Navbar() {
                                         <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground border-2 border-foreground px-6 py-3 rounded-full hover:bg-accent-soft hover:text-accent hover:border-accent transition-all min-h-[48px] flex items-center">
                                             Log In
                                         </Link>
-                                        <Link href="/signup" className="text-[10px] font-black uppercase tracking-[0.2em] text-white bg-slate-900 border-2 border-slate-900 px-6 py-3 rounded-full hover:bg-accent hover:border-accent transition-all shadow-lg shadow-slate-900/20 min-h-[48px] flex items-center">
+                                        <Link href="/signup" className="text-[10px] font-black uppercase tracking-[0.2em] text-white bg-accent border-2 border-accent px-6 py-3 rounded-full hover:bg-slate-900 dark:hover:bg-slate-800 hover:border-slate-900 dark:hover:border-slate-800 transition-all shadow-lg shadow-accent/25 min-h-[48px] flex items-center">
                                             Sign Up
                                         </Link>
                                     </div>
@@ -254,7 +254,7 @@ export default function Navbar() {
                                         <Link href="/login" className="flex items-center justify-center gap-2 py-5 border-2 border-border rounded-2xl font-black text-foreground uppercase min-h-[48px] hover:bg-accent-soft">
                                             Log In
                                         </Link>
-                                        <Link href="/signup" className="flex items-center justify-center gap-2 py-5 bg-foreground text-background rounded-2xl font-black uppercase shadow-lg shadow-foreground/20 min-h-[48px] hover:bg-accent hover:text-white transition-colors">
+                                        <Link href="/signup" className="flex items-center justify-center gap-2 py-5 bg-accent text-white rounded-2xl font-black uppercase shadow-lg shadow-accent/20 min-h-[48px] hover:bg-slate-900 transition-colors">
                                             Sign Up
                                         </Link>
                                     </div>
