@@ -43,6 +43,7 @@ function CatalogContent() {
         scale: "",
         mood: "",
         refArtist: "",
+        beatType: "",
         priceRange: [0, 10000] as [number, number]
     });
 
@@ -58,6 +59,7 @@ function CatalogContent() {
         const s = searchParams.get('scale');
         const b = searchParams.get('bpm');
         const ra = searchParams.get('artist') || searchParams.get('refArtist');
+        const bt = searchParams.get('beat_type') || searchParams.get('beatType');
 
         if (v) setViewMode(v as ViewMode);
 
@@ -69,6 +71,7 @@ function CatalogContent() {
             key: k || prev.key,
             scale: s || prev.scale,
             refArtist: ra || prev.refArtist,
+            beatType: bt || prev.beatType,
             bpmMin: b ? parseInt(b) : prev.bpmMin,
             bpmMax: b ? parseInt(b) : prev.bpmMax,
             subgenre: searchParams.get('subgenre') || prev.subgenre,
@@ -170,6 +173,7 @@ function CatalogContent() {
                 if (filterState.bpmMax) query = query.lte('bpm', filterState.bpmMax);
                 if (filterState.key) query = query.eq('musical_key', filterState.key);
                 if (filterState.scale) query = query.eq('musical_scale', filterState.scale);
+                if (filterState.beatType) query = query.contains('beat_types', [filterState.beatType]);
                 if (filterState.searchQuery.trim()) {
                     const q = filterState.searchQuery.trim();
                     // Búsqueda global en título, género, subgénero y beat_types
