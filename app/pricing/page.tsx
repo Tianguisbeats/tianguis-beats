@@ -19,8 +19,6 @@ export default function PricingPage() {
     const [terminaSuscripcion, setTerminaSuscripcion] = useState<string | null>(null);
     const [comenzarSuscripcion, setComenzarSuscripcion] = useState<string | null>(null);
 
-    const [comenzarSuscripcion, setComenzarSuscripcion] = useState<string | null>(null);
-
     const { addItem } = useCart();
     const { showToast } = useToast();
     const router = useRouter();
@@ -170,7 +168,6 @@ export default function PricingPage() {
                 .eq('id', session.user.id);
 
             if (error) throw error;
-            if (error) throw error;
             setComenzarSuscripcion(null);
             showToast("Cambio cancelado. Mantendrás tu plan actual.", 'success');
         } catch (err) {
@@ -194,9 +191,6 @@ export default function PricingPage() {
                 if (error) throw error;
                 setShowDowngradeModal(false);
                 setComenzarSuscripcion(selectedPlan.tier);
-                if (error) throw error;
-                setShowDowngradeModal(false);
-                setComenzarSuscripcion(selectedPlan.tier);
                 showToast("Cambio programado exitosamente.", 'success');
             } catch (err) {
                 console.error(err);
@@ -211,6 +205,7 @@ export default function PricingPage() {
                 subtitle: selectedPlan.description,
                 metadata: { tier: selectedPlan.tier, cycle: billingCycle }
             });
+            showToast(`Plan ${plan.name} agregado al carrito`, 'success');
             router.push('/cart');
         }
     };
