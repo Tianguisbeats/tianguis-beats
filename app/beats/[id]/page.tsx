@@ -381,22 +381,32 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
                 {/* 2. WAVEFORM VISUALIZER */}
                 <div className="max-w-7xl mx-auto px-4 -mt-10 relative z-20 mb-16">
-                    <div className="bg-slate-950 p-10 rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] ring-1 ring-white/10 relative overflow-hidden group">
+                    <div className="dark:bg-slate-950 bg-white p-10 rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] dark:ring-1 dark:ring-white/10 ring-1 ring-slate-200 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-[100px] -mr-32 -mt-32 transition-all duration-700 group-hover:bg-accent/30" />
                         <div className="relative z-10 flex flex-col gap-6">
-                            <div className="flex items-center justify-between text-white/40 text-[10px] font-black uppercase tracking-[0.3em]">
+                            <div className="flex items-center justify-between dark:text-white/60 text-slate-500 text-[10px] font-black uppercase tracking-[0.3em]">
                                 <span>Preview Audio (HQ)</span>
                                 <div className="flex items-center gap-4">
                                     <span className="flex items-center gap-2 text-accent"><Activity size={12} /> Live Waveform</span>
                                     <span className="w-1.5 h-1.5 bg-accent rounded-full animate-ping" />
                                 </div>
                             </div>
-                            <WaveformPlayer
-                                url={beat.mp3_url || ''}
-                                height={140}
-                                waveColor="rgba(255, 255, 255, 0.95)"
-                                progressColor="var(--accent)"
-                            />
+                            <div className="block dark:hidden">
+                                <WaveformPlayer
+                                    url={beat.mp3_url || ''}
+                                    height={140}
+                                    waveColor="rgba(0, 0, 0, 0.1)"
+                                    progressColor="var(--accent)"
+                                />
+                            </div>
+                            <div className="hidden dark:block">
+                                <WaveformPlayer
+                                    url={beat.mp3_url || ''}
+                                    height={140}
+                                    waveColor="rgba(255, 255, 255, 0.95)"
+                                    progressColor="var(--accent)"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
