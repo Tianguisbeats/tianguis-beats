@@ -236,8 +236,12 @@ export default function CartPage() {
                                             {item.image && !isService ? (
                                                 <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
                                             ) : (
-                                                <div className={`w-full h-full flex items-center justify-center ${isPlan ? 'bg-blue-500/10' : isService ? 'bg-purple-500/10' : 'bg-foreground/5'} text-foreground/20`}>
-                                                    {isPlan ? <Crown size={36} className="text-blue-500" /> : isService ? <Briefcase size={36} className="text-purple-500" /> : <Music size={36} />}
+                                                <div className={`w-full h-full flex items-center justify-center ${isPlan ? (item.metadata?.tier === 'premium' ? 'bg-blue-500/10' : 'bg-amber-500/10') : isService ? 'bg-purple-500/10' : 'bg-foreground/5'} text-foreground/20`}>
+                                                    {isPlan ? (
+                                                        item.metadata?.tier === 'premium' ?
+                                                            <Crown size={36} className="text-blue-500" /> :
+                                                            <Star size={36} className="text-amber-500" />
+                                                    ) : isService ? <Briefcase size={36} className="text-purple-500" /> : <Music size={36} />}
                                                 </div>
                                             )}
                                             {/* Mask Overlay */}
@@ -365,9 +369,12 @@ export default function CartPage() {
                                             <span className="text-[3.5rem] font-black leading-[0.8] tracking-[-0.08em]">{formatPrice(finalTotal)}</span>
                                         </div>
 
+                                        {/* Separator Line */}
+                                        <div className="w-full h-px bg-white/10" />
+
                                         {/* Checkout Interaction */}
                                         <div className="space-y-4">
-                                            <span className="text-[9px] font-black uppercase tracking-[0.3em] block ml-4 text-white/90 shadow-sm">MÉTODOS DE PAGO ENCRIPTADOS</span>
+                                            <span className="text-[9px] font-black uppercase tracking-[0.3em] block text-center text-white/60">MÉTODOS DE PAGO ENCRIPTADOS</span>
 
                                             <button
                                                 onClick={handleCheckout}

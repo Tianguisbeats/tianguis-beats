@@ -48,9 +48,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }, [items]);
 
     const addItem = (item: CartItem) => {
-        if (!isInCart(item.id)) {
-            setItems(prev => [...prev, item]);
+        // Validar duplicados
+        if (isInCart(item.id)) {
+            alert("Este artículo ya está en tu carrito.");
+            return;
         }
+
+        // Validar única suscripción
+        if (item.type === 'plan') {
+            const hasPlan = items.some(i => i.type === 'plan');
+            if (hasPlan) {
+                alert("Solo puedes agregar un plan de suscripción a la vez.");
+                return;
+            }
+        }
+
+        setItems(prev => [...prev, item]);
     };
 
     const removeItem = (id: string) => {
