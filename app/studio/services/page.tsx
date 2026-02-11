@@ -45,6 +45,8 @@ export default function ServicesManagerPage() {
     const [kitFile, setKitFile] = useState<File | null>(null);
     const [kitCoverFile, setKitCoverFile] = useState<File | null>(null);
 
+    const [username, setUsername] = useState<string>('');
+
     useEffect(() => {
         fetchData();
     }, []);
@@ -53,9 +55,10 @@ export default function ServicesManagerPage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Get Tier
-        const { data: profile } = await supabase.from('profiles').select('subscription_tier').eq('id', user.id).single();
+        // Get Tier & Username
+        const { data: profile } = await supabase.from('profiles').select('subscription_tier, username').eq('id', user.id).single();
         setUserTier(profile?.subscription_tier);
+        if (profile?.username) setUsername(profile.username);
 
         // Get Services
         const { data: servicesData } = await supabase
@@ -135,14 +138,19 @@ export default function ServicesManagerPage() {
         setKitSaving(true);
         const { data: { user } } = await supabase.auth.getUser();
 
-        if (!user || !currentKit) return;
+        if (!user || !currentKit) return; // username check is implicit if user exists, but good to have
+        if (!username) {
+            alert("Error: No se pudo obtener el nombre de usuario.");
+            setKitSaving(false);
+            return;
+        }
 
         try {
             let fileUrl = currentKit.file_url || '';
 
             // Handle File Upload (ZIP/RAR)
             if (kitFile) {
-                const fileName = `${user.id}/${Date.now()}-${kitFile.name}`;
+                const fileName = `${username}/${Date.now()}-${kitFile.name}`;
                 const { data, error: uploadError } = await supabase.storage
                     .from('sound_kits')
                     .upload(fileName, kitFile);
@@ -155,7 +163,7 @@ export default function ServicesManagerPage() {
             let coverUrl = currentKit.cover_url || null;
             if (kitCoverFile) {
                 const fileExt = kitCoverFile.name.split('.').pop();
-                const coverName = `${user.id}/${Date.now()}-cover.${fileExt}`;
+                const coverName = `${username}/${Date.now()}-cover.${fileExt}`;
                 const { data, error: coverError } = await supabase.storage
                     .from('sound_kits_covers')
                     .upload(coverName, kitCoverFile);

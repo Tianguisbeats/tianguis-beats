@@ -65,17 +65,52 @@ on conflict (id) do update set
   file_size_limit = 2147483648,
   allowed_mime_types = ARRAY['application/zip', 'application/x-rar-compressed', 'application/octet-stream'];
 
+-- Explicit update to match user request "vuélvelo a actualizar"
+update storage.buckets
+set file_size_limit = 2147483648,
+    allowed_mime_types = ARRAY['application/zip', 'application/x-rar-compressed', 'application/octet-stream']
+where id = 'sound_kits';
+
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('sound_kits_covers', 'sound_kits_covers', true, 10485760, ARRAY['image/jpeg', 'image/png', 'image/jpg', 'image/webp'])
 on conflict (id) do update set
   file_size_limit = 10485760,
   allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 
+-- Explicit update for covers
+update storage.buckets
+set file_size_limit = 10485760,
+    allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
+where id = 'sound_kits_covers';
+
 -- Storage Policies for sound_kits
 drop policy if exists "Producer Access Sound Kits" on storage.objects;
 create policy "Producer Access Sound Kits" on storage.objects
-for all using ( bucket_id = 'sound_kits' and auth.uid()::text = (storage.foldername(name))[1] )
-with check ( bucket_id = 'sound_kits' and auth.uid()::text = (storage.foldername(name))[1] );
+for all using (
+  bucket_id = 'sound_kits'
+  and (
+    -- Allow access if folder name is user_id (legacy) OR username (new)
+    auth.uid()::text = (storage.foldername(name))[1]
+    or
+    exists (
+      select 1 from profiles
+      where id = auth.uid()
+      and username = (storage.foldername(name))[1]
+    )
+  )
+)
+with check (
+  bucket_id = 'sound_kits'
+  and (
+    auth.uid()::text = (storage.foldername(name))[1]
+    or
+    exists (
+      select 1 from profiles
+      where id = auth.uid()
+      and username = (storage.foldername(name))[1]
+    )
+  )
+);
 
 -- Storage Policies for sound_kits_covers
 drop policy if exists "Public Access Covers" on storage.objects;
@@ -84,8 +119,30 @@ for select using ( bucket_id = 'sound_kits_covers' );
 
 drop policy if exists "Producer Upload Covers" on storage.objects;
 create policy "Producer Upload Covers" on storage.objects
-for insert with check ( bucket_id = 'sound_kits_covers' and auth.uid()::text = (storage.foldername(name))[1] );
+for insert with check (
+  bucket_id = 'sound_kits_covers'
+  and (
+    auth.uid()::text = (storage.foldername(name))[1]
+    or
+    exists (
+      select 1 from profiles
+      where id = auth.uid()
+      and username = (storage.foldername(name))[1]
+    )
+  )
+);
 
 drop policy if exists "Producer Update/Delete Covers" on storage.objects;
 create policy "Producer Update/Delete Covers" on storage.objects
-for all using ( bucket_id = 'sound_kits_covers' and auth.uid()::text = (storage.foldername(name))[1] );
+for all using (
+  bucket_id = 'sound_kits_covers'
+  and (
+    auth.uid()::text = (storage.foldername(name))[1]
+    or
+    exists (
+      select 1 from profiles
+      where id = auth.uid()
+      and username = (storage.foldername(name))[1]
+    )
+  )
+);
