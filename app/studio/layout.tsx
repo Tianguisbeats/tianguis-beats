@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Crown, ShieldCheck } from 'lucide-react';
+import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Crown, ShieldCheck, Package } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { supabase } from '@/lib/supabase';
 
@@ -17,6 +17,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         { name: 'Hub Premium', href: '/studio/premium', icon: <Crown size={18} /> },
         { name: 'Estadísticas', href: '/studio/stats', icon: <BarChart2 size={18} /> },
         { name: 'Ventas', href: '/studio/sales', icon: <DollarSign size={18} /> },
+        { name: 'Mis Compras', href: '/studio/purchases', icon: <Package size={18} /> },
         { name: 'Mi Suscripción', href: '/pricing', icon: <Settings size={18} /> },
     ];
 

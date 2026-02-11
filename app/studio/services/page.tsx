@@ -543,6 +543,21 @@ export default function ServicesManagerPage() {
 
                         <form onSubmit={handleSave} className="space-y-4">
                             <div>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-1">Categoría</label>
+                                <select
+                                    className="w-full bg-background border border-border rounded-xl px-4 py-3 font-bold text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent appearance-none"
+                                    value={currentService?.tipo_servicio || 'mixing_mastering'}
+                                    onChange={e => setCurrentService({ ...currentService, tipo_servicio: e.target.value })}
+                                >
+                                    <option value="mixing_mastering">Mezcla y Masterización</option>
+                                    <option value="beat_custom">Beat a Medida</option>
+                                    <option value="mentoria">Mentoría / Clase</option>
+                                    <option value="video_lyric">Video Lyric Premium (4K)</option>
+                                    <option value="video_musical">Producción de Video Musical</option>
+                                </select>
+                            </div>
+
+                            <div>
                                 <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-1">Título</label>
                                 <input
                                     required
@@ -553,49 +568,19 @@ export default function ServicesManagerPage() {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-1">Precio (MXN)</label>
-                                    <div className="relative">
-                                        <DollarSign size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-                                        <input
-                                            type="number"
-                                            required
-                                            min="0"
-                                            value={currentService?.precio || ''}
-                                            onChange={e => setCurrentService({ ...currentService, precio: Number(e.target.value) })}
-                                            className="w-full bg-background border border-border rounded-xl pl-9 pr-4 py-3 font-bold text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-1">Entrega (Días)</label>
-                                    <div className="relative">
-                                        <Clock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-                                        <input
-                                            type="number"
-                                            required
-                                            min="1"
-                                            value={currentService?.tiempo_entrega_dias || ''}
-                                            onChange={e => setCurrentService({ ...currentService, tiempo_entrega_dias: Number(e.target.value) })}
-                                            className="w-full bg-background border border-border rounded-xl pl-9 pr-4 py-3 font-bold text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
                             <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-1">Categoría</label>
-                                <select
-                                    className="w-full bg-background border border-border rounded-xl px-4 py-3 font-bold text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent appearance-none"
-                                    value={currentService?.tipo_servicio || 'mixing_mastering'}
-                                    onChange={e => setCurrentService({ ...currentService, tipo_servicio: e.target.value })}
-                                >
-                                    <option value="mixing_mastering">Mezcla y Masterización</option>
-                                    <option value="beat_custom">Beat a Medida</option>
-                                    <option value="mentoria">Mentoría / Clase</option>
-                                    <option value="other">Otro</option>
-                                </select>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-1">Precio (MXN)</label>
+                                <div className="relative">
+                                    <DollarSign size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                                    <input
+                                        type="number"
+                                        required
+                                        min="0"
+                                        value={currentService?.precio || ''}
+                                        onChange={e => setCurrentService({ ...currentService, precio: Number(e.target.value) })}
+                                        className="w-full bg-background border border-border rounded-xl pl-9 pr-4 py-3 font-bold text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                                    />
+                                </div>
                             </div>
 
                             <div>
@@ -610,20 +595,32 @@ export default function ServicesManagerPage() {
                             </div>
 
                             <div className="flex gap-3 pt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => { setIsEditing(false); setCurrentService(null); }}
-                                    className="flex-1 py-3 rounded-xl font-bold text-muted uppercase tracking-widest text-xs hover:bg-background transition-colors"
-                                >
-                                    Cancelar
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={saving}
-                                    className="flex-1 bg-foreground text-background py-3 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-accent hover:text-white transition-colors shadow-lg"
-                                >
-                                    {saving ? "Guardando..." : "Guardar Servicio"}
-                                </button>
+                                {(!currentService?.titulo && !currentService?.precio && !currentService?.descripcion) ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => { setIsEditing(false); setCurrentService(null); }}
+                                        className="flex-1 bg-slate-100 dark:bg-slate-800 text-foreground py-3 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-slate-200 transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                ) : (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={() => { setIsEditing(false); setCurrentService(null); }}
+                                            className="px-6 py-3 rounded-xl font-bold text-muted uppercase tracking-widest text-xs hover:bg-background transition-colors"
+                                        >
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={saving}
+                                            className="flex-1 bg-foreground text-background py-3 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-accent hover:text-white transition-colors shadow-lg"
+                                        >
+                                            {saving ? "Guardando..." : "Guardar Servicio"}
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </form>
                     </div>
