@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Beat } from '@/lib/types';
 
-export type CartItemType = 'beat' | 'license' | 'plan';
+export type CartItemType = 'beat' | 'license' | 'plan' | 'sound_kit' | 'service';
 
 export interface CartItem {
     id: string;

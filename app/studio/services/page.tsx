@@ -144,7 +144,7 @@ export default function ServicesManagerPage() {
             if (kitFile) {
                 const fileName = `${user.id}/${Date.now()}-${kitFile.name}`;
                 const { data, error: uploadError } = await supabase.storage
-                    .from('sound-kits')
+                    .from('sound_kits')
                     .upload(fileName, kitFile);
 
                 if (uploadError) throw uploadError;
@@ -389,7 +389,7 @@ export default function ServicesManagerPage() {
 
                         <form onSubmit={handleSaveKit} className="space-y-4">
                             <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-1">Título de la Librería</label>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-1">Título del Sound Kit</label>
                                 <input
                                     required
                                     value={currentKit?.title || ''}
@@ -415,23 +415,31 @@ export default function ServicesManagerPage() {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-1">Portada (Opcional)</label>
-                                    <div className="relative">
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-1">Portada (Obligatorio)</label>
+                                    <div className="relative group">
                                         <input
                                             type="file"
                                             accept=".jpg,.jpeg,.png"
-                                            onChange={(e) => setKitCoverFile(e.target.files?.[0] || null)}
+                                            required={!currentKit?.cover_url}
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    setKitCoverFile(file);
+                                                }
+                                            }}
                                             className="hidden"
                                             id="kit-cover"
                                         />
-                                        <label htmlFor="kit-cover" className={`flex items-center justify-center gap-2 p-3 border-2 border-dashed rounded-xl cursor-pointer hover:bg-background transition-all h-[46px] ${kitCoverFile ? 'border-green-500 bg-green-500/10' : 'border-border'}`}>
+                                        <label htmlFor="kit-cover" className={`flex flex-col items-center justify-center gap-2 p-1 border-2 border-dashed rounded-xl cursor-pointer hover:bg-background transition-all h-[120px] overflow-hidden relative ${kitCoverFile || currentKit?.cover_url ? 'border-green-500 bg-green-500/10' : 'border-border'}`}>
                                             {kitCoverFile ? (
-                                                <span className="text-[10px] font-bold text-green-500 truncate max-w-full block">Img: {kitCoverFile.name}</span>
+                                                <img src={URL.createObjectURL(kitCoverFile)} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                            ) : currentKit?.cover_url ? (
+                                                <img src={currentKit.cover_url} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                                             ) : (
-                                                <>
-                                                    <Upload size={14} className="text-muted" />
-                                                    <span className="text-[10px] font-bold text-muted uppercase">Subir</span>
-                                                </>
+                                                <div className="flex flex-col items-center z-10">
+                                                    <Upload size={20} className="text-muted mb-2" />
+                                                    <span className="text-[9px] font-bold text-muted uppercase">Subir</span>
+                                                </div>
                                             )}
                                         </label>
                                     </div>
@@ -439,12 +447,22 @@ export default function ServicesManagerPage() {
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-1">Archivo (.zip / .rar)</label>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-1">Archivo (.zip / .rar - Máx 2GB)</label>
                                 <div className={`relative border-2 border-dashed rounded-xl p-6 transition-all ${kitFile ? 'border-accent bg-accent-soft' : 'border-border hover:border-accent'}`}>
                                     <input
                                         type="file"
                                         accept=".zip,.rar"
-                                        onChange={e => setKitFile(e.target.files?.[0] || null)}
+                                        onChange={e => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                if (file.size > 2 * 1024 * 1024 * 1024) {
+                                                    alert("El archivo excede el límite de 2GB.");
+                                                    e.target.value = '';
+                                                    return;
+                                                }
+                                                setKitFile(file);
+                                            }
+                                        }}
                                         className="absolute inset-0 opacity-0 cursor-pointer"
                                     />
                                     <div className="flex flex-col items-center text-center">

@@ -100,9 +100,16 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
         return 'bg-card border-border hover:shadow-accent/5';
     };
 
-    const handleAddToCart = (e: React.MouseEvent) => {
+    const handleAddToCart = async (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && user.id === beat.producer_id) {
+            alert("No puedes comprar tus propios beats.");
+            return;
+        }
+
         setIsLicenseModalOpen(true);
     };
 

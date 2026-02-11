@@ -17,6 +17,7 @@ import PlaylistSection from '@/components/PlaylistSection';
 import PlaylistManagerModal from '@/components/PlaylistManagerModal';
 import { usePlayer } from '@/context/PlayerContext';
 import { Profile, Beat } from '@/lib/types';
+import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronRight } from 'lucide-react';
@@ -128,6 +129,32 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     const [hasShownFanCapture, setHasShownFanCapture] = useState(false);
 
     const { playBeat, currentBeat, isPlaying } = usePlayer();
+    const { addItem } = useCart();
+
+    const handleAddToCart = (item: any, type: 'service' | 'sound_kit') => {
+        if (!item) return;
+
+        if (currentUserId && currentUserId === profile?.id) {
+            alert("No puedes comprar tus propios productos.");
+            return;
+        }
+
+        addItem({
+            id: type === 'service' ? `service_${item.id}` : `kit_${item.id}`,
+            type: type,
+            name: type === 'service' ? item.titulo : item.title,
+            price: Number(item.precio || item.price),
+            image: type === 'sound_kit' ? item.cover_url : profile?.foto_perfil,
+            subtitle: type === 'service' ? 'Servicio Profesional' : 'Sound Kit',
+            metadata: {
+                originalId: item.id,
+                producerId: profile?.id,
+                isSoundKit: type === 'sound_kit',
+                isService: type === 'service'
+            }
+        });
+        alert("Agregado al carrito");
+    };
 
     // Fan Capture Logic (30s playback trigger)
     useEffect(() => {
@@ -986,7 +1013,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                             <Clock size={16} className="text-accent" />
                                                             {service.tiempo_entrega_dias} Días hábiles
                                                         </div>
-                                                        <button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-accent dark:hover:bg-accent hover:text-white dark:hover:text-white transition-all shadow-xl shadow-accent/10 active:scale-95">
+                                                        <button
+                                                            onClick={() => handleAddToCart(service, 'service')}
+                                                            className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-accent dark:hover:bg-accent hover:text-white dark:hover:text-white transition-all shadow-xl shadow-accent/10 active:scale-95"
+                                                        >
                                                             Contratar
                                                         </button>
                                                     </div>
@@ -1167,7 +1197,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                     </div>
                                                                 )}
                                                                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4 backdrop-blur-[2px]">
-                                                                    <button className="bg-white text-slate-900 px-6 py-3 rounded-xl font-black uppercase tracking-widest text-xs hover:scale-105 transition-transform flex items-center gap-2">
+                                                                    <button
+                                                                        onClick={() => handleAddToCart(kit, 'sound_kit')}
+                                                                        className="bg-white text-slate-900 px-6 py-3 rounded-xl font-black uppercase tracking-widest text-xs hover:scale-105 transition-transform flex items-center gap-2"
+                                                                    >
                                                                         <DollarSign size={14} /> Comprar ${kit.price}
                                                                     </button>
                                                                 </div>

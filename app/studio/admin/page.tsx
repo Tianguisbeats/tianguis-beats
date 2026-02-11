@@ -192,6 +192,180 @@ export default function AdminDashboard() {
                     ))
                 )}
             </div>
+
+            {/* Coupons Management Section */}
+            <div className="mt-16">
+                <header className="mb-8 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground">
+                            Gestión de <span className="text-accent">Cupones</span>
+                        </h2>
+                        <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em]">
+                            Crea y administra descuentos globales o específicos
+                        </p>
+                    </div>
+                </header>
+
+                <CouponManager />
+            </div>
+        </div>
+    );
+}
+
+function CouponManager() {
+    const [coupons, setCoupons] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [newCoupon, setNewCoupon] = useState({
+        code: '',
+        discount_percent: 20,
+        valid_until: '',
+        producer_email: '' // Optional: to link to a producer
+    });
+
+    useEffect(() => {
+        fetchCoupons();
+    }, []);
+
+    const fetchCoupons = async () => {
+        setLoading(true);
+        const { data, error } = await supabase
+            .from('coupons')
+            .select(`
+                *,
+                profiles:producer_id (email, artistic_name)
+            `)
+            .order('created_at', { ascending: false });
+
+        if (data) setCoupons(data);
+        setLoading(false);
+    };
+
+    const handleCreateCoupon = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            let producerId = null;
+
+            if (newCoupon.producer_email) {
+                const { data: producer, error: prodError } = await supabase
+                    .from('profiles')
+                    .select('id')
+                    .eq('email', newCoupon.producer_email)
+                    .single();
+
+                if (prodError || !producer) {
+                    alert("No se encontró un productor con ese email.");
+                    return;
+                }
+                producerId = producer.id;
+            }
+
+            const { error } = await supabase.from('coupons').insert({
+                code: newCoupon.code.toUpperCase(),
+                discount_percent: newCoupon.discount_percent,
+                valid_until: newCoupon.valid_until || null,
+                producer_id: producerId
+            });
+
+            if (error) throw error;
+
+            alert("Cupón creado con éxito");
+            setNewCoupon({ code: '', discount_percent: 20, valid_until: '', producer_email: '' });
+            fetchCoupons();
+
+        } catch (error: any) {
+            console.error("Error creating coupon:", error);
+            alert("Error al crear cupón: " + error.message);
+        }
+    };
+
+    const handleDeleteCoupon = async (id: string) => {
+        if (!confirm("¿Eliminar este cupón?")) return;
+        const { error } = await supabase.from('coupons').delete().eq('id', id);
+        if (!error) fetchCoupons();
+    };
+
+    return (
+        <div className="space-y-8">
+            {/* Create Form */}
+            <div className="bg-white dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-[2rem] p-8 shadow-sm">
+                <form onSubmit={handleCreateCoupon} className="grid md:grid-cols-4 gap-4 items-end">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-muted tracking-widest block pl-2">Código</label>
+                        <input
+                            required
+                            value={newCoupon.code}
+                            onChange={e => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })}
+                            placeholder="EJ. VERANO2025"
+                            className="w-full bg-slate-50 dark:bg-black/20 rounded-xl px-4 py-3 font-bold text-sm outline-none border focus:border-accent uppercase"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-muted tracking-widest block pl-2">Descuento %</label>
+                        <input
+                            type="number"
+                            min="1" max="100"
+                            required
+                            value={newCoupon.discount_percent}
+                            onChange={e => setNewCoupon({ ...newCoupon, discount_percent: Number(e.target.value) })}
+                            className="w-full bg-slate-50 dark:bg-black/20 rounded-xl px-4 py-3 font-bold text-sm outline-none border focus:border-accent"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-muted tracking-widest block pl-2">Email Artista (Opcional)</label>
+                        <input
+                            type="email"
+                            value={newCoupon.producer_email}
+                            onChange={e => setNewCoupon({ ...newCoupon, producer_email: e.target.value })}
+                            placeholder="productor@email.com"
+                            className="w-full bg-slate-50 dark:bg-black/20 rounded-xl px-4 py-3 font-bold text-sm outline-none border focus:border-accent"
+                        />
+                    </div>
+                    <button type="submit" className="h-[46px] bg-accent text-white rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-transform shadow-lg shadow-accent/20">
+                        Crear Cupón
+                    </button>
+
+                    <div className="md:col-span-4 mt-2">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase text-muted tracking-widest block pl-2">Válido Hasta (Opcional)</label>
+                            <input
+                                type="datetime-local"
+                                value={newCoupon.valid_until}
+                                onChange={e => setNewCoupon({ ...newCoupon, valid_until: e.target.value })}
+                                className="w-full md:w-auto bg-slate-50 dark:bg-black/20 rounded-xl px-4 py-3 font-bold text-sm outline-none border focus:border-accent"
+                            />
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            {/* List */}
+            <div className="grid gap-4">
+                {coupons.map(coupon => (
+                    <div key={coupon.id} className="flex flex-col md:flex-row items-center justify-between bg-white dark:bg-white/5 p-6 rounded-2xl border border-slate-100 dark:border-white/5">
+                        <div className="flex items-center gap-6">
+                            <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center text-accent font-black text-xl">
+                                {coupon.discount_percent}%
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-black uppercase tracking-tighter">{coupon.code}</h3>
+                                <div className="flex flex-wrap gap-4 text-[10px] font-bold uppercase tracking-widest text-muted mt-1">
+                                    <span>{coupon.profiles ? `Artista: ${coupon.profiles.artistic_name}` : 'Cupón Global'}</span>
+                                    {coupon.valid_until && <span>Expira: {new Date(coupon.valid_until).toLocaleDateString()}</span>}
+                                    <span className={coupon.is_active ? 'text-emerald-500' : 'text-red-500'}>
+                                        {coupon.is_active ? 'Activo' : 'Inactivo'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => handleDeleteCoupon(coupon.id)}
+                            className="mt-4 md:mt-0 px-6 py-3 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all"
+                        >
+                            Eliminar
+                        </button>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
