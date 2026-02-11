@@ -24,12 +24,14 @@ import {
     Crown
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useToast } from '@/context/ToastContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { supabase } from '@/lib/supabase';
 
 export default function CartPage() {
     const { items, removeItem, total, itemCount, clearCart } = useCart();
+    const { showToast } = useToast();
     const router = useRouter();
     const [coupon, setCoupon] = useState('');
     const [discountApplied, setDiscountApplied] = useState(false);
@@ -56,13 +58,13 @@ export default function CartPage() {
                 .single();
 
             if (error || !data) {
-                alert("El cupón no es válido o ha expirado.");
+                showToast("El cupón no es válido o ha expirado.", 'error');
                 return;
             }
 
             // Validar fecha
             if (data.valid_until && new Date(data.valid_until) < new Date()) {
-                alert("Este cupón ha expirado.");
+                showToast("Este cupón ha expirado.", 'error');
                 return;
             }
 
@@ -89,9 +91,10 @@ export default function CartPage() {
             });
 
             if (appliedCount === 0) {
-                alert(data.producer_id
+                showToast(data.producer_id
                     ? "Este cupón solo es válido para productos del artista emisor."
-                    : "Este cupón no aplica a los artículos en tu carrito."
+                    : "Este cupón no aplica a los artículos en tu carrito.",
+                    'info'
                 );
                 return;
             }
@@ -107,11 +110,11 @@ export default function CartPage() {
             (window as any).tempCouponDiscount = discountValue;
             (window as any).tempCouponCode = data.code;
 
-            alert(`¡Cupón aplicado! Descuento de ${data.discount_percent}% en ${appliedCount} artículos.`);
+            showToast(`Cupón aplicado: ${data.discount_percent}% OFF`, 'success');
 
         } catch (err) {
             console.error("Error applying coupon:", err);
-            alert("Error al validar cupón.");
+            showToast("Error al validar cupón.", 'error');
         }
     };
 
@@ -171,7 +174,7 @@ export default function CartPage() {
             router.push('/checkout/success');
         } catch (err) {
             console.error("Error en el proceso de compra:", err);
-            alert("Lo sentimos, hubo un problema al procesar tu solicitud.");
+            showToast("Lo sentimos, hubo un problema al procesar tu solicitud.", 'error');
         } finally {
             setCheckingOut(false);
         }

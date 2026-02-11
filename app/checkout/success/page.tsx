@@ -16,8 +16,10 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { getBeatFulfillmentLinks, getSoundKitFulfillmentLink } from '@/lib/fulfillment';
 import { generateLicenseText } from '@/lib/licenses';
+import { useToast } from '@/context/ToastContext';
 
 export default function SuccessPage() {
+    const { showToast } = useToast();
     const [purchasedItems, setPurchasedItems] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -43,17 +45,18 @@ export default function SuccessPage() {
         }
 
         if (links.length === 0) {
-            alert("No se encontraron archivos descargables para este producto.");
+            showToast("No se encontraron archivos descargables para este producto.", 'error');
             return;
         }
 
         // Abrir el primero en una nueva pestaña
         window.open(links[0].url, '_blank');
+        showToast("Descarga iniciada", 'success');
 
         if (links.length > 1) {
-            alert("Este producto incluye múltiples archivos. Se han iniciado las descargas adicionales.");
+            showToast("Este producto incluye múltiples archivos. Iniciando descargas adicionales...", 'info');
             for (let i = 1; i < links.length; i++) {
-                window.open(links[i].url, '_blank');
+                setTimeout(() => window.open(links[i].url, '_blank'), i * 500);
             }
         }
     };

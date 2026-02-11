@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Beat } from '@/lib/types';
+import { useToast } from './ToastContext';
 
 export type CartItemType = 'beat' | 'license' | 'plan' | 'sound_kit' | 'service';
 
@@ -29,6 +30,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
     const [items, setItems] = useState<CartItem[]>([]);
+    const { showToast } = useToast();
 
     // Load from localStorage
     useEffect(() => {
@@ -50,7 +52,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const addItem = (item: CartItem) => {
         // Validar duplicados
         if (isInCart(item.id)) {
-            alert("Este artículo ya está en tu carrito.");
+            showToast("Este artículo ya está en tu carrito.", 'warning');
             return;
         }
 
@@ -58,12 +60,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (item.type === 'plan') {
             const hasPlan = items.some(i => i.type === 'plan');
             if (hasPlan) {
-                alert("Solo puedes agregar un plan de suscripción a la vez.");
+                showToast("Solo puedes agregar un plan de suscripción a la vez.", 'info');
                 return;
             }
         }
 
         setItems(prev => [...prev, item]);
+        showToast("Agregado al carrito", 'success');
     };
 
     const removeItem = (id: string) => {
