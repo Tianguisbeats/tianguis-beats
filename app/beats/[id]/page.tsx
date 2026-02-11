@@ -340,7 +340,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             </div>
 
                             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                                <button onClick={handleLike} className={`h-16 px-10 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${isLiked ? 'bg-red-500 text-white shadow-xl shadow-red-500/20' : 'bg-foreground text-background hover:bg-foreground/90 shadow-xl shadow-foreground/10'}`}>
+                                <button onClick={handleLike} className={`h-16 px-10 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${isLiked ? 'bg-red-500 text-white shadow-xl shadow-red-500/20' : 'bg-red-500/10 text-red-500 hover:bg-red-500/20 shadow-xl shadow-red-500/5'}`}>
                                     <Heart size={20} fill={isLiked ? "currentColor" : "none"} />
                                     {isLiked ? 'En tus favoritos' : 'Me gusta'}
                                 </button>
@@ -368,8 +368,8 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             {beat.beat_types && beat.beat_types.length > 0 && (
                                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
                                     <span className="text-[9px] font-black text-muted uppercase tracking-[0.3em] mr-2">Beat Type:</span>
-                                    {beat.beat_types.map((t: string) => (
-                                        <span key={t} className="px-5 py-2 rounded-full border border-white/20 text-[10px] font-black uppercase tracking-widest text-white bg-white/5 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:border-white/40 hover:bg-white/10 transition-all cursor-default">
+                                    {beat.beat_types.slice(0, 5).map((t: string) => (
+                                        <span key={t} className="px-5 py-2 rounded-full border border-border text-[10px] font-black uppercase tracking-widest text-foreground bg-card shadow-sm hover:border-accent hover:bg-accent/5 transition-all cursor-default">
                                             {t.trim()}
                                         </span>
                                     ))}
@@ -384,27 +384,27 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     <div className="dark:bg-slate-950 bg-white p-10 rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] dark:ring-1 dark:ring-white/10 ring-1 ring-slate-200 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-[100px] -mr-32 -mt-32 transition-all duration-700 group-hover:bg-accent/30" />
                         <div className="relative z-10 flex flex-col gap-6">
-                            <div className="flex items-center justify-between dark:text-white/60 text-slate-500 text-[10px] font-black uppercase tracking-[0.3em]">
+                            <div className="flex items-center justify-between dark:text-white text-slate-900 text-[10px] font-black uppercase tracking-[0.3em]">
                                 <span>Preview Audio (HQ)</span>
                                 <div className="flex items-center gap-4">
-                                    <span className="flex items-center gap-2 text-accent"><Activity size={12} /> Live Waveform</span>
-                                    <span className="w-1.5 h-1.5 bg-accent rounded-full animate-ping" />
+                                    <span className="flex items-center gap-2 text-blue-500 font-bold"><Activity size={12} /> Live Waveform</span>
+                                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-ping" />
                                 </div>
                             </div>
                             <div className="block dark:hidden">
                                 <WaveformPlayer
                                     url={beat.mp3_url || ''}
                                     height={140}
-                                    waveColor="rgba(0, 0, 0, 0.1)"
-                                    progressColor="var(--accent)"
+                                    waveColor="rgba(0, 0, 0, 0.05)"
+                                    progressColor="#3b82f6"
                                 />
                             </div>
                             <div className="hidden dark:block">
                                 <WaveformPlayer
                                     url={beat.mp3_url || ''}
                                     height={140}
-                                    waveColor="rgba(255, 255, 255, 0.95)"
-                                    progressColor="var(--accent)"
+                                    waveColor="rgba(255, 255, 255, 0.1)"
+                                    progressColor="#3b82f6"
                                 />
                             </div>
                         </div>

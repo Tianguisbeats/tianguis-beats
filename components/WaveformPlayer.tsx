@@ -108,8 +108,8 @@ export default function WaveformPlayer({
                 </div>
 
                 <div className="flex items-center gap-8">
-                    <div className="text-[12px] font-black uppercase tracking-[0.3em] text-white/60 font-mono">
-                        {formatTime(currentTime)} <span className="mx-2 text-white/20">/</span> {formatTime(duration)}
+                    <div className="text-[12px] font-black uppercase tracking-[0.3em] dark:text-white/60 text-slate-500 font-mono">
+                        {formatTime(currentTime)} <span className="mx-2 dark:text-white/20 text-slate-300">/</span> {formatTime(duration)}
                     </div>
 
                     <button onClick={handleMute} className="w-10 h-10 flex items-center justify-center text-background/40 hover:text-accent transition-colors">
@@ -121,11 +121,11 @@ export default function WaveformPlayer({
             <div ref={containerRef} className="cursor-pointer" />
 
             <div className="mt-8 flex items-center justify-center gap-4">
-                <div className="h-px flex-1 bg-white/5" />
-                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/20">
+                <div className="h-px flex-1 dark:bg-white/5 bg-slate-100" />
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] dark:text-white/60 text-black">
                     Interactúa con la onda para navegar
                 </p>
-                <div className="h-px flex-1 bg-white/5" />
+                <div className="h-px flex-1 dark:bg-white/5 bg-slate-100" />
             </div>
         </div>
     );
