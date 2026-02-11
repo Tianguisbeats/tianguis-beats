@@ -218,6 +218,9 @@ export default function PricingPage() {
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 relative z-10 text-center">
+                    <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-[0.2em] mb-8 border border-amber-500/20 shadow-[0_0_20px_rgba(245,158,11,0.1)] animate-pulse">
+                        <Crown size={14} className="fill-amber-500" /> Únete ahora: Las primeras 100 personas obtendrán el distintivo exclusivo de Founder
+                    </div>
                     <h1 className="text-5xl md:text-8xl font-black text-foreground tracking-tighter mb-6 font-heading leading-tight uppercase">
                         Elige tu <span className="text-accent">plan</span>
                     </h1>

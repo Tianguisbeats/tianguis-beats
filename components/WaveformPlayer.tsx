@@ -16,8 +16,8 @@ export default function WaveformPlayer({
     url,
     onPlayPause,
     height = 80,
-    waveColor = '#cbd5e1',
-    progressColor = '#2563eb'
+    waveColor = 'rgba(255, 255, 255, 0.1)',
+    progressColor = '#3b82f6'
 }: WaveformPlayerProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const wavesurfer = useRef<WaveSurfer | null>(null);
@@ -108,8 +108,8 @@ export default function WaveformPlayer({
                 </div>
 
                 <div className="flex items-center gap-8">
-                    <div className="text-[12px] font-black uppercase tracking-[0.3em] text-background/60 font-mono">
-                        {formatTime(currentTime)} <span className="mx-2 text-background/20">/</span> {formatTime(duration)}
+                    <div className="text-[12px] font-black uppercase tracking-[0.3em] text-white/60 font-mono">
+                        {formatTime(currentTime)} <span className="mx-2 text-white/20">/</span> {formatTime(duration)}
                     </div>
 
                     <button onClick={handleMute} className="w-10 h-10 flex items-center justify-center text-background/40 hover:text-accent transition-colors">
@@ -121,11 +121,11 @@ export default function WaveformPlayer({
             <div ref={containerRef} className="cursor-pointer" />
 
             <div className="mt-8 flex items-center justify-center gap-4">
-                <div className="h-px flex-1 bg-background/5" />
-                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-background/20">
+                <div className="h-px flex-1 bg-white/5" />
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/20">
                     Interactúa con la onda para navegar
                 </p>
-                <div className="h-px flex-1 bg-background/5" />
+                <div className="h-px flex-1 bg-white/5" />
             </div>
         </div>
     );

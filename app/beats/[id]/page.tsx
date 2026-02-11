@@ -323,7 +323,6 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             <div className="grid grid-cols-2 md:flex md:flex-wrap gap-4">
                                 {[
                                     { label: 'Género', val: beat.genre, icon: Tag, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                                    { label: 'Tipo', val: beat.beat_types?.[0] || 'Beat', icon: Zap, color: 'text-blue-500', bg: 'bg-blue-500/10' },
                                     { label: 'Tempo', val: `${beat.bpm} BPM`, icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
                                     { label: 'Tonalidad', val: beat.musical_key || 'C', icon: Music2, color: 'text-accent', bg: 'bg-accent/10' },
                                     { label: 'Escala', val: beat.musical_scale || 'Mayor', icon: Layers, color: 'text-purple-500', bg: 'bg-purple-500/10' }
@@ -365,13 +364,24 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     ))}
                                 </div>
                             )}
+
+                            {beat.beat_types && beat.beat_types.length > 0 && (
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
+                                    <span className="text-[9px] font-black text-muted uppercase tracking-[0.3em] mr-2">Beat Type:</span>
+                                    {beat.beat_types.map((t: string) => (
+                                        <span key={t} className="px-5 py-2 rounded-full border border-border/60 text-[9px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:border-foreground transition-all">
+                                            {t.trim()}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
 
                 {/* 2. WAVEFORM VISUALIZER */}
                 <div className="max-w-7xl mx-auto px-4 -mt-10 relative z-20 mb-16">
-                    <div className="bg-foreground p-10 rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] relative overflow-hidden group">
+                    <div className="bg-slate-950 p-10 rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] relative overflow-hidden group border border-white/5">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-[100px] -mr-32 -mt-32 transition-all duration-700 group-hover:bg-accent/30" />
                         <div className="relative z-10 flex flex-col gap-6">
                             <div className="flex items-center justify-between text-background/60 text-[10px] font-black uppercase tracking-[0.3em]">
@@ -533,19 +543,44 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     Explora más
                                 </span>
                                 <h2 className="text-4xl md:text-6xl font-black text-foreground uppercase tracking-tighter leading-none">
-                                    Relacionados <span className="text-muted">al Beat</span>
+                                    Beats <span className="text-muted">relacionados</span>
                                 </h2>
                             </div>
-                            <Link href="/beats/catalog" className="group flex items-center gap-3 text-muted hover:text-accent transition-colors">
-                                <span className="text-xs font-black uppercase tracking-widest">Ver todo el catálogo</span>
-                                <div className="w-10 h-10 rounded-full border border-border flex items-center justify-center group-hover:bg-accent group-hover:border-accent group-hover:text-white transition-all">
-                                    <ChevronRight size={20} />
+                            <div className="flex items-center gap-4">
+                                <Link href="/beats/catalog" className="group flex items-center gap-3 text-muted hover:text-accent transition-colors mr-6">
+                                    <span className="text-xs font-black uppercase tracking-widest">Ver todo el catálogo</span>
+                                    <div className="w-10 h-10 rounded-full border border-border flex items-center justify-center group-hover:bg-accent group-hover:border-accent group-hover:text-white transition-all">
+                                        <ChevronRight size={20} />
+                                    </div>
+                                </Link>
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => {
+                                            const container = document.getElementById('related-carousel');
+                                            if (container) container.scrollBy({ left: -400, behavior: 'smooth' });
+                                        }}
+                                        className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-foreground hover:bg-accent hover:text-white hover:border-accent transition-all shadow-sm active:scale-90"
+                                    >
+                                        <ChevronRight size={20} className="rotate-180" />
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const container = document.getElementById('related-carousel');
+                                            if (container) container.scrollBy({ left: 400, behavior: 'smooth' });
+                                        }}
+                                        className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-foreground hover:bg-accent hover:text-white hover:border-accent transition-all shadow-sm active:scale-90"
+                                    >
+                                        <ChevronRight size={20} />
+                                    </button>
                                 </div>
-                            </Link>
+                            </div>
                         </div>
 
                         <div className="relative group/carousel">
-                            <div className="flex overflow-x-auto gap-6 pb-12 snap-x scrollbar-hide scroll-smooth no-scrollbar">
+                            <div
+                                id="related-carousel"
+                                className="flex overflow-x-auto gap-6 pb-12 snap-x scrollbar-hide scroll-smooth no-scrollbar"
+                            >
                                 {relatedBeats.map((relatedBeat) => (
                                     <div key={relatedBeat.id} className="min-w-[280px] md:min-w-[340px] snap-start">
                                         <BeatCardPro beat={relatedBeat} />
