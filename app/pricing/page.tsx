@@ -218,10 +218,10 @@ export default function PricingPage() {
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 relative z-10 text-center">
-                    <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-[0.2em] mb-8 border border-amber-500/20 shadow-[0_0_20px_rgba(245,158,11,0.1)] animate-pulse">
+                    <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-[0.2em] mb-8 border border-amber-500/40 shadow-[0_0_30px_rgba(245,158,11,0.2)] animate-pulse">
                         <Crown size={14} className="fill-amber-500" /> Únete ahora: Las primeras 100 personas obtendrán el distintivo exclusivo de Founder
                     </div>
-                    <h1 className="text-5xl md:text-8xl font-black text-foreground tracking-tighter mb-6 font-heading leading-tight uppercase">
+                    <h1 className="text-5xl md:text-8xl font-black text-foreground tracking-tighter mb-6 font-heading leading-tight uppercase drop-shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
                         Elige tu <span className="text-accent">plan</span>
                     </h1>
                     <p className="max-w-2xl mx-auto text-lg text-muted font-medium mb-12">
@@ -280,7 +280,7 @@ export default function PricingPage() {
                             const planBorderClass = isFree ? 'border-slate-300 dark:border-slate-700' : isPro ? 'border-amber-400/50' : 'border-blue-500/50';
 
                             return (
-                                <div key={plan.tier} className={`group relative bg-card/40 backdrop-blur-xl rounded-[3rem] p-8 md:p-10 border transition-all duration-500 hover:-translate-y-2 flex flex-col ${isPro ? 'border-amber-500 shadow-2xl shadow-amber-500/10 scale-105 z-20' : `${planBorderClass} hover:border-accent/40`}`}>
+                                <div key={plan.tier} className={`group relative bg-card/60 backdrop-blur-xl rounded-[3rem] p-8 md:p-10 border transition-all duration-500 hover:-translate-y-2 flex flex-col ${isPro ? 'border-amber-500 shadow-[0_40px_80px_-20px_rgba(245,158,11,0.2)] scale-105 z-20' : `border-border/80 shadow-premium hover:border-accent/40`}`}>
                                     {isPro && (
                                         <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl">
                                             Más Popular

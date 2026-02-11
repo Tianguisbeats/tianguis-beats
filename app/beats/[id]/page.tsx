@@ -298,7 +298,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     </div>
                                 </div>
 
-                                <h1 className="text-5xl md:text-8xl lg:text-9xl font-black text-foreground leading-[1] uppercase tracking-tighter mb-4">
+                                <h1 className="text-5xl md:text-8xl lg:text-9xl font-black text-foreground leading-[1] uppercase tracking-tighter mb-4 drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
                                     {beat.title}
                                 </h1>
 
@@ -358,7 +358,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-4">
                                     <span className="text-[9px] font-black text-muted uppercase tracking-[0.3em] mr-2">Vibras:</span>
                                     {beat.mood.split(',').map((m: string) => (
-                                        <span key={m} className="px-5 py-2 rounded-full border border-border/60 text-[9px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:border-foreground transition-all">
+                                        <span key={m} className="px-5 py-2 rounded-full border border-accent/30 text-[10px] font-black uppercase tracking-widest text-foreground bg-accent/5 shadow-[0_0_15px_rgba(59,130,246,0.1)] hover:border-accent hover:bg-accent/10 transition-all cursor-default">
                                             {m.trim()}
                                         </span>
                                     ))}
@@ -369,7 +369,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
                                     <span className="text-[9px] font-black text-muted uppercase tracking-[0.3em] mr-2">Beat Type:</span>
                                     {beat.beat_types.map((t: string) => (
-                                        <span key={t} className="px-5 py-2 rounded-full border border-border/60 text-[9px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:border-foreground transition-all">
+                                        <span key={t} className="px-5 py-2 rounded-full border border-white/20 text-[10px] font-black uppercase tracking-widest text-white bg-white/5 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:border-white/40 hover:bg-white/10 transition-all cursor-default">
                                             {t.trim()}
                                         </span>
                                     ))}
@@ -381,10 +381,10 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
                 {/* 2. WAVEFORM VISUALIZER */}
                 <div className="max-w-7xl mx-auto px-4 -mt-10 relative z-20 mb-16">
-                    <div className="bg-slate-950 p-10 rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] relative overflow-hidden group border border-white/5">
+                    <div className="bg-slate-950 p-10 rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] ring-1 ring-white/10 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-[100px] -mr-32 -mt-32 transition-all duration-700 group-hover:bg-accent/30" />
                         <div className="relative z-10 flex flex-col gap-6">
-                            <div className="flex items-center justify-between text-background/60 text-[10px] font-black uppercase tracking-[0.3em]">
+                            <div className="flex items-center justify-between text-white/40 text-[10px] font-black uppercase tracking-[0.3em]">
                                 <span>Preview Audio (HQ)</span>
                                 <div className="flex items-center gap-4">
                                     <span className="flex items-center gap-2 text-accent"><Activity size={12} /> Live Waveform</span>
@@ -394,7 +394,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             <WaveformPlayer
                                 url={beat.mp3_url || ''}
                                 height={140}
-                                waveColor="rgba(255,255,255,0.1)"
+                                waveColor="rgba(255, 255, 255, 0.95)"
                                 progressColor="var(--accent)"
                             />
                         </div>
@@ -582,7 +582,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 className="flex overflow-x-auto gap-6 pb-12 snap-x scrollbar-hide scroll-smooth no-scrollbar"
                             >
                                 {relatedBeats.map((relatedBeat) => (
-                                    <div key={relatedBeat.id} className="min-w-[280px] md:min-w-[340px] snap-start">
+                                    <div key={relatedBeat.id} className="min-w-[200px] md:min-w-[260px] snap-start">
                                         <BeatCardPro beat={relatedBeat} />
                                     </div>
                                 ))}

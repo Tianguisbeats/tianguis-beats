@@ -14,10 +14,10 @@
   --background: #020617;
   --foreground: #f8fafc;
   --accent: #3b82f6;
-  --accent-soft: #020617;
+  --accent-soft: #0f172a;
   --card: #0a0a0a;
   --border: #1e293b;
-  --muted: #94a3b8;
+  --muted: #cbd5e1;
 }
 
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -32,6 +32,8 @@
   --color-muted: var(--muted);
   --font-heading: var(--font-kanit), sans-serif;
   --font-body: var(--font-montserrat), sans-serif;
+  --shadow-premium: 0 20px 50px -12px rgba(0, 0, 0, 0.5);
+  --shadow-accent-glow: 0 0 20px rgba(59, 130, 246, 0.2);
 }
 
 body {
@@ -67,6 +69,14 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.premium-card {
+  @apply bg-card border border-border/50 shadow-premium hover:border-accent/30 transition-all duration-500;
+}
+
+.accent-glow {
+  @apply shadow-accent-glow;
 }
 
 .click-highlight {
