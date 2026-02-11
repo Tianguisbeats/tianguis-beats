@@ -18,7 +18,9 @@ import {
     Loader2,
     Lock,
     CreditCard,
-    Mail
+    Mail,
+    Briefcase,
+    Globe
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import Navbar from '@/components/Navbar';
@@ -201,28 +203,19 @@ export default function CartPage() {
                             <span className="w-px h-3 bg-foreground/20" />
                             <span className="text-[9px] font-black uppercase tracking-[0.4em] text-accent">Tu Carrito</span>
                         </div>
-                        <h1 className="text-5xl md:text-[7rem] font-black uppercase tracking-[-0.06em] leading-[0.8] text-foreground">
+                        <h1 className="text-4xl md:text-[5rem] font-black uppercase tracking-[-0.06em] leading-[0.8] text-foreground">
                             Carrito <br />
                             <span className="opacity-5 dark:opacity-10">de Compras.</span>
                         </h1>
                     </div>
 
                     <div className="flex flex-col items-end gap-3 shrink-0">
-                        <div className="group relative px-8 py-6 bg-card/10 backdrop-blur-3xl border border-foreground/5 rounded-[2.5rem] transition-all hover:bg-card/20 hover:scale-105">
-                            <div className="absolute -top-2 -right-2 w-8 h-8 bg-accent text-white rounded-xl flex items-center justify-center font-black text-[10px] shadow-xl shadow-accent/20">
-                                {itemCount}
-                            </div>
+                        <div className="group relative px-6 py-4 bg-card/10 backdrop-blur-3xl border border-foreground/5 rounded-[2rem] transition-all hover:bg-card/20 hover:scale-105">
                             <div className="flex flex-col items-end">
-                                <span className="text-3xl font-black">{formatPrice(total)}</span>
-                                <span className="text-[8px] font-black uppercase tracking-[0.3em] opacity-40">Subtotal de tu orden</span>
+                                <span className="text-2xl font-black">{itemCount}</span>
+                                <span className="text-[8px] font-black uppercase tracking-[0.3em] opacity-40">Productos</span>
                             </div>
                         </div>
-                        <button
-                            onClick={clearCart}
-                            className="text-[8px] font-black uppercase tracking-[0.3em] opacity-20 hover:opacity-100 hover:text-red-500 transition-all flex items-center gap-2 mr-4 uppercase"
-                        >
-                            <Trash2 size={10} /> Vaciar Todo
-                        </button>
                     </div>
                 </div>
 
@@ -242,11 +235,11 @@ export default function CartPage() {
 
                                         {/* Artist/Beat Cover */}
                                         <div className="relative w-28 h-28 md:w-36 md:h-36 shrink-0 overflow-hidden shadow-2xl rounded-[2.5rem] transition-transform duration-700 group-hover:scale-95">
-                                            {item.image ? (
+                                            {item.image && !isService ? (
                                                 <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
                                             ) : (
-                                                <div className={`w-full h-full flex items-center justify-center ${isPlan ? 'bg-accent' : 'bg-foreground/5'} text-foreground/20`}>
-                                                    {isPlan ? <Star size={36} className="text-white" fill="currentColor" /> : <Music size={36} />}
+                                                <div className={`w-full h-full flex items-center justify-center ${isPlan ? 'bg-amber-500/10' : isService ? 'bg-purple-500/10' : 'bg-foreground/5'} text-foreground/20`}>
+                                                    {isPlan ? <Star size={36} className="text-amber-500" /> : isService ? <Briefcase size={36} className="text-purple-500" /> : <Music size={36} />}
                                                 </div>
                                             )}
                                             {/* Mask Overlay */}
@@ -265,13 +258,17 @@ export default function CartPage() {
                                                 </span>
 
                                                 {isBeat && item.metadata?.license && (
-                                                    <span className="px-3 py-1 bg-foreground/5 dark:bg-white/5 text-foreground/60 dark:text-white/40 text-[8px] font-black uppercase tracking-[0.2em] rounded-full">
+                                                    <span className={`px-3 py-1 text-[8px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${item.metadata.license === 'MP3' || item.metadata.license === 'mp3' ? 'bg-green-500/10 text-green-600 dark:text-green-400' :
+                                                        item.metadata.license === 'WAV' || item.metadata.license === 'wav' ? 'bg-pink-200/20 text-pink-400' :
+                                                            item.metadata.license === 'STEMS' || item.metadata.license === 'stems' ? 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400' :
+                                                                'bg-red-200/20 text-red-400'
+                                                        }`}>
                                                         {item.metadata.license}
                                                     </span>
                                                 )}
 
                                                 {isPlan && item.metadata?.cycle && (
-                                                    <span className="px-3 py-1 bg-foreground/5 dark:bg-white/5 text-foreground/40 text-[8px] font-black uppercase tracking-[0.2em] rounded-full">
+                                                    <span className={`px-3 py-1 text-[8px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${item.metadata.cycle === 'yearly' ? 'bg-green-600/10 text-green-600' : 'bg-sky-500/10 text-sky-600'}`}>
                                                         {item.metadata.cycle === 'yearly' ? 'FACTURACIÓN ANUAL' : 'FACTURACIÓN MENSUAL'}
                                                     </span>
                                                 )}
@@ -301,6 +298,15 @@ export default function CartPage() {
                                     </div>
                                 );
                             })}
+
+                            <div className="flex justify-center pt-8">
+                                <button
+                                    onClick={clearCart}
+                                    className="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 hover:opacity-100 hover:text-red-500 transition-all flex items-center gap-2"
+                                >
+                                    <Trash2 size={12} /> Vaciar Carrito
+                                </button>
+                            </div>
                         </div>
 
                         {/* Elite Summary Sidebar */}
@@ -310,8 +316,8 @@ export default function CartPage() {
 
                                 <div className="space-y-6 mb-12 pb-12 border-b border-background/10 dark:border-white/5 flex-grow">
                                     <div className="flex justify-between items-center group">
-                                        <span className="opacity-40 font-black uppercase tracking-[0.3em] text-[9px]">Subtotal Acumulado</span>
-                                        <span className="text-xl font-black">{formatPrice(total)}</span>
+                                        <span className="opacity-40 font-black uppercase tracking-[0.3em] text-[9px]">Productos</span>
+                                        <span className="text-xl font-black">{itemCount}</span>
                                     </div>
 
                                     {discountApplied && (
@@ -320,11 +326,6 @@ export default function CartPage() {
                                             <span>-{formatPrice(total * 0.2)}</span>
                                         </div>
                                     )}
-
-                                    <div className="flex justify-between items-center opacity-40 font-black uppercase tracking-[0.3em] text-[9px]">
-                                        <span>Protección Digital Tianguis</span>
-                                        <span className="text-[10px]">SIN COSTO</span>
-                                    </div>
 
                                     {/* Elite Coupon Toggle */}
                                     <div className="pt-4">
@@ -419,7 +420,7 @@ export default function CartPage() {
                                 Descubre los mejores beats y herramientas para llevar tu música al siguiente nivel.
                             </p>
                         </div>
-                        <Link href="/beats" className="group h-24 px-16 bg-foreground text-background dark:bg-white dark:text-black rounded-full font-black uppercase text-[11px] tracking-[0.4em] flex items-center gap-8 hover:bg-accent hover:text-white transition-all shadow-premium hover:scale-105 active:scale-95 duration-500">
+                        <Link href="/beats" className="group h-24 px-16 bg-sky-500/10 text-sky-500 rounded-full font-black uppercase text-[11px] tracking-[0.4em] flex items-center gap-8 hover:bg-sky-500 hover:text-white transition-all shadow-premium hover:scale-105 active:scale-95 duration-500">
                             EXPLORAR TIANGUIS
                             <ArrowRight size={24} className="group-hover:translate-x-3 transition-transform duration-500" />
                         </Link>
