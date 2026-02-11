@@ -408,9 +408,6 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             <h2 className="text-3xl font-black uppercase tracking-tight text-foreground flex items-center gap-3">
                                 <ShieldCheck size={32} className="text-accent" /> Licencias <span className="text-muted">Disponibles</span>
                             </h2>
-                            <Link href="/licensing" className="text-[10px] font-black uppercase tracking-widest text-accent hover:underline flex items-center gap-2">
-                                <Info size={14} /> Comparar planes
-                            </Link>
                         </div>
 
                         {!selectedLicense ? (
@@ -509,12 +506,6 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     <div className="lg:col-span-4">
                         <div className="sticky top-32 space-y-12">
                             <section>
-                                <div className="flex items-center gap-3 mb-8">
-                                    <div className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center text-background">
-                                        <MessageCircle size={20} />
-                                    </div>
-                                    <h3 className="text-2xl font-black uppercase tracking-tight">Comunidad</h3>
-                                </div>
                                 <div className="bg-card rounded-[2.5rem] p-8 border border-border/50 shadow-sm min-h-[500px]">
                                     <CommentSection beatId={id} />
                                 </div>
@@ -582,7 +573,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 className="flex overflow-x-auto gap-6 pb-12 snap-x scrollbar-hide scroll-smooth no-scrollbar"
                             >
                                 {relatedBeats.map((relatedBeat) => (
-                                    <div key={relatedBeat.id} className="min-w-[200px] md:min-w-[260px] snap-start">
+                                    <div key={relatedBeat.id} className="min-w-[170px] md:min-w-[230px] snap-start">
                                         <BeatCardPro beat={relatedBeat} />
                                     </div>
                                 ))}
