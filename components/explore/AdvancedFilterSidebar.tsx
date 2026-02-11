@@ -14,6 +14,7 @@ interface FilterState {
     scale: string;
     mood: string;
     refArtist: string;
+    beatType: string;
     priceRange: [number, number];
 }
 
