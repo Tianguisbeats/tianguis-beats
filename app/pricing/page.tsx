@@ -205,7 +205,7 @@ export default function PricingPage() {
                 subtitle: selectedPlan.description,
                 metadata: { tier: selectedPlan.tier, cycle: billingCycle }
             });
-            showToast(`Plan ${plan.name} agregado al carrito`, 'success');
+            showToast(`Plan ${selectedPlan.name} agregado al carrito`, 'success');
             router.push('/cart');
         }
     };
