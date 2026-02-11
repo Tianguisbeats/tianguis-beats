@@ -99,7 +99,7 @@ function HubContent() {
             {/* Beats Card */}
             <Link href="/beats/catalog" className="group relative h-[500px] rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-accent/40 transition-all duration-700 shadow-2xl hover:shadow-accent/10">
               <Image
-                src={`/images/explore/zaytoven.jpg?v=${Date.now()}`}
+                src="/images/explore/zaytoven.jpg"
                 alt="Beats Background"
                 fill
                 className="object-cover transition-transform duration-1000 group-hover:scale-110 opacity-40 group-hover:opacity-60"
@@ -113,7 +113,7 @@ function HubContent() {
             {/* Sound Kits Card */}
             <Link href="/sound-kits" className="group relative h-[500px] rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-amber-500/40 transition-all duration-700 shadow-2xl hover:shadow-amber-500/10">
               <Image
-                src={`/images/explore/junior_h_singer.jpg?v=${Date.now()}`}
+                src="/images/explore/junior_h_singer.jpg"
                 alt="Sound Kits Background"
                 fill
                 className="object-cover transition-transform duration-1000 group-hover:scale-110 opacity-40 group-hover:opacity-60"
@@ -127,7 +127,7 @@ function HubContent() {
             {/* Artists Card */}
             <Link href="/productores" className="group relative h-[500px] rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-blue-500/40 transition-all duration-700 shadow-2xl hover:shadow-blue-500/10">
               <Image
-                src={`/images/explore/drumma_boy_producer.jpg?v=${Date.now()}`}
+                src="/images/explore/drumma_boy_producer.jpg"
                 alt="Producers Background"
                 fill
                 className="object-cover transition-transform duration-1000 group-hover:scale-110 opacity-40 group-hover:opacity-60"
