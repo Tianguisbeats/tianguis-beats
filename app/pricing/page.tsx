@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import { Check, Zap, Star, ShieldCheck, ArrowUpRight, Lock, AlertTriangle, X, Crown, Sparkles, ArrowRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useCart } from '@/context/CartContext';
+import { useToast } from '@/context/ToastContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -18,7 +19,10 @@ export default function PricingPage() {
     const [terminaSuscripcion, setTerminaSuscripcion] = useState<string | null>(null);
     const [comenzarSuscripcion, setComenzarSuscripcion] = useState<string | null>(null);
 
+    const [comenzarSuscripcion, setComenzarSuscripcion] = useState<string | null>(null);
+
     const { addItem } = useCart();
+    const { showToast } = useToast();
     const router = useRouter();
 
     // Modal State
@@ -166,11 +170,12 @@ export default function PricingPage() {
                 .eq('id', session.user.id);
 
             if (error) throw error;
+            if (error) throw error;
             setComenzarSuscripcion(null);
-            alert("Cambio cancelado. Mantendrás tu plan actual.");
+            showToast("Cambio cancelado. Mantendrás tu plan actual.", 'success');
         } catch (err) {
             console.error(err);
-            alert("Error al cancelar el cambio.");
+            showToast("Error al cancelar el cambio.", 'error');
         } finally {
             setLoading(false);
         }
@@ -189,10 +194,13 @@ export default function PricingPage() {
                 if (error) throw error;
                 setShowDowngradeModal(false);
                 setComenzarSuscripcion(selectedPlan.tier);
-                alert("Cambio programado exitosamente.");
+                if (error) throw error;
+                setShowDowngradeModal(false);
+                setComenzarSuscripcion(selectedPlan.tier);
+                showToast("Cambio programado exitosamente.", 'success');
             } catch (err) {
                 console.error(err);
-                alert("Error al programar el cambio.");
+                showToast("Error al programar el cambio.", 'error');
             }
         } else {
             addItem({

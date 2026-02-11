@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Edit, Trash2, Play, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/context/ToastContext';
 
 /**
  * StudioBeatsPage: Interfaz de gestión para productores.
@@ -11,6 +12,7 @@ import Link from 'next/link';
  */
 
 export default function StudioBeatsPage() {
+    const { showToast } = useToast();
     const [beats, setBeats] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
@@ -51,8 +53,9 @@ export default function StudioBeatsPage() {
         const { error } = await supabase.from('beats').delete().eq('id', id);
         if (!error) {
             setBeats(prev => prev.filter(b => b.id !== id));
+            showToast("Beat eliminado correctamente.", 'success');
         } else {
-            alert('Error al borrar el beat');
+            showToast('Error al borrar el beat', 'error');
         }
     };
 
