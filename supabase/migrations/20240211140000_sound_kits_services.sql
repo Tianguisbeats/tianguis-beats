@@ -15,9 +15,16 @@ create table if not exists services (
 alter table services enable row level security;
 
 -- Policies for services
+drop policy if exists "Services are viewable by everyone" on services;
 create policy "Services are viewable by everyone" on services for select using (true);
+
+drop policy if exists "Users can insert their own services" on services;
 create policy "Users can insert their own services" on services for insert with check (auth.uid() = user_id);
+
+drop policy if exists "Users can update their own services" on services;
 create policy "Users can update their own services" on services for update using (auth.uid() = user_id);
+
+drop policy if exists "Users can delete their own services" on services;
 create policy "Users can delete their own services" on services for delete using (auth.uid() = user_id);
 
 -- Create sound_kits table
@@ -37,9 +44,16 @@ create table if not exists sound_kits (
 alter table sound_kits enable row level security;
 
 -- Policies for sound_kits
+drop policy if exists "Sound Kits are viewable by everyone" on sound_kits;
 create policy "Sound Kits are viewable by everyone" on sound_kits for select using (true);
+
+drop policy if exists "Producers can insert their own kits" on sound_kits;
 create policy "Producers can insert their own kits" on sound_kits for insert with check (auth.uid() = producer_id);
+
+drop policy if exists "Producers can update their own kits" on sound_kits;
 create policy "Producers can update their own kits" on sound_kits for update using (auth.uid() = producer_id);
+
+drop policy if exists "Producers can delete their own kits" on sound_kits;
 create policy "Producers can delete their own kits" on sound_kits for delete using (auth.uid() = producer_id);
 
 
@@ -57,18 +71,21 @@ on conflict (id) do update set
   file_size_limit = 10485760,
   allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 
--- Storage Policies for sound_kits (Private mostly, but public download for authenticated/purchased? For now, producer access)
--- Allow producer to upload/select/delete their own files
+-- Storage Policies for sound_kits
+drop policy if exists "Producer Access Sound Kits" on storage.objects;
 create policy "Producer Access Sound Kits" on storage.objects
 for all using ( bucket_id = 'sound_kits' and auth.uid()::text = (storage.foldername(name))[1] )
 with check ( bucket_id = 'sound_kits' and auth.uid()::text = (storage.foldername(name))[1] );
 
--- Storage Policies for sound_kits_covers (Public view, Producer upload)
+-- Storage Policies for sound_kits_covers
+drop policy if exists "Public Access Covers" on storage.objects;
 create policy "Public Access Covers" on storage.objects
 for select using ( bucket_id = 'sound_kits_covers' );
 
+drop policy if exists "Producer Upload Covers" on storage.objects;
 create policy "Producer Upload Covers" on storage.objects
 for insert with check ( bucket_id = 'sound_kits_covers' and auth.uid()::text = (storage.foldername(name))[1] );
 
+drop policy if exists "Producer Update/Delete Covers" on storage.objects;
 create policy "Producer Update/Delete Covers" on storage.objects
 for all using ( bucket_id = 'sound_kits_covers' and auth.uid()::text = (storage.foldername(name))[1] );
