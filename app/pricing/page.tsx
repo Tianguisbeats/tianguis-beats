@@ -81,7 +81,7 @@ export default function PricingPage() {
         {
             tier: 'premium',
             name: 'Premium',
-            description: 'Potencia comercial máxima.',
+            description: 'Para productores que ofrecen experiencia y calidad.',
             price: billingCycle === 'monthly' ? 349 : 261,
             features: [
                 "Stems (Pistas)",

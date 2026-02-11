@@ -15,7 +15,10 @@ import {
     Plus,
     Minus,
     Star,
-    Loader2
+    Loader2,
+    Lock,
+    CreditCard,
+    Mail
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import Navbar from '@/components/Navbar';
@@ -28,6 +31,7 @@ export default function CartPage() {
     const [coupon, setCoupon] = useState('');
     const [discountApplied, setDiscountApplied] = useState(false);
     const [checkingOut, setCheckingOut] = useState(false);
+    const [showCouponInput, setShowCouponInput] = useState(false);
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat("es-MX", {
@@ -119,7 +123,7 @@ export default function CartPage() {
                                 <span className="text-accent">de Compras.</span>
                             </h1>
                         </div>
-                        <div className="flex items-center gap-4 bg-card px-8 py-5 rounded-[2rem] border border-border shadow-soft">
+                        <div className="flex items-center gap-4 bg-card/40 backdrop-blur-md px-8 py-5 rounded-[2rem] border border-white/5 shadow-premium">
                             <ShoppingBag className="text-accent" size={24} />
                             <span className="text-2xl font-black">{itemCount} {itemCount === 1 ? 'Producto' : 'Productos'}</span>
                         </div>
@@ -151,11 +155,16 @@ export default function CartPage() {
 
                                         {/* Item Info */}
                                         <div className="flex-1 text-center sm:text-left">
-                                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 text-accent text-[8px] font-black uppercase tracking-widest rounded-lg mb-3">
+                                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 text-accent text-[8px] font-black uppercase tracking-widest rounded-lg mb-2">
                                                 {item.type === 'beat' ? 'BEAT EXCLUSIVO' : 'PLAN DE SUSCRIPCIÓN'}
                                             </div>
                                             <h3 className="text-2xl font-black uppercase tracking-tight mb-1 group-hover:text-accent transition-colors">{item.name}</h3>
-                                            <p className="text-muted text-xs font-bold uppercase tracking-widest">{item.subtitle}</p>
+                                            <div className="flex flex-col gap-1">
+                                                <p className="text-muted text-[10px] font-bold uppercase tracking-widest">{item.subtitle}</p>
+                                                <span className="text-slate-500 text-[9px] font-black uppercase tracking-[0.1em]">
+                                                    Licencia: {item.metadata?.licenseType || 'Standard'}
+                                                </span>
+                                            </div>
                                         </div>
 
                                         {/* Price & Action */}
@@ -182,72 +191,97 @@ export default function CartPage() {
 
                             {/* Order Summary */}
                             <div className="relative">
-                                <div className="sticky top-32 bg-slate-900 rounded-[4rem] p-12 text-white shadow-2xl shadow-blue-900/40">
-                                    <h2 className="text-3xl font-black uppercase tracking-tight mb-10">Resumen</h2>
+                                <div className="sticky top-32 bg-slate-900/90 backdrop-blur-3xl rounded-[3rem] md:rounded-[4rem] p-8 md:p-12 text-white border border-white/5 shadow-2xl shadow-black/50">
+                                    <h2 className="text-3xl font-black uppercase tracking-tight mb-8">Resumen</h2>
 
-                                    <div className="space-y-6 mb-10 pb-10 border-b border-white/10">
-                                        <div className="flex justify-between items-center text-white/60 font-bold uppercase tracking-widest text-[10px]">
+                                    <div className="space-y-4 mb-8 pb-8 border-b border-white/5">
+                                        <div className="flex justify-between items-center text-white/40 font-black uppercase tracking-widest text-[9px]">
                                             <span>Subtotal</span>
                                             <span className="text-white text-sm">{formatPrice(total)}</span>
                                         </div>
                                         {discountApplied && (
-                                            <div className="flex justify-between items-center text-green-400 font-bold uppercase tracking-widest text-[10px]">
-                                                <span>Descuento (20%)</span>
+                                            <div className="flex justify-between items-center text-green-400 font-black uppercase tracking-widest text-[9px]">
+                                                <span>Descuento Aplicado</span>
                                                 <span>-{formatPrice(total * 0.2)}</span>
                                             </div>
                                         )}
-                                        <div className="flex justify-between items-center text-blue-400 font-bold uppercase tracking-widest text-[10px]">
-                                            <span>Protección al Comprador</span>
+                                        <div className="flex justify-between items-center text-accent font-black uppercase tracking-widest text-[9px]">
+                                            <span>Protección Comprador</span>
                                             <span className="text-white text-sm">Gratis</span>
                                         </div>
                                     </div>
 
-                                    <div className="flex justify-between items-end mb-12">
-                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400">Total Final</span>
+                                    <div className="flex justify-between items-end mb-10">
+                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-accent">Total Final</span>
                                         <span className="text-4xl font-black leading-none">{formatPrice(finalTotal)}</span>
                                     </div>
 
-                                    {/* Coupon */}
-                                    <div className="flex gap-2 mb-10">
-                                        <div className="flex-1 relative">
-                                            <Tag size={16} className="absolute inset-y-0 left-5 my-auto text-white/30" />
-                                            <input
-                                                type="text"
-                                                placeholder="Código"
-                                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-xs font-bold uppercase tracking-widest outline-none focus:border-blue-500 transition-colors"
-                                                value={coupon}
-                                                onChange={(e) => setCoupon(e.target.value)}
-                                            />
-                                        </div>
+                                    {/* Coupon Minimalist */}
+                                    <div className="mb-10">
+                                        {!showCouponInput ? (
+                                            <button
+                                                onClick={() => setShowCouponInput(true)}
+                                                className="text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors flex items-center gap-2"
+                                            >
+                                                <Tag size={12} /> ¿Tienes un código de descuento?
+                                            </button>
+                                        ) : (
+                                            <div className="flex gap-2 animate-in slide-in-from-top-2 duration-300">
+                                                <input
+                                                    type="text"
+                                                    placeholder="CÓDIGO"
+                                                    className="flex-1 bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-[10px] font-black uppercase tracking-widest outline-none focus:border-accent transition-colors"
+                                                    value={coupon}
+                                                    onChange={(e) => setCoupon(e.target.value)}
+                                                />
+                                                <button
+                                                    onClick={handleApplyCoupon}
+                                                    className="px-5 bg-white text-black rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-accent hover:text-white transition-all"
+                                                >
+                                                    Aplicar
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Payment Methods */}
+                                    <div className="space-y-3 mb-10">
+                                        <label className="text-[9px] font-black text-white/30 uppercase tracking-widest ml-1">Métodos de Pago</label>
+
+                                        {/* Stripe Button Stylized */}
                                         <button
-                                            onClick={handleApplyCoupon}
-                                            className="px-6 bg-white text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all"
+                                            onClick={handleCheckout}
+                                            disabled={checkingOut}
+                                            className="w-full h-[54px] bg-indigo-600 text-white rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-600/20 flex flex-col items-center justify-center gap-1 disabled:opacity-50"
                                         >
-                                            Aplicar
+                                            <div className="flex items-center gap-2">
+                                                <CreditCard size={14} />
+                                                <span>Pagar con Stripe</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 opacity-50 text-[7px]">
+                                                <span>VISA</span> • <span>MASTERCARD</span> • <span>APPLE PAY</span>
+                                            </div>
+                                        </button>
+
+                                        {/* PayPal Button Institutional but Adapted */}
+                                        <button
+                                            onClick={handleCheckout}
+                                            disabled={checkingOut}
+                                            className="w-full h-[54px] bg-[#0070ba] text-white rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] hover:bg-[#0070ba]/90 transition-all shadow-xl shadow-blue-600/10 flex items-center justify-center gap-2 disabled:opacity-50"
+                                        >
+                                            <span className="italic font-serif lowercase tracking-tighter text-lg">Pay<span className="text-white/80">Pal</span></span>
                                         </button>
                                     </div>
 
-                                    <button
-                                        onClick={handleCheckout}
-                                        disabled={checkingOut}
-                                        className="w-full bg-accent text-white py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.2em] hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 mb-8 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {checkingOut ? (
-                                            <>
-                                                <Loader2 size={18} className="animate-spin" />
-                                                Procesando...
-                                            </>
-                                        ) : (
-                                            <>
-                                                Finalizar Compra
-                                                <ArrowRight size={18} />
-                                            </>
-                                        )}
-                                    </button>
-
-                                    <div className="flex items-center justify-center gap-3 text-[9px] font-black uppercase tracking-widest text-white/30">
-                                        <ShieldCheck size={14} />
-                                        Pago Seguro y Encriptado
+                                    <div className="flex flex-col gap-3">
+                                        <div className="flex items-center justify-center gap-3 text-[9px] font-black uppercase tracking-widest text-white/40">
+                                            <Lock size={12} className="text-green-400" />
+                                            🔒 Pago seguro encriptado
+                                        </div>
+                                        <div className="flex items-center justify-center gap-3 text-[9px] font-black uppercase tracking-widest text-white/40">
+                                            <Mail size={12} className="text-blue-400" />
+                                            Entrega digital instantánea vía email
+                                        </div>
                                     </div>
                                 </div>
                             </div>

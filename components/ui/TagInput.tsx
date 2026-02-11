@@ -67,7 +67,7 @@ export default function TagInput({ tags, setTags, placeholder = "Referencia (ej:
             </div>
             <div className="flex items-center justify-between px-1">
                 <p className="text-[9px] text-muted font-black uppercase tracking-widest flex items-center gap-1.5">
-                    <UserPlus size={10} className="text-blue-500" /> Presley Enter o Coma para añadir
+                    <UserPlus size={10} className="text-blue-500" /> Presiona Enter o Coma para añadir
                 </p>
                 <span className="text-[9px] font-black text-muted uppercase tracking-widest">
                     {tags.length}/{maxTags} ARTISTAS
