@@ -195,24 +195,23 @@ export default function CartPage() {
                 {/* Elite Title Section */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-16">
                     <div className="space-y-4 max-w-4xl">
-                        <div className="flex items-center gap-4 opacity-40">
-                            <Link href="/beats" className="group flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.4em] text-blue-500 hover:text-blue-400 transition-all shrink-0">
+                        <div className="flex items-center gap-4 opacity-100">
+                            <Link href="/beats" className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-foreground/80 hover:text-foreground transition-all shrink-0">
                                 <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-                                Catálogo
+                                Seguir Comprando
                             </Link>
-                            <span className="w-px h-3 bg-foreground/20" />
-                            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-500">Tu Carrito</span>
                         </div>
-                        <h1 className="text-4xl md:text-[5rem] font-black uppercase tracking-[-0.06em] leading-[0.8] text-foreground">
+                        <h1 className="text-4xl md:text-[5rem] font-black uppercase tracking-[-0.06em] leading-[0.8] text-foreground mt-4">
                             Carrito <br />
                             <span className="text-blue-500">de Compras.</span>
                         </h1>
                     </div>
 
                     <div className="flex flex-col items-end gap-3 shrink-0">
-                        <div className="group relative px-6 py-4 bg-card/10 backdrop-blur-3xl border border-foreground/5 rounded-[2rem] transition-all hover:bg-card/20 hover:scale-105 flex flex-col items-center justify-center min-w-[140px]">
-                            <span className="text-3xl font-black text-blue-500">{itemCount}</span>
-                            <span className="text-[7px] font-black uppercase tracking-[0.2em] opacity-40 text-center leading-tight">productos en<br />el carrito</span>
+                        <div className="group relative px-8 py-3 bg-card/10 backdrop-blur-3xl border border-foreground/5 rounded-full transition-all hover:bg-card/20 hover:scale-105 flex items-center gap-4 min-w-[140px]">
+                            <ShoppingBag className="text-blue-500 w-5 h-5" />
+                            <span className="text-xl font-black text-blue-500">{itemCount}</span>
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60 leading-tight">productos en<br />el carrito</span>
                         </div>
                     </div>
                 </div>
@@ -308,97 +307,104 @@ export default function CartPage() {
                         </div>
 
                         {/* Elite Summary Sidebar */}
-                        <div className="lg:col-span-12 xl:col-span-4">
-                            <div className="sticky top-28 bg-blue-600 text-white backdrop-blur-3xl rounded-[2.5rem] p-8 md:p-10 border border-white/10 shadow-2xl shadow-blue-900/50 flex flex-col min-h-[500px]">
-                                <h2 className="text-3xl font-black uppercase tracking-tighter mb-8 leading-none">Resumen <br /><span className="opacity-60">de compra.</span></h2>
+                        <div className="lg:col-span-5 xl:col-span-4">
+                            <div className="sticky top-28 bg-blue-500 text-white backdrop-blur-3xl rounded-[2.5rem] p-8 md:p-10 border border-white/20 shadow-[0_20px_50px_-12px_rgba(59,130,246,0.5)] flex flex-col min-h-[500px] overflow-hidden relative">
+                                {/* Liquid Effect Background */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-transparent pointer-events-none" />
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[80px] rounded-full pointer-events-none" />
 
-                                <div className="space-y-4 mb-8 pb-8 border-b border-white/20 flex-grow">
-                                    <div className="flex justify-between items-center group">
-                                        <span className="opacity-70 font-black uppercase tracking-[0.2em] text-[9px]">Subtotal</span>
-                                        <span className="text-lg font-black">{formatPrice(total)}</span>
-                                    </div>
+                                <div className="relative z-10">
+                                    <h2 className="text-3xl font-black uppercase tracking-tighter mb-8 leading-none">Resumen <br /><span className="opacity-60">de compra.</span></h2>
 
-                                    {discountApplied && (
-                                        <div className="flex justify-between items-center text-white font-black uppercase tracking-[0.3em] text-[9px] animate-in slide-in-from-right-4 duration-500 text-xs bg-white/20 px-3 py-1 rounded-lg">
-                                            <span>Descuento Cupón</span>
-                                            <span>-{formatPrice(discountAmount)}</span>
+                                    <div className="space-y-4 mb-8 pb-8 border-b border-white/20 flex-grow">
+                                        <div className="flex justify-between items-center group">
+                                            <span className="opacity-70 font-black uppercase tracking-[0.2em] text-[9px]">Subtotal</span>
+                                            <span className="text-lg font-black">{formatPrice(total)}</span>
                                         </div>
-                                    )}
 
-                                    {/* Elite Coupon Toggle */}
-                                    <div className="pt-2">
-                                        {!showCouponInput ? (
-                                            <button
-                                                onClick={() => setShowCouponInput(true)}
-                                                className="text-[9px] font-black uppercase tracking-[0.3em] text-white/80 hover:text-white transition-all flex items-center gap-2"
-                                            >
-                                                <Tag size={10} /> ¿TIENES UN CÓDIGO?
-                                            </button>
-                                        ) : (
-                                            <div className="flex gap-2 animate-in slide-in-from-top-4 duration-500">
-                                                <input
-                                                    type="text"
-                                                    placeholder="INGRESA TU CÓDIGO"
-                                                    className="flex-1 bg-white/10 border border-white/20 rounded-[1rem] py-3 px-4 text-[10px] font-black uppercase tracking-[0.2em] outline-none focus:bg-white/20 transition-all text-white placeholder:text-white/40"
-                                                    value={coupon}
-                                                    onChange={(e) => setCoupon(e.target.value)}
-                                                />
-                                                <button
-                                                    onClick={handleApplyCoupon}
-                                                    className="px-4 bg-white text-blue-600 rounded-[1rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-white/90 transition-all"
-                                                >
-                                                    OK
-                                                </button>
+                                        {discountApplied && (
+                                            <div className="flex justify-between items-center text-white font-black uppercase tracking-[0.3em] text-[9px] animate-in slide-in-from-right-4 duration-500 text-xs bg-white/20 px-3 py-1 rounded-lg">
+                                                <span>Descuento Cupón</span>
+                                                <span>-{formatPrice(discountAmount)}</span>
                                             </div>
                                         )}
-                                    </div>
-                                </div>
 
-                                <div className="space-y-8">
-                                    <div className="flex flex-col items-end gap-1">
-                                        <span className="text-[9px] font-black uppercase tracking-[0.5em] text-white/70">Importe Total</span>
-                                        <span className="text-[3.5rem] font-black leading-[0.8] tracking-[-0.08em]">{formatPrice(finalTotal)}</span>
-                                    </div>
-
-                                    {/* Checkout Interaction */}
-                                    <div className="space-y-4">
-                                        <span className="text-[9px] font-black opacity-40 uppercase tracking-[0.3em] block ml-4 text-white">MÉTODOS DE PAGO ENCRIPTADOS</span>
-
-                                        <button
-                                            onClick={handleCheckout}
-                                            disabled={checkingOut}
-                                            className="w-full h-16 bg-white text-blue-900 rounded-[2rem] font-black uppercase text-[11px] tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-xl flex flex-col items-center justify-center gap-1 disabled:opacity-50"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <CreditCard size={18} />
-                                                PAGAR CON TARJETA
-                                            </div>
-                                        </button>
-
-                                        <button
-                                            onClick={handleCheckout}
-                                            disabled={checkingOut}
-                                            className="w-full h-16 bg-[#003087] text-white rounded-[2rem] font-black uppercase text-[11px] tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 border border-white/10"
-                                        >
-                                            <span className="italic font-serif lowercase tracking-tighter text-2xl font-black">Pay<span className="text-white/80 font-medium">Pal</span></span>
-                                        </button>
-                                    </div>
-
-                                    {/* Elite Trust Badges */}
-                                    <div className="grid grid-cols-2 gap-6 opacity-40 text-white">
-                                        <div className="flex flex-col items-center gap-2 text-center">
-                                            <ShieldCheck size={18} />
-                                            <span className="text-[7px] font-black uppercase tracking-[0.2em] leading-tight">SEGURIDAD RSA <br /> ENCRIPTADA</span>
+                                        {/* Elite Coupon Toggle */}
+                                        <div className="pt-2">
+                                            {!showCouponInput ? (
+                                                <button
+                                                    onClick={() => setShowCouponInput(true)}
+                                                    className="text-[9px] font-black uppercase tracking-[0.3em] text-white/80 hover:text-white transition-all flex items-center gap-2"
+                                                >
+                                                    <Tag size={10} /> ¿TIENES UN CÓDIGO?
+                                                </button>
+                                            ) : (
+                                                <div className="flex gap-2 animate-in slide-in-from-top-4 duration-500">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="INGRESA TU CÓDIGO"
+                                                        className="flex-1 bg-white/10 border border-white/20 rounded-[1rem] py-3 px-4 text-[10px] font-black uppercase tracking-[0.2em] outline-none focus:bg-white/20 transition-all text-white placeholder:text-white/40"
+                                                        value={coupon}
+                                                        onChange={(e) => setCoupon(e.target.value)}
+                                                    />
+                                                    <button
+                                                        onClick={handleApplyCoupon}
+                                                        className="px-4 bg-white text-blue-600 rounded-[1rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-white/90 transition-all"
+                                                    >
+                                                        OK
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
-                                        <div className="flex flex-col items-center gap-2 text-center">
-                                            <Zap size={18} />
-                                            <span className="text-[7px] font-black uppercase tracking-[0.2em] leading-tight">ENTREGA DIGITAL <br /> INSTANTÁNEA</span>
+                                    </div>
+
+                                    <div className="space-y-8">
+                                        <div className="flex flex-col items-end gap-1">
+                                            <span className="text-[9px] font-black uppercase tracking-[0.5em] text-white/70">Importe Total</span>
+                                            <span className="text-[3.5rem] font-black leading-[0.8] tracking-[-0.08em]">{formatPrice(finalTotal)}</span>
+                                        </div>
+
+                                        {/* Checkout Interaction */}
+                                        <div className="space-y-4">
+                                            <span className="text-[9px] font-black opacity-40 uppercase tracking-[0.3em] block ml-4 text-white">MÉTODOS DE PAGO ENCRIPTADOS</span>
+
+                                            <button
+                                                onClick={handleCheckout}
+                                                disabled={checkingOut}
+                                                className="w-full h-16 bg-white text-blue-600 rounded-[2rem] font-black uppercase text-[11px] tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/10 flex flex-col items-center justify-center gap-1 disabled:opacity-50"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <CreditCard size={18} />
+                                                    PAGAR CON TARJETA
+                                                </div>
+                                            </button>
+
+                                            <button
+                                                onClick={handleCheckout}
+                                                disabled={checkingOut}
+                                                className="w-full h-16 bg-[#003087] text-white rounded-[2rem] font-black uppercase text-[11px] tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 border border-white/10"
+                                            >
+                                                <span className="italic font-serif lowercase tracking-tighter text-2xl font-black">Pay<span className="text-white/80 font-medium">Pal</span></span>
+                                            </button>
+                                        </div>
+
+                                        {/* Elite Trust Badges */}
+                                        <div className="grid grid-cols-2 gap-6 opacity-40 text-white">
+                                            <div className="flex flex-col items-center gap-2 text-center">
+                                                <ShieldCheck size={18} />
+                                                <span className="text-[7px] font-black uppercase tracking-[0.2em] leading-tight">SEGURIDAD RSA <br /> ENCRIPTADA</span>
+                                            </div>
+                                            <div className="flex flex-col items-center gap-2 text-center">
+                                                <Zap size={18} />
+                                                <span className="text-[7px] font-black uppercase tracking-[0.2em] leading-tight">ENTREGA DIGITAL <br /> INSTANTÁNEA</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 ) : (
                     /* Elite Empty State */
                     <div className="py-60 flex flex-col items-center justify-center text-center max-w-4xl mx-auto space-y-16">
@@ -422,10 +428,11 @@ export default function CartPage() {
                             <ArrowRight size={24} className="group-hover:translate-x-3 transition-transform duration-500" />
                         </Link>
                     </div>
-                )}
-            </main>
+                )
+
+            </main >
 
             <Footer />
-        </div>
+        </div >
     );
 }
