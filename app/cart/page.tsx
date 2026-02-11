@@ -20,7 +20,8 @@ import {
     CreditCard,
     Mail,
     Briefcase,
-    Globe
+    Globe,
+    Crown
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import Navbar from '@/components/Navbar';
