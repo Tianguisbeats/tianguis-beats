@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Play, Pause, ShoppingCart, Check, Music, Crown, ChevronRight, Flame, Heart, ShieldCheck } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
+import { useToast } from '@/context/ToastContext';
 import { useState, useEffect } from 'react';
 import LicenseSelectionModal from '@/components/LicenseSelectionModal';
 import { supabase } from '@/lib/supabase';
@@ -26,6 +27,7 @@ function formatPriceMXN(value?: number | null) {
 export default function BeatCardPro({ beat }: BeatCardProProps) {
     const { currentBeat, isPlaying, playBeat } = usePlayer();
     const { addItem, isInCart } = useCart();
+    const { showToast } = useToast();
     const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(beat.like_count || 0);
@@ -106,7 +108,7 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
 
         const { data: { user } } = await supabase.auth.getUser();
         if (user && user.id === beat.producer_id) {
-            alert("No puedes comprar tus propios beats.");
+            showToast("No puedes comprar tus propios beats.", "warning");
             return;
         }
 
