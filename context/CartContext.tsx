@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Beat } from '@/lib/types';
+import { supabase } from '@/lib/supabase';
 import { useToast } from './ToastContext';
 
 export type CartItemType = 'beat' | 'license' | 'plan' | 'sound_kit' | 'service';
@@ -30,6 +31,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
     const [items, setItems] = useState<CartItem[]>([]);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const { showToast } = useToast();
 
     // Load from localStorage
@@ -42,6 +44,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 console.error("Error loading cart from localStorage", e);
             }
         }
+
+        // Get current user
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setCurrentUserId(session?.user?.id || null);
+        };
+        checkUser();
     }, []);
 
     // Save to localStorage
@@ -53,6 +62,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         // Validar duplicados
         if (isInCart(item.id)) {
             showToast("Este artículo ya está en tu carrito.", 'warning');
+            return;
+        }
+
+        // Validar autocompra (Producer ID vs User ID)
+        // Check both producer_id (Beats) and seller_id (Sound Kits/Services) if present
+        const producerId = item.metadata?.producer_id || item.metadata?.seller_id;
+
+        if (currentUserId && producerId && currentUserId === producerId) {
+            showToast("No puedes comprar tus propios productos.", 'error');
             return;
         }
 
