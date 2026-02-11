@@ -122,24 +122,37 @@ export default function CommentSection({ beatId }: { beatId: string }) {
     return (
         <div className="h-full flex flex-col">
             {/* Input area rendered within the parent's container */}
+            {/* Input area */}
             <div className="flex gap-4 mb-10">
                 <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-white/5 flex items-center justify-center shrink-0">
                     <User size={24} className="text-muted" />
                 </div>
                 <div className="flex-1 relative group">
-                    <textarea
-                        value={commentText}
-                        onChange={(e) => setCommentText(e.target.value)}
-                        placeholder="Deja un comentario..."
-                        className="w-full bg-slate-50 dark:bg-white/5 rounded-[1.5rem] p-5 pr-14 text-sm font-medium border border-transparent focus:border-accent outline-none transition-all resize-none h-28"
-                    />
-                    <button
-                        onClick={handlePostComment}
-                        disabled={isLoading || !commentText.trim()}
-                        className="absolute bottom-4 right-4 w-10 h-10 bg-accent text-white rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-accent/20"
-                    >
-                        <Send size={16} />
-                    </button>
+                    {!currentUser ? (
+                        <div className="w-full bg-slate-50 dark:bg-white/5 rounded-[1.5rem] p-5 h-28 flex flex-col items-center justify-center border border-dashed border-border group-hover:border-accent transition-all">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-muted mb-3">Inicia sesión para comentar</p>
+                            <div className="flex gap-3">
+                                <a href="/login" className="text-[9px] font-black uppercase px-4 py-2 bg-accent text-white rounded-lg hover:scale-105 transition-all">Login</a>
+                                <a href="/signup" className="text-[9px] font-black uppercase px-4 py-2 border border-border text-foreground rounded-lg hover:scale-105 transition-all">Crear Cuenta</a>
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            <textarea
+                                value={commentText}
+                                onChange={(e) => setCommentText(e.target.value)}
+                                placeholder="Deja un comentario..."
+                                className="w-full bg-slate-50 dark:bg-white/5 rounded-[1.5rem] p-5 pr-14 text-sm font-medium border border-transparent focus:border-accent outline-none transition-all resize-none h-28"
+                            />
+                            <button
+                                onClick={handlePostComment}
+                                disabled={isLoading || !commentText.trim()}
+                                className="absolute bottom-4 right-4 w-10 h-10 bg-accent text-white rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-accent/20"
+                            >
+                                <Send size={16} />
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
 

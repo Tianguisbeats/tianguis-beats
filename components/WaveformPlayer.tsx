@@ -98,10 +98,10 @@ export default function WaveformPlayer({
                     </button>
 
                     <div className="flex items-center gap-2">
-                        <button onClick={() => handleSeek(-10)} className="w-10 h-10 flex items-center justify-center text-background/40 hover:text-accent transition-colors">
+                        <button onClick={() => handleSeek(-10)} className="w-10 h-10 flex items-center justify-center dark:text-white/40 text-blue-500/40 hover:text-blue-500 dark:hover:text-white transition-colors">
                             <SkipBack size={24} />
                         </button>
-                        <button onClick={() => handleSeek(10)} className="w-10 h-10 flex items-center justify-center text-background/40 hover:text-accent transition-colors">
+                        <button onClick={() => handleSeek(10)} className="w-10 h-10 flex items-center justify-center dark:text-white/40 text-blue-500/40 hover:text-blue-500 dark:hover:text-white transition-colors">
                             <SkipForward size={24} />
                         </button>
                     </div>
@@ -112,7 +112,7 @@ export default function WaveformPlayer({
                         {formatTime(currentTime)} <span className="mx-2 dark:text-white/20 text-slate-300">/</span> {formatTime(duration)}
                     </div>
 
-                    <button onClick={handleMute} className="w-10 h-10 flex items-center justify-center text-background/40 hover:text-accent transition-colors">
+                    <button onClick={handleMute} className="w-10 h-10 flex items-center justify-center dark:text-white/60 text-blue-500 hover:scale-110 active:scale-95 transition-all">
                         {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
                     </button>
                 </div>

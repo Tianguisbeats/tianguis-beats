@@ -358,9 +358,13 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-4">
                                     <span className="text-[9px] font-black text-muted uppercase tracking-[0.3em] mr-2">Vibras:</span>
                                     {beat.mood.split(',').map((m: string) => (
-                                        <span key={m} className="px-5 py-2 rounded-full border border-accent/30 text-[10px] font-black uppercase tracking-widest text-foreground bg-accent/5 shadow-[0_0_15px_rgba(59,130,246,0.1)] hover:border-accent hover:bg-accent/10 transition-all cursor-default">
+                                        <Link
+                                            key={m}
+                                            href={`/beats/catalog?mood=${m.trim()}`}
+                                            className="px-5 py-2 rounded-full border border-blue-500/30 text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 bg-blue-500/5 shadow-[0_0_15px_rgba(59,130,246,0.1)] hover:border-blue-500 hover:bg-blue-500/10 transition-all"
+                                        >
                                             {m.trim()}
-                                        </span>
+                                        </Link>
                                     ))}
                                 </div>
                             )}
@@ -369,9 +373,13 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
                                     <span className="text-[9px] font-black text-muted uppercase tracking-[0.3em] mr-2">Beat Type:</span>
                                     {beat.beat_types.slice(0, 5).map((t: string) => (
-                                        <span key={t} className="px-5 py-2 rounded-full border border-border text-[10px] font-black uppercase tracking-widest text-foreground bg-card shadow-sm hover:border-accent hover:bg-accent/5 transition-all cursor-default">
+                                        <Link
+                                            key={t}
+                                            href={`/beats/catalog?beat_type=${t.trim()}`}
+                                            className="px-5 py-2 rounded-full border border-emerald-500/30 text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 shadow-sm hover:border-emerald-500 hover:bg-emerald-500/10 transition-all"
+                                        >
                                             {t.trim()}
-                                        </span>
+                                        </Link>
                                     ))}
                                 </div>
                             )}
@@ -404,7 +412,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     url={beat.mp3_url || ''}
                                     height={140}
                                     waveColor="rgba(255, 255, 255, 0.1)"
-                                    progressColor="#3b82f6"
+                                    progressColor="rgba(255, 255, 255, 0.4)"
                                 />
                             </div>
                         </div>
