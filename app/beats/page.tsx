@@ -106,7 +106,7 @@ function HubContent() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col items-center justify-end p-12 text-center">
                 <h3 className="text-4xl font-black text-white uppercase tracking-tighter mb-2 italic">Beats</h3>
-                <p className="text-emerald-400 text-[10px] font-black uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">Explora todo el catálogo</p>
+                <p className="text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">EXPLORA TODO EL CATÁLOGO</p>
               </div>
             </Link>
 
