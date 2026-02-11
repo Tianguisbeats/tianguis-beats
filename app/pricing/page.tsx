@@ -68,7 +68,7 @@ export default function PricingPage() {
         {
             tier: 'pro',
             name: 'Pro',
-            description: 'Herramientas profesionales para escalar.',
+            description: 'Para productores que se lo toman muy en serio.',
             price: billingCycle === 'monthly' ? 149 : 111,
             features: [
                 "Beats Ilimitados",

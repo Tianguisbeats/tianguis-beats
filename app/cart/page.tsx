@@ -208,10 +208,10 @@ export default function CartPage() {
                     </div>
 
                     <div className="flex flex-col items-end gap-3 shrink-0">
-                        <div className="group relative px-8 py-3 bg-card/10 backdrop-blur-3xl border border-foreground/5 rounded-full transition-all hover:bg-card/20 hover:scale-105 flex items-center gap-4 min-w-[140px]">
+                        <div className="group relative px-8 py-3 bg-card/10 backdrop-blur-3xl border border-foreground/5 rounded-full transition-all hover:bg-card/20 hover:scale-105 flex items-center gap-4 min-w-[140px] shadow-[0_0_30px_rgba(59,130,246,0.2)] dark:shadow-[0_0_30px_rgba(59,130,246,0.1)]">
                             <ShoppingBag className="text-blue-500 w-5 h-5" />
                             <span className="text-xl font-black text-blue-500">{itemCount}</span>
-                            <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60 leading-tight">productos en<br />el carrito</span>
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 leading-tight">productos en<br />el carrito</span>
                         </div>
                     </div>
                 </div>
@@ -235,8 +235,8 @@ export default function CartPage() {
                                             {item.image && !isService ? (
                                                 <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
                                             ) : (
-                                                <div className={`w-full h-full flex items-center justify-center ${isPlan ? 'bg-amber-500/10' : isService ? 'bg-purple-500/10' : 'bg-foreground/5'} text-foreground/20`}>
-                                                    {isPlan ? <Star size={36} className="text-amber-500" /> : isService ? <Briefcase size={36} className="text-purple-500" /> : <Music size={36} />}
+                                                <div className={`w-full h-full flex items-center justify-center ${isPlan ? 'bg-blue-500/10' : isService ? 'bg-purple-500/10' : 'bg-foreground/5'} text-foreground/20`}>
+                                                    {isPlan ? <Crown size={36} className="text-blue-500" /> : isService ? <Briefcase size={36} className="text-purple-500" /> : <Music size={36} />}
                                                 </div>
                                             )}
                                             {/* Mask Overlay */}
@@ -247,7 +247,7 @@ export default function CartPage() {
                                         <div className="flex-1 flex flex-col gap-4 text-center sm:text-left">
                                             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                                                 <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-[0.2em] shadow-sm ${isBeat ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
-                                                    isPlan ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
+                                                    isPlan ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
                                                         isSoundKit ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
                                                             'bg-purple-500/10 text-purple-600 dark:text-purple-400'
                                                     }`}>
@@ -286,7 +286,7 @@ export default function CartPage() {
                                             <span className="text-3xl font-black text-foreground">{formatPrice(item.price)}</span>
                                             <button
                                                 onClick={() => removeItem(item.id)}
-                                                className="group/btn flex items-center gap-2 px-5 py-2.5 rounded-xl bg-foreground/5 hover:bg-red-500/10 hover:text-red-500 text-[8px] font-black uppercase tracking-[0.2em] transition-all"
+                                                className="group/btn flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white text-[8px] font-black uppercase tracking-[0.2em] transition-all"
                                             >
                                                 <Trash2 size={12} className="group-hover/btn:rotate-12 transition-transform" />
                                                 Eliminar
@@ -366,7 +366,7 @@ export default function CartPage() {
 
                                         {/* Checkout Interaction */}
                                         <div className="space-y-4">
-                                            <span className="text-[9px] font-black opacity-40 uppercase tracking-[0.3em] block ml-4 text-white">MÉTODOS DE PAGO ENCRIPTADOS</span>
+                                            <span className="text-[9px] font-black uppercase tracking-[0.3em] block ml-4 text-white/90 shadow-sm">MÉTODOS DE PAGO ENCRIPTADOS</span>
 
                                             <button
                                                 onClick={handleCheckout}
@@ -389,14 +389,14 @@ export default function CartPage() {
                                         </div>
 
                                         {/* Elite Trust Badges */}
-                                        <div className="grid grid-cols-2 gap-6 opacity-40 text-white">
+                                        <div className="grid grid-cols-2 gap-6 text-white/90">
                                             <div className="flex flex-col items-center gap-2 text-center">
-                                                <ShieldCheck size={18} />
-                                                <span className="text-[7px] font-black uppercase tracking-[0.2em] leading-tight">SEGURIDAD RSA <br /> ENCRIPTADA</span>
+                                                <ShieldCheck size={18} className="text-white" />
+                                                <span className="text-[7px] font-black uppercase tracking-[0.2em] leading-tight drop-shadow-md">SEGURIDAD RSA <br /> ENCRIPTADA</span>
                                             </div>
                                             <div className="flex flex-col items-center gap-2 text-center">
-                                                <Zap size={18} />
-                                                <span className="text-[7px] font-black uppercase tracking-[0.2em] leading-tight">ENTREGA DIGITAL <br /> INSTANTÁNEA</span>
+                                                <Zap size={18} className="text-white" />
+                                                <span className="text-[7px] font-black uppercase tracking-[0.2em] leading-tight drop-shadow-md">ENTREGA DIGITAL <br /> INSTANTÁNEA</span>
                                             </div>
                                         </div>
                                     </div>
