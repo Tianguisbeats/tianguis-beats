@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { ShieldCheck, CheckCircle2, XCircle, ChevronRight, Upload, AlertTriangle, Lock, Edit3, Link as LinkIcon, Music, BarChart2, DollarSign, Globe, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/context/ToastContext';
 
 export default function VerificationPage() {
     const router = useRouter();
@@ -115,16 +116,21 @@ export default function VerificationPage() {
         }
     };
 
+    const { showToast } = useToast();
+
+    // ... (rest of code) ...
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitting(true);
 
         try {
             if (!form.idDocument) throw new Error("Debes subir una identificación oficial.");
+            if (!profile?.username) throw new Error("No se pudo obtener el nombre de usuario.");
 
-            // 1. Upload ID
+            // 1. Upload ID (using username in path)
             const fileExt = form.idDocument.name.split('.').pop();
-            const fileName = `${user.id}_${Math.random()}.${fileExt}`;
+            const fileName = `${profile.username}/${Date.now()}_verification.${fileExt}`;
             const { error: uploadError, data: uploadData } = await supabase.storage
                 .from('verification-docs')
                 .upload(fileName, form.idDocument);
@@ -150,11 +156,11 @@ export default function VerificationPage() {
             await supabase.from('profiles').update({ verification_status: 'pending' }).eq('id', user.id);
 
             setStatus('pending');
-            alert("Solicitud enviada con éxito.");
+            showToast("Solicitud enviada con éxito.", "success");
 
         } catch (error: any) {
             console.error(error);
-            alert("Error al enviar solicitud: " + error.message);
+            showToast(error.message || "Error al enviar solicitud", "error");
         } finally {
             setSubmitting(false);
         }

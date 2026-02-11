@@ -146,3 +146,45 @@ for all using (
     )
   )
 );
+
+-- Verification Docs Bucket & Policies
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('verification-docs', 'verification-docs', false, 5242880, ARRAY['image/jpeg', 'image/png', 'application/pdf'])
+on conflict (id) do update set
+  file_size_limit = 5242880,
+  allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'application/pdf'];
+
+update storage.buckets
+set file_size_limit = 5242880,
+    allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'application/pdf']
+where id = 'verification-docs';
+
+drop policy if exists "User Upload Verification" on storage.objects;
+create policy "User Upload Verification" on storage.objects
+for insert with check (
+  bucket_id = 'verification-docs'
+  and (
+    auth.uid()::text = (storage.foldername(name))[1]
+    or
+    exists (
+      select 1 from profiles
+      where id = auth.uid()
+      and username = (storage.foldername(name))[1]
+    )
+  )
+);
+
+drop policy if exists "User Select Verification" on storage.objects;
+create policy "User Select Verification" on storage.objects
+for select using (
+  bucket_id = 'verification-docs'
+  and (
+    auth.uid()::text = (storage.foldername(name))[1]
+    or
+    exists (
+      select 1 from profiles
+      where id = auth.uid()
+      and username = (storage.foldername(name))[1]
+    )
+  )
+);

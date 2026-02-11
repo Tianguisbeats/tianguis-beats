@@ -25,6 +25,8 @@ import { CartProvider } from "@/context/CartContext";
 import AudioPlayer from "@/components/AudioPlayer";
 import AIChatBot from "@/components/AIChatBot";
 
+import { ToastProvider } from "@/context/ToastContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -36,13 +38,15 @@ export default function RootLayout({
         className={`${kanit.variable} ${montserrat.variable} font-body antialiased`}
       >
         <ThemeProvider>
-          <CartProvider>
-            <PlayerProvider>
-              {children}
-              <AudioPlayer />
-              <AIChatBot />
-            </PlayerProvider>
-          </CartProvider>
+          <ToastProvider>
+            <CartProvider>
+              <PlayerProvider>
+                {children}
+                <AudioPlayer />
+                <AIChatBot />
+              </PlayerProvider>
+            </CartProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>
