@@ -85,10 +85,11 @@ export default function PricingPage() {
             price: billingCycle === 'monthly' ? 349 : 261,
             features: [
                 "Stems (Pistas)",
-                "Venta Exclusiva",
+                "Licencia exclusiva",
                 "Sound Kits",
-                "Impulso Algorítmico",
-                "0% COMISIÓN"
+                "Smart Bio",
+                "Venta de servicios",
+                "Impulso Algorítmico"
             ]
         }
     ];
@@ -217,14 +218,11 @@ export default function PricingPage() {
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 relative z-10 text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-[10px] font-black uppercase tracking-widest mb-6 border border-accent/20">
-                        <Sparkles size={14} /> Elige tu camino al éxito
-                    </div>
-                    <h1 className="text-5xl md:text-8xl font-black text-foreground tracking-tighter mb-6 font-heading leading-tight">
-                        Elige tu <span className="text-accent italic">Plan</span>
+                    <h1 className="text-5xl md:text-8xl font-black text-foreground tracking-tighter mb-6 font-heading leading-tight uppercase">
+                        Elige tu <span className="text-accent">plan</span>
                     </h1>
                     <p className="max-w-2xl mx-auto text-lg text-muted font-medium mb-12">
-                        Desde creadores emergentes hasta profesionales establecidos. Tenemos la infraestructura necesaria para escalar tu negocio musical.
+                        Tu música no tiene límites. Desbloquea el poder total del Tianguis y conviértete en la próxima leyenda de la industria.
                     </p>
 
                     {/* Cycle Toggle */}
