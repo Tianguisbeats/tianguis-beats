@@ -196,25 +196,23 @@ export default function CartPage() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-16">
                     <div className="space-y-4 max-w-4xl">
                         <div className="flex items-center gap-4 opacity-40">
-                            <Link href="/beats" className="group flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.4em] hover:text-accent transition-all shrink-0">
+                            <Link href="/beats" className="group flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.4em] text-blue-500 hover:text-blue-400 transition-all shrink-0">
                                 <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
                                 Catálogo
                             </Link>
                             <span className="w-px h-3 bg-foreground/20" />
-                            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-accent">Tu Carrito</span>
+                            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-500">Tu Carrito</span>
                         </div>
                         <h1 className="text-4xl md:text-[5rem] font-black uppercase tracking-[-0.06em] leading-[0.8] text-foreground">
                             Carrito <br />
-                            <span className="opacity-5 dark:opacity-10">de Compras.</span>
+                            <span className="text-blue-500">de Compras.</span>
                         </h1>
                     </div>
 
                     <div className="flex flex-col items-end gap-3 shrink-0">
-                        <div className="group relative px-6 py-4 bg-card/10 backdrop-blur-3xl border border-foreground/5 rounded-[2rem] transition-all hover:bg-card/20 hover:scale-105">
-                            <div className="flex flex-col items-end">
-                                <span className="text-2xl font-black">{itemCount}</span>
-                                <span className="text-[8px] font-black uppercase tracking-[0.3em] opacity-40">Productos</span>
-                            </div>
+                        <div className="group relative px-6 py-4 bg-card/10 backdrop-blur-3xl border border-foreground/5 rounded-[2rem] transition-all hover:bg-card/20 hover:scale-105 flex flex-col items-center justify-center min-w-[140px]">
+                            <span className="text-3xl font-black text-blue-500">{itemCount}</span>
+                            <span className="text-[7px] font-black uppercase tracking-[0.2em] opacity-40 text-center leading-tight">productos en<br />el carrito</span>
                         </div>
                     </div>
                 </div>
@@ -310,29 +308,29 @@ export default function CartPage() {
                         </div>
 
                         {/* Elite Summary Sidebar */}
-                        <div className="lg:col-span-5 xl:col-span-4">
-                            <div className="sticky top-28 bg-foreground dark:bg-card/40 backdrop-blur-3xl rounded-[3.5rem] p-10 md:p-12 text-background dark:text-white border border-foreground/5 shadow-premium-deep flex flex-col min-h-[600px]">
-                                <h2 className="text-4xl font-black uppercase tracking-tighter mb-12 leading-none">Resumen <br /><span className="opacity-20">de compra.</span></h2>
+                        <div className="lg:col-span-12 xl:col-span-4">
+                            <div className="sticky top-28 bg-blue-600 text-white backdrop-blur-3xl rounded-[2.5rem] p-8 md:p-10 border border-white/10 shadow-2xl shadow-blue-900/50 flex flex-col min-h-[500px]">
+                                <h2 className="text-3xl font-black uppercase tracking-tighter mb-8 leading-none">Resumen <br /><span className="opacity-60">de compra.</span></h2>
 
-                                <div className="space-y-6 mb-12 pb-12 border-b border-background/10 dark:border-white/5 flex-grow">
+                                <div className="space-y-4 mb-8 pb-8 border-b border-white/20 flex-grow">
                                     <div className="flex justify-between items-center group">
-                                        <span className="opacity-40 font-black uppercase tracking-[0.3em] text-[9px]">Productos</span>
-                                        <span className="text-xl font-black">{itemCount}</span>
+                                        <span className="opacity-70 font-black uppercase tracking-[0.2em] text-[9px]">Subtotal</span>
+                                        <span className="text-lg font-black">{formatPrice(total)}</span>
                                     </div>
 
                                     {discountApplied && (
-                                        <div className="flex justify-between items-center text-emerald-400 font-black uppercase tracking-[0.3em] text-[9px] animate-in slide-in-from-right-4 duration-500 text-xs">
-                                            <span>Bonificación Cupón</span>
-                                            <span>-{formatPrice(total * 0.2)}</span>
+                                        <div className="flex justify-between items-center text-white font-black uppercase tracking-[0.3em] text-[9px] animate-in slide-in-from-right-4 duration-500 text-xs bg-white/20 px-3 py-1 rounded-lg">
+                                            <span>Descuento Cupón</span>
+                                            <span>-{formatPrice(discountAmount)}</span>
                                         </div>
                                     )}
 
                                     {/* Elite Coupon Toggle */}
-                                    <div className="pt-4">
+                                    <div className="pt-2">
                                         {!showCouponInput ? (
                                             <button
                                                 onClick={() => setShowCouponInput(true)}
-                                                className="text-[9px] font-black uppercase tracking-[0.3em] text-accent hover:opacity-100 transition-all flex items-center gap-2"
+                                                className="text-[9px] font-black uppercase tracking-[0.3em] text-white/80 hover:text-white transition-all flex items-center gap-2"
                                             >
                                                 <Tag size={10} /> ¿TIENES UN CÓDIGO?
                                             </button>
@@ -341,13 +339,13 @@ export default function CartPage() {
                                                 <input
                                                     type="text"
                                                     placeholder="INGRESA TU CÓDIGO"
-                                                    className="flex-1 bg-background/10 dark:bg-white/5 border border-background/20 dark:border-white/10 rounded-[1.2rem] py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] outline-none focus:border-accent transition-all text-background dark:text-white placeholder:opacity-30"
+                                                    className="flex-1 bg-white/10 border border-white/20 rounded-[1rem] py-3 px-4 text-[10px] font-black uppercase tracking-[0.2em] outline-none focus:bg-white/20 transition-all text-white placeholder:text-white/40"
                                                     value={coupon}
                                                     onChange={(e) => setCoupon(e.target.value)}
                                                 />
                                                 <button
                                                     onClick={handleApplyCoupon}
-                                                    className="px-6 bg-background dark:bg-white text-foreground dark:text-black rounded-[1.2rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-accent hover:text-white transition-all"
+                                                    className="px-4 bg-white text-blue-600 rounded-[1rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-white/90 transition-all"
                                                 >
                                                     OK
                                                 </button>
@@ -356,46 +354,45 @@ export default function CartPage() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-12">
+                                <div className="space-y-8">
                                     <div className="flex flex-col items-end gap-1">
-                                        <span className="text-[9px] font-black uppercase tracking-[0.5em] text-accent">Importe Total</span>
-                                        <span className="text-[4rem] font-black leading-[0.8] tracking-[-0.08em]">{formatPrice(finalTotal)}</span>
+                                        <span className="text-[9px] font-black uppercase tracking-[0.5em] text-white/70">Importe Total</span>
+                                        <span className="text-[3.5rem] font-black leading-[0.8] tracking-[-0.08em]">{formatPrice(finalTotal)}</span>
                                     </div>
 
                                     {/* Checkout Interaction */}
-                                    <div className="space-y-5">
-                                        <span className="text-[10px] font-black opacity-30 uppercase tracking-[0.3em] block ml-4">MÉTODOS DE PAGO ENCRIPTADOS</span>
+                                    <div className="space-y-4">
+                                        <span className="text-[9px] font-black opacity-40 uppercase tracking-[0.3em] block ml-4 text-white">MÉTODOS DE PAGO ENCRIPTADOS</span>
 
                                         <button
                                             onClick={handleCheckout}
                                             disabled={checkingOut}
-                                            className="w-full h-20 bg-background dark:bg-white text-foreground dark:text-black rounded-[2.5rem] font-black uppercase text-[12px] tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-2xl flex flex-col items-center justify-center gap-1 disabled:opacity-50"
+                                            className="w-full h-16 bg-white text-blue-900 rounded-[2rem] font-black uppercase text-[11px] tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-xl flex flex-col items-center justify-center gap-1 disabled:opacity-50"
                                         >
                                             <div className="flex items-center gap-3">
                                                 <CreditCard size={18} />
                                                 PAGAR CON TARJETA
                                             </div>
-                                            <span className="text-[7px] opacity-40 invisible dark:visible">DÉBITO • CRÉDITO • APPLE / GOOGLE PAY</span>
                                         </button>
 
                                         <button
                                             onClick={handleCheckout}
                                             disabled={checkingOut}
-                                            className="w-full h-20 bg-[#0070ba] text-white rounded-[2.5rem] font-black uppercase text-[12px] tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-600/20 flex items-center justify-center gap-3 disabled:opacity-50"
+                                            className="w-full h-16 bg-[#003087] text-white rounded-[2rem] font-black uppercase text-[11px] tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 border border-white/10"
                                         >
-                                            <span className="italic font-serif lowercase tracking-tighter text-3xl font-black">Pay<span className="text-white/80 font-medium">Pal</span></span>
+                                            <span className="italic font-serif lowercase tracking-tighter text-2xl font-black">Pay<span className="text-white/80 font-medium">Pal</span></span>
                                         </button>
                                     </div>
 
                                     {/* Elite Trust Badges */}
-                                    <div className="grid grid-cols-2 gap-6 opacity-30">
-                                        <div className="flex flex-col items-center gap-3 text-center">
-                                            <ShieldCheck size={22} />
-                                            <span className="text-[8px] font-black uppercase tracking-[0.2em] leading-tight">SEGURIDAD RSA <br /> ENCRIPTADA</span>
+                                    <div className="grid grid-cols-2 gap-6 opacity-40 text-white">
+                                        <div className="flex flex-col items-center gap-2 text-center">
+                                            <ShieldCheck size={18} />
+                                            <span className="text-[7px] font-black uppercase tracking-[0.2em] leading-tight">SEGURIDAD RSA <br /> ENCRIPTADA</span>
                                         </div>
-                                        <div className="flex flex-col items-center gap-3 text-center">
-                                            <Zap size={22} />
-                                            <span className="text-[8px] font-black uppercase tracking-[0.2em] leading-tight">ENTREGA DIGITAL <br /> INSTANTÁNEA</span>
+                                        <div className="flex flex-col items-center gap-2 text-center">
+                                            <Zap size={18} />
+                                            <span className="text-[7px] font-black uppercase tracking-[0.2em] leading-tight">ENTREGA DIGITAL <br /> INSTANTÁNEA</span>
                                         </div>
                                     </div>
                                 </div>
