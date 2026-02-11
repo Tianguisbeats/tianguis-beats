@@ -51,7 +51,16 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
     const [isLiked, setIsLiked] = useState(false);
 
     const { currentBeat, isPlaying, playBeat } = usePlayer();
-    const { addItem } = useCart();
+    const { addItem, currentUserId } = useCart();
+
+    // Determine if loading user
+    const [isOwner, setIsOwner] = useState(false);
+
+    useEffect(() => {
+        if (beat && currentUserId) {
+            setIsOwner(beat.producer_id === currentUserId);
+        }
+    }, [beat, currentUserId]);
 
     // Determine initial selected license based on availability
     useEffect(() => {
@@ -484,27 +493,33 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                         />
                                     )}
                                 </div>
-
-                                <button
-                                    onClick={handleAddToCart}
-                                    disabled={beat.is_sold}
-                                    className={`w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs transition-all flex items-center justify-center gap-4 group ${beat.is_sold
-                                        ? 'bg-slate-200 text-slate-500 cursor-not-allowed shadow-none'
-                                        : 'bg-accent text-white hover:bg-accent/90 shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)]'
-                                        }`}
-                                >
-                                    {beat.is_sold ? (
-                                        <>
-                                            <ShieldCheck size={22} />
-                                            Este beat ya ha sido vendido
-                                        </>
-                                    ) : (
-                                        <>
-                                            <ShoppingCart size={22} className="group-hover:-translate-y-1 transition-transform" />
-                                            Añadir {selectedLicense} al Carrito
-                                        </>
-                                    )}
-                                </button>
+                                {isOwner ? (
+                                    <div className="p-8 bg-blue-50 dark:bg-blue-900/10 rounded-[2rem] border border-blue-100 dark:border-blue-500/20 text-center">
+                                        <h3 className="text-xl font-black uppercase tracking-tight text-blue-600 dark:text-blue-400 mb-2">Eres el propietario</h3>
+                                        <p className="text-muted text-sm max-w-md mx-auto">Estas son las licencias que tus clientes verán. No puedes comprar tu propio beat.</p>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={handleAddToCart}
+                                        disabled={beat.is_sold}
+                                        className={`w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs transition-all flex items-center justify-center gap-4 group ${beat.is_sold
+                                            ? 'bg-slate-200 text-slate-500 cursor-not-allowed shadow-none'
+                                            : 'bg-accent text-white hover:bg-accent/90 shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)]'
+                                            }`}
+                                    >
+                                        {beat.is_sold ? (
+                                            <>
+                                                <ShieldCheck size={22} />
+                                                Este beat ya ha sido vendido
+                                            </>
+                                        ) : (
+                                            <>
+                                                <ShoppingCart size={22} className="group-hover:-translate-y-1 transition-transform" />
+                                                Añadir {selectedLicense} al Carrito
+                                            </>
+                                        )}
+                                    </button>
+                                )}
                             </div>
                         )}
 

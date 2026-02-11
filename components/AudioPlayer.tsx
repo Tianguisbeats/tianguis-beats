@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import LicenseSelectionModal from './LicenseSelectionModal';
+import { useCart } from '@/context/CartContext';
 
 export default function AudioPlayer() {
     const {
@@ -28,9 +29,12 @@ export default function AudioPlayer() {
         setVolume,
         closePlayer
     } = usePlayer();
+    const { currentUserId } = useCart();
     const [isMuted, setIsMuted] = useState(false);
     const [prevVolume, setPrevVolume] = useState(volume);
     const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
+
+    const isOwner = currentUserId && currentBeat && currentBeat.producer_id === currentUserId;
 
     if (!currentBeat) return null;
 
@@ -183,12 +187,14 @@ export default function AudioPlayer() {
 
                             {/* CTAs */}
                             <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => setIsLicenseModalOpen(true)}
-                                    className="bg-accent text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all shadow-lg shadow-accent/20 active:scale-95 flex items-center gap-2 whitespace-nowrap"
-                                >
-                                    Ver Licencias
-                                </button>
+                                {!isOwner && (
+                                    <button
+                                        onClick={() => setIsLicenseModalOpen(true)}
+                                        className="bg-accent text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all shadow-lg shadow-accent/20 active:scale-95 flex items-center gap-2 whitespace-nowrap"
+                                    >
+                                        Ver Licencias
+                                    </button>
+                                )}
 
                                 <button
                                     onClick={closePlayer}

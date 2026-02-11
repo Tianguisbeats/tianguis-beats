@@ -25,10 +25,11 @@ function formatPriceMXN(value?: number | null) {
 
 export default function BeatCard({ beat }: BeatCardProps) {
     const { currentBeat, isPlaying, playBeat } = usePlayer();
-    const { addItem, isInCart } = useCart();
+    const { addItem, isInCart, currentUserId } = useCart();
     const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
     const isThisPlaying = currentBeat?.id === beat.id && isPlaying;
     const itemInCart = isInCart(beat.id);
+    const isOwner = currentUserId && beat.producer_id === currentUserId;
 
     const coverColor = beat.coverColor || "bg-slate-50";
     const tagColor = beat.tagColor || "bg-blue-600";
@@ -156,20 +157,26 @@ export default function BeatCard({ beat }: BeatCardProps) {
                                 ).split('.')[0]}
                             </span>
                         </div>
-                        <button onClick={handleAddToCart} className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] mt-2 group/lic flex items-center gap-1.5 hover:text-blue-600 transition-colors">
+                        <button
+                            onClick={handleAddToCart}
+                            disabled={!!isOwner}
+                            className={`text-[10px] font-black uppercase tracking-[0.1em] mt-2 group/lic flex items-center gap-1.5 transition-colors ${isOwner ? 'text-slate-300 cursor-not-allowed hidden' : 'text-slate-400 hover:text-blue-600'}`}
+                        >
                             VER LICENCIAS <ChevronRight size={10} className="group-hover/lic:translate-x-1 transition-transform" />
                         </button>
                     </div>
 
-                    <button
-                        onClick={handleAddToCart}
-                        className={`w-16 h-16 rounded-[2rem] flex items-center justify-center transition-all shadow-2xl active:scale-95 ${itemInCart
-                            ? 'bg-emerald-500 text-white shadow-emerald-500/30'
-                            : 'bg-white text-blue-600 hover:bg-blue-600 hover:text-white shadow-blue-500/10 border border-slate-50'
-                            }`}
-                    >
-                        {itemInCart ? <Check size={32} strokeWidth={4} /> : <ShoppingCart size={28} />}
-                    </button>
+                    {!isOwner && (
+                        <button
+                            onClick={handleAddToCart}
+                            className={`w-16 h-16 rounded-[2rem] flex items-center justify-center transition-all shadow-2xl active:scale-95 ${itemInCart
+                                ? 'bg-emerald-500 text-white shadow-emerald-500/30'
+                                : 'bg-white text-blue-600 hover:bg-blue-600 hover:text-white shadow-blue-500/10 border border-slate-50'
+                                }`}
+                        >
+                            {itemInCart ? <Check size={32} strokeWidth={4} /> : <ShoppingCart size={28} />}
+                        </button>
+                    )}
                 </div>
             </div>
 
