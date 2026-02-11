@@ -110,14 +110,39 @@ export default function PricingPage() {
         const isDowngrade = targetIdx < currentIdx;
 
         if (isDowngrade) {
+            let downgradeMessages: string[] = [];
+
+            if (currentTier === 'premium' && plan.tier === 'pro') {
+                downgradeMessages = [
+                    "Perderás el acceso a la descarga de Stems (Pistas).",
+                    "Perderás la capacidad de vender Licencias Exclusivas.",
+                    "Se desactivarán tus Sound Kits y tu Smart Bio Premium.",
+                    "Tu cuenta ya no tendrá el Impulso Algorítmico."
+                ];
+            } else if (currentTier === 'premium' && plan.tier === 'free') {
+                downgradeMessages = [
+                    "Tu comisión por venta subirá del 0% al 15%.",
+                    "Solo podrás tener 5 Beats públicos (los demás se ocultarán).",
+                    "Perderás el acceso a Stems, Sound Kits y Smart Bio.",
+                    "Ya no podrás descargar archivos WAV de tus producciones."
+                ];
+            } else if (currentTier === 'pro' && plan.tier === 'free') {
+                downgradeMessages = [
+                    "Tu comisión por venta subirá del 0% al 15%.",
+                    "Solo podrás tener 5 Beats públicos.",
+                    "Perderás el soporte 24/7 y la descarga de WAV.",
+                    "Se desactivarán tus servicios de mezcla y masterización."
+                ];
+            }
+
             setSelectedPlan({
                 ...plan,
                 type: 'downgrade',
-                messages: plan.tier === 'free' ? [
+                messages: [
                     "Tu plan actual permanecerá activo hasta el final de tu ciclo.",
-                    "Conservarás todos tus beneficios y días restantes.",
-                    "Al finalizar la fecha, tu cuenta pasará a Gratis automáticamente."
-                ] : ["Perderás beneficios exclusivos de tu plan actual."]
+                    ...downgradeMessages,
+                    `Al finalizar tu periodo (${new Date(terminaSuscripcion || '').toLocaleDateString()}), pasarás a ${plan.name} automáticamente.`
+                ]
             });
             setShowDowngradeModal(true);
         } else {
@@ -128,6 +153,26 @@ export default function PricingPage() {
                 disclaimer: "Importante: Tu nuevo plan comienza hoy."
             });
             setShowDowngradeModal(true);
+        }
+    };
+
+    const handleCancelChange = async () => {
+        if (!session) return;
+        setLoading(true);
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({ comenzar_suscripcion: null })
+                .eq('id', session.user.id);
+
+            if (error) throw error;
+            setComenzarSuscripcion(null);
+            alert("Cambio cancelado. Mantendrás tu plan actual.");
+        } catch (err) {
+            console.error(err);
+            alert("Error al cancelar el cambio.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -205,6 +250,15 @@ export default function PricingPage() {
                             <button onClick={confirmAction} className="w-full py-4 bg-accent text-white rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-accent/20 hover:scale-[1.02] transition-all">
                                 {selectedPlan.type === 'downgrade' ? 'Programar Cambio' : 'Ir al Carrito'}
                             </button>
+
+                            {selectedPlan.type === 'downgrade' && (
+                                <button
+                                    onClick={() => setShowDowngradeModal(false)}
+                                    className="w-full mt-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+                                >
+                                    Arrepentirse / Mantener Plan Actual
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -306,16 +360,25 @@ export default function PricingPage() {
                                             </li>
                                         ))}
                                     </ul>
-                                    <button
-                                        onClick={() => handleSelectPlan(plan)}
-                                        disabled={isCurrentPlan || isScheduled}
-                                        className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${isCurrentPlan || isScheduled
-                                            ? 'bg-muted/10 text-muted cursor-default'
-                                            : isPro ? 'bg-amber-500 text-white hover:bg-foreground hover:shadow-xl' : 'bg-foreground text-background hover:bg-accent hover:text-white'
-                                            }`}
-                                    >
-                                        {isCurrentPlan ? 'Tu Plan Actual' : isScheduled ? 'Programado' : isUpgrade ? `Mejorar a ${plan.name}` : isDowngrade ? `Cambiar a ${plan.name}` : `Suscribirse ${plan.name}`}
-                                    </button>
+                                    {isScheduled ? (
+                                        <button
+                                            onClick={handleCancelChange}
+                                            className="w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest bg-amber-500/10 text-amber-500 border border-amber-500/20 hover:bg-amber-500 hover:text-white transition-all shadow-lg"
+                                        >
+                                            Cancelar Cambio Programado
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => handleSelectPlan(plan)}
+                                            disabled={isCurrentPlan}
+                                            className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${isCurrentPlan
+                                                ? 'bg-muted/10 text-muted cursor-default'
+                                                : isPro ? 'bg-amber-500 text-white hover:bg-foreground hover:shadow-xl' : 'bg-foreground text-background hover:bg-accent hover:text-white'
+                                                }`}
+                                        >
+                                            {isCurrentPlan ? 'Tu Plan Actual' : isUpgrade ? `Mejorar a ${plan.name}` : isDowngrade ? `Cambiar a ${plan.name}` : `Suscribirse ${plan.name}`}
+                                        </button>
+                                    )}
 
                                     <Link href={`/pricing/${plan.tier}`} className={`mt-4 text-center text-[10px] font-black uppercase tracking-widest text-muted hover:${planColorClass} transition-colors`}>
                                         Saber más sobre el plan
