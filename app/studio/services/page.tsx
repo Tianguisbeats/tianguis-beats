@@ -495,20 +495,32 @@ export default function ServicesManagerPage() {
                             </div>
 
                             <div className="flex gap-3 pt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => { setIsEditingKit(false); setCurrentKit(null); setKitFile(null); }}
-                                    className="flex-1 py-3 rounded-xl font-bold text-muted uppercase tracking-widest text-xs hover:bg-background transition-colors"
-                                >
-                                    Cancelar
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={kitSaving}
-                                    className="flex-1 bg-accent text-white py-3 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-accent-soft hover:text-accent transition-colors shadow-lg"
-                                >
-                                    {kitSaving ? "Subiendo..." : "Guardar Kit"}
-                                </button>
+                                {(!currentKit?.title && !currentKit?.price && !kitFile && !currentKit?.file_url) ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => { setIsEditingKit(false); setCurrentKit(null); setKitFile(null); setKitCoverFile(null); }}
+                                        className="flex-1 bg-slate-100 dark:bg-slate-800 text-foreground py-3 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-slate-200 transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                ) : (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={() => { setIsEditingKit(false); setCurrentKit(null); setKitFile(null); setKitCoverFile(null); }}
+                                            className="px-6 py-3 rounded-xl font-bold text-muted uppercase tracking-widest text-xs hover:bg-background transition-colors"
+                                        >
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={kitSaving}
+                                            className="flex-1 bg-accent text-white py-3 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-accent-soft hover:text-accent transition-colors shadow-lg"
+                                        >
+                                            {kitSaving ? "Subiendo..." : "Guardar Kit"}
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </form>
                     </div>

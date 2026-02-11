@@ -45,13 +45,17 @@ create policy "Producers can delete their own kits" on sound_kits for delete usi
 
 -- Create Storage Buckets (if they don't exist, this is idempotent-ish in logic but SQL needs helper)
 -- Note: In Supabase SQL Editor, you usually insert into storage.buckets
-insert into storage.buckets (id, name, public)
-values ('sound_kits', 'sound_kits', false)
-on conflict (id) do nothing;
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('sound_kits', 'sound_kits', false, 2147483648, ARRAY['application/zip', 'application/x-rar-compressed', 'application/octet-stream'])
+on conflict (id) do update set
+  file_size_limit = 2147483648,
+  allowed_mime_types = ARRAY['application/zip', 'application/x-rar-compressed', 'application/octet-stream'];
 
-insert into storage.buckets (id, name, public)
-values ('sound_kits_covers', 'sound_kits_covers', true)
-on conflict (id) do nothing;
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('sound_kits_covers', 'sound_kits_covers', true, 10485760, ARRAY['image/jpeg', 'image/png', 'image/jpg', 'image/webp'])
+on conflict (id) do update set
+  file_size_limit = 10485760,
+  allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 
 -- Storage Policies for sound_kits (Private mostly, but public download for authenticated/purchased? For now, producer access)
 -- Allow producer to upload/select/delete their own files

@@ -143,8 +143,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             id: type === 'service' ? `service_${item.id}` : `kit_${item.id}`,
             type: type,
             name: type === 'service' ? item.titulo : item.title,
-            price: Number(item.precio || item.price),
-            image: type === 'sound_kit' ? item.cover_url : profile?.foto_perfil,
+            price: Number(item.precio || item.price || 0),
+            image: type === 'sound_kit' ? (item.cover_url || profile?.foto_perfil) : profile?.foto_perfil,
             subtitle: type === 'service' ? 'Servicio Profesional' : 'Sound Kit',
             metadata: {
                 originalId: item.id,
