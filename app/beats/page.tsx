@@ -97,7 +97,7 @@ function HubContent() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 px-4 md:px-0">
             {/* Beats Card */}
-            <Link href="/beats/catalog" className="group relative h-[500px] rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-accent/40 transition-all duration-700 shadow-2xl hover:shadow-accent/10">
+            <Link href="/beats/catalog" className="group relative h-[500px] rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-emerald-500/40 transition-all duration-700 shadow-2xl hover:shadow-emerald-500/10">
               <Image
                 src="/images/explore/zaytoven.jpg"
                 alt="Beats Background"
@@ -106,7 +106,7 @@ function HubContent() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col items-center justify-end p-12 text-center">
                 <h3 className="text-4xl font-black text-white uppercase tracking-tighter mb-2 italic">Beats</h3>
-                <p className="text-accent text-[10px] font-black uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">Entrar al Catálogo</p>
+                <p className="text-emerald-400 text-[10px] font-black uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">Explora todo el catálogo</p>
               </div>
             </Link>
 
