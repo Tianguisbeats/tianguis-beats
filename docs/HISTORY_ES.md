@@ -11,38 +11,34 @@ La plataforma ahora soporta:
 
 ---
 
-## 2. Funcionalidades Clave Implementadas
+## 2. Refinamientos de UI y Experiencia de Usuario (Reciente)
 
-### A. Perfil Profesional y Marketplace
-El perfil público `/[username]` ha sido renovado para incluir una Interfaz por Pestañas:
-- **Pestaña Beats:** La tienda de beats clásica.
-- **Pestaña Servicios:** Nueva cuadrícula para mostrar servicios.
-- **Pestaña Colecciones:** Playlists organizadas.
+### A. Tarjetas de Beats y Propiedad
+- **Etiqueta de Propiedad:** Se ha actualizado la etiqueta para dueños de beats a **"ES TU BEAT"**, dejando claro que la obra pertenece al usuario actual y no está disponible para su compra por él mismo.
+- **Botón de Licencias:** Rediseñado para ser más elegante (altura `h-10`) con efectos de sombra (`shadow-accent/40`) y mejor adaptación al modo oscuro.
 
-### B. Gestores de Estudio
-Nuevas secciones agregadas al Panel de Control del Estudio:
-1.  **Mis Servicios:** Interfaz CRUD para gestionar ofertas.
-2.  **Cupones:** Crea códigos de descuento por porcentaje.
-3.  **Personalizar:** Elige tu "Vibe" (Tema) y Color de Marca.
+### B. Perfil y Sound Kits
+- **Sección Premium (Sound Kits):** La tarjeta de upsell para Sound Kits se ha refinado con:
+    - Botón **Amarillo** ("Mejorar a Premium") con texto oscuro para máximo contraste.
+    - Icono de **Corona en Amarillo** resaltado.
+    - Efectos de sombra profunda y resaltado para un look más "premium" y llamativo.
+- **Consistencia de Color:** Ajuste de fondos en tarjetas de servicios para usar el azul (`accent`) de la marca, asegurando legibilidad en todos los temas.
 
-### C. Lógica y Seguridad
-- **Límites de Almacenamiento:** Los usuarios gratuitos están limitados a 5 Subidas (Ejecución en Frontend).
-- **Restricciones de Archivos:** Solo los Pro/Premium pueden subir WAVs/Stems.
-- **Flujo de Cancelación:** Botón de cancelación "discreto" implementado para suscripciones.
+### C. Limpieza y Organización del Repositorio
+- **Eliminación de Basura:** Se borraron más de 25 archivos SQL obsoletos y scripts temporales.
+- **Nueva Estructura:** Creación de la carpeta `docs/` para organizar el historial técnico y la arquitectura, manteniendo la raíz del proyecto limpia.
+- **README:** Actualizado para ser un portal de bienvenida profesional con enlaces a la nueva documentación.
 
 ---
 
-## 3. Actualizaciones de Base de Datos y Esquema
-Migramos el esquema para soportar estas funciones sin romper datos existentes:
-- Tabla `services` (servicios).
-- Tabla `coupons` (cupones).
-- Columnas en `profiles`: `tema_perfil`, `color_acento`, `video_destacado_url`.
+## 3. Actualizaciones Técnicas y de Base de Datos
+- **Seguridad de Compra:** Integración de `producer_id` en todas las consultas de beats para prevenir la autocompra y habilitar etiquetas de dueño.
+- **Restricciones en Reproductor:** El botón "Ver Licencias" ahora se oculta automáticamente en el `AudioPlayer` si el usuario es el dueño del beat.
 
-## 4. Verificación
-- **Límites de Subida:** Verificado en `app/upload/page.tsx` (Línea 126).
-- **Verificación de Niveles:** Verificado en toda la aplicación usando `subscription_tier`.
-- **Flujo de Pagos:** Lógica de cancelación discreta verificada.
+## 4. Verificación Realizada
+- **Modos Claro/Oscuro:** Verificado que todas las tarjetas y botones mantienen su legibilidad y estética premium en ambos modos.
+- **Flujo de Usuario:** Confirmado que un productor puede ver su etiqueta de dueño y que las secciones restringidas (Servicios/Kits) muestran los upsells correctos con el nuevo diseño.
 
 ## 5. Próximos Pasos
-- **Lanzamiento:** Desplegar en Vercel/Netlify.
-- **Monitorear Almacenamiento:** Vigila el uso de los buckets de Supabase Storage. Mejora al plan Pro ($25/mes) una vez que superes los 10 productores activos.
+- **Monitoreo de Feedback:** Observar la interacción de los usuarios con el nuevo diseño de botones.
+- **Escalabilidad:** Evaluar el rendimiento de las consultas con el aumento de volumen de beats.

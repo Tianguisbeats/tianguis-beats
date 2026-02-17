@@ -220,15 +220,15 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                         {isOwner ? (
                             <div className="flex flex-col">
                                 <span className="text-[7px] text-muted font-black uppercase tracking-[0.2em] mb-0.5 italic">Tu Obra</span>
-                                <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">PROPIO</span>
+                                <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">ES TU BEAT</span>
                             </div>
                         ) : (
                             <button
                                 onClick={!beat.is_sold ? handleAddToCart : undefined}
                                 disabled={!!beat.is_sold}
                                 className={`w-full h-10 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 group/btn active:scale-95 ${beat.is_sold
-                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
-                                        : 'bg-accent text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900 shadow-[0_10px_20px_-5px_rgba(59,130,246,0.3)] hover:shadow-accent/40'
+                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
+                                    : 'bg-accent text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900 shadow-[0_10px_20px_-5px_rgba(59,130,246,0.3)] hover:shadow-accent/40'
                                     }`}
                             >
                                 {beat.is_sold ? 'No Disponible' : (

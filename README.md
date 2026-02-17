@@ -9,11 +9,10 @@ Tianguis Beats is a professional marketplace for beats, sound kits, and creative
 - **Dynamic Profiles**: Customizable themes (Dark, Neon, Gold) for producers.
 - **Subscription Tiers**: Managed access levels (Free, Pro, Premium).
 
-## Documentation
-Historical and technical documentation has been organized in the `docs/` folder:
-- [Architecture Overview](file:///Users/mauriciogarces/Desktop/tianguisbeats/docs/ARCHITECTURE.md)
-- [Implementation History (ES)](file:///Users/mauriciogarces/Desktop/tianguisbeats/docs/HISTORY_ES.md)
-- [Implementation History (EN)](file:///Users/mauriciogarces/Desktop/tianguisbeats/docs/HISTORY_EN.md)
+## Documentación
+La documentación histórica y técnica se ha organizado en la carpeta `docs/`:
+- [Resumen de Arquitectura](file:///Users/mauriciogarces/Desktop/tianguisbeats/docs/ARCHITECTURE.md)
+- [Historial de Implementación (ES)](file:///Users/mauriciogarces/Desktop/tianguisbeats/docs/HISTORY_ES.md)
 
 ## Tech Stack
 - **Frontend**: Next.js 15 (App Router), Tailwind CSS, Lucide React.
