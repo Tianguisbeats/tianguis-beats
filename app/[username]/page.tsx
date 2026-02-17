@@ -435,14 +435,27 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     const handleFollowToggle = async () => {
         if (!currentUserId || !profile) return router.push('/login');
 
-        if (isFollowing) {
-            await supabase.from('follows').delete().eq('follower_id', currentUserId).eq('following_id', profile.id);
-            setFollowersCount(prev => prev - 1);
-            setIsFollowing(false);
-        } else {
-            await supabase.from('follows').insert({ follower_id: currentUserId, following_id: profile.id });
-            setFollowersCount(prev => prev + 1);
-            setIsFollowing(true);
+        // Optimistic UI Update
+        const newFollowingState = !isFollowing;
+        setIsFollowing(newFollowingState);
+        setFollowersCount(prev => newFollowingState ? prev + 1 : prev - 1);
+
+        try {
+            if (isFollowing) {
+                // If currently following, delete
+                const { error } = await supabase.from('follows').delete().eq('follower_id', currentUserId).eq('following_id', profile.id);
+                if (error) throw error;
+            } else {
+                // If not following, insert
+                const { error } = await supabase.from('follows').insert({ follower_id: currentUserId, following_id: profile.id });
+                if (error) throw error;
+            }
+        } catch (error) {
+            console.error('Error toggling follow:', error);
+            // Revert optimistic update on error
+            setIsFollowing(!newFollowingState);
+            setFollowersCount(prev => newFollowingState ? prev - 1 : prev + 1);
+            showToast("Error al actualizar seguimiento", "error");
         }
     };
 

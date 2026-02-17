@@ -20,7 +20,7 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
 
     const [profile, setProfile] = useState<Profile | null>(null);
     const [beats, setBeats] = useState<Beat[]>([]);
-    const [playlists, setPlaylists] = useState<any[]>([]);
+    // Playlists eliminadas de esta vista
     const [loading, setLoading] = useState(true);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [isOwner, setIsOwner] = useState(false);
@@ -30,9 +30,6 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
     const [selectedBpmRange, setSelectedBpmRange] = useState('Todos');
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Playlist Management
-    const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
-    const [editingPlaylist, setEditingPlaylist] = useState<any>(null);
 
     const fetchAll = async () => {
         try {
@@ -87,41 +84,9 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                     setBeats(transformedBeats);
                 }
 
-                // 3. Get Playlists
-                const { data: playlistsData } = await supabase
-                    .from('playlists')
-                    .select(`
-                        id, 
-                        name, 
-                        description, 
-                        playlist_beats (
-                            order_index,
-                            beats (*)
-                        )
-                    `)
-                    .eq('producer_id', profileData.id)
-                    .eq('is_public', true);
-
-                if (playlistsData) {
-                    const formattedPlaylists = await Promise.all(playlistsData.map(async (pl: any) => {
-                        const playlistBeats = pl.playlist_beats.map((pb: any) => pb.beats).filter(Boolean);
-                        const transformedPLBeats = await Promise.all(playlistBeats.map(async (b: any) => {
-                            // Simplified transformation for playlists
-                            return {
-                                ...b,
-                                producer_username: profileData.username,
-                                producer_artistic_name: profileData.artistic_name,
-                                producer_foto_perfil: profileData.foto_perfil,
-                                producer_is_verified: profileData.is_verified,
-                                producer_is_founder: profileData.is_founder,
-                                producer_tier: profileData.subscription_tier
-                            };
-                        }));
-                        return { ...pl, beats: transformedPLBeats };
-                    }));
-                    setPlaylists(formattedPlaylists);
-                }
             }
+
+            // 3. Playlists logic removed
         } catch (err) {
             console.error("Error fetching producer catalog:", err);
         } finally {
@@ -228,23 +193,7 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                                 </div>
                             </div>
 
-                            {/* Actions Area */}
-                            <div className="flex flex-row md:flex-col gap-3 shrink-0">
-                                {isOwner ? (
-                                    <>
-                                        <button
-                                            onClick={() => { setEditingPlaylist(null); setIsPlaylistModalOpen(true); }}
-                                            className="px-8 py-4 bg-foreground text-background hover:opacity-90 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3"
-                                        >
-                                            <Plus size={16} strokeWidth={3} /> Nueva Colección
-                                        </button>
-                                    </>
-                                ) : (
-                                    <button className="px-8 py-4 bg-accent hover:opacity-90 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-xl shadow-accent/20">
-                                        <Heart size={16} /> Seguir Artista
-                                    </button>
-                                )}
-                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -283,33 +232,7 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
 
                     {/* Vitaminized Content Grid */}
                     <div className="space-y-32">
-                        {/* Featured Playlists Grid */}
-                        {playlists.length > 0 && searchQuery === '' && (
-                            <div className="space-y-16">
-                                <div className="flex flex-col md:flex-row items-center justify-between gap-8 border-b border-slate-100 pb-10">
-                                    <div className="flex items-center gap-6">
-                                        <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-[2rem] flex items-center justify-center text-white shadow-2xl">
-                                            <ListMusic size={32} />
-                                        </div>
-                                        <div>
-                                            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter italic">Colecciones Master</h2>
-                                            <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] mt-2">Curado especialmente por el equipo de producción</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-1 gap-16">
-                                    <PlaylistSection
-                                        playlists={playlists}
-                                        isOwner={isOwner}
-                                        onEdit={(id) => {
-                                            const pl = playlists.find(p => p.id === id);
-                                            setEditingPlaylist(pl);
-                                            setIsPlaylistModalOpen(true);
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        )}
+
 
                         {/* Full Catalog Grid */}
                         <div className="space-y-16">
@@ -346,16 +269,7 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                     </div>
                 </div>
 
-                {isOwner && profile && (
-                    <PlaylistManagerModal
-                        isOpen={isPlaylistModalOpen}
-                        onClose={() => setIsPlaylistModalOpen(false)}
-                        producerId={profile.id}
-                        existingPlaylist={editingPlaylist}
-                        allBeats={beats}
-                        onSuccess={fetchAll}
-                    />
-                )}
+
             </main>
 
             <Footer />

@@ -139,12 +139,26 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
     );
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col selection:bg-blue-600 selection:text-white">
+        <div className={`min-h-screen font-sans flex flex-col transition-colors duration-500 ${profile.tema_perfil === 'dark' ? 'bg-[#020205] text-white selection:bg-white selection:text-slate-900' :
+                profile.tema_perfil === 'neon' ? 'bg-[#09090b] text-white selection:bg-green-400 selection:text-black' :
+                    profile.tema_perfil === 'gold' ? 'bg-[#1a1610] text-amber-50 font-serif selection:bg-amber-400 selection:text-black' :
+                        'bg-white text-slate-900 selection:bg-blue-600 selection:text-white'
+            }`} style={{
+                '--accent': profile.color_acento || '#2563eb'
+            } as React.CSSProperties}>
             <Navbar />
             <main className="flex-1 pt-32 pb-20 relative overflow-hidden">
                 {/* Ambient logic */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-50/50 blur-[150px] -z-10 rounded-full" />
-                <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-indigo-50/50 blur-[120px] -z-10 rounded-full" />
+                <div className={`absolute top-0 right-0 w-[500px] h-[500px] blur-[150px] -z-10 rounded-full ${profile.tema_perfil === 'dark' ? 'bg-white/5' :
+                        profile.tema_perfil === 'neon' ? 'bg-green-500/10' :
+                            profile.tema_perfil === 'gold' ? 'bg-amber-500/10' :
+                                'bg-blue-50/50'
+                    }`} />
+                <div className={`absolute bottom-0 left-0 w-[300px] h-[300px] blur-[120px] -z-10 rounded-full ${profile.tema_perfil === 'dark' ? 'bg-white/5' :
+                        profile.tema_perfil === 'neon' ? 'bg-purple-500/10' :
+                            profile.tema_perfil === 'gold' ? 'bg-amber-600/10' :
+                                'bg-indigo-50/50'
+                    }`} />
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Breadcrumbs */}
@@ -155,21 +169,29 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                     {/* Header */}
                     <div className="flex flex-col md:flex-row items-center justify-between gap-12 mb-20">
                         <div className="flex flex-col md:flex-row items-center gap-10 text-center md:text-left">
-                            <div className="w-32 h-32 md:w-40 md:h-40 bg-gradient-to-br from-blue-600 via-indigo-600 to-indigo-800 rounded-[3rem] flex items-center justify-center text-white shadow-2xl relative group">
+                            <div className={`w-32 h-32 md:w-40 md:h-40 rounded-[3rem] flex items-center justify-center shadow-2xl relative group ${profile.tema_perfil === 'dark' ? 'bg-white/5 text-white border border-white/10' :
+                                    profile.tema_perfil === 'neon' ? 'bg-black text-green-400 border border-green-500/20 shadow-[0_0_30px_rgba(74,222,128,0.2)]' :
+                                        profile.tema_perfil === 'gold' ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-100 border border-amber-500/20' :
+                                            'bg-gradient-to-br from-blue-600 via-indigo-600 to-indigo-800 text-white'
+                                }`}>
                                 <div className="absolute inset-0 bg-white/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
                                 <ListMusic size={60} className="relative z-10" />
                             </div>
                             <div className="space-y-4">
                                 <div className="flex items-center justify-center md:justify-start gap-3">
-                                    <span className="text-blue-600 text-[10px] font-black uppercase tracking-[0.4em]">TIANGUIS PLAYLIST</span>
-                                    <div className="w-8 h-px bg-slate-100" />
-                                    <span className="text-slate-400 text-[9px] font-bold uppercase tracking-widest">{beatsInPlaylist.length} Beats Guardados</span>
+                                    <span className={`text-[10px] font-black uppercase tracking-[0.4em] ${profile.tema_perfil === 'light' ? 'text-blue-600' : 'text-accent'
+                                        }`}>TIANGUIS PLAYLIST</span>
+                                    <div className={`w-8 h-px ${profile.tema_perfil === 'light' ? 'bg-slate-100' : 'bg-white/10'}`} />
+                                    <span className={`text-[9px] font-bold uppercase tracking-widest ${profile.tema_perfil === 'light' ? 'text-slate-400' : 'text-white/40'}`}>{beatsInPlaylist.length} Beats Guardados</span>
                                 </div>
-                                <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter leading-none italic bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600">
+                                <h1 className={`text-4xl md:text-7xl font-black uppercase tracking-tighter leading-none italic ${profile.tema_perfil === 'light'
+                                        ? 'bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600'
+                                        : 'text-white drop-shadow-lg'
+                                    }`}>
                                     {playlist.name}
                                 </h1>
                                 {playlist.description && (
-                                    <p className="text-slate-400 text-sm font-medium italic max-w-xl">{playlist.description}</p>
+                                    <p className={`text-sm font-medium italic max-w-xl ${profile.tema_perfil === 'light' ? 'text-slate-400' : 'text-white/60'}`}>{playlist.description}</p>
                                 )}
 
                                 <div className="flex items-center justify-center md:justify-start gap-4 pt-2">
@@ -199,7 +221,10 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                                     navigator.clipboard.writeText(window.location.href);
                                     alert("¡Enlace de la playlist copiado! 🚀");
                                 }}
-                                className="p-4 bg-white text-slate-400 rounded-2xl border border-slate-100 hover:text-blue-600 hover:border-blue-200 transition-all hover:shadow-lg active:scale-90"
+                                className={`p-4 rounded-2xl border transition-all hover:shadow-lg active:scale-90 ${profile.tema_perfil === 'light'
+                                        ? 'bg-white text-slate-400 border-slate-100 hover:text-blue-600 hover:border-blue-200'
+                                        : 'bg-white/5 text-white/40 border-white/5 hover:text-white hover:bg-white/10 hover:border-white/20'
+                                    }`}
                             >
                                 <Share2 size={24} />
                             </button>
@@ -213,15 +238,18 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-16">
                             {beatsInPlaylist.map((beat, idx) => (
                                 <div key={beat.id} className="animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both" style={{ animationDelay: `${idx * 50}ms` }}>
-                                    <BeatCardPro beat={beat} />
+                                    <BeatCardPro beat={beat} compact={true} />
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="bg-slate-50/50 backdrop-blur-sm rounded-[4rem] py-40 text-center border-2 border-dashed border-slate-100">
-                            <Music size={60} className="text-slate-200 mx-auto mb-10" />
-                            <h3 className="text-3xl font-black uppercase tracking-tighter text-slate-900 mb-4 italic">Playlist sin beats</h3>
-                            <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.3em]">Esta colección aún no tiene tracks guardados</p>
+                        <div className={`rounded-[4rem] py-40 text-center border-2 border-dashed backdrop-blur-sm ${profile.tema_perfil === 'light'
+                                ? 'bg-slate-50/50 border-slate-100'
+                                : 'bg-white/5 border-white/5'
+                            }`}>
+                            <Music size={60} className={`mx-auto mb-10 ${profile.tema_perfil === 'light' ? 'text-slate-200' : 'text-white/20'}`} />
+                            <h3 className={`text-3xl font-black uppercase tracking-tighter mb-4 italic ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>Playlist sin beats</h3>
+                            <p className={`text-[11px] font-black uppercase tracking-[0.3em] ${profile.tema_perfil === 'light' ? 'text-slate-400' : 'text-white/40'}`}>Esta colección aún no tiene tracks guardados</p>
                         </div>
                     )}
                 </div>
