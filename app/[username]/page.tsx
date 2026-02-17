@@ -1243,7 +1243,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                         onClick={() => handleAddToCart(kit, 'sound_kit')}
                                                                         className="w-full bg-amber-400 text-slate-900 px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:bg-amber-300 group/btn"
                                                                     >
-                                                                        <DollarSign size={14} /> Comprar ${kit.price}
+                                                                        Comprar ${kit.price}
                                                                     </button>
                                                                 )}
                                                             </div>

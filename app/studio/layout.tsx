@@ -100,7 +100,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                             <h4 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
                                 {profile?.subscription_tier === 'premium' ? <><Crown size={14} /> Plan Premium</> :
                                     profile?.subscription_tier === 'pro' ? <><Crown size={14} /> Plan Pro</> :
-                                        'Plan Gratuito'}
+                                        <span className="text-slate-400 dark:text-slate-500">Plan Free</span>}
                             </h4>
 
                             {profile?.is_verified ? (
@@ -111,10 +111,10 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                             ) : (
                                 <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/10">
                                     <Link href="/studio/verification" className="flex items-center gap-2 group/verify hover:opacity-80 transition-opacity">
-                                        <div className="w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center">
-                                            <ShieldCheck size={10} className="text-red-500" />
+                                        <div className="w-5 h-5 rounded-full bg-blue-400/10 flex items-center justify-center">
+                                            <ShieldCheck size={10} className="text-blue-400" />
                                         </div>
-                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-red-500/80 border-b border-transparent group-hover/verify:border-red-500/40">Sin Verificar • Solicitar</span>
+                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-400/80 border-b border-transparent group-hover/verify:border-blue-400/40">Sin Verificar • Solicitar</span>
                                     </Link>
                                 </div>
                             )}
