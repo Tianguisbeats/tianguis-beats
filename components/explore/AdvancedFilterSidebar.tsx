@@ -225,8 +225,8 @@ export default function AdvancedFilterSidebar({
                                 className="w-full bg-background border border-border text-foreground rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent appearance-none min-h-[48px]"
                             >
                                 <option value="" className="bg-card">Cualquier Escala</option>
-                                <option value="Major" className="bg-card">Mayor</option>
-                                <option value="Minor" className="bg-card">Menor</option>
+                                <option value="Mayor" className="bg-card">Mayor</option>
+                                <option value="Menor" className="bg-card">Menor</option>
                             </select>
                         </div>
                     </div>

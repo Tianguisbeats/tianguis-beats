@@ -315,8 +315,8 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     );
 
     return (
-        <div className="w-full">
-            <div className="mb-6 pl-1 flex items-center justify-between">
+        <div className="w-full lg:-m-14 -m-10 lg:p-14 p-10 bg-background dark:bg-card/20 rounded-[3.5rem] min-h-screen">
+            <div className="mb-10 pl-1 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Link href="/studio/beats" className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-background border border-border text-muted hover:text-accent hover:border-accent transition-all shrink-0">
                         <ChevronLeft size={16} />

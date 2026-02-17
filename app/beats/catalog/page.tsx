@@ -183,8 +183,8 @@ function CatalogContent() {
 
                 if (filterState.refArtist.trim()) {
                     const ra = filterState.refArtist.trim();
-                    // Uso del operador 'contains' para arrays en Supabase
-                    query = query.contains('beat_types', [ra]);
+                    // Buscar tanto en el campo de texto simple como en el array de tipos
+                    query = query.or(`reference_artist.ilike.%${ra}%,beat_types.cs.{"${ra}"}`);
                 }
 
                 switch (viewMode) {
@@ -252,7 +252,13 @@ function CatalogContent() {
                             <button
                                 onClick={() => {
                                     const container = document.getElementById('tabs-container');
-                                    if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
+                                    if (container) {
+                                        if (container.scrollLeft <= 0) {
+                                            container.scrollTo({ left: container.scrollWidth, behavior: 'smooth' });
+                                        } else {
+                                            container.scrollBy({ left: -300, behavior: 'smooth' });
+                                        }
+                                    }
                                 }}
                                 className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-card border border-border rounded-full shadow-lg hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
                             >
@@ -273,7 +279,14 @@ function CatalogContent() {
                             <button
                                 onClick={() => {
                                     const container = document.getElementById('tabs-container');
-                                    if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
+                                    if (container) {
+                                        const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 10;
+                                        if (isAtEnd) {
+                                            container.scrollTo({ left: 0, behavior: 'smooth' });
+                                        } else {
+                                            container.scrollBy({ left: 300, behavior: 'smooth' });
+                                        }
+                                    }
                                 }}
                                 className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-card border border-border rounded-full shadow-lg hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
                             >

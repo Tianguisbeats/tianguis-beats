@@ -53,7 +53,7 @@ export default function Home() {
 
     scales.forEach(s => {
       if (lowerQuery.includes(s)) {
-        const scaleValue = (s === 'minor' || s === 'menor') ? 'Minor' : 'Major';
+        const scaleValue = (s === 'minor' || s === 'menor') ? 'Menor' : 'Mayor';
         params.set('scale', scaleValue);
       }
     });
