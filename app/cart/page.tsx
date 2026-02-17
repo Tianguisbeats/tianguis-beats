@@ -288,7 +288,7 @@ export default function CartPage() {
                                                 </p>
                                                 {(isService || isSoundKit) && item.metadata?.producerName && (
                                                     <p className="text-blue-500 text-[9px] font-black uppercase tracking-[0.2em] mt-1">
-                                                        Artista: {item.metadata.producerName}
+                                                        {item.metadata.producerName}
                                                     </p>
                                                 )}
                                             </div>

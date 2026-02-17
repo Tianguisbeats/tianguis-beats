@@ -2,13 +2,21 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Loader2, ShieldCheck, XCircle, CheckCircle, ExternalLink, User } from 'lucide-react';
+import {
+    Loader2, ShieldCheck, XCircle, CheckCircle, ExternalLink, User,
+    Users, Ticket, DollarSign, TrendingUp, Search, Crown,
+    Save, Trash2, Edit2, AlertCircle, Music
+} from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/context/ToastContext';
+
+type Tab = 'dashboard' | 'verifications' | 'users' | 'coupons';
 
 export default function AdminDashboard() {
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [requests, setRequests] = useState<any[]>([]);
+    const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+    const { showToast } = useToast();
 
     useEffect(() => {
         const checkAdmin = async () => {
@@ -26,70 +34,14 @@ export default function AdminDashboard() {
 
             if (profile?.is_admin) {
                 setIsAdmin(true);
-                fetchRequests();
             } else {
                 setLoading(false);
             }
+            setLoading(false);
         };
 
         checkAdmin();
     }, []);
-
-    const fetchRequests = async () => {
-        setLoading(true);
-        const { data, error } = await supabase
-            .from('verification_requests')
-            .select(`
-                *,
-                profiles:user_id (
-                    username,
-                    foto_perfil,
-                    email
-                )
-            `)
-            .eq('status', 'pending')
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            console.error("Error fetching requests:", error);
-        } else {
-            setRequests(data || []);
-        }
-        setLoading(false);
-    };
-
-    const handleDecision = async (requestId: string, userId: string, status: 'approved' | 'rejected') => {
-        const confirmMsg = status === 'approved' ? "¿Aprobar verificación?" : "¿Rechazar solicitud?";
-        if (!window.confirm(confirmMsg)) return;
-
-        try {
-            // 1. Update request status
-            const { error: reqError } = await supabase
-                .from('verification_requests')
-                .update({ status })
-                .eq('id', requestId);
-
-            if (reqError) throw reqError;
-
-            // 2. If approved, update profile is_verified
-            if (status === 'approved') {
-                const { error: profileError } = await supabase
-                    .from('profiles')
-                    .update({ is_verified: true })
-                    .eq('id', userId);
-
-                if (profileError) throw profileError;
-            }
-
-            // 3. Refresh list
-            setRequests(requests.filter(r => r.id !== requestId));
-            alert(`Solicitud ${status === 'approved' ? 'aprobada' : 'rechazada'} con éxito.`);
-
-        } catch (error: any) {
-            console.error("Error processing request:", error);
-            alert("Error: " + error.message);
-        }
-    };
 
     if (loading) return (
         <div className="flex items-center justify-center min-h-[50vh]">
@@ -108,261 +60,426 @@ export default function AdminDashboard() {
     );
 
     return (
-        <div className="max-w-5xl mx-auto">
-            <header className="mb-12">
-                <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-2">
-                    Panel de <span className="text-accent">Administración</span>
-                </h1>
-                <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em]">
-                    Gestionando {requests.length} solicitudes pendientes
-                </p>
+        <div className="max-w-[1400px] mx-auto">
+            <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground mb-2">
+                        Control <span className="text-accent">Maestro</span>
+                    </h1>
+                    <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em]">
+                        Panel de Administración de Tianguis Beats
+                    </p>
+                </div>
+
+                {/* Tab Navigation */}
+                <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-2xl border border-border">
+                    {[
+                        { id: 'dashboard', label: 'Dashboard', icon: <TrendingUp size={14} /> },
+                        { id: 'verifications', label: 'Verificaciones', icon: <ShieldCheck size={14} /> },
+                        { id: 'users', label: 'Usuarios', icon: <Users size={14} /> },
+                        { id: 'coupons', label: 'Cupones', icon: <Ticket size={14} /> }
+                    ].map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as Tab)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id
+                                    ? 'bg-white dark:bg-white/10 text-foreground shadow-sm'
+                                    : 'text-muted hover:text-foreground'
+                                }`}
+                        >
+                            {tab.icon} {tab.label}
+                        </button>
+                    ))}
+                </div>
             </header>
 
-            <div className="grid gap-6">
-                {requests.length === 0 ? (
-                    <div className="bg-slate-50 dark:bg-white/5 rounded-[2rem] p-12 text-center border border-border">
-                        <CheckCircle size={48} className="mx-auto text-emerald-500 mb-4" />
-                        <h3 className="text-xl font-bold text-foreground">¡Todo al día!</h3>
-                        <p className="text-muted text-sm mt-2">No hay solicitudes de verificación pendientes.</p>
-                    </div>
-                ) : (
-                    requests.map((req) => (
-                        <div key={req.id} className="bg-white dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-6">
-                            {/* User Info */}
-                            <div className="flex items-start gap-4 md:w-1/3">
-                                <div className="w-16 h-16 rounded-2xl bg-slate-100 overflow-hidden shrink-0">
-                                    {req.profiles?.foto_perfil ? (
-                                        <img src={req.profiles.foto_perfil} alt="Avatar" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-muted">
-                                            <User size={24} />
-                                        </div>
-                                    )}
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-lg text-foreground leading-tight">{req.artistic_name}</h3>
-                                    <p className="text-sm text-muted">{req.real_name}</p>
-                                    <p className="text-xs text-accent mt-1">@{req.profiles?.username}</p>
-                                    <p className="text-[10px] text-muted mt-2">ID: {req.user_id}</p>
-                                </div>
-                            </div>
-
-                            {/* Evidence */}
-                            <div className="flex-1 space-y-3 text-sm">
-                                <div className="flex items-center gap-2">
-                                    <span className="font-bold text-foreground min-w-[80px]">Portafolio:</span>
-                                    <a href={req.portfolio_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline flex items-center gap-1">
-                                        {req.portfolio_url} <ExternalLink size={12} />
-                                    </a>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="font-bold text-foreground min-w-[80px]">ID Doc:</span>
-                                    {req.id_document_url ? (
-                                        <a href={req.id_document_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline flex items-center gap-1">
-                                            Ver Documento <ExternalLink size={12} />
-                                        </a>
-                                    ) : (
-                                        <span className="text-red-500">No adjunto</span>
-                                    )}
-                                </div>
-                                <div>
-                                    <span className="font-bold text-foreground block mb-1">Motivación:</span>
-                                    <p className="text-muted italic bg-slate-50 dark:bg-black/20 p-3 rounded-xl text-xs">
-                                        "{req.motivation}"
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="flex flex-col justify-center gap-3 md:w-48 border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6">
-                                <button
-                                    onClick={() => handleDecision(req.id, req.user_id, 'approved')}
-                                    className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
-                                >
-                                    <CheckCircle size={16} /> Aprobar
-                                </button>
-                                <button
-                                    onClick={() => handleDecision(req.id, req.user_id, 'rejected')}
-                                    className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
-                                >
-                                    <XCircle size={16} /> Rechazar
-                                </button>
-                            </div>
-                        </div>
-                    ))
-                )}
-            </div>
-
-            {/* Coupons Management Section */}
-            <div className="mt-16">
-                <header className="mb-8 flex items-center justify-between">
-                    <div>
-                        <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground">
-                            Gestión de <span className="text-accent">Cupones</span>
-                        </h2>
-                        <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em]">
-                            Crea y administra descuentos globales o específicos
-                        </p>
-                    </div>
-                </header>
-
-                <CouponManager />
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {activeTab === 'dashboard' && <GlobalStats />}
+                {activeTab === 'verifications' && <VerificationManager />}
+                {activeTab === 'users' && <UserManager />}
+                {activeTab === 'coupons' && <CouponManager />}
             </div>
         </div>
     );
 }
 
+// --- GLOBAL STATS MODULE ---
+function GlobalStats() {
+    const [stats, setStats] = useState({
+        totalSales: 0,
+        totalUsers: 0,
+        totalBeats: 0,
+        pendingVerifications: 0,
+        activeSubscriptions: 0
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            const [sales, users, beats, verifs] = await Promise.all([
+                supabase.from('sales').select('amount'),
+                supabase.from('profiles').select('id', { count: 'exact', head: true }),
+                supabase.from('beats').select('id', { count: 'exact', head: true }),
+                supabase.from('verification_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending')
+            ]);
+
+            const revenue = sales.data?.reduce((acc, s) => acc + (s.amount || 0), 0) || 0;
+
+            setStats({
+                totalSales: revenue,
+                totalUsers: users.count || 0,
+                totalBeats: beats.count || 0,
+                pendingVerifications: verifs.count || 0,
+                activeSubscriptions: 0 // Fetch logic needed for sub tracking later
+            });
+            setLoading(false);
+        };
+        fetchStats();
+    }, []);
+
+    if (loading) return <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-accent" /></div>;
+
+    const cards = [
+        { label: 'Ingresos Totales', value: `$${stats.totalSales.toLocaleString()}`, sub: 'Ventas de Beats/Kits', icon: <DollarSign className="text-emerald-500" /> },
+        { label: 'Usuarios', value: stats.totalUsers, sub: 'Productores registrados', icon: <Users className="text-blue-500" /> },
+        { label: 'Total Beats', value: stats.totalBeats, sub: 'En catálogo global', icon: <Music className="text-purple-500" /> },
+        { label: 'Verificaciones', value: stats.pendingVerifications, sub: 'Solicitudes pendientes', icon: <ShieldCheck className="text-amber-500" /> }
+    ];
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {cards.map((card, i) => (
+                <div key={i} className="bg-white dark:bg-white/5 border border-border rounded-[2.5rem] p-8 shadow-sm hover:translate-y-[-4px] transition-all">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-white/5 flex items-center justify-center mb-6">
+                        {card.icon}
+                    </div>
+                    <h3 className="text-3xl font-black tracking-tighter mb-1">{card.value}</h3>
+                    <p className="text-muted text-[10px] font-black uppercase tracking-widest">{card.label}</p>
+                    <p className="text-[9px] text-muted/50 mt-1">{card.sub}</p>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+// --- VERIFICATION MANAGER MODULE ---
+function VerificationManager() {
+    const [requests, setRequests] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const { showToast } = useToast();
+
+    useEffect(() => {
+        fetchRequests();
+    }, []);
+
+    const fetchRequests = async () => {
+        const { data, error } = await supabase
+            .from('verification_requests')
+            .select(`*, profiles:user_id (username, foto_perfil, email)`)
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false });
+
+        if (!error) setRequests(data || []);
+        setLoading(false);
+    };
+
+    const handleDecision = async (requestId: string, userId: string, status: 'approved' | 'rejected') => {
+        const confirmMsg = status === 'approved' ? "¿Aprobar verificación?" : "¿Rechazar solicitud?";
+        if (!window.confirm(confirmMsg)) return;
+
+        try {
+            const { error: reqError } = await supabase
+                .from('verification_requests')
+                .update({ status })
+                .eq('id', requestId);
+
+            if (reqError) throw reqError;
+
+            if (status === 'approved') {
+                await supabase.from('profiles').update({ is_verified: true }).eq('id', userId);
+            }
+
+            setRequests(requests.filter(r => r.id !== requestId));
+            showToast(`Solicitud ${status === 'approved' ? 'aprobada' : 'rechazada'}`, "success");
+        } catch (error: any) {
+            showToast(error.message, "error");
+        }
+    };
+
+    if (loading) return <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-accent" /></div>;
+
+    return (
+        <div className="space-y-6">
+            {requests.length === 0 ? (
+                <div className="bg-slate-50 dark:bg-white/5 rounded-[2rem] p-12 text-center border border-border">
+                    <CheckCircle size={48} className="mx-auto text-emerald-500 mb-4" />
+                    <h3 className="text-xl font-bold text-foreground">¡Sin pendientes!</h3>
+                    <p className="text-muted text-sm mt-2">No hay solicitudes de verificación para revisar.</p>
+                </div>
+            ) : (
+                requests.map((req) => (
+                    <div key={req.id} className="bg-white dark:bg-white/5 border border-border rounded-[2.5rem] p-8 flex flex-col lg:flex-row gap-8">
+                        <div className="lg:w-1/4">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="w-12 h-12 rounded-full overflow-hidden bg-accent-soft">
+                                    <img src={req.profiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.artistic_name}`} alt="Avatar" className="w-full h-full object-cover" />
+                                </div>
+                                <div>
+                                    <h3 className="font-black text-lg text-foreground">{req.artistic_name}</h3>
+                                    <p className="text-xs text-muted">@{req.profiles?.username}</p>
+                                </div>
+                            </div>
+                            <div className="space-y-1 text-[10px] font-bold uppercase tracking-widest text-muted/60">
+                                <p>Email: {req.profiles?.email}</p>
+                                <p>Nombre: {req.real_name}</p>
+                                <p>ID: {req.user_id}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex-1 space-y-4">
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <div className="p-4 bg-slate-50 dark:bg-black/20 rounded-2xl border border-border">
+                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-2">Portafolio</p>
+                                    <a href={req.portfolio_url} target="_blank" className="text-sm font-bold text-blue-500 hover:underline flex items-center gap-2">
+                                        {req.portfolio_url} <ExternalLink size={12} />
+                                    </a>
+                                </div>
+                                <div className="p-4 bg-slate-50 dark:bg-black/20 rounded-2xl border border-border">
+                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-2">Identificación</p>
+                                    <a href={req.id_document_url} target="_blank" className="text-sm font-bold text-accent hover:underline flex items-center gap-2">
+                                        Ver Documento <ExternalLink size={12} />
+                                    </a>
+                                </div>
+                            </div>
+                            <div className="p-4 bg-slate-50 dark:bg-black/20 rounded-2xl border border-border">
+                                <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-2">Motivación</p>
+                                <p className="text-xs text-foreground italic leading-relaxed">"{req.motivation}"</p>
+                            </div>
+                        </div>
+
+                        <div className="lg:w-48 flex flex-col gap-3 justify-center">
+                            <button onClick={() => handleDecision(req.id, req.user_id, 'approved')} className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all">Aprobar</button>
+                            <button onClick={() => handleDecision(req.id, req.user_id, 'rejected')} className="w-full py-4 bg-red-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all">Rechazar</button>
+                        </div>
+                    </div>
+                ))
+            )}
+        </div>
+    );
+}
+
+// --- USER MANAGER MODULE ---
+function UserManager() {
+    const [users, setUsers] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const { showToast } = useToast();
+
+    useEffect(() => { fetchUsers(); }, []);
+
+    const fetchUsers = async () => {
+        setLoading(true);
+        const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(100);
+        setUsers(data || []);
+        setLoading(false);
+    };
+
+    const updateTier = async (userId: string, tier: string) => {
+        const { error } = await supabase.from('profiles').update({ subscription_tier: tier }).eq('id', userId);
+        if (!error) {
+            setUsers(users.map(u => u.id === userId ? { ...u, subscription_tier: tier } : u));
+            showToast("Nivel actualizado con éxito", "success");
+        }
+    };
+
+    const filteredUsers = users.filter(u =>
+        u.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        u.artistic_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    return (
+        <div className="space-y-6">
+            <div className="relative max-w-md">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
+                <input
+                    type="text"
+                    placeholder="Buscar usuarios..."
+                    className="w-full pl-12 pr-6 py-4 bg-white dark:bg-white/5 border border-border rounded-2xl font-bold text-sm outline-none focus:border-accent transition-all"
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                />
+            </div>
+
+            <div className="bg-white dark:bg-white/5 border border-border rounded-[2.5rem] overflow-hidden">
+                <table className="w-full">
+                    <thead>
+                        <tr className="border-b border-border bg-slate-50 dark:bg-white/5">
+                            <th className="text-left px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Usuario</th>
+                            <th className="text-left px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Membresía</th>
+                            <th className="text-left px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Estado</th>
+                            <th className="text-right px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                        {loading ? (
+                            <tr><td colSpan={4} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent" /></td></tr>
+                        ) : filteredUsers.map(user => (
+                            <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+                                <td className="px-8 py-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-accent-soft shrink-0">
+                                            <img src={user.foto_perfil || `https://ui-avatars.com/api/?name=${user.username}`} alt="" className="w-full h-full object-cover" />
+                                        </div>
+                                        <div>
+                                            <p className="font-black text-sm text-foreground">@{user.username}</p>
+                                            <p className="text-[10px] text-muted uppercase tracking-widest">{user.artistic_name}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="px-8 py-6">
+                                    <select
+                                        value={user.subscription_tier || 'free'}
+                                        onChange={(e) => updateTier(user.id, e.target.value)}
+                                        className="bg-transparent font-bold text-xs uppercase tracking-widest text-accent outline-none cursor-pointer"
+                                    >
+                                        <option value="free">Gratis</option>
+                                        <option value="pro">Pro</option>
+                                        <option value="premium">Premium</option>
+                                    </select>
+                                </td>
+                                <td className="px-8 py-6">
+                                    <div className="flex items-center gap-2">
+                                        {user.is_verified && <CheckCircle size={14} className="text-blue-500" />}
+                                        <span className={`text-[9px] font-black uppercase tracking-widest ${user.is_verified ? 'text-blue-500' : 'text-muted'}`}>
+                                            {user.is_verified ? 'Verificado' : 'Normal'}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td className="px-8 py-6 text-right">
+                                    <Link href={`/${user.username}`} target="_blank" className="p-2 text-muted hover:text-accent transition-all inline-block">
+                                        <ExternalLink size={16} />
+                                    </Link>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+}
+
+// --- COUPON MANAGER MODULE ---
 function CouponManager() {
     const [coupons, setCoupons] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
     const [newCoupon, setNewCoupon] = useState({
         code: '',
         discount_percent: 20,
         valid_until: '',
-        producer_email: '' // Optional: to link to a producer
+        is_active: true
     });
+    const { showToast } = useToast();
 
-    useEffect(() => {
-        fetchCoupons();
-    }, []);
+    useEffect(() => { fetchCoupons(); }, []);
 
     const fetchCoupons = async () => {
         setLoading(true);
-        const { data, error } = await supabase
-            .from('coupons')
-            .select(`
-                *,
-                profiles:producer_id (email, artistic_name)
-            `)
-            .order('created_at', { ascending: false });
-
-        if (data) setCoupons(data);
+        const { data } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
+        setCoupons(data || []);
         setLoading(false);
     };
 
-    const handleCreateCoupon = async (e: React.FormEvent) => {
+    const handleAction = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            let producerId = null;
-
-            if (newCoupon.producer_email) {
-                const { data: producer, error: prodError } = await supabase
-                    .from('profiles')
-                    .select('id')
-                    .eq('email', newCoupon.producer_email)
-                    .single();
-
-                if (prodError || !producer) {
-                    alert("No se encontró un productor con ese email.");
-                    return;
-                }
-                producerId = producer.id;
+            if (editingId) {
+                const { error } = await supabase.from('coupons').update({
+                    code: newCoupon.code.toUpperCase(),
+                    discount_percent: newCoupon.discount_percent,
+                    valid_until: newCoupon.valid_until || null,
+                    is_active: newCoupon.is_active
+                }).eq('id', editingId);
+                if (error) throw error;
+                showToast("Cupón actualizado", "success");
+            } else {
+                const { error } = await supabase.from('coupons').insert([{
+                    code: newCoupon.code.toUpperCase(),
+                    discount_percent: newCoupon.discount_percent,
+                    valid_until: newCoupon.valid_until || null
+                }]);
+                if (error) throw error;
+                showToast("Cupón creado", "success");
             }
-
-            const { error } = await supabase.from('coupons').insert({
-                code: newCoupon.code.toUpperCase(),
-                discount_percent: newCoupon.discount_percent,
-                valid_until: newCoupon.valid_until || null,
-                producer_id: producerId
-            });
-
-            if (error) throw error;
-
-            alert("Cupón creado con éxito");
-            setNewCoupon({ code: '', discount_percent: 20, valid_until: '', producer_email: '' });
+            setNewCoupon({ code: '', discount_percent: 20, valid_until: '', is_active: true });
+            setEditingId(null);
             fetchCoupons();
-
-        } catch (error: any) {
-            console.error("Error creating coupon:", error);
-            alert("Error al crear cupón: " + error.message);
-        }
+        } catch (error: any) { showToast(error.message, "error"); }
     };
 
-    const handleDeleteCoupon = async (id: string) => {
-        if (!confirm("¿Eliminar este cupón?")) return;
-        const { error } = await supabase.from('coupons').delete().eq('id', id);
-        if (!error) fetchCoupons();
+    const handleDelete = async (id: string) => {
+        if (!confirm("¿Eliminar cupón?")) return;
+        await supabase.from('coupons').delete().eq('id', id);
+        fetchCoupons();
     };
 
     return (
-        <div className="space-y-8">
-            {/* Create Form */}
-            <div className="bg-white dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-[2rem] p-8 shadow-sm">
-                <form onSubmit={handleCreateCoupon} className="grid md:grid-cols-4 gap-4 items-end">
+        <div className="space-y-12">
+            <div className="bg-white dark:bg-white/5 border border-border rounded-[2.5rem] p-8 shadow-sm">
+                <h3 className="text-xl font-black uppercase tracking-tighter mb-6 flex items-center gap-2">
+                    {editingId ? <Edit2 size={20} className="text-accent" /> : <Save size={20} className="text-accent" />}
+                    {editingId ? 'Editar Cupón' : 'Nuevo Cupón'}
+                </h3>
+                <form onSubmit={handleAction} className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-muted tracking-widest block pl-2">Código</label>
-                        <input
-                            required
-                            value={newCoupon.code}
-                            onChange={e => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })}
-                            placeholder="EJ. VERANO2025"
-                            className="w-full bg-slate-50 dark:bg-black/20 rounded-xl px-4 py-3 font-bold text-sm outline-none border focus:border-accent uppercase"
-                        />
+                        <label className="text-[10px] font-black uppercase text-muted tracking-widest pl-2">Código</label>
+                        <input value={newCoupon.code} onChange={e => setNewCoupon({ ...newCoupon, code: e.target.value })} placeholder="VERANO50" className="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-border rounded-xl font-bold text-sm uppercase" required />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-muted tracking-widest block pl-2">Descuento %</label>
-                        <input
-                            type="number"
-                            min="1" max="100"
-                            required
-                            value={newCoupon.discount_percent}
-                            onChange={e => setNewCoupon({ ...newCoupon, discount_percent: Number(e.target.value) })}
-                            className="w-full bg-slate-50 dark:bg-black/20 rounded-xl px-4 py-3 font-bold text-sm outline-none border focus:border-accent"
-                        />
+                        <label className="text-[10px] font-black uppercase text-muted tracking-widest pl-2">Desc %</label>
+                        <input type="number" min="1" max="100" value={newCoupon.discount_percent} onChange={e => setNewCoupon({ ...newCoupon, discount_percent: parseInt(e.target.value) })} className="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-border rounded-xl font-bold text-sm" required />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-muted tracking-widest block pl-2">Email Artista (Opcional)</label>
-                        <input
-                            type="email"
-                            value={newCoupon.producer_email}
-                            onChange={e => setNewCoupon({ ...newCoupon, producer_email: e.target.value })}
-                            placeholder="productor@email.com"
-                            className="w-full bg-slate-50 dark:bg-black/20 rounded-xl px-4 py-3 font-bold text-sm outline-none border focus:border-accent"
-                        />
+                        <label className="text-[10px] font-black uppercase text-muted tracking-widest pl-2">Expira</label>
+                        <input type="datetime-local" value={newCoupon.valid_until} onChange={e => setNewCoupon({ ...newCoupon, valid_until: e.target.value })} className="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-border rounded-xl font-bold text-sm" />
                     </div>
-                    <button type="submit" className="h-[46px] bg-accent text-white rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-transform shadow-lg shadow-accent/20">
-                        Crear Cupón
-                    </button>
-
-                    <div className="md:col-span-4 mt-2">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase text-muted tracking-widest block pl-2">Válido Hasta (Opcional)</label>
-                            <input
-                                type="datetime-local"
-                                value={newCoupon.valid_until}
-                                onChange={e => setNewCoupon({ ...newCoupon, valid_until: e.target.value })}
-                                className="w-full md:w-auto bg-slate-50 dark:bg-black/20 rounded-xl px-4 py-3 font-bold text-sm outline-none border focus:border-accent"
-                            />
-                        </div>
+                    <div className="flex gap-2">
+                        <button type="submit" className="flex-1 py-4 bg-accent text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:shadow-xl transition-all">
+                            {editingId ? 'Actualizar' : 'Guardar'}
+                        </button>
+                        {editingId && (
+                            <button onClick={() => { setEditingId(null); setNewCoupon({ code: '', discount_percent: 20, valid_until: '', is_active: true }); }} className="p-4 bg-slate-200 dark:bg-white/10 text-foreground rounded-xl">
+                                <XCircle size={18} />
+                            </button>
+                        )}
                     </div>
                 </form>
             </div>
 
-            {/* List */}
             <div className="grid gap-4">
-                {coupons.map(coupon => (
-                    <div key={coupon.id} className="flex flex-col md:flex-row items-center justify-between bg-white dark:bg-white/5 p-6 rounded-2xl border border-slate-100 dark:border-white/5">
+                {coupons.map(cp => (
+                    <div key={cp.id} className="bg-white dark:bg-white/5 border border-border rounded-[2rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6 hover:border-accent/30 transition-all">
                         <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center text-accent font-black text-xl">
-                                {coupon.discount_percent}%
+                            <div className="w-16 h-16 rounded-2xl bg-accent-soft flex items-center justify-center text-accent font-black text-2xl">
+                                {cp.discount_percent}%
                             </div>
                             <div>
-                                <h3 className="text-2xl font-black uppercase tracking-tighter">{coupon.code}</h3>
-                                <div className="flex flex-wrap gap-4 text-[10px] font-bold uppercase tracking-widest text-muted mt-1">
-                                    <span>{coupon.profiles ? `Artista: ${coupon.profiles.artistic_name}` : 'Cupón Global'}</span>
-                                    {coupon.valid_until && <span>Expira: {new Date(coupon.valid_until).toLocaleDateString()}</span>}
-                                    <span className={coupon.is_active ? 'text-emerald-500' : 'text-red-500'}>
-                                        {coupon.is_active ? 'Activo' : 'Inactivo'}
-                                    </span>
+                                <h4 className="text-2xl font-black uppercase tracking-tighter">{cp.code}</h4>
+                                <div className="flex gap-4 text-[9px] font-black uppercase tracking-widest text-muted/60 mt-1">
+                                    <span>Válido hasta: {cp.valid_until ? new Date(cp.valid_until).toLocaleDateString() : 'Siempre'}</span>
+                                    <span className={cp.is_active ? 'text-emerald-500' : 'text-red-500'}>{cp.is_active ? 'Activo' : 'Inactivo'}</span>
                                 </div>
                             </div>
                         </div>
-                        <button
-                            onClick={() => handleDeleteCoupon(coupon.id)}
-                            className="mt-4 md:mt-0 px-6 py-3 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all"
-                        >
-                            Eliminar
-                        </button>
+                        <div className="flex gap-2 w-full md:w-auto">
+                            <button onClick={() => { setEditingId(cp.id); setNewCoupon({ code: cp.code, discount_percent: cp.discount_percent, valid_until: cp.valid_until || '', is_active: cp.is_active }); }} className="flex-1 md:flex-none px-6 py-3 bg-slate-100 dark:bg-white/10 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-accent hover:text-white transition-all">Editar</button>
+                            <button onClick={() => handleDelete(cp.id)} className="p-3 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all"><Trash2 size={16} /></button>
+                        </div>
                     </div>
                 ))}
             </div>

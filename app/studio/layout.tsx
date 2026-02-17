@@ -3,14 +3,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Crown, ShieldCheck, Package } from 'lucide-react';
+import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Crown, ShieldCheck, Package, LayoutGrid } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { supabase } from '@/lib/supabase';
 
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
-    const navItems = [
+    const [navItems, setNavItems] = React.useState([
         { name: 'Mis Beats', href: '/studio/beats', icon: <Music size={18} /> },
         { name: 'Mis Servicios', href: '/studio/services', icon: <Briefcase size={18} /> },
         { name: 'Cupones', href: '/studio/coupons', icon: <Ticket size={18} /> },
@@ -19,7 +19,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         { name: 'Ventas', href: '/studio/sales', icon: <DollarSign size={18} /> },
         { name: 'Mis Compras', href: '/studio/purchases', icon: <Package size={18} /> },
         { name: 'Mi Suscripción', href: '/pricing', icon: <Settings size={18} /> },
-    ];
+    ]);
 
     const [profile, setProfile] = React.useState<any>(null);
 
@@ -27,8 +27,15 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         const fetchProfile = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                const { data } = await supabase.from('profiles').select('subscription_tier, is_verified').eq('id', user.id).single();
+                const { data } = await supabase.from('profiles').select('subscription_tier, is_verified, is_admin').eq('id', user.id).single();
                 setProfile(data);
+
+                if (data?.is_admin) {
+                    setNavItems(prev => {
+                        if (prev.find(item => item.href === '/studio/admin')) return prev;
+                        return [...prev, { name: 'Admón', href: '/studio/admin', icon: <LayoutGrid size={18} /> }];
+                    });
+                }
             }
         };
         fetchProfile();
