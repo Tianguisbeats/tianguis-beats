@@ -17,17 +17,12 @@ import PlaylistSection from '@/components/PlaylistSection';
 import PlaylistManagerModal from '@/components/PlaylistManagerModal';
 import { usePlayer } from '@/context/PlayerContext';
 import { Profile, Beat } from '@/lib/types';
+import { COUNTRIES } from '@/lib/constants';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronRight } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
-
-const COUNTRIES = [
-    "México 🇲🇽", "Colombia 🇨🇴", "Argentina 🇦🇷", "España 🇪🇸", "Chile 🇨🇱",
-    "Perú 🇵🇪", "Ecuador 🇪🇨", "Guatemala 🇬🇹", "Estados Unidos 🇺🇸",
-    "Puerto Rico 🇵🇷", "República Dominicana 🇩🇴", "Venezuela 🇻🇪", "Panamá 🇵🇦", "Costa Rica 🇨🇷"
-];
 
 // Social Media Icons Mapping
 const SOCIAL_ICONS: Record<string, any> = {
@@ -436,26 +431,38 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         if (!currentUserId || !profile) return router.push('/login');
 
         // Optimistic UI Update
-        const newFollowingState = !isFollowing;
-        setIsFollowing(newFollowingState);
-        setFollowersCount(prev => newFollowingState ? prev + 1 : prev - 1);
+        const previousState = isFollowing;
+        const newState = !previousState;
+
+        setIsFollowing(newState);
+        setFollowersCount(prev => newState ? prev + 1 : prev - 1);
 
         try {
-            if (isFollowing) {
-                // If currently following, delete
-                const { error } = await supabase.from('follows').delete().eq('follower_id', currentUserId).eq('following_id', profile.id);
+            if (previousState) {
+                // Was following, now unfollow (delete)
+                const { error } = await supabase
+                    .from('follows')
+                    .delete()
+                    .eq('follower_id', currentUserId)
+                    .eq('following_id', profile.id);
+
                 if (error) throw error;
             } else {
-                // If not following, insert
-                const { error } = await supabase.from('follows').insert({ follower_id: currentUserId, following_id: profile.id });
-                if (error) throw error;
+                // Was not following, now follow (insert)
+                // Usamos upsert o ignoramos error de duplicado para ser robustos
+                const { error } = await supabase
+                    .from('follows')
+                    .insert({ follower_id: currentUserId, following_id: profile.id });
+
+                // Ignorar error de duplicado (código 23505 en Postgres)
+                if (error && error.code !== '23505') throw error;
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error toggling follow:', error);
-            // Revert optimistic update on error
-            setIsFollowing(!newFollowingState);
-            setFollowersCount(prev => newFollowingState ? prev - 1 : prev + 1);
-            showToast("Error al actualizar seguimiento", "error");
+            // Revert optimistic update only if it wasn't a "benign" error
+            setIsFollowing(previousState);
+            setFollowersCount(prev => newState ? prev - 1 : prev + 1);
+            showToast(`Error: ${error.message || 'No se pudo actualizar el seguimiento'}`, "error");
         }
     };
 

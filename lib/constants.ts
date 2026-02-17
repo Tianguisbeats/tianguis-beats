@@ -1,3 +1,35 @@
+
+export const COUNTRIES = [
+    "México 🇲🇽",
+    "Estados Unidos 🇺🇸",
+    "Argentina 🇦🇷",
+    "Colombia 🇨🇴",
+    "España 🇪🇸",
+    "Chile 🇨🇱",
+    "Perú 🇵🇪",
+    "Venezuela 🇻🇪",
+    "Ecuador 🇪🇨",
+    "República Dominicana 🇩🇴",
+    "Puerto Rico 🇵🇷",
+    "Guatemala 🇬🇹",
+    "Bolivia 🇧🇴",
+    "Cuba 🇨🇺",
+    "Honduras 🇭🇳",
+    "Paraguay 🇵🇾",
+    "El Salvador 🇸🇻",
+    "Nicaragua 🇳🇮",
+    "Costa Rica 🇨🇷",
+    "Panamá 🇵🇦",
+    "Uruguay 🇺🇾",
+    "Brasil 🇧🇷",
+    "Canadá 🇨🇦",
+    "Reino Unido 🇬🇧",
+    "Francia 🇫🇷",
+    "Italia 🇮🇹",
+    "Alemania 🇩🇪",
+    "Otro 🌍"
+];
+
 export const GENRES = [
     "Corridos Tumbados 🇲🇽",
     "Sierreño 🌵",
