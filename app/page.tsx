@@ -158,7 +158,7 @@ export default function Home() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <span className="relative z-10 font-black uppercase text-[11px] tracking-[0.2em] flex items-center gap-2 group-hover:text-accent transition-colors font-heading">
-                <Music size={16} className="text-accent" /> Explorar Corridos Tumbados 🎺 🇲🇽
+                🎺 Explorar Corridos Tumbados 🇲🇽
               </span>
             </Link>
 

@@ -117,7 +117,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
             name: `${beat.title} [${selectedType}]`,
             price: license.price,
             image: beat.portadabeat_url || undefined,
-            subtitle: `Prod. by ${producerInfo?.artistic_name || beat.producer_artistic_name || beat.producer_username || 'Tianguis Producer'}`,
+            subtitle: `Prod. by ${producerInfo?.artistic_name || beat.producer_artistic_name || beat.producer_username}`,
             metadata: {
                 licenseType: selectedType.toLowerCase(),
                 beatId: beat.id,
@@ -151,39 +151,12 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
 
                 {/* LEFT PANEL: Specs & Producer Info */}
                 <div className="lg:w-[40%] bg-slate-50 dark:bg-slate-900 p-8 lg:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-white/5 order-2 lg:order-1">
-                    <div className="space-y-10">
-                        {/* Producer Card */}
-                        <div className="flex items-center gap-4 p-4 rounded-3xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5">
-                            <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
-                                {producerInfo?.foto_perfil || beat.producer_foto_perfil ? (
-                                    <img src={producerInfo?.foto_perfil || beat.producer_foto_perfil} className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-slate-400">
-                                        <Music size={24} />
-                                    </div>
-                                )}
-                            </div>
-                            <div className="min-w-0">
-                                <h4 className="font-heading font-black text-slate-900 dark:text-white flex items-center gap-2 truncate">
-                                    {producerInfo?.artistic_name || beat.producer_artistic_name || 'Tianguis Producer'}
-                                    {(producerInfo?.is_verified || beat.producer_is_verified) && (
-                                        <img src="/verified-badge.png" className="w-4 h-4 object-contain shrink-0" alt="V" />
-                                    )}
-                                    {(producerInfo?.is_founder || beat.producer_is_founder) && (
-                                        <Crown size={14} className="text-amber-500 shrink-0" fill="currentColor" />
-                                    )}
-                                </h4>
-                                <p className="text-[10px] font-black text-muted uppercase tracking-widest truncate">
-                                    @{producerInfo?.username || beat.producer_username || 'producer'}
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Beat Artwork & Specs */}
+                    <div className="space-y-8">
+                        {/* Artwork Top */}
                         <div className="space-y-6">
                             <div className="aspect-square w-full rounded-3xl overflow-hidden bg-slate-200 dark:bg-slate-800 shadow-xl border border-white/10 group">
                                 {beat.portadabeat_url || beat.portada_url ? (
-                                    <img src={beat.portadabeat_url || beat.portada_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                    <img src={beat.portadabeat_url || beat.portada_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={beat.title} />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center opacity-10">
                                         <Music size={80} />
@@ -191,9 +164,38 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                 )}
                             </div>
 
-                            <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none italic">
+                            <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none">
                                 {beat.title}
                             </h3>
+
+                            {/* Producer row BELOW the title */}
+                            <div className="flex items-center gap-4 p-4 rounded-3xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5">
+                                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
+                                    {producerInfo?.foto_perfil || beat.producer_foto_perfil ? (
+                                        <img src={producerInfo?.foto_perfil || beat.producer_foto_perfil} className="w-full h-full object-cover" alt="Producer" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-slate-400">
+                                            <Music size={24} />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="min-w-0">
+                                    <h4 className="font-heading font-black text-slate-900 dark:text-white flex items-center gap-2 truncate">
+                                        {producerInfo?.artistic_name || beat.producer_artistic_name || beat.producer_username}
+                                        {(producerInfo?.is_verified || beat.producer_is_verified) && (
+                                            <div className="bg-blue-500 text-white rounded-full p-0.5 shadow-lg shadow-blue-500/20">
+                                                <Check size={8} strokeWidth={4} />
+                                            </div>
+                                        )}
+                                        {(producerInfo?.is_founder || beat.producer_is_founder) && (
+                                            <Crown size={14} className="text-amber-500 shrink-0" fill="currentColor" />
+                                        )}
+                                    </h4>
+                                    <p className="text-[10px] font-black text-muted uppercase tracking-widest truncate">
+                                        @{producerInfo?.username || beat.producer_username}
+                                    </p>
+                                </div>
+                            </div>
 
                             <div className="grid grid-cols-2 gap-2">
                                 <SpecItem label="Género" value={beat.genre} />
@@ -201,7 +203,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                 <SpecItem label="Nota" value={beat.musical_key} />
                                 <SpecItem label="Escala" value={beat.musical_scale} />
                                 <SpecItem label="Mood" value={beat.mood} />
-                                <SpecItem label="Beat Type" value={Array.isArray(beat.beat_types) ? beat.beat_types[0] : (beat.beat_types || 'Original')} />
+                                <SpecItem label="Tipo" value={Array.isArray(beat.beat_types) ? beat.beat_types[0] : (beat.beat_types || 'Original')} />
                             </div>
                         </div>
                     </div>
@@ -216,12 +218,12 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                 <div className="flex-1 p-8 lg:p-12 flex flex-col justify-between order-1 lg:order-2 bg-white dark:bg-slate-950">
                     <div className="space-y-10">
                         <header>
-                            <h2 className="text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-2 italic">Licencias Disponibles</h2>
+                            <h2 className="text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-2">Licencias Disponibles</h2>
                             <p className="text-xs font-bold text-muted uppercase tracking-[0.2em]">Escala tu sonido al siguiente nivel</p>
                         </header>
 
-                        {/* Interactive List */}
-                        <div className="grid gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
+                        {/* Interactive List - Increased height to prevent cutting off */}
+                        <div className="grid gap-3 max-h-[480px] overflow-y-auto pr-3 custom-scrollbar py-2">
                             {allLicenses.filter(l => l.isActive).map((lic) => {
                                 const isSelected = selectedType === lic.id;
                                 return (
@@ -248,7 +250,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                         <div className="text-right">
                                             <div className="flex items-center gap-1">
                                                 <span className="text-[9px] font-black text-muted opacity-50">MXN</span>
-                                                <p className={`text-2xl font-black italic ${isSelected ? 'text-accent' : 'text-slate-900 dark:text-white'}`}>
+                                                <p className={`text-2xl font-black ${isSelected ? 'text-accent' : 'text-slate-900 dark:text-white'}`}>
                                                     ${lic.price}
                                                 </p>
                                             </div>
@@ -262,7 +264,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                         {currentLicense && (
                             <div className="p-8 rounded-[2.5rem] bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 animate-in fade-in slide-in-from-top-4 duration-500">
                                 <h6 className="text-[10px] font-black uppercase text-accent tracking-[0.2em] mb-6 flex items-center gap-2">
-                                    <Zap size={14} fill="currentColor" /> Beneficios de la licencia {currentLicense.id}:
+                                    <Zap size={14} fill="currentColor" /> Beneficios {currentLicense.id}:
                                 </h6>
                                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {currentLicense.features.map((f: string, i: number) => (
