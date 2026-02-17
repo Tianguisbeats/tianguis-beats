@@ -197,15 +197,18 @@ export default function PricingPage() {
                 showToast("Error al programar el cambio.", 'error');
             }
         } else {
+            const isYearly = billingCycle === 'yearly';
+            const totalPrice = isYearly ? (selectedPlan.price * 12) : selectedPlan.price;
+
             addItem({
                 id: `plan-${selectedPlan.tier}-${billingCycle}`,
                 type: 'plan',
-                name: `Plan ${selectedPlan.name}`,
-                price: selectedPlan.price,
+                name: `Plan ${selectedPlan.name} ${isYearly ? '[Anual]' : '[Mensual]'}`,
+                price: totalPrice,
                 subtitle: selectedPlan.description,
                 metadata: { tier: selectedPlan.tier, cycle: billingCycle }
             });
-            showToast(`Plan ${selectedPlan.name} agregado al carrito`, 'success');
+            showToast(`Plan ${selectedPlan.name} ${isYearly ? 'anual' : 'mensual'} agregado al carrito`, 'success');
             router.push('/cart');
         }
     };

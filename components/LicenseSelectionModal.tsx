@@ -200,7 +200,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                 </div>
                                 <div className="min-w-0">
                                     <h4 className="font-heading font-black text-slate-900 dark:text-white flex items-center gap-2 truncate">
-                                        {producerInfo?.artistic_name || beat.producer_artistic_name || beat.producer_username}
+                                        {producerInfo?.artistic_name || beat.producer_artistic_name || beat.producer_name || beat.producer_username || 'Productor'}
                                         {(producerInfo?.is_verified || beat.producer_is_verified) && (
                                             <div className="bg-blue-500 text-white rounded-full p-0.5 shadow-lg shadow-blue-500/20">
                                                 <Check size={8} strokeWidth={4} />
@@ -211,7 +211,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                         )}
                                     </h4>
                                     <p className="text-[10px] font-black text-muted uppercase tracking-widest truncate">
-                                        @{producerInfo?.username || beat.producer_username}
+                                        @{producerInfo?.username || beat.producer_username || 'tianguis'}
                                     </p>
                                 </div>
                             </div>
