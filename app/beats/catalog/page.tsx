@@ -176,8 +176,12 @@ function CatalogContent() {
                 if (filterState.key) query = query.eq('musical_key', filterState.key);
                 if (filterState.scale) {
                     const scale = filterState.scale;
-                    const altScale = scale === 'Mayor' ? 'Major' : (scale === 'Menor' ? 'Minor' : scale);
-                    query = query.or(`musical_scale.ilike.${scale},musical_scale.ilike.${altScale}`);
+
+                    if (scale === 'Mayor') {
+                        query = query.or(`musical_scale.eq.Mayor,musical_scale.eq.Major,musical_key.ilike.%Maj%`);
+                    } else if (scale === 'Menor') {
+                        query = query.or(`musical_scale.eq.Menor,musical_scale.eq.Minor,musical_key.ilike.%min%,musical_key.ilike.%m%`);
+                    }
                 }
 
                 if (filterState.searchQuery.trim()) {
