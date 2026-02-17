@@ -100,7 +100,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                             <h4 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
                                 {profile?.subscription_tier === 'premium' ? <><Crown size={14} /> Plan Premium</> :
                                     profile?.subscription_tier === 'pro' ? <><Crown size={14} /> Plan Pro</> :
-                                        <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 text-[10px] font-black tracking-widest">PLAN FREE</span>}
+                                        <span className="px-2 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-black tracking-widest border border-slate-300 dark:border-slate-700">PLAN FREE</span>}
                             </h4>
 
                             {profile?.is_verified ? (

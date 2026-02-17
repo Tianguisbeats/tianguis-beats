@@ -212,7 +212,12 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                         {(beat.musical_key || 'C').split(' ')[0].replace('m', '')}
                     </span>
                     <span className={`text-[7px] font-black text-purple-500 bg-purple-500/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-purple-500/20 uppercase tracking-widest leading-none`}>
-                        {(beat.musical_key || '').toLowerCase().includes('min') || (beat.musical_key || '').includes('m ') ? 'Minor' : (beat.musical_key || '').toLowerCase().includes('maj') ? 'Major' : 'Scale'}
+                        {(() => {
+                            const key = (beat.musical_key || '').toLowerCase().trim();
+                            if (key.includes('maj') || key === 'm') return 'Major';
+                            if (key.includes('min') || key.endsWith('m')) return 'Minor';
+                            return 'Major'; // Default fallback if unclear
+                        })()}
                     </span>
                 </div>
 
