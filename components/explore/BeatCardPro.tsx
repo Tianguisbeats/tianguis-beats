@@ -209,10 +209,10 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                         {beat.bpm} BPM
                     </span>
                     <span className={`text-[7px] font-black text-blue-500 bg-blue-500/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-blue-500/20 uppercase tracking-widest leading-none`}>
-                        {(beat.musical_key || 'C').split(' ')[0]}
+                        {(beat.musical_key || 'C').split(' ')[0].replace('m', '')}
                     </span>
                     <span className={`text-[7px] font-black text-purple-500 bg-purple-500/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-purple-500/20 uppercase tracking-widest leading-none`}>
-                        {(beat.musical_key || 'C').includes('Min') ? 'Minor' : (beat.musical_key || 'C').includes('Maj') ? 'Major' : 'Scale'}
+                        {(beat.musical_key || '').toLowerCase().includes('min') || (beat.musical_key || '').includes('m ') ? 'Minor' : (beat.musical_key || '').toLowerCase().includes('maj') ? 'Major' : 'Scale'}
                     </span>
                 </div>
 

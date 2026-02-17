@@ -100,7 +100,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                             <h4 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
                                 {profile?.subscription_tier === 'premium' ? <><Crown size={14} /> Plan Premium</> :
                                     profile?.subscription_tier === 'pro' ? <><Crown size={14} /> Plan Pro</> :
-                                        <span className="text-slate-400 dark:text-slate-500">Plan Free</span>}
+                                        <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 text-[10px] font-black tracking-widest">PLAN FREE</span>}
                             </h4>
 
                             {profile?.is_verified ? (
@@ -111,10 +111,10 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                             ) : (
                                 <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/10">
                                     <Link href="/studio/verification" className="flex items-center gap-2 group/verify hover:opacity-80 transition-opacity">
-                                        <div className="w-5 h-5 rounded-full bg-blue-400/10 flex items-center justify-center">
-                                            <ShieldCheck size={10} className="text-blue-400" />
+                                        <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center">
+                                            <ShieldCheck size={10} />
                                         </div>
-                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-400/80 border-b border-transparent group-hover/verify:border-blue-400/40">Sin Verificar • Solicitar</span>
+                                        <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-500 text-[9px] font-black uppercase tracking-widest border border-blue-100">Sin Verificar</span>
                                     </Link>
                                 </div>
                             )}
