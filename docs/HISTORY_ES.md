@@ -11,31 +11,18 @@ La plataforma ahora soporta:
 
 ---
 
-## 2. Refinamientos de UI y Experiencia de Usuario
-
-### A. Tarjetas de Beats y Propiedad
-- **Etiqueta de Propiedad:** Se ha actualizado la etiqueta para dueños de beats a **"ES TU BEAT"**, dejando claro que la obra pertenece al usuario actual.
-- **Botón de Licencias:** Rediseñado con un look premium, altura esbelta y sombras acentuadas (`shadow-accent/40`).
-
-### B. Perfil y Sound Kits
-- **Sección Premium (Upsells):** Las tarjetas de "Venta de Servicios" y "Sound Kits" se han refinado con:
-    - Botones con el azul de marca (`accent`) y **Amarillo** para Sound Kits.
-    - Iconos resaltados y efectos de sombra profunda.
-- **Modos Temáticos (Dark Mode):** Las tarjetas ahora usan un fondo **Negro Puro (`bg-black`)** cuando el tema del perfil es oscuro (`dark`, `neon`, `gold`), asegurando que no se vean grises o lavadas. En temas claros, mantienen su fondo blanco impecable.
-
-### C. Rediseño de Home y Experiencia Social
-- **Adiós a los Planes:** Se eliminó la sección de precios del Home para priorizar la prueba social.
-- **Productores Destacados:** Nueva sección con fotos y testimonios de productores de alto nivel, utilizando recursos visuales profesionales en `/public/images/featured/`.
-
-### D. Limpieza del Repositorio
-- **Estructura Organizada:** Creación de la carpeta `docs/` y eliminación de más de 25 archivos SQL obsoletos.
-- **README Profesional:** Actualizado al español con guías claras de arquitectura e historial.
+### E. Estudio y Gestión de Beats
+- **Botón Switch de Publicación:** Se reemplazó la etiqueta estática de "Público" por un **Switch (Toggle)** funcional que permite publicar u ocultar beats al instante desde el Studio.
+- **BeatCard Premium:**
+    - Botón "Ver Licencias" rediseñado: más pequeño (`h-9`), más elegante y con el precio integrado en una sola línea.
+    - Etiqueta de dueño simplificada: se eliminó "Tu Obra" para dejar solo **"ES TU BEAT"**, haciendo el diseño más limpio.
 
 ---
 
 ## 3. Actualizaciones Técnicas
 - **Seguridad:** Integración de `producer_id` para prevenir autocompras.
-- **Reproductor:** El botón "Ver Licencias" es inteligente y se oculta para el dueño de la obra.
+- **Interactividad:** Implementación de lógica de actualización en tiempo real para el estado de publicación en el Studio.
+- **Reproductor:** El botón de licencias ahora es inteligente y se adapta mejor a pantallas pequeñas.
 
 ## 4. Verificación
-- Confirmado el correcto funcionamiento de las imágenes en el Home y la adaptación de colores en los perfiles bajo distintos temas.
+- Verificado el funcionamiento del Switch en el Studio y la nueva estética de los botones en el catálogo.

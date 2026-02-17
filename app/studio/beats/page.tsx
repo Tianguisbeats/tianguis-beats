@@ -122,17 +122,37 @@ export default function StudioBeatsPage() {
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-[2px]">
                                     <Play size={32} className="text-white fill-current" />
                                 </div>
-                                <div className="absolute top-4 right-4">
-                                    <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest backdrop-blur-md shadow-lg ${beat.is_public ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/20 text-amber-400 border border-amber-500/20'}`}>
-                                        {beat.is_public ? 'Público' : 'Privado'}
-                                    </span>
-                                </div>
                             </div>
 
                             <div className="flex-1 min-w-0">
-                                <h4 className="font-black text-foreground text-xl tracking-tight truncate mb-1">{beat.title}</h4>
-                                <div className="flex items-center justify-between text-muted text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
-                                    <span className="flex items-center gap-2">Sincronizado</span>
+                                <h4 className="font-black text-foreground text-xl tracking-tight truncate mb-2">{beat.title}</h4>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex flex-col">
+                                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-muted mb-1">Visibilidad</span>
+                                        <span className={`text-[10px] font-black uppercase tracking-widest ${beat.is_public ? 'text-emerald-500' : 'text-amber-500'}`}>
+                                            {beat.is_public ? 'Público' : 'Oculto'}
+                                        </span>
+                                    </div>
+
+                                    <button
+                                        onClick={async () => {
+                                            const newStatus = !beat.is_public;
+                                            const { error } = await supabase
+                                                .from('beats')
+                                                .update({ is_public: newStatus })
+                                                .eq('id', beat.id);
+
+                                            if (!error) {
+                                                setBeats(prev => prev.map(b => b.id === beat.id ? { ...b, is_public: newStatus } : b));
+                                                showToast(newStatus ? 'Beat publicado' : 'Beat ocultado', 'success');
+                                            } else {
+                                                showToast('Error al actualizar estado', 'error');
+                                            }
+                                        }}
+                                        className={`relative w-11 h-6 rounded-full transition-all duration-300 shadow-inner overflow-hidden border ${beat.is_public ? 'bg-emerald-500 border-emerald-600' : 'bg-slate-200 dark:bg-white/10 border-slate-300 dark:border-white/10'}`}
+                                    >
+                                        <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-md transition-all duration-300 ${beat.is_public ? 'translate-x-5' : 'translate-x-0'}`} />
+                                    </button>
                                 </div>
                             </div>
 

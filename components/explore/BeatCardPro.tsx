@@ -218,25 +218,21 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                 <div className="mt-auto pt-4 border-t border-border flex items-center justify-between gap-2">
                     <div className="flex-1 min-w-0">
                         {isOwner ? (
-                            <div className="flex flex-col">
-                                <span className="text-[7px] text-muted font-black uppercase tracking-[0.2em] mb-0.5 italic">Tu Obra</span>
-                                <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">ES TU BEAT</span>
+                            <div className="flex flex-col items-start justify-center h-9">
+                                <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">ES TU BEAT</span>
                             </div>
                         ) : (
                             <button
                                 onClick={!beat.is_sold ? handleAddToCart : undefined}
                                 disabled={!!beat.is_sold}
-                                className={`w-full h-10 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 group/btn active:scale-95 ${beat.is_sold
+                                className={`w-full h-9 rounded-xl font-black text-[8px] md:text-[9px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 group/btn active:scale-95 ${beat.is_sold
                                     ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
-                                    : 'bg-accent text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900 shadow-[0_10px_20px_-5px_rgba(59,130,246,0.3)] hover:shadow-accent/40'
+                                    : 'bg-accent text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900 shadow-[0_8px_16px_-4px_rgba(59,130,246,0.3)] hover:shadow-accent/40'
                                     }`}
                             >
                                 {beat.is_sold ? 'No Disponible' : (
                                     <>
-                                        <ShoppingCart size={13} className="opacity-70 group-hover/btn:scale-110 transition-transform" />
-                                        <span>Ver Licencias</span>
-                                        <span className="w-1 h-1 bg-white/30 rounded-full mx-0.5" />
-                                        <span className="text-white/90">Desde {formatPriceMXN(beat.price_mxn).split('.')[0]}</span>
+                                        <span>Ver Licencias desde {formatPriceMXN(beat.price_mxn).split('.')[0]}</span>
                                     </>
                                 )}
                             </button>
