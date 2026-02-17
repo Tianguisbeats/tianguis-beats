@@ -151,6 +151,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             metadata: {
                 originalId: item.id,
                 producerId: profile?.id,
+                producerName: profile?.artistic_name,
                 isSoundKit: type === 'sound_kit',
                 isService: type === 'service'
             }
@@ -1002,13 +1003,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     }`}>
                                                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     <div className="flex justify-between items-start mb-6">
-                                                        <span className="bg-accent/20 text-accent px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                                                        <span className="bg-accent/20 text-accent px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-accent/10">
                                                             {service.tipo_servicio}
                                                         </span>
                                                         <span className={`text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>${service.precio}</span>
                                                     </div>
                                                     <h3 className={`font-black text-xl mb-3 group-hover:text-accent transition-colors ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{service.titulo}</h3>
-                                                    <p className={`text-xs mb-8 line-clamp-3 leading-relaxed font-medium ${profile.tema_perfil === 'light' ? 'text-slate-500' : 'text-slate-300'}`}>{service.descripcion}</p>
+                                                    <p className={`text-xs mb-8 line-clamp-3 leading-relaxed font-medium ${profile.tema_perfil === 'light' ? 'text-slate-500' : 'text-slate-200'}`}>{service.descripcion}</p>
 
                                                     <div className={`flex items-center justify-between pt-6 border-t ${profile.tema_perfil === 'light' ? 'border-slate-100' : 'border-white/10'}`}>
                                                         <div className="flex items-center gap-2 text-slate-400 dark:text-slate-200 text-[10px] font-black uppercase tracking-widest">
@@ -1185,10 +1186,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             ) : (
                                                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                                     {soundKits.map(kit => (
-                                                        <div key={kit.id} className={`p-6 rounded-[2rem] border transition-all group backdrop-blur-md ${profile.tema_perfil === 'dark' ? 'bg-[#08080a]/60 border-white/10 hover:border-amber-500/40 shadow-2xl shadow-black/50' :
-                                                            profile.tema_perfil === 'neon' ? 'bg-black/80 border-green-900 shadow-green-900/20' :
-                                                                profile.tema_perfil === 'gold' ? 'bg-[#1a1610]/80 border-amber-900/50' :
-                                                                    'bg-white border-slate-100 hover:shadow-xl'
+                                                        <div key={kit.id} className={`p-6 rounded-[2rem] border transition-all group backdrop-blur-md ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-[#08080a] border-white/10 hover:border-amber-500/40 shadow-2xl shadow-black' :
+                                                            'bg-white border-slate-100 hover:shadow-xl'
                                                             }`}>
                                                             <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden relative">
                                                                 {kit.cover_url ? (

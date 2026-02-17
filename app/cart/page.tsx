@@ -286,6 +286,11 @@ export default function CartPage() {
                                                 <p className="text-muted text-[10px] font-bold uppercase tracking-[0.3em] opacity-60">
                                                     {item.subtitle}
                                                 </p>
+                                                {(isService || isSoundKit) && item.metadata?.producerName && (
+                                                    <p className="text-blue-500 text-[9px] font-black uppercase tracking-[0.2em] mt-1">
+                                                        Artista: {item.metadata.producerName}
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
 
