@@ -173,13 +173,24 @@ function VerificationManager() {
     }, []);
 
     const fetchRequests = async () => {
-        const { data, error } = await supabase
-            .from('verification_requests')
-            .select(`*, profiles:user_id (username, foto_perfil, email)`)
-            .eq('status', 'pending')
-            .order('created_at', { ascending: false });
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('verification_requests')
+                .select(`*, profiles:user_id (username, foto_perfil, email)`)
+                .eq('status', 'pending')
+                .order('created_at', { ascending: false });
 
-        if (!error) setRequests(data || []);
+            if (error) {
+                const { data: retryData } = await supabase
+                    .from('verification_requests')
+                    .select(`*, profiles:user_id (username, foto_perfil, email)`)
+                    .eq('status', 'pending');
+                setRequests(retryData || []);
+            } else {
+                setRequests(data || []);
+            }
+        } catch (err) { console.error(err); }
         setLoading(false);
     };
 
@@ -280,12 +291,23 @@ function UserManager() {
 
     const fetchUsers = async () => {
         setLoading(true);
-        const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .limit(100);
-        setUsers(data || []);
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .order('fecha_de_creacion', { ascending: false })
+                .limit(100);
+
+            if (error) {
+                // Si fecha_de_creacion falla, intentamos sin orden (o con created_at por si acaso)
+                const { data: retryData } = await supabase.from('profiles').select('*').limit(100);
+                setUsers(retryData || []);
+            } else {
+                setUsers(data || []);
+            }
+        } catch (err) {
+            console.error(err);
+        }
         setLoading(false);
     };
 
@@ -325,81 +347,59 @@ function UserManager() {
                 />
             </div>
 
-            <div className="bg-white dark:bg-white/5 border border-border rounded-[2.5rem] overflow-hidden overflow-x-auto">
-                <table className="w-full min-w-[1000px]">
-                    <thead>
-                        <tr className="border-b border-border bg-slate-50 dark:bg-white/5">
-                            <th className="text-left px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Usuario</th>
-                            <th className="text-left px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Membresía</th>
-                            <th className="text-left px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Rol Admin</th>
-                            <th className="text-left px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Estado</th>
-                            <th className="text-right px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                        {loading ? (
-                            <tr><td colSpan={5} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent" /></td></tr>
-                        ) : filteredUsers.map(user => (
-                            <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
-                                <td className="px-8 py-6">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-accent-soft shrink-0">
-                                            <img src={user.foto_perfil || `https://ui-avatars.com/api/?name=${user.username}`} alt="" className="w-full h-full object-cover" />
+            <div className="bg-white dark:bg-white/5 border border-border rounded-[2.5rem] overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="border-b border-border bg-slate-50 dark:bg-white/5">
+                                <th className="px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Usuario</th>
+                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Membresía</th>
+                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Admin</th>
+                                <th className="px-8 py-4 text-right text-[9px] font-black uppercase tracking-[0.2em] text-muted">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                            {loading ? (
+                                <tr><td colSpan={4} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent" /></td></tr>
+                            ) : filteredUsers.length === 0 ? (
+                                <tr><td colSpan={4} className="py-20 text-center text-muted text-xs font-bold uppercase tracking-widest">No se encontraron usuarios</td></tr>
+                            ) : filteredUsers.map(user => (
+                                <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+                                    <td className="px-8 py-5">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 rounded-xl overflow-hidden bg-accent-soft shrink-0 border border-border/50">
+                                                <img src={user.foto_perfil || `https://ui-avatars.com/api/?name=${user.username}`} alt="" className="w-full h-full object-cover" />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="font-black text-xs text-foreground truncate">@{user.username}</p>
+                                                <p className="text-[9px] text-muted uppercase tracking-widest truncate">{user.artistic_name}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-black text-sm text-foreground">@{user.username}</p>
-                                            <p className="text-[10px] text-muted uppercase tracking-widest">{user.artistic_name}</p>
+                                    </td>
+                                    <td className="px-6 py-5">
+                                        <div className={`inline-flex px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${user.subscription_tier === 'premium' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                                            user.subscription_tier === 'pro' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                                                'bg-slate-500/10 text-muted border-slate-500/20'
+                                            }`}>
+                                            {user.subscription_tier || 'Gratis'}
                                         </div>
-                                    </div>
-                                </td>
-                                <td className="px-8 py-6">
-                                    <select
-                                        value={user.subscription_tier || 'free'}
-                                        onChange={(e) => updateTier(user.id, e.target.value)}
-                                        className="bg-transparent font-bold text-xs uppercase tracking-widest text-accent outline-none cursor-pointer"
-                                    >
-                                        <option value="free">Gratis</option>
-                                        <option value="pro">Pro</option>
-                                        <option value="premium">Premium</option>
-                                    </select>
-                                </td>
-                                <td className="px-8 py-6">
-                                    <button
-                                        onClick={() => toggleAdmin(user.id, user.is_admin)}
-                                        className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all ${user.is_admin
-                                                ? 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white'
-                                                : 'bg-slate-500/10 text-muted border-slate-500/20 hover:bg-accent hover:text-white hover:border-accent'
-                                            }`}
-                                    >
-                                        {user.is_admin ? 'Admin' : 'Usuario'}
-                                    </button>
-                                </td>
-                                <td className="px-8 py-6">
-                                    <div className="flex items-center gap-2">
-                                        {user.is_verified && <CheckCircle size={14} className="text-blue-500" />}
-                                        <span className={`text-[9px] font-black uppercase tracking-widest ${user.is_verified ? 'text-blue-500' : 'text-muted'}`}>
-                                            {user.is_verified ? 'Verificado' : 'Normal'}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td className="px-8 py-6 text-right">
-                                    <div className="flex items-center justify-end gap-2">
+                                    </td>
+                                    <td className="px-6 py-5">
+                                        <div className={`w-2 h-2 rounded-full ${user.is_admin ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-300 dark:bg-white/10'}`} />
+                                    </td>
+                                    <td className="px-8 py-5 text-right">
                                         <button
                                             onClick={() => setSelectedUser(user)}
-                                            className="p-2 text-muted hover:text-accent transition-all"
-                                            title="Ver detalles"
+                                            className="px-4 py-2 bg-slate-100 dark:bg-white/5 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-accent hover:text-white transition-all shadow-sm"
                                         >
-                                            <Search size={16} />
+                                            Gestionar
                                         </button>
-                                        <Link href={`/${user.username}`} target="_blank" className="p-2 text-muted hover:text-accent transition-all">
-                                            <ExternalLink size={16} />
-                                        </Link>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* User Detail Modal */}
@@ -427,11 +427,21 @@ function UserManager() {
                                 <DetailItem label="Email" value={selectedUser.email} />
                                 <DetailItem label="Nombre Completo" value={selectedUser.full_name} />
                                 <DetailItem label="ID de Usuario" value={selectedUser.id} copyable />
-                                <DetailItem label="Fecha de Registro" value={new Date(selectedUser.created_at).toLocaleDateString()} />
+                                <DetailItem label="Fecha de Registro" value={selectedUser.fecha_de_creacion ? new Date(selectedUser.fecha_de_creacion).toLocaleDateString() : 'Desconocida'} />
                             </div>
                             <div className="space-y-6">
-                                <DetailItem label="Membresía" value={selectedUser.subscription_tier?.toUpperCase()} />
-                                <DetailItem label="Estado" value={selectedUser.is_verified ? 'VERIFICADO' : 'NORMAL'} />
+                                <DetailItem label="Membresía" value={
+                                    <select
+                                        value={selectedUser.subscription_tier || 'free'}
+                                        onChange={(e) => updateTier(selectedUser.id, e.target.value)}
+                                        className="bg-transparent font-black text-xs uppercase tracking-widest text-accent outline-none cursor-pointer"
+                                    >
+                                        <option value="free">Gratis</option>
+                                        <option value="pro">Pro</option>
+                                        <option value="premium">Premium</option>
+                                    </select>
+                                } />
+                                <DetailItem label="Estado de Verificación" value={selectedUser.is_verified ? 'VERIFICADO' : 'NORMAL'} />
                                 <DetailItem label="Stripe ID" value={selectedUser.stripe_customer_id || 'Sin asignar'} />
                                 <DetailItem label="Bio" value={selectedUser.bio || 'Sin descripción'} />
                             </div>
@@ -460,13 +470,13 @@ function UserManager() {
     );
 }
 
-function DetailItem({ label, value, copyable }: { label: string, value: string, copyable?: boolean }) {
+function DetailItem({ label, value, copyable }: { label: string, value: any, copyable?: boolean }) {
     return (
-        <div className="group">
+        <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50">
             <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">{label}</p>
-            <p className={`text-sm font-bold ${copyable ? 'font-mono text-xs break-all' : 'text-foreground'}`}>
+            <div className={`text-sm font-bold ${copyable ? 'font-mono text-[10px] break-all' : 'text-foreground'}`}>
                 {value || '---'}
-            </p>
+            </div>
         </div>
     );
 }
@@ -488,8 +498,15 @@ function CouponManager() {
 
     const fetchCoupons = async () => {
         setLoading(true);
-        const { data } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
-        setCoupons(data || []);
+        try {
+            const { data, error } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
+            if (error) {
+                const { data: retryData } = await supabase.from('coupons').select('*');
+                setCoupons(retryData || []);
+            } else {
+                setCoupons(data || []);
+            }
+        } catch (err) { console.error(err); }
         setLoading(false);
     };
 
