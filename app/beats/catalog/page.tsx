@@ -173,18 +173,22 @@ function CatalogContent() {
                 if (filterState.bpmMin) query = query.gte('bpm', filterState.bpmMin);
                 if (filterState.bpmMax) query = query.lte('bpm', filterState.bpmMax);
                 if (filterState.key) query = query.eq('musical_key', filterState.key);
-                if (filterState.scale) query = query.ilike('musical_scale', filterState.scale);
-                if (filterState.beatType) query = query.contains('beat_types', [filterState.beatType]);
+                if (filterState.scale) {
+                    const scale = filterState.scale;
+                    const altScale = scale === 'Mayor' ? 'Major' : (scale === 'Menor' ? 'Minor' : scale);
+                    query = query.or(`musical_scale.ilike.${scale},musical_scale.ilike.${altScale}`);
+                }
+
                 if (filterState.searchQuery.trim()) {
                     const q = filterState.searchQuery.trim();
-                    // Búsqueda global en título, género, subgénero, mood, nota y escala
-                    query = query.or(`title.ilike.%${q}%,genre.ilike.%${q}%,subgenre.ilike.%${q}%,mood.ilike.%${q}%,musical_key.ilike.%${q}%,musical_scale.ilike.%${q}%,beat_types.cs.{"${q}"}`);
+                    // Búsqueda global en diversos campos
+                    query = query.or(`title.ilike.%${q}%,genre.ilike.%${q}%,subgenre.ilike.%${q}%,mood.ilike.%${q}%,musical_key.ilike.%${q}%,musical_scale.ilike.%${q}%,reference_artist.ilike.%${q}%`);
                 }
 
                 if (filterState.refArtist.trim()) {
                     const ra = filterState.refArtist.trim();
-                    // Buscar tanto en el campo de texto simple como en el array de tipos
-                    query = query.or(`reference_artist.ilike.%${ra}%,beat_types.cs.{"${ra}"}`);
+                    // Filtrado específico solicitado por el usuario para reference_artist
+                    query = query.ilike('reference_artist', `%${ra}%`);
                 }
 
                 switch (viewMode) {
