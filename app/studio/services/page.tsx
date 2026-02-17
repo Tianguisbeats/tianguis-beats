@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Plus, Edit3, Trash2, Briefcase, DollarSign, Clock, AlertCircle, Check, X, Loader2, Package, Upload, FileArchive } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 // Tipos
 type Service = {
@@ -27,7 +29,16 @@ type SoundKit = {
     created_at: string;
 };
 
-export default function ServicesManagerPage() {
+export default function ServicesManagerPageWrapper() {
+    return (
+        <Suspense fallback={<div className="flex justify-center p-12"><Loader2 className="animate-spin" /></div>}>
+            <ServicesManagerPage />
+        </Suspense>
+    );
+}
+
+function ServicesManagerPage() {
+    const searchParams = useSearchParams();
     const [services, setServices] = useState<Service[]>([]);
     const [soundKits, setSoundKits] = useState<SoundKit[]>([]);
     const [loading, setLoading] = useState(true);
@@ -80,6 +91,30 @@ export default function ServicesManagerPage() {
 
         setLoading(false);
     };
+
+    // Deep Linking Effect
+    useEffect(() => {
+        if (loading) return;
+
+        const editServiceId = searchParams.get('edit_service');
+        const editKitId = searchParams.get('edit_kit');
+
+        if (editServiceId) {
+            const serviceToEdit = services.find(s => s.id === editServiceId);
+            if (serviceToEdit) {
+                setCurrentService(serviceToEdit);
+                setIsEditing(true);
+            }
+        }
+
+        if (editKitId) {
+            const kitToEdit = soundKits.find(k => k.id === editKitId);
+            if (kitToEdit) {
+                setCurrentKit(kitToEdit);
+                setIsEditingKit(true);
+            }
+        }
+    }, [loading, services, soundKits, searchParams]);
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();

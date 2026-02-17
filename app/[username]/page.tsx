@@ -7,7 +7,7 @@ import {
     Share2, MoreHorizontal, Calendar, MapPin,
     Music, Play, Users, Crown, Settings, Camera,
     Edit3, CheckCircle2, Copy, Trash2, Layout, PlayCircle,
-    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save, ChevronUp, ChevronDown, List, Briefcase, Clock, DollarSign, Package, MessageSquare, Mail
+    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save, ChevronUp, ChevronDown, List, Briefcase, Clock, DollarSign, Package, MessageSquare, Mail, ShoppingBag
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -1019,12 +1019,21 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                             <Clock size={16} className="text-blue-500" />
                                                             {service.tiempo_entrega_dias} Días hábiles
                                                         </div>
-                                                        <button
-                                                            onClick={() => handleAddToCart(service, 'service')}
-                                                            className="bg-blue-600 text-white px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest border border-blue-500/20 hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/10 active:scale-95"
-                                                        >
-                                                            Contratar
-                                                        </button>
+                                                        {isOwner ? (
+                                                            <Link
+                                                                href={`/studio/services?edit_service=${service.id}`}
+                                                                className="bg-blue-600/10 text-blue-600 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-600/20 hover:bg-blue-600 hover:text-white transition-all shadow-xl shadow-blue-500/10 active:scale-95 flex items-center gap-2"
+                                                            >
+                                                                <Edit3 size={14} /> Editar
+                                                            </Link>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => handleAddToCart(service, 'service')}
+                                                                className="bg-blue-600 text-white px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest border border-blue-500/20 hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/10 active:scale-95"
+                                                            >
+                                                                Contratar
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </div>
                                             ))
@@ -1206,13 +1215,25 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                             </div>
                                                             <p className={`text-xs mb-4 line-clamp-2 ${profile.tema_perfil === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>{kit.description}</p>
                                                             <div className={`flex items-center justify-between pt-4 border-t ${profile.tema_perfil === 'light' ? 'border-slate-50' : 'border-white/10'}`}>
-                                                                <span className={`text-xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>${kit.price} MXN</span>
-                                                                <button
-                                                                    onClick={() => handleAddToCart(kit, 'sound_kit')}
-                                                                    className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 rounded-xl font-black uppercase tracking-widest text-[10px] hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg"
-                                                                >
-                                                                    <DollarSign size={12} /> Comprar
-                                                                </button>
+                                                                {isOwner ? (
+                                                                    <>
+                                                                        <span className={`text-xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>${kit.price} MXN</span>
+                                                                        <Link
+                                                                            href={`/studio/services?edit_kit=${kit.id}`}
+                                                                            className="bg-amber-500/10 text-amber-500 px-6 py-2 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-500 hover:text-white transition-all flex items-center gap-2 shadow-sm border border-amber-500/20 active:scale-95"
+                                                                        >
+                                                                            <Edit3 size={12} /> Editar
+                                                                        </Link>
+                                                                    </>
+                                                                ) : (
+                                                                    <button
+                                                                        onClick={() => handleAddToCart(kit, 'sound_kit')}
+                                                                        className="w-full bg-amber-400 text-slate-900 px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-between shadow-lg shadow-amber-500/20 hover:bg-amber-300 group/btn relative overflow-hidden"
+                                                                    >
+                                                                        <span className="flex items-center gap-2"><DollarSign size={14} /> Comprar</span>
+                                                                        <span className="bg-black/10 px-2 py-1 rounded-lg text-[9px] group-hover/btn:bg-black/20 transition-colors">${kit.price} MXN</span>
+                                                                    </button>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     ))}
