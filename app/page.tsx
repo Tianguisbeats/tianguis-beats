@@ -150,15 +150,25 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Dedicated CT Button */}
-          <div className="flex justify-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          {/* Dedicated CT Buttons */}
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <Link
-              href={`/beats?view=corridos_tumbados`}
-              className="group relative inline-flex items-center gap-3 px-10 py-5 bg-card border border-border text-foreground rounded-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-accent/20 min-h-[56px]"
+              href={`/beats/catalog?view=corridos_tumbados`}
+              className="group relative inline-flex items-center gap-3 px-10 py-5 bg-card border border-border text-foreground rounded-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-accent/20 min-h-[56px] w-full md:w-auto"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <span className="relative z-10 font-black uppercase text-[11px] tracking-[0.2em] flex items-center gap-2 group-hover:text-accent transition-colors font-heading">
-                <Music size={16} className="text-accent" /> Explorar Corridos Tumbados
+                <Music size={16} className="text-accent" /> Explorar Corridos Tumbados 🎺 🇲🇽
+              </span>
+            </Link>
+
+            <Link
+              href={`/beats/catalog?view=reggaeton_mexa`}
+              className="group relative inline-flex items-center gap-3 px-10 py-5 bg-card border border-border text-foreground rounded-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-pink-500/20 min-h-[56px] w-full md:w-auto"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 to-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <span className="relative z-10 font-black uppercase text-[11px] tracking-[0.2em] flex items-center gap-2 group-hover:text-pink-500 transition-colors font-heading">
+                🍑 Explorar Reggaetón Mexa 🇲🇽
               </span>
             </Link>
           </div>

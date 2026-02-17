@@ -5,6 +5,7 @@ import { X, Music, Check, ShoppingCart, ShieldCheck, Zap, Layers, Crown } from '
 import { useRouter } from 'next/navigation';
 import { Beat } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
+import { supabase } from '@/lib/supabase';
 
 interface LicenseSelectionModalProps {
     beat: Beat | any;
@@ -22,16 +23,26 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
             id: 'MP3',
             name: 'Licencia MP3',
             price: beat.price_mxn || 299,
-            features: ['MP3 de alta calidad (HQ)', 'Hasta 10,000 reproducciones', 'Uso en plataformas digitales'],
+            features: [
+                'Archivo MP3 de alta calidad (320kbps)',
+                'Derechos de streaming (hasta 10k)',
+                'Uso básico en videos de YouTube',
+                'Perfecto para maquetas y demos'
+            ],
             icon: <Music size={20} />,
-            color: 'blue',
-            isActive: beat.is_mp3_active !== false // Default true if not specified
+            color: 'accent',
+            isActive: beat.is_mp3_active !== false
         },
         {
             id: 'WAV',
             name: 'Licencia WAV',
             price: beat.price_wav_mxn || Math.ceil((beat.price_mxn || 299) * 2),
-            features: ['Archivos WAV + MP3', 'Uso comercial ilimitado', 'Calidad de estudio profesional'],
+            features: [
+                'Archivos WAV + MP3 incluidos',
+                'Uso comercial extendido offline/online',
+                'Derechos de streaming (hasta 50k)',
+                'Calidad de estudio profesional'
+            ],
             icon: <Zap size={20} />,
             color: 'emerald',
             isActive: beat.is_wav_active
@@ -40,7 +51,12 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
             id: 'STEMS',
             name: 'Licencia STEMS',
             price: beat.price_stems_mxn || Math.ceil((beat.price_mxn || 299) * 3),
-            features: ['Pistas separadas (Stems)', 'Control total sobre la mezcla', 'Ideal para ingeniería Pro'],
+            features: [
+                'Pistas separadas (Audio Stems)',
+                'Control total sobre la mezcla final',
+                'Streaming ilimitado permitido',
+                'Ideal para ingeniería de sonido Pro'
+            ],
             icon: <Layers size={20} />,
             color: 'purple',
             isActive: beat.is_stems_active
@@ -49,18 +65,45 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
             id: 'ILIMITADA',
             name: 'Licencia EXCLUSIVA',
             price: beat.exclusive_price_mxn || 5000,
-            features: ['Propiedad total del beat', 'Retirado de la tienda', 'Contrato de transferencia legal'],
+            features: [
+                'Propiedad total y exclusiva del beat',
+                'El beat se retira de la tienda tras compra',
+                'Uso comercial ilimitado en todo el mundo',
+                'Contrato de transferencia legal incluido'
+            ],
             icon: <Crown size={20} />,
             color: 'amber',
             isActive: beat.is_exclusive_active
         }
     ];
 
-    // Filter only active licenses (Disable all if sold)
+    // Filter only active licenses
     const activeLicenses = beat.is_sold ? [] : allLicenses.filter(l => l.isActive);
 
-    // Default to the first active license
-    const [selectedType, setSelectedType] = React.useState<string>(activeLicenses[0]?.id || 'MP3');
+    const [selectedType, setSelectedType] = React.useState<string>('');
+    const [producerInfo, setProducerInfo] = React.useState<any>(null);
+
+    // Initial state for selected type
+    React.useEffect(() => {
+        if (activeLicenses.length > 0 && !selectedType) {
+            setSelectedType(activeLicenses[0].id);
+        }
+    }, [activeLicenses]);
+
+    // Fetch producer info if missing
+    React.useEffect(() => {
+        if (isOpen && beat.producer_id) {
+            const fetchProducer = async () => {
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('artistic_name, username, foto_perfil, is_verified, is_founder')
+                    .eq('id', beat.producer_id)
+                    .single();
+                if (data) setProducerInfo(data);
+            };
+            fetchProducer();
+        }
+    }, [isOpen, beat.producer_id]);
 
     if (!isOpen) return null;
 
@@ -74,12 +117,12 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
             name: `${beat.title} [${selectedType}]`,
             price: license.price,
             image: beat.portadabeat_url || undefined,
-            subtitle: `Prod. by ${beat.producer_artistic_name || beat.producer_username || 'Tianguis Producer'}`,
+            subtitle: `Prod. by ${producerInfo?.artistic_name || beat.producer_artistic_name || beat.producer_username || 'Tianguis Producer'}`,
             metadata: {
                 licenseType: selectedType.toLowerCase(),
                 beatId: beat.id,
                 producer_id: beat.producer_id,
-                producer_name: beat.producer_artistic_name,
+                producer_name: producerInfo?.artistic_name || beat.producer_artistic_name,
                 mp3_url: beat.mp3_url,
                 wav_url: beat.wav_url,
                 stems_url: beat.stems_url
@@ -90,138 +133,124 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
         router.push('/cart');
     };
 
-    const colorMap: any = {
-        blue: {
-            border: 'border-blue-500',
-            bg: 'bg-blue-50/30',
-            bgSolid: 'bg-blue-500',
-            text: 'text-blue-600',
-            shadow: 'shadow-blue-500/20',
-            hover: 'hover:bg-blue-600'
-        },
-        emerald: {
-            border: 'border-emerald-500',
-            bg: 'bg-emerald-50/30',
-            bgSolid: 'bg-emerald-500',
-            text: 'text-emerald-600',
-            shadow: 'shadow-emerald-500/20',
-            hover: 'hover:bg-emerald-600'
-        },
-        purple: {
-            border: 'border-purple-500',
-            bg: 'bg-purple-50/30',
-            bgSolid: 'bg-purple-500',
-            text: 'text-purple-600',
-            shadow: 'shadow-purple-500/20',
-            hover: 'hover:bg-purple-600'
-        },
-        amber: {
-            border: 'border-amber-500',
-            bg: 'bg-amber-50/30',
-            bgSolid: 'bg-amber-500',
-            text: 'text-amber-600',
-            shadow: 'shadow-amber-500/20',
-            hover: 'hover:bg-amber-600'
-        }
-    };
-
-    const currentLicense: any = allLicenses.find(l => l.id === selectedType) || allLicenses[0];
-    const activeColor = colorMap[currentLicense.color] || colorMap.blue;
+    const currentLicense: any = allLicenses.find(l => l.id === selectedType) || (activeLicenses.length > 0 ? activeLicenses[0] : allLicenses[0]);
 
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose}></div>
+            <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md animate-in fade-in duration-500" onClick={onClose}></div>
 
-            <div className="relative bg-white dark:bg-slate-950 w-full max-w-4xl rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.3)] overflow-hidden animate-in zoom-in slide-in-from-bottom-8 duration-500 border border-transparent dark:border-white/10">
+            <div className="relative bg-white dark:bg-slate-950 w-full max-w-5xl rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden animate-in zoom-in slide-in-from-bottom-12 duration-700 border border-white/10 flex flex-col lg:flex-row min-h-[600px]">
+
+                {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-8 right-8 p-3 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/40 hover:text-red-500 rounded-2xl transition-all z-20 group"
+                    className="absolute top-8 right-8 p-4 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-black dark:hover:bg-white dark:hover:text-black rounded-full transition-all z-50 group"
                 >
                     <X size={20} className="group-hover:rotate-90 transition-transform" />
                 </button>
 
-                <div className="flex flex-col lg:flex-row h-full">
-                    {/* Visual Section */}
-                    <div className="lg:w-[40%] bg-slate-900 p-12 flex flex-col justify-between relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-full opacity-30">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
-                            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-600 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2"></div>
-                        </div>
-
-                        <div className="relative z-10">
-                            <div className="w-56 h-56 mx-auto rounded-[2.5rem] overflow-hidden shadow-2xl mb-8 transform hover:scale-105 transition-transform duration-500 border-4 border-white/10">
-                                {beat.portadabeat_url ? (
-                                    <img src={beat.portadabeat_url} className="w-full h-full object-cover" alt={beat.title} />
+                {/* LEFT PANEL: Specs & Producer Info */}
+                <div className="lg:w-[40%] bg-slate-50 dark:bg-slate-900 p-8 lg:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-white/5 order-2 lg:order-1">
+                    <div className="space-y-10">
+                        {/* Producer Card */}
+                        <div className="flex items-center gap-4 p-4 rounded-3xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5">
+                            <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
+                                {producerInfo?.foto_perfil || beat.producer_foto_perfil ? (
+                                    <img src={producerInfo?.foto_perfil || beat.producer_foto_perfil} className="w-full h-full object-cover" />
                                 ) : (
-                                    <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-600">
-                                        <Music size={64} />
+                                    <div className="w-full h-full flex items-center justify-center text-slate-400">
+                                        <Music size={24} />
                                     </div>
                                 )}
                             </div>
-                            <h3 className="text-3xl font-black text-white text-center tracking-tight mb-2 leading-tight">{beat.title}</h3>
-                            <div className="flex items-center justify-center gap-2">
-                                <p className="text-[10px] font-black uppercase text-blue-400 tracking-[0.3em]">
-                                    {beat.producer_artistic_name || 'Tianguis Producer'}
+                            <div className="min-w-0">
+                                <h4 className="font-heading font-black text-slate-900 dark:text-white flex items-center gap-2 truncate">
+                                    {producerInfo?.artistic_name || beat.producer_artistic_name || 'Tianguis Producer'}
+                                    {(producerInfo?.is_verified || beat.producer_is_verified) && (
+                                        <img src="/verified-badge.png" className="w-4 h-4 object-contain shrink-0" alt="V" />
+                                    )}
+                                    {(producerInfo?.is_founder || beat.producer_is_founder) && (
+                                        <Crown size={14} className="text-amber-500 shrink-0" fill="currentColor" />
+                                    )}
+                                </h4>
+                                <p className="text-[10px] font-black text-muted uppercase tracking-widest truncate">
+                                    @{producerInfo?.username || beat.producer_username || 'producer'}
                                 </p>
-                                {beat.producer_is_verified && (
-                                    <div className="bg-blue-500 text-white rounded-full p-0.5"><Check size={6} strokeWidth={4} /></div>
-                                )}
                             </div>
                         </div>
 
-                        <div className="relative z-10 grid grid-cols-2 gap-4 mt-12">
-                            <div className="bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-2xl text-center">
-                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Ritmo</p>
-                                <p className="text-sm font-black text-white">{beat.bpm} BPM</p>
+                        {/* Beat Artwork & Specs */}
+                        <div className="space-y-6">
+                            <div className="aspect-square w-full rounded-3xl overflow-hidden bg-slate-200 dark:bg-slate-800 shadow-xl border border-white/10 group">
+                                {beat.portadabeat_url || beat.portada_url ? (
+                                    <img src={beat.portadabeat_url || beat.portada_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center opacity-10">
+                                        <Music size={80} />
+                                    </div>
+                                )}
                             </div>
-                            <div className="bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-2xl text-center">
-                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Nota</p>
-                                <p className="text-sm font-black text-white">{beat.musical_key} {beat.musical_scale}</p>
+
+                            <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none italic">
+                                {beat.title}
+                            </h3>
+
+                            <div className="grid grid-cols-2 gap-2">
+                                <SpecItem label="Género" value={beat.genre} />
+                                <SpecItem label="BPM" value={`${beat.bpm} BPM`} />
+                                <SpecItem label="Nota" value={beat.musical_key} />
+                                <SpecItem label="Escala" value={beat.musical_scale} />
+                                <SpecItem label="Mood" value={beat.mood} />
+                                <SpecItem label="Beat Type" value={Array.isArray(beat.beat_types) ? beat.beat_types[0] : (beat.beat_types || 'Original')} />
                             </div>
                         </div>
                     </div>
 
-                    {/* Interaction Section */}
-                    <div className="flex-1 p-12 bg-white dark:bg-slate-950">
-                        <div className="mb-10">
-                            <h2 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-2">LICENCIAS DISPONIBLES</h2>
-                            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Selecciona el uso que le darás a tu beat</p>
-                        </div>
+                    <div className="mt-8 flex items-center gap-3 text-slate-400 dark:text-slate-500">
+                        <ShieldCheck size={18} />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Tianguis Safe Checkout</span>
+                    </div>
+                </div>
 
-                        <div className="grid sm:grid-cols-2 gap-4 mb-10">
-                            {allLicenses.map((lic) => {
-                                const licColor = colorMap[lic.color];
+                {/* RIGHT PANEL: License Selection */}
+                <div className="flex-1 p-8 lg:p-12 flex flex-col justify-between order-1 lg:order-2 bg-white dark:bg-slate-950">
+                    <div className="space-y-10">
+                        <header>
+                            <h2 className="text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-2 italic">Licencias Disponibles</h2>
+                            <p className="text-xs font-bold text-muted uppercase tracking-[0.2em]">Escala tu sonido al siguiente nivel</p>
+                        </header>
+
+                        {/* Interactive List */}
+                        <div className="grid gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
+                            {allLicenses.filter(l => l.isActive).map((lic) => {
+                                const isSelected = selectedType === lic.id;
                                 return (
                                     <button
                                         key={lic.id}
-                                        disabled={!lic.isActive}
                                         onClick={() => setSelectedType(lic.id)}
-                                        className={`relative p-5 rounded-3xl border-2 transition-all text-left flex flex-col justify-between group ${selectedType === lic.id
-                                            ? `${licColor.border} ${licColor.bg} shadow-xl dark:shadow-none`
-                                            : !lic.isActive
-                                                ? 'border-slate-50 dark:border-white/5 bg-slate-50 dark:bg-white/5 opacity-40 grayscale cursor-not-allowed'
-                                                : 'border-slate-100 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'
+                                        className={`w-full group px-6 py-5 rounded-[2rem] border-2 transition-all text-left flex items-center justify-between ${isSelected
+                                                ? 'bg-accent/5 border-accent shadow-2xl shadow-accent/10 scale-[1.02]'
+                                                : 'border-slate-100 dark:border-white/5 hover:border-accent/40 bg-transparent'
                                             }`}
                                     >
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className={`p-3 rounded-2xl ${selectedType === lic.id
-                                                ? `${licColor.bgSolid} text-white`
-                                                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500'
+                                        <div className="flex items-center gap-5">
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isSelected ? 'bg-accent text-white rotate-6' : 'bg-slate-100 dark:bg-white/5 text-muted'
                                                 }`}>
                                                 {lic.icon}
                                             </div>
-                                            {selectedType === lic.id && (
-                                                <div className={`${licColor.bgSolid} text-white rounded-full p-1 shadow-lg`}>
-                                                    <Check size={12} strokeWidth={4} />
-                                                </div>
-                                            )}
+                                            <div>
+                                                <h5 className={`font-black uppercase tracking-widest text-[11px] ${isSelected ? 'text-accent' : 'text-slate-900 dark:text-white'}`}>
+                                                    {lic.name}
+                                                </h5>
+                                                <p className="text-[10px] font-bold text-muted">Contrato profesional</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${selectedType === lic.id ? (activeColor.text) : 'text-slate-400 dark:text-slate-500'
-                                                }`}>{lic.name}</p>
-                                            <div className="flex items-baseline gap-1">
-                                                <p className="text-xl font-black text-slate-900 dark:text-white">${lic.price}</p>
-                                                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500">MXN</span>
+                                        <div className="text-right">
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-[9px] font-black text-muted opacity-50">MXN</span>
+                                                <p className={`text-2xl font-black italic ${isSelected ? 'text-accent' : 'text-slate-900 dark:text-white'}`}>
+                                                    ${lic.price}
+                                                </p>
                                             </div>
                                         </div>
                                     </button>
@@ -229,42 +258,40 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                             })}
                         </div>
 
-                        {/* Feature List */}
-                        <div className={`rounded-3xl p-8 mb-10 transition-colors duration-500 ${selectedType === currentLicense.id ? activeColor.bg : 'bg-slate-50 dark:bg-slate-900'} border ${selectedType === currentLicense.id ? activeColor.border : 'border-slate-100 dark:border-white/10'}`}>
-                            <h4 className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-6 flex items-center gap-2">
-                                <ShieldCheck size={14} className={activeColor.text} />
-                                Ventajas de esta licencia:
-                            </h4>
-                            <ul className="grid sm:grid-cols-1 gap-4">
-                                {currentLicense?.features.map((feat: string, i: number) => (
-                                    <li key={i} className="flex items-center gap-4 text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                                        <div className={`rounded-full p-1 ${activeColor.bgSolid} text-white`}>
-                                            <Check size={8} strokeWidth={4} />
-                                        </div>
-                                        {feat}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                        {/* Dynamic Feature Box */}
+                        {currentLicense && (
+                            <div className="p-8 rounded-[2.5rem] bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 animate-in fade-in slide-in-from-top-4 duration-500">
+                                <h6 className="text-[10px] font-black uppercase text-accent tracking-[0.2em] mb-6 flex items-center gap-2">
+                                    <Zap size={14} fill="currentColor" /> Beneficios de la licencia {currentLicense.id}:
+                                </h6>
+                                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {currentLicense.features.map((f: string, i: number) => (
+                                        <li key={i} className="flex items-center gap-3 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                            <div className="w-5 h-5 rounded-full bg-accent text-white flex items-center justify-center shrink-0">
+                                                <Check size={10} strokeWidth={4} />
+                                            </div>
+                                            {f}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
 
+                    <div className="mt-12 flex gap-4">
                         <button
-                            onClick={!beat.is_sold ? handleAddToCart : undefined}
-                            disabled={!currentLicense || beat.is_sold}
-                            className={`w-full py-6 rounded-2xl font-black uppercase text-[12px] tracking-[0.3em] transition-all shadow-2xl flex items-center justify-center gap-4 group active:scale-95 ${beat.is_sold
-                                    ? 'bg-red-500/10 text-red-500 cursor-not-allowed shadow-none border border-red-500/20'
-                                    : currentLicense
-                                        ? `bg-slate-900 dark:bg-white text-white dark:text-slate-900 ${activeColor.hover} dark:hover:bg-slate-100 shadow-slate-900/10`
-                                        : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
+                            onClick={handleAddToCart}
+                            disabled={!selectedType || beat.is_sold}
+                            className={`flex-1 flex items-center justify-center gap-4 py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.4em] transition-all duration-300 active:scale-95 shadow-2xl ${beat.is_sold
+                                    ? 'bg-red-500/10 text-red-500 cursor-not-allowed border border-red-500/20 shadow-none'
+                                    : 'bg-accent text-white hover:bg-black dark:hover:bg-white dark:hover:text-black shadow-accent/30'
                                 }`}
                         >
                             {beat.is_sold ? (
-                                <>
-                                    <ShieldCheck size={20} />
-                                    Beat Vendido
-                                </>
+                                <>AGOTADO / SOLD OUT</>
                             ) : (
                                 <>
-                                    <ShoppingCart size={20} className="group-hover:scale-110 transition-transform" />
+                                    <ShoppingCart size={20} />
                                     Añadir al Carrito
                                 </>
                             )}
@@ -272,6 +299,16 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                     </div>
                 </div>
             </div>
+        </div>
+    );
+}
+
+function SpecItem({ label, value }: { label: string; value: string | number }) {
+    if (!value) return null;
+    return (
+        <div className="p-4 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5">
+            <p className="text-[8px] font-black uppercase text-muted tracking-widest mb-1 leading-none">{label}</p>
+            <p className="text-[11px] font-black text-slate-900 dark:text-white truncate">{value}</p>
         </div>
     );
 }
