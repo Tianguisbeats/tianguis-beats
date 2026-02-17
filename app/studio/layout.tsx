@@ -90,11 +90,11 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                         {/* Producer Tier Quick Status */}
                         <div className={`p-6 rounded-[2rem] relative overflow-hidden group transition-all duration-500 ${profile?.subscription_tier === 'premium' ? 'bg-gradient-to-br from-blue-600 to-indigo-900 text-white shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)]' :
                             profile?.subscription_tier === 'pro' ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-900 shadow-[0_20px_50px_-10px_rgba(245,158,11,0.2)]' :
-                                'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-white/40 border border-slate-200 dark:border-white/5'
+                                'bg-gradient-to-br from-slate-100 to-slate-200 dark:from-white/5 dark:to-white/10 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/5 shadow-sm'
                             }`}>
                             <div className={`absolute top-0 right-0 w-20 h-20 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700 ${profile?.subscription_tier === 'premium' ? 'bg-white/20' :
                                 profile?.subscription_tier === 'pro' ? 'bg-white/40' :
-                                    'bg-slate-400/10'
+                                    'bg-slate-400/20'
                                 }`} />
                             <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-1">Membresía</p>
                             <h4 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
@@ -111,10 +111,10 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                             ) : (
                                 <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/10">
                                     <Link href="/studio/verification" className="flex items-center gap-2 group/verify hover:opacity-80 transition-opacity">
-                                        <div className="w-5 h-5 rounded-full bg-slate-950/5 dark:bg-white/10 flex items-center justify-center">
-                                            <ShieldCheck size={10} className="text-slate-900 dark:text-white/60" />
+                                        <div className="w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center">
+                                            <ShieldCheck size={10} className="text-red-500" />
                                         </div>
-                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-900 dark:text-white/80 border-b border-transparent group-hover/verify:border-slate-900 dark:group-hover/verify:border-white/40">Solicitar Verificación</span>
+                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-red-500/80 border-b border-transparent group-hover/verify:border-red-500/40">Sin Verificar • Solicitar</span>
                                     </Link>
                                 </div>
                             )}

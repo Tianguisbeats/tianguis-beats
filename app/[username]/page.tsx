@@ -1241,10 +1241,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                 ) : (
                                                                     <button
                                                                         onClick={() => handleAddToCart(kit, 'sound_kit')}
-                                                                        className="w-full bg-amber-400 text-slate-900 px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-between shadow-lg shadow-amber-500/20 hover:bg-amber-300 group/btn relative overflow-hidden"
+                                                                        className="w-full bg-amber-400 text-slate-900 px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:bg-amber-300 group/btn"
                                                                     >
-                                                                        <span className="flex items-center gap-2"><DollarSign size={14} /> Comprar</span>
-                                                                        <span className="bg-black/10 px-2 py-1 rounded-lg text-[9px] group-hover/btn:bg-black/20 transition-colors">${kit.price} MXN</span>
+                                                                        <DollarSign size={14} /> Comprar ${kit.price}
                                                                     </button>
                                                                 )}
                                                             </div>
