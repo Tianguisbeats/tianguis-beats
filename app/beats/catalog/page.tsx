@@ -92,6 +92,7 @@ function CatalogContent() {
 
         return {
             id: b.id,
+            producer_id: b.producer_id,
             title: b.title,
             producer: b.producer?.artistic_name || 'Productor Anónimo',
             producer_username: b.producer?.username || b.producer?.artistic_name,
@@ -161,7 +162,7 @@ function CatalogContent() {
                 let query = supabase
                     .from("beats")
                     .select(`
-            id, title, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count, sale_count, like_count,
+            id, producer_id, title, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count, sale_count, like_count,
             is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active,
             producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
           `)

@@ -27,7 +27,7 @@ export default function StudioBeatsPage() {
 
         const { data, error } = await supabase
             .from('beats')
-            .select('id, title, genre, bpm, price_mxn, portadabeat_url, mp3_url, is_public, play_count, sale_count, like_count, created_at')
+            .select('id, producer_id, title, genre, bpm, price_mxn, portadabeat_url, mp3_url, is_public, play_count, sale_count, like_count, created_at')
             .eq('producer_id', user.id)
             .order('created_at', { ascending: false });
 

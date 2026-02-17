@@ -203,7 +203,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 // 2. Get Beats (Optimized Select)
                 const { data: beatsData } = await supabase
                     .from('beats')
-                    .select('id, title, genre, bpm, price_mxn, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, is_public, play_count, like_count, created_at')
+                    .select('id, producer_id, title, genre, bpm, price_mxn, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, is_public, play_count, like_count, created_at')
                     .eq('producer_id', profileData.id)
                     .eq('is_public', true)
                     .order('created_at', { ascending: false });
@@ -977,18 +977,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                     {/* Owner Upsell for Non-Premium (Services) */}
                                     {isOwner && profile.subscription_tier !== 'premium' ? (
-                                        <div className="bg-gradient-to-br from-[#1e1b4b] to-[#312e81] rounded-[2.5rem] p-12 text-center text-white overflow-hidden relative group">
-                                            <div className="absolute top-0 right-0 p-32 bg-indigo-600/20 blur-[100px] rounded-full group-hover:bg-indigo-600/30 transition-all pointer-events-none" />
+                                        <div className={`rounded-[2.5rem] p-12 text-center overflow-hidden relative group ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-gradient-to-br from-[#1e1b4b] to-[#312e81] text-white' : 'bg-white border border-slate-100 text-slate-900 shadow-2xl shadow-indigo-500/10'}`}>
+                                            <div className="absolute top-0 right-0 p-32 bg-indigo-600/10 blur-[100px] rounded-full group-hover:bg-indigo-600/20 transition-all pointer-events-none" />
                                             <div className="relative z-10">
-                                                <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border border-white/10">
+                                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-white/10 border-white/10' : 'bg-indigo-50 border-indigo-100'}`}>
                                                     <Briefcase size={32} className="text-indigo-400" />
                                                 </div>
                                                 <h3 className="text-3xl font-black uppercase tracking-tighter mb-4">Venta de Servicios</h3>
-                                                <p className="text-indigo-100 max-w-lg mx-auto mb-8 font-medium">
+                                                <p className={`max-w-lg mx-auto mb-8 font-medium ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'text-indigo-100' : 'text-slate-500'}`}>
                                                     Ofrece servicios de Mezcla, Masterización, Composición o Clases. Los usuarios Premium pueden listar sus servicios y ser contactados directamente. ¡Desbloquea esta función ahora!
                                                 </p>
-                                                <Link href="/pricing" className="inline-flex items-center gap-2 bg-white text-indigo-900 px-8 py-4 rounded-xl font-black uppercase tracking-widest hover:bg-slate-100 transition-all transform hover:scale-105">
-                                                    <Crown size={18} fill="currentColor" className="text-amber-500" /> Mejorar a Premium
+                                                <Link href="/pricing" className={`inline-flex items-center gap-2 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all transform hover:scale-105 shadow-[0_20px_40px_-10px_rgba(245,158,11,0.4)] ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-white text-indigo-900 hover:bg-slate-100' : 'bg-amber-400 text-slate-900 hover:bg-amber-300'}`}>
+                                                    <Crown size={18} fill="currentColor" className="text-amber-500 dark:text-amber-600" /> Mejorar a Premium
                                                 </Link>
                                             </div>
                                         </div>
@@ -1150,17 +1150,17 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                     {/* Owner Upsell for Non-Premium */}
                                     {isOwner && profile.subscription_tier !== 'premium' ? (
-                                        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2.5rem] p-12 text-center text-white overflow-hidden relative group">
-                                            <div className="absolute top-0 right-0 p-32 bg-blue-600/20 blur-[100px] rounded-full group-hover:bg-blue-600/30 transition-all pointer-events-none" />
+                                        <div className={`rounded-[2.5rem] p-12 text-center overflow-hidden relative group ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-gradient-to-br from-slate-900 to-slate-800 text-white' : 'bg-white border border-slate-100 text-slate-900 shadow-2xl shadow-blue-500/10'}`}>
+                                            <div className="absolute top-0 right-0 p-32 bg-blue-600/10 blur-[100px] rounded-full group-hover:bg-blue-600/20 transition-all pointer-events-none" />
                                             <div className="relative z-10">
-                                                <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border border-white/10">
+                                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-white/10 border-white/10' : 'bg-blue-50 border-blue-100'}`}>
                                                     <Crown size={32} className="text-amber-400" />
                                                 </div>
                                                 <h3 className="text-3xl font-black uppercase tracking-tighter mb-4">Premium</h3>
-                                                <p className="text-slate-300 max-w-lg mx-auto mb-8 font-medium">
+                                                <p className={`max-w-lg mx-auto mb-8 font-medium ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'text-slate-300' : 'text-slate-500'}`}>
                                                     Vende tus propios Sample Packs, Drum Kits y Presets directamente desde tu perfil. Mejora tu cuenta para desbloquear esta sección y comenzar a generar ingresos pasivos.
                                                 </p>
-                                                <Link href="/pricing" className="inline-flex items-center gap-2 bg-amber-400 text-slate-900 px-8 py-4 rounded-xl font-black uppercase tracking-widest hover:bg-amber-300 transition-all transform hover:scale-105">
+                                                <Link href="/pricing" className={`inline-flex items-center gap-2 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all transform hover:scale-105 shadow-[0_20px_40px_-10px_rgba(245,158,11,0.4)] ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-amber-400 text-slate-900 hover:bg-amber-300' : 'bg-amber-400 text-slate-900 hover:bg-amber-300'}`}>
                                                     <Zap size={18} fill="currentColor" /> Mejorar a Premium
                                                 </Link>
                                             </div>

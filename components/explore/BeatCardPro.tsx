@@ -215,47 +215,40 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                     </span>
                 </div>
 
-                <div className="mt-auto pt-2 border-t border-border flex items-center justify-between">
-                    <div className="flex flex-col">
-                        <span className="text-[7px] text-muted font-black uppercase tracking-[0.2em] mb-0italic">Desde</span>
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-lg md:text-xl font-black text-accent tracking-tighter">
-                                {formatPriceMXN(beat.price_mxn).split('.')[0]}
-                            </span>
-                        </div>
-                        <button
-                            onClick={!beat.is_sold && !isOwner ? handleAddToCart : undefined}
-                            disabled={!!(beat.is_sold || isOwner)}
-                            className={`text-[7px] font-black uppercase tracking-[0.1em] mt-0.5 group/lic flex items-center gap-1 transition-colors min-h-0 ${beat.is_sold || isOwner ? 'text-slate-400 cursor-not-allowed' : 'text-muted hover:text-accent'
-                                }`}
-                        >
-                            {beat.is_sold ? 'NO DISPONIBLE' : isOwner ? 'TU BEAT' : 'LICENCIAS'}
-                            {!beat.is_sold && !isOwner && <ChevronRight size={6} className="group-hover/lic:translate-x-0.5 transition-transform" />}
-                        </button>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={handleLike}
-                            className={`w-8 h-8 md:w-9 md:h-9 rounded-[0.7rem] flex items-center justify-center transition-all bg-card border border-border shadow-sm active:scale-95 min-h-0 min-w-0 ${isLiked ? 'text-red-500' : 'text-muted hover:text-red-500'}`}
-                        >
-                            <Heart size={16} fill={isLiked ? "currentColor" : "none"} strokeWidth={isLiked ? 0 : 2.5} />
-                        </button>
-
-                        {!isOwner && (
+                <div className="mt-auto pt-4 border-t border-border flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                        {isOwner ? (
+                            <div className="flex flex-col">
+                                <span className="text-[7px] text-muted font-black uppercase tracking-[0.2em] mb-0.5 italic">Tu Obra</span>
+                                <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">PROPIO</span>
+                            </div>
+                        ) : (
                             <button
                                 onClick={!beat.is_sold ? handleAddToCart : undefined}
-                                className={`w-8 h-8 md:w-9 md:h-9 rounded-[0.7rem] flex items-center justify-center transition-all shadow-xl active:scale-95 min-h-0 min-w-0 ${beat.is_sold
-                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
-                                    : itemInCart
-                                        ? 'bg-green-500 text-white shadow-green-500/30'
-                                        : 'bg-accent text-white hover:bg-accent/90 shadow-accent/10 border border-transparent'
+                                disabled={!!beat.is_sold}
+                                className={`w-full h-11 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95 ${beat.is_sold
+                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
+                                        : 'bg-accent text-white hover:bg-black dark:hover:bg-white dark:hover:text-black shadow-accent/20'
                                     }`}
                             >
-                                {beat.is_sold ? <ShieldCheck size={16} /> : itemInCart ? <Check size={16} strokeWidth={4} /> : <ShoppingCart size={16} />}
+                                {beat.is_sold ? 'No Disponible' : (
+                                    <>
+                                        <ShoppingCart size={14} className="opacity-60" />
+                                        Ver Licencias
+                                        <span className="opacity-40">•</span>
+                                        <span>Desde {formatPriceMXN(beat.price_mxn).split('.')[0]}</span>
+                                    </>
+                                )}
                             </button>
                         )}
                     </div>
+
+                    <button
+                        onClick={handleLike}
+                        className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all bg-card border border-border shadow-sm active:scale-95 shrink-0 ${isLiked ? 'text-red-500 border-red-100 dark:border-red-500/20' : 'text-muted hover:text-red-500'}`}
+                    >
+                        <Heart size={18} fill={isLiked ? "currentColor" : "none"} strokeWidth={isLiked ? 0 : 2} />
+                    </button>
                 </div>
             </div>
 
