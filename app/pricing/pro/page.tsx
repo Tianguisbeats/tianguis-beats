@@ -89,9 +89,11 @@ export default function ProPlanPage() {
                                     <div className="inline-block px-12 py-6 bg-amber-400/10 text-amber-400 border border-amber-400/30 rounded-2xl font-black uppercase tracking-widest text-[10px] cursor-default backdrop-blur-sm">
                                         Tu Plan Actual
                                     </div>
+                                ) : isLoggedIn && userTier === 'premium' ? (
+                                    null // Strategy: Hide option for premium users
                                 ) : (
                                     <Link href="/pricing" className="inline-block px-12 py-6 bg-amber-500 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all shadow-2xl shadow-amber-500/20 hover:scale-105 active:scale-95">
-                                        {isLoggedIn && userTier === 'premium' ? "Plan Superior Activo" : isLoggedIn ? "Mejorar a PRO — $149 MXN" : "Mejorar Ahora — $149 MXN"}
+                                        {isLoggedIn ? "Mejorar a PRO — $149 MXN" : "Mejorar Ahora — $149 MXN"}
                                     </Link>
                                 )}
                             </div>

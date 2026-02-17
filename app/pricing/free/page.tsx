@@ -84,6 +84,8 @@ export default function FreePlanPage() {
                                     <div className="inline-block px-12 py-5 bg-card text-muted border border-border rounded-2xl font-black uppercase tracking-widest text-[10px] cursor-default">
                                         Tu Plan Actual
                                     </div>
+                                ) : isLoggedIn && userTier === 'premium' ? (
+                                    null // Strategy: Hide downgrade option for premium users
                                 ) : isLoggedIn ? (
                                     <Link href="/pricing" className="inline-block px-12 py-5 bg-card border border-border text-foreground rounded-2xl font-black uppercase tracking-widest text-[10px] hover:border-slate-400 transition-all shadow-sm hover:scale-105 active:scale-95">
                                         Cambiar a Gratis

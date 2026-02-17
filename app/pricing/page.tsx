@@ -257,9 +257,9 @@ export default function PricingPage() {
                             {selectedPlan.type === 'downgrade' && (
                                 <button
                                     onClick={() => setShowDowngradeModal(false)}
-                                    className="w-full mt-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+                                    className="w-full mt-4 py-4 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-emerald-500 hover:text-white transition-all shadow-lg shadow-emerald-500/10 active:scale-[0.98]"
                                 >
-                                    Arrepentirse / Mantener Plan Actual
+                                    Arrepentirse y Mantener Plan Actual
                                 </button>
                             )}
                         </div>

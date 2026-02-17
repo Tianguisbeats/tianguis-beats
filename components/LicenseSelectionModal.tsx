@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Beat } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
 import { supabase } from '@/lib/supabase';
+import { useToast } from '@/context/ToastContext';
 
 interface LicenseSelectionModalProps {
     beat: Beat | any;
@@ -16,6 +17,7 @@ interface LicenseSelectionModalProps {
 export default function LicenseSelectionModal({ beat, isOpen, onClose }: LicenseSelectionModalProps) {
     const router = useRouter();
     const { addItem } = useCart();
+    const { showToast } = useToast();
 
     // Define all possible licenses
     const allLicenses = [
@@ -82,6 +84,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
 
     const [selectedType, setSelectedType] = React.useState<string>('');
     const [producerInfo, setProducerInfo] = React.useState<any>(null);
+    const [currentUserId, setCurrentUserId] = React.useState<string | null>(null);
 
     // Initial state for selected type
     React.useEffect(() => {
@@ -90,24 +93,40 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
         }
     }, [activeLicenses]);
 
-    // Fetch producer info if missing
+    // Fetch producer info and current user
     React.useEffect(() => {
-        if (isOpen && beat.producer_id) {
-            const fetchProducer = async () => {
-                const { data } = await supabase
-                    .from('profiles')
-                    .select('artistic_name, username, foto_perfil, is_verified, is_founder')
-                    .eq('id', beat.producer_id)
-                    .single();
-                if (data) setProducerInfo(data);
+        if (isOpen) {
+            const fetchData = async () => {
+                // Fetch producer
+                if (beat.producer_id) {
+                    const { data: producerData } = await supabase
+                        .from('profiles')
+                        .select('artistic_name, username, foto_perfil, is_verified, is_founder')
+                        .eq('id', beat.producer_id)
+                        .single();
+                    if (producerData) setProducerInfo(producerData);
+                }
+
+                // Fetch current user
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.user) {
+                    setCurrentUserId(session.user.id);
+                }
             };
-            fetchProducer();
+            fetchData();
         }
     }, [isOpen, beat.producer_id]);
 
     if (!isOpen) return null;
 
     const handleAddToCart = () => {
+        // Prevent self-purchase
+        if (currentUserId && currentUserId === beat.producer_id) {
+            showToast("No puedes comprar tus propios productos", "error");
+            onClose();
+            return;
+        }
+
         const license = allLicenses.find(l => l.id === selectedType);
         if (!license) return;
 
@@ -223,7 +242,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                         </header>
 
                         {/* Interactive List - Increased height to prevent cutting off */}
-                        <div className="grid gap-3 max-h-[480px] overflow-y-auto pr-3 custom-scrollbar py-2">
+                        <div className="grid gap-3 max-h-[480px] overflow-y-auto px-4 custom-scrollbar py-2">
                             {allLicenses.filter(l => l.isActive).map((lic) => {
                                 const isSelected = selectedType === lic.id;
                                 return (
@@ -231,8 +250,8 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                         key={lic.id}
                                         onClick={() => setSelectedType(lic.id)}
                                         className={`w-full group px-6 py-5 rounded-[2rem] border-2 transition-all text-left flex items-center justify-between ${isSelected
-                                                ? 'bg-accent/5 border-accent shadow-2xl shadow-accent/10 scale-[1.02]'
-                                                : 'border-slate-100 dark:border-white/5 hover:border-accent/40 bg-transparent'
+                                            ? 'bg-accent/5 border-accent shadow-2xl shadow-accent/10 scale-[1.02]'
+                                            : 'border-slate-100 dark:border-white/5 hover:border-accent/40 bg-transparent'
                                             }`}
                                     >
                                         <div className="flex items-center gap-5">
@@ -285,8 +304,8 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                             onClick={handleAddToCart}
                             disabled={!selectedType || beat.is_sold}
                             className={`flex-1 flex items-center justify-center gap-4 py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.4em] transition-all duration-300 active:scale-95 shadow-2xl ${beat.is_sold
-                                    ? 'bg-red-500/10 text-red-500 cursor-not-allowed border border-red-500/20 shadow-none'
-                                    : 'bg-accent text-white hover:bg-black dark:hover:bg-white dark:hover:text-black shadow-accent/30'
+                                ? 'bg-red-500/10 text-red-500 cursor-not-allowed border border-red-500/20 shadow-none'
+                                : 'bg-accent text-white hover:bg-black dark:hover:bg-white dark:hover:text-black shadow-accent/30'
                                 }`}
                         >
                             {beat.is_sold ? (
