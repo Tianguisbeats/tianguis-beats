@@ -214,9 +214,9 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                     <span className={`text-[7px] font-black text-purple-500 bg-purple-500/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-purple-500/20 uppercase tracking-widest leading-none`}>
                         {(() => {
                             const key = (beat.musical_key || '').toLowerCase().trim();
-                            if (key.includes('maj') || key === 'm') return 'Major';
-                            if (key.includes('min') || key.endsWith('m')) return 'Minor';
-                            return 'Major'; // Default fallback if unclear
+                            if (key.includes('maj') || key === 'm') return 'Mayor';
+                            if (key.includes('min') || key.endsWith('m')) return 'Menor';
+                            return 'Mayor'; // Default fallback
                         })()}
                     </span>
                 </div>
