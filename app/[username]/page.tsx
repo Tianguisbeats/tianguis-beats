@@ -700,14 +700,34 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <span className="text-accent underline decoration-2 underline-offset-4">@{profile.username}</span>
                                         <span className="opacity-30">•</span>
                                         {isEditing ? (
-                                            <select
-                                                value={editCountry}
-                                                onChange={(e) => setEditCountry(e.target.value)}
-                                                className="bg-accent/5 rounded-lg px-2 py-1 text-accent outline-none border border-accent/20"
-                                            >
-                                                <option value="">País</option>
-                                                {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-                                            </select>
+                                            <div className="flex items-center gap-2">
+                                                <select
+                                                    value={COUNTRIES.includes(editCountry) ? editCountry : 'Otro'}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        if (val === 'Otro') {
+                                                            setEditCountry('');
+                                                        } else {
+                                                            setEditCountry(val);
+                                                        }
+                                                    }}
+                                                    className="bg-accent/5 rounded-lg px-2 py-1 text-accent outline-none border border-accent/20"
+                                                >
+                                                    <option value="">País</option>
+                                                    {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                                    <option value="Otro">Otro (Escribir)</option>
+                                                </select>
+                                                {(!COUNTRIES.includes(editCountry) && editCountry !== '') || (editCountry === '' && !COUNTRIES.includes(editCountry)) ? (
+                                                    <input
+                                                        type="text"
+                                                        value={editCountry}
+                                                        onChange={(e) => setEditCountry(e.target.value)}
+                                                        placeholder="Escribe tu país..."
+                                                        className="bg-accent/5 rounded-lg px-2 py-1 text-accent outline-none border border-accent/20 w-32"
+                                                        autoFocus
+                                                    />
+                                                ) : null}
+                                            </div>
                                         ) : (
                                             <span className="flex items-center gap-1.5"><MapPin size={12} className="text-accent" /> {profile.country || "Planeta Tierra"}</span>
                                         )}
@@ -767,7 +787,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 <div className="space-y-8">
                                     <div className="flex items-center justify-between group">
                                         <span className="text-sm font-bold text-slate-400 dark:text-white/60">Suscripción</span>
-                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border transition-all ${profile.subscription_tier === 'premium' ? 'bg-blue-600/10 dark:bg-blue-600 border-blue-400/30 dark:border-blue-400 text-blue-600 dark:text-white shadow-lg dark:shadow-blue-500/20' : profile.subscription_tier === 'pro' ? 'bg-amber-400 border-amber-300 text-slate-900' : 'bg-white/5 border-white/10 text-white/60'}`}>
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border transition-all ${profile.subscription_tier === 'premium' ? 'bg-blue-600/10 dark:bg-blue-600 border-blue-400/30 dark:border-blue-400 text-blue-600 dark:text-white shadow-lg dark:shadow-blue-500/20' : profile.subscription_tier === 'pro' ? 'bg-amber-400 border-amber-300 text-slate-900' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-white/60'}`}>
                                             {profile.subscription_tier}
                                         </span>
                                     </div>
@@ -967,7 +987,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
 
                                     {beats.length > 0 ? (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-16">
                                             {beats.slice(0, 6).map((beat) => (
                                                 <div key={beat.id} className="group relative">
                                                     <BeatCardPro beat={beat} />
