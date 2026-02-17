@@ -83,11 +83,11 @@ export default function AdminDashboard() {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as Tab)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id
-                                    ? 'bg-white dark:bg-white/10 text-foreground shadow-sm'
-                                    : 'text-muted hover:text-foreground'
+                                ? 'bg-white dark:bg-white/10 text-foreground shadow-sm'
+                                : 'text-muted hover:text-foreground'
                                 }`}
                         >
-                            {tab.icon} {tab.label}
+                            {tab.icon} {tab.id === 'dashboard' ? 'Dashboard' : tab.id === 'verifications' ? 'Verificaciones' : tab.id === 'users' ? 'Usuarios' : 'Cupones'}
                         </button>
                     ))}
                 </div>
@@ -273,6 +273,7 @@ function UserManager() {
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedUser, setSelectedUser] = useState<any>(null);
     const { showToast } = useToast();
 
     useEffect(() => { fetchUsers(); }, []);
@@ -296,9 +297,19 @@ function UserManager() {
         }
     };
 
+    const toggleAdmin = async (userId: string, currentStatus: boolean) => {
+        if (!confirm(`¿${currentStatus ? 'Quitar' : 'Asignar'} permisos de administrador?`)) return;
+        const { error } = await supabase.from('profiles').update({ is_admin: !currentStatus }).eq('id', userId);
+        if (!error) {
+            setUsers(users.map(u => u.id === userId ? { ...u, is_admin: !currentStatus } : u));
+            showToast("Permisos actualizados", "success");
+        }
+    };
+
     const filteredUsers = users.filter(u =>
         u.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.artistic_name?.toLowerCase().includes(searchTerm.toLowerCase())
+        u.artistic_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        u.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -307,26 +318,27 @@ function UserManager() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
                 <input
                     type="text"
-                    placeholder="Buscar usuarios..."
+                    placeholder="Buscar por nombre, @ o email..."
                     className="w-full pl-12 pr-6 py-4 bg-white dark:bg-white/5 border border-border rounded-2xl font-bold text-sm outline-none focus:border-accent transition-all"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                 />
             </div>
 
-            <div className="bg-white dark:bg-white/5 border border-border rounded-[2.5rem] overflow-hidden">
-                <table className="w-full">
+            <div className="bg-white dark:bg-white/5 border border-border rounded-[2.5rem] overflow-hidden overflow-x-auto">
+                <table className="w-full min-w-[1000px]">
                     <thead>
                         <tr className="border-b border-border bg-slate-50 dark:bg-white/5">
                             <th className="text-left px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Usuario</th>
                             <th className="text-left px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Membresía</th>
+                            <th className="text-left px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Rol Admin</th>
                             <th className="text-left px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Estado</th>
                             <th className="text-right px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Acciones</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
                         {loading ? (
-                            <tr><td colSpan={4} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent" /></td></tr>
+                            <tr><td colSpan={5} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent" /></td></tr>
                         ) : filteredUsers.map(user => (
                             <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
                                 <td className="px-8 py-6">
@@ -352,6 +364,17 @@ function UserManager() {
                                     </select>
                                 </td>
                                 <td className="px-8 py-6">
+                                    <button
+                                        onClick={() => toggleAdmin(user.id, user.is_admin)}
+                                        className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all ${user.is_admin
+                                                ? 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white'
+                                                : 'bg-slate-500/10 text-muted border-slate-500/20 hover:bg-accent hover:text-white hover:border-accent'
+                                            }`}
+                                    >
+                                        {user.is_admin ? 'Admin' : 'Usuario'}
+                                    </button>
+                                </td>
+                                <td className="px-8 py-6">
                                     <div className="flex items-center gap-2">
                                         {user.is_verified && <CheckCircle size={14} className="text-blue-500" />}
                                         <span className={`text-[9px] font-black uppercase tracking-widest ${user.is_verified ? 'text-blue-500' : 'text-muted'}`}>
@@ -360,15 +383,90 @@ function UserManager() {
                                     </div>
                                 </td>
                                 <td className="px-8 py-6 text-right">
-                                    <Link href={`/${user.username}`} target="_blank" className="p-2 text-muted hover:text-accent transition-all inline-block">
-                                        <ExternalLink size={16} />
-                                    </Link>
+                                    <div className="flex items-center justify-end gap-2">
+                                        <button
+                                            onClick={() => setSelectedUser(user)}
+                                            className="p-2 text-muted hover:text-accent transition-all"
+                                            title="Ver detalles"
+                                        >
+                                            <Search size={16} />
+                                        </button>
+                                        <Link href={`/${user.username}`} target="_blank" className="p-2 text-muted hover:text-accent transition-all">
+                                            <ExternalLink size={16} />
+                                        </Link>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+
+            {/* User Detail Modal */}
+            {selectedUser && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedUser(null)} />
+                    <div className="relative bg-white dark:bg-[#0a0a0c] border border-border w-full max-w-2xl rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in duration-300">
+                        <header className="p-8 border-b border-border flex items-center justify-between">
+                            <div className="flex items-center gap-6">
+                                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-accent-soft">
+                                    <img src={selectedUser.foto_perfil || `https://ui-avatars.com/api/?name=${selectedUser.username}`} alt="" className="w-full h-full object-cover" />
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl font-black uppercase tracking-tighter">{selectedUser.artistic_name}</h3>
+                                    <p className="text-xs text-muted font-bold uppercase tracking-widest">@{selectedUser.username}</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setSelectedUser(null)} className="p-3 bg-slate-100 dark:bg-white/5 rounded-2xl hover:bg-accent hover:text-white transition-all">
+                                <XCircle size={20} />
+                            </button>
+                        </header>
+
+                        <div className="p-8 grid md:grid-cols-2 gap-8 max-h-[60vh] overflow-y-auto">
+                            <div className="space-y-6">
+                                <DetailItem label="Email" value={selectedUser.email} />
+                                <DetailItem label="Nombre Completo" value={selectedUser.full_name} />
+                                <DetailItem label="ID de Usuario" value={selectedUser.id} copyable />
+                                <DetailItem label="Fecha de Registro" value={new Date(selectedUser.created_at).toLocaleDateString()} />
+                            </div>
+                            <div className="space-y-6">
+                                <DetailItem label="Membresía" value={selectedUser.subscription_tier?.toUpperCase()} />
+                                <DetailItem label="Estado" value={selectedUser.is_verified ? 'VERIFICADO' : 'NORMAL'} />
+                                <DetailItem label="Stripe ID" value={selectedUser.stripe_customer_id || 'Sin asignar'} />
+                                <DetailItem label="Bio" value={selectedUser.bio || 'Sin descripción'} />
+                            </div>
+                        </div>
+
+                        <footer className="p-8 bg-slate-50 dark:bg-white/5 flex gap-4">
+                            <button
+                                onClick={() => toggleAdmin(selectedUser.id, selectedUser.is_admin)}
+                                className={`flex-1 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${selectedUser.is_admin ? 'bg-red-500 text-white' : 'bg-accent text-white'
+                                    }`}
+                            >
+                                {selectedUser.is_admin ? 'Quitar Admin' : 'Hacer Admin'}
+                            </button>
+                            <Link
+                                href={`/${selectedUser.username}`}
+                                target="_blank"
+                                className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest text-center"
+                            >
+                                Ver Perfil Público
+                            </Link>
+                        </footer>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function DetailItem({ label, value, copyable }: { label: string, value: string, copyable?: boolean }) {
+    return (
+        <div className="group">
+            <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">{label}</p>
+            <p className={`text-sm font-bold ${copyable ? 'font-mono text-xs break-all' : 'text-foreground'}`}>
+                {value || '---'}
+            </p>
         </div>
     );
 }

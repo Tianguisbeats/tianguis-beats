@@ -978,14 +978,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                     {/* Owner Upsell for Non-Premium (Services) */}
                                     {isOwner && profile.subscription_tier !== 'premium' ? (
-                                        <div className={`rounded-[2.5rem] p-12 text-center overflow-hidden relative group border transition-all duration-500 ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-black border-white/5 text-white shadow-[0_40px_80px_-15px_rgba(30,64,175,0.3)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-indigo-500/10'}`}>
+                                        <div className={`rounded-[2.5rem] p-12 text-center overflow-hidden relative group border transition-all duration-500 ${profile.tema_perfil !== 'light' ? 'bg-slate-900 border-white/10 text-white shadow-2xl' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-indigo-500/10'}`}>
                                             <div className="absolute top-0 right-0 p-32 bg-indigo-600/10 blur-[130px] rounded-full group-hover:bg-indigo-600/20 transition-all pointer-events-none" />
                                             <div className="relative z-10">
-                                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-white/5 border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.05)]' : 'bg-indigo-50 border-indigo-100'}`}>
+                                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border ${profile.tema_perfil !== 'light' ? 'bg-white/5 border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.05)]' : 'bg-indigo-50 border-indigo-100'}`}>
                                                     <Briefcase size={32} className="text-accent" />
                                                 </div>
                                                 <h3 className="text-3xl font-black uppercase tracking-tighter mb-4">Venta de Servicios</h3>
-                                                <p className={`max-w-lg mx-auto mb-8 font-medium ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                <p className={`max-w-lg mx-auto mb-8 font-medium ${profile.tema_perfil !== 'light' ? 'text-slate-400' : 'text-slate-500'}`}>
                                                     Ofrece servicios de Mezcla, Masterización, Composición o Clases. Los usuarios Premium pueden listar sus servicios y ser contactados directamente. ¡Desbloquea esta función ahora!
                                                 </p>
                                                 <Link href="/pricing" className="inline-flex items-center gap-2 px-10 py-4 rounded-xl font-black uppercase tracking-[0.1em] text-[10px] transition-all transform hover:scale-105 shadow-xl shadow-accent/40 bg-accent text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900">
@@ -1003,22 +1003,25 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     }`}>
                                                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     <div className="flex justify-between items-start mb-6">
-                                                        <span className="bg-accent/20 text-accent px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-accent/10">
-                                                            {service.tipo_servicio}
+                                                        <span className="bg-blue-500/20 text-blue-500 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500/10">
+                                                            {service.tipo_servicio === 'beat_custom' ? 'Beat a Medida' :
+                                                                service.tipo_servicio === 'mentor' ? 'Mentoría / Clase' :
+                                                                    service.tipo_servicio === 'mixing' ? 'Mezcla y Masterización' :
+                                                                        service.tipo_servicio?.replace(/_/g, ' ') || service.tipo_servicio}
                                                         </span>
                                                         <span className={`text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>${service.precio}</span>
                                                     </div>
-                                                    <h3 className={`font-black text-xl mb-3 group-hover:text-accent transition-colors ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{service.titulo}</h3>
+                                                    <h3 className={`font-black text-xl mb-3 group-hover:text-blue-500 transition-colors ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{service.titulo}</h3>
                                                     <p className={`text-xs mb-8 line-clamp-3 leading-relaxed font-medium ${profile.tema_perfil === 'light' ? 'text-slate-500' : 'text-slate-200'}`}>{service.descripcion}</p>
 
                                                     <div className={`flex items-center justify-between pt-6 border-t ${profile.tema_perfil === 'light' ? 'border-slate-100' : 'border-white/10'}`}>
                                                         <div className="flex items-center gap-2 text-slate-400 dark:text-slate-200 text-[10px] font-black uppercase tracking-widest">
-                                                            <Clock size={16} className="text-accent" />
+                                                            <Clock size={16} className="text-blue-500" />
                                                             {service.tiempo_entrega_dias} Días hábiles
                                                         </div>
                                                         <button
                                                             onClick={() => handleAddToCart(service, 'service')}
-                                                            className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-accent dark:hover:bg-accent hover:text-white dark:hover:text-white transition-all shadow-xl shadow-accent/10 active:scale-95"
+                                                            className="bg-blue-600 text-white px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest border border-blue-500/20 hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/10 active:scale-95"
                                                         >
                                                             Contratar
                                                         </button>

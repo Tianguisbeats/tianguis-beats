@@ -33,7 +33,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                 if (data?.is_admin) {
                     setNavItems(prev => {
                         if (prev.find(item => item.href === '/studio/admin')) return prev;
-                        return [...prev, { name: 'Admón', href: '/studio/admin', icon: <LayoutGrid size={18} /> }];
+                        return [...prev, { name: 'Administrador', href: '/studio/admin', icon: <LayoutGrid size={18} /> }];
                     });
                 }
             }

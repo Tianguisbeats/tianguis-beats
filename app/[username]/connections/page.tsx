@@ -134,7 +134,7 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                     </button>
                     <div>
                         <h1 className="text-2xl sm:text-4xl font-black text-foreground uppercase tracking-tighter">
-                            Lista de amigos de <span className="text-accent underline decoration-4 underline-offset-8">@{profile?.artistic_name || profile?.username}</span>
+                            Lista de amigos de <span className="text-foreground">{profile?.artistic_name || profile?.username}</span>
                         </h1>
                         <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mt-3">Miembros de la comunidad Tianguis</p>
                     </div>
