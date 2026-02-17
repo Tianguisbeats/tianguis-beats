@@ -181,14 +181,14 @@ function CatalogContent() {
 
                 if (filterState.searchQuery.trim()) {
                     const q = filterState.searchQuery.trim();
-                    // Búsqueda global en diversos campos
-                    query = query.or(`title.ilike.%${q}%,genre.ilike.%${q}%,subgenre.ilike.%${q}%,mood.ilike.%${q}%,musical_key.ilike.%${q}%,musical_scale.ilike.%${q}%,reference_artist.ilike.%${q}%`);
+                    // Búsqueda global en diversos campos, para beat_types usamos el operador de contención .cs
+                    query = query.or(`title.ilike.%${q}%,genre.ilike.%${q}%,subgenre.ilike.%${q}%,mood.ilike.%${q}%,musical_key.ilike.%${q}%,musical_scale.ilike.%${q}%,beat_types.cs.{"${q}"}`);
                 }
 
                 if (filterState.refArtist.trim()) {
                     const ra = filterState.refArtist.trim();
-                    // Filtrado específico solicitado por el usuario para reference_artist
-                    query = query.ilike('reference_artist', `%${ra}%`);
+                    // Filtrado por etiquetas usando .contains para arrays
+                    query = query.contains('beat_types', [ra]);
                 }
 
                 switch (viewMode) {

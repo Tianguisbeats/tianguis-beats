@@ -264,7 +264,6 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                 musical_scale: musicalScale,
                 mood: selectedMoods.join(', '),
                 beat_types: beatTypes,
-                reference_artist: beatTypes.join(', '), // Sync for filtering
                 portadabeat_url,
                 mp3_url,
                 mp3_tag_url,
