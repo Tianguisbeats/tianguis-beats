@@ -24,7 +24,7 @@ export default function BeatsCatalogPage() {
     );
 }
 
-type ViewMode = 'all' | 'new' | 'trending' | 'best_sellers' | 'hidden_gems' | 'recommended' | 'exclusives' | 'corridos_tumbados';
+type ViewMode = 'all' | 'new' | 'trending' | 'best_sellers' | 'hidden_gems' | 'recommended' | 'exclusives' | 'corridos_tumbados' | 'reggaeton_mexa';
 
 function CatalogContent() {
     const [beats, setBeats] = useState<Beat[]>([]);
@@ -134,15 +134,16 @@ function CatalogContent() {
     const TabButton = ({ mode, label, icon: Icon }: { mode: string; label: string; icon: any }) => {
         const isActive = viewMode === mode;
         const isCT = mode === 'corridos_tumbados';
+        const isMexa = mode === 'reggaeton_mexa';
         return (
             <button
                 onClick={() => setViewMode(mode as any)}
                 className={`snap-center flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-t-2xl font-black text-[9px] uppercase tracking-[0.2em] transition-all duration-300 whitespace-nowrap min-h-[48px] relative ${isActive
-                    ? `bg-background ${isCT ? 'text-green-500' : 'text-accent'} border-x border-t border-border -mb-[1px] z-10`
+                    ? `bg-background ${isCT ? 'text-green-500' : isMexa ? 'text-green-500' : 'text-accent'} border-x border-t border-border -mb-[1px] z-10`
                     : 'bg-card/50 text-muted hover:text-foreground border-transparent hover:bg-card'
                     }`}
             >
-                <Icon size={14} strokeWidth={isActive ? 3 : 2} className={isActive ? (isCT ? 'text-green-500' : 'text-accent') : ''} />
+                <Icon size={14} strokeWidth={isActive ? 3 : 2} className={isActive ? (isCT || isMexa ? 'text-green-500' : 'text-accent') : ''} />
                 <span>{label}</span>
             </button>
         );
@@ -172,7 +173,7 @@ function CatalogContent() {
                 if (filterState.bpmMin) query = query.gte('bpm', filterState.bpmMin);
                 if (filterState.bpmMax) query = query.lte('bpm', filterState.bpmMax);
                 if (filterState.key) query = query.eq('musical_key', filterState.key);
-                if (filterState.scale) query = query.eq('musical_scale', filterState.scale);
+                if (filterState.scale) query = query.ilike('musical_scale', filterState.scale);
                 if (filterState.beatType) query = query.contains('beat_types', [filterState.beatType]);
                 if (filterState.searchQuery.trim()) {
                     const q = filterState.searchQuery.trim();
@@ -193,6 +194,7 @@ function CatalogContent() {
                     case 'hidden_gems': query = query.order("like_count", { ascending: false }).lte('play_count', 2000); break;
                     case 'recommended': query = query.order("play_count", { ascending: false }); break;
                     case 'corridos_tumbados': query = query.eq('genre', 'Corridos Tumbados 🇲🇽').order("created_at", { ascending: false }); break;
+                    case 'reggaeton_mexa': query = query.eq('genre', 'Reggaetón Mexa 🇲🇽').order("created_at", { ascending: false }); break;
                     default: query = query.order("created_at", { ascending: false }); break;
                 }
 
@@ -260,6 +262,7 @@ function CatalogContent() {
                             <div id="tabs-container" className="flex items-end gap-1 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth justify-start border-b border-border px-10">
                                 <TabButton mode="all" label="Todos" icon={Music} />
                                 <TabButton mode="corridos_tumbados" label="Corridos 🇲🇽" icon={Zap} />
+                                <TabButton mode="reggaeton_mexa" label="Mexa 🇲🇽" icon={Zap} />
                                 <TabButton mode="new" label="Nuevos" icon={Clock} />
                                 <TabButton mode="trending" label="Tendencias" icon={TrendingUp} />
                                 <TabButton mode="best_sellers" label="Más comprados" icon={Trophy} />

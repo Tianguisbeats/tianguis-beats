@@ -194,28 +194,37 @@ export default function AdvancedFilterSidebar({
 
 
                     {/* Key & Scale */}
-                    <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black text-muted uppercase tracking-widest">Tonalidad & Escala</label>
-                            {(filterState.key || filterState.scale) && (
-                                <button onClick={() => { updateFilter('key', ''); updateFilter('scale', ''); }} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
-                            )}
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-6">
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <label className="text-[10px] font-black text-muted uppercase tracking-widest">Tonalidad (Key)</label>
+                                {filterState.key && (
+                                    <button onClick={() => updateFilter('key', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[40px] px-2 flex items-center">Limpiar</button>
+                                )}
+                            </div>
                             <select
                                 value={filterState.key}
                                 onChange={(e) => updateFilter('key', e.target.value)}
                                 className="w-full bg-background border border-border text-foreground rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent appearance-none min-h-[48px]"
                             >
-                                <option value="" className="bg-card">Nota</option>
+                                <option value="" className="bg-card">Cualquier Nota</option>
                                 {KEYS.map(k => <option key={k} value={k} className="bg-card">{k}</option>)}
                             </select>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <label className="text-[10px] font-black text-muted uppercase tracking-widest">Escala</label>
+                                {filterState.scale && (
+                                    <button onClick={() => updateFilter('scale', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[40px] px-2 flex items-center">Limpiar</button>
+                                )}
+                            </div>
                             <select
                                 value={filterState.scale}
                                 onChange={(e) => updateFilter('scale', e.target.value)}
                                 className="w-full bg-background border border-border text-foreground rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent appearance-none min-h-[48px]"
                             >
-                                <option value="" className="bg-card">Escala</option>
+                                <option value="" className="bg-card">Cualquier Escala</option>
                                 <option value="Major" className="bg-card">Mayor</option>
                                 <option value="Minor" className="bg-card">Menor</option>
                             </select>

@@ -71,12 +71,16 @@ export default function Home() {
     });
 
     // 4. Detectar Géneros de la lista oficial
-    GENRES.forEach(g => {
-      const genreLabel = g.toLowerCase().replace(/🇲🇽|🌵|🎺|🎻|🍑|🇩🇴|🇯🇲|🔥|🕯️|🇧🇷|🌍|🥁|🔪|☕|🔫|🏠|🍭|⛓️|🚗|🎸|🎹|💎|🎤|🤘|🌀/g, '').trim();
-      if (genreLabel && lowerQuery.includes(genreLabel)) {
-        params.set('genre', g);
-      }
-    });
+    if (lowerQuery.includes('mexa')) {
+      params.set('genre', 'Reggaetón Mexa 🇲🇽');
+    } else {
+      GENRES.forEach(g => {
+        const genreLabel = g.toLowerCase().replace(/🇲🇽|🌵|🎺|🎻|🍑|🇩🇴|🇯🇲|🔥|🕯️|🇧🇷|🌍|🥁|🔪|☕|🔫|🏠|🍭|⛓️|🚗|🎸|🎹|💎|🎤|🤘|🌀/g, '').trim();
+        if (genreLabel && lowerQuery.includes(genreLabel)) {
+          params.set('genre', g);
+        }
+      });
+    }
 
     // 5. Si no detectó parámetros específicos pesados, dejar el query como búsqueda global
     if (params.toString() === "") {
