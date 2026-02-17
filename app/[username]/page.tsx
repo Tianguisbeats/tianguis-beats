@@ -997,9 +997,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <div className="grid md:grid-cols-2 gap-4 md:gap-6">
                                             {services.map(service => (
                                                 <div key={service.id} className={`p-10 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md ${profile.tema_perfil === 'dark' ? 'bg-[#020205] border-white/10 hover:border-accent/40 shadow-2xl shadow-black/80' :
-                                                    profile.tema_perfil === 'neon' ? 'bg-black/80 border-green-900 shadow-green-900/20' :
-                                                        profile.tema_perfil === 'gold' ? 'bg-[#1a1610]/80 border-amber-900/50' :
-                                                            'bg-white dark:bg-[#020205] border-slate-100 dark:border-white/10 hover:shadow-xl dark:shadow-black/80'
+                                                    profile.tema_perfil === 'neon' ? 'bg-[#09090b] border-white/10 hover:border-accent/40 shadow-2xl shadow-black/80' :
+                                                        profile.tema_perfil === 'gold' ? 'bg-[#1a1610] border-amber-900/50' :
+                                                            'bg-white border-slate-100 hover:shadow-xl'
                                                     }`}>
                                                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     <div className="flex justify-between items-start mb-6">

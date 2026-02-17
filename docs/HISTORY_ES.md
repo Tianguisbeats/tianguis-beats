@@ -17,11 +17,13 @@ La plataforma ahora soporta:
     - Botón "Ver Licencias" rediseñado: más pequeño (`h-9`), más elegante y con el precio integrado en una sola línea.
     - Etiqueta de dueño simplificada: se eliminó "Tu Obra" para dejar solo **"ES TU BEAT"**, haciendo el diseño más limpio.
 
-### F. Identificación y Estética de Compra
-- **Artista en el Carrito:** Ahora se muestra el nombre del artista ("Artista: [Nombre]") debajo de cada Servicio o Sound Kit en el carrito, facilitando la identificación de compras entre múltiples productores.
-- **Refinamiento de Perfiles (Dark/Neon/Gold):**
-    - Las tarjetas de **Sound Kits** ahora lucen un fondo negro profundo (`bg-[#08080a]`) en todos los temas oscuros.
-    - Las tarjetas de **Servicios** han sido optimizadas con mayor contraste y legibilidad impecable sobre fondos oscuros.
+### F. Refinamientos de Perfil, Catálogo y Notificaciones (2026-02-17)
+- **Perfil**: Corregido el bug de colores en tarjetas de Servicios y Sound Kits. Ahora los estilos se basan exclusivamente en el tema del perfil (`tema_perfil`) y no en el tema global del visitante.
+- **Catálogo**: Implementada búsqueda instantánea ("search-as-you-type") y eliminado el panel de filtros para una experiencia más limpia.
+- **BeatCardPro**: Añadito modo compacto (`compact`) para reducir el tamaño de las tarjetas en el catálogo.
+- **Notificaciones**: Reemplazado el `alert()` del botón compartir por notificaciones tipo Toast integradas.
+- Las tarjetas de **Sound Kits** ahora lucen un fondo negro profundo (`bg-[#08080a]`) en todos los temas oscuros.
+- Las tarjetas de **Servicios** han sido optimizadas con mayor contraste y legibilidad impecable sobre fondos oscuros.
 
 ---
 

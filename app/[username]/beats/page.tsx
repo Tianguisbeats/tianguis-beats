@@ -11,6 +11,7 @@ import PlaylistManagerModal from '@/components/PlaylistManagerModal';
 import { Beat, Profile } from '@/lib/types';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/context/ToastContext';
 
 export default function ProducerBeatsPage({ params }: { params: Promise<{ username: string }> }) {
     const resolvedParams = use(params);
@@ -23,15 +24,11 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
     const [loading, setLoading] = useState(true);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [isOwner, setIsOwner] = useState(false);
+    const { showToast } = useToast();
 
     // Search and Filters
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedGenre, setSelectedGenre] = useState('Todos');
-    const [selectedMood, setSelectedMood] = useState('Todos');
-    const [selectedKey, setSelectedKey] = useState('Todos');
-    const [selectedScale, setSelectedScale] = useState('Todos');
     const [selectedBpmRange, setSelectedBpmRange] = useState('Todos');
-    const [showFilters, setShowFilters] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Playlist Management
     const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
@@ -144,24 +141,7 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
     const moods = ['Todos', ...new Set(beats.map(b => b.mood).filter(Boolean) as string[])];
 
     const filteredBeats = beats.filter(b => {
-        const matchesSearch = b.title.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesGenre = selectedGenre === 'Todos' || b.genre === selectedGenre;
-        const matchesMood = selectedMood === 'Todos' || (b.mood && b.mood.includes(selectedMood));
-        const matchesKey = selectedKey === 'Todos' || b.musical_key === selectedKey;
-        const matchesScale = selectedScale === 'Todos' || b.musical_scale === selectedScale;
-
-        let matchesBpm = true;
-        if (selectedBpmRange !== 'Todos') {
-            const [min, max] = selectedBpmRange.split('-').map(Number);
-            const bpm = b.bpm || 0;
-            if (max) {
-                matchesBpm = bpm >= min && bpm <= max;
-            } else {
-                matchesBpm = bpm >= min;
-            }
-        }
-
-        return matchesSearch && matchesGenre && matchesMood && matchesKey && matchesScale && matchesBpm;
+        return b.title.toLowerCase().includes(searchQuery.toLowerCase());
     });
 
     if (loading) return (
@@ -288,118 +268,17 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
 
                             <div className="flex items-center gap-4 w-full lg:w-auto">
                                 <button
-                                    onClick={() => setShowFilters(!showFilters)}
-                                    className={`flex-1 lg:flex-none px-12 py-6 rounded-[2.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-4 border ${showFilters ? 'bg-white text-black border-white' : 'bg-white/5 text-white border-white/10 hover:bg-white/10'}`}
-                                >
-                                    <Filter size={20} /> FILTROS {showFilters ? <ChevronDown size={14} className="rotate-180" /> : <ChevronDown size={14} />}
-                                </button>
-                                <button
                                     onClick={() => {
                                         navigator.clipboard.writeText(window.location.href);
-                                        alert("¡Enlace del catálogo copiado! 🚀");
+                                        showToast("¡Enlace del catálogo copiado! 🚀", "success");
                                     }}
-                                    className="p-6 bg-accent-soft text-muted rounded-[2.5rem] hover:text-accent transition-all border border-border hover:border-accent/20"
+                                    className="p-6 bg-accent-soft text-muted rounded-[2.5rem] hover:text-accent transition-all border border-border hover:border-accent/20 flex-1 lg:flex-none flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest"
                                 >
-                                    <Share2 size={24} />
+                                    <Share2 size={24} /> Compartir Catálogo
                                 </button>
                             </div>
                         </div>
 
-                        {/* Ultra-Modern Filter Drawer */}
-                        {showFilters && (
-                            <div className="mt-10 pt-10 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 animate-in fade-in zoom-in-95 duration-500">
-                                <div className="space-y-6">
-                                    <label className="text-[11px] font-black uppercase text-blue-600 tracking-[0.3em] pl-2 mb-4 block">Géneros</label>
-                                    <div className="flex flex-wrap gap-2 max-h-[150px] overflow-y-auto pr-2 no-scrollbar">
-                                        {genres.map(g => (
-                                            <button
-                                                key={g}
-                                                onClick={() => setSelectedGenre(g)}
-                                                className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all border ${selectedGenre === g ? 'bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/20' : 'bg-slate-50 text-slate-400 border-transparent hover:bg-white hover:border-slate-200'}`}
-                                            >
-                                                {g}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="space-y-6">
-                                    <label className="text-[11px] font-black uppercase text-purple-600 tracking-[0.3em] pl-2 mb-4 block">Moods</label>
-                                    <div className="flex flex-wrap gap-2 max-h-[150px] overflow-y-auto pr-2 no-scrollbar">
-                                        {moods.map(m => (
-                                            <button
-                                                key={m}
-                                                onClick={() => setSelectedMood(m)}
-                                                className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all border ${selectedMood === m ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-600/20' : 'bg-slate-50 text-slate-400 border-transparent hover:bg-white hover:border-slate-200'}`}
-                                            >
-                                                {m}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="space-y-6">
-                                    <label className="text-[11px] font-black uppercase text-indigo-600 tracking-[0.3em] pl-2 mb-4 block">Parámetros Técnicos</label>
-                                    <div className="space-y-6">
-                                        <div>
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-2">BPM</p>
-                                            <div className="flex flex-wrap gap-2">
-                                                {['Todos', '60-90', '90-120', '120-140', '140+'].map(range => (
-                                                    <button
-                                                        key={range}
-                                                        onClick={() => setSelectedBpmRange(range)}
-                                                        className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase transition-all border ${selectedBpmRange === range ? 'bg-indigo-600 text-white border-indigo-500' : 'bg-slate-50 text-slate-400 border-transparent hover:bg-white'}`}
-                                                    >
-                                                        {range}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-2">Escala / Modal</p>
-                                            <div className="flex flex-wrap gap-2">
-                                                {['Todos', 'Mayor', 'Menor'].map(scale => (
-                                                    <button
-                                                        key={scale}
-                                                        onClick={() => setSelectedScale(scale)}
-                                                        className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase transition-all border ${selectedScale === scale ? 'bg-amber-500 text-white border-amber-400' : 'bg-slate-50 text-slate-400 border-transparent hover:bg-white'}`}
-                                                    >
-                                                        {scale}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="space-y-6">
-                                    <label className="text-[11px] font-black uppercase text-rose-600 tracking-[0.3em] pl-2 mb-4 block">Nota (Key)</label>
-                                    <div className="flex flex-wrap gap-2 max-h-[150px] overflow-y-auto pr-2 no-scrollbar">
-                                        {['Todos', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map(key => (
-                                            <button
-                                                key={key}
-                                                onClick={() => setSelectedKey(key)}
-                                                className={`w-10 h-10 flex items-center justify-center rounded-xl text-[9px] font-black uppercase transition-all border ${selectedKey === key ? 'bg-rose-600 text-white border-rose-500 shadow-lg shadow-rose-600/20' : 'bg-slate-50 text-slate-400 border-transparent hover:bg-white hover:border-slate-200'}`}
-                                            >
-                                                {key}
-                                            </button>
-                                        ))}
-                                    </div>
-                                    <div className="pt-6">
-                                        <button
-                                            onClick={() => {
-                                                setSelectedGenre('Todos');
-                                                setSelectedMood('Todos');
-                                                setSelectedKey('Todos');
-                                                setSelectedScale('Todos');
-                                                setSelectedBpmRange('Todos');
-                                                setSearchQuery('');
-                                            }}
-                                            className="w-full py-4 bg-slate-900 text-white text-[9px] font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-rose-600 transition-all flex items-center justify-center gap-3"
-                                        >
-                                            Limpiar Todo
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                     </div>
 
                     {/* Vitaminized Content Grid */}
@@ -450,7 +329,7 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-16">
                                     {filteredBeats.map((beat, idx) => (
                                         <div key={beat.id} className="animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both" style={{ animationDelay: `${idx * 50}ms` }}>
-                                            <BeatCardPro beat={beat} />
+                                            <BeatCardPro beat={beat} compact={true} />
                                         </div>
                                     ))}
                                 </div>
