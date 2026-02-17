@@ -11,34 +11,31 @@ La plataforma ahora soporta:
 
 ---
 
-## 2. Refinamientos de UI y Experiencia de Usuario (Reciente)
+## 2. Refinamientos de UI y Experiencia de Usuario
 
 ### A. Tarjetas de Beats y Propiedad
-- **Etiqueta de Propiedad:** Se ha actualizado la etiqueta para dueños de beats a **"ES TU BEAT"**, dejando claro que la obra pertenece al usuario actual y no está disponible para su compra por él mismo.
-- **Botón de Licencias:** Rediseñado para ser más elegante (altura `h-10`) con efectos de sombra (`shadow-accent/40`) y mejor adaptación al modo oscuro.
+- **Etiqueta de Propiedad:** Se ha actualizado la etiqueta para dueños de beats a **"ES TU BEAT"**, dejando claro que la obra pertenece al usuario actual.
+- **Botón de Licencias:** Rediseñado con un look premium, altura esbelta y sombras acentuadas (`shadow-accent/40`).
 
 ### B. Perfil y Sound Kits
-- **Sección Premium (Sound Kits):** La tarjeta de upsell para Sound Kits se ha refinado con:
-    - Botón **Amarillo** ("Mejorar a Premium") con texto oscuro para máximo contraste.
-    - Icono de **Corona en Amarillo** resaltado.
-    - Efectos de sombra profunda y resaltado para un look más "premium" y llamativo.
-- **Consistencia de Color:** Ajuste de fondos en tarjetas de servicios para usar el azul (`accent`) de la marca, asegurando legibilidad en todos los temas.
+- **Sección Premium (Upsells):** Las tarjetas de "Venta de Servicios" y "Sound Kits" se han refinado con:
+    - Botones con el azul de marca (`accent`) y **Amarillo** para Sound Kits.
+    - Iconos resaltados y efectos de sombra profunda.
+- **Modos Temáticos (Dark Mode):** Las tarjetas ahora usan un fondo **Negro Puro (`bg-black`)** cuando el tema del perfil es oscuro (`dark`, `neon`, `gold`), asegurando que no se vean grises o lavadas. En temas claros, mantienen su fondo blanco impecable.
 
-### C. Limpieza y Organización del Repositorio
-- **Eliminación de Basura:** Se borraron más de 25 archivos SQL obsoletos y scripts temporales.
-- **Nueva Estructura:** Creación de la carpeta `docs/` para organizar el historial técnico y la arquitectura, manteniendo la raíz del proyecto limpia.
-- **README:** Actualizado para ser un portal de bienvenida profesional con enlaces a la nueva documentación.
+### C. Rediseño de Home y Experiencia Social
+- **Adiós a los Planes:** Se eliminó la sección de precios del Home para priorizar la prueba social.
+- **Productores Destacados:** Nueva sección con fotos y testimonios de productores de alto nivel, utilizando recursos visuales profesionales en `/public/images/featured/`.
+
+### D. Limpieza del Repositorio
+- **Estructura Organizada:** Creación de la carpeta `docs/` y eliminación de más de 25 archivos SQL obsoletos.
+- **README Profesional:** Actualizado al español con guías claras de arquitectura e historial.
 
 ---
 
-## 3. Actualizaciones Técnicas y de Base de Datos
-- **Seguridad de Compra:** Integración de `producer_id` en todas las consultas de beats para prevenir la autocompra y habilitar etiquetas de dueño.
-- **Restricciones en Reproductor:** El botón "Ver Licencias" ahora se oculta automáticamente en el `AudioPlayer` si el usuario es el dueño del beat.
+## 3. Actualizaciones Técnicas
+- **Seguridad:** Integración de `producer_id` para prevenir autocompras.
+- **Reproductor:** El botón "Ver Licencias" es inteligente y se oculta para el dueño de la obra.
 
-## 4. Verificación Realizada
-- **Modos Claro/Oscuro:** Verificado que todas las tarjetas y botones mantienen su legibilidad y estética premium en ambos modos.
-- **Flujo de Usuario:** Confirmado que un productor puede ver su etiqueta de dueño y que las secciones restringidas (Servicios/Kits) muestran los upsells correctos con el nuevo diseño.
-
-## 5. Próximos Pasos
-- **Monitoreo de Feedback:** Observar la interacción de los usuarios con el nuevo diseño de botones.
-- **Escalabilidad:** Evaluar el rendimiento de las consultas con el aumento de volumen de beats.
+## 4. Verificación
+- Confirmado el correcto funcionamiento de las imágenes en el Home y la adaptación de colores en los perfiles bajo distintos temas.

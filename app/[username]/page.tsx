@@ -977,18 +977,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                     {/* Owner Upsell for Non-Premium (Services) */}
                                     {isOwner && profile.subscription_tier !== 'premium' ? (
-                                        <div className={`rounded-[2.5rem] p-12 text-center overflow-hidden relative group border ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-[#050510] border-white/5 text-white shadow-2xl shadow-indigo-500/20' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-indigo-500/10'}`}>
-                                            <div className="absolute top-0 right-0 p-32 bg-indigo-600/10 blur-[120px] rounded-full group-hover:bg-indigo-600/20 transition-all pointer-events-none" />
+                                        <div className={`rounded-[2.5rem] p-12 text-center overflow-hidden relative group border transition-all duration-500 ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-black border-white/5 text-white shadow-[0_40px_80px_-15px_rgba(30,64,175,0.3)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-indigo-500/10'}`}>
+                                            <div className="absolute top-0 right-0 p-32 bg-indigo-600/10 blur-[130px] rounded-full group-hover:bg-indigo-600/20 transition-all pointer-events-none" />
                                             <div className="relative z-10">
-                                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-white/5 border-white/10' : 'bg-indigo-50 border-indigo-100'}`}>
+                                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-white/5 border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.05)]' : 'bg-indigo-50 border-indigo-100'}`}>
                                                     <Briefcase size={32} className="text-accent" />
                                                 </div>
                                                 <h3 className="text-3xl font-black uppercase tracking-tighter mb-4">Venta de Servicios</h3>
                                                 <p className={`max-w-lg mx-auto mb-8 font-medium ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'text-slate-400' : 'text-slate-500'}`}>
                                                     Ofrece servicios de Mezcla, Masterización, Composición o Clases. Los usuarios Premium pueden listar sus servicios y ser contactados directamente. ¡Desbloquea esta función ahora!
                                                 </p>
-                                                <Link href="/pricing" className={`inline-flex items-center gap-2 px-10 py-4 rounded-xl font-black uppercase tracking-[0.1em] text-[10px] transition-all transform hover:scale-105 shadow-xl shadow-accent/40 bg-accent text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900`}>
-                                                    <Crown size={16} fill="currentColor" className="text-white group-hover:text-amber-500 transition-colors" /> Mejorar a Premium
+                                                <Link href="/pricing" className="inline-flex items-center gap-2 px-10 py-4 rounded-xl font-black uppercase tracking-[0.1em] text-[10px] transition-all transform hover:scale-105 shadow-xl shadow-accent/40 bg-accent text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900">
+                                                    <Crown size={16} fill="currentColor" className="transition-colors" /> Mejorar a Premium
                                                 </Link>
                                             </div>
                                         </div>
@@ -1150,17 +1150,17 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                     {/* Owner Upsell for Non-Premium */}
                                     {isOwner && profile.subscription_tier !== 'premium' ? (
-                                        <div className={`rounded-[2.5rem] p-12 text-center overflow-hidden relative group border ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-[#020617] border-white/5 text-white shadow-[0_30px_60px_-15px_rgba(245,158,11,0.2)]' : 'bg-white border-slate-100 text-slate-900 shadow-[0_30px_60px_-15px_rgba(245,158,11,0.15)]'}`}>
+                                        <div className={`rounded-[2.5rem] p-12 text-center overflow-hidden relative group border transition-all duration-500 ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-black border-white/5 text-white shadow-[0_40px_80px_-15px_rgba(245,158,11,0.2)]' : 'bg-white border-slate-100 text-slate-900 shadow-[0_30px_60px_-15px_rgba(245,158,11,0.15)]'}`}>
                                             <div className="absolute top-0 right-0 p-32 bg-amber-500/10 blur-[150px] rounded-full group-hover:bg-amber-500/20 transition-all pointer-events-none" />
                                             <div className="relative z-10">
-                                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-amber-400/10 border-amber-400/20' : 'bg-amber-50 border-amber-100'}`}>
+                                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-amber-400/5 border-amber-400/10 shadow-[0_0_20px_rgba(245,158,11,0.05)]' : 'bg-amber-50 border-amber-100'}`}>
                                                     <Crown size={32} className="text-amber-400" fill="currentColor" />
                                                 </div>
                                                 <h3 className="text-3xl font-black uppercase tracking-tighter mb-4">Sección Premium</h3>
                                                 <p className={`max-w-lg mx-auto mb-8 font-medium ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'text-slate-400' : 'text-slate-500'}`}>
                                                     Vende tus propios Sample Packs, Drum Kits y Presets directamente desde tu perfil. Mejora tu cuenta para desbloquear esta sección y comenzar a generar ingresos pasivos.
                                                 </p>
-                                                <Link href="/pricing" className={`inline-flex items-center gap-2 px-10 py-4 rounded-xl font-black uppercase tracking-[0.1em] text-[10px] transition-all transform hover:scale-105 shadow-xl shadow-amber-500/30 bg-amber-400 text-slate-900 hover:bg-amber-300`}>
+                                                <Link href="/pricing" className="inline-flex items-center gap-2 px-10 py-4 rounded-xl font-black uppercase tracking-[0.1em] text-[10px] transition-all transform hover:scale-105 shadow-xl shadow-amber-500/30 bg-amber-400 text-slate-900 hover:bg-amber-300">
                                                     <Zap size={16} fill="currentColor" /> Mejorar a Premium
                                                 </Link>
                                             </div>

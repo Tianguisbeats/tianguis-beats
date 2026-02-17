@@ -243,66 +243,54 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. PLANS TEASER (Minimalist Comparison) */}
+      {/* 4. FEATURED PRODUCERS (Social Proof) */}
       <section className="py-32 px-4 bg-card border-t border-border transition-colors">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
-            <div>
-              <h2 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter mb-4 font-heading">
-                Elige tu <span className="text-accent">Nivel.</span>
-              </h2>
-              <p className="text-lg text-muted font-medium tracking-tight font-body">Escala desde bedroom producer hasta leyenda mundial.</p>
-            </div>
-            <Link href="/pricing" className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-widest text-foreground border-b-2 border-foreground pb-1 hover:text-accent hover:border-accent transition-all min-h-[48px]">
-              Ver todos los planes <ArrowRight size={14} />
-            </Link>
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter mb-4 font-heading">
+              Productores <span className="text-accent">Destacados.</span>
+            </h2>
+            <p className="text-lg text-muted font-medium tracking-tight font-body">La comunidad creativa más grande de México ya está aquí.</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="p-10 md:p-12 rounded-[2.5rem] md:rounded-[3rem] bg-background border border-border flex flex-col justify-between h-full">
-              <div>
-                <span className="inline-block px-4 py-1 rounded-full bg-accent-soft text-accent text-[10px] font-black uppercase tracking-widest mb-6">Start</span>
-                <h3 className="text-4xl font-black text-foreground mb-4 font-heading">Free</h3>
-                <p className="text-muted font-medium mb-8 font-body">Perfecto para empezar a explorar. Sin compromiso.</p>
-                <ul className="space-y-4 mb-12">
-                  <li className="flex items-center gap-3 text-sm font-bold text-foreground font-body">
-                    <div className="w-1.5 h-1.5 rounded-full bg-accent/30"></div> Sube hasta 5 Beats
-                  </li>
-                  <li className="flex items-center gap-3 text-sm font-bold text-foreground font-body">
-                    <div className="w-1.5 h-1.5 rounded-full bg-accent/30"></div> Perfil Básico
-                  </li>
-                </ul>
-              </div>
-              <Link href="/signup" className="w-full py-5 text-center rounded-2xl font-bold bg-card border-2 border-border text-foreground hover:bg-accent hover:text-white hover:border-accent transition-all min-h-[56px] flex items-center justify-center">
-                Crear cuenta gratis
-              </Link>
-            </div>
-
-            <div className="p-10 md:p-12 rounded-[2.5rem] md:rounded-[3rem] bg-foreground text-background relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-96 h-96 bg-accent/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
-
-              <div className="relative z-10 h-full flex flex-col justify-between">
-                <div>
-                  <span className="inline-block px-4 py-1 rounded-full bg-accent text-white text-[10px] font-black uppercase tracking-widest mb-6">Recomendado</span>
-                  <h3 className="text-4xl font-black mb-4 font-heading">Pro & Premium</h3>
-                  <p className="text-background/70 font-medium mb-8 font-body">Desbloquea el poder total de la IA y personalización.</p>
-                  <ul className="space-y-4 mb-12">
-                    <li className="flex items-center gap-3 text-sm font-bold text-background/90 font-body">
-                      <Zap size={14} className="text-accent" /> Uploads Ilimitados
-                    </li>
-                    <li className="flex items-center gap-3 text-sm font-bold text-background/90 font-body">
-                      <BarChart3 size={14} className="text-accent" /> Estadísticas Reales & CRM
-                    </li>
-                    <li className="flex items-center gap-3 text-sm font-bold text-background/90 font-body">
-                      <Globe size={14} className="text-accent" /> Tienda Personalizable
-                    </li>
-                  </ul>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Alex 'The Beat' Mora",
+                role: "Platinum Producer",
+                image: "/images/featured/producer1.png",
+                quote: "Tianguis Beats cambió las reglas. Por fin una plataforma que entiende el mercado mexicano y nos da las herramientas que realmente necesitamos."
+              },
+              {
+                name: "Sofía Méndez",
+                role: "Urban Artist & Producer",
+                image: "/images/featured/producer2.png",
+                quote: "La calidad de los beats y la facilidad con la que puedo vender mis servicios es increíble. Es mi base de operaciones diaria."
+              },
+              {
+                name: "Gabo Reyes",
+                role: "Top Billboard Charting",
+                image: "/images/featured/producer3.png",
+                quote: "No pierdo el tiempo con procesos lentos. Aquí todo es al grano: subo, vendo y cobro. La interfaz es de otro nivel."
+              }
+            ].map((producer, i) => (
+              <div key={i} className="group relative overflow-hidden rounded-[2.5rem] bg-background border border-border hover:border-accent/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+                <div className="aspect-[4/5] overflow-hidden relative">
+                  <img src={producer.image} alt={producer.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60"></div>
                 </div>
-                <Link href="/pricing" className="w-full py-5 text-center rounded-2xl font-black uppercase text-[12px] tracking-widest bg-accent text-white hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 min-h-[56px] flex items-center justify-center">
-                  Ver Planes Pro
-                </Link>
+                <div className="p-8 relative">
+                  <div className="flex items-center gap-1 mb-4">
+                    {[1, 2, 3, 4, 5].map(s => <Zap key={s} size={12} className="text-amber-500" fill="currentColor" />)}
+                  </div>
+                  <p className="text-foreground font-medium mb-6 italic leading-relaxed font-body">"{producer.quote}"</p>
+                  <div>
+                    <h4 className="text-xl font-black text-accent font-heading">{producer.name}</h4>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-muted">{producer.role}</span>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
