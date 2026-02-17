@@ -220,23 +220,23 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
                         {isOwner ? (
                             <div className="flex flex-col">
                                 <span className="text-[7px] text-muted font-black uppercase tracking-[0.2em] mb-0.5 italic">Tu Obra</span>
-                                <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">PROPIO</span>
+                                <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">PROPIO</span>
                             </div>
                         ) : (
                             <button
                                 onClick={!beat.is_sold ? handleAddToCart : undefined}
                                 disabled={!!beat.is_sold}
-                                className={`w-full h-11 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95 ${beat.is_sold
+                                className={`w-full h-10 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 group/btn active:scale-95 ${beat.is_sold
                                         ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
-                                        : 'bg-accent text-white hover:bg-black dark:hover:bg-white dark:hover:text-black shadow-accent/20'
+                                        : 'bg-accent text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900 shadow-[0_10px_20px_-5px_rgba(59,130,246,0.3)] hover:shadow-accent/40'
                                     }`}
                             >
                                 {beat.is_sold ? 'No Disponible' : (
                                     <>
-                                        <ShoppingCart size={14} className="opacity-60" />
-                                        Ver Licencias
-                                        <span className="opacity-40">•</span>
-                                        <span>Desde {formatPriceMXN(beat.price_mxn).split('.')[0]}</span>
+                                        <ShoppingCart size={13} className="opacity-70 group-hover/btn:scale-110 transition-transform" />
+                                        <span>Ver Licencias</span>
+                                        <span className="w-1 h-1 bg-white/30 rounded-full mx-0.5" />
+                                        <span className="text-white/90">Desde {formatPriceMXN(beat.price_mxn).split('.')[0]}</span>
                                     </>
                                 )}
                             </button>
@@ -245,7 +245,7 @@ export default function BeatCardPro({ beat }: BeatCardProProps) {
 
                     <button
                         onClick={handleLike}
-                        className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all bg-card border border-border shadow-sm active:scale-95 shrink-0 ${isLiked ? 'text-red-500 border-red-100 dark:border-red-500/20' : 'text-muted hover:text-red-500'}`}
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all bg-card border border-border/50 shadow-sm active:scale-95 shrink-0 ${isLiked ? 'text-red-500 border-red-500/20 bg-red-50/10' : 'text-muted hover:text-red-500 hover:border-red-500/20'}`}
                     >
                         <Heart size={18} fill={isLiked ? "currentColor" : "none"} strokeWidth={isLiked ? 0 : 2} />
                     </button>
