@@ -82,14 +82,9 @@ export default function Home() {
       });
     }
 
-    // 5. Si no detectó parámetros específicos pesados, dejar el query como búsqueda global
-    if (params.toString() === "") {
-      params.set('q', query.trim());
-    } else {
-      // Limpiar el query para que no duplique información si detectamos cosas específicas
-      // Pero opcionalmente podemos dejarlo como 'q' también para mayor alcance
-      params.set('q', query.trim());
-    }
+    // 5. Siempre enviar el query original como 'q' para permitir búsqueda parcial (tipo artista, título, etc)
+    // Esto asegura que si el usuario escribe "Tai", se busque parcialmente en el catálogo.
+    params.set('q', query.trim());
 
     window.location.href = `/beats/catalog?${params.toString()}`;
   };

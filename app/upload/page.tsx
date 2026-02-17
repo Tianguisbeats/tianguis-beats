@@ -188,6 +188,7 @@ export default function UploadPage() {
                 musical_scale: musicalScale,
                 mood: selectedMoods.join(', '),
                 beat_types: beatTypes,
+                reference_artist: beatTypes.join(', '), // Sync for fuzzy search
                 portadabeat_url: portadabeat_url,
                 mp3_url: hqPath, // Archivo de Alta Calidad (Limpio)
                 mp3_tag_url: previewPath, // Archivo con tags para previsualización
