@@ -16,9 +16,79 @@ import {
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { GENRES, MOODS } from '@/lib/constants';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSmartSearch = (query: string) => {
+    if (!query.trim()) {
+      window.location.href = '/beats/catalog';
+      return;
+    }
+
+    const lowerQuery = query.toLowerCase();
+    const params = new URLSearchParams();
+
+    // 1. Detectar BPM (ej: "140 bpm" o solo un número entre 60 y 200)
+    const bpmMatch = lowerQuery.match(/(\d{2,3})\s?(bpm)?/i);
+    if (bpmMatch) {
+      const bpmValue = parseInt(bpmMatch[1]);
+      if (bpmValue >= 60 && bpmValue <= 220) {
+        params.set('bpm', bpmValue.toString());
+      }
+    }
+
+    // 2. Detectar Tonalidad (Key) y Escala
+    const keys = ["c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b"];
+    const scales = ["major", "minor", "mayor", "menor"];
+
+    keys.forEach(k => {
+      // Usar regex para buscar la nota como palabra independiente o al inicio
+      const keyRegex = new RegExp(`\\b${k === 'c#' ? 'c#' : k}\\b`, 'i');
+      if (keyRegex.test(lowerQuery)) {
+        params.set('key', k.toUpperCase().replace('B', '#')); // Normalizar b -> # si fuera necesario, aunque aquí usamos #
+      }
+    });
+
+    scales.forEach(s => {
+      if (lowerQuery.includes(s)) {
+        const scaleValue = (s === 'minor' || s === 'menor') ? 'Minor' : 'Major';
+        params.set('scale', scaleValue);
+      }
+    });
+
+    // 3. Detectar Moods de la lista oficial
+    MOODS.forEach(m => {
+      const moodLabel = m.label.toLowerCase();
+      // Dividir por slash si existe (ej: "Triste / Depresivo")
+      const moodParts = moodLabel.split(' / ');
+      moodParts.forEach(part => {
+        if (lowerQuery.includes(part.trim())) {
+          params.set('mood', m.label);
+        }
+      });
+    });
+
+    // 4. Detectar Géneros de la lista oficial
+    GENRES.forEach(g => {
+      const genreLabel = g.toLowerCase().replace(/🇲🇽|🌵|🎺|🎻|🍑|🇩🇴|🇯🇲|🔥|🕯️|🇧🇷|🌍|🥁|🔪|☕|🔫|🏠|🍭|⛓️|🚗|🎸|🎹|💎|🎤|🤘|🌀/g, '').trim();
+      if (genreLabel && lowerQuery.includes(genreLabel)) {
+        params.set('genre', g);
+      }
+    });
+
+    // 5. Si no detectó parámetros específicos pesados, dejar el query como búsqueda global
+    if (params.toString() === "") {
+      params.set('q', query.trim());
+    } else {
+      // Limpiar el query para que no duplique información si detectamos cosas específicas
+      // Pero opcionalmente podemos dejarlo como 'q' también para mayor alcance
+      params.set('q', query.trim());
+    }
+
+    window.location.href = `/beats/catalog?${params.toString()}`;
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground font-body transition-colors duration-300 selection:bg-accent selection:text-white overflow-x-hidden">
@@ -48,7 +118,7 @@ export default function Home() {
           </h1>
 
           <p className="text-base md:text-xl text-muted font-medium max-w-3xl mx-auto mb-12 leading-relaxed tracking-tight px-4 font-body">
-            La plataforma definitiva para el sonido que conquistó el mundo. Únete a productores verificados, vende tus beats y lleva el movimiento al siguiente nivel.
+            Olvídate de interfaces lentas y llenas de anuncios. Mientras otros te saturan de opciones que no usas, aquí tienes Beats, Sound Kits y servicios profesionales en un solo lugar: sin distracciones y al grano.
           </p>
 
           {/* Omni-Search Bar */}
@@ -61,15 +131,19 @@ export default function Home() {
                 </div>
                 <input
                   type="text"
-                  placeholder="Escribe corridos tumbados..."
+                  placeholder="Ej: Corridos 140 bpm C# minor..."
                   className="flex-1 bg-transparent border-none px-4 py-4 outline-none font-bold text-foreground text-lg placeholder:text-muted/30"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && (window.location.href = `/beats?q=${searchQuery}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSmartSearch(searchQuery);
+                    }
+                  }}
                 />
               </div>
               <button
-                onClick={() => window.location.href = `/beats?q=${searchQuery}`}
+                onClick={() => handleSmartSearch(searchQuery)}
                 className="bg-accent text-white px-8 py-4 md:py-3 rounded-[1.5rem] md:rounded-full font-black uppercase text-[10px] tracking-widest hover:bg-accent/90 transition-all shadow-lg min-h-[56px] flex items-center justify-center"
               >
                 Buscar

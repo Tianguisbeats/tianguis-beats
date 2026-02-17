@@ -176,8 +176,8 @@ function CatalogContent() {
                 if (filterState.beatType) query = query.contains('beat_types', [filterState.beatType]);
                 if (filterState.searchQuery.trim()) {
                     const q = filterState.searchQuery.trim();
-                    // Búsqueda global en título, género, subgénero y beat_types
-                    query = query.or(`title.ilike.%${q}%,genre.ilike.%${q}%,subgenre.ilike.%${q}%,beat_types.cs.{"${q}"}`);
+                    // Búsqueda global en título, género, subgénero, mood, nota y escala
+                    query = query.or(`title.ilike.%${q}%,genre.ilike.%${q}%,subgenre.ilike.%${q}%,mood.ilike.%${q}%,musical_key.ilike.%${q}%,musical_scale.ilike.%${q}%,beat_types.cs.{"${q}"}`);
                 }
 
                 if (filterState.refArtist.trim()) {
