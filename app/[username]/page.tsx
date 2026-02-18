@@ -97,6 +97,42 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     const [isOwner, setIsOwner] = useState(false);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
+    // Unified Session & Follow Listener
+    useEffect(() => {
+        // Initial session check
+        const initSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setCurrentUserId(session?.user?.id || null);
+        };
+        initSession();
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setCurrentUserId(session?.user?.id || null);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    // Check follow status when user or profile is ready
+    useEffect(() => {
+        const checkStatus = async () => {
+            if (currentUserId && profile?.id) {
+                const { data, error } = await supabase
+                    .from('follows')
+                    .select('id')
+                    .eq('follower_id', currentUserId)
+                    .eq('following_id', profile.id)
+                    .maybeSingle();
+
+                if (!error) setIsFollowing(!!data);
+            } else if (!currentUserId) {
+                setIsFollowing(false);
+            }
+        };
+        checkStatus();
+    }, [currentUserId, profile?.id]);
+
     // Playlist Management
     const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
     const [editingPlaylist, setEditingPlaylist] = useState<any>(null);
@@ -170,8 +206,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     const fetchAll = async () => {
         try {
             setLoading(true);
-            const { data: { user } } = await supabase.auth.getUser();
-            setCurrentUserId(user?.id || null);
+            // We removed auth check here to use the dedicated listener above
 
             // 1. Get Profile
             const { data: profileData } = await supabase
@@ -192,7 +227,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 setEditVerifyTiktok(profileData.verify_tiktok || '');
                 setTempOffset(profileData.ajuste_portada ?? 50);
 
-                if (user?.id === profileData.id) {
+                if (currentUserId === profileData.id) {
                     setIsOwner(true);
                 }
 
@@ -363,6 +398,17 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     useEffect(() => {
         fetchAll();
     }, [username]);
+
+    // Listen for auth state changes to update currentUserId
+    useEffect(() => {
+        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+            setCurrentUserId(session?.user?.id || null);
+        });
+
+        return () => {
+            authListener?.unsubscribe();
+        };
+    }, []);
 
     // Separate effect to handle follow status when user session is loaded
     useEffect(() => {
@@ -1049,11 +1095,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     ) : (
                                         <div className="grid md:grid-cols-2 gap-4 md:gap-6">
                                             {services.map(service => (
-                                                <div key={service.id} className={`p-10 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md ${profile.tema_perfil === 'dark' ? 'bg-slate-900/40 border-white/10 hover:border-accent/40 shadow-2xl shadow-black/80' :
-                                                    profile.tema_perfil === 'neon' ? 'bg-[#09090b] border-white/10 hover:border-accent/40 shadow-2xl shadow-black/80' :
-                                                        profile.tema_perfil === 'gold' ? 'bg-[#1a1610] border-amber-900/50' :
-                                                            'bg-white border-slate-100 hover:shadow-xl'
-                                                    }`}>
+                                                <div key={service.id} className={`p-10 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
+                                                    'bg-slate-900/60 border-white/5 hover:border-accent/40 shadow-2xl shadow-black/80 text-white' :
+                                                    'bg-white border-slate-100 hover:shadow-xl text-slate-900'}`}>
                                                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     <div className="flex justify-between items-start mb-6">
                                                         <span className="bg-blue-500/20 text-blue-500 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500/10">
@@ -1251,8 +1295,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             ) : (
                                                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                                     {soundKits.map(kit => (
-                                                        <div key={kit.id} className={`p-6 rounded-[2rem] border transition-all group backdrop-blur-md ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-[#08080a] border-white/10 hover:border-amber-500/40 shadow-2xl shadow-black' :
-                                                            'bg-white border-slate-100 hover:shadow-xl'
+                                                        <div key={kit.id} className={`p-6 rounded-[2rem] border transition-all group backdrop-blur-md ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
+                                                            'bg-slate-900/60 border-white/5 hover:border-amber-500/40 shadow-2xl shadow-black text-white' :
+                                                            'bg-white border-slate-100 hover:shadow-xl text-slate-900'
                                                             }`}>
                                                             <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden relative">
                                                                 {kit.cover_url ? (
