@@ -120,7 +120,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             if (currentUserId && profile?.id) {
                 const { data, error } = await supabase
                     .from('follows')
-                    .select('id')
+                    .select('follower_id')
                     .eq('follower_id', currentUserId)
                     .eq('following_id', profile.id)
                     .maybeSingle();
