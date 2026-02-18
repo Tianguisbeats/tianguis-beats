@@ -323,12 +323,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 setFollowingCount(followingCountData || 0);
 
                 if (user) {
-                    const { data: followData } = await supabase
+                    // Check follow status directly without single(), using maybeSingle() logic or just checking length
+                    const { data: followData, error: followError } = await supabase
                         .from('follows')
                         .select('id')
                         .eq('follower_id', user.id)
                         .eq('following_id', profileData!.id)
-                        .single();
+                        .maybeSingle();
+
+                    if (followError) {
+                        console.error("Error checking follow status:", followError);
+                    }
+
                     setIsFollowing(!!followData);
                 }
 
@@ -957,9 +963,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     {(profile.subscription_tier === 'premium' || isOwner) && (
                                         <button
                                             onClick={() => setActiveTab('sound_kits')}
-                                            className={`py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === 'sound_kits' ? 'text-amber-500' : 'text-muted hover:text-amber-400'}`}
+                                            className={`relative py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === 'sound_kits' ? 'text-amber-500' : 'text-muted hover:text-amber-400'}`}
                                         >
                                             <Zap size={16} /> Sound Kits
+                                            {activeTab === 'sound_kits' && (
+                                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-500 rounded-full animate-in fade-in zoom-in duration-300" />
+                                            )}
                                         </button>
                                     )}
                                 </div>
@@ -1307,9 +1316,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                         <button
                             onClick={() => setShowFanCapture(false)}
-                            className="absolute top-6 right-6 w-10 h-10 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center text-muted hover:text-foreground transition-all"
+                            className="absolute top-0 right-0 p-6 z-50 text-muted hover:text-foreground transition-all flex items-center justify-center group"
+                            aria-label="Cerrar modal"
                         >
-                            <Plus size={20} className="rotate-45" />
+                            <div className="w-10 h-10 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center group-hover:bg-slate-200 dark:group-hover:bg-white/10 transition-colors">
+                                <Plus size={24} className="rotate-45" />
+                            </div>
                         </button>
 
                         <div className="relative z-10 text-center">
