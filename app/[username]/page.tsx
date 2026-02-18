@@ -399,38 +399,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         fetchAll();
     }, [username]);
 
-    // Listen for auth state changes to update currentUserId
-    useEffect(() => {
-        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-            setCurrentUserId(session?.user?.id || null);
-        });
-
-        return () => {
-            authListener?.unsubscribe();
-        };
-    }, []);
-
-    // Separate effect to handle follow status when user session is loaded
-    useEffect(() => {
-        const checkFollowStatus = async () => {
-            if (currentUserId && profile?.id) {
-                const { data, error } = await supabase
-                    .from('follows')
-                    .select('id')
-                    .eq('follower_id', currentUserId)
-                    .eq('following_id', profile.id)
-                    .maybeSingle();
-
-                if (!error) {
-                    setIsFollowing(!!data);
-                }
-            } else if (!currentUserId) {
-                setIsFollowing(false);
-            }
-        };
-        checkFollowStatus();
-    }, [currentUserId, profile?.id]);
-
     const hasChanges = () => {
         if (!profile) return false;
         const socialsChanged = JSON.stringify(editSocials) !== JSON.stringify(profile.social_links || {});
