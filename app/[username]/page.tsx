@@ -772,12 +772,16 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Personalizar</>}
                                         </button>
                                     ) : (
-                                        <button
-                                            onClick={handleFollowToggle}
-                                            className={`h-14 px-12 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center gap-3 active:scale-95 shadow-xl ${isFollowing ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white border border-slate-100 dark:border-white/10 shadow-soft dark:shadow-[0_20px_50px_rgba(8,112,184,0.1)] dark:hover:bg-white dark:hover:text-slate-900' : 'bg-accent text-white hover:bg-accent/90 hover:shadow-accent/30'}`}
-                                        >
-                                            {isFollowing ? <><UserCheck size={18} /> Siguiendo</> : <><UserPlus size={18} /> Seguir</>}
-                                        </button>
+                                        <>
+                                            {currentUserId !== profile?.id && (
+                                                <button
+                                                    onClick={handleFollowToggle}
+                                                    className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center gap-3 shadow-xl active:scale-95 ${isFollowing ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 'bg-accent text-white shadow-accent/20 hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900'}`}
+                                                >
+                                                    {isFollowing ? <><UserCheck size={16} /> Siguiendo</> : <><UserPlus size={16} /> Seguir</>}
+                                                </button>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             </div>
@@ -1076,10 +1080,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                     service.tipo_servicio === 'mixing' ? 'Mezcla y Masterización' :
                                                                         service.tipo_servicio?.replace(/_/g, ' ') || service.tipo_servicio}
                                                         </span>
-                                                        <span className={`text-2xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>${service.precio}</span>
+                                                        <span className="text-2xl font-black text-slate-900 dark:text-white">${service.precio}</span>
                                                     </div>
-                                                    <h3 className={`font-black text-xl mb-3 group-hover:text-blue-500 transition-colors ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{service.titulo}</h3>
-                                                    <p className={`text-xs mb-8 line-clamp-3 leading-relaxed font-medium ${profile.tema_perfil === 'light' ? 'text-slate-500' : 'text-slate-200'}`}>{service.descripcion}</p>
+                                                    <h3 className="font-black text-xl mb-3 group-hover:text-blue-500 transition-colors text-slate-900 dark:text-white">{service.titulo}</h3>
+                                                    <p className="text-xs mb-8 line-clamp-3 leading-relaxed font-medium text-slate-500 dark:text-slate-300">{service.descripcion}</p>
 
                                                     <div className={`flex items-center justify-between pt-6 border-t ${profile.tema_perfil === 'light' ? 'border-slate-100' : 'border-white/10'}`}>
                                                         <div className="flex items-center gap-2 text-slate-400 dark:text-slate-200 text-[10px] font-black uppercase tracking-widest">
@@ -1280,13 +1284,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                 )}
                                                             </div>
                                                             <div className="flex justify-between items-start mb-2">
-                                                                <h3 className={`font-bold text-lg mb-1 group-hover:text-amber-500 transition-colors line-clamp-1 ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>{kit.title}</h3>
+                                                                <h3 className="font-bold text-lg mb-1 group-hover:text-amber-500 transition-colors line-clamp-1 text-slate-900 dark:text-white">{kit.title}</h3>
                                                             </div>
-                                                            <p className={`text-xs mb-4 line-clamp-2 ${profile.tema_perfil === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>{kit.description}</p>
+                                                            <p className="text-xs mb-4 line-clamp-2 text-slate-500 dark:text-slate-400">{kit.description}</p>
                                                             <div className={`flex items-center justify-between pt-4 border-t ${profile.tema_perfil === 'light' ? 'border-slate-50' : 'border-white/10'}`}>
                                                                 {isOwner ? (
                                                                     <>
-                                                                        <span className={`text-xl font-black ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>${kit.price} MXN</span>
+                                                                        <span className="text-xl font-black text-slate-900 dark:text-white">${kit.price} MXN</span>
                                                                         <Link
                                                                             href={`/studio/services?edit_kit=${kit.id}`}
                                                                             className="bg-amber-500/10 text-amber-500 px-6 py-2 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-500 hover:text-white transition-all flex items-center gap-2 shadow-sm border border-amber-500/20 active:scale-95"
