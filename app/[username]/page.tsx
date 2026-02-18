@@ -1063,9 +1063,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     ) : (
                                         <div className="grid md:grid-cols-2 gap-4 md:gap-6">
                                             {services.map(service => (
-                                                <div key={service.id} className={`p-10 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
-                                                    'bg-slate-900/60 border-white/5 hover:border-accent/40 shadow-2xl shadow-black/80 text-white' :
-                                                    'bg-white border-slate-100 hover:shadow-xl text-slate-900'}`}>
+                                                <div key={service.id} className={`p-10 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md 
+                                                    ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
+                                                        'bg-slate-900/60 border-white/5 hover:border-accent/40 shadow-2xl shadow-black/80 text-white' :
+                                                        'bg-white dark:bg-slate-900/60 border-slate-100 dark:border-white/5 hover:shadow-xl text-slate-900 dark:text-white'
+                                                    }`}>
                                                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     <div className="flex justify-between items-start mb-6">
                                                         <span className="bg-blue-500/20 text-blue-500 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500/10">
@@ -1263,9 +1265,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             ) : (
                                                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                                     {soundKits.map(kit => (
-                                                        <div key={kit.id} className={`p-6 rounded-[2rem] border transition-all group backdrop-blur-md ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
-                                                            'bg-slate-900/60 border-white/5 hover:border-amber-500/40 shadow-2xl shadow-black text-white' :
-                                                            'bg-white border-slate-100 hover:shadow-xl text-slate-900'
+                                                        <div key={kit.id} className={`p-6 rounded-[2rem] border transition-all group backdrop-blur-md 
+                                                            ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
+                                                                'bg-slate-900/60 border-white/5 hover:border-amber-500/40 shadow-2xl shadow-black text-white' :
+                                                                'bg-white dark:bg-slate-900/60 border-slate-100 dark:border-white/5 hover:shadow-xl text-slate-900 dark:text-white'
                                                             }`}>
                                                             <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden relative">
                                                                 {kit.cover_url ? (
