@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2025-02-11' as any, // Siguiendo la versión instalada o la más reciente compatible
-});
+// Inicialización perezosa de Stripe para evitar errores en tiempo de compilación si falta la API Key
+const getStripe = () => {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+        throw new Error('STRIPE_SECRET_KEY is not defined');
+    }
+    return new Stripe(key, {
+        apiVersion: '2025-02-11' as any,
+    });
+};
 
 export async function POST(req: Request) {
     try {
@@ -28,6 +35,7 @@ export async function POST(req: Request) {
         }));
 
         // 2. Crear sesión de Checkout
+        const stripe = getStripe();
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items,

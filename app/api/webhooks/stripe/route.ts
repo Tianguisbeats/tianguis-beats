@@ -2,14 +2,19 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2025-02-11' as any,
-});
+// Inicialización perezosa para evitar errores en Build si faltan variables de entorno
+const getStripe = () => {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) throw new Error('STRIPE_SECRET_KEY is not defined');
+    return new Stripe(key, { apiVersion: '2025-02-11' as any });
+};
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY! // Se requiere Service Role para saltar RLS en webhooks
-);
+const getSupabaseAdmin = () => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const roleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !roleKey) throw new Error('Supabase Admin env vars missing');
+    return createClient(url, roleKey);
+};
 
 export async function POST(req: Request) {
     const body = await req.text();
@@ -17,6 +22,7 @@ export async function POST(req: Request) {
 
     let event: Stripe.Event;
 
+    const stripe = getStripe();
     try {
         event = stripe.webhooks.constructEvent(
             body,
@@ -33,6 +39,9 @@ export async function POST(req: Request) {
         const session = event.data.object as Stripe.Checkout.Session;
 
         // 1. Recuperar line items con metadatos extendidos
+        const stripe = getStripe();
+        const supabaseAdmin = getSupabaseAdmin();
+
         const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
             expand: ['data.price.product'],
         });
