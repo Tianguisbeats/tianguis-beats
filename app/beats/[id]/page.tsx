@@ -548,8 +548,8 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 <p className="text-xs font-black uppercase tracking-widest opacity-80">¿Necesitas algo a medida?</p>
                                 <h4 className="text-xl font-black leading-tight">Trabaja directamente con el productor</h4>
                                 <Link
-                                    href={`/${(beat.producer as any)?.username || ''}`}
-                                    className="block w-full py-4 bg-white text-accent rounded-xl text-center font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-colors"
+                                    href={`/${(beat.producer as any)?.username || ''}?tab=services`}
+                                    className="block w-full py-4 bg-white text-accent rounded-xl text-center font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:scale-[1.02] hover:shadow-lg transition-all active:scale-95"
                                 >
                                     Ver Servicios
                                 </Link>

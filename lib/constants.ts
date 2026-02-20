@@ -37,7 +37,6 @@ export const COUNTRIES = [
     "Francia 🇫🇷",
     "Italia 🇮🇹",
     "Alemania 🇩🇪",
-    "Otro 🌍"
 ];
 /**
  * Lista principal de géneros musicales disponibles en la plataforma.

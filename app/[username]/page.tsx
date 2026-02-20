@@ -103,6 +103,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         const initSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             setCurrentUserId(session?.user?.id || null);
+
+            // Handle tab from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            if (tab && ['beats', 'services', 'playlists', 'sound_kits'].includes(tab)) {
+                setActiveTab(tab as any);
+            }
         };
         initSession();
 
@@ -114,10 +121,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         return () => subscription.unsubscribe();
     }, []);
 
-    // Check follow status when user or profile is ready
+    // Check follow status and ownership when user or profile is ready
     useEffect(() => {
         const checkStatus = async () => {
             if (currentUserId && profile?.id) {
+                // Check Follow
                 const { data, error } = await supabase
                     .from('follows')
                     .select('follower_id')
@@ -126,8 +134,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     .maybeSingle();
 
                 if (!error) setIsFollowing(!!data);
-            } else if (!currentUserId) {
+
+                // Check Owner
+                setIsOwner(currentUserId === profile.id);
+            } else {
                 setIsFollowing(false);
+                setIsOwner(false);
             }
         };
         checkStatus();
@@ -227,9 +239,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 setEditVerifyTiktok(profileData.verify_tiktok || '');
                 setTempOffset(profileData.ajuste_portada ?? 50);
 
-                if (currentUserId === profileData.id) {
-                    setIsOwner(true);
-                }
+                setTempOffset(profileData.ajuste_portada ?? 50);
 
                 // 2. Get Beats (Optimized Select)
                 const { data: beatsData } = await supabase
@@ -678,11 +688,19 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     <div className="flex flex-col md:flex-row items-center md:items-end gap-8 -mt-24 md:-mt-32 mb-16">
                         {/* Avatar */}
                         <div className="relative group shrink-0">
-                            <div className={`w-48 h-48 md:w-56 md:h-56 rounded-[3rem] border-[6px] shadow-2xl overflow-hidden transition-all duration-700 bg-background ${profile.subscription_tier === 'premium'
-                                ? 'border-blue-600'
+                            {/* Glow Effect */}
+                            <div className={`absolute inset-0 rounded-full blur-2xl opacity-40 transition-all duration-700 ${profile.subscription_tier === 'premium'
+                                ? 'bg-blue-600'
                                 : profile.subscription_tier === 'pro'
-                                    ? 'border-amber-500'
-                                    : 'border-border'
+                                    ? 'bg-amber-500'
+                                    : 'bg-accent'
+                                }`} />
+
+                            <div className={`w-48 h-48 md:w-56 md:h-56 rounded-full border-[6px] shadow-2xl overflow-hidden transition-all duration-700 bg-background relative z-10 ${profile.subscription_tier === 'premium'
+                                ? 'border-blue-600 ring-4 ring-blue-600/20'
+                                : profile.subscription_tier === 'pro'
+                                    ? 'border-amber-500 ring-4 ring-amber-500/20'
+                                    : 'border-white/10'
                                 }`}>
                                 {profile.foto_perfil ? (
                                     <img src={profile.foto_perfil} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Avatar" />
@@ -693,7 +711,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 )}
                             </div>
                             {isOwner && (
-                                <label className="absolute -bottom-2 -right-2 w-12 h-12 bg-white text-slate-900 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-accent hover:text-white transition-all border-4 border-background shadow-xl hover:scale-110 active:scale-95">
+                                <label className="absolute -bottom-2 -right-2 w-12 h-12 bg-white text-slate-900 rounded-full flex items-center justify-center cursor-pointer hover:bg-accent hover:text-white transition-all border-4 border-background shadow-xl hover:scale-110 active:scale-95 z-20">
                                     <Camera size={20} />
                                     <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUploadMedia('avatar', e)} />
                                 </label>
@@ -726,31 +744,22 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         {isEditing ? (
                                             <div className="flex items-center gap-2">
                                                 <select
-                                                    value={COUNTRIES.includes(editCountry) ? editCountry : 'Otro'}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value;
-                                                        if (val === 'Otro') {
-                                                            setEditCountry('');
-                                                        } else {
-                                                            setEditCountry(val);
-                                                        }
-                                                    }}
+                                                    value={editCountry}
+                                                    onChange={(e) => setEditCountry(e.target.value)}
                                                     className="bg-accent/5 rounded-lg px-2 py-1 text-accent outline-none border border-accent/20"
                                                 >
                                                     <option value="">País</option>
                                                     {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-                                                    <option value="Otro">Otro (Escribir)</option>
                                                 </select>
-                                                {(!COUNTRIES.includes(editCountry) && editCountry !== '') || (editCountry === '' && !COUNTRIES.includes(editCountry)) ? (
+                                                {!COUNTRIES.includes(editCountry) && (
                                                     <input
                                                         type="text"
                                                         value={editCountry}
                                                         onChange={(e) => setEditCountry(e.target.value)}
                                                         placeholder="Escribe tu país..."
                                                         className="bg-accent/5 rounded-lg px-2 py-1 text-accent outline-none border border-accent/20 w-32"
-                                                        autoFocus
                                                     />
-                                                ) : null}
+                                                )}
                                             </div>
                                         ) : (
                                             <span className="flex items-center gap-1.5"><MapPin size={12} className="text-accent" /> {profile.country || "Planeta Tierra"}</span>
@@ -769,7 +778,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}
                                             className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center gap-3 ${isEditing ? 'bg-foreground dark:bg-white text-background dark:text-slate-900' : 'bg-white dark:bg-white/10 text-foreground dark:text-white border border-slate-100 dark:border-white/20 hover:shadow-2xl hover:-translate-y-1 backdrop-blur-md dark:hover:bg-white dark:hover:text-slate-900'}`}
                                         >
-                                            {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Personalizar</>}
+                                            {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Editar Perfil</>}
                                         </button>
                                     ) : (
                                         <>
