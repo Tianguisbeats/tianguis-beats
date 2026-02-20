@@ -57,8 +57,20 @@ body {
   }
 
   button,
-  a.button {
-    @apply flex items-center justify-center;
+  a.button,
+  .btn-premium {
+    @apply flex items-center justify-center transition-all duration-300;
+  }
+
+  button:hover,
+  a.button:hover {
+    @apply transform scale-[1.03] shadow-lg;
+    filter: brightness(1.1);
+  }
+
+  button:active,
+  a.button:active {
+    @apply scale-[0.97] duration-75;
   }
 }
 

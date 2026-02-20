@@ -82,7 +82,7 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
         </div>
     );
 
-    if (!profile.links_active) return (
+    if (!profile.links_active && !isOwner) return (
         <div className="min-h-screen bg-[#020205] flex flex-col items-center justify-center text-white p-6">
             <h1 className="text-4xl font-black uppercase tracking-tighter mb-4 text-white/20">Página no disponible</h1>
             <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-8">El Smart Link no está habilitado actualmente</p>
@@ -112,13 +112,18 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
             <div className="max-w-md mx-auto px-6 pt-16 relative z-10">
                 {/* Admin/Owner Badge */}
                 {isOwner && (
-                    <div className="flex justify-center mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="flex flex-col items-center gap-3 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+                        {!profile.links_active && (
+                            <div className="bg-amber-500/10 text-amber-500 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border border-amber-500/20 mb-2">
+                                Modo Vista Previa (Desactivado para el público)
+                            </div>
+                        )}
                         <Link
                             href="/studio/premium"
-                            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 group transition-all"
+                            className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 group transition-all"
                         >
                             <Zap size={12} className="text-accent" />
-                            Editar mi Smart Link
+                            Personalizar mi Smart Link
                             <ChevronRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
                         </Link>
                     </div>
