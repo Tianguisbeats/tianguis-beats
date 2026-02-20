@@ -65,7 +65,7 @@ export default function SuccessPage() {
         const licenseText = generateLicenseText(item.licenseType || 'basic', {
             producerName: item.metadata?.producer_name || item.producerName || 'Productor Tianguis',
             buyerName: 'Cliente Tianguis',
-            beatTitle: item.name,
+            productName: item.name,
             purchaseDate: new Date().toLocaleDateString(),
             amount: item.price.toString()
         });
