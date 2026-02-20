@@ -26,6 +26,7 @@ import AudioPlayer from "@/components/AudioPlayer";
 import AIChatBot from "@/components/AIChatBot";
 
 import { ToastProvider } from "@/context/ToastContext";
+import { CurrencyProvider } from "@/context/CurrencyContext";
 
 export default function RootLayout({
   children,
@@ -38,15 +39,17 @@ export default function RootLayout({
         className={`${kanit.variable} ${montserrat.variable} font-body antialiased`}
       >
         <ThemeProvider>
-          <ToastProvider>
-            <CartProvider>
-              <PlayerProvider>
-                {children}
-                <AudioPlayer />
-                <AIChatBot />
-              </PlayerProvider>
-            </CartProvider>
-          </ToastProvider>
+          <CurrencyProvider>
+            <ToastProvider>
+              <CartProvider>
+                <PlayerProvider>
+                  {children}
+                  <AudioPlayer />
+                  <AIChatBot />
+                </PlayerProvider>
+              </CartProvider>
+            </ToastProvider>
+          </CurrencyProvider>
         </ThemeProvider>
       </body>
     </html>

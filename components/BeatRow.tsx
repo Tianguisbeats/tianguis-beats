@@ -3,6 +3,7 @@
 import { Music, Play, Pause, ShoppingCart, Check, ChevronRight, Crown } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import Link from 'next/link';
 import { Beat } from '@/lib/types';
 import LicenseSelectionModal from './LicenseSelectionModal';
@@ -24,6 +25,7 @@ function formatPriceMXN(value?: number | null) {
 export default function BeatRow({ beat }: BeatRowProps) {
     const { currentBeat, isPlaying, playBeat } = usePlayer();
     const { addItem, isInCart } = useCart();
+    const { formatPrice } = useCurrency();
     const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
     const isThisPlaying = currentBeat?.id === beat.id && isPlaying;
     const itemInCart = isInCart(beat.id);
@@ -103,7 +105,7 @@ export default function BeatRow({ beat }: BeatRowProps) {
             <div className="flex items-center gap-6">
                 <div className="text-right">
                     <p className="text-blue-600 font-black text-lg leading-none mb-1">
-                        {formatPriceMXN(beat.price_mxn || 299)}
+                        {formatPrice(beat.price_mxn || 299)}
                     </p>
                     <button onClick={handleAddToCart} className="text-[8px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-colors flex items-center justify-end gap-1">
                         Ver Licencias <ChevronRight size={8} />

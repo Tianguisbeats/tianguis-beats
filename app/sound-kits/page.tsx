@@ -4,6 +4,7 @@ import React, { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Zap, ArrowLeft, Loader2, Star, ShoppingCart, Music, Crown } from "lucide-react";
+import { useCurrency } from "@/context/CurrencyContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -22,6 +23,7 @@ export default function SoundKitsPage() {
 function SoundKitsContent() {
     const [kits, setKits] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const { formatPrice } = useCurrency();
 
     useEffect(() => {
         async function fetchKits() {
@@ -132,7 +134,7 @@ function SoundKitsContent() {
                                             </div>
                                         </Link>
                                         <div className="flex flex-col items-end">
-                                            <span className="text-2xl font-black text-foreground">${kit.price}</span>
+                                            <span className="text-2xl font-black text-foreground">{formatPrice(kit.price)}</span>
                                         </div>
                                     </div>
                                 </div>

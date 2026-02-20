@@ -8,6 +8,7 @@ import { Play, Pause, Music, Crown, Flame, Heart } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import { useState, useEffect } from 'react';
 import LicenseSelectionModal from '@/components/LicenseSelectionModal';
 import { supabase } from '@/lib/supabase';
@@ -31,6 +32,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
     const { currentBeat, isPlaying, playBeat } = usePlayer();
     const { isInCart, currentUserId } = useCart();
     const { showToast } = useToast();
+    const { formatPrice } = useCurrency();
     const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
     const router = useRouter();
@@ -237,7 +239,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                             >
                                 {beat.is_sold ? 'No Disponible' : (
                                     <>
-                                        <span>{compact ? 'Ver Licencia' : `Ver Licencias desde ${formatPriceMXN(beat.price_mxn).split('.')[0]}`}</span>
+                                        <span>{compact ? 'Ver Licencia' : `Ver Licencias desde ${formatPrice(beat.price_mxn || 0)}`}</span>
                                     </>
                                 )}
                             </button>

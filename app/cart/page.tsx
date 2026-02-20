@@ -28,9 +28,11 @@ import { useToast } from '@/context/ToastContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { supabase } from '@/lib/supabase';
+import { useCurrency } from '@/context/CurrencyContext';
 
 export default function CartPage() {
     const { items, removeItem, total, itemCount, clearCart } = useCart();
+    const { formatPrice, currency, convertPrice } = useCurrency();
     const { showToast } = useToast();
     const router = useRouter();
     const [coupon, setCoupon] = useState('');
@@ -38,13 +40,6 @@ export default function CartPage() {
     const [checkingOut, setCheckingOut] = useState(false);
     const [showCouponInput, setShowCouponInput] = useState(false);
 
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat("es-MX", {
-            style: "currency",
-            currency: "MXN",
-            maximumFractionDigits: 0,
-        }).format(price);
-    };
 
     const handleApplyCoupon = async () => {
         if (!coupon) return;
@@ -171,10 +166,14 @@ export default function CartPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    items,
+                    items: items.map(item => ({
+                        ...item,
+                        price: convertPrice(item.price)
+                    })),
                     customerEmail: user.email,
                     customerId: user.id,
-                    couponId: couponId
+                    couponId: couponId,
+                    currency: currency.toLowerCase()
                 }),
             });
 

@@ -14,12 +14,12 @@ const getStripe = () => {
 
 export async function POST(req: Request) {
     try {
-        const { items, customerEmail, customerId, couponId } = await req.json();
+        const { items, customerEmail, customerId, couponId, currency = 'mxn' } = await req.json();
 
         // 1. Preparar line_items para Stripe
         const line_items = items.map((item: any) => ({
             price_data: {
-                currency: 'mxn',
+                currency: currency,
                 product_data: {
                     name: item.name,
                     images: item.image ? [item.image] : [],

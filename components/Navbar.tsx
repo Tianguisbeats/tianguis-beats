@@ -12,6 +12,7 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import ThemeToggle from '@/components/ThemeToggle';
+import CurrencySwitcher from '@/components/CurrencySwitcher';
 
 /**
  * Componente Navbar: Barra de navegación principal.
@@ -139,7 +140,7 @@ export default function Navbar() {
                                             <Link href="/studio" className="w-12 h-12 flex items-center justify-center text-muted hover:text-foreground transition-colors" title="Tianguis Studio">
                                                 <Settings size={20} />
                                             </Link>
-
+                                            <CurrencySwitcher />
                                             <ThemeToggle />
 
                                             <button
@@ -161,6 +162,7 @@ export default function Navbar() {
                                                 </span>
                                             )}
                                         </Link>
+                                        <CurrencySwitcher />
                                         <ThemeToggle />
                                         <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground border-2 border-foreground px-6 py-3 rounded-full hover:bg-accent-soft hover:text-accent hover:border-accent transition-all min-h-[48px] flex items-center">
                                             Log In
@@ -174,6 +176,7 @@ export default function Navbar() {
                         </div>
 
                         <div className="flex items-center gap-2 md:hidden">
+                            <CurrencySwitcher />
                             <ThemeToggle />
                             <Link href="/cart" className="relative w-12 h-12 flex items-center justify-center text-muted hover:text-accent transition-colors group">
                                 <ShoppingCart size={24} strokeWidth={2.5} />
