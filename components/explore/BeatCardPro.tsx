@@ -19,14 +19,6 @@ interface BeatCardProProps {
     compact?: boolean;
 }
 
-function formatPriceMXN(value?: number | null) {
-    if (value === null || value === undefined) return "$—";
-    return new Intl.NumberFormat("es-MX", {
-        style: "currency",
-        currency: "MXN",
-        maximumFractionDigits: 0,
-    }).format(value);
-}
 
 export default function BeatCardPro({ beat, compact = false }: BeatCardProProps) {
     const { currentBeat, isPlaying, playBeat } = usePlayer();

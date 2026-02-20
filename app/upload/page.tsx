@@ -15,6 +15,7 @@ import TagInput from '@/components/ui/TagInput';
 import Switch from '@/components/ui/Switch';
 
 import { GENRES, MOODS, SUBGENRES } from '@/lib/constants';
+import { EXCHANGE_RATES } from '@/context/CurrencyContext';
 
 const SCALES = ["Menor", "Mayor"];
 const KEYS_BASE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -236,6 +237,20 @@ export default function UploadPage() {
             activeColor="bg-accent"
         />
     );
+
+    // Helper for Price Conversion Preview
+    const PricePreview = ({ price }: { price: string }) => {
+        const amount = parseInt(price) || 0;
+        if (amount <= 0) return null;
+        const usd = (amount * EXCHANGE_RATES.USD).toFixed(2);
+        const eur = (amount * EXCHANGE_RATES.EUR).toFixed(2);
+        return (
+            <div className="flex gap-2 mt-1.5 px-2">
+                <span className="text-[9px] font-black text-blue-500/70 uppercase">≈ ${usd} USD</span>
+                <span className="text-[9px] font-black text-purple-500/70 uppercase">≈ €{eur} EUR</span>
+            </div>
+        );
+    };
 
     return (
         <div className="min-h-screen bg-background text-foreground font-sans flex flex-col transition-colors duration-300">
@@ -529,15 +544,19 @@ export default function UploadPage() {
                                             </div>
                                             <div className={`flex items-center gap-4 ${isFree ? 'pointer-events-none' : ''}`}>
                                                 {!isFree && <Toggle active={isWavActive} onToggle={() => setIsWavActive(!isWavActive)} />}
-                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${isWavActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50'}`}>
-                                                    <span className={`text-[10px] font-black mr-1 ${isWavActive ? 'text-accent' : 'text-muted/30'}`}>$</span>
-                                                    <input
-                                                        type="number"
-                                                        disabled={isFree}
-                                                        value={wavPrice}
-                                                        onChange={(e) => setWavPrice(e.target.value)}
-                                                        className="w-10 text-[10px] font-black outline-none bg-transparent text-foreground"
-                                                    />
+                                                <div className="flex flex-col items-end">
+                                                    <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${isWavActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50'}`}>
+                                                        <span className={`text-[10px] font-black mr-1 ${isWavActive ? 'text-accent' : 'text-muted/30'}`}>$</span>
+                                                        <input
+                                                            type="number"
+                                                            disabled={isFree}
+                                                            value={wavPrice}
+                                                            onChange={(e) => setWavPrice(e.target.value)}
+                                                            className="w-10 text-[10px] font-black outline-none bg-transparent text-foreground"
+                                                        />
+                                                        <span className="text-[8px] font-black text-muted ml-0.5">MXN</span>
+                                                    </div>
+                                                    <PricePreview price={wavPrice} />
                                                 </div>
                                             </div>
                                         </div>
@@ -572,15 +591,19 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center gap-4">
                                                 <Toggle active={isMp3Active} onToggle={() => setIsMp3Active(!isMp3Active)} />
-                                                <div className={`flex items-center gap-2 bg-background rounded-xl px-2 py-1.5 border-2 transition-all ${isMp3Active ? 'border-accent shadow-sm' : 'border-border opacity-50'}`}>
-                                                    <span className={`text-[10px] font-black ${isMp3Active ? 'text-accent' : 'text-slate-300'}`}>$</span>
-                                                    <input
-                                                        type="number"
-                                                        value={standardPrice}
-                                                        disabled={!isMp3Active}
-                                                        onChange={(e) => setStandardPrice(e.target.value)}
-                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${isMp3Active ? 'text-foreground' : 'text-slate-300'}`}
-                                                    />
+                                                <div className="flex flex-col items-end">
+                                                    <div className={`flex items-center gap-2 bg-background rounded-xl px-2 py-1.5 border-2 transition-all ${isMp3Active ? 'border-accent shadow-sm' : 'border-border opacity-50'}`}>
+                                                        <span className={`text-[10px] font-black ${isMp3Active ? 'text-accent' : 'text-slate-300'}`}>$</span>
+                                                        <input
+                                                            type="number"
+                                                            value={standardPrice}
+                                                            disabled={!isMp3Active}
+                                                            onChange={(e) => setStandardPrice(e.target.value)}
+                                                            className={`w-10 text-[10px] font-black outline-none bg-transparent ${isMp3Active ? 'text-foreground' : 'text-slate-300'}`}
+                                                        />
+                                                        <span className="text-[8px] font-black text-muted">MXN</span>
+                                                    </div>
+                                                    <PricePreview price={standardPrice} />
                                                 </div>
                                             </div>
                                         </div>
@@ -626,15 +649,19 @@ export default function UploadPage() {
                                             </div>
                                             <div className="flex items-center gap-4">
                                                 {isPremium && <Toggle active={isStemsActive} onToggle={() => setIsStemsActive(!isStemsActive)} />}
-                                                <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${!isPremium ? 'opacity-30 grayscale pointer-events-none bg-background border-border' : (isStemsActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50')}`}>
-                                                    <span className={`text-[10px] font-black mr-1 ${!isPremium ? 'text-muted' : (isStemsActive ? 'text-accent' : 'text-muted/30')}`}>$</span>
-                                                    <input
-                                                        type="number"
-                                                        disabled={!isPremium || !isStemsActive}
-                                                        value={stemsPrice}
-                                                        onChange={(e) => setStemsPrice(e.target.value)}
-                                                        className={`w-10 text-[10px] font-black outline-none bg-transparent ${(!isPremium || !isStemsActive) ? 'text-muted' : 'text-foreground'}`}
-                                                    />
+                                                <div className="flex flex-col items-end">
+                                                    <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${!isPremium ? 'opacity-30 grayscale pointer-events-none bg-background border-border' : (isStemsActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50')}`}>
+                                                        <span className={`text-[10px] font-black mr-1 ${!isPremium ? 'text-muted' : (isStemsActive ? 'text-accent' : 'text-muted/30')}`}>$</span>
+                                                        <input
+                                                            type="number"
+                                                            disabled={!isPremium || !isStemsActive}
+                                                            value={stemsPrice}
+                                                            onChange={(e) => setStemsPrice(e.target.value)}
+                                                            className={`w-10 text-[10px] font-black outline-none bg-transparent ${(!isPremium || !isStemsActive) ? 'text-muted' : 'text-foreground'}`}
+                                                        />
+                                                        <span className="text-[8px] font-black text-muted ml-0.5">MXN</span>
+                                                    </div>
+                                                    <PricePreview price={stemsPrice} />
                                                 </div>
                                             </div>
                                         </div>
@@ -686,15 +713,19 @@ export default function UploadPage() {
                                         <div className="flex flex-col md:items-end gap-4 min-w-[200px]">
                                             <div className="flex items-center gap-4">
                                                 {isPremium && <Toggle active={isExclusive} onToggle={() => setIsExclusive(!isExclusive)} />}
-                                                <div className={`flex items-center rounded-2xl px-4 py-3 border-2 transition-all ${!isPremium ? 'opacity-30 grayscale pointer-events-none bg-background' : (isExclusive ? 'bg-background border-rose-500/50 shadow-sm' : 'bg-background border-border opacity-50')}`}>
-                                                    <span className={`text-lg font-black mr-2 ${isExclusive ? 'text-rose-500' : 'text-muted/30'}`}>$</span>
-                                                    <input
-                                                        type="number"
-                                                        disabled={!isPremium || !isExclusive}
-                                                        value={exclusivePrice}
-                                                        onChange={(e) => setExclusivePrice(e.target.value)}
-                                                        className={`w-24 text-xl font-black outline-none bg-transparent ${isExclusive ? 'text-foreground dark:text-white' : 'text-muted'}`}
-                                                    />
+                                                <div className="flex flex-col items-end">
+                                                    <div className={`flex items-center rounded-2xl px-4 py-3 border-2 transition-all ${!isPremium ? 'opacity-30 grayscale pointer-events-none bg-background' : (isExclusive ? 'bg-background border-rose-500/50 shadow-sm' : 'bg-background border-border opacity-50')}`}>
+                                                        <span className={`text-lg font-black mr-2 ${isExclusive ? 'text-rose-500' : 'text-muted/30'}`}>$</span>
+                                                        <input
+                                                            type="number"
+                                                            disabled={!isPremium || !isExclusive}
+                                                            value={exclusivePrice}
+                                                            onChange={(e) => setExclusivePrice(e.target.value)}
+                                                            className={`w-24 text-xl font-black outline-none bg-transparent ${isExclusive ? 'text-foreground dark:text-white' : 'text-muted'}`}
+                                                        />
+                                                        <span className="text-xs font-black text-muted ml-1">MXN</span>
+                                                    </div>
+                                                    <PricePreview price={exclusivePrice} />
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2 text-[10px] font-black text-rose-500/60 uppercase tracking-widest">

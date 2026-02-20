@@ -7,6 +7,7 @@ import { Beat } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/context/ToastContext';
+import { useCurrency } from '@/context/CurrencyContext';
 
 interface LicenseSelectionModalProps {
     beat: Beat | any;
@@ -18,6 +19,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
     const router = useRouter();
     const { addItem } = useCart();
     const { showToast } = useToast();
+    const { formatPrice, currency } = useCurrency();
 
     // Define all possible licenses
     const allLicenses = [
@@ -267,12 +269,9 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <div className="flex items-center gap-1">
-                                                <span className="text-[9px] font-black text-muted opacity-50">MXN</span>
-                                                <p className={`text-2xl font-black ${isSelected ? 'text-accent' : 'text-slate-900 dark:text-white'}`}>
-                                                    ${lic.price}
-                                                </p>
-                                            </div>
+                                            <p className={`text-2xl font-black ${isSelected ? 'text-accent' : 'text-slate-900 dark:text-white'}`}>
+                                                {formatPrice(lic.price)}
+                                            </p>
                                         </div>
                                     </button>
                                 );

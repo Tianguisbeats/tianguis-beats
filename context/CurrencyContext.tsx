@@ -15,7 +15,7 @@ interface CurrencyContextType {
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
 // Tasas de cambio fijas para evitar latencia y variaciones bruscas (Base: MXN)
-const EXCHANGE_RATES = {
+export const EXCHANGE_RATES = {
     MXN: 1,
     USD: 0.058, // 1 MXN = 0.058 USD (Aprox 17.2 MXN/USD)
     EUR: 0.053, // 1 MXN = 0.053 EUR (Aprox 18.8 MXN/EUR)
