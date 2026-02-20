@@ -3,7 +3,7 @@
 import React, { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Zap, ArrowLeft, Loader2, Star, ShoppingCart, Music } from "lucide-react";
+import { Zap, ArrowLeft, Loader2, Star, ShoppingCart, Music, Crown } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -30,7 +30,7 @@ function SoundKitsContent() {
                     .from('sound_kits')
                     .select(`
             id, title, price, description, created_at, cover_url,
-            producer:producer_id ( artistic_name, username, foto_perfil, subscription_tier, is_verified )
+            producer:producer_id ( artistic_name, username, foto_perfil, subscription_tier, is_verified, is_founder )
           `)
                     .eq('is_public', true)
                     .order('created_at', { ascending: false });
@@ -99,7 +99,7 @@ function SoundKitsContent() {
                                     <div className="mb-6 flex-1">
                                         <div className="flex items-center gap-2 mb-3">
                                             <div className="w-1.5 h-1.5 rounded-full bg-accent"></div>
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-muted">Pro Toolkit</span>
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-muted">Sound Kit</span>
                                         </div>
                                         <h3 className="text-2xl font-black uppercase tracking-tight mb-3 font-heading group-hover:text-accent transition-colors">
                                             {kit.title}
@@ -110,18 +110,29 @@ function SoundKitsContent() {
                                     </div>
 
                                     <div className="flex items-center justify-between pt-8 border-t border-border/50">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-slate-800 overflow-hidden border border-white/10">
+                                        <Link
+                                            href={`/${kit.producer?.username}`}
+                                            className="flex items-center gap-3 group/producer hover:bg-white/5 p-2 -ml-2 rounded-2xl transition-all active:scale-95"
+                                        >
+                                            <div className={`w-10 h-10 rounded-full bg-slate-800 overflow-hidden border-2 transition-all duration-500 group-hover/producer:scale-110 ${kit.producer?.subscription_tier === 'premium'
+                                                ? 'border-blue-500 shadow-[0_0_15px_-3px_rgba(59,130,246,0.6)]'
+                                                : kit.producer?.subscription_tier === 'pro'
+                                                    ? 'border-amber-400 shadow-[0_0_15px_-3px_rgba(245,158,11,0.6)]'
+                                                    : 'border-white/10'
+                                                }`}>
                                                 <img src={kit.producer?.foto_perfil || `https://ui-avatars.com/api/?name=${kit.producer?.artistic_name}&background=random`} className="w-full h-full object-cover" />
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-foreground">{kit.producer?.artistic_name}</span>
-                                                {kit.producer?.is_verified && <span className="text-[8px] font-bold text-accent uppercase">Verificado</span>}
+                                                <div className="flex items-center gap-1">
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground group-hover/producer:text-accent transition-colors">{kit.producer?.artistic_name}</span>
+                                                    {kit.producer?.is_verified && <img src="/verified-badge.png" className="w-3 h-3 object-contain" alt="Verified" />}
+                                                    {kit.producer?.is_founder && <Crown size={10} className="text-amber-500 fill-amber-500" />}
+                                                </div>
+                                                <span className="text-[8px] font-bold text-muted uppercase tracking-tighter">Ver Perfil</span>
                                             </div>
-                                        </div>
+                                        </Link>
                                         <div className="flex flex-col items-end">
                                             <span className="text-2xl font-black text-foreground">${kit.price}</span>
-                                            <span className="text-[10px] uppercase font-bold text-muted">MXN</span>
                                         </div>
                                     </div>
                                 </div>
