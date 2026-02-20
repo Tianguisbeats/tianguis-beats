@@ -27,13 +27,12 @@ function SoundKitsContent() {
         async function fetchKits() {
             try {
                 const { data, error } = await supabase
-                    .from('services')
+                    .from('sound_kits')
                     .select(`
-            id, titulo, precio, descripcion, created_at, cover_url,
-            producer:user_id ( artistic_name, username, foto_perfil, subscription_tier, is_verified )
+            id, title, price, description, created_at, cover_url,
+            producer:producer_id ( artistic_name, username, foto_perfil, subscription_tier, is_verified )
           `)
-                    .eq('tipo_servicio', 'sound_kit')
-                    .eq('is_active', true)
+                    .eq('is_public', true)
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
@@ -88,7 +87,7 @@ function SoundKitsContent() {
                                         <img
                                             src={kit.cover_url || "https://images.unsplash.com/photo-1516062423079-7c157a58ff62?q=80&w=2070&auto=format&fit=crop"}
                                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60"
-                                            alt={kit.titulo}
+                                            alt={kit.title}
                                         />
                                         <div className="absolute top-6 left-6">
                                             <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
@@ -103,10 +102,10 @@ function SoundKitsContent() {
                                             <span className="text-[10px] font-black uppercase tracking-widest text-muted">Pro Toolkit</span>
                                         </div>
                                         <h3 className="text-2xl font-black uppercase tracking-tight mb-3 font-heading group-hover:text-accent transition-colors">
-                                            {kit.titulo}
+                                            {kit.title}
                                         </h3>
                                         <p className="text-sm text-muted line-clamp-2 font-medium leading-relaxed">
-                                            {kit.descripcion || "Lleva tus producciones al siguiente nivel con este kit curado por expertos."}
+                                            {kit.description || "Lleva tus producciones al siguiente nivel con este kit curado por expertos."}
                                         </p>
                                     </div>
 
@@ -121,7 +120,7 @@ function SoundKitsContent() {
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-end">
-                                            <span className="text-2xl font-black text-foreground">${kit.precio}</span>
+                                            <span className="text-2xl font-black text-foreground">${kit.price}</span>
                                             <span className="text-[10px] uppercase font-bold text-muted">MXN</span>
                                         </div>
                                     </div>
