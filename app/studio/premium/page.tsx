@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Crown, Video, Loader2, Check, MessageSquare, Mail, ShieldCheck, Zap, Clock, ChevronRight } from 'lucide-react';
+import { Crown, Video, Loader2, Check, MessageSquare, Mail, ShieldCheck, Zap, Clock, ChevronRight, ExternalLink } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import Switch from '@/components/ui/Switch';
 
 export default function PremiumHubPage() {
     const [loading, setLoading] = useState(true);
@@ -18,9 +19,7 @@ export default function PremiumHubPage() {
         is_links_active: false
     });
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+
 
     const fetchData = async () => {
         const { data: { user } } = await supabase.auth.getUser();
@@ -44,6 +43,10 @@ export default function PremiumHubPage() {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const handleSave = async () => {
         setSaving(true);
@@ -91,131 +94,191 @@ export default function PremiumHubPage() {
     }
 
     return (
-        <div className="max-w-4xl">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-                <div>
-                    <h1 className="text-4xl font-black text-foreground tracking-tighter uppercase mb-2">Hub <span className="text-accent">Premium</span></h1>
-                    <div className="flex items-center gap-3">
-                        <span className="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                            <ShieldCheck size={12} /> Estado: {isVerified ? 'Verificado' : 'Miembro Gold'}
-                        </span>
-                        <span className="text-accent font-black text-[10px] uppercase tracking-[0.4em]">Control Maestro de Marca</span>
+        <div className="max-w-5xl space-y-16 pb-20">
+            {/* Master Branding Suite Header */}
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10">
+                <div className="space-y-6">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
+                        <Crown size={14} className="text-accent" />
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Suite de Marca v3.4</span>
+                    </div>
+                    <div className="space-y-2">
+                        <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground leading-[1] flex flex-col">
+                            Características
+                            <span className="text-accent">Premium.</span>
+                        </h1>
+                        <p className="text-muted text-[11px] font-bold uppercase tracking-[0.4em] opacity-60 ml-1">
+                            Control centralizado de identidad y alcance
+                        </p>
                     </div>
                 </div>
-                {saving && (
-                    <div className="flex items-center gap-2 text-muted animate-pulse">
-                        <Loader2 size={12} className="animate-spin" />
-                        <span className="text-[9px] font-black uppercase tracking-widest">Sincronizando...</span>
+
+                <div className="flex items-center gap-6">
+                    <div className="bg-white/5 backdrop-blur-3xl border border-white/10 px-6 py-4 rounded-2xl flex items-center gap-4">
+                        <div className={`w-3 h-3 rounded-full ${saving ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]'}`} />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
+                            {saving ? 'Sincronizando' : 'Sincronizado'}
+                        </span>
                     </div>
-                )}
+                </div>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-8">
-                <div className="space-y-8">
-                    {/* Featured Video */}
-                    <div className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm relative overflow-hidden transition-all">
-                        <div className="flex items-center justify-between mb-8">
-                            <div className="flex items-center gap-4">
-                                <div className={`p-3 rounded-2xl transition-all ${preferences.is_video_active ? 'bg-red-500/10 text-red-600' : 'bg-slate-100 dark:bg-white/5 text-slate-400'}`}>
-                                    <Video size={24} />
+            <div className="grid lg:grid-cols-2 gap-10">
+                <div className="space-y-10">
+                    {/* Video Spotlight Card */}
+                    <div className={`group relative bg-white/5 backdrop-blur-3xl border border-white/5 p-8 rounded-[2rem] transition-all duration-700 hover:shadow-[0_40px_100px_-20px_rgba(239,68,68,0.1)] overflow-hidden ${!preferences.is_video_active && 'opacity-60'}`}>
+                        {/* Red Accent Aura */}
+                        <div className={`absolute -top-24 -right-24 w-64 h-64 bg-red-500/5 blur-[80px] rounded-full transition-all duration-1000 group-hover:scale-125 ${preferences.is_video_active ? 'opacity-100' : 'opacity-0'}`} />
+
+                        <div className="relative z-10 space-y-10">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-5">
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${preferences.is_video_active ? 'bg-red-500/10 text-red-500 ring-4 ring-red-500/5' : 'bg-white/5 text-muted/40'}`}>
+                                        <Video size={32} />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <h3 className="font-black text-2xl text-foreground uppercase tracking-tight">Video Destacado</h3>
+                                        <div className="flex items-center gap-2">
+                                            <span className="w-1 h-1 rounded-full bg-red-500" />
+                                            <p className="text-[9px] text-muted font-black uppercase tracking-widest opacity-60">Impacto Visual</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className={`font-black uppercase tracking-tight transition-all ${preferences.is_video_active ? 'text-foreground' : 'text-slate-400'}`}>Video de Bienvenida</h3>
-                                    <p className="text-[10px] text-muted font-bold uppercase tracking-widest opacity-60">Highlight tu mejor trabajo</p>
+                                <Switch
+                                    active={preferences.is_video_active}
+                                    onChange={(val) => setPreferences({ ...preferences, is_video_active: val })}
+                                    activeColor="bg-red-500"
+                                    size="md"
+                                />
+                            </div>
+
+                            <div className={`space-y-6 transition-all duration-700 ${preferences.is_video_active ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-20 pointer-events-none'}`}>
+                                <div className="space-y-3">
+                                    <label className="text-[9px] font-black uppercase tracking-[0.3em] text-muted ml-1">Enlace de YouTube</label>
+                                    <div className="relative">
+                                        <ExternalLink size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-muted/20" />
+                                        <input
+                                            value={preferences.video_destacado_url}
+                                            onChange={e => setPreferences({ ...preferences, video_destacado_url: e.target.value })}
+                                            placeholder="https://youtube.com/watch?v=..."
+                                            className="w-full bg-white/5 border border-white/5 rounded-2xl pl-12 pr-6 py-5 font-bold text-foreground text-sm focus:outline-none focus:border-red-500/50 transition-all font-mono"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="bg-red-500/5 border border-red-500/10 p-5 rounded-2xl">
+                                    <p className="text-[10px] text-red-500/80 font-bold uppercase tracking-widest flex items-center gap-2">
+                                        <Zap size={12} fill="currentColor" /> Reproducción automática activada en el perfil
+                                    </p>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => setPreferences({ ...preferences, is_video_active: !preferences.is_video_active })}
-                                className={`w-12 h-6 rounded-full transition-all relative ${preferences.is_video_active ? 'bg-accent' : 'bg-slate-200 dark:bg-white/10'}`}
-                            >
-                                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-all ${preferences.is_video_active ? 'left-7' : 'left-1'}`} />
-                            </button>
-                        </div>
-
-                        <div className={`space-y-4 transition-all duration-500 ${preferences.is_video_active ? 'opacity-100' : 'opacity-20 pointer-events-none grayscale blur-[2px]'}`}>
-                            <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-2">YouTube URL</label>
-                            <input
-                                value={preferences.video_destacado_url}
-                                onChange={e => setPreferences({ ...preferences, video_destacado_url: e.target.value })}
-                                placeholder="https://youtube.com/watch?v=..."
-                                className="w-full bg-slate-50 dark:bg-black/40 border border-slate-100 dark:border-white/5 rounded-2xl px-5 py-4 font-bold text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent transition-all"
-                            />
-                            <p className="text-[10px] text-muted font-medium italic opacity-60">
-                                * Se reproducirá automáticamente en tu perfil.
-                            </p>
                         </div>
                     </div>
                 </div>
 
-                <div className="space-y-8">
-                    {/* Smart Link Bio & Fan Capture Card */}
-                    <div className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm relative overflow-hidden transition-all">
-                        <div className="flex items-center justify-between mb-8">
-                            <div className="flex items-center gap-4">
-                                <div className={`p-3 rounded-2xl transition-all ${preferences.is_links_active ? 'bg-indigo-500/10 text-indigo-500' : 'bg-slate-100 dark:bg-white/5 text-slate-400'}`}>
-                                    <Zap size={24} />
-                                </div>
-                                <div>
-                                    <h3 className={`font-black uppercase tracking-tight transition-all ${preferences.is_links_active ? 'text-foreground' : 'text-slate-400'}`}>Smart Link Bio</h3>
-                                    <p className="text-[10px] text-muted font-bold uppercase tracking-widest opacity-60">Tu tarjeta de presentación digital</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setPreferences({ ...preferences, is_links_active: !preferences.is_links_active })}
-                                className={`w-12 h-6 rounded-full transition-all relative ${preferences.is_links_active ? 'bg-accent' : 'bg-slate-200 dark:bg-white/10'}`}
-                            >
-                                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-all ${preferences.is_links_active ? 'left-7' : 'left-1'}`} />
-                            </button>
-                        </div>
+                <div className="space-y-10">
+                    {/* Smart Link Bio Card */}
+                    <div className={`group relative bg-white/5 backdrop-blur-3xl border border-white/5 p-8 rounded-[2rem] transition-all duration-700 hover:shadow-[0_40px_100px_-20px_rgba(79,70,229,0.1)] overflow-hidden ${!preferences.is_links_active && 'opacity-60'}`}>
+                        {/* Indigo Accent Aura */}
+                        <div className={`absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/5 blur-[80px] rounded-full transition-all duration-1000 group-hover:scale-125 ${preferences.is_links_active ? 'opacity-100' : 'opacity-0'}`} />
 
-                        <div className={`transition-all duration-500 ${preferences.is_links_active ? 'opacity-100' : 'opacity-20 pointer-events-none grayscale blur-[2px]'}`}>
-                            <p className="text-sm text-muted font-medium mb-6">
-                                Activa una página dedicada con todos tus enlaces importantes optimizada para redes sociales.
-                            </p>
-
-                            {/* Newsletter Toggle integrated within Smart Link */}
-                            <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-slate-100 dark:border-white/5 mb-6">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <Mail size={18} className={preferences.newsletter_active ? 'text-amber-500' : 'text-muted'} />
-                                        <span className={`text-[11px] font-black uppercase tracking-widest ${preferences.newsletter_active ? 'text-foreground' : 'text-muted'}`}>Captura de Fans</span>
+                        <div className="relative z-10 space-y-10">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-5">
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${preferences.is_links_active ? 'bg-indigo-500/10 text-indigo-500 ring-4 ring-indigo-500/5' : 'bg-white/5 text-muted/40'}`}>
+                                        <Zap size={32} />
                                     </div>
-                                    <button
-                                        onClick={() => setPreferences({ ...preferences, newsletter_active: !preferences.newsletter_active })}
-                                        className={`w-10 h-5 rounded-full transition-all relative ${preferences.newsletter_active ? 'bg-amber-500' : 'bg-slate-200 dark:bg-white/10'}`}
-                                    >
-                                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white shadow-sm transition-all ${preferences.newsletter_active ? 'left-6' : 'left-1'}`} />
-                                    </button>
+                                    <div className="space-y-1">
+                                        <h3 className="font-black text-2xl text-foreground uppercase tracking-tight">Smart Link Bio</h3>
+                                        <div className="flex items-center gap-2">
+                                            <span className="w-1 h-1 rounded-full bg-indigo-500" />
+                                            <p className="text-[9px] text-muted font-black uppercase tracking-widest opacity-60">Matriz de Enlaces Profesionales</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <p className="text-[10px] text-muted font-medium italic">
-                                    Si se activa, se mostrará un formulario de newsletter en tu Smart Link.
-                                </p>
+                                <Switch
+                                    active={preferences.is_links_active}
+                                    onChange={(val) => setPreferences({ ...preferences, is_links_active: val })}
+                                    activeColor="bg-indigo-500"
+                                    size="md"
+                                />
                             </div>
 
-                            <Link href={`/${preferences.is_links_active ? 'links' : ''}`} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-accent hover:underline cursor-pointer opacity-80">
-                                Ver mi Smart Link <ChevronRight size={14} />
-                            </Link>
+                            <div className={`space-y-8 transition-all duration-700 ${preferences.is_links_active ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-20 pointer-events-none'}`}>
+                                <p className="text-sm text-muted font-medium leading-relaxed">
+                                    Despliega una interfaz optimizada para dispositivos móviles que centraliza tu discografía, servicios y redes sociales en un solo punto de contacto.
+                                </p>
+
+                                <Link href={`/${preferences.is_links_active ? 'links' : ''}`} className="w-full flex items-center justify-center gap-3 py-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all group/link shadow-xl shadow-indigo-500/5">
+                                    Ver Smart Link Bio <ChevronRight size={16} className="group-hover/link:translate-x-1 transition-transform" />
+                                </Link>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Verification Section */}
-                    {!isVerified && (
-                        <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
-                            <div className="absolute inset-0 bg-accent/5 blur-3xl pointer-events-none" />
-                            <div className="relative z-10">
-                                <h3 className="text-white font-black uppercase tracking-tight mb-4 flex items-center gap-2">
-                                    <ShieldCheck className="text-accent" /> Identidad Verificada
-                                </h3>
-                                <p className="text-slate-400 text-xs font-medium leading-relaxed mb-8">
-                                    Solicita el sello de Productor Verificado para aumentar la confianza en tus ventas.
+                    {/* Fun Capture / Newsletter Card */}
+                    <div className={`group relative bg-white/5 backdrop-blur-3xl border border-white/5 p-8 rounded-[2rem] transition-all duration-700 hover:shadow-[0_40px_100px_-20px_rgba(245,158,11,0.1)] overflow-hidden ${!preferences.newsletter_active && 'opacity-60'}`}>
+                        {/* Amber Accent Aura */}
+                        <div className={`absolute -top-24 -right-24 w-64 h-64 bg-amber-500/5 blur-[80px] rounded-full transition-all duration-1000 group-hover:scale-125 ${preferences.newsletter_active ? 'opacity-100' : 'opacity-0'}`} />
+
+                        <div className="relative z-10 space-y-10">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-5">
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${preferences.newsletter_active ? 'bg-amber-500/10 text-amber-500 ring-4 ring-amber-500/5' : 'bg-white/5 text-muted/40'}`}>
+                                        <Mail size={32} />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <h3 className="font-black text-2xl text-foreground uppercase tracking-tight">Captura de Fans</h3>
+                                        <div className="flex items-center gap-2">
+                                            <span className="w-1 h-1 rounded-full bg-amber-500" />
+                                            <p className="text-[9px] text-muted font-black uppercase tracking-widest opacity-60">Newsletter Directa</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <Switch
+                                    active={preferences.newsletter_active}
+                                    onChange={(val) => setPreferences({ ...preferences, newsletter_active: val })}
+                                    activeColor="bg-amber-500"
+                                    size="md"
+                                />
+                            </div>
+
+                            <div className={`space-y-6 transition-all duration-700 ${preferences.newsletter_active ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-20 pointer-events-none'}`}>
+                                <p className="text-sm text-muted font-medium leading-relaxed">
+                                    Integra un formulario de suscripción profesional en tu catálogo y Smart Link para construir tu propia base de datos de seguidores.
                                 </p>
-                                <div className="flex flex-col sm:flex-row gap-3">
-                                    <button className="bg-accent text-white px-4 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest hover:scale-105 transition-all flex-1">
-                                        Solicitar
+                                <div className="bg-amber-500/5 border border-amber-500/10 p-5 rounded-2xl">
+                                    <p className="text-[10px] text-amber-500/80 font-bold uppercase tracking-widest flex items-center gap-2 leading-relaxed">
+                                        <Check size={12} strokeWidth={3} /> Sincronización automática con tus enlaces
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Verification & Trust Section */}
+                    {!isVerified && (
+                        <div className="group relative bg-[#0c0c0e] border border-white/5 p-10 rounded-[3rem] shadow-2xl overflow-hidden transition-all hover:border-accent/40">
+                            <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 blur-3xl transition-opacity duration-1000" />
+
+                            <div className="relative z-10 space-y-8">
+                                <div className="flex items-center gap-5">
+                                    <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
+                                        <ShieldCheck size={28} />
+                                    </div>
+                                    <h3 className="text-2xl font-black text-white uppercase tracking-tight">Verificación <span className="text-accent underline underline-offset-4 decoration-accent/20">Elite.</span></h3>
+                                </div>
+
+                                <p className="text-slate-400 text-sm font-medium leading-relaxed">
+                                    Los perfiles verificados tienen un <span className="text-white font-black">40% más de tasa de cierre</span>. Demuestra que eres un proveedor de confianza en la red Tianguis.
+                                </p>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button className="bg-accent text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:scale-[1.05] transition-all shadow-xl shadow-accent/20 active:scale-95">
+                                        Iniciar Trámite
                                     </button>
-                                    <div className="bg-white/5 border border-white/10 px-4 py-2.5 rounded-xl flex items-center gap-2 flex-1">
-                                        <Clock size={12} className="text-slate-500" />
-                                        <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest truncate">Pendiente</span>
+                                    <div className="bg-white/5 border border-white/10 flex items-center justify-center gap-3 rounded-2xl text-[9px] font-black uppercase tracking-widest text-slate-500">
+                                        <Clock size={14} />
+                                        <span>Proceso en Espera</span>
                                     </div>
                                 </div>
                             </div>

@@ -4,9 +4,16 @@
  * Centralización de interfaces para mantener consistencia entre DB y Frontend.
  */
 
+/** Tipos de roles de usuario disponibles en la plataforma. */
 export type UserRole = 'buyer' | 'producer' | 'artist' | 'admin';
+
+/** Niveles de suscripción (Tiers) disponibles. */
 export type SubscriptionTier = 'free' | 'pro' | 'premium';
 
+/**
+ * Interfaz principal para el Perfil de Usuario.
+ * Representa la tabla `profiles` en la base de datos de Supabase.
+ */
 export interface Profile {
     id: string;
     username: string;
@@ -52,7 +59,13 @@ export interface Profile {
     idioma_preferido?: string;
 }
 
+/**
+ * Interfaz principal para la entidad Beat (Pista/Instrumental).
+ * Representa la tabla `beats` en la base de datos e incluye propiedades 
+ * de la interfaz de usuario que se agregan durante la obtención de datos.
+ */
 export interface Beat {
+    /** Identificador único del beat */
     id: string;
     producer_id?: string;
     producer?: {

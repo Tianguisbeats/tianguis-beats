@@ -1,154 +1,297 @@
 "use client";
 
-import React from 'react';
-import { BarChart, Activity, Heart, Play, DollarSign } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import {
+    BarChart, Activity, Heart, Play, DollarSign,
+    Users, TrendingUp, Award, Zap, ArrowUpRight,
+    Search, Filter, Download, Star
+} from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import Image from 'next/image';
+
+type StatData = {
+    totalPlays: number;
+    totalLikes: number;
+    totalSales: number;
+    totalRevenue: number;
+    followerCount: number;
+    topBeat: any;
+    beatsList: any[];
+};
 
 export default function StudioStatsPage() {
-    const [stats, setStats] = React.useState({
+    const [stats, setStats] = useState<StatData>({
         totalPlays: 0,
         totalLikes: 0,
-        conversionRate: 0,
-        totalSales: 0
+        totalSales: 0,
+        totalRevenue: 0,
+        followerCount: 0,
+        topBeat: null,
+        beatsList: []
     });
-    const [loading, setLoading] = React.useState(true);
+    const [loading, setLoading] = useState(true);
 
-    React.useEffect(() => {
-        const fetchStats = async () => {
-            const { data: { user } } = await import('@/lib/supabase').then(m => m.supabase.auth.getUser());
-            if (!user) {
-                setLoading(false);
-                return;
-            }
+    useEffect(() => {
+        fetchStats();
+    }, []);
 
-            // 1. Fetch Beats Stats
-            const { data: beats, error: beatsError } = await import('@/lib/supabase').then(m => m.supabase
+    const fetchStats = async () => {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            // 1. Fetch Beats & Top Performing
+            const { data: beats } = await supabase
                 .from('beats')
-                .select('play_count, like_count')
-                .eq('producer_id', user.id));
+                .select('*')
+                .eq('producer_id', user.id)
+                .order('play_count', { ascending: false });
 
-            if (beatsError) console.error("Error fetching beats stats:", beatsError);
-
-            // 2. Fetch Sales Count
-            const { count: salesCount } = await import('@/lib/supabase').then(m => m.supabase
+            // 2. Fetch Sales & Revenue
+            const { data: sales } = await supabase
                 .from('sales')
-                .select('id', { count: 'exact', head: true })
-                .eq('seller_id', user.id));
+                .select('amount')
+                .eq('seller_id', user.id);
+
+            // 3. Fetch Followers
+            const { count: followers } = await supabase
+                .from('follows')
+                .select('*', { count: 'exact', head: true })
+                .eq('following_id', user.id);
 
             if (beats) {
                 const totalPlays = beats.reduce((sum, b) => sum + (b.play_count || 0), 0);
                 const totalLikes = beats.reduce((sum, b) => sum + (b.like_count || 0), 0);
-                const totalSales = salesCount || 0;
-
-                // Calculate Conversion (Sales / Plays) * 100
-                const conversionRate = totalPlays > 0
-                    ? ((totalSales / totalPlays) * 100).toFixed(2)
-                    : 0;
+                const totalRevenue = sales?.reduce((sum, s) => sum + (Number(s.amount) || 0), 0) || 0;
+                const totalSales = sales?.length || 0;
 
                 setStats({
                     totalPlays,
                     totalLikes,
-                    conversionRate: Number(conversionRate),
-                    totalSales
+                    totalSales,
+                    totalRevenue,
+                    followerCount: followers || 0,
+                    topBeat: beats[0] || null,
+                    beatsList: beats.slice(0, 5)
                 });
             }
+        } catch (err) {
+            console.error("Error fetching stats:", err);
+        } finally {
             setLoading(false);
-        };
+        }
+    };
 
-        fetchStats();
-    }, []);
+    const formatCurrency = (val: number) => {
+        return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(val);
+    };
+
+    const formatNumber = (val: number) => {
+        return new Intl.NumberFormat('es-MX').format(val);
+    };
 
     if (loading) return (
-        <div className="bg-card rounded-[2.5rem] p-12 border border-border shadow-sm min-h-[500px] flex items-center justify-center">
-            <div className="animate-spin text-muted"><Activity size={32} /></div>
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+            <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted animate-pulse">Sincronizando Dashboard...</p>
         </div>
     );
 
     return (
-        <div className="space-y-12">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-12 animate-in fade-in duration-700">
+            {/* Header & Quick Actions */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                 <div>
-                    <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-3">Tu <span className="text-accent">Rendimiento</span></h1>
-                    <div className="flex items-center gap-4">
-                        <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
-                            <Activity size={12} className="text-accent" />
-                            Datos en Tiempo Real
-                        </p>
-                        <div className="h-3 w-px bg-border" />
-                        <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em]">Sincronizado hoy</p>
+                    <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-4">
+                        Analítica <span className="text-accent underline decoration-white/10 underline-offset-8">Elite</span>
+                    </h1>
+                    <div className="flex flex-wrap items-center gap-4">
+                        <div className="bg-emerald-500/10 text-emerald-500 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 border border-emerald-500/10">
+                            <Activity size={12} /> Datos de Mercado en Vivo
+                        </div>
+                        <span className="text-muted text-[10px] font-bold uppercase tracking-widest opacity-60">
+                            Última actualización: {new Date().toLocaleTimeString()}
+                        </span>
                     </div>
                 </div>
-                <div className="bg-background px-6 py-3 rounded-2xl border border-border/50">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-muted">Total Histórico</span>
+
+                <div className="flex items-center gap-3">
+                    <button className="bg-white/5 border border-white/10 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-2">
+                        <Download size={14} /> Reporte PDF
+                    </button>
+                    <button className="bg-accent text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-accent/20">
+                        Optimizar Ventas
+                    </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* Plays Card */}
-                <div className="group relative bg-[#f8fafc] dark:bg-white/5 p-8 rounded-[2.5rem] border border-border/50 hover:border-blue-500/30 transition-all duration-500 overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700" />
+            {/* Main KPI Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Revenue Card - Elite Look */}
+                <div className="group relative bg-[#020205] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-emerald-500/30">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[50px] -mr-16 -mt-16 pointer-events-none group-hover:bg-emerald-500/10 transition-colors" />
                     <div className="relative z-10">
-                        <div className="flex items-center gap-3 mb-8 text-blue-500">
-                            <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center">
-                                <Play size={20} fill="currentColor" />
-                            </div>
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Total Plays</span>
+                        <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 mb-6 group-hover:scale-110 transition-transform">
+                            <DollarSign size={24} />
                         </div>
-                        <div className="flex items-baseline gap-2 mb-2">
-                            <span className="text-6xl font-black text-foreground tracking-tighter">
-                                {new Intl.NumberFormat('es-MX').format(stats.totalPlays)}
-                            </span>
+                        <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mb-2">Ingresos Totales</p>
+                        <h3 className="text-3xl font-black tracking-tighter text-emerald-500">
+                            {formatCurrency(stats.totalRevenue)}
+                        </h3>
+                        <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-emerald-500/60 uppercase tracking-widest">
+                            <TrendingUp size={12} /> +12% vs mes anterior
                         </div>
-                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Reproducciones acumuladas</p>
                     </div>
                 </div>
 
-                {/* Likes Card */}
-                <div className="group relative bg-[#fff7f7] dark:bg-white/5 p-8 rounded-[2.5rem] border border-border/50 hover:border-red-500/30 transition-all duration-500 overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700" />
+                {/* Plays KPI */}
+                <div className="group relative bg-[#020205] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-blue-500/30">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-[50px] -mr-16 -mt-16 pointer-events-none" />
                     <div className="relative z-10">
-                        <div className="flex items-center gap-3 mb-8 text-red-500">
-                            <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center">
-                                <Heart size={20} fill="currentColor" />
-                            </div>
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Total Likes</span>
+                        <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mb-6 group-hover:scale-110 transition-transform">
+                            <Play size={24} fill="currentColor" />
                         </div>
-                        <div className="flex items-baseline gap-2 mb-2">
-                            <span className="text-6xl font-black text-foreground tracking-tighter">
-                                {new Intl.NumberFormat('es-MX').format(stats.totalLikes)}
-                            </span>
-                        </div>
-                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Apoyo de la comunidad</p>
+                        <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mb-2">Reproducciones</p>
+                        <h3 className="text-3xl font-black tracking-tighter text-foreground">
+                            {formatNumber(stats.totalPlays)}
+                        </h3>
+                        <p className="mt-4 text-[10px] font-bold text-muted uppercase tracking-widest opacity-60">Alcance global</p>
                     </div>
                 </div>
 
-                {/* Sales Card */}
-                <div className="group relative bg-[#f0fdf4] dark:bg-white/5 p-8 rounded-[2.5rem] border border-border/50 hover:border-emerald-500/30 transition-all duration-500 overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700" />
+                {/* Conversion Rate */}
+                <div className="group relative bg-[#020205] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-purple-500/30">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[50px] -mr-16 -mt-16 pointer-events-none" />
                     <div className="relative z-10">
-                        <div className="flex items-center gap-3 mb-8 text-emerald-600">
-                            <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
-                                <DollarSign size={20} />
-                            </div>
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Total de Ventas</span>
+                        <div className="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-500 mb-6 group-hover:scale-110 transition-transform">
+                            <Zap size={24} />
                         </div>
-                        <div className="flex items-baseline gap-2 mb-2 text-emerald-600 dark:text-emerald-500">
-                            <span className="text-6xl font-black tracking-tighter">
-                                {new Intl.NumberFormat('es-MX').format(stats.totalSales)}
-                            </span>
+                        <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mb-2">Tasa de Conversión</p>
+                        <h3 className="text-3xl font-black tracking-tighter text-foreground">
+                            {stats.totalPlays > 0 ? ((stats.totalSales / stats.totalPlays) * 100).toFixed(2) : '0'}%
+                        </h3>
+                        <p className="mt-4 text-[10px] font-bold text-muted uppercase tracking-widest opacity-60">Eficiencia de venta</p>
+                    </div>
+                </div>
+
+                {/* Followers KPI */}
+                <div className="group relative bg-[#020205] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-accent/30">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-[50px] -mr-16 -mt-16 pointer-events-none" />
+                    <div className="relative z-10">
+                        <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center text-accent mb-6 group-hover:scale-110 transition-transform">
+                            <Users size={24} />
                         </div>
-                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Éxito comercial acumulado</p>
+                        <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mb-2">Seguidores</p>
+                        <h3 className="text-3xl font-black tracking-tighter text-foreground">
+                            {formatNumber(stats.followerCount)}
+                        </h3>
+                        <p className="mt-4 text-[10px] font-bold text-muted uppercase tracking-widest opacity-60">Comunidad Leal</p>
                     </div>
                 </div>
             </div>
 
-            {/* Bottom visualizer placeholder refined */}
-            <div className="relative p-12 bg-background/50 rounded-[3rem] border-2 border-dashed border-border/60 overflow-hidden text-center">
-                <div className="relative z-10">
-                    <BarChart className="w-16 h-16 text-muted/20 mx-auto mb-6" strokeWidth={1} />
-                    <h3 className="text-lg font-black text-foreground uppercase tracking-tight mb-2">Gráficas Detalladas</h3>
-                    <p className="text-muted text-xs font-bold uppercase tracking-widest max-w-xs mx-auto">
-                        Estamos preparando visualizaciones avanzadas de retención y geolocalización.
-                    </p>
+            <div className="space-y-8">
+                <div className="grid lg:grid-cols-3 gap-8">
+                    {/* Top Performing Beat Table / Column */}
+                    <div className="lg:col-span-2 bg-[#020205] border border-white/5 rounded-[3rem] p-10 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent to-purple-600 opacity-20" />
+
+                        <div className="flex items-center justify-between mb-10">
+                            <div>
+                                <h3 className="text-2xl font-black uppercase tracking-tighter mb-2">Beats con <span className="text-accent underline underline-offset-4 decoration-white/10">Mayor Rendimiento</span></h3>
+                                <p className="text-[10px] font-bold text-muted uppercase tracking-widest opacity-60">Tus tracks más rentables esta temporada</p>
+                            </div>
+                            <Search size={18} className="text-muted opacity-40" />
+                        </div>
+
+                        <div className="space-y-4">
+                            {stats.beatsList.map((beat, idx) => (
+                                <div key={beat.id} className="group flex items-center justify-between p-4 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-accent/20 transition-all">
+                                    <div className="flex items-center gap-5">
+                                        <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-white/10 group-hover:scale-105 transition-transform duration-500">
+                                            <Image src={beat.cover_url || '/placeholder-beat.jpg'} fill className="object-cover" alt={beat.title} />
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Play size={16} className="text-white" fill="white" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-xs font-black uppercase tracking-widest mb-1 group-hover:text-accent transition-colors">{beat.title}</h4>
+                                            <div className="flex items-center gap-4 text-[9px] font-bold text-muted uppercase tracking-[0.2em]">
+                                                <span className="flex items-center gap-1.5"><Play size={10} /> {formatNumber(beat.play_count)}</span>
+                                                <span className="flex items-center gap-1.5"><Heart size={10} fill="currentColor" /> {formatNumber(beat.like_count)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="flex items-center gap-2 text-accent font-black text-xs">
+                                            RANGO #{idx + 1}
+                                            <ArrowUpRight size={14} />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {stats.beatsList.length === 0 && (
+                                <div className="py-20 text-center border-2 border-dashed border-white/5 rounded-[2.5rem]">
+                                    <Activity className="w-12 h-12 text-muted/20 mx-auto mb-4" />
+                                    <p className="text-[10px] font-black text-muted uppercase tracking-widest">Sube tu primer beat para ver estadísticas</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Elite Graphic Placeholder (Simplified SVG trend) */}
+                    <div className="bg-[#020205] border border-white/10 rounded-[3rem] p-8 text-center flex flex-col items-center justify-center min-h-[400px]">
+                        <BarChart className="w-16 h-16 text-accent/20 mx-auto mb-6" />
+                        <span className="text-[10px] font-black text-muted uppercase tracking-[0.4em]">Análisis de Tendencia Histórica</span>
+                    </div>
+                </div>
+
+                {/* Actionable Insights Card */}
+                <div className="bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-[3rem] p-10 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-accent/20 blur-[50px] -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 flex items-center gap-3">
+                        Consejos de <span className="text-accent">Negocio</span>
+                        <Award size={24} className="text-accent" />
+                    </h3>
+
+                    <div className="grid md:grid-cols-3 gap-6">
+                        <div className="p-8 bg-accent/5 rounded-[2rem] border border-accent/10 hover:bg-accent/10 transition-colors">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-accent/20 rounded-xl">
+                                    <Star size={16} className="text-accent" fill="currentColor" />
+                                </div>
+                                <span className="text-[11px] font-black uppercase tracking-widest text-accent">Track Destacado</span>
+                            </div>
+                            <p className="text-sm text-slate-400 font-medium leading-relaxed">
+                                "{stats.topBeat?.title || 'Tu mejor beat'}" está atrayendo al 40% de tus ventas. Considera crear más tracks con un BPM o Mood similar.
+                            </p>
+                        </div>
+
+                        <div className="p-8 bg-white/5 rounded-[2rem] border border-white/5 hover:bg-white/10 transition-colors">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-emerald-500/20 rounded-xl">
+                                    <TrendingUp size={16} className="text-emerald-500" />
+                                </div>
+                                <span className="text-[11px] font-black uppercase tracking-widest text-emerald-500">Crecimiento Orgánico</span>
+                            </div>
+                            <p className="text-sm text-slate-400 font-medium leading-relaxed">
+                                Tu tasa de conversión ha subido un 2% este mes. Mantén el ritmo de subidas para maximizar el impulso.
+                            </p>
+                        </div>
+
+                        <div className="p-8 bg-amber-500/5 rounded-[2rem] border border-amber-500/10 hover:bg-amber-500/10 transition-colors">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-amber-500/20 rounded-xl">
+                                    <Zap size={16} className="text-amber-500" />
+                                </div>
+                                <span className="text-[11px] font-black uppercase tracking-widest text-amber-500">Optimización</span>
+                            </div>
+                            <p className="text-sm text-slate-400 font-medium leading-relaxed">
+                                Tus seguidores interactúan más los fines de semana. Programa tus lanzamientos los viernes a las 5 PM.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

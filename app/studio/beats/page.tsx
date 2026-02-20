@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Edit, Trash2, Play, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import Switch from '@/components/ui/Switch';
 import { useToast } from '@/context/ToastContext';
 
 /**
@@ -17,9 +18,7 @@ export default function StudioBeatsPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchBeats();
-    }, []);
+
 
     const fetchBeats = async () => {
         const { data: { user } } = await supabase.auth.getUser();
@@ -47,6 +46,10 @@ export default function StudioBeatsPage() {
         setLoading(false);
     };
 
+    useEffect(() => {
+        fetchBeats();
+    }, []);
+
     const handleDelete = async (id: string) => {
         if (!confirm('¿Estás seguro de borrar este beat? Esta acción no se puede deshacer.')) return;
 
@@ -65,7 +68,7 @@ export default function StudioBeatsPage() {
         <div className="space-y-12">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-3">Inventario <span className="text-accent">de Beats</span></h1>
+                    <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-3">Inventario <span className="text-accent">de Beats</span></h1>
                     <div className="flex items-center gap-4">
                         <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-accent" />
@@ -77,7 +80,7 @@ export default function StudioBeatsPage() {
                 </div>
                 <Link
                     href="/upload"
-                    className="bg-accent text-white px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.15em] hover:bg-foreground hover:text-background transition-all shadow-[0_20px_40px_-10px_rgba(37,99,235,0.3)] hover:-translate-y-1 active:scale-95 flex items-center gap-3 w-fit"
+                    className="bg-accent text-white px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-[0.15em] hover:bg-foreground hover:text-background transition-all shadow-[0_20px_40px_-10px_rgba(37,99,235,0.3)] hover:-translate-y-1 active:scale-95 flex items-center gap-3 w-fit"
                 >
                     Subir Nuevo Beat
                 </Link>
@@ -89,7 +92,7 @@ export default function StudioBeatsPage() {
                     placeholder="Buscar beat por nombre o género..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-3xl px-8 py-5 font-bold text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all group-hover:dark:bg-white/10 shadow-sm"
+                    className="w-full bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-2xl px-8 py-4 font-bold text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all group-hover:dark:bg-white/10 shadow-sm"
                 />
             </div>
 
@@ -134,25 +137,27 @@ export default function StudioBeatsPage() {
                                         </span>
                                     </div>
 
-                                    <button
-                                        onClick={async () => {
-                                            const newStatus = !beat.is_public;
+                                    <Switch
+                                        active={beat.is_public}
+                                        onChange={async (newStatus) => {
                                             const { error } = await supabase
                                                 .from('beats')
                                                 .update({ is_public: newStatus })
                                                 .eq('id', beat.id);
 
                                             if (!error) {
-                                                setBeats(prev => prev.map(b => b.id === beat.id ? { ...b, is_public: newStatus } : b));
+                                                const updatedBeats = beats.map(b =>
+                                                    b.id === beat.id ? { ...b, is_public: newStatus } : b
+                                                );
+                                                setBeats(updatedBeats);
                                                 showToast(newStatus ? 'Beat publicado' : 'Beat ocultado', 'success');
                                             } else {
                                                 showToast('Error al actualizar estado', 'error');
                                             }
                                         }}
-                                        className={`relative w-11 h-6 rounded-full transition-all duration-300 shadow-inner overflow-hidden border ${beat.is_public ? 'bg-emerald-500 border-emerald-600' : 'bg-slate-200 dark:bg-white/10 border-slate-300 dark:border-white/10'}`}
-                                    >
-                                        <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-md transition-all duration-300 ${beat.is_public ? 'translate-x-5' : 'translate-x-0'}`} />
-                                    </button>
+                                        activeColor="bg-emerald-500"
+                                        size="md"
+                                    />
                                 </div>
                             </div>
 

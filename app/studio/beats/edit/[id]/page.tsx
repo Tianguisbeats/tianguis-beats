@@ -10,6 +10,7 @@ import {
     Link as LinkIcon, Edit2, Zap, Eye, EyeOff, Save, X, Crown, ShieldCheck
 } from 'lucide-react';
 import TagInput from '@/components/ui/TagInput';
+import Switch from '@/components/ui/Switch';
 
 import { GENRES, MOODS, SUBGENRES } from '@/lib/constants';
 
@@ -305,14 +306,12 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     const isPremium = userData?.subscription_tier === 'premium';
 
     const Toggle = ({ active, onToggle, disabled = false }: { active: boolean, onToggle: () => void, disabled?: boolean }) => (
-        <button
-            type="button"
-            onClick={onToggle}
+        <Switch
+            active={active}
+            onChange={onToggle}
             disabled={disabled}
-            className={`w-12 h-6 rounded-full transition-all relative ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-200' : active ? 'bg-accent' : 'bg-slate-200 dark:bg-white/10'}`}
-        >
-            <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-all ${active ? 'left-7' : 'left-1'}`} />
-        </button>
+            activeColor="bg-accent"
+        />
     );
 
     return (

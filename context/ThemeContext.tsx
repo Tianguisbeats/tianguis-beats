@@ -9,13 +9,17 @@ interface ThemeContextType {
     toggleTheme: () => void;
 }
 
+/**
+ * Contexto de Tema (Dark/Light mode).
+ * Controla la preferencia visual del usuario y la persiste en localStorage.
+ */
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const [theme, setTheme] = useState<Theme>("light");
-    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        // Cargar preferencia guardada o usar preferencia del sistema operativo
         const savedTheme = localStorage.getItem("theme") as Theme;
         if (savedTheme) {
             setTheme(savedTheme);
@@ -24,7 +28,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             setTheme("dark");
             document.documentElement.setAttribute("data-theme", "dark");
         }
-        setMounted(true);
     }, []);
 
     const toggleTheme = () => {
@@ -44,7 +47,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 export function useTheme() {
     const context = useContext(ThemeContext);
     if (context === undefined) {
-        throw new Error("useTheme must be used within a ThemeProvider");
+        throw new Error("useTheme debe usarse dentro de un ThemeProvider");
     }
     return context;
 }

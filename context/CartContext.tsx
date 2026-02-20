@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Beat } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import { useToast } from './ToastContext';
 
@@ -14,7 +13,7 @@ export interface CartItem {
     price: number;
     image?: string;
     subtitle?: string;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
 }
 
 interface CartContextType {
@@ -28,25 +27,33 @@ interface CartContextType {
     currentUserId?: string | null;
 }
 
+/**
+ * Contexto del Carrito de Compras.
+ * Maneja el estado global del carrito, persistencia en localStorage y validaciones de compra.
+ */
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+/**
+ * Proveedor del Carrito de Compras.
+ * Envuelve la aplicación para proveer el estado del carrito a todos los componentes.
+ */
 export function CartProvider({ children }: { children: React.ReactNode }) {
     const [items, setItems] = useState<CartItem[]>([]);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const { showToast } = useToast();
 
-    // Load from localStorage
+    // Load from localStorage (Cargar desde localStorage al montar el componente)
     useEffect(() => {
         const savedCart = localStorage.getItem('tianguis_cart');
         if (savedCart) {
             try {
                 setItems(JSON.parse(savedCart));
             } catch (e) {
-                console.error("Error loading cart from localStorage", e);
+                console.error("Error al cargar el carrito desde localStorage", e);
             }
         }
 
-        // Get current user
+        // Get current user (Verificar el usuario actual para evitar autocompras)
         const checkUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             setCurrentUserId(session?.user?.id || null);
@@ -54,20 +61,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         checkUser();
     }, []);
 
-    // Save to localStorage
+    // Save to localStorage (Guardar en localStorage cada vez que cambian los items)
     useEffect(() => {
         localStorage.setItem('tianguis_cart', JSON.stringify(items));
     }, [items]);
 
     const addItem = (item: CartItem) => {
-        // Validar duplicados
+        // Validar duplicados para no agregar el mismo producto dos veces
         if (isInCart(item.id)) {
             showToast("Este artículo ya está en tu carrito.", 'warning');
             return;
         }
 
-        // Validar autocompra (Producer ID vs User ID)
-        // Check both producer_id (Beats) and seller_id (Sound Kits/Services) if present
+        // Validar autocompra (Evitar que un productor compre sus propios beats o servicios)
         const producerId = item.metadata?.producer_id || item.metadata?.seller_id;
 
         if (currentUserId && producerId && currentUserId === producerId) {
@@ -111,7 +117,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 export function useCart() {
     const context = useContext(CartContext);
     if (context === undefined) {
-        throw new Error('useCart must be used within a CartProvider');
+        throw new Error('useCart debe ser usado dentro de un CartProvider');
     }
     return context;
 }

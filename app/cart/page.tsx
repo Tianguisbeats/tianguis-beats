@@ -58,40 +58,66 @@ export default function CartPage() {
                 .single();
 
             if (error || !data) {
-                showToast("El cupón no es válido o ha expirado.", 'error');
+                showToast("El cupón no es válido o está desactivado.", 'error');
                 return;
             }
 
-            // Validar fecha
-            if (data.valid_until && new Date(data.valid_until) < new Date()) {
+            // Validar expiración
+            const validUntil = data.valid_until || data.fecha_expiracion;
+            if (validUntil && new Date(validUntil) < new Date()) {
                 showToast("Este cupón ha expirado.", 'error');
                 return;
             }
 
-            // Calcular descuento
-            let discountableAmount = 0;
-            let appliedCount = 0;
+            // Validar límite de usos
+            const usageLimit = data.usage_limit || data.usos_maximos;
+            const usageCount = data.usage_count || data.usos_actuales || 0;
+            if (usageLimit && usageCount >= usageLimit) {
+                showToast("Este cupón ha agotado su límite de usos.", 'error');
+                return;
+            }
+
+            // Validar Tier de Usuario
+            const { data: { user } } = await supabase.auth.getUser();
+            if (data.target_tier && data.target_tier !== 'all') {
+                if (!user) {
+                    showToast("Inicia sesión para usar este cupón reservado.", 'info');
+                    return;
+                }
+                const { data: profile } = await supabase.from('profiles').select('subscription_tier').eq('id', user.id).single();
+                if (profile?.subscription_tier !== data.target_tier) {
+                    showToast(`Este cupón es exclusivo para usuarios ${data.target_tier.toUpperCase()}.`, 'info');
+                    return;
+                }
+            }
+
+            // Calcular descuento item por item
+            let totalDiscount = 0;
+            let appliedItems: string[] = [];
+            const producerId = data.user_id || data.producer_id;
 
             items.forEach(item => {
-                // Excluir planes de suscripción
-                if (item.type === 'plan') return;
+                if (item.type === 'plan') return; // Nunca descontar planes
 
-                // Si es cupón de productor, validar ownership
-                if (data.producer_id) {
-                    const producerId = item.metadata?.producer_id || item.metadata?.producerId;
-                    if (producerId === data.producer_id) {
-                        discountableAmount += item.price;
-                        appliedCount++;
+                const itemProducerId = item.metadata?.producer_id || item.metadata?.producerId;
+
+                // Si es cupón de productor, validar que sea dueño del item
+                // Si es cupón global (sin producerId), aplica a todos
+                if (!producerId || itemProducerId === producerId) {
+                    if (data.discount_type === 'fixed') {
+                        // Descuento fijo se aplica al total o se prorratea? 
+                        // Regla: Descuento fijo aplica una sola vez al total de items elegibles
+                        // Pero para seguimiento mejor lo guardamos como un valor global
+                    } else {
+                        // Porcentual aplica a cada item
+                        totalDiscount += item.price * ((data.discount_value || data.porcentaje_descuento) / 100);
                     }
-                } else {
-                    // Cupón global (admin)
-                    discountableAmount += item.price;
-                    appliedCount++;
+                    appliedItems.push(item.id);
                 }
             });
 
-            if (appliedCount === 0) {
-                showToast(data.producer_id
+            if (appliedItems.length === 0) {
+                showToast(producerId
                     ? "Este cupón solo es válido para productos del artista emisor."
                     : "Este cupón no aplica a los artículos en tu carrito.",
                     'info'
@@ -99,18 +125,23 @@ export default function CartPage() {
                 return;
             }
 
-            const discountValue = discountableAmount * (data.discount_percent / 100);
+            // Finalizar cálculo de descuento fijo
+            if (data.discount_type === 'fixed') {
+                totalDiscount = Math.min(data.discount_value, total); // No descontar más del total
+            }
 
-            // Guardar estado del descuento
-            // Nota: Podríamos mover esto a un estado más complejo si quisiéramos mostrar detalles
+            // Validar compra mínima
+            if (data.min_purchase && total < data.min_purchase) {
+                showToast(`Compra mínima de ${formatPrice(data.min_purchase)} requerida.`, 'info');
+                return;
+            }
+
             setDiscountApplied(true);
+            (window as any).tempCouponDiscount = totalDiscount;
+            (window as any).tempCouponCode = data.code || data.codigo;
+            (window as any).tempCouponId = data.id;
 
-            // Hack rápido para persistir el valor del descuento calculado para el renderizado
-            // En una app real, usaríamos un estado `couponData`
-            (window as any).tempCouponDiscount = discountValue;
-            (window as any).tempCouponCode = data.code;
-
-            showToast(`Cupón aplicado: ${data.discount_percent}% OFF`, 'success');
+            showToast(`Cupón aplicado con éxito`, 'success');
 
         } catch (err) {
             console.error("Error applying coupon:", err);
@@ -118,7 +149,7 @@ export default function CartPage() {
         }
     };
 
-    const handleCheckout = async () => {
+    const handleCheckout = async (method: 'stripe' | 'paypal' = 'stripe') => {
         setCheckingOut(true);
         const { data: { user } } = await supabase.auth.getUser();
 
@@ -127,54 +158,38 @@ export default function CartPage() {
             return;
         }
 
+        if (method === 'paypal') {
+            showToast("PayPal estará disponible próximamente. Por ahora usa Tarjeta.", 'info');
+            setCheckingOut(false);
+            return;
+        }
+
         try {
-            for (const item of items) {
-                // Recalcular precio con descuento si aplica
-                // Esto es una simplificación, idealmente validaríamos de nuevo en backend
-                const discount = (window as any).tempCouponDiscount || 0;
-                // Distribuir el descuento proporcionalmente o simplemente registrar el monto final pagado
-                // Por simplicidad, aquí asumimos precio base, el backend o trigger manejará split
+            const couponId = (window as any).tempCouponId;
 
-                // NOTA: Para implementar lógica robusta de cupones por item, necesitamos pasar el precio final pagado por item
-                // Aquí usaremos una lógica simple: si hay descuento global aplicado, reducimos
+            const response = await fetch('/api/checkout/stripe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    items,
+                    customerEmail: user.email,
+                    customerId: user.id,
+                    couponId: couponId
+                }),
+            });
 
-                let finalItemPrice = item.price;
-                if (discountApplied) {
-                    // Re-validar si este item tenía descuento
-                    // ... (lógica compleja omitida por simplicidad, enviamos precio con descuento genérico por ahora)
-                    // Mejor: enviar amount exacto pagado
-                }
+            const data = await response.json();
 
-                if (item.type === 'beat') {
-                    const { error } = await supabase.from('sales').insert({
-                        buyer_id: user.id,
-                        seller_id: item.metadata?.producer_id || '99999999-9999-9999-9999-999999999999',
-                        beat_id: item.id,
-                        amount: item.price, // TODO: Ajustar con descuento real
-                        license_type: item.metadata?.licenseType || 'basic'
-                    });
-                    if (error) console.error("Error registrando venta de beat:", error);
-                }
-                else if (item.type === 'license' && item.metadata?.isSoundKit) {
-                    const { error } = await supabase.from('sales').insert({
-                        buyer_id: user.id,
-                        seller_id: item.metadata?.producer_id || '99999999-9999-9999-9999-999999999999',
-                        amount: item.price,
-                        license_type: 'SOUNDKIT'
-                    });
-                    if (error) console.error("Error registrando venta de sound kit:", error);
-                }
+            if (data.error) throw new Error(data.error);
+
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                throw new Error("No se pudo generar la sesión de pago.");
             }
-
-            // ... (rest of checkout logic)
-            // Fix: En lugar de procesar ventas una por una, deberíamos llamar a una RPC o API endpoint
-            // Para este MVP, simulamos éxito directo
-
-            clearCart();
-            router.push('/checkout/success');
         } catch (err) {
             console.error("Error en el proceso de compra:", err);
-            showToast("Lo sentimos, hubo un problema al procesar tu solicitud.", 'error');
+            showToast("Lo sentimos, hubo un problema al procesar tu pago.", 'error');
         } finally {
             setCheckingOut(false);
         }
@@ -262,19 +277,19 @@ export default function CartPage() {
                                                     {isBeat ? 'BEAT' : isPlan ? 'SUSCRIPCIÓN' : isSoundKit ? 'SOUND KIT' : 'SERVICIO'}
                                                 </span>
 
-                                                {isBeat && item.metadata?.license && (
-                                                    <span className={`px-3 py-1 text-[8px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${item.metadata.license === 'MP3' || item.metadata.license === 'mp3' ? 'bg-green-500/10 text-green-600 dark:text-green-400' :
-                                                        item.metadata.license === 'WAV' || item.metadata.license === 'wav' ? 'bg-pink-200/20 text-pink-400' :
-                                                            item.metadata.license === 'STEMS' || item.metadata.license === 'stems' ? 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400' :
+                                                {isBeat && Boolean(item.metadata?.license) && (
+                                                    <span className={`px-3 py-1 text-[8px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${item.metadata?.license === 'MP3' || item.metadata?.license === 'mp3' ? 'bg-green-500/10 text-green-600 dark:text-green-400' :
+                                                        item.metadata?.license === 'WAV' || item.metadata?.license === 'wav' ? 'bg-pink-200/20 text-pink-400' :
+                                                            item.metadata?.license === 'STEMS' || item.metadata?.license === 'stems' ? 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400' :
                                                                 'bg-red-200/20 text-red-400'
                                                         }`}>
-                                                        {item.metadata.license}
+                                                        {item.metadata?.license as string}
                                                     </span>
                                                 )}
 
-                                                {isPlan && item.metadata?.cycle && (
-                                                    <span className={`px-3 py-1 text-[8px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${item.metadata.cycle === 'yearly' ? 'bg-green-600/10 text-green-600' : 'bg-sky-500/10 text-sky-600'}`}>
-                                                        {item.metadata.cycle === 'yearly' ? 'FACTURACIÓN ANUAL' : 'FACTURACIÓN MENSUAL'}
+                                                {isPlan && Boolean(item.metadata?.cycle) && (
+                                                    <span className={`px-3 py-1 text-[8px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${item.metadata?.cycle === 'yearly' ? 'bg-green-600/10 text-green-600' : 'bg-sky-500/10 text-sky-600'}`}>
+                                                        {item.metadata?.cycle === 'yearly' ? 'FACTURACIÓN ANUAL' : 'FACTURACIÓN MENSUAL'}
                                                     </span>
                                                 )}
                                             </div>
@@ -286,9 +301,9 @@ export default function CartPage() {
                                                 <p className="text-muted text-[10px] font-bold uppercase tracking-[0.3em] opacity-60">
                                                     {item.subtitle}
                                                 </p>
-                                                {(isService || isSoundKit) && item.metadata?.producerName && (
+                                                {(isService || isSoundKit) && Boolean(item.metadata?.producerName) && (
                                                     <p className="text-blue-500 text-[9px] font-black uppercase tracking-[0.2em] mt-1">
-                                                        {item.metadata.producerName}
+                                                        {item.metadata?.producerName as string}
                                                     </p>
                                                 )}
                                             </div>
@@ -385,7 +400,7 @@ export default function CartPage() {
                                             <span className="text-[9px] font-black uppercase tracking-[0.3em] block text-center text-white/60">MÉTODOS DE PAGO ENCRIPTADOS</span>
 
                                             <button
-                                                onClick={handleCheckout}
+                                                onClick={() => handleCheckout('stripe')}
                                                 disabled={checkingOut}
                                                 className="w-full h-16 bg-white text-blue-600 rounded-[2rem] font-black uppercase text-[11px] tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/10 flex flex-col items-center justify-center gap-1 disabled:opacity-50"
                                             >
@@ -396,7 +411,7 @@ export default function CartPage() {
                                             </button>
 
                                             <button
-                                                onClick={handleCheckout}
+                                                onClick={() => handleCheckout('paypal')}
                                                 disabled={checkingOut}
                                                 className="w-full h-16 bg-[#003087] text-white rounded-[2rem] font-black uppercase text-[11px] tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 border border-white/10"
                                             >

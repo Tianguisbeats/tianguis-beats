@@ -8,7 +8,7 @@
 import React, { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Music, Zap, Users, Flame, Star, Crown } from "lucide-react";
+import { Music } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FeaturedBanner from "@/components/explore/FeaturedBanner";

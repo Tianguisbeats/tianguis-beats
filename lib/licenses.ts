@@ -1,32 +1,39 @@
+export type LicenseType = 'basic' | 'premium' | 'unlimited' | 'exclusive' | 'soundkit' | 'service';
+
 /**
- * TIANGUIS BEATS - Generador de Licencias Dinámicas
- * v1.0 - 2026-02-09
+ * Interfaz que define los datos requeridos para generar una licencia.
  */
-
-export type LicenseType = 'basic' | 'premium' | 'unlimited' | 'exclusive' | 'soundkit';
-
 interface LicenseData {
     producerName: string;
     buyerName: string;
-    beatTitle: string;
+    productName: string; // Renamed from beatTitle to be generic
     purchaseDate: string;
     amount: string;
+    orderId?: string;
 }
 
+/**
+ * Genera el texto completo del contrato de licencia basado en el tipo y los datos de compra.
+ * 
+ * @param {LicenseType} type - El tipo de licencia.
+ * @param {LicenseData} data - Los datos del productor, comprador y transacción.
+ * @returns {string} El texto formateado del contrato de licencia.
+ */
 export const generateLicenseText = (type: LicenseType, data: LicenseData): string => {
-    const { producerName, buyerName, beatTitle, purchaseDate, amount } = data;
-    const header = `CONTRATO DE LICENCIA DE USO MUSICAL - TIANGUIS BEATS\n` +
+    const { producerName, buyerName, productName, purchaseDate, amount, orderId } = data;
+    const header = `TIANGUIS BEATS - CERTIFICADO DE LICENCIA\n` +
         `======================================================\n\n` +
+        `ID DE PEDIDO: ${orderId || 'N/A'}\n` +
         `FECHA: ${purchaseDate}\n` +
-        `PRODUCTOR: ${producerName}\n` +
-        `ARTISTA/COMPRADOR: ${buyerName}\n` +
-        `OBRA/BEAT: "${beatTitle}"\n` +
-        `MONTO PAGADO: ${amount} MXN\n\n`;
+        `EMISOR/PRODUCTOR: ${producerName}\n` +
+        `BENEFICIARIO/COMPRADOR: ${buyerName}\n` +
+        `PRODUCTO/OBRA: "${productName}"\n` +
+        `INVERSIÓN: ${amount} MXN\n\n`;
 
     const commonFooter = `\n\n------------------------------------------------------\n` +
-        `Este documento sirve como comprobante legal de la licencia adquirida.\n` +
-        `Para cualquier aclaración: contacto@tianguisbeats.com\n` +
-        `Identificador de Transacción: TB-${Math.random().toString(36).substr(2, 9).toUpperCase()}\n`;
+        `Este documento sirve como comprobante legal de la licencia adquirida en Tianguis Beats.\n` +
+        `Para verificar la autenticidad de este documento: contacto@tianguisbeats.com\n` +
+        `Identificador Único: TB-${Math.random().toString(36).substr(2, 9).toUpperCase()}\n`;
 
     switch (type) {
         case 'basic':
@@ -70,9 +77,18 @@ export const generateLicenseText = (type: LicenseType, data: LicenseData): strin
 
         case 'soundkit':
             return header +
-                `1. LICENCIA ROYALTY - FREE(SOUND KIT) \n` +
+                `1. LICENCIA ROYALTY-FREE (SOUND KIT)\n` +
                 `- Uso: El comprador puede usar los sonidos para crear nuevas obras musicales sin pagar regalías adicionales.\n` +
                 `- Restricción: Queda prohibida la redistribución o reventa de los sonidos individuales.\n` +
+                commonFooter;
+
+        case 'service':
+            return header +
+                `1. ACUERDO DE SERVICIOS PROFESIONALES\n` +
+                `- Objeto: Realización del servicio técnico/creativo especificado en el título.\n` +
+                `- Entregables: El Productor se compromete a entregar los archivos finales según la descripción del servicio.\n` +
+                `- Propiedad: El Artista adquiere los derechos comerciales sobre el resultado final del servicio.\n` +
+                `- Garantía: Soporte para ajustes menores durante los primeros 7 días tras la entrega inicial.\n` +
                 commonFooter;
 
         default:

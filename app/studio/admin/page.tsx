@@ -287,7 +287,7 @@ function UserManager() {
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const { showToast } = useToast();
 
-    useEffect(() => { fetchUsers(); }, []);
+
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -310,6 +310,10 @@ function UserManager() {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
 
     const updateTier = async (userId: string, tier: string) => {
         const { error } = await supabase.from('profiles').update({ subscription_tier: tier }).eq('id', userId);

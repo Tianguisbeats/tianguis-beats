@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
+import { downloadLicensePDF } from '@/lib/pdfGenerator';
+import { LicenseType } from '@/lib/licenses';
 
 type OrderItem = {
     id: string;
@@ -115,6 +117,31 @@ export default function MyPurchasesPage() {
         }
     };
 
+    const handleDownloadLicense = (order: Order, item: OrderItem) => {
+        try {
+            // Mapping product type and license
+            let licenseType: LicenseType = 'basic';
+            if (item.product_type === 'sound_kit') licenseType = 'soundkit';
+            else if (item.product_type === 'service') licenseType = 'service';
+            else licenseType = (item.license_type?.toLowerCase() as LicenseType) || 'basic';
+
+            downloadLicensePDF({
+                type: licenseType,
+                producerName: 'Tianguis Beats Producer', // This should ideally be extracted from metadata or item seller name
+                buyerName: 'Cliente Tianguis', // Should ideally be fetched from profile
+                productName: item.name,
+                purchaseDate: new Date(order.created_at).toLocaleDateString(),
+                amount: item.price,
+                orderId: order.id
+            });
+
+            showToast("Licencia generada con éxito", "success");
+        } catch (error) {
+            console.error("Error generating PDF:", error);
+            showToast("Error al generar la licencia", "error");
+        }
+    };
+
     if (loading) return (
         <div className="flex flex-col items-center justify-center py-20 animate-pulse">
             <div className="w-16 h-16 bg-slate-200 dark:bg-white/5 rounded-3xl mb-4" />
@@ -197,22 +224,44 @@ export default function MyPurchasesPage() {
                                             </div>
                                         </div>
 
-                                        <div className="w-full md:w-auto flex items-center gap-3">
+                                        <div className="w-full md:w-auto flex flex-wrap items-center gap-3">
                                             {item.product_type === 'service' ? (
-                                                <Link
-                                                    href={`/studio/purchases/service/${item.project_id}`}
-                                                    className="w-full md:w-auto px-8 py-3 bg-accent text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 transition-all shadow-lg shadow-accent/20 flex items-center justify-center gap-2 group/btn"
-                                                >
-                                                    Gestionar Servicio Pro
-                                                    <ChevronRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
-                                                </Link>
+                                                <>
+                                                    <Link
+                                                        href={`/studio/purchases/service/${item.project_id}`}
+                                                        className="flex-1 md:flex-none px-6 py-3 bg-accent text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 transition-all shadow-lg shadow-accent/20 flex items-center justify-center gap-2 group/btn"
+                                                    >
+                                                        Detalles
+                                                        <ChevronRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
+                                                    </Link>
+                                                    <button
+                                                        onClick={() => handleDownloadLicense(order, item)}
+                                                        className="flex-1 md:flex-none px-6 py-3 bg-white/5 border border-white/10 text-foreground rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2"
+                                                    >
+                                                        <Download size={14} />
+                                                        Contrato
+                                                    </button>
+                                                </>
                                             ) : (
-                                                <button
-                                                    className="w-full md:w-auto px-8 py-3 bg-foreground text-background dark:bg-white dark:text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg shadow-black/5 flex items-center justify-center gap-2"
-                                                >
-                                                    <Download size={14} />
-                                                    Acceso Inmediato
-                                                </button>
+                                                <>
+                                                    <button
+                                                        onClick={() => {
+                                                            // Logic for actual file download would go here
+                                                            showToast("Iniciando descarga de archivos...", "info");
+                                                        }}
+                                                        className="flex-1 md:flex-none px-6 py-3 bg-foreground text-background dark:bg-white dark:text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg shadow-black/5 flex items-center justify-center gap-2"
+                                                    >
+                                                        <Download size={14} />
+                                                        Archivos
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDownloadLicense(order, item)}
+                                                        className="flex-1 md:flex-none px-6 py-3 bg-white/5 border border-white/10 text-foreground rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2"
+                                                    >
+                                                        <Download size={14} />
+                                                        Licencia
+                                                    </button>
+                                                </>
                                             )}
                                         </div>
                                     </div>

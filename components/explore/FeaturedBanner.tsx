@@ -1,15 +1,16 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Music, ChevronRight, ChevronLeft, Users, Play, Pause, Flame, Sparkles, Crown, CheckCircle2 } from "lucide-react";
+import { ArrowRight, ChevronRight, ChevronLeft, Users, Play, Pause, Flame, Sparkles, Crown, CheckCircle2 } from "lucide-react";
 import { Beat } from "@/lib/types";
 import { usePlayer } from "@/context/PlayerContext";
 
 interface FeaturedBannerProps {
     trendingBeats: Beat[];
-    trendingProducers: any[];
-    featuredMoods: any[];
+    trendingProducers: Record<string, unknown>[];
+    featuredMoods: Record<string, unknown>[];
 }
 
 export default function FeaturedBanner({ trendingBeats, trendingProducers }: FeaturedBannerProps) {
@@ -42,25 +43,31 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
     const prevHit = () => setCurrentIndex((prev) => (prev - 1 + hits.length) % hits.length);
 
     // Helper para obtener info del productor de forma segura
-    const getProducerInfo = () => {
+    const getProducerInfo = (): {
+        artistic_name: string;
+        username: string;
+        foto_perfil: string;
+        is_verified: boolean;
+        is_founder: boolean;
+    } => {
         if (isBeat) {
             const beat = data as Beat;
-            const producerObj = beat.producer as any;
+            const producerObj = beat.producer as Record<string, unknown>;
             return {
-                artistic_name: producerObj?.artistic_name || beat.producer_artistic_name || "Productor",
-                username: producerObj?.username || beat.producer_username || "anonymous",
-                foto_perfil: producerObj?.foto_perfil || beat.producer_foto_perfil || "",
-                is_verified: producerObj?.is_verified || beat.producer_is_verified || false,
-                is_founder: producerObj?.is_founder || beat.producer_is_founder || false
+                artistic_name: (producerObj?.artistic_name as string) || beat.producer_artistic_name || "Productor",
+                username: (producerObj?.username as string) || beat.producer_username || "anonymous",
+                foto_perfil: (producerObj?.foto_perfil as string) || beat.producer_foto_perfil || "",
+                is_verified: !!(producerObj?.is_verified || beat.producer_is_verified),
+                is_founder: !!(producerObj?.is_founder || beat.producer_is_founder)
             };
         } else {
-            const profile = data as any;
+            const profile = data as Record<string, unknown>;
             return {
-                artistic_name: profile.artistic_name || profile.username,
-                username: profile.username,
-                foto_perfil: profile.foto_perfil || "",
-                is_verified: profile.is_verified || false,
-                is_founder: profile.is_founder || false
+                artistic_name: (profile.artistic_name as string) || (profile.username as string),
+                username: profile.username as string,
+                foto_perfil: (profile.foto_perfil as string) || "",
+                is_verified: !!profile.is_verified,
+                is_founder: !!profile.is_founder
             };
         }
     };
@@ -75,7 +82,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                 {/* Dynamic Background */}
                 <div className="absolute inset-0 overflow-hidden">
                     <img
-                        src={(isBeat ? (data as Beat).portadabeat_url : (data as any).foto_perfil) || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop"}
+                        src={(isBeat ? (data as Beat).portadabeat_url : (data as Record<string, unknown>).foto_perfil as string) || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop"}
                         className="w-full h-full object-cover opacity-30 blur-2xl scale-125 transition-all duration-1000 ease-in-out"
                         alt="Background Glow"
                     />
@@ -91,7 +98,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                         <div className="relative shrink-0 perspective-1000 group/art">
                             <div className="w-48 h-48 md:w-80 md:h-80 rounded-[3rem] overflow-hidden rotate-3 group-hover/art:rotate-0 transition-transform duration-700 shadow-2xl border border-white/10 relative">
                                 <img
-                                    src={(isBeat ? (data as Beat).portadabeat_url : (data as any).foto_perfil) || `https://ui-avatars.com/api/?name=${prodInfo.artistic_name}&background=random`}
+                                    src={(isBeat ? (data as Beat).portadabeat_url : (data as Record<string, unknown>).foto_perfil as string) || `https://ui-avatars.com/api/?name=${prodInfo.artistic_name}&background=random`}
                                     className="w-full h-full object-cover"
                                     alt="Artwork"
                                 />
@@ -132,7 +139,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                             <div className="flex items-center gap-6 mb-10 text-slate-400">
                                 <Link href={`/${prodInfo.username}`} className="flex items-center gap-6 group/prod">
                                     <div className="relative">
-                                        <img src={prodInfo.foto_perfil || `https://ui-avatars.com/api/?name=${prodInfo.artistic_name}`} className="w-20 h-20 md:w-28 md:h-28 rounded-3xl object-cover border-2 border-white/10 group-hover/prod:border-accent transition-all duration-500 shadow-2xl" />
+                                        <img src={prodInfo.foto_perfil || `https://ui-avatars.com/api/?name=${prodInfo.artistic_name}`} alt={prodInfo.artistic_name as string} className="w-20 h-20 md:w-28 md:h-28 rounded-3xl object-cover border-2 border-white/10 group-hover/prod:border-accent transition-all duration-500 shadow-2xl" />
                                         {prodInfo.is_verified && (
                                             <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-background rounded-full flex items-center justify-center border-2 border-border shadow-lg">
                                                 <img src="/verified-badge.png" className="w-5 h-5 object-contain" alt="Verified" />

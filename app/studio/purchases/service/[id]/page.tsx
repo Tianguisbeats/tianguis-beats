@@ -91,6 +91,7 @@ export default function ServiceProjectPage() {
         return () => {
             supabase.removeChannel(channel);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
     useEffect(() => {

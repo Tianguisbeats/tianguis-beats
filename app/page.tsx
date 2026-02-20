@@ -4,13 +4,10 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   Search,
-  ArrowRight,
   Zap,
   ShieldCheck,
   Cpu,
-  Globe,
   Music,
-  BarChart3,
   Waves
 } from 'lucide-react';
 
@@ -283,7 +280,7 @@ export default function Home() {
                   <div className="flex items-center gap-1 mb-4">
                     {[1, 2, 3, 4, 5].map(s => <Zap key={s} size={12} className="text-amber-500" fill="currentColor" />)}
                   </div>
-                  <p className="text-foreground font-medium mb-6 italic leading-relaxed font-body">"{producer.quote}"</p>
+                  <p className="text-foreground font-medium mb-6 italic leading-relaxed font-body">&quot;{producer.quote}&quot;</p>
                   <div>
                     <h4 className="text-xl font-black text-accent font-heading">{producer.name}</h4>
                     <span className="text-[10px] font-black uppercase tracking-widest text-muted">{producer.role}</span>

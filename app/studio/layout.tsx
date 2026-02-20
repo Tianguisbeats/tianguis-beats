@@ -124,7 +124,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
 
                 {/* Main Experience Area */}
                 <main className="flex-1 min-h-[70vh]">
-                    <div className="bg-white dark:bg-[#050508]/40 dark:backdrop-blur-3xl rounded-[3.5rem] p-10 lg:p-14 border border-border/40 dark:border-white/5 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.05)] h-full relative overflow-hidden">
+                    <div className="bg-white dark:bg-[#050508]/40 dark:backdrop-blur-3xl rounded-[2.5rem] p-8 lg:p-12 border border-border/40 dark:border-white/5 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.05)] h-full relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-96 h-96 bg-accent/5 blur-[120px] rounded-full pointer-events-none" />
                         <div className="relative z-10">
                             {children}

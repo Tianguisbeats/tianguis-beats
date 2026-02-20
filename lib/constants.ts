@@ -1,4 +1,14 @@
+/**
+ * @file constants.ts
+ * @description Constantes globales utilizadas en toda la plataforma Tianguis Beats.
+ * Incluye listas de países, géneros musicales, subgéneros, y estados de ánimo (moods) 
+ * con sus respectivos emojis y estilos.
+ */
 
+/**
+ * Lista de países disponibles para la selección de ubicación del usuario.
+ * @constant {string[]}
+ */
 export const COUNTRIES = [
     "México 🇲🇽",
     "Estados Unidos 🇺🇸",
@@ -29,7 +39,11 @@ export const COUNTRIES = [
     "Alemania 🇩🇪",
     "Otro 🌍"
 ];
-
+/**
+ * Lista principal de géneros musicales disponibles en la plataforma.
+ * Cada género incluye su emoji representativo.
+ * @constant {string[]}
+ */
 export const GENRES = [
     "Corridos Tumbados 🇲🇽",
     "Sierreño 🌵",
@@ -58,7 +72,10 @@ export const GENRES = [
     "Rock 🤘",
     "Alternativo 🌀"
 ];
-
+/**
+ * Diccionario de subgéneros clasificados por su género principal.
+ * @constant {Record<string, string[]>}
+ */
 export const SUBGENRES: Record<string, string[]> = {
     "Corridos Tumbados 🇲🇽": ["Bélicos 🦅", "Tumbados Románticos ❤️", "Corridos de Calle 🚬", "Trap Corridos 💎", "Sierreño Tumbado 🌵"],
     "Sierreño 🌵": ["Campirano 🤠", "Sierreño Tumbado 🎸", "Romántico 🌹", "Clásico 🎻"],
@@ -87,7 +104,11 @@ export const SUBGENRES: Record<string, string[]> = {
     "Rock 🤘": ["Metal 🤘", "Grunge 🎸", "Punk ⚡", "Indie Rock 🎸", "Psychedelic Rock 🍄"],
     "Alternativo 🌀": ["Experimental 🧪", "Avant-Garde 🎨", "Art Pop 🎨", "Shoegaze 🌫️"]
 };
-
+/**
+ * Lista de estados de ánimo (moods) asociados a los beats.
+ * Cada mood contiene una etiqueta, un emoji y clases de Tailwind para su estilización en la UI.
+ * @constant {Array<{label: string, emoji: string, color: string}>}
+ */
 export const MOODS = [
     // Energía Positiva
     { label: "Feliz", emoji: "😊", color: "text-amber-500 bg-amber-50 border-amber-100" },

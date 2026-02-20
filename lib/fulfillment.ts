@@ -44,7 +44,7 @@ export async function getDownloadUrl(
 /**
  * Obtiene todos los enlaces de descarga correspondientes a una licencia de beat.
  */
-export async function getBeatFulfillmentLinks(beat: any, licenseType: string) {
+export async function getBeatFulfillmentLinks(beat: { mp3_url?: string; wav_url?: string; stems_url?: string }, licenseType: string) {
     const links: { label: string, url: string }[] = [];
 
     // Siempre incluimos el MP3 de alta calidad (si existe)
@@ -71,7 +71,7 @@ export async function getBeatFulfillmentLinks(beat: any, licenseType: string) {
 /**
  * Genera el enlace de descarga para un Sound Kit.
  */
-export async function getSoundKitFulfillmentLink(kit: any) {
+export async function getSoundKitFulfillmentLink(kit: { title?: string; file_url?: string }) {
     if (!kit.file_url) return null;
 
     const url = await getDownloadUrl('sound-kits', kit.file_url);

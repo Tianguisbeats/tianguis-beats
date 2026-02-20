@@ -1,8 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Beat } from '@/lib/types';
 import Link from 'next/link';
-import { Play, Pause, ShoppingCart, Check, Music, Crown, ChevronRight, Flame, Heart, ShieldCheck } from 'lucide-react';
+import { Play, Pause, Music, Crown, Flame, Heart } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -27,11 +29,10 @@ function formatPriceMXN(value?: number | null) {
 
 export default function BeatCardPro({ beat, compact = false }: BeatCardProProps) {
     const { currentBeat, isPlaying, playBeat } = usePlayer();
-    const { addItem, isInCart, currentUserId } = useCart();
+    const { isInCart, currentUserId } = useCart();
     const { showToast } = useToast();
     const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
-    const [likeCount, setLikeCount] = useState(beat.like_count || 0);
     const router = useRouter();
 
     const isThisPlaying = currentBeat?.id === beat.id && isPlaying;
@@ -73,7 +74,6 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
 
             if (!error) {
                 setIsLiked(false);
-                setLikeCount(prev => Math.max(0, prev - 1));
             }
         } else {
             const { error } = await supabase
@@ -85,7 +85,6 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
 
             if (!error) {
                 setIsLiked(true);
-                setLikeCount(prev => prev + 1);
             }
         }
     };
@@ -97,7 +96,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
             ...beat,
             is_verified: beat.producer_is_verified,
             is_founder: beat.producer_is_founder
-        } as any);
+        } as unknown as Beat);
     };
 
     const getGenreStyles = () => {
