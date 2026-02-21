@@ -11,13 +11,13 @@
 }
 
 [data-theme='dark'] {
-  --background: #020617;
+  --background: #02040a;
   --foreground: #f8fafc;
   --accent: #3b82f6;
-  --accent-soft: #0f172a;
-  --card: #0a0a0a;
-  --border: #1e293b;
-  --muted: #cbd5e1;
+  --accent-soft: #0a0c14;
+  --card: #05070f;
+  --border: #161b22;
+  --muted: #8b949e;
 }
 
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -113,4 +113,21 @@ body {
 .username-highlight:hover {
   color: #2563eb;
   filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.3));
+}
+
+/* Premium Empty States */
+.empty-state-card {
+  @apply rounded-[4rem] p-24 text-center border transition-all duration-700 relative overflow-hidden;
+}
+
+[data-theme='dark'] .empty-state-card {
+  background: linear-gradient(145deg, #0a0c14 0%, #05070f 100%);
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='light'] .empty-state-card {
+  background: #f8fafc;
+  border-color: #f1f5f9;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05);
 }

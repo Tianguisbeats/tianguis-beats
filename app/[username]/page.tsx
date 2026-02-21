@@ -955,14 +955,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     </Link>
                                                 )}
                                             </>
-                                        ) : (
-                                            <div className="text-center opacity-30 py-4">
-                                                <div className="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                                                    <Zap size={24} className="text-slate-400" />
-                                                </div>
-                                                <p className="text-[10px] font-black uppercase tracking-[0.3em]">Smart Bio No Disponible</p>
-                                            </div>
-                                        )}
+                                        ) : null}
 
                                         {/* Bio Text (Optional/Reduced) */}
                                         {profile.bio && (
@@ -1064,7 +1057,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                     {/* Owner Upsell for Non-Premium (Services) */}
                                     {profile.subscription_tier !== 'premium' ? (
-                                        <div className={`rounded-[3rem] p-12 text-center overflow-hidden relative group border-2 transition-all duration-700 ${profile.tema_perfil !== 'light' ? 'bg-[#050508] border-white/5 text-white shadow-[0_40px_100px_-20px_rgba(37,99,235,0.15)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-indigo-500/10'}`}>
+                                        <div className={`rounded-[3rem] p-12 text-center overflow-hidden relative group border transition-all duration-700 ${profile.tema_perfil !== 'light' ? 'bg-[#050508] border-white/5 text-white shadow-[0_40px_100px_-20px_rgba(37,99,235,0.15)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-indigo-500/10'}`}>
                                             <div className="absolute top-0 right-0 p-48 bg-blue-600/10 blur-[150px] rounded-full group-hover:bg-blue-600/20 transition-all pointer-events-none" />
                                             <div className="relative z-10">
                                                 <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 backdrop-blur-md border ${profile.tema_perfil !== 'light' ? 'bg-white/5 border-white/10 shadow-[0_0_30px_rgba(37,99,235,0.1)]' : 'bg-indigo-50 border-indigo-100'}`}>
@@ -1239,27 +1232,30 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             />
                                         </div>
                                     ) : (
-                                        <div className={`mt-12 rounded-[3.5rem] p-24 text-center border-2 border-dashed transition-all duration-700 ${profile.tema_perfil !== 'light' ? 'bg-[#050508] border-white/5 shadow-2xl' : 'bg-slate-50/50 border-slate-200'}`}>
+                                        <div className="empty-state-card mt-12 bg-card">
+                                            {profile.tema_perfil !== 'light' && (
+                                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+                                            )}
                                             <div className="relative inline-block mb-10">
-                                                <div className="absolute inset-0 bg-blue-500/20 blur-[60px] rounded-full scale-[2.5]" />
-                                                <div className={`relative w-28 h-28 rounded-[2.5rem] flex items-center justify-center mx-auto border transition-transform duration-700 group-hover:scale-110 ${profile.tema_perfil !== 'light' ? 'bg-white/5 border-white/10' : 'bg-white border-slate-100'}`}>
-                                                    <ListMusic size={42} className="text-accent opacity-60" />
+                                                <div className={`absolute inset-0 blur-[60px] rounded-full scale-[2.5] ${profile.tema_perfil !== 'light' ? 'bg-blue-500/10' : 'bg-indigo-500/5'}`} />
+                                                <div className={`relative w-32 h-32 rounded-[3.5rem] flex items-center justify-center mx-auto border shadow-inner ${profile.tema_perfil !== 'light' ? 'bg-[#0a0a0f] border-white/10' : 'bg-white border-slate-200'}`}>
+                                                    <ListMusic size={48} className="text-accent opacity-50" />
                                                 </div>
                                             </div>
-                                            <h3 className="text-3xl font-black uppercase tracking-tighter mb-4 text-foreground">En Playlist</h3>
-                                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted max-w-xs mx-auto mb-10 leading-relaxed">
-                                                Este productor aún no ha organizado su música en colecciones públicas.
-                                            </p>
+                                            <h3 className="text-2xl font-black uppercase tracking-tight mb-4 text-foreground">Este productor aún no ha creado playlist</h3>
+
                                             {isOwner && (
-                                                <button
-                                                    onClick={() => {
-                                                        setEditingPlaylist(null);
-                                                        setIsPlaylistModalOpen(true);
-                                                    }}
-                                                    className="px-12 py-5 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent/20"
-                                                >
-                                                    Crear mi primera Playlist
-                                                </button>
+                                                <div className="mt-10">
+                                                    <button
+                                                        onClick={() => {
+                                                            setEditingPlaylist(null);
+                                                            setIsPlaylistModalOpen(true);
+                                                        }}
+                                                        className="px-12 py-5 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent/20"
+                                                    >
+                                                        Crear mi primera Playlist
+                                                    </button>
+                                                </div>
                                             )}
                                         </div>
                                     )}
@@ -1308,13 +1304,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <>
                                             {/* Logic for Visitors OR Premium Owner */}
                                             {soundKits.length === 0 ? (
-                                                <div className="bg-white/5 dark:bg-slate-900/20 rounded-[3rem] p-24 text-center border-2 border-dashed border-slate-200/50 dark:border-white/5 backdrop-blur-sm">
-                                                    <div className="w-24 h-24 bg-accent/10 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 text-accent animate-pulse">
+                                                <div className="empty-state-card bg-card">
+                                                    <div className="w-24 h-24 bg-amber-400/10 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 text-amber-400">
                                                         <Package size={40} />
                                                     </div>
                                                     <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-3">Aún no hay Sound Kits disponibles</h3>
                                                     {isOwner ? (
-                                                        <Link href="/studio/services" className="bg-accent text-white px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all inline-block shadow-xl shadow-accent/20">
+                                                        <Link href="/studio/services" className="bg-amber-400 text-slate-900 px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all inline-block shadow-xl shadow-amber-400/20">
                                                             Subir mi primer Kit
                                                         </Link>
                                                     ) : (
