@@ -6,7 +6,7 @@ import { supabase } from './supabase';
  * Maneja la generación de enlaces de descarga seguros y temporales.
  */
 
-export type FileBucket =
+type FileBucket =
     | 'beats-mp3-alta-calidad'
     | 'beats-wav'
     | 'beats-stems'
@@ -18,7 +18,7 @@ export type FileBucket =
  * @param path La ruta del archivo dentro del bucket
  * @param expiresIn Tiempo de expiración en segundos (default 24h)
  */
-export async function getDownloadUrl(
+async function getDownloadUrl(
     bucket: FileBucket,
     path: string,
     expiresIn: number = 86400

@@ -944,14 +944,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 ) : (
                                                     <Link
                                                         href={`/${profile.username}/links`}
-                                                        className="w-full max-w-md h-20 rounded-3xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-2xl hover:scale-105 active:scale-95 relative overflow-hidden group border border-white/10"
+                                                        className="w-full max-w-sm h-20 rounded-[2.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(255,255,255,0.05)] hover:scale-105 active:scale-95 relative overflow-hidden group border border-white/5"
                                                     >
-                                                        <div className="absolute inset-0 bg-gradient-to-r from-accent/0 via-accent/10 to-accent/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                                                        <div className="w-10 h-10 bg-accent/10 dark:bg-slate-900/10 rounded-2xl flex items-center justify-center text-accent">
-                                                            <Zap size={20} fill="currentColor" />
+                                                        <div className="absolute inset-0 bg-gradient-to-r from-accent/0 via-accent/20 to-accent/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                                                        <div className="w-11 h-11 bg-accent/20 dark:bg-slate-900/10 rounded-2xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
+                                                            <Zap size={22} fill="currentColor" />
                                                         </div>
-                                                        <span className="flex-1 text-center pr-10">Ver Smart Bio</span>
-                                                        <ChevronRight size={18} className="absolute right-6 opacity-40 group-hover:translate-x-1 transition-transform" />
+                                                        <span className="font-black">Ver Smart Bio</span>
+                                                        <ChevronRight size={18} className="opacity-40 group-hover:translate-x-1 transition-transform ml-1" />
                                                     </Link>
                                                 )}
                                             </>
@@ -1064,24 +1064,24 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                     {/* Owner Upsell for Non-Premium (Services) */}
                                     {profile.subscription_tier !== 'premium' ? (
-                                        <div className={`rounded-[2.5rem] p-12 text-center overflow-hidden relative group border transition-all duration-500 ${profile.tema_perfil !== 'light' ? 'bg-slate-900 border-white/10 text-white shadow-2xl' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-indigo-500/10'}`}>
-                                            <div className="absolute top-0 right-0 p-32 bg-indigo-600/10 blur-[130px] rounded-full group-hover:bg-indigo-600/20 transition-all pointer-events-none" />
+                                        <div className={`rounded-[3rem] p-12 text-center overflow-hidden relative group border-2 transition-all duration-700 ${profile.tema_perfil !== 'light' ? 'bg-[#050508] border-white/5 text-white shadow-[0_40px_100px_-20px_rgba(37,99,235,0.15)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-indigo-500/10'}`}>
+                                            <div className="absolute top-0 right-0 p-48 bg-blue-600/10 blur-[150px] rounded-full group-hover:bg-blue-600/20 transition-all pointer-events-none" />
                                             <div className="relative z-10">
-                                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border ${profile.tema_perfil !== 'light' ? 'bg-white/5 border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.05)]' : 'bg-indigo-50 border-indigo-100'}`}>
-                                                    <Briefcase size={32} className="text-accent" />
+                                                <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 backdrop-blur-md border ${profile.tema_perfil !== 'light' ? 'bg-white/5 border-white/10 shadow-[0_0_30px_rgba(37,99,235,0.1)]' : 'bg-indigo-50 border-indigo-100'}`}>
+                                                    <Briefcase size={36} className="text-accent" />
                                                 </div>
-                                                <h3 className="text-3xl font-black uppercase tracking-tighter mb-4">Servicios Profesionales</h3>
-                                                <p className={`max-w-lg mx-auto mb-8 font-medium ${profile.tema_perfil !== 'light' ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                <h3 className="text-4xl font-black uppercase tracking-tighter mb-6">Servicios Profesionales</h3>
+                                                <p className={`max-w-xl mx-auto mb-10 text-sm font-medium leading-relaxed ${profile.tema_perfil !== 'light' ? 'text-slate-400' : 'text-slate-500'}`}>
                                                     {isOwner
                                                         ? "Ofrece servicios de Mezcla, Masterización, Composición o Clases. Los usuarios Premium pueden listar sus servicios y ser contactados directamente. ¡Desbloquea esta función ahora!"
                                                         : "Este usuario aún no ofrece servicios profesionales ya que no cuenta con una suscripción Premium activa. Los servicios se desbloquean al mejorar el plan."}
                                                 </p>
                                                 {isOwner ? (
-                                                    <Link href="/pricing" className="inline-flex items-center gap-2 px-10 py-4 rounded-xl font-black uppercase tracking-[0.1em] text-[10px] transition-all transform hover:scale-105 shadow-xl shadow-accent/40 bg-accent text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900">
-                                                        <Crown size={16} fill="currentColor" className="transition-colors" /> Mejorar a Premium
+                                                    <Link href="/pricing" className="inline-flex items-center gap-3 px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all transform hover:scale-105 shadow-2xl shadow-accent/40 bg-accent text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900">
+                                                        <Crown size={18} fill="currentColor" /> Mejorar a Premium
                                                     </Link>
                                                 ) : (
-                                                    <div className="py-2 px-6 bg-slate-100 dark:bg-white/5 rounded-full inline-block text-[10px] font-black uppercase tracking-widest opacity-50">
+                                                    <div className="py-3 px-8 bg-slate-100 dark:bg-white/5 rounded-full inline-block text-[10px] font-black uppercase tracking-widest opacity-40 border border-white/5">
                                                         Servicios no disponibles
                                                     </div>
                                                 )}
@@ -1226,7 +1226,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     )}
 
                                     {/* Playlists Section */}
-                                    {playlists.length > 0 && (
+                                    {playlists.length > 0 ? (
                                         <div className="mt-8">
                                             <PlaylistSection
                                                 playlists={playlists}
@@ -1237,6 +1237,30 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     setIsPlaylistModalOpen(true);
                                                 }}
                                             />
+                                        </div>
+                                    ) : (
+                                        <div className={`mt-12 rounded-[3.5rem] p-24 text-center border-2 border-dashed transition-all duration-700 ${profile.tema_perfil !== 'light' ? 'bg-[#050508] border-white/5 shadow-2xl' : 'bg-slate-50/50 border-slate-200'}`}>
+                                            <div className="relative inline-block mb-10">
+                                                <div className="absolute inset-0 bg-blue-500/20 blur-[60px] rounded-full scale-[2.5]" />
+                                                <div className={`relative w-28 h-28 rounded-[2.5rem] flex items-center justify-center mx-auto border transition-transform duration-700 group-hover:scale-110 ${profile.tema_perfil !== 'light' ? 'bg-white/5 border-white/10' : 'bg-white border-slate-100'}`}>
+                                                    <ListMusic size={42} className="text-accent opacity-60" />
+                                                </div>
+                                            </div>
+                                            <h3 className="text-3xl font-black uppercase tracking-tighter mb-4 text-foreground">En Playlist</h3>
+                                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted max-w-xs mx-auto mb-10 leading-relaxed">
+                                                Este productor aún no ha organizado su música en colecciones públicas.
+                                            </p>
+                                            {isOwner && (
+                                                <button
+                                                    onClick={() => {
+                                                        setEditingPlaylist(null);
+                                                        setIsPlaylistModalOpen(true);
+                                                    }}
+                                                    className="px-12 py-5 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent/20"
+                                                >
+                                                    Crear mi primera Playlist
+                                                </button>
+                                            )}
                                         </div>
                                     )}
 
@@ -1257,24 +1281,24 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                     {/* Owner Upsell for Non-Premium */}
                                     {profile.subscription_tier !== 'premium' ? (
-                                        <div className={`rounded-[2.5rem] p-12 text-center overflow-hidden relative group border transition-all duration-500 ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-black border-white/5 text-white shadow-[0_40px_80px_-15px_rgba(245,158,11,0.2)]' : 'bg-white border-slate-100 text-slate-900 shadow-[0_30px_60px_-15px_rgba(245,158,11,0.15)]'}`}>
-                                            <div className="absolute top-0 right-0 p-32 bg-amber-500/10 blur-[150px] rounded-full group-hover:bg-amber-500/20 transition-all pointer-events-none" />
+                                        <div className={`rounded-[3rem] p-12 text-center overflow-hidden relative group border-2 transition-all duration-700 ${profile.tema_perfil !== 'light' ? 'bg-black border-white/5 text-white shadow-[0_40px_100px_-15px_rgba(245,158,11,0.15)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-amber-500/10'}`}>
+                                            <div className="absolute top-0 right-0 p-48 bg-amber-500/10 blur-[150px] rounded-full group-hover:bg-amber-500/20 transition-all pointer-events-none" />
                                             <div className="relative z-10">
-                                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'bg-amber-400/5 border-amber-400/10 shadow-[0_0_20px_rgba(245,158,11,0.05)]' : 'bg-amber-50 border-amber-100'}`}>
-                                                    <Package size={32} className="text-amber-400" />
+                                                <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 backdrop-blur-md border ${profile.tema_perfil !== 'light' ? 'bg-amber-400/5 border-amber-400/10 shadow-[0_0_30px_rgba(245,158,11,0.1)]' : 'bg-amber-50 border-amber-100'}`}>
+                                                    <Package size={36} className="text-amber-400" />
                                                 </div>
-                                                <h3 className="text-3xl font-black uppercase tracking-tighter mb-4">Librerías de Sonido</h3>
-                                                <p className={`max-w-lg mx-auto mb-8 font-medium ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                <h3 className="text-4xl font-black uppercase tracking-tighter mb-6">Librerías de Sonido</h3>
+                                                <p className={`max-w-xl mx-auto mb-10 text-sm font-medium leading-relaxed ${profile.tema_perfil !== 'light' ? 'text-slate-400' : 'text-slate-500'}`}>
                                                     {isOwner
                                                         ? "Vende tus propios Sample Packs, Drum Kits y Presets directamente desde tu perfil. Mejora tu cuenta para desbloquear esta sección y comenzar a generar ingresos pasivos."
                                                         : "Este productor no cuenta con una suscripción Premium para vender Sound Kits. Las librerías de sonido exclusivas solo están disponibles para miembros Premium."}
                                                 </p>
                                                 {isOwner ? (
-                                                    <Link href="/pricing" className="inline-flex items-center gap-2 px-10 py-4 rounded-xl font-black uppercase tracking-[0.1em] text-[10px] transition-all transform hover:scale-105 shadow-xl shadow-amber-500/30 bg-amber-400 text-slate-900 hover:bg-amber-300">
-                                                        <Zap size={16} fill="currentColor" /> Mejorar a Premium
+                                                    <Link href="/pricing" className="inline-flex items-center gap-3 px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all transform hover:scale-105 shadow-2xl shadow-amber-500/30 bg-amber-400 text-slate-900 hover:bg-amber-300">
+                                                        <Zap size={18} fill="currentColor" /> Mejorar a Premium
                                                     </Link>
                                                 ) : (
-                                                    <div className="py-2 px-6 bg-slate-100 dark:bg-white/5 rounded-full inline-block text-[10px] font-black uppercase tracking-widest opacity-50">
+                                                    <div className="py-3 px-8 bg-slate-100 dark:bg-white/5 rounded-full inline-block text-[10px] font-black uppercase tracking-widest opacity-40 border border-white/5">
                                                         Sección no disponible
                                                     </div>
                                                 )}

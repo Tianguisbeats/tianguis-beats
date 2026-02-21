@@ -16,7 +16,7 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: "Tianguis Beats | La plataforma #1 de beats en México",
-  description: "Compra y vende beats de Corridos Tumbados, Rap, Trap y más.",
+  description: "Eleva tu sonido al siguiente nivel con los mejores beats de Corridos Tumbados, Trap y Reggaetón. La comunidad de productores y artistas más grande de México.",
 };
 
 import { ThemeProvider } from "@/context/ThemeContext";

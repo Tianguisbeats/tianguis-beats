@@ -68,16 +68,16 @@ export default function AudioPlayer() {
     return (
         <>
             <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-6xl animate-in slide-in-from-bottom-8 duration-700">
-                {/* Main Glass Container */}
+                {/* Contenedor principal estilo cristal */}
                 <div className="relative bg-white/70 dark:bg-slate-900/80 backdrop-blur-2xl border border-white/20 dark:border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)] overflow-hidden">
 
-                    {/* Progress Glow Effect (Only in Dark Mode) */}
+                    {/* Efecto de brillo de progreso (Sólo en modo oscuro) */}
                     <div className="absolute top-0 left-0 h-[2px] bg-accent shadow-[0_0_15px_rgba(59,130,246,0.8)] transition-all duration-300 z-50 rounded-full"
                         style={{ width: `${(currentTime / (duration || 1)) * 100}%` }} />
 
                     <div className="px-6 py-4 md:py-5 flex flex-col md:flex-row items-center gap-4 md:gap-8">
 
-                        {/* 1. Track Info Section */}
+                        {/* 1. Sección de información de la pista */}
                         <div className="flex items-center gap-4 w-full md:w-[30%] shrink-0">
                             <div className="relative group/artwork">
                                 <div className="absolute -inset-1 bg-gradient-to-r from-accent to-purple-600 rounded-2xl blur opacity-20 group-hover/artwork:opacity-40 transition-opacity" />
@@ -117,7 +117,7 @@ export default function AudioPlayer() {
                             </div>
                         </div>
 
-                        {/* 2. Controls & Seek Section */}
+                        {/* 2. Sección de controles y barra de progreso */}
                         <div className="flex flex-col items-center gap-2 flex-1 w-full">
                             <div className="flex items-center gap-8">
                                 <button className="text-muted hover:text-accent hover:scale-110 transition-all active:scale-95">
@@ -140,9 +140,9 @@ export default function AudioPlayer() {
                             <div className="flex items-center gap-4 w-full px-2">
                                 <span className="text-[10px] font-black text-muted w-10 text-right font-mono tabular-nums">{formatTime(currentTime)}</span>
                                 <div className="relative flex-1 group py-3">
-                                    {/* Track Bar Background */}
+                                    {/* Fondo de la barra de progreso */}
                                     <div className="absolute inset-y-0 my-auto h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full" />
-                                    {/* Active Progress */}
+                                    {/* Progreso activo */}
                                     <div
                                         className="absolute inset-y-0 my-auto h-1.5 bg-accent rounded-full z-10"
                                         style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
@@ -163,9 +163,9 @@ export default function AudioPlayer() {
                             </div>
                         </div>
 
-                        {/* 3. Volume & Purchase Section */}
+                        {/* 3. Sección de volumen y compras */}
                         <div className="hidden md:flex items-center justify-end gap-6 w-[30%] shrink-0">
-                            {/* Volume Slider - Now more professional */}
+                            {/* Control de volumen - Ahora más profesional */}
                             <div className="flex items-center gap-3 group/vol">
                                 <button onClick={toggleMute} className="text-muted hover:text-accent transition-colors">
                                     {isMuted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
@@ -185,7 +185,7 @@ export default function AudioPlayer() {
                                 </div>
                             </div>
 
-                            {/* CTAs */}
+                            {/* Llamadas a la acción (CTAs) */}
                             <div className="flex items-center gap-2">
                                 {!isOwner && (
                                     <button

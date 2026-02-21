@@ -73,7 +73,7 @@ export default function Navbar() {
             <nav className="fixed top-0 left-0 right-0 w-full bg-white/80 dark:bg-[#020205]/80 border-b border-border dark:border-white/5 backdrop-blur-xl shadow-sm z-50 transition-all duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
-                        {/* Logo Area */}
+                        {/* Área del Logo */}
                         <Link href="/" className="flex items-center gap-3 group min-h-[48px]">
                             <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-xl shadow-slate-900/10 group-hover:scale-110 transition-transform overflow-hidden">
                                 {hasLogo ? (
@@ -193,7 +193,7 @@ export default function Navbar() {
                     </div>
                 </div>
 
-                {/* Mobile Menu */}
+                {/* Menú Móvil */}
                 {isMenuOpen && (
                     <div className="md:hidden bg-background border-b border-border pb-8 px-4 animate-in slide-in-from-top duration-300">
                         <div className="flex flex-col gap-2 text-[10px] font-black text-muted uppercase tracking-[0.2em]">

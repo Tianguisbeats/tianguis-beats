@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * TIANGUIS BEATS - Contexto de Notificaciones (Toasts)
+ * Provee una forma global de mostrar mensajes flash/alertas temporales en la UI.
+ */
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { ToastContainer } from '@/components/ui/Toast';
 
@@ -24,7 +29,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         const id = Date.now();
         setToasts(prev => [...prev, { id, message, type }]);
 
-        // Auto remove after 5 seconds
+        // Eliminar automáticamente después de 5 segundos
         setTimeout(() => {
             setToasts(prev => prev.filter(t => t.id !== id));
         }, 5000);

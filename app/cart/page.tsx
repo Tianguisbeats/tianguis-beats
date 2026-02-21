@@ -202,7 +202,7 @@ export default function CartPage() {
         <div className="min-h-screen bg-background text-foreground selection:bg-accent selection:text-white transition-all duration-700">
             <Navbar />
 
-            {/* Elite Ambient Elements */}
+            {/* Elementos Ambientales */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
                 <div className="absolute top-[-20%] right-[-10%] w-[70%] h-[70%] bg-blue-600/5 dark:bg-blue-500/10 blur-[200px] rounded-full animate-pulse-slow" />
                 <div className="absolute bottom-[-20%] left-[-10%] w-[70%] h-[70%] bg-purple-600/5 dark:bg-purple-500/10 blur-[200px] rounded-full animate-pulse-slow delay-1000" />
@@ -210,7 +210,7 @@ export default function CartPage() {
 
             <main className="relative z-10 pt-32 pb-40 px-6 sm:px-10 lg:px-16 max-w-[1600px] mx-auto">
 
-                {/* Elite Title Section */}
+                {/* Sección de Título */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-16">
                     <div className="space-y-4 max-w-4xl">
                         <div className="flex items-center gap-4 opacity-100">
@@ -237,7 +237,7 @@ export default function CartPage() {
                 {itemCount > 0 ? (
                     <div className="grid lg:grid-cols-12 gap-10 xl:gap-16">
 
-                        {/* Elite Products Column */}
+                        {/* Columna de Productos */}
                         <div className="lg:col-span-7 xl:col-span-8 space-y-6">
                             {items.map((item) => {
                                 const isBeat = item.type === 'beat';
@@ -248,7 +248,7 @@ export default function CartPage() {
                                 return (
                                     <div key={item.id} className="group relative flex flex-col sm:flex-row items-center gap-8 p-6 md:p-8 bg-card/20 backdrop-blur-md border border-transparent hover:border-foreground/5 dark:hover:border-white/5 rounded-[3.5rem] transition-all duration-700 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] dark:hover:shadow-black/40">
 
-                                        {/* Artist/Beat Cover */}
+                                        {/* Portada del Artista/Beat */}
                                         <div className="relative w-28 h-28 md:w-36 md:h-36 shrink-0 overflow-hidden shadow-2xl rounded-[2.5rem] transition-transform duration-700 group-hover:scale-95">
                                             {item.image && !isService ? (
                                                 <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
@@ -261,11 +261,11 @@ export default function CartPage() {
                                                     ) : isService ? <Briefcase size={36} className="text-purple-500" /> : <Music size={36} />}
                                                 </div>
                                             )}
-                                            {/* Mask Overlay */}
+                                            {/* Máscara superpuesta */}
                                             <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                         </div>
 
-                                        {/* Dynamic Product Metadata */}
+                                        {/* Metadatos Dinámicos del Producto */}
                                         <div className="flex-1 flex flex-col gap-4 text-center sm:text-left">
                                             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                                                 <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-[0.2em] shadow-sm ${isBeat ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
@@ -308,7 +308,7 @@ export default function CartPage() {
                                             </div>
                                         </div>
 
-                                        {/* Product Pricing & Control */}
+                                        {/* Precios y Control del Producto */}
                                         <div className="flex flex-col items-center sm:items-end justify-between self-stretch py-2 min-w-[120px]">
                                             <span className="text-3xl font-black text-foreground">{formatPrice(item.price)}</span>
                                             <button
@@ -333,10 +333,10 @@ export default function CartPage() {
                             </div>
                         </div>
 
-                        {/* Elite Summary Sidebar */}
+                        {/* Barra Lateral de Resumen */}
                         <div className="lg:col-span-5 xl:col-span-4">
                             <div className="sticky top-28 bg-blue-500 text-white backdrop-blur-3xl rounded-[2.5rem] p-8 md:p-10 border border-white/20 shadow-[0_20px_50px_-12px_rgba(59,130,246,0.5)] flex flex-col min-h-[500px] overflow-hidden relative">
-                                {/* Liquid Effect Background */}
+                                {/* Fondo de efecto líquido */}
                                 <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-transparent pointer-events-none" />
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[80px] rounded-full pointer-events-none" />
 
@@ -356,7 +356,7 @@ export default function CartPage() {
                                             </div>
                                         )}
 
-                                        {/* Elite Coupon Toggle */}
+                                        {/* Desplegable de Cupón */}
                                         <div className="pt-2">
                                             {!showCouponInput ? (
                                                 <button
@@ -391,10 +391,10 @@ export default function CartPage() {
                                             <span className="text-[3.5rem] font-black leading-[0.8] tracking-[-0.08em]">{formatPrice(finalTotal)}</span>
                                         </div>
 
-                                        {/* Separator Line */}
+                                        {/* Línea Separadora */}
                                         <div className="w-full h-px bg-white/10" />
 
-                                        {/* Checkout Interaction */}
+                                        {/* Interacción de Pago (Checkout) */}
                                         <div className="space-y-4">
                                             <span className="text-[9px] font-black uppercase tracking-[0.3em] block text-center text-white/60">MÉTODOS DE PAGO ENCRIPTADOS</span>
 
@@ -418,7 +418,7 @@ export default function CartPage() {
                                             </button>
                                         </div>
 
-                                        {/* Elite Trust Badges */}
+                                        {/* Insignias de Confianza */}
                                         <div className="grid grid-cols-2 gap-6 text-white/90">
                                             <div className="flex flex-col items-center gap-2 text-center">
                                                 <ShieldCheck size={18} className="text-white" />
@@ -436,7 +436,7 @@ export default function CartPage() {
                     </div>
 
                 ) : (
-                    /* Elite Empty State */
+                    /* Estado de Carrito Vacío */
                     <div className="py-60 flex flex-col items-center justify-center text-center max-w-4xl mx-auto space-y-16">
                         <div className="relative">
                             <div className="absolute inset-0 bg-accent/20 blur-[120px] rounded-full scale-[2] animate-pulse" />
@@ -458,7 +458,8 @@ export default function CartPage() {
                             <ArrowRight size={24} className="group-hover:translate-x-3 transition-transform duration-500" />
                         </Link>
                     </div>
-                )}
+                )
+                }
 
             </main >
 

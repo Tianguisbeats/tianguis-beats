@@ -42,7 +42,7 @@ export default function PlaylistManagerModal({
         setHasChanges(false);
     }, [existingPlaylist, isOpen]);
 
-    // Check for changes
+    // Comprobar cambios
     useEffect(() => {
         if (!existingPlaylist) {
             setHasChanges(!!name.trim() || selectedBeatIds.length > 0);
@@ -86,14 +86,14 @@ export default function PlaylistManagerModal({
             let playlistId = existingPlaylist?.id;
 
             if (existingPlaylist) {
-                // Update
+                // Actualizar
                 const { error } = await supabase
                     .from('playlists')
                     .update({ name, description })
                     .eq('id', existingPlaylist.id);
                 if (error) throw error;
             } else {
-                // Insert
+                // Insertar
                 const { data, error } = await supabase
                     .from('playlists')
                     .insert({
@@ -108,8 +108,8 @@ export default function PlaylistManagerModal({
                 playlistId = data.id;
             }
 
-            // Sync Beats (Delete old, insert new)
-            // Note: In a production app we'd do this more efficiently with a diff
+            // Sincronizar Beats (Eliminar antiguos, insertar nuevos)
+            // Nota: En una app en producción haríamos esto de manera más eficiente con un diff
             await supabase
                 .from('playlist_beats')
                 .delete()
@@ -161,7 +161,7 @@ export default function PlaylistManagerModal({
             <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={onClose} />
 
             <div className="relative bg-white dark:bg-slate-950 w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100 dark:border-white/10 flex flex-col max-h-[90vh]">
-                {/* Header */}
+                {/* Encabezado */}
                 <div className="p-8 bg-slate-900 text-white flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 text-white">
@@ -179,9 +179,9 @@ export default function PlaylistManagerModal({
                     </button>
                 </div>
 
-                {/* Body */}
+                {/* Cuerpo */}
                 <div className="flex-1 overflow-y-auto p-8 space-y-8 no-scrollbar">
-                    {/* Basic Info */}
+                    {/* Información básica */}
                     <div className="space-y-4">
                         <div>
                             <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">Nombre de la Playlist</label>
@@ -204,7 +204,7 @@ export default function PlaylistManagerModal({
                         </div>
                     </div>
 
-                    {/* Playlist Order */}
+                    {/* Orden de la Playlist */}
                     {selectedBeatIds.length > 0 && (
                         <div>
                             <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-widest">Orden de la Playlist (Mueve para organizar)</label>
@@ -242,7 +242,7 @@ export default function PlaylistManagerModal({
                         </div>
                     )}
 
-                    {/* Beats Selection */}
+                    {/* Selección de Beats */}
                     <div>
                         <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-widest flex items-center justify-between">
                             Seleccionar Beats
@@ -279,7 +279,7 @@ export default function PlaylistManagerModal({
                     </div>
                 </div>
 
-                {/* Footer */}
+                {/* Pie de página */}
                 <div className="p-8 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-white/10 flex items-center gap-4">
                     <button
                         onClick={onClose}

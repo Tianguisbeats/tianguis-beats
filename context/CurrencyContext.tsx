@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * TIANGUIS BEATS - Contexto de Moneda (Currency)
+ * Maneja la conversión de precios (MXN, USD, EUR) y persistencia de preferencia
+ * de moneda en el navegador del usuario.
+ */
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type Currency = 'MXN' | 'USD' | 'EUR';

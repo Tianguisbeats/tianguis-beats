@@ -21,7 +21,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
     const { showToast } = useToast();
     const { formatPrice, currency } = useCurrency();
 
-    // Define all possible licenses
+    // Definir todas las licencias posibles
     const allLicenses = [
         {
             id: 'MP3',
@@ -81,25 +81,25 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
         }
     ];
 
-    // Filter only active licenses
+    // Filtrar solo las licencias activas
     const activeLicenses = beat.is_sold ? [] : allLicenses.filter(l => l.isActive);
 
     const [selectedType, setSelectedType] = React.useState<string>('');
     const [producerInfo, setProducerInfo] = React.useState<any>(null);
     const [currentUserId, setCurrentUserId] = React.useState<string | null>(null);
 
-    // Initial state for selected type
+    // Estado inicial para el tipo seleccionado
     React.useEffect(() => {
         if (activeLicenses.length > 0 && !selectedType) {
             setSelectedType(activeLicenses[0].id);
         }
     }, [activeLicenses]);
 
-    // Fetch producer info and current user
+    // Obtener información del productor y del usuario actual
     React.useEffect(() => {
         if (isOpen) {
             const fetchData = async () => {
-                // Fetch producer
+                // Obtener productor
                 if (beat.producer_id) {
                     const { data: producerData } = await supabase
                         .from('profiles')
@@ -109,7 +109,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                     if (producerData) setProducerInfo(producerData);
                 }
 
-                // Fetch current user
+                // Obtener usuario actual
                 const { data: { session } } = await supabase.auth.getSession();
                 if (session?.user) {
                     setCurrentUserId(session.user.id);
@@ -122,7 +122,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
     if (!isOpen) return null;
 
     const handleAddToCart = () => {
-        // Prevent self-purchase
+        // Evitar la autocompra
         if (currentUserId && currentUserId === beat.producer_id) {
             showToast("No puedes comprar tus propios productos", "error");
             onClose();
@@ -162,7 +162,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
 
             <div className="relative bg-white dark:bg-slate-950 w-full max-w-5xl rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden animate-in zoom-in slide-in-from-bottom-12 duration-700 border border-white/10 flex flex-col lg:flex-row min-h-[600px]">
 
-                {/* Close Button */}
+                {/* Botón de cerrar */}
                 <button
                     onClick={onClose}
                     className="absolute top-8 right-8 p-4 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-black dark:hover:bg-white dark:hover:text-black rounded-full transition-all z-50 group"
@@ -170,10 +170,10 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                     <X size={20} className="group-hover:rotate-90 transition-transform" />
                 </button>
 
-                {/* LEFT PANEL: Specs & Producer Info */}
+                {/* PÁNEL IZQUIERDO: Especificaciones e Info del Productor */}
                 <div className="lg:w-[40%] bg-slate-50 dark:bg-slate-900 p-8 lg:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-white/5 order-2 lg:order-1">
                     <div className="space-y-8">
-                        {/* Artwork Top */}
+                        {/* Arte Principal */}
                         <div className="space-y-6">
                             <div className="aspect-square w-full rounded-3xl overflow-hidden bg-slate-200 dark:bg-slate-800 shadow-xl border border-white/10 group">
                                 {beat.portadabeat_url || beat.portada_url ? (
@@ -189,7 +189,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                 {beat.title}
                             </h3>
 
-                            {/* Producer row BELOW the title */}
+                            {/* Fila del productor DEBAJO del título */}
                             <div className="flex items-center gap-4 p-4 rounded-3xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5">
                                 <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
                                     {producerInfo?.foto_perfil || beat.producer_foto_perfil ? (
@@ -235,7 +235,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                     </div>
                 </div>
 
-                {/* RIGHT PANEL: License Selection */}
+                {/* PÁNEL DERECHO: Selección de Licencias */}
                 <div className="flex-1 p-8 lg:p-12 flex flex-col justify-between order-1 lg:order-2 bg-white dark:bg-slate-950">
                     <div className="space-y-10">
                         <header>
@@ -243,7 +243,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                             <p className="text-xs font-bold text-muted uppercase tracking-[0.2em]">Escala tu sonido al siguiente nivel</p>
                         </header>
 
-                        {/* Interactive List - Increased height to prevent cutting off */}
+                        {/* Lista interactiva - Altura incrementada para evitar cortes */}
                         <div className="grid gap-3 max-h-[480px] overflow-y-auto px-4 custom-scrollbar py-2">
                             {allLicenses.filter(l => l.isActive).map((lic) => {
                                 const isSelected = selectedType === lic.id;
@@ -278,7 +278,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                             })}
                         </div>
 
-                        {/* Dynamic Feature Box */}
+                        {/* Caja de características dinámica */}
                         {currentLicense && (
                             <div className="p-8 rounded-[2.5rem] bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 animate-in fade-in slide-in-from-top-4 duration-500">
                                 <h6 className="text-[10px] font-black uppercase text-accent tracking-[0.2em] mb-6 flex items-center gap-2">

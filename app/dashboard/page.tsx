@@ -25,7 +25,7 @@ export default function ProducerDashboard() {
     const [errorMessage, setErrorMessage] = useState('');
     const [uploadProgress, setUploadProgress] = useState(0);
 
-    // Form states
+    // Estados del formulario y metadatos del beat
     const [title, setTitle] = useState('');
     const [genre, setGenre] = useState('');
     const [bpm, setBpm] = useState('');
@@ -36,7 +36,7 @@ export default function ProducerDashboard() {
     const [refArtist, setRefArtist] = useState('');
     const [isExclusive, setIsExclusive] = useState(false);
 
-    // File states
+    // Estados de archivos a subir
     const [mp3File, setMp3File] = useState<File | null>(null);
     const [wavFile, setWavFile] = useState<File | null>(null);
     const [stemsFile, setStemsFile] = useState<File | null>(null);
@@ -145,7 +145,7 @@ export default function ProducerDashboard() {
             setUploadStatus('success');
             setUploadProgress(100);
 
-            // Reset form
+            // Reiniciar el formulario después del éxito
             setTitle('');
             setGenre('');
             setBpm('');
@@ -190,7 +190,7 @@ export default function ProducerDashboard() {
                     </div>
 
                     <div className="grid lg:grid-cols-3 gap-8">
-                        {/* Sidebar Stats */}
+                        {/* Estadísticas del Panel Lateral */}
                         <div className="space-y-6">
                             <div className="p-8 bg-blue-600 rounded-[2.5rem] text-white shadow-2xl shadow-blue-600/20">
                                 <h3 className="font-black uppercase tracking-widest text-[10px] mb-6 text-blue-100 opacity-80">Rendimiento</h3>
@@ -223,7 +223,7 @@ export default function ProducerDashboard() {
                             </div>
                         </div>
 
-                        {/* Main Upload Form */}
+                        {/* Formulario de Subida Principal */}
                         <div className="lg:col-span-2">
                             <form onSubmit={handleFileUpload} className="bg-white border-2 border-slate-100 rounded-[3rem] p-8 md:p-12 shadow-sm">
                                 <h2 className="text-2xl font-black uppercase tracking-tight mb-8">Sube tu <span className="text-blue-600">nuevo beat</span></h2>
@@ -371,7 +371,7 @@ export default function ProducerDashboard() {
                                         </div>
                                     </div>
 
-                                    {/* File Upload Section */}
+                                    {/* Sección para agregar archivos de audio */}
                                     <div className="space-y-4">
                                         <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Archivos del Beat</label>
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

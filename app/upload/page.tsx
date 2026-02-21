@@ -33,7 +33,7 @@ export default function UploadPage() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
-    // Form State
+    // Estado del formulario
     const [title, setTitle] = useState('');
     const [genre, setGenre] = useState('');
     const [subgenre, setSubgenre] = useState('');
@@ -43,7 +43,7 @@ export default function UploadPage() {
     const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
     const [beatTypes, setBeatTypes] = useState<string[]>([]);
 
-    // License States
+    // Estados de licencias
     const [isExclusive, setIsExclusive] = useState(false);
     const [isMp3Active, setIsMp3Active] = useState(true);
     const [isWavActive, setIsWavActive] = useState(true);
@@ -54,14 +54,14 @@ export default function UploadPage() {
     const [wavPrice, setWavPrice] = useState('499');
     const [stemsPrice, setStemsPrice] = useState('999');
 
-    // Files State
+    // Estado de archivos
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [previewFile, setPreviewFile] = useState<File | null>(null);
     const [hqMp3File, setHqMp3File] = useState<File | null>(null);
     const [wavFile, setWavFile] = useState<File | null>(null);
     const [stemsFile, setStemsFile] = useState<File | null>(null);
 
-    // Validation Helper
+    // Función auxiliar de validación
     const validateFile = (file: File | null, allowedExtensions: string[], label: string, maxMB: number) => {
         if (!file) return null;
 
@@ -145,7 +145,7 @@ export default function UploadPage() {
             const username = userData.username;
             const timestamp = Date.now();
 
-            // 1. Artwork Upload
+            // 1. Subida de portada
             let portadabeat_url = null;
             if (coverFile) {
                 const coverExt = coverFile.name.split('.').pop();
@@ -155,7 +155,7 @@ export default function UploadPage() {
                 portadabeat_url = publicUrl;
             }
 
-            // 2. Audio Previews & HQ (Beats-muestras)
+            // 2. Audio de prueba y Alta Calidad (Beats-muestras)
             const previewPath = `${username}/${timestamp}-preview-${sanitize(previewFile.name)}`;
             await supabase.storage.from('beats-muestras').upload(previewPath, previewFile);
 
@@ -179,7 +179,7 @@ export default function UploadPage() {
                 await supabase.storage.from('beats-stems').upload(stemsPath, stemsFile);
             }
 
-            // Save to DB
+            // Guardar en base de datos
             const { error: dbError } = await supabase.from('beats').insert({
                 producer_id: userId,
                 title,
@@ -198,7 +198,7 @@ export default function UploadPage() {
                 stems_url: stemsPath,
                 is_exclusive: isExclusive,
 
-                // Active Licenses
+                // Licencias activas
                 is_mp3_active: isMp3Active,
                 is_wav_active: isWavActive,
                 is_stems_active: isStemsActive,
@@ -228,7 +228,7 @@ export default function UploadPage() {
     const isPro = userData.subscription_tier === 'pro';
     const isPremium = userData.subscription_tier === 'premium';
 
-    // Helper to render toggles
+    // Función auxiliar para renderizar los interruptores
     const Toggle = ({ active, onToggle, disabled = false }: { active: boolean, onToggle: () => void, disabled?: boolean }) => (
         <Switch
             active={active}
@@ -238,7 +238,7 @@ export default function UploadPage() {
         />
     );
 
-    // Helper for Price Conversion Preview
+    // Helper para previsualizar la conversión de precios
     const PricePreview = ({ price }: { price: string }) => {
         const amount = parseInt(price) || 0;
         if (amount <= 0) return null;
@@ -256,7 +256,7 @@ export default function UploadPage() {
         <div className="min-h-screen bg-background text-foreground font-sans flex flex-col transition-colors duration-300">
             <Navbar />
 
-            {/* Background Accents */}
+            {/* Detalles de fondo */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/5 blur-[120px] rounded-full" />
@@ -265,7 +265,7 @@ export default function UploadPage() {
             <main className="flex-1 pb-20 relative">
                 <div className="max-w-4xl mx-auto px-4 mt-8">
 
-                    {/* Header Minimalista */}
+                    {/* Encabezado minimalista */}
                     <div className="mb-10 pl-2 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
                         <div>
                             <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-foreground mb-1 flex items-center gap-3">

@@ -6,7 +6,7 @@ export type LicenseType = 'basic' | 'premium' | 'unlimited' | 'exclusive' | 'sou
 interface LicenseData {
     producerName: string;
     buyerName: string;
-    productName: string; // Renamed from beatTitle to be generic
+    productName: string; // Renombrado de beatTitle para ser más genérico
     purchaseDate: string;
     amount: string;
     orderId?: string;

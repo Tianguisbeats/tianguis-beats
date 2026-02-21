@@ -47,7 +47,7 @@ export default function BeatRow({ beat }: BeatRowProps) {
 
     return (
         <div className="group bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-blue-900/5 transition-all flex items-center p-3 gap-6">
-            {/* Artwork Mini */}
+            {/* Miniatura del arte */}
             <div className="relative w-20 h-20 shrink-0 rounded-2xl overflow-hidden bg-slate-100 group/artwork">
                 {beat.portadabeat_url ? (
                     <img
@@ -67,7 +67,7 @@ export default function BeatRow({ beat }: BeatRowProps) {
                 </div>
             </div>
 
-            {/* Title & Producer */}
+            {/* Título y Productor */}
             <div className="flex-1 min-w-0">
                 <Link href={`/beats/${beat.id}`} className="block">
                     <h3 className="font-black text-slate-900 text-sm truncate uppercase tracking-tight group-hover:text-blue-600 transition-colors click-highlight">
@@ -87,7 +87,7 @@ export default function BeatRow({ beat }: BeatRowProps) {
                 </Link>
             </div>
 
-            {/* Metadata (Visible on mobile/tablet) */}
+            {/* Metadatos (Visible en móviles/tablets) */}
             <div className="flex items-center gap-1 sm:gap-3 shrink-0">
                 {beat.musical_key && (
                     <span className="text-[8px] sm:text-[9px] font-black text-blue-600 bg-blue-50 px-2 sm:px-3 py-1.5 rounded-xl border border-blue-100 uppercase tracking-widest whitespace-nowrap">
@@ -101,7 +101,7 @@ export default function BeatRow({ beat }: BeatRowProps) {
                 )}
             </div>
 
-            {/* Price & Cart */}
+            {/* Precio y Carrito */}
             <div className="flex items-center gap-6">
                 <div className="text-right">
                     <p className="text-blue-600 font-black text-lg leading-none mb-1">

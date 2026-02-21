@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * TIANGUIS BEATS - Contexto del Reproductor (Player)
+ * Maneja el estado global del reproductor de audio, reproducción de beats,
+ * control de volumen y actualización de conteo de reproducciones.
+ */
+
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 import { Beat } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
@@ -56,7 +62,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
     const [playCountTracked, setPlayCountTracked] = useState<string | null>(null);
 
-    // Track play count with 10s delay
+    // Rastrear el conteo de reproducciones con un retraso de 10 segundos
     useEffect(() => {
         if (!currentBeat || playCountTracked === currentBeat.id) return;
 
@@ -66,8 +72,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
                     setPlayCountTracked(currentBeat.id);
                     await supabase.rpc('increment_play_count', { beat_id: currentBeat.id });
                 } catch (err) {
-                    console.error("Error incrementing play count:", err);
-                    // Fallback
+                    console.error("Error al incrementar el conteo de reproducciones:", err);
+                    // Respaldo en caso de fallo del RPC
                     await supabase
                         .from('beats')
                         .update({ play_count: (currentBeat.play_count || 0) + 1 })
@@ -86,12 +92,12 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
-        // Reset tracking for new beat
+        // Reiniciar el rastreo para el nuevo beat
         if (currentBeat?.id !== beat.id) {
             setPlayCountTracked(null);
         }
 
-        // Resolve URL if it's a relative path from Supabase Storage
+        // Resolver la URL si es una ruta relativa de Supabase Storage
         let finalUrl = beat.mp3_tag_url || beat.mp3_url || '';
 
         if (finalUrl && !finalUrl.startsWith('http')) {
@@ -108,7 +114,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
             await audioRef.current.play();
             setIsPlaying(true);
         } catch (err) {
-            console.error("Playback error:", err);
+            console.error("Error de reproducción:", err);
             setIsPlaying(false);
         }
     };

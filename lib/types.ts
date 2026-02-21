@@ -128,29 +128,3 @@ export interface Beat {
     is_sold?: boolean;
     created_at: string;
 }
-
-export interface Comment {
-    id: string;
-    beat_id: string;
-    user_id: string;
-    content: string;
-    created_at: string;
-    profile?: {
-        username: string;
-        artistic_name: string;
-    };
-}
-
-export interface Like {
-    id: string;
-    beat_id: string;
-    user_id: string;
-    created_at: string;
-}
-
-export interface Listen {
-    id: string;
-    beat_id: string;
-    user_id: string | null;
-    created_at: string;
-}

@@ -15,6 +15,11 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { GENRES, MOODS } from '@/lib/constants';
 
+/**
+ * Página Principal (Home)
+ * Renderiza la interfaz de inicio (Hero section, estadísticas, características destacadas).
+ * Incluye un buscador inteligente que redirige al catálogo.
+ */
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -90,9 +95,9 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground font-body transition-colors duration-300 selection:bg-accent selection:text-white overflow-x-hidden">
       <Navbar />
 
-      {/* 1. HERO SECTION: Minimalist Tech */}
+      {/* 1. SECCIÓN PRINCIPAL (Hero) */}
       <section className="relative pt-24 pb-16 lg:pt-48 lg:pb-32 px-4 overflow-hidden">
-        {/* Background Gradients */}
+        {/* Gradientes de fondo */}
         <div className="absolute top-0 left-0 w-full h-[80vh] bg-background -z-20"></div>
         <div className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-accent/5 rounded-full blur-[120px] -z-10 dark:opacity-20"></div>
         <div className="absolute bottom-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-cyan-500/5 rounded-full blur-[100px] -z-10 dark:opacity-20"></div>
@@ -117,7 +122,7 @@ export default function Home() {
             Olvídate de interfaces lentas y llenas de anuncios. Mientras otros te saturan de opciones que no usas, aquí tienes Beats, Sound Kits y servicios profesionales en un solo lugar: sin distracciones y al grano.
           </p>
 
-          {/* Omni-Search Bar */}
+          {/* Buscador Integrado (Omni-Search) */}
           <div className="max-w-2xl mx-auto relative group mb-12 px-2">
             <div className="absolute inset-0 bg-accent/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="relative flex flex-col md:flex-row items-stretch md:items-center bg-card p-2 rounded-[2rem] md:rounded-full shadow-2xl border border-border transition-all duration-300 focus-within:ring-4 focus-within:ring-accent/20">
@@ -147,7 +152,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Dedicated CT Buttons */}
+          {/* Botones de llamada a la acción */}
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <Link
               href={`/beats/catalog?view=corridos_tumbados`}
@@ -172,7 +177,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. STATS / SOCIAL PROOF (Minimal Stripe-like) */}
+      {/* 2. ESTADÍSTICAS / PRUEBA SOCIAL */}
       <section className="bg-card border-y border-border py-12 transition-colors">
         <div className="max-w-7xl mx-auto px-6">
           <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] text-center mb-10">Música Distribuida a través de</p>
@@ -184,7 +189,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. AI FEATURES (The "Vitaminada" Section) */}
+      {/* 3. CARACTERÍSTICAS DE IA (Sección "Vitaminada") */}
       <section className="py-20 px-4 bg-background overflow-hidden transition-colors">
         <div className="max-w-7xl mx-auto">
           <div className="mb-12 md:mb-20">
@@ -197,7 +202,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Feature 1 */}
+            {/* Característica 1 - Algoritmo (Smart Match) */}
             <div className="bg-card p-10 rounded-[2.5rem] border border-border hover:border-accent/30 hover:shadow-2xl transition-all group">
               <div className="w-14 h-14 bg-accent/10 text-accent rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                 <Cpu size={28} />
@@ -208,7 +213,7 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Feature 2 */}
+            {/* Característica 2 - Vista previa de Masterización Inteligente */}
             <div className="bg-slate-900 dark:bg-slate-800 p-10 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden group border border-slate-800 dark:border-slate-700">
               <div className="absolute top-0 right-0 w-64 h-64 bg-accent rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:opacity-100 transition-opacity opacity-50"></div>
               <div className="relative z-10">
@@ -226,7 +231,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Feature 3 */}
+            {/* Característica 3 - Contratos Inteligentes */}
             <div className="bg-card p-10 rounded-[2.5rem] border border-border hover:border-accent/30 hover:shadow-2xl transition-all group">
               <div className="w-14 h-14 bg-accent/10 text-accent rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                 <ShieldCheck size={28} />
@@ -240,7 +245,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. FEATURED PRODUCERS (Social Proof) */}
+      {/* 4. PRODUCTORES DESTACADOS (Comunidad) */}
       <section className="py-32 px-4 bg-card border-t border-border transition-colors">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
