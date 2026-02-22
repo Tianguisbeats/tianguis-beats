@@ -46,12 +46,18 @@ export async function POST(req: Request) {
             payment_method_types: ['card'],
             line_items,
             mode: 'payment',
+            allow_promotion_codes: true, // ¡Permite usar los cupones que creamos!
             success_url: `${process.env.NEXT_PUBLIC_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.NEXT_PUBLIC_URL}/cart`,
             client_reference_id: customerId,
             metadata: {
                 couponId: couponId || '',
-            }
+            },
+            // Opciones adicionales para feeling Premium
+            billing_address_collection: 'auto',
+            phone_number_collection: {
+                enabled: false, // Mantenerlo limpio, sin pedir teléfono si no es necesario
+            },
         });
 
         return NextResponse.json({ id: session.id, url: session.url });
