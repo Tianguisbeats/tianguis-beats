@@ -78,12 +78,12 @@ export default function PremiumHubPage() {
 
     if (userTier !== 'premium') {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
-                <div className="bg-blue-600/10 p-8 rounded-[2.5rem] mb-8 text-blue-600 shadow-2xl shadow-blue-600/10">
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 bg-slate-50 dark:bg-card/10 rounded-[4rem] border-2 border-dashed border-slate-200 dark:border-border/50">
+                <div className="bg-blue-600/10 p-8 rounded-[2.5rem] mb-8 text-blue-600 shadow-2xl shadow-blue-600/10 animate-bounce-slow">
                     <Crown size={64} strokeWidth={1.5} />
                 </div>
-                <h1 className="text-4xl font-black text-foreground uppercase tracking-tighter mb-4">Hub de Beneficios <span className="text-accent">Premium</span></h1>
-                <p className="text-muted max-w-md mb-10 font-medium leading-relaxed">
+                <h1 className="text-4xl font-black text-slate-900 dark:text-foreground uppercase tracking-tighter mb-4">Hub de Beneficios <span className="text-accent">Premium</span></h1>
+                <p className="text-slate-600 dark:text-muted max-w-md mb-10 font-medium leading-relaxed">
                     Eleva tu perfil al siguiente nivel con video destacado y herramientas de marketing exclusivas.
                 </p>
                 <Link href="/pricing" className="bg-accent text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-xl shadow-accent/20">
@@ -103,20 +103,20 @@ export default function PremiumHubPage() {
                         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Suite de Marca v3.4</span>
                     </div>
                     <div className="space-y-2">
-                        <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground leading-[1] flex flex-col">
+                        <h1 className="text-4xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground leading-[1] flex flex-col">
                             Características
                             <span className="text-accent">Premium.</span>
                         </h1>
-                        <p className="text-muted text-[11px] font-bold uppercase tracking-[0.4em] opacity-60 ml-1">
+                        <p className="text-slate-500 dark:text-muted text-[11px] font-bold uppercase tracking-[0.4em] opacity-60 ml-1">
                             Control centralizado de identidad y alcance
                         </p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-6">
-                    <div className="bg-white/5 backdrop-blur-3xl border border-white/10 px-6 py-4 rounded-2xl flex items-center gap-4">
+                    <div className="bg-slate-50 dark:bg-white/5 backdrop-blur-3xl border border-slate-200 dark:border-white/10 px-6 py-4 rounded-2xl flex items-center gap-4">
                         <div className={`w-3 h-3 rounded-full ${saving ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]'}`} />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-foreground">
                             {saving ? 'Sincronizando' : 'Sincronizado'}
                         </span>
                     </div>
@@ -126,21 +126,21 @@ export default function PremiumHubPage() {
             <div className="grid lg:grid-cols-2 gap-10">
                 <div className="space-y-10">
                     {/* Video Spotlight Card */}
-                    <div className={`group relative bg-white/5 backdrop-blur-3xl border border-white/5 p-8 rounded-[2rem] transition-all duration-700 hover:shadow-[0_40px_100px_-20px_rgba(239,68,68,0.1)] overflow-hidden ${!preferences.is_video_active && 'opacity-60'}`}>
+                    <div className={`group relative bg-white dark:bg-[#020205] backdrop-blur-3xl border border-slate-200 dark:border-white/5 p-8 rounded-[2.5rem] transition-all duration-700 hover:shadow-2xl dark:hover:shadow-black/60 overflow-hidden shadow-xl dark:shadow-none ${!preferences.is_video_active && 'opacity-60'}`}>
                         {/* Red Accent Aura */}
                         <div className={`absolute -top-24 -right-24 w-64 h-64 bg-red-500/5 blur-[80px] rounded-full transition-all duration-1000 group-hover:scale-125 ${preferences.is_video_active ? 'opacity-100' : 'opacity-0'}`} />
 
                         <div className="relative z-10 space-y-10">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-5">
-                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${preferences.is_video_active ? 'bg-red-500/10 text-red-500 ring-4 ring-red-500/5' : 'bg-white/5 text-muted/40'}`}>
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${preferences.is_video_active ? 'bg-red-50 dark:bg-red-500/10 text-red-500 ring-4 ring-red-500/5' : 'bg-slate-50 dark:bg-white/5 text-slate-400 dark:text-muted/40'}`}>
                                         <Video size={32} />
                                     </div>
                                     <div className="space-y-1">
-                                        <h3 className="font-black text-2xl text-foreground uppercase tracking-tight">Video Destacado</h3>
+                                        <h3 className="font-black text-2xl text-slate-900 dark:text-foreground uppercase tracking-tight">Video Destacado</h3>
                                         <div className="flex items-center gap-2">
                                             <span className="w-1 h-1 rounded-full bg-red-500" />
-                                            <p className="text-[9px] text-muted font-black uppercase tracking-widest opacity-60">Impacto Visual</p>
+                                            <p className="text-[9px] text-slate-500 dark:text-muted font-black uppercase tracking-widest opacity-60">Impacto Visual</p>
                                         </div>
                                     </div>
                                 </div>
@@ -154,19 +154,19 @@ export default function PremiumHubPage() {
 
                             <div className={`space-y-6 transition-all duration-700 ${preferences.is_video_active ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-20 pointer-events-none'}`}>
                                 <div className="space-y-3">
-                                    <label className="text-[9px] font-black uppercase tracking-[0.3em] text-muted ml-1">Enlace de YouTube</label>
+                                    <label className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 dark:text-muted ml-1">Enlace de YouTube</label>
                                     <div className="relative">
-                                        <ExternalLink size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-muted/20" />
+                                        <ExternalLink size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-muted/20" />
                                         <input
                                             value={preferences.video_destacado_url}
                                             onChange={e => setPreferences({ ...preferences, video_destacado_url: e.target.value })}
                                             placeholder="https://youtube.com/watch?v=..."
-                                            className="w-full bg-white/5 border border-white/5 rounded-2xl pl-12 pr-6 py-5 font-bold text-foreground text-sm focus:outline-none focus:border-red-500/50 transition-all font-mono"
+                                            className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-2xl pl-12 pr-6 py-5 font-bold text-slate-900 dark:text-foreground text-sm focus:outline-none focus:border-red-500/50 transition-all font-mono"
                                         />
                                     </div>
                                 </div>
-                                <div className="bg-red-500/5 border border-red-500/10 p-5 rounded-2xl">
-                                    <p className="text-[10px] text-red-500/80 font-bold uppercase tracking-widest flex items-center gap-2">
+                                <div className="bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/10 p-5 rounded-2xl">
+                                    <p className="text-[10px] text-red-500 dark:text-red-500/80 font-bold uppercase tracking-widest flex items-center gap-2">
                                         <Zap size={12} fill="currentColor" /> Reproducción automática activada en el perfil
                                     </p>
                                 </div>
@@ -177,21 +177,21 @@ export default function PremiumHubPage() {
 
                 <div className="space-y-10">
                     {/* Smart Link Bio Card */}
-                    <div className={`group relative bg-white/5 backdrop-blur-3xl border border-white/5 p-8 rounded-[2rem] transition-all duration-700 hover:shadow-[0_40px_100px_-20px_rgba(79,70,229,0.1)] overflow-hidden ${!preferences.is_links_active && 'opacity-60'}`}>
+                    <div className={`group relative bg-white dark:bg-[#020205] backdrop-blur-3xl border border-slate-200 dark:border-white/5 p-8 rounded-[2.5rem] transition-all duration-700 hover:shadow-2xl dark:hover:shadow-black/60 overflow-hidden shadow-xl dark:shadow-none ${!preferences.is_links_active && 'opacity-60'}`}>
                         {/* Indigo Accent Aura */}
                         <div className={`absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/5 blur-[80px] rounded-full transition-all duration-1000 group-hover:scale-125 ${preferences.is_links_active ? 'opacity-100' : 'opacity-0'}`} />
 
                         <div className="relative z-10 space-y-10">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-5">
-                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${preferences.is_links_active ? 'bg-indigo-500/10 text-indigo-500 ring-4 ring-indigo-500/5' : 'bg-white/5 text-muted/40'}`}>
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${preferences.is_links_active ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-500 ring-4 ring-indigo-500/5' : 'bg-slate-50 dark:bg-white/5 text-slate-400 dark:text-muted/40'}`}>
                                         <Zap size={32} />
                                     </div>
                                     <div className="space-y-1">
-                                        <h3 className="font-black text-2xl text-foreground uppercase tracking-tight">Smart Link Bio</h3>
+                                        <h3 className="font-black text-2xl text-slate-900 dark:text-foreground uppercase tracking-tight">Smart Link Bio</h3>
                                         <div className="flex items-center gap-2">
                                             <span className="w-1 h-1 rounded-full bg-indigo-500" />
-                                            <p className="text-[9px] text-muted font-black uppercase tracking-widest opacity-60">Matriz de Enlaces Profesionales</p>
+                                            <p className="text-[9px] text-slate-500 dark:text-muted font-black uppercase tracking-widest opacity-60">Matriz de Enlaces Profesionales</p>
                                         </div>
                                     </div>
                                 </div>
@@ -204,11 +204,11 @@ export default function PremiumHubPage() {
                             </div>
 
                             <div className={`space-y-8 transition-all duration-700 ${preferences.is_links_active ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-20 pointer-events-none'}`}>
-                                <p className="text-sm text-muted font-medium leading-relaxed">
+                                <p className="text-sm text-slate-600 dark:text-muted font-medium leading-relaxed">
                                     Despliega una interfaz optimizada para dispositivos móviles que centraliza tu discografía, servicios y redes sociales en un solo punto de contacto.
                                 </p>
 
-                                <Link href={`/${preferences.is_links_active ? 'links' : ''}`} className="w-full flex items-center justify-center gap-3 py-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all group/link shadow-xl shadow-indigo-500/5">
+                                <Link href={`/${preferences.is_links_active ? 'links' : ''}`} className="w-full flex items-center justify-center gap-3 py-4 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all group/link shadow-sm dark:shadow-xl dark:shadow-indigo-500/5">
                                     Ver Smart Link Bio <ChevronRight size={16} className="group-hover/link:translate-x-1 transition-transform" />
                                 </Link>
                             </div>
@@ -216,21 +216,21 @@ export default function PremiumHubPage() {
                     </div>
 
                     {/* Fun Capture / Newsletter Card */}
-                    <div className={`group relative bg-white/5 backdrop-blur-3xl border border-white/5 p-8 rounded-[2rem] transition-all duration-700 hover:shadow-[0_40px_100px_-20px_rgba(245,158,11,0.1)] overflow-hidden ${!preferences.newsletter_active && 'opacity-60'}`}>
+                    <div className={`group relative bg-white dark:bg-[#020205] backdrop-blur-3xl border border-slate-200 dark:border-white/5 p-8 rounded-[2.5rem] transition-all duration-700 hover:shadow-2xl dark:hover:shadow-black/60 overflow-hidden shadow-xl dark:shadow-none ${!preferences.newsletter_active && 'opacity-60'}`}>
                         {/* Amber Accent Aura */}
                         <div className={`absolute -top-24 -right-24 w-64 h-64 bg-amber-500/5 blur-[80px] rounded-full transition-all duration-1000 group-hover:scale-125 ${preferences.newsletter_active ? 'opacity-100' : 'opacity-0'}`} />
 
                         <div className="relative z-10 space-y-10">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-5">
-                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${preferences.newsletter_active ? 'bg-amber-500/10 text-amber-500 ring-4 ring-amber-500/5' : 'bg-white/5 text-muted/40'}`}>
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${preferences.newsletter_active ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-500 ring-4 ring-amber-500/5' : 'bg-slate-50 dark:bg-white/5 text-slate-400 dark:text-muted/40'}`}>
                                         <Mail size={32} />
                                     </div>
                                     <div className="space-y-1">
-                                        <h3 className="font-black text-2xl text-foreground uppercase tracking-tight">Captura de Fans</h3>
+                                        <h3 className="font-black text-2xl text-slate-900 dark:text-foreground uppercase tracking-tight">Captura de Fans</h3>
                                         <div className="flex items-center gap-2">
                                             <span className="w-1 h-1 rounded-full bg-amber-500" />
-                                            <p className="text-[9px] text-muted font-black uppercase tracking-widest opacity-60">Newsletter Directa</p>
+                                            <p className="text-[9px] text-slate-500 dark:text-muted font-black uppercase tracking-widest opacity-60">Newsletter Directa</p>
                                         </div>
                                     </div>
                                 </div>
@@ -243,11 +243,11 @@ export default function PremiumHubPage() {
                             </div>
 
                             <div className={`space-y-6 transition-all duration-700 ${preferences.newsletter_active ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-20 pointer-events-none'}`}>
-                                <p className="text-sm text-muted font-medium leading-relaxed">
+                                <p className="text-sm text-slate-600 dark:text-muted font-medium leading-relaxed">
                                     Integra un formulario de suscripción profesional en tu catálogo y Smart Link para construir tu propia base de datos de seguidores.
                                 </p>
-                                <div className="bg-amber-500/5 border border-amber-500/10 p-5 rounded-2xl">
-                                    <p className="text-[10px] text-amber-500/80 font-bold uppercase tracking-widest flex items-center gap-2 leading-relaxed">
+                                <div className="bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/10 p-5 rounded-2xl">
+                                    <p className="text-[10px] text-amber-600 dark:text-amber-500/80 font-bold uppercase tracking-widest flex items-center gap-2 leading-relaxed">
                                         <Check size={12} strokeWidth={3} /> Sincronización automática con tus enlaces
                                     </p>
                                 </div>
@@ -257,7 +257,7 @@ export default function PremiumHubPage() {
 
                     {/* Verification & Trust Section */}
                     {!isVerified && (
-                        <div className="group relative bg-[#0c0c0e] border border-white/5 p-10 rounded-[3rem] shadow-2xl overflow-hidden transition-all hover:border-accent/40">
+                        <div className="group relative bg-[#020205] border border-slate-200 dark:border-white/5 p-10 rounded-[3rem] shadow-xl dark:shadow-2xl overflow-hidden transition-all hover:border-accent/40">
                             <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 blur-3xl transition-opacity duration-1000" />
 
                             <div className="relative z-10 space-y-8">
@@ -265,7 +265,7 @@ export default function PremiumHubPage() {
                                     <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
                                         <ShieldCheck size={28} />
                                     </div>
-                                    <h3 className="text-2xl font-black text-white uppercase tracking-tight">Verificación <span className="text-accent underline underline-offset-4 decoration-accent/20">Elite.</span></h3>
+                                    <h3 className="text-2xl font-black text-slate-100 dark:text-white uppercase tracking-tight">Verificación <span className="text-accent underline underline-offset-4 decoration-accent/20">Elite.</span></h3>
                                 </div>
 
                                 <p className="text-slate-400 text-sm font-medium leading-relaxed">

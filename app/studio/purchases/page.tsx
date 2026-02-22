@@ -25,7 +25,8 @@ import {
     Music,
     Cpu,
     CheckCircle2,
-    Crown
+    Crown,
+    FileText
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
@@ -216,14 +217,22 @@ export default function MyPurchasesPage() {
     );
 
     return (
-        <div className="space-y-10">
-            {/* Header */}
-            <div>
-                <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-3">Historial y <span className="text-accent">detalles de las compras</span></h1>
-                <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
-                    <Package size={12} className="text-accent" />
-                    Detalles de tus compras y enlaces de descarga
-                </p>
+        <div className="space-y-12 animate-in fade-in duration-700">
+            {/* Header Section */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                <div>
+                    <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-4">
+                        Historial de <span className="text-accent underline decoration-white/10 underline-offset-8">Compras</span>
+                    </h1>
+                    <div className="flex flex-wrap items-center gap-4 text-muted">
+                        <div className="flex items-center gap-2 bg-blue-500/10 text-blue-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-500/10">
+                            <Package size={12} /> Bóveda Segura
+                        </div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest opacity-60 flex items-center gap-2">
+                            <Clock size={12} /> Sincronizado
+                        </span>
+                    </div>
+                </div>
             </div>
 
             {orders.length === 0 ? (
@@ -240,14 +249,16 @@ export default function MyPurchasesPage() {
                     </Link>
                 </div>
             ) : (
-                <div className="space-y-6">
+                <div className="space-y-8">
                     {orders.map((order) => (
-                        <div key={order.id} className="bg-white/60 dark:bg-white/5 backdrop-blur-3xl border border-border/50 rounded-[3rem] overflow-hidden group hover:border-accent/30 transition-all duration-500 shadow-xl shadow-black/5">
+                        <div key={order.id} className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-none rounded-[3rem] relative overflow-hidden transition-all duration-500 hover:border-accent/40 group">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-accent opacity-20 group-hover:opacity-40 transition-opacity" />
+
                             {/* Order Header */}
-                            <div className="px-8 py-6 border-b border-border/50 flex flex-wrap items-center justify-between gap-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-accent/10 text-accent rounded-2xl flex items-center justify-center">
-                                        <Package size={20} />
+                            <div className="px-8 py-8 border-b border-slate-200 dark:border-white/5 flex flex-wrap lg:flex-nowrap items-center justify-between gap-6">
+                                <div className="flex items-center gap-6">
+                                    <div className="w-16 h-16 bg-blue-500/5 text-blue-500 rounded-3xl flex items-center justify-center border border-blue-500/10 group-hover:scale-105 transition-transform duration-500 shadow-xl shadow-blue-500/5">
+                                        <Package size={24} />
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest mb-1">
@@ -281,20 +292,24 @@ export default function MyPurchasesPage() {
                             </div>
 
                             {/* Order Items */}
-                            <div className="p-4 space-y-2">
+                            <div className="p-8 space-y-4">
                                 {order.items.map((item) => (
-                                    <div key={item.id} className="bg-card/40 dark:bg-white/5 border border-transparent hover:border-border/50 rounded-[2rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6 transition-all group/item">
-                                        <div className="flex items-center gap-5 w-full md:w-auto">
-                                            <div className="w-14 h-14 bg-background rounded-[1.25rem] border border-border/30 flex items-center justify-center text-accent/50 group-hover/item:text-accent transition-colors">
+                                    <div key={item.id} className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/10 rounded-[2rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6 transition-all group/item hover:border-accent/20">
+                                        <div className="flex flex-col md:flex-row items-center gap-6 w-full md:w-auto">
+                                            <div className="w-16 h-16 bg-white dark:bg-[#020205] border border-slate-300 dark:border-white/10 shadow-xl rounded-[1.25rem] flex items-center justify-center text-slate-400 dark:text-muted/50 group-hover/item:text-accent group-hover/item:scale-105 transition-all duration-500 shrink-0">
                                                 {getItemIcon(item.product_type)}
                                             </div>
-                                            <div>
-                                                <h4 className="font-black text-lg text-foreground tracking-tight group-hover/item:text-accent transition-colors">{item.name}</h4>
-                                                <p className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">
-                                                    {item.product_type === 'beat' ? `Licencia ${item.license_type || 'MP3'}` :
-                                                        item.product_type === 'sound_kit' ? 'Sound Kit HQ' :
-                                                            item.product_type === 'service' ? 'Servicio Profesional' : 'Suscripción'}
-                                                </p>
+                                            <div className="text-center md:text-left min-w-0">
+                                                <h4 className="font-black text-lg text-slate-900 dark:text-foreground uppercase tracking-tight group-hover/item:text-accent transition-colors truncate max-w-[280px]">
+                                                    {item.name}
+                                                </h4>
+                                                <div className="flex items-center justify-center md:justify-start gap-2 mt-1">
+                                                    <span className="text-[10px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] inline-block">
+                                                        {item.product_type === 'beat' ? `Licencia ${item.license_type || 'MP3'}` :
+                                                            item.product_type === 'sound_kit' ? 'Sound Kit HQ' :
+                                                                item.product_type === 'service' ? 'Servicio Profesional' : 'Suscripción'}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -303,38 +318,38 @@ export default function MyPurchasesPage() {
                                                 <>
                                                     <Link
                                                         href={`/studio/purchases/service/${item.project_id}`}
-                                                        className="flex-1 md:flex-none px-6 py-3 bg-accent text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 transition-all shadow-lg shadow-accent/20 flex items-center justify-center gap-2 group/btn"
+                                                        className="flex-1 md:flex-none px-8 py-4 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-accent/20 flex items-center justify-center gap-2 group/btn"
                                                     >
-                                                        Detalles
+                                                        Estado del Proyecto
                                                         <ChevronRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                                                     </Link>
                                                     <button
                                                         onClick={() => handleDownloadLicense(order, item)}
-                                                        className="flex-1 md:flex-none px-6 py-3 bg-white/5 border border-white/10 text-foreground rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2"
+                                                        className="flex-1 md:flex-none px-6 py-4 bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-white/10 hover:border-accent/40 active:scale-95 transition-all flex items-center justify-center gap-2"
                                                     >
-                                                        <Download size={14} />
-                                                        Contrato
+                                                        <FileText size={14} />
+                                                        Contrato PDF
                                                     </button>
                                                 </>
                                             ) : item.product_type === 'plan' ? (
-                                                <span className="px-5 py-2.5 rounded-2xl flex items-center gap-2 font-black text-[10px] uppercase tracking-[0.2em] bg-amber-500/10 text-amber-500 border border-amber-500/20 self-start md:self-auto">
-                                                    Plan de Membresía <CheckCircle2 size={14} />
+                                                <span className="px-6 py-3.5 rounded-2xl flex items-center gap-2 font-black text-[10px] uppercase tracking-[0.3em] bg-amber-500/10 text-amber-600 dark:text-amber-500 border border-amber-500/20 self-start md:self-auto shadow-sm">
+                                                    Plan Acreditado <CheckCircle2 size={16} />
                                                 </span>
                                             ) : (
                                                 <>
                                                     <button
                                                         onClick={() => handleDownloadFiles(item)}
-                                                        className="flex-1 md:flex-none px-6 py-3 bg-foreground text-background dark:bg-white dark:text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg shadow-black/5 flex items-center justify-center gap-2"
+                                                        className="flex-1 md:flex-none px-8 py-4 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-accent hover:text-white hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/10 dark:shadow-white/5 flex items-center justify-center gap-2"
                                                     >
                                                         <Download size={14} />
-                                                        Archivos
+                                                        Descargar HQ
                                                     </button>
                                                     <button
                                                         onClick={() => handleDownloadLicense(order, item)}
-                                                        className="flex-1 md:flex-none px-6 py-3 bg-white/5 border border-white/10 text-foreground rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2"
+                                                        className="flex-1 md:flex-none px-6 py-4 bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-white/10 hover:border-accent/40 active:scale-95 transition-all flex items-center justify-center gap-2"
                                                     >
-                                                        <Download size={14} />
-                                                        Licencia
+                                                        <FileText size={14} />
+                                                        Licencia PDF
                                                     </button>
                                                 </>
                                             )}

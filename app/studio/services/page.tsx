@@ -301,15 +301,15 @@ function ServicesManagerPage() {
     if (userTier !== 'premium') {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
-                <div className="bg-accent-soft p-6 rounded-full mb-6 text-accent">
+                <div className="bg-accent/10 p-6 rounded-full mb-6 text-accent shadow-xl shadow-accent/20">
                     <Briefcase size={48} />
                 </div>
-                <h1 className="text-3xl font-black text-foreground mb-4">Venta de Servicios Exclusiva</h1>
-                <p className="text-muted max-w-md mb-8">
+                <h1 className="text-3xl font-black text-slate-900 dark:text-foreground mb-4">Venta de Servicios Exclusiva</h1>
+                <p className="text-slate-600 dark:text-muted max-w-md mb-8">
                     La venta de servicios (Mezcla, Master, Mentorías, etc.) y Sound Kits es una característica exclusiva para miembros
                     <span className="text-accent font-bold"> Premium</span>.
                 </p>
-                <Link href="/pricing" className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-slate-800 transition-all">
+                <Link href="/pricing" className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 transition-all shadow-xl">
                     Mejorar a Premium
                 </Link>
             </div>
@@ -321,11 +321,11 @@ function ServicesManagerPage() {
             {/* Header Elite */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                 <div>
-                    <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-4">
-                        Servicios <span className="text-accent underline decoration-white/10 underline-offset-8">Profesionales</span>
+                    <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground mb-4">
+                        Servicios <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Profesionales</span>
                     </h1>
-                    <div className="flex flex-wrap items-center gap-4 text-muted">
-                        <div className="flex items-center gap-2 bg-accent/10 text-accent px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-accent/10 shadow-lg shadow-accent/5">
+                    <div className="flex flex-wrap items-center gap-4 text-slate-500 dark:text-muted">
+                        <div className="flex items-center gap-2 bg-accent/10 text-accent px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-accent/20 shadow-lg shadow-accent/5">
                             <Briefcase size={12} /> Branding Hub Pro
                         </div>
                         <span className="text-[10px] font-bold uppercase tracking-widest opacity-60 flex items-center gap-2">
@@ -343,7 +343,7 @@ function ServicesManagerPage() {
                     }}
                     className="bg-accent text-white px-10 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-accent/20 active:scale-95 flex items-center gap-3 w-fit"
                 >
-                    <Plus size={20} strokeWidth={3} /> Crear Servicio
+                    <Plus size={20} className="stroke-[3]" /> Crear Servicio
                 </button>
             </div>
 
@@ -356,12 +356,12 @@ function ServicesManagerPage() {
                 </div>
 
                 {services.length === 0 && !isEditing ? (
-                    <div className="py-24 text-center bg-[#020205] border-2 border-dashed border-white/5 rounded-[3.5rem] relative overflow-hidden group">
+                    <div className="py-24 text-center bg-slate-50 dark:bg-[#020205] border-2 border-dashed border-slate-200 dark:border-white/5 rounded-[3.5rem] relative overflow-hidden group">
                         <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <div className="w-24 h-24 bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 text-muted shadow-inner opacity-20 group-hover:scale-110 transition-transform duration-500">
+                        <div className="w-24 h-24 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 text-muted shadow-sm shadow-black/5 dark:shadow-white/5 group-hover:scale-110 transition-transform duration-500">
                             <Briefcase size={40} strokeWidth={1.5} />
                         </div>
-                        <h3 className="text-2xl font-black text-foreground uppercase tracking-tight mb-4">Tu vitrina está vacía</h3>
+                        <h3 className="text-2xl font-black text-slate-900 dark:text-foreground uppercase tracking-tight mb-4">Tu vitrina está vacía</h3>
                         <p className="text-muted text-[11px] font-bold uppercase tracking-widest max-w-sm mx-auto mb-12 opacity-60 leading-relaxed">
                             Monetiza tu experiencia técnica ofreciendo servicios que complementen tus ritmos.
                         </p>
@@ -371,7 +371,7 @@ function ServicesManagerPage() {
                                 setCurrentService(empty);
                                 setIsEditing(true);
                             }}
-                            className="text-accent font-black text-[10px] uppercase tracking-[0.4em] hover:opacity-70 transition-opacity"
+                            className="bg-accent text-white px-8 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl inline-block"
                         >
                             Lanzar mi primer servicio
                         </button>
@@ -379,29 +379,29 @@ function ServicesManagerPage() {
                 ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {services.map(service => (
-                            <div key={service.id} className="group relative bg-[#020205] border border-white/5 rounded-[3rem] p-10 overflow-hidden transition-all duration-500 hover:border-accent/30 hover:-translate-y-2 shadow-2xl">
+                            <div key={service.id} className="group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 rounded-[3rem] p-10 overflow-hidden transition-all duration-500 hover:border-accent/30 hover:-translate-y-2 shadow-xl dark:shadow-none">
                                 <div className="absolute top-0 right-0 w-48 h-48 bg-accent/5 blur-[80px] -mr-24 -mt-24 pointer-events-none group-hover:bg-accent/10 transition-colors" />
 
                                 <div className="flex justify-start items-start mb-10 relative z-10">
-                                    <div className="w-14 h-14 bg-accent/10 text-accent rounded-2xl flex items-center justify-center border border-accent/10 group-hover:scale-110 transition-transform">
+                                    <div className="w-14 h-14 bg-accent/10 border border-accent/20 text-accent rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                                         <Briefcase size={28} />
                                     </div>
                                 </div>
 
-                                <h3 className="font-black text-2xl text-foreground mb-4 tracking-tight group-hover:text-accent transition-colors">{service.titulo}</h3>
-                                <p className="text-muted text-[11px] font-bold uppercase tracking-widest leading-relaxed mb-10 line-clamp-3 opacity-60 group-hover:opacity-100 transition-opacity">
+                                <h3 className="font-black text-2xl text-slate-900 dark:text-foreground mb-4 tracking-tight group-hover:text-accent transition-colors">{service.titulo}</h3>
+                                <p className="text-slate-500 dark:text-muted text-[11px] font-bold uppercase tracking-widest leading-relaxed mb-10 line-clamp-3 opacity-60 group-hover:opacity-100 transition-opacity">
                                     {service.descripcion}
                                 </p>
 
-                                <div className="flex flex-col gap-8 pt-8 border-t border-white/5 relative z-10">
+                                <div className="flex flex-col gap-8 pt-8 border-t border-slate-200 dark:border-white/5 relative z-10">
                                     <div className="flex items-center justify-between">
                                         <div className="flex flex-col">
-                                            <span className="text-[9px] font-black text-muted uppercase tracking-[0.3em] mb-1">Inversión</span>
-                                            <span className="font-black text-xl text-foreground tracking-tighter group-hover:text-accent transition-colors">${service.precio}</span>
+                                            <span className="text-[9px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] mb-1">Inversión</span>
+                                            <span className="font-black text-xl text-slate-900 dark:text-foreground tracking-tighter group-hover:text-accent transition-colors">${service.precio}</span>
                                         </div>
                                         <div className="flex flex-col items-end">
-                                            <span className="text-[9px] font-black text-muted uppercase tracking-[0.3em] mb-1">Entrega Est.</span>
-                                            <div className="flex items-center gap-2 font-black text-xs text-foreground/80">
+                                            <span className="text-[9px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] mb-1">Entrega Est.</span>
+                                            <div className="flex items-center gap-2 font-black text-xs text-slate-700 dark:text-foreground/80">
                                                 <Clock size={14} className="text-accent" />
                                                 {service.tiempo_entrega_dias} Días
                                             </div>
@@ -414,11 +414,11 @@ function ServicesManagerPage() {
                                             setInitialService({ ...service });
                                             setServiceErrors({});
                                             setIsEditing(true);
-                                        }} className="w-11 h-11 bg-white/5 border border-white/10 text-foreground rounded-xl flex items-center justify-center hover:bg-white hover:text-black transition-all">
-                                            <Edit3 size={18} />
+                                        }} className="flex-1 h-12 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-foreground rounded-xl flex items-center justify-center hover:bg-slate-900 hover:text-white dark:hover:bg-white/10 dark:hover:border-accent/40 shadow-sm transition-all text-[10px] font-black uppercase tracking-widest gap-2">
+                                            <Edit3 size={14} /> Editar
                                         </button>
-                                        <button onClick={() => handleDelete(service.id)} className="w-11 h-11 bg-white/5 border border-white/10 text-rose-500/60 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all">
-                                            <Trash2 size={18} />
+                                        <button onClick={() => handleDelete(service.id)} className="w-12 h-12 bg-white dark:bg-rose-500/5 border border-slate-200 dark:border-rose-500/10 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm">
+                                            <Trash2 size={16} />
                                         </button>
                                     </div>
                                 </div>
@@ -430,15 +430,15 @@ function ServicesManagerPage() {
 
             <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-16" />
 
-            {/* Sound Kits Section - Specialized Vault UI */}
+            {/* Sound Kits Section */}
             <div className="space-y-10">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                     <div>
-                        <h2 className="text-5xl font-black text-foreground tracking-tighter uppercase flex items-center gap-4">
-                            Sound <span className="text-amber-500 underline decoration-white/10 underline-offset-8">Kits</span>
-                            <span className="bg-amber-500/10 text-amber-500 text-[10px] px-4 py-1.5 rounded-full font-black uppercase tracking-widest border border-amber-500/10 shadow-lg shadow-amber-500/5">Premium</span>
+                        <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-foreground tracking-tighter uppercase flex items-center gap-4">
+                            Sound <span className="text-amber-500 underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Kits</span>
+                            <span className="bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500 text-[10px] px-4 py-1.5 rounded-full font-black uppercase tracking-widest border border-amber-200 dark:border-amber-500/10 shadow-sm md:shadow-lg dark:shadow-amber-500/5">Premium</span>
                         </h2>
-                        <p className="text-muted font-bold text-[10px] uppercase tracking-[0.3em] mt-6 opacity-60">Monetiza tus librerías y bancos de sonidos</p>
+                        <p className="text-slate-500 dark:text-muted font-bold text-[10px] uppercase tracking-[0.3em] mt-6 opacity-60">Monetiza tus librerías y bancos de sonidos</p>
                     </div>
                     <button
                         onClick={() => {
@@ -448,42 +448,42 @@ function ServicesManagerPage() {
                             setKitErrors({});
                             setIsEditingKit(true);
                         }}
-                        className="bg-amber-600 text-white px-10 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-amber-500 hover:scale-105 transition-all shadow-xl shadow-amber-500/20 active:scale-95 flex items-center gap-3 w-fit"
+                        className="bg-amber-500 text-white px-10 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-amber-400 hover:scale-105 transition-all shadow-xl shadow-amber-500/20 active:scale-95 flex items-center gap-3 w-fit"
                     >
-                        <Plus size={20} strokeWidth={3} /> Nuevo Sound Kit
+                        <Plus size={20} className="stroke-[3]" /> Nuevo Sound Kit
                     </button>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
                     {soundKits.map(kit => (
-                        <div key={kit.id} className="group relative bg-[#020205] border border-white/5 rounded-[3.5rem] overflow-hidden transition-all duration-700 hover:border-amber-500/30 hover:-translate-y-2 shadow-2xl">
+                        <div key={kit.id} className="group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 rounded-[3.5rem] overflow-hidden transition-all duration-700 hover:border-amber-500/30 hover:-translate-y-2 shadow-xl dark:shadow-none">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-[100px] -mr-32 -mt-32 pointer-events-none group-hover:bg-amber-500/10 transition-colors" />
 
                             {/* Kit Cover Preview */}
-                            <div className="relative h-48 w-full overflow-hidden">
+                            <div className="relative h-48 w-full overflow-hidden border-b border-slate-200 dark:border-white/5">
                                 <Image
                                     src={kit.cover_url || '/placeholder-kit.jpg'}
                                     fill
-                                    className="object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-700 group-hover:scale-110"
+                                    className="object-cover opacity-60 dark:opacity-40 group-hover:opacity-100 transition-opacity duration-700 group-hover:scale-110"
                                     alt={kit.title}
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#020205] via-[#020205]/40 to-transparent" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-[#020205] via-white/40 dark:via-[#020205]/40 to-transparent" />
                                 <div className="absolute top-6 left-6 flex gap-2">
-                                    <div className="bg-amber-500/20 backdrop-blur-md border border-amber-500/20 text-amber-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                    <div className="bg-amber-500/20 backdrop-blur-md border border-amber-500/20 text-amber-600 dark:text-amber-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm">
                                         Digital Kit
                                     </div>
                                 </div>
                             </div>
 
                             <div className="p-10 relative z-10">
-                                <h3 className="font-black text-2xl text-foreground mb-4 tracking-tight group-hover:text-amber-500 transition-colors">{kit.title}</h3>
-                                <p className="text-muted text-[11px] font-bold uppercase tracking-widest leading-relaxed mb-10 line-clamp-2 opacity-60">
+                                <h3 className="font-black text-2xl text-slate-900 dark:text-foreground mb-4 tracking-tight group-hover:text-amber-500 transition-colors">{kit.title}</h3>
+                                <p className="text-slate-500 dark:text-muted text-[11px] font-bold uppercase tracking-widest leading-relaxed mb-10 line-clamp-2 opacity-60">
                                     {kit.description}
                                 </p>
-                                <div className="flex flex-col items-center gap-6 pt-8 border-t border-white/5">
+                                <div className="flex flex-col items-center gap-6 pt-8 border-t border-slate-200 dark:border-white/5">
                                     <div className="flex flex-col items-center">
                                         <span className="text-[9px] font-black text-amber-500 uppercase tracking-[0.3em] mb-1">Precio</span>
-                                        <span className="font-black text-xl text-foreground tracking-tighter group-hover:text-amber-500 transition-colors">${kit.price}</span>
+                                        <span className="font-black text-xl text-slate-900 dark:text-foreground tracking-tighter group-hover:text-amber-500 transition-colors">${kit.price}</span>
                                     </div>
                                     <div className="flex items-center justify-center gap-3 w-full">
                                         <button onClick={() => {
@@ -491,11 +491,11 @@ function ServicesManagerPage() {
                                             setInitialKit({ ...kit });
                                             setKitErrors({});
                                             setIsEditingKit(true);
-                                        }} className="w-11 h-11 bg-white/5 border border-white/10 text-foreground rounded-xl flex items-center justify-center hover:bg-white hover:text-black transition-all">
-                                            <Edit3 size={18} />
+                                        }} className="flex-1 h-12 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-foreground rounded-xl flex items-center justify-center hover:bg-slate-900 hover:text-white dark:hover:bg-white/10 dark:hover:border-amber-500/40 shadow-sm transition-all text-[10px] font-black uppercase tracking-widest gap-2">
+                                            <Edit3 size={14} /> Editar
                                         </button>
-                                        <button onClick={() => handleDeleteKit(kit.id)} className="w-11 h-11 bg-white/5 border border-white/10 text-rose-500/60 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all">
-                                            <Trash2 size={18} />
+                                        <button onClick={() => handleDeleteKit(kit.id)} className="w-12 h-12 bg-white dark:bg-rose-500/5 border border-slate-200 dark:border-rose-500/10 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm">
+                                            <Trash2 size={16} />
                                         </button>
                                     </div>
                                 </div>
@@ -503,9 +503,9 @@ function ServicesManagerPage() {
                         </div>
                     ))}
                     {soundKits.length === 0 && (
-                        <div className="lg:col-span-3 py-20 text-center border-2 border-dashed border-white/5 rounded-[3.5rem] opacity-30">
-                            <Package className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                            <p className="text-[10px] font-black uppercase tracking-[0.3em]">No hay Sound Kits registrados en la bóveda</p>
+                        <div className="lg:col-span-3 py-20 text-center bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-200 dark:border-white/5 rounded-[3.5rem]">
+                            <Package className="w-16 h-16 mx-auto mb-4 text-slate-300 dark:text-white/20" />
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-muted">No hay Sound Kits registrados en la bóveda</p>
                         </div>
                     )}
                 </div>
