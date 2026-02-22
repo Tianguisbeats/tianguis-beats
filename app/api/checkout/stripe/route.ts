@@ -47,7 +47,7 @@ export async function POST(req: Request) {
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items,
-            mode: hasPlan ? 'subscription' : 'payment',
+            mode: 'payment',
             allow_promotion_codes: false,
             locale: 'es',
             success_url: `${process.env.NEXT_PUBLIC_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
                 couponId: couponId || '',
             },
             billing_address_collection: 'auto',
-            submit_type: hasPlan ? undefined : 'pay', // 'pay' no es compatible con el modo 'subscription'
+            submit_type: 'pay',
         });
 
         return NextResponse.json({ id: session.id, url: session.url });

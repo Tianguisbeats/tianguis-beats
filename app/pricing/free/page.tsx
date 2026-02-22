@@ -99,11 +99,6 @@ export default function FreePlanPage() {
                             <div className="bg-card/50 dark:bg-slate-900/50 backdrop-blur-xl p-12 rounded-[3.5rem] border border-border dark:border-white/10 shadow-2xl relative overflow-hidden group hover:border-slate-400 transition-all">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-slate-500/5 dark:bg-white/5 -mr-16 -mt-16 rounded-full group-hover:scale-110 transition-transform"></div>
 
-                                <div className="relative mb-10 group-hover:scale-110 transition-transform duration-700">
-                                    <div className="absolute inset-0 bg-slate-400/10 blur-3xl rounded-full"></div>
-                                    <img src="/images/plans/free.png" alt="Free Plan Visual" className="relative w-full h-32 object-contain grayscale opacity-60" />
-                                </div>
-
                                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-10">Estructura del Plan</h4>
                                 <div className="space-y-6">
                                     {[
@@ -171,8 +166,8 @@ export default function FreePlanPage() {
                             <div className="relative">
                                 <div className="absolute -inset-4 bg-slate-500/10 blur-3xl rounded-full"></div>
                                 <img
-                                    src="/images/plans/free.png"
-                                    className="rounded-[4rem] shadow-2xl opacity-60 group-hover:opacity-100 transition-opacity border-2 border-white/10 bg-slate-900 p-12"
+                                    src="/images/pricing/producer-plan-free.jpg"
+                                    className="rounded-[4rem] shadow-2xl opacity-80 group-hover:opacity-100 transition-opacity border-2 border-white/10"
                                     alt="Comunidad de Productores"
                                 />
                             </div>

@@ -101,12 +101,6 @@ export default function ProPlanPage() {
                             <div className="relative">
                                 <div className="bg-slate-800 border-2 border-slate-700 p-12 rounded-[4rem] shadow-2xl relative overflow-hidden group">
                                     <div className="absolute top-0 right-0 p-6 bg-amber-400 text-slate-900 rounded-bl-[2.5rem] font-black text-[10px] uppercase tracking-widest">PRO Verified</div>
-
-                                    <div className="relative mb-10 group-hover:scale-110 transition-transform duration-700">
-                                        <div className="absolute inset-0 bg-amber-500/20 blur-3xl rounded-full"></div>
-                                        <img src="/images/plans/pro.png" alt="Pro Plan Visual" className="relative w-full h-32 object-contain" />
-                                    </div>
-
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-10">Resumen del Plan</h4>
                                     <div className="space-y-6">
                                         {summaryItems.map((item, i) => (

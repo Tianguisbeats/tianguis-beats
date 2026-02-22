@@ -107,13 +107,7 @@ export default function PremiumPlanPage() {
 
                             <div className="relative">
                                 <div className="absolute -inset-4 bg-blue-500/20 blur-3xl rounded-full"></div>
-                                <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 p-12 rounded-[4rem] shadow-3xl group">
-
-                                    <div className="relative mb-10 group-hover:scale-110 transition-transform duration-700">
-                                        <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full"></div>
-                                        <img src="/images/plans/premium.png" alt="Premium Plan Visual" className="relative w-full h-32 object-contain" />
-                                    </div>
-
+                                <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 p-12 rounded-[4rem] shadow-3xl">
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-300 mb-10">Configuración Premium</h4>
                                     <div className="space-y-6">
                                         {stats.map((item, i) => (
@@ -188,11 +182,11 @@ export default function PremiumPlanPage() {
                             <div className="order-1 md:order-2">
                                 <div className="relative group">
                                     <div className="absolute -inset-10 bg-blue-500/10 blur-[100px] rounded-full group-hover:bg-blue-500/20 transition-all"></div>
-                                    <div className="relative rounded-[4rem] overflow-hidden border-8 border-card shadow-3xl bg-blue-900/20">
+                                    <div className="relative rounded-[4rem] overflow-hidden border-8 border-card shadow-3xl">
                                         <img
-                                            src="/images/plans/premium.png"
-                                            alt="Premium Brand"
-                                            className="w-full h-auto p-12 scale-125"
+                                            src="/images/pricing/producer-plan-premium.jpg"
+                                            alt="Studio"
+                                            className="w-full h-auto"
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 via-transparent to-transparent"></div>
                                         <div className="absolute bottom-10 left-0 right-0 text-center">
