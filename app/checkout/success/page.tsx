@@ -143,6 +143,18 @@ export default function SuccessPage() {
                                 : "Tus archivos están listos para descargar. También puedes descargar tus licencias oficiales en formato PDF."
                             }
                         </p>
+
+                        {purchasedItems.length > 0 && purchasedItems.every(i => i.tipo_producto === 'plan') && (
+                            <div className="mt-8 flex justify-center">
+                                <Link
+                                    href="/studio"
+                                    className="px-8 py-4 bg-blue-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shadow-xl shadow-blue-500/20"
+                                >
+                                    Ir a mi Studio
+                                    <ArrowRight size={16} />
+                                </Link>
+                            </div>
+                        )}
                     </div>
 
                     {/* Downloads Section */}

@@ -144,7 +144,7 @@ export default function MyPurchasesPage() {
             case 'beat': return <Music size={18} />;
             case 'sound_kit': return <Cpu size={18} />;
             case 'service': return <Briefcase size={18} />;
-            case 'subscription': return <Crown size={18} className="text-amber-500" />;
+            case 'plan': return <Crown size={18} className="text-amber-500" />;
             default: return <Package size={18} />;
         }
     };
@@ -316,7 +316,7 @@ export default function MyPurchasesPage() {
                                                         Contrato
                                                     </button>
                                                 </>
-                                            ) : item.product_type === 'subscription' ? (
+                                            ) : item.product_type === 'plan' ? (
                                                 <span className="px-5 py-2.5 rounded-2xl flex items-center gap-2 font-black text-[10px] uppercase tracking-[0.2em] bg-amber-500/10 text-amber-500 border border-amber-500/20 self-start md:self-auto">
                                                     Plan de Membresía <CheckCircle2 size={14} />
                                                 </span>
