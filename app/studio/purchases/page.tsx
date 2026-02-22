@@ -7,14 +7,24 @@ import {
     Download,
     ExternalLink,
     Clock,
-    CheckCircle2,
-    AlertCircle,
+    Plus,
+    MoveVertical,
+    Save,
+    ChevronUp,
+    ChevronDown,
+    List,
+    Briefcase,
+    DollarSign,
+    MessageSquare,
+    Mail,
+    ShoppingBag,
+    X,
     ChevronRight,
     Search,
     Filter,
     Music,
     Cpu,
-    Briefcase
+    CheckCircle2
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
@@ -36,12 +46,16 @@ type Order = {
     id: string;
     created_at: string;
     total_amount: number;
+    currency: string;
     status: string;
     items: OrderItem[];
+    payment_method?: string;
+    stripe_id?: string;
 };
 
 export default function MyPurchasesPage() {
     const [orders, setOrders] = useState<Order[]>([]);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
     const { showToast } = useToast();
 
@@ -61,7 +75,10 @@ export default function MyPurchasesPage() {
                     id,
                     fecha_creacion,
                     monto_total,
+                    moneda,
                     estado,
+                    metodo_pago,
+                    stripe_id,
                     items_orden (
                         id,
                         tipo_producto,
@@ -87,7 +104,10 @@ export default function MyPurchasesPage() {
                 id: order.id,
                 created_at: order.fecha_creacion,
                 total_amount: order.monto_total,
+                currency: order.moneda || 'MXN',
                 status: order.estado,
+                payment_method: order.metodo_pago,
+                stripe_id: order.stripe_id,
                 items: (order.items_orden || []).map((item: any) => ({
                     id: item.id,
                     product_type: item.tipo_producto,
@@ -197,10 +217,10 @@ export default function MyPurchasesPage() {
         <div className="space-y-10">
             {/* Header */}
             <div>
-                <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-3">Mis <span className="text-accent">Compras</span></h1>
+                <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-3">Historial y <span className="text-accent">detalles de las compras</span></h1>
                 <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
                     <Package size={12} className="text-accent" />
-                    Historial de Pedidos y Descargas
+                    Detalles de tus compras y enlaces de descarga
                 </p>
             </div>
 
@@ -229,7 +249,7 @@ export default function MyPurchasesPage() {
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest mb-1">
-                                            <span className="text-muted">Pedido:</span>
+                                            <span className="text-muted">Compra:</span>
                                             <span className="text-foreground">#{order.id.slice(0, 8).toUpperCase()}</span>
                                         </div>
                                         <div className="flex items-center gap-3 text-[10px] text-muted font-bold uppercase tracking-widest">
@@ -242,10 +262,18 @@ export default function MyPurchasesPage() {
                                 <div className="flex items-center gap-6">
                                     <div className="flex flex-col items-end">
                                         <span className="text-[10px] font-black text-muted uppercase tracking-widest mb-1">Total Pagado</span>
-                                        <span className="font-black text-xl text-foreground tracking-tighter">${order.total_amount} <span className="text-[10px] opacity-40">MXN</span></span>
+                                        <span className="font-black text-xl text-foreground tracking-tighter">${order.total_amount} <span className="text-[10px] opacity-40 uppercase">{order.currency}</span></span>
                                     </div>
-                                    <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${getStatusColor(order.status)} animate-in fade-in zoom-in duration-500`}>
-                                        {order.status === 'completed' ? 'Completado' : order.status}
+                                    <div className="flex flex-col items-end gap-2">
+                                        <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${getStatusColor(order.status)} animate-in fade-in zoom-in duration-500`}>
+                                            {order.status === 'completado' ? 'Completado' : order.status}
+                                        </div>
+                                        <button
+                                            onClick={() => setSelectedOrder(order)}
+                                            className="text-[9px] font-black uppercase tracking-widest text-accent hover:underline flex items-center gap-1"
+                                        >
+                                            Ver más detalles <ChevronRight size={10} />
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -310,6 +338,111 @@ export default function MyPurchasesPage() {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Order Details Modal */}
+            {selectedOrder && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div
+                        className="absolute inset-0 bg-black/80 backdrop-blur-md animate-in fade-in duration-300"
+                        onClick={() => setSelectedOrder(null)}
+                    />
+                    <div className="relative w-full max-w-2xl bg-slate-900 border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_0_100px_-20px_rgba(59,130,246,0.3)] animate-in zoom-in fade-in duration-300">
+                        {/* Modal Header */}
+                        <div className="p-8 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-accent/5 to-transparent">
+                            <div>
+                                <h3 className="text-2xl font-black uppercase tracking-tighter text-white">Detalles de Compra</h3>
+                                <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Orden #{selectedOrder.id}</p>
+                            </div>
+                            <button
+                                onClick={() => setSelectedOrder(null)}
+                                className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-8 max-h-[70vh] overflow-y-auto space-y-8 scrollbar-hide">
+                            {/* General Info Grid */}
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="p-5 bg-white/5 border border-white/5 rounded-2xl">
+                                    <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-2">Método de Pago</p>
+                                    <p className="text-sm font-black text-white uppercase tracking-tight">{selectedOrder.payment_method || 'Tarjeta de Crédito / Stripe'}</p>
+                                </div>
+                                <div className="p-5 bg-white/5 border border-white/5 rounded-2xl">
+                                    <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-2">Fecha de Pago</p>
+                                    <p className="text-sm font-black text-white uppercase tracking-tight">{new Date(selectedOrder.created_at).toLocaleString()}</p>
+                                </div>
+                                <div className="p-5 bg-white/5 border border-white/5 rounded-2xl">
+                                    <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-2">Total Pagado</p>
+                                    <p className="text-xl font-black text-accent tracking-tighter">${selectedOrder.total_amount} <span className="text-[10px] uppercase">{selectedOrder.currency}</span></p>
+                                </div>
+                                <div className="p-5 bg-white/5 border border-white/5 rounded-2xl">
+                                    <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-2">Estado del Pedido</p>
+                                    <p className="text-sm font-black text-emerald-500 uppercase tracking-widest">{selectedOrder.status === 'completado' ? 'PAGO VERIFICADO' : selectedOrder.status.toUpperCase()}</p>
+                                </div>
+                            </div>
+
+                            {/* Itemized Breakdown */}
+                            <div className="space-y-4">
+                                <h4 className="text-[10px] font-black text-muted uppercase tracking-[0.2em] px-2 flex items-center gap-2">
+                                    <Package size={14} className="text-accent" />
+                                    Desglose de Productos
+                                </h4>
+                                <div className="space-y-3">
+                                    {selectedOrder.items.map((item) => (
+                                        <div key={item.id} className="p-6 rounded-[2rem] bg-white/5 border border-white/5 flex items-center justify-between group hover:border-accent/30 transition-all">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent">
+                                                    {getItemIcon(item.product_type)}
+                                                </div>
+                                                <div>
+                                                    <h5 className="font-black text-sm text-white uppercase tracking-tight">{item.name}</h5>
+                                                    <p className="text-[9px] font-bold text-muted uppercase tracking-widest">
+                                                        {item.product_type === 'beat' ? `Licencia ${item.license_type}` : item.product_type === 'plan' ? `Suscripción ${item.metadata?.tier?.toUpperCase() || 'PRO'}` : 'Recurso Digital'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-sm font-black text-white tracking-tighter">${item.price} <span className="text-[9px] text-muted">{selectedOrder.currency}</span></p>
+                                                {item.product_type !== 'plan' && (
+                                                    <button
+                                                        onClick={() => handleDownloadFiles(item)}
+                                                        className="text-[9px] font-black text-accent uppercase tracking-widest mt-1 hover:underline"
+                                                    >
+                                                        Re-descargar Archivos
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Official References */}
+                            <div className="p-6 bg-slate-950/50 rounded-[2.5rem] border border-white/5">
+                                <div className="flex items-center gap-4 text-muted/40">
+                                    <div className="w-px h-10 bg-white/10" />
+                                    <p className="text-[10px] font-bold leading-relaxed uppercase tracking-wide">
+                                        ID de Transacción: {selectedOrder.stripe_id || 'ID NO DISPONIBLE'}<br />
+                                        Esta es una transacción digital segura procesada por Tianguis Beats.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="p-8 bg-black/20 flex justify-center">
+                            <button
+                                onClick={() => setSelectedOrder(null)}
+                                className="w-full py-5 bg-white text-black rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-xl active:scale-95"
+                            >
+                                Cerrar Ventana
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

@@ -148,10 +148,10 @@ export default function StudioSalesPage() {
 
             {/* Financial KPI Dashboard */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="group relative bg-[#020205] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-accent/30 shadow-2xl">
+                <div className="group relative bg-[#020205] dark:bg-[#020205] bg-white border border-white/5 dark:border-white/5 border-slate-200 shadow-xl dark:shadow-2xl rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-accent/30">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-[50px] -mr-16 -mt-16" />
-                    <p className="text-[9px] font-black text-muted uppercase tracking-[0.3em] mb-3">Balance Histórico</p>
-                    <h3 className="text-4xl font-black tracking-tighter text-foreground mb-2">
+                    <p className="text-[9px] font-black text-muted dark:text-muted text-slate-500 uppercase tracking-[0.3em] mb-3">Balance Histórico</p>
+                    <h3 className="text-4xl font-black tracking-tighter text-foreground dark:text-foreground text-slate-900 mb-2">
                         {formatCurrency(totalRevenue)}
                     </h3>
                     <div className="flex items-center gap-2 text-emerald-500 text-[10px] font-bold uppercase tracking-widest">
@@ -159,22 +159,22 @@ export default function StudioSalesPage() {
                     </div>
                 </div>
 
-                <div className="group relative bg-[#020205] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-emerald-500/30">
+                <div className="group relative bg-[#020205] dark:bg-[#020205] bg-white border border-white/5 dark:border-white/5 border-slate-200 shadow-xl dark:shadow-none rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-emerald-500/30">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[50px] -mr-16 -mt-16" />
-                    <p className="text-[9px] font-black text-muted uppercase tracking-[0.3em] mb-3">Ventas Recientes (30d)</p>
-                    <h3 className="text-4xl font-black tracking-tighter text-foreground mb-2">
-                        {stats.recentSales} <span className="text-sm font-bold text-muted uppercase tracking-widest">Unidades</span>
+                    <p className="text-[9px] font-black text-muted dark:text-muted text-slate-500 uppercase tracking-[0.3em] mb-3">Ventas Recientes (30d)</p>
+                    <h3 className="text-4xl font-black tracking-tighter text-foreground dark:text-foreground text-slate-900 mb-2">
+                        {stats.recentSales} <span className="text-sm font-bold text-muted dark:text-muted text-slate-400 uppercase tracking-widest">Unidades</span>
                     </h3>
-                    <p className="text-[10px] font-bold text-muted uppercase tracking-widest opacity-60">Volumen de mercado</p>
+                    <p className="text-[10px] font-bold text-muted dark:text-muted text-slate-400 uppercase tracking-widest opacity-60">Volumen de mercado</p>
                 </div>
 
-                <div className="group relative bg-[#020205] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-blue-500/30">
+                <div className="group relative bg-[#020205] dark:bg-[#020205] bg-white border border-white/5 dark:border-white/5 border-slate-200 shadow-xl dark:shadow-none rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-blue-500/30">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-[50px] -mr-16 -mt-16" />
-                    <p className="text-[9px] font-black text-muted uppercase tracking-[0.3em] mb-3">Ticket Promedio</p>
-                    <h3 className="text-4xl font-black tracking-tighter text-foreground mb-2">
+                    <p className="text-[9px] font-black text-muted dark:text-muted text-slate-500 uppercase tracking-[0.3em] mb-3">Ticket Promedio</p>
+                    <h3 className="text-4xl font-black tracking-tighter text-foreground dark:text-foreground text-slate-900 mb-2">
                         {formatCurrency(stats.avgSale)}
                     </h3>
-                    <p className="text-[10px] font-bold text-muted uppercase tracking-widest opacity-60">Valor por licencia</p>
+                    <p className="text-[10px] font-bold text-muted dark:text-muted text-slate-400 uppercase tracking-widest opacity-60">Valor por licencia</p>
                 </div>
             </div>
 

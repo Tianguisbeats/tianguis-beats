@@ -128,14 +128,14 @@ export default function StudioStatsPage() {
             {/* Main KPI Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Revenue Card - Elite Look */}
-                <div className="group relative bg-[#020205] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-emerald-500/30">
+                <div className="group relative bg-[#020205] dark:bg-[#020205] bg-white border border-white/5 dark:border-white/5 border-slate-200 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-emerald-500/30 shadow-xl dark:shadow-none">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[50px] -mr-16 -mt-16 pointer-events-none group-hover:bg-emerald-500/10 transition-colors" />
                     <div className="relative z-10">
                         <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 mb-6 group-hover:scale-110 transition-transform">
                             <DollarSign size={24} />
                         </div>
-                        <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mb-2">Ingresos Totales</p>
-                        <h3 className="text-3xl font-black tracking-tighter text-emerald-500">
+                        <p className="text-[10px] font-black text-muted dark:text-muted text-slate-500 uppercase tracking-[0.3em] mb-2">Ingresos Totales</p>
+                        <h3 className="text-3xl font-black tracking-tighter text-emerald-500 dark:text-emerald-500">
                             {formatCurrency(stats.totalRevenue)}
                         </h3>
                         <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-emerald-500/60 uppercase tracking-widest">
@@ -145,47 +145,47 @@ export default function StudioStatsPage() {
                 </div>
 
                 {/* Plays KPI */}
-                <div className="group relative bg-[#020205] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-blue-500/30">
+                <div className="group relative bg-[#020205] dark:bg-[#020205] bg-white border border-white/5 dark:border-white/5 border-slate-200 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-blue-500/30 shadow-xl dark:shadow-none">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-[50px] -mr-16 -mt-16 pointer-events-none" />
                     <div className="relative z-10">
                         <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mb-6 group-hover:scale-110 transition-transform">
                             <Play size={24} fill="currentColor" />
                         </div>
-                        <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mb-2">Reproducciones</p>
-                        <h3 className="text-3xl font-black tracking-tighter text-foreground">
+                        <p className="text-[10px] font-black text-muted dark:text-muted text-slate-500 uppercase tracking-[0.3em] mb-2">Reproducciones</p>
+                        <h3 className="text-3xl font-black tracking-tighter text-foreground dark:text-foreground text-slate-900">
                             {formatNumber(stats.totalPlays)}
                         </h3>
-                        <p className="mt-4 text-[10px] font-bold text-muted uppercase tracking-widest opacity-60">Alcance global</p>
+                        <p className="mt-4 text-[10px] font-bold text-muted dark:text-muted text-slate-400 uppercase tracking-widest opacity-60">Alcance global</p>
                     </div>
                 </div>
 
                 {/* Conversion Rate */}
-                <div className="group relative bg-[#020205] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-purple-500/30">
+                <div className="group relative bg-[#020205] dark:bg-[#020205] bg-white border border-white/5 dark:border-white/5 border-slate-200 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-purple-500/30 shadow-xl dark:shadow-none">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[50px] -mr-16 -mt-16 pointer-events-none" />
                     <div className="relative z-10">
                         <div className="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-500 mb-6 group-hover:scale-110 transition-transform">
                             <Zap size={24} />
                         </div>
-                        <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mb-2">Tasa de Conversión</p>
-                        <h3 className="text-3xl font-black tracking-tighter text-foreground">
+                        <p className="text-[10px] font-black text-muted dark:text-muted text-slate-500 uppercase tracking-[0.3em] mb-2">Tasa de Conversión</p>
+                        <h3 className="text-3xl font-black tracking-tighter text-foreground dark:text-foreground text-slate-900">
                             {stats.totalPlays > 0 ? ((stats.totalSales / stats.totalPlays) * 100).toFixed(2) : '0'}%
                         </h3>
-                        <p className="mt-4 text-[10px] font-bold text-muted uppercase tracking-widest opacity-60">Eficiencia de venta</p>
+                        <p className="mt-4 text-[10px] font-bold text-muted dark:text-muted text-slate-400 uppercase tracking-widest opacity-60">Eficiencia de venta</p>
                     </div>
                 </div>
 
                 {/* Followers KPI */}
-                <div className="group relative bg-[#020205] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-accent/30">
+                <div className="group relative bg-[#020205] dark:bg-[#020205] bg-white border border-white/5 dark:border-white/5 border-slate-200 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-accent/30 shadow-xl dark:shadow-none">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-[50px] -mr-16 -mt-16 pointer-events-none" />
                     <div className="relative z-10">
                         <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center text-accent mb-6 group-hover:scale-110 transition-transform">
                             <Users size={24} />
                         </div>
-                        <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mb-2">Seguidores</p>
-                        <h3 className="text-3xl font-black tracking-tighter text-foreground">
+                        <p className="text-[10px] font-black text-muted dark:text-muted text-slate-500 uppercase tracking-[0.3em] mb-2">Seguidores</p>
+                        <h3 className="text-3xl font-black tracking-tighter text-foreground dark:text-foreground text-slate-900">
                             {formatNumber(stats.followerCount)}
                         </h3>
-                        <p className="mt-4 text-[10px] font-bold text-muted uppercase tracking-widest opacity-60">Comunidad Leal</p>
+                        <p className="mt-4 text-[10px] font-bold text-muted dark:text-muted text-slate-400 uppercase tracking-widest opacity-60">Comunidad Leal</p>
                     </div>
                 </div>
             </div>

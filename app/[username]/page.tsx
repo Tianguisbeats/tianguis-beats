@@ -932,7 +932,16 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                         className="w-full max-w-md h-20 rounded-3xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-[0_20px_40px_rgba(37,99,235,0.25)] hover:scale-105 active:scale-95 border border-white/10 relative overflow-hidden group"
                                                     >
                                                         <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                                                        <span className="px-3 py-1 bg-blue-400/20 text-blue-100 rounded-lg text-[9px] font-black border border-white/20 group-hover:bg-white group-hover:text-blue-600 transition-all">PREMIUM</span>
+
+                                                        {/* Premium Badge - Top Right */}
+                                                        <div className="absolute top-3 right-3 px-2 py-1 rounded-md text-[7px] font-black tracking-widest uppercase border transition-all duration-300
+                                                            bg-blue-500 text-white border-white/20 shadow-lg
+                                                            group-hover:bg-white group-hover:text-blue-600 group-hover:scale-110
+                                                            dark:bg-slate-950 dark:text-blue-400 dark:border-blue-500/30 dark:group-hover:bg-blue-600 dark:group-hover:text-white"
+                                                        >
+                                                            PREMIUM
+                                                        </div>
+
                                                         Desbloquear Smart Bio
                                                     </Link>
                                                 ) : (

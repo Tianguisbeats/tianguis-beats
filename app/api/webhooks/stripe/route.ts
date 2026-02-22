@@ -45,15 +45,17 @@ export async function POST(req: Request) {
             expand: ['data.price.product'],
         });
 
-        const usuarioId = session.client_reference_id;
+        let usuarioId = session.client_reference_id;
         const montoTotal = session.amount_total! / 100;
         const moneda = session.currency?.toUpperCase() || 'MXN';
         const stripeId = session.id;
         const subscriptionId = session.subscription as string;
         const cuponId = session.metadata?.couponId;
+        const customerEmail = session.customer_details?.email;
 
         console.log('--- WEBHOOK DEBUG: SESSION ---', {
             usuarioId,
+            customerEmail,
             stripeId,
             subscriptionId,
             mode: session.mode,
@@ -61,10 +63,24 @@ export async function POST(req: Request) {
         });
 
         try {
-            // 1. Validar Usuario
+            // 1. Validar Usuario (y Buscar por Email si falta ID)
+            if (!usuarioId && customerEmail) {
+                console.log('WARN: No client_reference_id. Searching by email:', customerEmail);
+                const { data: userData, error: userError } = await supabaseAdmin
+                    .from('profiles')
+                    .select('id')
+                    .eq('email', customerEmail)
+                    .single();
+
+                if (userData && !userError) {
+                    usuarioId = userData.id;
+                    console.log('SUCCESS: Identified user by email:', usuarioId);
+                }
+            }
+
             if (!usuarioId) {
-                console.error('ERROR: No client_reference_id (usuarioId) in session');
-                return NextResponse.json({ error: 'Missing client_reference_id' }, { status: 400 });
+                console.error('ERROR: No identification for user in session');
+                return NextResponse.json({ error: 'Missing user identification' }, { status: 400 });
             }
 
             // 2. Crear la Orden (Cabecera)
