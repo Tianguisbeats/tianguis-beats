@@ -15,22 +15,30 @@ export async function POST(req: Request) {
         const { items, customerEmail, customerId, couponId, currency = 'mxn' } = await req.json();
 
         // 1. Preparar line_items para Stripe
-        const line_items = items.map((item: any) => ({
-            price_data: {
-                currency: currency,
-                product_data: {
-                    name: item.name,
-                    images: item.image ? [item.image] : [],
-                    metadata: {
-                        productId: item.id,
-                        type: item.type,
-                        ...item.metadata
-                    }
+        const line_items = items.map((item: any) => {
+            // Limpiar el nombre para que sea Premium (Ej: "Girl" en vez de "girl [MP3]")
+            const cleanName = item.name.split('[')[0].trim();
+            const licenseInfo = item.metadata?.license || item.metadata?.licenseType || '';
+            const typeLabel = item.type === 'plan' ? 'Suscripción' : (item.type === 'beat' ? 'Licencia de Beat' : 'Producto');
+
+            return {
+                price_data: {
+                    currency: currency,
+                    product_data: {
+                        name: cleanName,
+                        description: licenseInfo ? `${typeLabel}: ${licenseInfo.toUpperCase()}` : typeLabel,
+                        images: item.image ? [item.image] : [],
+                        metadata: {
+                            productId: item.id,
+                            type: item.type,
+                            ...item.metadata
+                        }
+                    },
+                    unit_amount: Math.round(item.price * 100), // En centavos
                 },
-                unit_amount: Math.round(item.price * 100), // En centavos
-            },
-            quantity: 1,
-        }));
+                quantity: 1,
+            };
+        });
 
         // 2. Crear sesión de Checkout
         const stripe = getStripe();
