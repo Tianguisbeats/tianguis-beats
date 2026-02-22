@@ -10,7 +10,8 @@ import {
     ArrowRight,
     Package,
     ShieldCheck,
-    Mail
+    Mail,
+    Crown
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -131,73 +132,116 @@ export default function SuccessPage() {
                             <CheckCircle2 size={48} />
                         </div>
                         <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tighter mb-4 leading-none">
-                            ¡Gracias por <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">tu compra!</span>
+                            {purchasedItems.length > 0 && purchasedItems.every(i => i.tipo_producto === 'plan')
+                                ? <>¡Bienvenido al <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Nivel {purchasedItems[0].nombre.split(' ')[1] || 'Premium'}!</span></>
+                                : <>¡Gracias por <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">tu compra!</span></>
+                            }
                         </h1>
                         <p className="text-white/60 text-lg font-medium max-w-lg mx-auto leading-relaxed">
-                            Tus archivos están listos para descargar. También puedes descargar tus licencias oficiales en formato PDF.
+                            {purchasedItems.length > 0 && purchasedItems.every(i => i.tipo_producto === 'plan')
+                                ? "Tu suscripción ha sido activada. Ya puedes disfrutar de todos los beneficios premium en tu perfil y Studio."
+                                : "Tus archivos están listos para descargar. También puedes descargar tus licencias oficiales en formato PDF."
+                            }
                         </p>
                     </div>
 
                     {/* Downloads Section */}
-                    <div className="space-y-6">
-                        <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-8 pl-4 flex items-center gap-3">
-                            <Download size={14} className="text-blue-500" />
-                            Tus Archivos en Alta Calidad
-                        </h2>
+                    {!(purchasedItems.length > 0 && purchasedItems.every(i => i.tipo_producto === 'plan')) && (
+                        <div className="space-y-6">
+                            <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-8 pl-4 flex items-center gap-3">
+                                <Download size={14} className="text-blue-500" />
+                                Tus Archivos en Alta Calidad
+                            </h2>
 
-                        {purchasedItems.length > 0 ? purchasedItems.map((item, idx) => (
-                            <div key={idx} className="group bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 hover:bg-white/10 hover:border-white/20 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.3)] transition-all duration-500">
-                                <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-                                    <div className="flex items-center gap-6">
-                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors ${item.tipo_producto === 'beat' ? 'bg-blue-500/10 text-blue-500 group-hover:bg-blue-500/20' : 'bg-purple-500/10 text-purple-500 group-hover:bg-purple-500/20'}`}>
-                                            {item.tipo_producto === 'beat' ? <Music size={32} /> : item.tipo_producto === 'plan' ? <ShieldCheck size={32} /> : <Package size={32} />}
+                            {purchasedItems.length > 0 ? purchasedItems.map((item, idx) => (
+                                <div key={idx} className="group bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 hover:bg-white/10 hover:border-white/20 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.3)] transition-all duration-500">
+                                    <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                                        <div className="flex items-center gap-6">
+                                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors ${item.tipo_producto === 'beat' ? 'bg-blue-500/10 text-blue-500 group-hover:bg-blue-500/20' : 'bg-purple-500/10 text-purple-500 group-hover:bg-purple-500/20'}`}>
+                                                {item.tipo_producto === 'beat' ? <Music size={32} /> : item.tipo_producto === 'plan' ? <ShieldCheck size={32} /> : <Package size={32} />}
+                                            </div>
+                                            <div className="text-center md:text-left">
+                                                <h3 className="text-xl font-black uppercase tracking-tight text-white mb-1">{item.nombre}</h3>
+                                                <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">
+                                                    {item.tipo_producto === 'beat' ? `Licencia ${item.tipo_licencia || 'MP3'}` : item.tipo_producto === 'plan' ? 'Acceso Premium Activado' : 'Sound Kit Original'}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="text-center md:text-left">
-                                            <h3 className="text-xl font-black uppercase tracking-tight text-white mb-1">{item.nombre}</h3>
-                                            <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">
-                                                {item.tipo_producto === 'beat' ? `Licencia ${item.tipo_licencia || 'MP3'}` : item.tipo_producto === 'plan' ? 'Acceso Premium Activado' : 'Sound Kit Original'}
-                                            </p>
-                                        </div>
-                                    </div>
 
-                                    <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-center md:justify-end">
-                                        {item.tipo_producto !== 'plan' && (
-                                            <>
-                                                <button
-                                                    onClick={() => handleDownload(item)}
-                                                    className="px-6 py-3 bg-white text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-500 hover:text-white hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-white/5"
+                                        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-center md:justify-end">
+                                            {item.tipo_producto !== 'plan' && (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleDownload(item)}
+                                                        className="px-6 py-3 bg-white text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-500 hover:text-white hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-white/5"
+                                                    >
+                                                        <Download size={14} />
+                                                        Descargar
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDownloadLicense(item)}
+                                                        className="px-6 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 hover:border-white/20 transition-all flex items-center gap-2"
+                                                    >
+                                                        <FileText size={14} />
+                                                        Licencia PDF
+                                                    </button>
+                                                </>
+                                            )}
+                                            {item.tipo_producto === 'plan' && (
+                                                <Link
+                                                    href="/studio"
+                                                    className="px-6 py-3 bg-blue-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20"
                                                 >
-                                                    <Download size={14} />
-                                                    Descargar
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDownloadLicense(item)}
-                                                    className="px-6 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 hover:border-white/20 transition-all flex items-center gap-2"
-                                                >
-                                                    <FileText size={14} />
-                                                    Licencia PDF
-                                                </button>
-                                            </>
-                                        )}
-                                        {item.tipo_producto === 'plan' && (
-                                            <Link
-                                                href="/studio"
-                                                className="px-6 py-3 bg-blue-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20"
-                                            >
-                                                Ir al Studio
-                                                <ArrowRight size={14} />
-                                            </Link>
-                                        )}
+                                                    Ir al Studio
+                                                    <ArrowRight size={14} />
+                                                </Link>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )) : (
-                            <div className="p-12 bg-white/5 border border-white/10 rounded-[2.5rem] text-center">
-                                <p className="text-white/40 font-bold text-sm">No se pudieron cargar los archivos. Por favor, revisa "Mis Compras" en tu perfil.</p>
-                            </div>
-                        )}
-                    </div>
+                            )) : (
+                                <div className="p-12 bg-white/5 border border-white/10 rounded-[2.5rem] text-center">
+                                    <p className="text-white/40 font-bold text-sm">No se pudieron cargar los detalles de tu compra. Por favor, revisa tu perfil.</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Subscription-specific Highlight */}
+                    {purchasedItems.length > 0 && purchasedItems.some(i => i.tipo_producto === 'plan') && (
+                        <div className="space-y-6">
+                            <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-8 pl-4 flex items-center gap-3">
+                                <ShieldCheck size={14} className="text-blue-500" />
+                                Tu Suscripción Activa
+                            </h2>
+
+                            {purchasedItems.filter(i => i.tipo_producto === 'plan').map((item, idx) => (
+                                <div key={idx} className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-xl border border-blue-500/30 rounded-[2.5rem] p-10 hover:shadow-[0_20px_40px_-10px_rgba(59,130,246,0.2)] transition-all duration-500 border-dashed">
+                                    <div className="flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+                                        <div className="flex flex-col md:flex-row items-center gap-6">
+                                            <div className="w-20 h-20 bg-blue-500 text-white rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/40">
+                                                <Crown size={40} />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-3xl font-black uppercase tracking-tight text-white mb-2">{item.nombre}</h3>
+                                                <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                                                    <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-500/20">Acceso Ilimitado</span>
+                                                    <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-500/20">Studio Avanzado</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Link
+                                            href="/studio"
+                                            className="w-full md:w-auto px-10 py-5 bg-white text-black rounded-2xl font-black text-[12px] uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all shadow-xl hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
+                                        >
+                                            Explorar Studio
+                                            <ArrowRight size={18} />
+                                        </Link>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
                     {/* Support & Next Steps */}
                     <div className="mt-20 grid md:grid-cols-2 gap-8">

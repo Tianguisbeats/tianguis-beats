@@ -45,14 +45,28 @@ export async function POST(req: Request) {
             expand: ['data.price.product'],
         });
 
-        const usuarioId = session.client_reference_id!;
+        const usuarioId = session.client_reference_id;
         const montoTotal = session.amount_total! / 100;
         const moneda = session.currency?.toUpperCase() || 'MXN';
         const stripeId = session.id;
         const subscriptionId = session.subscription as string;
         const cuponId = session.metadata?.couponId;
 
+        console.log('--- WEBHOOK DEBUG: SESSION ---', {
+            usuarioId,
+            stripeId,
+            subscriptionId,
+            mode: session.mode,
+            payment_status: session.payment_status
+        });
+
         try {
+            // 1. Validar Usuario
+            if (!usuarioId) {
+                console.error('ERROR: No client_reference_id (usuarioId) in session');
+                return NextResponse.json({ error: 'Missing client_reference_id' }, { status: 400 });
+            }
+
             // 2. Crear la Orden (Cabecera)
             const { data: orden, error: orderError } = await supabaseAdmin
                 .from('ordenes')
@@ -67,19 +81,31 @@ export async function POST(req: Request) {
                 .select()
                 .single();
 
-            if (orderError) throw orderError;
+            if (orderError) {
+                console.error('ERROR: Creating order in DB:', orderError);
+                throw orderError;
+            }
+
+            console.log('--- ORDER CREATED ---', orden.id);
 
             // 3. Registrar Items y Ventas individuales
             for (const item of lineItems.data) {
                 const product = item.price?.product as Stripe.Product;
-                const metadata = product.metadata;
+                const metadata = product.metadata || {};
+
+                console.log('--- ITEM DEBUG ---', {
+                    name: product.name,
+                    type: metadata.type,
+                    tier: metadata.tier,
+                    cycle: metadata.cycle
+                });
 
                 // Insertar en items_orden
                 const { data: itemOrden, error: itemError } = await supabaseAdmin
                     .from('items_orden')
                     .insert({
                         orden_id: orden.id,
-                        producto_id: metadata.productId,
+                        producto_id: metadata.productId || product.id,
                         tipo_producto: metadata.type || 'beat',
                         nombre: product.name,
                         precio: item.amount_total / 100,
@@ -89,12 +115,17 @@ export async function POST(req: Request) {
                     .select()
                     .single();
 
-                if (itemError) throw itemError;
+                if (itemError) {
+                    console.error('ERROR: Creating item_orden:', itemError);
+                    throw itemError;
+                }
 
                 // --- LÓGICA DE SUSCRIPCIONES (PLANES) ---
                 if (metadata.type === 'plan') {
                     const tier = metadata.tier;
                     const cycle = metadata.cycle; // 'monthly' o 'yearly'
+
+                    console.log('--- ACTIVATING PLAN ---', { tier, cycle, usuarioId });
 
                     // Calcular fecha de expiración
                     const now = new Date();
@@ -106,20 +137,21 @@ export async function POST(req: Request) {
                     }
 
                     // Actualizar el perfil del usuario
-                    // Si el usuario compra un plan Pro o Premium por primera vez, le damos el badge de Founder
                     const { error: profileError } = await supabaseAdmin
                         .from('profiles')
                         .update({
                             subscription_tier: tier,
                             termina_suscripcion: expiryDate.toISOString(),
-                            stripe_subscription_id: subscriptionId,
-                            is_founder: true, // Se convierte en Founder al suscribirse (Early Adopter)
-                            comenzar_suscripcion: null
+                            stripe_subscription_id: subscriptionId || `one_time_${stripeId}`,
+                            is_founder: true,
+                            comenzar_suscripcion: now.toISOString()
                         })
                         .eq('id', usuarioId);
 
                     if (profileError) {
-                        console.error('Error actualizando suscripción en perfil:', profileError);
+                        console.error('ERROR: Updating profile subscription:', profileError);
+                    } else {
+                        console.log('--- PROFILE ACTIVATED SUCCESSFULLY ---');
                     }
                 }
 
