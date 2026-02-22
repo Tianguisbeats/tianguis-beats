@@ -72,7 +72,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Tab Navigation */}
-                <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-2xl border border-border">
+                <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-[1.25rem] border border-slate-200 dark:border-white/10 shadow-inner dark:shadow-none overflow-x-auto custom-scrollbar">
                     {[
                         { id: 'dashboard', label: 'Dashboard', icon: <TrendingUp size={14} /> },
                         { id: 'verifications', label: 'Verificaciones', icon: <ShieldCheck size={14} /> },
@@ -82,9 +82,9 @@ export default function AdminDashboard() {
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as Tab)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id
-                                ? 'bg-white dark:bg-white/10 text-foreground shadow-sm'
-                                : 'text-muted hover:text-foreground'
+                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id
+                                ? 'bg-white dark:bg-white/10 text-foreground shadow-md dark:shadow-[0_4px_10px_rgba(255,255,255,0.02)] border border-slate-200 dark:border-white/5'
+                                : 'text-muted hover:text-slate-900 dark:hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5'
                                 }`}
                         >
                             {tab.icon} {tab.id === 'dashboard' ? 'Dashboard' : tab.id === 'verifications' ? 'Verificaciones' : tab.id === 'users' ? 'Usuarios' : 'Cupones'}
@@ -149,7 +149,7 @@ function GlobalStats() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {cards.map((card, i) => (
-                <div key={i} className="bg-white dark:bg-white/5 border border-border rounded-[2.5rem] p-8 shadow-sm hover:translate-y-[-4px] transition-all">
+                <div key={i} className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] hover:shadow-xl dark:hover:shadow-accent/5 hover:border-accent/30 hover:translate-y-[-4px] transition-all">
                     <div className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-white/5 flex items-center justify-center mb-6">
                         {card.icon}
                     </div>
@@ -222,14 +222,14 @@ function VerificationManager() {
     return (
         <div className="space-y-6">
             {requests.length === 0 ? (
-                <div className="bg-slate-50 dark:bg-white/5 rounded-[2rem] p-12 text-center border border-border">
+                <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] rounded-[2rem] p-12 text-center">
                     <CheckCircle size={48} className="mx-auto text-emerald-500 mb-4" />
                     <h3 className="text-xl font-bold text-foreground">¡Sin pendientes!</h3>
                     <p className="text-muted text-sm mt-2">No hay solicitudes de verificación para revisar.</p>
                 </div>
             ) : (
                 requests.map((req) => (
-                    <div key={req.id} className="bg-white dark:bg-white/5 border border-border rounded-[2.5rem] p-8 flex flex-col lg:flex-row gap-8">
+                    <div key={req.id} className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 flex flex-col lg:flex-row gap-8 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] hover:border-accent/30 transition-all">
                         <div className="lg:w-1/4">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-12 h-12 rounded-full overflow-hidden bg-accent-soft">
@@ -351,7 +351,7 @@ function UserManager() {
                 />
             </div>
 
-            <div className="bg-white dark:bg-white/5 border border-border rounded-[2.5rem] overflow-hidden">
+            <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)]">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -580,7 +580,7 @@ function CouponManager() {
 
     return (
         <div className="space-y-12">
-            <div className="bg-white dark:bg-white/5 border border-border rounded-[2.5rem] p-8 shadow-sm">
+            <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)]">
                 <h3 className="text-xl font-black uppercase tracking-tighter mb-6 flex items-center gap-2">
                     {editingId ? <Edit2 size={20} className="text-accent" /> : <Save size={20} className="text-accent" />}
                     {editingId ? 'Editar Cupón' : 'Nuevo Cupón'}
@@ -613,7 +613,7 @@ function CouponManager() {
 
             <div className="grid gap-4">
                 {coupons.map(cp => (
-                    <div key={cp.id} className="bg-white dark:bg-white/5 border border-border rounded-[2rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6 hover:border-accent/30 transition-all">
+                    <div key={cp.id} className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6 hover:border-accent/40 hover:shadow-lg dark:hover:shadow-accent/5 transition-all shadow-md dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)]">
                         <div className="flex items-center gap-6">
                             <div className="w-16 h-16 rounded-2xl bg-accent-soft flex items-center justify-center text-accent font-black text-2xl">
                                 {cp.discount_percent}%

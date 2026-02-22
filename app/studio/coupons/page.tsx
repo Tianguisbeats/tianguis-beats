@@ -254,7 +254,7 @@ export default function CouponsPage() {
                         }[coupon.target_tier as 'all' | 'free' | 'pro' | 'premium'] || { color: 'accent', label: 'Unknown', bg: 'bg-accent/10', border: 'border-accent/20', text: 'text-accent' };
 
                         return (
-                            <div key={coupon.id} className={`group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 transition-all duration-700 hover:border-accent/30 hover:shadow-2xl dark:hover:shadow-black/60 hover:-translate-y-1 overflow-hidden shadow-xl dark:shadow-none ${(!coupon.is_active || isExpired) && 'opacity-60 grayscale'}`}>
+                            <div key={coupon.id} className={`group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 transition-all duration-700 hover:border-accent/40 hover:shadow-2xl dark:hover:shadow-accent/10 hover:-translate-y-1 overflow-hidden shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] ${(!coupon.is_active || isExpired) && 'opacity-60 grayscale'}`}>
 
                                 {/* Estética de Ticket: Recortes laterales */}
                                 <div className="absolute top-1/2 -left-4 w-8 h-8 rounded-full bg-slate-50 dark:bg-[#050508] border-r border-slate-200 dark:border-white/5 -translate-y-1/2 z-20" />
@@ -279,7 +279,7 @@ export default function CouponsPage() {
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-3">
-                                            <div className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-2xl p-4 space-y-1 relative overflow-hidden group/item">
+                                            <div className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-1 relative overflow-hidden group/item">
                                                 <div className={`absolute top-0 right-0 w-8 h-8 ${tierConfig.bg} blur-xl opacity-0 group-hover/item:opacity-100 transition-opacity`} />
                                                 <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] opacity-80 dark:opacity-50 text-center sm:text-left">Nivel Objetivo</p>
                                                 <div className="flex items-center justify-center sm:justify-start gap-2 text-slate-900 dark:text-foreground">
@@ -287,7 +287,7 @@ export default function CouponsPage() {
                                                     <span className="text-[10px] font-black uppercase tracking-tighter">{tierConfig.label === 'Universal' ? 'Todos' : tierConfig.label}</span>
                                                 </div>
                                             </div>
-                                            <div className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-2xl p-4 space-y-1">
+                                            <div className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-1">
                                                 <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] opacity-80 dark:opacity-50 text-center sm:text-left">Compra Mínima</p>
                                                 <div className="flex items-center justify-center sm:justify-start gap-2 text-slate-900 dark:text-foreground">
                                                     <DollarSign size={12} className="text-accent" />
@@ -297,7 +297,7 @@ export default function CouponsPage() {
                                         </div>
 
                                         {/* Usage Metrics */}
-                                        <div className="bg-slate-100/50 dark:bg-black/20 rounded-2xl p-4 border border-slate-200 dark:border-white/5 space-y-3">
+                                        <div className="bg-slate-100/50 dark:bg-black/20 rounded-2xl p-4 border border-slate-200 dark:border-white/10 space-y-3">
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-baseline gap-2">
                                                     <p className="text-xl font-black text-slate-900 dark:text-foreground tabular-nums">{coupon.usage_count}</p>

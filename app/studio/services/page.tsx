@@ -379,7 +379,7 @@ function ServicesManagerPage() {
                 ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {services.map(service => (
-                            <div key={service.id} className="group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 rounded-[3rem] p-10 overflow-hidden transition-all duration-500 hover:border-accent/30 hover:-translate-y-2 shadow-xl dark:shadow-none">
+                            <div key={service.id} className="group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3rem] p-10 overflow-hidden transition-all duration-500 hover:border-accent/40 hover:-translate-y-2 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] dark:hover:shadow-accent/10">
                                 <div className="absolute top-0 right-0 w-48 h-48 bg-accent/5 blur-[80px] -mr-24 -mt-24 pointer-events-none group-hover:bg-accent/10 transition-colors" />
 
                                 <div className="flex justify-start items-start mb-10 relative z-10">
@@ -456,7 +456,7 @@ function ServicesManagerPage() {
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
                     {soundKits.map(kit => (
-                        <div key={kit.id} className="group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 rounded-[3.5rem] overflow-hidden transition-all duration-700 hover:border-amber-500/30 hover:-translate-y-2 shadow-xl dark:shadow-none">
+                        <div key={kit.id} className="group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3.5rem] overflow-hidden transition-all duration-700 hover:border-amber-500/40 hover:-translate-y-2 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] dark:hover:shadow-amber-500/10">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-[100px] -mr-32 -mt-32 pointer-events-none group-hover:bg-amber-500/10 transition-colors" />
 
                             {/* Kit Cover Preview */}

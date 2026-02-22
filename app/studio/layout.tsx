@@ -97,25 +97,25 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                     'bg-slate-400/20'
                                 }`} />
                             <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-1 text-center w-full">Membresía</p>
-                            <h4 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
+                            <h4 className="text-sm font-black uppercase tracking-tight flex items-center justify-center gap-2 w-full">
                                 {profile?.subscription_tier === 'premium' ? <><Crown size={14} /> Plan Premium</> :
                                     profile?.subscription_tier === 'pro' ? <><Crown size={14} /> Plan Pro</> :
                                         <span className="px-2 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-black tracking-widest border border-slate-300 dark:border-slate-700">PLAN FREE</span>}
                             </h4>
                             {profile?.termina_suscripcion && (profile.subscription_tier === 'premium' || profile.subscription_tier === 'pro') && (
-                                <p className="text-[9px] font-black tracking-widest opacity-80 mt-2 flex items-center gap-1">
+                                <p className="text-[9px] font-black tracking-widest opacity-80 mt-2 flex items-center justify-center text-center gap-1 w-full">
                                     Válido hasta: {new Date(profile.termina_suscripcion).toLocaleDateString()}
                                 </p>
                             )}
 
                             {profile?.is_verified ? (
-                                <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-2 flex-nowrap min-w-fit">
+                                <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-center gap-2 flex-nowrap min-w-fit w-full">
                                     <img src="/verified-badge.png" alt="Verificado" className="w-3.5 h-3.5 object-contain shadow-lg" />
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 whitespace-nowrap">Verificado</span>
                                 </div>
                             ) : (
                                 <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/10">
-                                    <Link href="/studio/verification" className="flex items-center gap-2 group/verify hover:opacity-80 transition-opacity">
+                                    <Link href="/studio/verification" className="flex items-center justify-center gap-2 group/verify hover:opacity-80 transition-opacity w-full">
                                         <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center">
                                             <ShieldCheck size={10} />
                                         </div>

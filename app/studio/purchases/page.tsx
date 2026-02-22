@@ -251,11 +251,11 @@ export default function MyPurchasesPage() {
             ) : (
                 <div className="space-y-8">
                     {orders.map((order) => (
-                        <div key={order.id} className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-none rounded-[3rem] relative overflow-hidden transition-all duration-500 hover:border-accent/40 group">
+                        <div key={order.id} className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] rounded-[3rem] relative overflow-hidden transition-all duration-500 hover:border-accent/50 hover:shadow-2xl dark:hover:shadow-accent/10 group">
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-accent opacity-20 group-hover:opacity-40 transition-opacity" />
 
                             {/* Order Header */}
-                            <div className="px-8 py-8 border-b border-slate-200 dark:border-white/5 flex flex-wrap lg:flex-nowrap items-center justify-between gap-6">
+                            <div className="px-8 py-8 border-b border-slate-200 dark:border-white/10 flex flex-wrap lg:flex-nowrap items-center justify-between gap-6">
                                 <div className="flex items-center gap-6">
                                     <div className="w-16 h-16 bg-blue-500/5 text-blue-500 rounded-3xl flex items-center justify-center border border-blue-500/10 group-hover:scale-105 transition-transform duration-500 shadow-xl shadow-blue-500/5">
                                         <Package size={24} />
@@ -294,7 +294,7 @@ export default function MyPurchasesPage() {
                             {/* Order Items */}
                             <div className="p-8 space-y-4">
                                 {order.items.map((item) => (
-                                    <div key={item.id} className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/10 rounded-[2rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6 transition-all group/item hover:border-accent/20">
+                                    <div key={item.id} className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 rounded-[2rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6 transition-all group/item hover:border-accent/40 hover:shadow-md dark:hover:shadow-accent/5">
                                         <div className="flex flex-col md:flex-row items-center gap-6 w-full md:w-auto">
                                             <div className="w-16 h-16 bg-white dark:bg-[#020205] border border-slate-300 dark:border-white/10 shadow-xl rounded-[1.25rem] flex items-center justify-center text-slate-400 dark:text-muted/50 group-hover/item:text-accent group-hover/item:scale-105 transition-all duration-500 shrink-0">
                                                 {getItemIcon(item.product_type)}
