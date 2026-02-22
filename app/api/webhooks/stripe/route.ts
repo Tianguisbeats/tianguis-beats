@@ -47,7 +47,9 @@ export async function POST(req: Request) {
 
         const usuarioId = session.client_reference_id!;
         const montoTotal = session.amount_total! / 100;
+        const moneda = session.currency?.toUpperCase() || 'MXN';
         const stripeId = session.id;
+        const subscriptionId = session.subscription as string;
         const cuponId = session.metadata?.couponId;
 
         try {
@@ -57,6 +59,7 @@ export async function POST(req: Request) {
                 .insert({
                     usuario_id: usuarioId,
                     monto_total: montoTotal,
+                    moneda: moneda,
                     estado: 'completado',
                     stripe_id: stripeId,
                     cupon_id: cuponId || null
@@ -108,6 +111,7 @@ export async function POST(req: Request) {
                         .update({
                             subscription_tier: tier,
                             termina_suscripcion: expiryDate.toISOString(),
+                            stripe_subscription_id: subscriptionId, // GUARDAMOS LA SUSCRIPCIÓN
                             comenzar_suscripcion: null // Limpiar cambios programados si existen
                         })
                         .eq('id', usuarioId);
@@ -124,6 +128,7 @@ export async function POST(req: Request) {
                         vendedor_id: metadata.producer_id || metadata.producerId,
                         beat_id: metadata.productId,
                         monto: item.amount_total / 100,
+                        moneda: moneda,
                         tipo_licencia: metadata.licenseType || 'basic',
                         pago_id: stripeId,
                         metodo_pago: 'stripe'
