@@ -132,8 +132,7 @@ export async function POST(req: Request) {
                     .single();
 
                 if (itemError) {
-                    console.error('ERROR: Creating item_orden:', itemError);
-                    throw itemError;
+                    console.error('ERROR: Creating item_orden (non-fatal):', itemError);
                 }
 
                 // --- LÓGICA DE SUSCRIPCIONES (PLANES) ---

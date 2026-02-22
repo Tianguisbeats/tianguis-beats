@@ -44,9 +44,11 @@ export async function POST(req: Request) {
                         description: licenseInfo ? `${typeLabel}: ${licenseInfo.toUpperCase()}` : typeLabel,
                         images: itemImage,
                         metadata: {
-                            productId: item.id,
-                            type: item.type,
-                            ...item.metadata
+                            productId: item.id || '',
+                            type: item.type || '',
+                            tier: item.metadata?.tier || '',
+                            cycle: item.metadata?.cycle || '',
+                            licenseType: item.metadata?.licenseType || ''
                         }
                     },
                     unit_amount: Math.round(item.price * 100), // En centavos

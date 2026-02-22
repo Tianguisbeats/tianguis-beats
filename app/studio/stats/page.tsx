@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import {
     BarChart, Activity, Heart, Play, DollarSign,
     Users, TrendingUp, Award, Zap, ArrowUpRight,
-    Search, Filter, Download, Star
+    Search, Filter, Download, Star, Music2
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
@@ -151,11 +151,11 @@ export default function StudioStatsPage() {
                         <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mb-6 group-hover:scale-110 transition-transform">
                             <Play size={24} fill="currentColor" />
                         </div>
-                        <p className="text-[10px] font-black text-muted dark:text-muted text-slate-500 uppercase tracking-[0.3em] mb-2">Reproducciones</p>
-                        <h3 className="text-3xl font-black tracking-tighter text-foreground dark:text-foreground text-slate-900">
+                        <p className="text-[10px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] mb-2">Reproducciones</p>
+                        <h3 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-foreground">
                             {formatNumber(stats.totalPlays)}
                         </h3>
-                        <p className="mt-4 text-[10px] font-bold text-muted dark:text-muted text-slate-400 uppercase tracking-widest opacity-60">Alcance global</p>
+                        <p className="mt-4 text-[10px] font-bold text-slate-400 dark:text-muted uppercase tracking-widest opacity-60">Alcance global</p>
                     </div>
                 </div>
 
@@ -193,57 +193,68 @@ export default function StudioStatsPage() {
             <div className="space-y-8">
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Top Performing Beat Table / Column */}
-                    <div className="lg:col-span-2 bg-[#020205] border border-white/5 rounded-[3rem] p-10 relative overflow-hidden">
+                    <div className="lg:col-span-2 bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-none rounded-[3rem] p-10 relative overflow-hidden transition-all">
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent to-purple-600 opacity-20" />
 
                         <div className="flex items-center justify-between mb-10">
                             <div>
-                                <h3 className="text-2xl font-black uppercase tracking-tighter mb-2">Beats con <span className="text-accent underline underline-offset-4 decoration-white/10">Mayor Rendimiento</span></h3>
-                                <p className="text-[10px] font-bold text-muted uppercase tracking-widest opacity-60">Tus tracks más rentables esta temporada</p>
+                                <h2 className="text-2xl font-black text-slate-900 dark:text-foreground tracking-tighter uppercase mb-2">
+                                    Beats con <span className="text-accent">mayor rendimiento</span>
+                                </h2>
+                                <p className="text-sm font-medium text-slate-500 dark:text-muted">Desempeño de tus mejores producciones</p>
                             </div>
-                            <Search size={18} className="text-muted opacity-40" />
                         </div>
 
-                        <div className="space-y-4">
-                            {stats.beatsList.map((beat, idx) => (
-                                <div key={beat.id} className="group flex items-center justify-between p-4 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-accent/20 transition-all">
-                                    <div className="flex items-center gap-5">
-                                        <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-white/10 group-hover:scale-105 transition-transform duration-500">
-                                            <Image src={beat.cover_url || '/placeholder-beat.jpg'} fill className="object-cover" alt={beat.title} />
-                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Play size={16} className="text-white" fill="white" />
+                        {loading ? (
+                            <div className="flex justify-center items-center h-48">
+                                <span className="opacity-50 text-sm font-black uppercase tracking-widest text-slate-400 dark:text-white flex items-center gap-2">
+                                    <TrendingUp className="animate-pulse" /> Cargando Datos...
+                                </span>
+                            </div>
+                        ) : stats.beatsList.length === 0 ? (
+                            <div className="flex flex-col justify-center items-center h-48 border border-dashed border-slate-300 dark:border-white/10 rounded-3xl">
+                                <Music2 size={32} className="text-slate-300 dark:text-white/20 mb-3" />
+                                <span className="opacity-50 text-xs font-black uppercase tracking-widest text-slate-400 dark:text-white">Aún no hay datos de beats</span>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {stats.beatsList.map((beat: any, idx) => (
+                                    <div key={beat.id} className="group flex items-center justify-between p-4 rounded-3xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/10 hover:border-accent/20 transition-all">
+                                        <div className="flex items-center gap-5">
+                                            <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-slate-300 dark:border-white/10 group-hover:scale-105 transition-transform duration-500">
+                                                <Image src={beat.cover_url || '/placeholder-beat.jpg'} fill className="object-cover" alt={beat.title} />
+                                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <Play size={16} className="text-white" fill="white" />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h4 className="text-xs font-black uppercase tracking-widest mb-1 text-slate-900 dark:text-foreground group-hover:text-accent transition-colors">{beat.title}</h4>
+                                                <div className="flex items-center gap-4 text-[9px] font-bold text-slate-500 dark:text-muted uppercase tracking-[0.2em]">
+                                                    <span className="flex items-center gap-1.5"><Play size={10} /> {formatNumber(beat.play_count)}</span>
+                                                    <span className="flex items-center gap-1.5"><Heart size={10} fill="currentColor" /> {formatNumber(beat.like_count)}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div>
-                                            <h4 className="text-xs font-black uppercase tracking-widest mb-1 group-hover:text-accent transition-colors">{beat.title}</h4>
-                                            <div className="flex items-center gap-4 text-[9px] font-bold text-muted uppercase tracking-[0.2em]">
-                                                <span className="flex items-center gap-1.5"><Play size={10} /> {formatNumber(beat.play_count)}</span>
-                                                <span className="flex items-center gap-1.5"><Heart size={10} fill="currentColor" /> {formatNumber(beat.like_count)}</span>
+                                        <div className="text-right">
+                                            <div className="flex items-center gap-2 text-accent font-black text-xs">
+                                                RANGO #{idx + 1}
+                                                <ArrowUpRight size={14} />
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="flex items-center gap-2 text-accent font-black text-xs">
-                                            RANGO #{idx + 1}
-                                            <ArrowUpRight size={14} />
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-
-                            {stats.beatsList.length === 0 && (
-                                <div className="py-20 text-center border-2 border-dashed border-white/5 rounded-[2.5rem]">
-                                    <Activity className="w-12 h-12 text-muted/20 mx-auto mb-4" />
-                                    <p className="text-[10px] font-black text-muted uppercase tracking-widest">Sube tu primer beat para ver estadísticas</p>
-                                </div>
-                            )}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Elite Graphic Placeholder (Simplified SVG trend) */}
-                    <div className="bg-[#020205] border border-white/10 rounded-[3rem] p-8 text-center flex flex-col items-center justify-center min-h-[400px]">
-                        <BarChart className="w-16 h-16 text-accent/20 mx-auto mb-6" />
-                        <span className="text-[10px] font-black text-muted uppercase tracking-[0.4em]">Análisis de Tendencia Histórica</span>
+                    <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-none rounded-[3rem] p-8 flex flex-col justify-between relative overflow-hidden transition-all">
+                        <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-accent/5 blur-[80px] rounded-full pointer-events-none" />
+
+                        <div>
+                            <h3 className="text-lg font-black uppercase tracking-tighter text-slate-900 dark:text-foreground mb-1">Análisis de <span className="text-accent underline underline-offset-4 decoration-accent/30">Tendencia</span></h3>
+                            <p className="text-[9px] font-bold text-slate-500 dark:text-muted uppercase tracking-widest opacity-60">Crecimiento Histórico</p>
+                        </div>
                     </div>
                 </div>
 
