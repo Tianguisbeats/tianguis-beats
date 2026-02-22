@@ -40,23 +40,24 @@ export async function POST(req: Request) {
             };
         });
 
-        // 2. Crear sesión de Checkout
+        // 2. Determinar el modo de la sesión (si hay un plan, usamos 'subscription')
+        const hasPlan = items.some((item: any) => item.type === 'plan');
+
         const stripe = getStripe();
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items,
-            mode: 'payment',
-            allow_promotion_codes: false, // Desactivado: El descuento ya se aplicó en el carrito
-            locale: 'es', // Forzar español para que diga "Total" o similar según Stripe
+            mode: hasPlan ? 'subscription' : 'payment',
+            allow_promotion_codes: false,
+            locale: 'es',
             success_url: `${process.env.NEXT_PUBLIC_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.NEXT_PUBLIC_URL}/cart`,
             client_reference_id: customerId,
             metadata: {
                 couponId: couponId || '',
             },
-            // Opciones adicionales para feeling Premium
             billing_address_collection: 'auto',
-            submit_type: 'pay', // En lugar de 'book' o 'donate', pone 'Pagar'
+            submit_type: hasPlan ? undefined : 'pay', // 'pay' no es compatible con el modo 'subscription'
         });
 
         return NextResponse.json({ id: session.id, url: session.url });

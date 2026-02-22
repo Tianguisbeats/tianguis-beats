@@ -106,13 +106,15 @@ export async function POST(req: Request) {
                     }
 
                     // Actualizar el perfil del usuario
+                    // Si el usuario compra un plan Pro o Premium por primera vez, le damos el badge de Founder
                     const { error: profileError } = await supabaseAdmin
                         .from('profiles')
                         .update({
                             subscription_tier: tier,
                             termina_suscripcion: expiryDate.toISOString(),
-                            stripe_subscription_id: subscriptionId, // GUARDAMOS LA SUSCRIPCIÓN
-                            comenzar_suscripcion: null // Limpiar cambios programados si existen
+                            stripe_subscription_id: subscriptionId,
+                            is_founder: true, // Se convierte en Founder al suscribirse (Early Adopter)
+                            comenzar_suscripcion: null
                         })
                         .eq('id', usuarioId);
 
