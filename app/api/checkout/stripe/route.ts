@@ -40,7 +40,6 @@ export async function POST(req: Request) {
             mode: 'payment',
             success_url: `${process.env.NEXT_PUBLIC_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.NEXT_PUBLIC_URL}/cart`,
-            customer_email: customerEmail,
             client_reference_id: customerId,
             metadata: {
                 couponId: couponId || '',
