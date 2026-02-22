@@ -94,7 +94,11 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
             price: priceMap[selectedLicense as keyof typeof priceMap],
             image: beat.portadabeat_url || undefined,
             subtitle: `Prod. by ${(beat.producer as any)?.artistic_name || (beat.producer as any)?.username}`,
-            metadata: { license: selectedLicense, beatId: beat.id }
+            metadata: {
+                license: selectedLicense,
+                beatId: beat.id,
+                producer_id: beat.producer_id
+            }
         });
 
         router.push('/cart');

@@ -47,11 +47,11 @@ export default function StudioStatsPage() {
                 .eq('producer_id', user.id)
                 .order('play_count', { ascending: false });
 
-            // 2. Fetch Sales & Revenue
+            // 2. Fetch Sales & Revenue (Ventas)
             const { data: sales } = await supabase
-                .from('sales')
-                .select('amount')
-                .eq('seller_id', user.id);
+                .from('ventas')
+                .select('monto')
+                .eq('vendedor_id', user.id);
 
             // 3. Fetch Followers
             const { count: followers } = await supabase
@@ -62,7 +62,7 @@ export default function StudioStatsPage() {
             if (beats) {
                 const totalPlays = beats.reduce((sum, b) => sum + (b.play_count || 0), 0);
                 const totalLikes = beats.reduce((sum, b) => sum + (b.like_count || 0), 0);
-                const totalRevenue = sales?.reduce((sum, s) => sum + (Number(s.amount) || 0), 0) || 0;
+                const totalRevenue = sales?.reduce((sum, s) => sum + (Number(s.monto) || 0), 0) || 0;
                 const totalSales = sales?.length || 0;
 
                 setStats({

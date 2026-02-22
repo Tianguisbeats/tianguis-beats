@@ -117,13 +117,13 @@ function GlobalStats() {
     useEffect(() => {
         const fetchStats = async () => {
             const [sales, users, beats, verifs] = await Promise.all([
-                supabase.from('sales').select('amount'),
+                supabase.from('ventas').select('monto'),
                 supabase.from('profiles').select('id', { count: 'exact', head: true }),
                 supabase.from('beats').select('id', { count: 'exact', head: true }),
                 supabase.from('verification_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending')
             ]);
 
-            const revenue = sales.data?.reduce((acc, s) => acc + (s.amount || 0), 0) || 0;
+            const revenue = sales.data?.reduce((acc, s) => acc + (s.monto || 0), 0) || 0;
 
             setStats({
                 totalSales: revenue,

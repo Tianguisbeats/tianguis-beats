@@ -92,18 +92,25 @@ export default function CartPage() {
             const producerId = data.user_id || data.producer_id;
 
             items.forEach(item => {
-                if (item.type === 'plan') return; // Nunca descontar planes
-
                 const itemProducerId = item.metadata?.producer_id || item.metadata?.producerId;
 
-                // Si es cupón de productor, validar que sea dueño del item
-                // Si es cupón global (sin producerId), aplica a todos
-                if (!producerId || itemProducerId === producerId) {
-                    if (data.discount_type === 'fixed') {
-                        // Descuento fijo se aplica al total o se prorratea? 
-                        // Regla: Descuento fijo aplica una sola vez al total de items elegibles
-                        // Pero para seguimiento mejor lo guardamos como un valor global
-                    } else {
+                // REGLA DE CUPONES REFINADA:
+                // 1. Cupón de Productor: Solo aplica a sus productos (Beats, Kits, Servicios). NUNCA a planes.
+                // 2. Cupón de Administrador (sin producerId): Solo aplica a SUSCRIPCIONES (Planes). 
+                //    No interfiere en los precios que el productor puso a sus beats.
+
+                let isItemEligible = false;
+
+                if (producerId) {
+                    // Es cupón de productor
+                    isItemEligible = item.type !== 'plan' && itemProducerId === producerId;
+                } else {
+                    // Es cupón de administrador
+                    isItemEligible = item.type === 'plan';
+                }
+
+                if (isItemEligible) {
+                    if (data.discount_type !== 'fixed') {
                         // Porcentual aplica a cada item
                         totalDiscount += item.price * ((data.discount_value || data.porcentaje_descuento) / 100);
                     }
@@ -407,14 +414,6 @@ export default function CartPage() {
                                                     <CreditCard size={18} />
                                                     PAGAR CON TARJETA
                                                 </div>
-                                            </button>
-
-                                            <button
-                                                onClick={() => handleCheckout('paypal')}
-                                                disabled={checkingOut}
-                                                className="w-full h-16 bg-[#003087] text-white rounded-[2rem] font-black uppercase text-[11px] tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 border border-white/10"
-                                            >
-                                                <span className="italic font-serif lowercase tracking-tighter text-2xl font-black">Pay<span className="text-white/80 font-medium">Pal</span></span>
                                             </button>
                                         </div>
 

@@ -16,27 +16,64 @@ export default function StudioSalesPage() {
     const [totalRevenue, setTotalRevenue] = useState(0);
     const [searchTerm, setSearchTerm] = useState("");
     const [filterLicense, setFilterLicense] = useState("all");
+    const [recentSales, setRecentSales] = useState(0); // New state variable
+    const [avgSaleValue, setAvgSaleValue] = useState(0); // New state variable
 
     useEffect(() => {
         const fetchSales = async () => {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
-
-            const { data, error } = await supabase
-                .from('sales')
-                .select(`
-                    *,
-                    beats (title, portadabeat_url),
-                    buyer:buyer_id (username, artistic_name, foto_perfil)
-                `)
-                .eq('seller_id', user.id)
-                .order('created_at', { ascending: false });
-
-            if (!error && data) {
-                setSales(data);
-                const total = data.reduce((acc, sale) => acc + (sale.amount || 0), 0);
-                setTotalRevenue(total);
+            if (!user) {
+                setLoading(false);
+                return;
             }
+
+            // Fetch sales data using the new Spanish schema
+            const { data, error } = await supabase
+                .from('ventas')
+                .select(`
+                    id,
+                    monto,
+                    fecha_creacion,
+                    tipo_licencia,
+                    metodo_pago,
+                    beats (title, portadabeat_url),
+                    buyer:comprador_id (username, artistic_name, foto_perfil)
+                `)
+                .eq('vendedor_id', user.id)
+                .order('fecha_creacion', { ascending: false });
+
+            if (error) {
+                console.error("Error fetching sales:", error);
+                setLoading(false);
+                return;
+            }
+
+            // Map to the internal expected format to avoid breaking UI components
+            const formattedSales = data.map(sale => ({
+                id: sale.id,
+                amount: sale.monto,
+                created_at: sale.fecha_creacion,
+                license_type: sale.tipo_licencia,
+                payment_method: sale.metodo_pago,
+                beats: sale.beats,
+                buyer: sale.buyer
+            }));
+
+            setSales(formattedSales);
+
+            // Calculate metrics
+            const total = formattedSales.reduce((acc, sale) => acc + (sale.amount || 0), 0);
+            setTotalRevenue(total);
+
+            const recent = formattedSales.filter(s => {
+                const saleDate = new Date(s.created_at);
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                return saleDate > thirtyDaysAgo;
+            }).length;
+            setRecentSales(recent);
+
+            setAvgSaleValue(total > 0 && formattedSales.length > 0 ? total / formattedSales.length : 0);
             setLoading(false);
         };
 

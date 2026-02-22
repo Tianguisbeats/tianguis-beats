@@ -53,38 +53,47 @@ export default function MyPurchasesPage() {
         if (!user) return;
 
         try {
-            const { data: ordersData, error } = await supabase
-                .from('orders')
+            // Fetch orders and their items using the new Spanish schema
+            const { data: ordersData, error: ordersError } = await supabase
+                .from('ordenes')
                 .select(`
-                    id, 
-                    created_at, 
-                    total_amount, 
-                    status,
-                    order_items (
+                    id,
+                    fecha_creacion,
+                    monto_total,
+                    estado,
+                    items_orden (
                         id,
-                        product_type,
-                        name,
-                        price,
-                        license_type,
-                        metadata
+                        tipo_producto,
+                        nombre,
+                        precio,
+                        tipo_licencia,
+                        metadatos
                     )
                 `)
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false });
+                .eq('usuario_id', user.id)
+                .order('fecha_creacion', { ascending: false });
 
-            if (error) throw error;
+            if (ordersError) throw ordersError;
 
-            // Fetch linked service projects if any
-            const orderIds = ordersData.map(o => o.id);
+            // Fetch linked projects
             const { data: projectsData } = await supabase
                 .from('service_projects')
                 .select('id, order_item_id')
-                .in('order_item_id', ordersData.flatMap(o => o.order_items.map(i => i.id)));
+                .in('order_item_id', ordersData.flatMap(o => o.items_orden.map((i: any) => i.id)));
 
-            const formattedOrders = ordersData.map(order => ({
-                ...order,
-                items: order.order_items.map((item: any) => ({
-                    ...item,
+            // Map items to include project_id
+            const formattedOrders = (ordersData || []).map(order => ({
+                id: order.id,
+                created_at: order.fecha_creacion,
+                total_amount: order.monto_total,
+                status: order.estado,
+                items: (order.items_orden || []).map((item: any) => ({
+                    id: item.id,
+                    product_type: item.tipo_producto,
+                    name: item.nombre,
+                    price: item.precio,
+                    license_type: item.tipo_licencia,
+                    metadata: item.metadatos,
                     project_id: projectsData?.find(p => p.order_item_id === item.id)?.id
                 }))
             }));

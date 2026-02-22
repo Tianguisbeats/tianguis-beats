@@ -38,7 +38,6 @@ export async function POST(req: Request) {
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object as Stripe.Checkout.Session;
 
-        // 1. Recuperar line items con metadatos extendidos
         const stripe = getStripe();
         const supabaseAdmin = getSupabaseAdmin();
 
@@ -46,21 +45,21 @@ export async function POST(req: Request) {
             expand: ['data.price.product'],
         });
 
-        const userId = session.client_reference_id!;
-        const totalAmount = session.amount_total! / 100;
-        const paymentIntentId = session.payment_intent as string;
-        const couponId = session.metadata?.couponId;
+        const usuarioId = session.client_reference_id!;
+        const montoTotal = session.amount_total! / 100;
+        const stripeId = session.id;
+        const cuponId = session.metadata?.couponId;
 
         try {
-            // 2. Crear la Orden
-            const { data: order, error: orderError } = await supabaseAdmin
-                .from('orders')
+            // 2. Crear la Orden (Cabecera)
+            const { data: orden, error: orderError } = await supabaseAdmin
+                .from('ordenes')
                 .insert({
-                    user_id: userId,
-                    total_amount: totalAmount,
-                    status: 'completed',
-                    payment_intent_id: paymentIntentId,
-                    coupon_id: couponId || null
+                    usuario_id: usuarioId,
+                    monto_total: montoTotal,
+                    estado: 'completado',
+                    stripe_id: stripeId,
+                    cupon_id: cuponId || null
                 })
                 .select()
                 .single();
@@ -72,45 +71,44 @@ export async function POST(req: Request) {
                 const product = item.price?.product as Stripe.Product;
                 const metadata = product.metadata;
 
-                // Insertar en order_items
-                const { data: orderItem, error: itemError } = await supabaseAdmin
-                    .from('order_items')
+                // Insertar en items_orden
+                const { data: itemOrden, error: itemError } = await supabaseAdmin
+                    .from('items_orden')
                     .insert({
-                        order_id: order.id,
-                        product_id: metadata.productId,
-                        product_type: metadata.type || 'beat',
-                        name: product.name,
-                        price: item.amount_total / 100,
-                        license_type: metadata.licenseType || 'basic',
-                        metadata: metadata
+                        orden_id: orden.id,
+                        producto_id: metadata.productId,
+                        tipo_producto: metadata.type || 'beat',
+                        nombre: product.name,
+                        precio: item.amount_total / 100,
+                        tipo_licencia: metadata.licenseType || 'basic',
+                        metadatos: metadata
                     })
                     .select()
                     .single();
 
                 if (itemError) throw itemError;
 
-                // Si es un beat, insertamos en la tabla legacy 'sales' para el dashboard del productor
+                // Si es un beat, insertamos en la tabla 'ventas' para el dashboard del productor
                 if (metadata.type === 'beat') {
-                    await supabaseAdmin.from('sales').insert({
-                        buyer_id: userId,
-                        seller_id: metadata.producer_id || metadata.producerId,
+                    await supabaseAdmin.from('ventas').insert({
+                        comprador_id: usuarioId,
+                        vendedor_id: metadata.producer_id || metadata.producerId,
                         beat_id: metadata.productId,
-                        amount: item.amount_total / 100,
-                        license_type: metadata.licenseType || 'basic',
-                        payment_id: paymentIntentId,
-                        payment_method: 'stripe'
+                        monto: item.amount_total / 100,
+                        tipo_licencia: metadata.licenseType || 'basic',
+                        pago_id: stripeId,
+                        metodo_pago: 'stripe'
                     });
                 }
             }
 
             // 4. Incrementar uso de cupón si aplica
-            if (couponId) {
-                await supabaseAdmin.rpc('increment_coupon_usage', { coupon_uuid: couponId });
+            if (cuponId) {
+                await supabaseAdmin.rpc('incrementar_uso_cupon', { cupon_uuid: cuponId });
             }
 
         } catch (dbErr) {
             console.error('Error actualizando DB post-pago:', dbErr);
-            // Stripe reintentará si devolvemos un error
             return NextResponse.json({ error: 'Database update failed' }, { status: 500 });
         }
     }
