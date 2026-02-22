@@ -14,32 +14,60 @@ import {
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { supabase } from '@/lib/supabase';
 import { getBeatFulfillmentLinks, getSoundKitFulfillmentLink } from '@/lib/fulfillment';
-import { generateLicenseText } from '@/lib/licenses';
 import { useToast } from '@/context/ToastContext';
 
 export default function SuccessPage() {
     const { showToast } = useToast();
     const [purchasedItems, setPurchasedItems] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [orderId, setOrderId] = useState<string | null>(null);
 
     useEffect(() => {
-        // En un escenario real, cargaríamos esto desde la base de datos usando el ID de la transacción
-        // Por ahora simularemos la recuperación de los items comprados recientemente
-        const lastPurchase = localStorage.getItem('last_purchase');
-        if (lastPurchase) {
-            setPurchasedItems(JSON.parse(lastPurchase));
-        }
-        setLoading(false);
+        const fetchOrder = async () => {
+            const params = new URLSearchParams(window.location.search);
+            const sessionId = params.get('session_id');
+
+            if (!sessionId) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                // 1. Buscar la orden por stripe_id
+                const { data: orden, error: orderError } = await supabase
+                    .from('ordenes')
+                    .select('id, items_orden(*)')
+                    .eq('stripe_id', sessionId)
+                    .single();
+
+                if (orderError) throw orderError;
+
+                if (orden) {
+                    setOrderId(orden.id);
+                    setPurchasedItems(orden.items_orden);
+                    // Limpiar el carrito localmente después de una compra exitosa
+                    localStorage.removeItem('tianguis-cart');
+                }
+            } catch (err) {
+                console.error("Error fetching purchase session:", err);
+                showToast("Hubo un error al cargar los detalles de tu compra.", 'error');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchOrder();
     }, []);
 
     const handleDownload = async (item: any) => {
         let links: any[] = [];
-        const metadata = item.metadata || {};
+        const metadata = item.metadatos || {}; // Usar metadatos de la DB
 
-        if (item.type === 'beat') {
-            links = await getBeatFulfillmentLinks(metadata, item.licenseType);
-        } else if (metadata.isSoundKit || item.type === 'license') {
+        if (item.tipo_producto === 'beat') {
+            links = await getBeatFulfillmentLinks(metadata, item.tipo_licencia);
+        } else if (item.tipo_producto === 'sound_kit') {
             const link = await getSoundKitFulfillmentLink(metadata);
             if (link) links.push(link);
         }
@@ -62,21 +90,29 @@ export default function SuccessPage() {
     };
 
     const handleDownloadLicense = (item: any) => {
-        const licenseText = generateLicenseText(item.licenseType || 'basic', {
-            producerName: item.metadata?.producer_name || item.producerName || 'Productor Tianguis',
-            buyerName: 'Cliente Tianguis',
-            productName: item.name,
-            purchaseDate: new Date().toLocaleDateString(),
-            amount: item.price.toString()
+        import('@/lib/pdfGenerator').then(({ downloadLicensePDF }) => {
+            downloadLicensePDF({
+                type: item.tipo_licencia as any || 'basic',
+                producerName: item.metadatos?.producer_name || item.metadatos?.producerName || 'Productor Tianguis',
+                buyerName: 'Cliente Tianguis', // Podríamos obtener el nombre real si estuviera en la orden
+                productName: item.nombre,
+                purchaseDate: new Date(item.fecha_creacion).toLocaleDateString(),
+                amount: item.precio,
+                orderId: orderId || 'N/A'
+            });
+            showToast("Licencia PDF generada con éxito", 'success');
         });
-
-        const blob = new Blob([licenseText], { type: 'text/plain' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Licencia_${item.name.replace(/\s+/g, '_')}.txt`;
-        a.click();
     };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-[#020617] flex items-center justify-center">
+                <div className="animate-spin text-blue-500">
+                    <Music size={48} />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-blue-500/30">
@@ -99,7 +135,7 @@ export default function SuccessPage() {
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">tu compra!</span>
                         </h1>
                         <p className="text-white/60 text-lg font-medium max-w-lg mx-auto leading-relaxed">
-                            Tus archivos están listos para descargar. También hemos enviado una copia de tus licencias a tu correo electrónico.
+                            Tus archivos están listos para descargar. También puedes descargar tus licencias oficiales en formato PDF.
                         </p>
                     </div>
 
@@ -107,45 +143,58 @@ export default function SuccessPage() {
                     <div className="space-y-6">
                         <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-8 pl-4 flex items-center gap-3">
                             <Download size={14} className="text-blue-500" />
-                            Tus Archivos de Alta Calidad
+                            Tus Archivos en Alta Calidad
                         </h2>
 
                         {purchasedItems.length > 0 ? purchasedItems.map((item, idx) => (
                             <div key={idx} className="group bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 hover:bg-white/10 hover:border-white/20 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.3)] transition-all duration-500">
                                 <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                                     <div className="flex items-center gap-6">
-                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors ${item.type === 'beat' ? 'bg-blue-500/10 text-blue-500 group-hover:bg-blue-500/20' : 'bg-purple-500/10 text-purple-500 group-hover:bg-purple-500/20'}`}>
-                                            {item.type === 'beat' ? <Music size={32} /> : <Package size={32} />}
+                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors ${item.tipo_producto === 'beat' ? 'bg-blue-500/10 text-blue-500 group-hover:bg-blue-500/20' : 'bg-purple-500/10 text-purple-500 group-hover:bg-purple-500/20'}`}>
+                                            {item.tipo_producto === 'beat' ? <Music size={32} /> : item.tipo_producto === 'plan' ? <ShieldCheck size={32} /> : <Package size={32} />}
                                         </div>
                                         <div className="text-center md:text-left">
-                                            <h3 className="text-xl font-black uppercase tracking-tight text-white mb-1">{item.name}</h3>
+                                            <h3 className="text-xl font-black uppercase tracking-tight text-white mb-1">{item.nombre}</h3>
                                             <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">
-                                                {item.type === 'beat' ? `Licencia ${item.licenseType || 'MP3'}` : 'Sound Kit Original'}
+                                                {item.tipo_producto === 'beat' ? `Licencia ${item.tipo_licencia || 'MP3'}` : item.tipo_producto === 'plan' ? 'Acceso Premium Activado' : 'Sound Kit Original'}
                                             </p>
                                         </div>
                                     </div>
 
                                     <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-center md:justify-end">
-                                        <button
-                                            onClick={() => handleDownload(item)}
-                                            className="px-6 py-3 bg-white text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-500 hover:text-white hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-white/5"
-                                        >
-                                            <Download size={14} />
-                                            Descargar
-                                        </button>
-                                        <button
-                                            onClick={() => handleDownloadLicense(item)}
-                                            className="px-6 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 hover:border-white/20 transition-all flex items-center gap-2"
-                                        >
-                                            <FileText size={14} />
-                                            Licencia
-                                        </button>
+                                        {item.tipo_producto !== 'plan' && (
+                                            <>
+                                                <button
+                                                    onClick={() => handleDownload(item)}
+                                                    className="px-6 py-3 bg-white text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-500 hover:text-white hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-white/5"
+                                                >
+                                                    <Download size={14} />
+                                                    Descargar
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDownloadLicense(item)}
+                                                    className="px-6 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 hover:border-white/20 transition-all flex items-center gap-2"
+                                                >
+                                                    <FileText size={14} />
+                                                    Licencia PDF
+                                                </button>
+                                            </>
+                                        )}
+                                        {item.tipo_producto === 'plan' && (
+                                            <Link
+                                                href="/studio"
+                                                className="px-6 py-3 bg-blue-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20"
+                                            >
+                                                Ir al Studio
+                                                <ArrowRight size={14} />
+                                            </Link>
+                                        )}
                                     </div>
                                 </div>
                             </div>
                         )) : (
                             <div className="p-12 bg-white/5 border border-white/10 rounded-[2.5rem] text-center">
-                                <p className="text-white/40 font-bold text-sm">No se encontraron archivos recientes.</p>
+                                <p className="text-white/40 font-bold text-sm">No se pudieron cargar los archivos. Por favor, revisa "Mis Compras" en tu perfil.</p>
                             </div>
                         )}
                     </div>
