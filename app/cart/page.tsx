@@ -193,9 +193,9 @@ export default function CartPage() {
             } else {
                 throw new Error("No se pudo generar la sesión de pago.");
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error en el proceso de compra:", err);
-            showToast("Lo sentimos, hubo un problema al procesar tu pago.", 'error');
+            showToast(err.message || "Lo sentimos, hubo un problema al procesar tu pago.", 'error');
         } finally {
             setCheckingOut(false);
         }
