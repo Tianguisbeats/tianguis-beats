@@ -20,6 +20,7 @@ import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
 import { downloadLicensePDF } from '@/lib/pdfGenerator';
 import { LicenseType } from '@/lib/licenses';
+import { getBeatFulfillmentLinks, getSoundKitFulfillmentLink } from '@/lib/fulfillment';
 
 type OrderItem = {
     id: string;
@@ -123,6 +124,40 @@ export default function MyPurchasesPage() {
             case 'sound_kit': return <Cpu size={18} />;
             case 'service': return <Briefcase size={18} />;
             default: return <Package size={18} />;
+        }
+    };
+
+    const handleDownloadFiles = async (item: OrderItem) => {
+        try {
+            showToast("Generando enlaces de descarga seguros...", "info");
+            let links: { label: string, url: string }[] = [];
+            const metadata = item.metadata || {};
+
+            if (item.product_type === 'beat') {
+                links = await getBeatFulfillmentLinks(metadata, item.license_type || 'basic');
+            } else if (item.product_type === 'sound_kit') {
+                const link = await getSoundKitFulfillmentLink(metadata);
+                if (link) links.push(link);
+            }
+
+            if (links.length === 0) {
+                showToast("No se encontraron archivos para descargar.", "error");
+                return;
+            }
+
+            // Abrir el primero inmediatamente
+            window.open(links[0].url, '_blank');
+            showToast(`Iniciando descarga: ${links[0].label}`, "success");
+
+            // Si hay más archivos, abrirlos con un pequeño retraso
+            if (links.length > 1) {
+                links.slice(1).forEach((link, idx) => {
+                    setTimeout(() => window.open(link.url, '_blank'), (idx + 1) * 800);
+                });
+            }
+        } catch (error) {
+            console.error("Error in download flow:", error);
+            showToast("Error al procesar la descarga", "error");
         }
     };
 
@@ -254,10 +289,7 @@ export default function MyPurchasesPage() {
                                             ) : (
                                                 <>
                                                     <button
-                                                        onClick={() => {
-                                                            // Logic for actual file download would go here
-                                                            showToast("Iniciando descarga de archivos...", "info");
-                                                        }}
+                                                        onClick={() => handleDownloadFiles(item)}
                                                         className="flex-1 md:flex-none px-6 py-3 bg-foreground text-background dark:bg-white dark:text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg shadow-black/5 flex items-center justify-center gap-2"
                                                     >
                                                         <Download size={14} />

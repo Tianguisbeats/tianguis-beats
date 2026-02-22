@@ -123,16 +123,37 @@ export async function POST(req: Request) {
 
                 // Si es un beat, insertamos en la tabla 'ventas' para el dashboard del productor
                 if (metadata.type === 'beat') {
+                    const montoItem = item.amount_total / 100;
+                    const vendedorId = metadata.producer_id || metadata.producerId;
+
+                    // --- CÁLCULO DE COMISIONES (PROXIMADO) ---
+                    // Stripe México aprox: (3.6% + $3) + 16% IVA sobre la comisión
+                    const comisionStripe = (montoItem * 0.036 + 3) * 1.16;
+                    // Tianguis Beats: 10% del total
+                    const comisionTianguis = montoItem * 0.10;
+                    const gananciaNeta = montoItem - comisionStripe - comisionTianguis;
+
                     await supabaseAdmin.from('ventas').insert({
                         comprador_id: usuarioId,
-                        vendedor_id: metadata.producer_id || metadata.producerId,
+                        vendedor_id: vendedorId,
                         beat_id: metadata.productId,
-                        monto: item.amount_total / 100,
+                        monto: montoItem,
                         moneda: moneda,
                         tipo_licencia: metadata.licenseType || 'basic',
                         pago_id: stripeId,
-                        metodo_pago: 'stripe'
+                        metodo_pago: 'stripe',
+                        comision_pasarela: comisionStripe,
+                        comision_plataforma: comisionTianguis,
+                        ganancia_neta: gananciaNeta > 0 ? gananciaNeta : 0
                     });
+
+                    // Actualizar el balance_pendiente del productor
+                    if (vendedorId) {
+                        await supabaseAdmin.rpc('incrementar_balance_productor', {
+                            id_productor: vendedorId,
+                            monto_ganancia: gananciaNeta > 0 ? gananciaNeta : 0
+                        });
+                    }
                 }
             }
 
