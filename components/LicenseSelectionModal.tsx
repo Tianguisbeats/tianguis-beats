@@ -122,17 +122,10 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
     if (!isOpen) return null;
 
     const handleAddToCart = () => {
-        // Evitar la autocompra
-        if (currentUserId && currentUserId === beat.producer_id) {
-            showToast("No puedes comprar tus propios productos", "error");
-            onClose();
-            return;
-        }
-
         const license = allLicenses.find(l => l.id === selectedType);
         if (!license) return;
 
-        addItem({
+        const wasAdded = addItem({
             id: `${beat.id}-${selectedType}`,
             type: 'beat',
             name: `${beat.title} [${selectedType}]`,
@@ -150,8 +143,10 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
             }
         });
 
-        onClose();
-        router.push('/cart');
+        if (wasAdded) {
+            onClose();
+            router.push('/cart');
+        }
     };
 
     const currentLicense: any = allLicenses.find(l => l.id === selectedType) || (activeLicenses.length > 0 ? activeLicenses[0] : allLicenses[0]);

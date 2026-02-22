@@ -179,11 +179,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     const handleAddToCart = (item: any, type: 'service' | 'sound_kit') => {
         if (!item) return;
 
-        if (currentUserId && currentUserId === profile?.id) {
-            showToast("No puedes comprar tus propios productos.", "warning");
-            return;
-        }
-
         addItem({
             id: type === 'service' ? `service_${item.id}` : `kit_${item.id}`,
             type: type,
@@ -199,7 +194,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 isService: type === 'service'
             }
         });
-        showToast("Agregado al carrito", "success");
     };
 
     // Fan Capture Logic (30s playback trigger)

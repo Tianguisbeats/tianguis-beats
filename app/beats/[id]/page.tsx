@@ -87,7 +87,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
             'ILIMITADA': beat.price_exclusive || 2999
         };
 
-        addItem({
+        const wasAdded = addItem({
             id: `${beat.id}-${selectedLicense}`,
             type: 'beat',
             name: `${beat.title} [${selectedLicense}]`,
@@ -101,7 +101,9 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
             }
         });
 
-        router.push('/cart');
+        if (wasAdded) {
+            router.push('/cart');
+        }
     };
 
     useEffect(() => {

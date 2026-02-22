@@ -200,7 +200,7 @@ export default function PricingPage() {
             const isYearly = billingCycle === 'yearly';
             const totalPrice = isYearly ? (selectedPlan.price * 12) : selectedPlan.price;
 
-            addItem({
+            const wasAdded = addItem({
                 id: `plan-${selectedPlan.tier}-${billingCycle}`,
                 type: 'plan',
                 name: `Plan ${selectedPlan.name} ${isYearly ? '[Anual]' : '[Mensual]'}`,
@@ -208,8 +208,10 @@ export default function PricingPage() {
                 subtitle: selectedPlan.description,
                 metadata: { tier: selectedPlan.tier, cycle: billingCycle }
             });
-            showToast(`Plan ${selectedPlan.name} ${isYearly ? 'anual' : 'mensual'} agregado al carrito`, 'success');
-            router.push('/cart');
+
+            if (wasAdded) {
+                router.push('/cart');
+            }
         }
     };
 
