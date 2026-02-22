@@ -1,16 +1,19 @@
 -- =========================================================
--- TIANGUIS BEATS - SINCRONIZACIÓN STRIPE & SUPABASE (v2.0)
--- Ejecuta esto en el SQL Editor de Supabase
--- =========================================================
+-- 0) TABLAS EXTERNAS REQUERIDAS (Profiles)
+-- Asegúrate de que tu tabla 'profiles' tenga estos campos:
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS stripe_subscription_id TEXT;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS termina_suscripcion TIMESTAMPTZ;
 
 -- 1) TABLA DE ÓRDENES (Cabecera)
 CREATE TABLE IF NOT EXISTS public.ordenes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     usuario_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     monto_total NUMERIC NOT NULL,
-    estado TEXT NOT NULL DEFAULT 'completado', -- 'completado', 'pendiente', 'fallido'
-    stripe_id TEXT, -- ID de sesión o Payment Intent de Stripe
+    moneda TEXT NOT NULL DEFAULT 'MXN', -- Nuevo: Soporte multi-moneda
+    estado TEXT NOT NULL DEFAULT 'completado', 
+    stripe_id TEXT, 
     cupon_id UUID REFERENCES public.coupons(id) ON DELETE SET NULL,
+    recibo_url TEXT, -- Nuevo: Link al recibo de Stripe
     fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -34,8 +37,9 @@ CREATE TABLE IF NOT EXISTS public.ventas (
     vendedor_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     beat_id UUID REFERENCES public.beats(id) ON DELETE SET NULL,
     monto NUMERIC NOT NULL,
+    moneda TEXT NOT NULL DEFAULT 'MXN', -- Nuevo: Soporte multi-moneda
     tipo_licencia TEXT,
-    pago_id TEXT, -- ID de pago de Stripe
+    pago_id TEXT, 
     metodo_pago TEXT DEFAULT 'stripe',
     fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
