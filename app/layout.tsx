@@ -24,6 +24,7 @@ import { PlayerProvider } from "@/context/PlayerContext";
 import { CartProvider } from "@/context/CartContext";
 import AudioPlayer from "@/components/AudioPlayer";
 import AIChatBot from "@/components/AIChatBot";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
 import { ToastProvider } from "@/context/ToastContext";
 import { CurrencyProvider } from "@/context/CurrencyContext";
@@ -44,6 +45,7 @@ export default function RootLayout({
               <CartProvider>
                 <PlayerProvider>
                   {children}
+                  <MobileBottomNav />
                   <AudioPlayer />
                   <AIChatBot />
                 </PlayerProvider>

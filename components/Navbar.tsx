@@ -178,94 +178,10 @@ export default function Navbar() {
                         <div className="flex items-center gap-2 md:hidden">
                             <CurrencySwitcher />
                             <ThemeToggle />
-                            <Link href="/cart" className="relative w-12 h-12 flex items-center justify-center text-muted hover:text-accent transition-colors group">
-                                <ShoppingCart size={24} strokeWidth={2.5} />
-                                {itemCount > 0 && (
-                                    <span className="absolute top-1 right-1 bg-accent text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-background shadow-lg animate-in fade-in zoom-in duration-300">
-                                        {itemCount}
-                                    </span>
-                                )}
-                            </Link>
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-12 h-12 flex items-center justify-center text-foreground p-2">
-                                {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-                            </button>
                         </div>
                     </div>
                 </div>
 
-                {/* Menú Móvil */}
-                {isMenuOpen && (
-                    <div className="md:hidden bg-background border-b border-border pb-8 px-4 animate-in slide-in-from-top duration-300">
-                        <div className="flex flex-col gap-2 text-[10px] font-black text-muted uppercase tracking-[0.2em]">
-                            <Link href="/beats" className="hover:text-accent transition-colors py-5 border-b border-border flex items-center justify-between min-h-[48px]">
-                                Explorar Tianguis <ArrowRight size={16} className="text-muted/30" />
-                            </Link>
-                            <Link href="/pricing" className="hover:text-accent transition-colors py-5 border-b border-border flex items-center justify-between min-h-[48px]">
-                                Planes <ArrowRight size={16} className="text-muted/30" />
-                            </Link>
-
-                            <div className="flex flex-col gap-3 mt-4">
-                                {user ? (
-                                    <>
-                                        <div className="bg-accent-soft p-4 rounded-2xl flex items-center gap-3 mb-2 border border-border">
-                                            <div className="w-12 h-12 rounded-lg overflow-hidden border-2 border-background shadow-sm">
-                                                {profile?.foto_perfil ? (
-                                                    <img src={profile.foto_perfil} alt="Perfil" className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-muted bg-background">
-                                                        <User size={24} />
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-foreground lowercase font-bold">@{profile?.username}</span>
-                                                <span className="text-[9px] text-accent uppercase tracking-widest">{profile?.subscription_tier}</span>
-                                            </div>
-                                        </div>
-
-                                        <Link href="/upload" className="flex items-center gap-4 py-4 text-foreground font-black px-2 min-h-[48px] hover:bg-accent-soft rounded-xl transition-colors">
-                                            <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center">
-                                                <Music size={20} />
-                                            </div>
-                                            Sube tu Beat
-                                        </Link>
-
-                                        <Link href="/studio" className="flex items-center gap-4 py-4 text-foreground font-black px-2 min-h-[48px] hover:bg-accent-soft rounded-xl transition-colors">
-                                            <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-muted flex items-center justify-center">
-                                                <Settings size={20} />
-                                            </div>
-                                            Tianguis Studio
-                                        </Link>
-
-                                        <Link href={`/${profile?.username || 'profile'}`} className="flex items-center gap-4 py-4 text-foreground font-black px-2 min-h-[48px] hover:bg-accent-soft rounded-xl transition-colors">
-                                            <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-muted flex items-center justify-center">
-                                                <User size={20} />
-                                            </div>
-                                            Mi Perfil Público
-                                        </Link>
-
-                                        <button
-                                            onClick={handleLogout}
-                                            className="mt-4 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 min-h-[48px]"
-                                        >
-                                            <LogOut size={18} />
-                                            Cerrar Sesión
-                                        </button>
-                                    </>
-                                ) : (
-                                    <div className="grid grid-cols-1 gap-4 pt-2">
-                                        <Link href="/login" className="flex items-center justify-center gap-2 py-5 border-2 border-border rounded-2xl font-black text-foreground uppercase min-h-[48px] hover:bg-accent-soft">
-                                            Log In
-                                        </Link>
-                                        <Link href="/signup" className="flex items-center justify-center gap-2 py-5 bg-accent text-white rounded-2xl font-black uppercase shadow-lg shadow-accent/20 min-h-[48px] hover:bg-slate-900 transition-colors">
-                                            Sign Up
-                                        </Link>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )}
             </nav>
         </div>
     );

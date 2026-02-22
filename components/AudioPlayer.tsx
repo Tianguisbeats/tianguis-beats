@@ -11,7 +11,8 @@ import {
     VolumeX,
     Music,
     Crown,
-    X
+    X,
+    ShoppingCart
 } from 'lucide-react';
 import Link from 'next/link';
 import LicenseSelectionModal from './LicenseSelectionModal';
@@ -67,7 +68,67 @@ export default function AudioPlayer() {
 
     return (
         <>
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-6xl animate-in slide-in-from-bottom-8 duration-700">
+            {/* ====== VERSIÓN MÓVIL (MINI-PLAYER) ====== */}
+            <div className="md:hidden fixed bottom-[72px] left-0 right-0 z-[100] px-2 animate-in slide-in-from-bottom-2 duration-300">
+                <div className="bg-white/95 dark:bg-[#121215]/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-lg shadow-black/5 dark:shadow-black/20 overflow-hidden relative">
+                    {/* Barra de Progreso Superior */}
+                    <div className="absolute top-0 left-0 w-full h-[2px] bg-slate-200 dark:bg-slate-800">
+                        <div
+                            className="absolute top-0 left-0 h-full bg-accent transition-all duration-100"
+                            style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+                        />
+                    </div>
+
+                    <div className="p-2 flex items-center justify-between gap-3">
+                        {/* Artwork & Info (Clic para abrir modal = Futuro) */}
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden shrink-0 relative">
+                                {currentBeat.portadabeat_url ? (
+                                    <img src={currentBeat.portadabeat_url} alt={currentBeat.title} className="w-full h-full object-cover" />
+                                ) : (
+                                    <Music size={18} className="text-muted" />
+                                )}
+                            </div>
+                            <div className="min-w-0 flex flex-col justify-center">
+                                <span className="font-heading font-black text-sm text-foreground truncate uppercase">{currentBeat.title}</span>
+                                <span className="text-[10px] font-bold text-muted uppercase tracking-widest truncate">@{currentBeat.producer_username || 'Productor'}</span>
+                            </div>
+                        </div>
+
+                        {/* Controles Básicos */}
+                        <div className="flex items-center justify-end gap-1 pr-1 shrink-0">
+                            {/* Opcional: Ver Licencias Móvil */}
+                            {!isOwner && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setIsLicenseModalOpen(true); }}
+                                    className="w-10 h-10 flex items-center justify-center text-muted hover:text-accent transition-colors"
+                                >
+                                    <ShoppingCart size={18} />
+                                </button>
+                            )}
+
+                            {/* Play / Pause */}
+                            <button
+                                onClick={(e) => { e.stopPropagation(); togglePlay(); }}
+                                className="w-10 h-10 flex items-center justify-center text-foreground hover:scale-110 transition-transform active:scale-90"
+                            >
+                                {isPlaying ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" className="ml-0.5" />}
+                            </button>
+
+                            {/* Cerrar Productor */}
+                            <button
+                                onClick={(e) => { e.stopPropagation(); closePlayer(); }}
+                                className="w-10 h-10 flex items-center justify-center text-muted hover:text-red-500 transition-colors"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* ====== VERSIÓN ESCRITORIO (FULL-PLAYER) ====== */}
+            <div className="hidden md:block fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-6xl animate-in slide-in-from-bottom-8 duration-700">
                 {/* Contenedor principal estilo cristal */}
                 <div className="relative bg-white/70 dark:bg-slate-900/80 backdrop-blur-2xl border border-white/20 dark:border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)] overflow-hidden">
 
@@ -75,10 +136,10 @@ export default function AudioPlayer() {
                     <div className="absolute top-0 left-0 h-[2px] bg-accent shadow-[0_0_15px_rgba(59,130,246,0.8)] transition-all duration-300 z-50 rounded-full"
                         style={{ width: `${(currentTime / (duration || 1)) * 100}%` }} />
 
-                    <div className="px-6 py-4 md:py-5 flex flex-col md:flex-row items-center gap-4 md:gap-8">
+                    <div className="px-6 py-4 flex items-center gap-8">
 
                         {/* 1. Sección de información de la pista */}
-                        <div className="flex items-center gap-4 w-full md:w-[30%] shrink-0">
+                        <div className="flex items-center gap-4 w-[30%] shrink-0">
                             <div className="relative group/artwork">
                                 <div className="absolute -inset-1 bg-gradient-to-r from-accent to-purple-600 rounded-2xl blur opacity-20 group-hover/artwork:opacity-40 transition-opacity" />
                                 <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl overflow-hidden shrink-0 border border-white/10 relative z-10 transition-transform group-hover/artwork:scale-105">
@@ -94,7 +155,7 @@ export default function AudioPlayer() {
 
                             <div className="min-w-0 flex-1">
                                 <Link href={`/beats/${currentBeat.id}`} className="block group">
-                                    <h4 className="font-heading font-black text-sm md:text-base text-slate-900 dark:text-white truncate uppercase tracking-tight group-hover:text-accent transition-colors">
+                                    <h4 className="font-heading font-black text-base text-slate-900 dark:text-white truncate uppercase tracking-tight group-hover:text-accent transition-colors">
                                         {currentBeat.title}
                                     </h4>
                                 </Link>
@@ -164,7 +225,7 @@ export default function AudioPlayer() {
                         </div>
 
                         {/* 3. Sección de volumen y compras */}
-                        <div className="hidden md:flex items-center justify-end gap-6 w-[30%] shrink-0">
+                        <div className="flex items-center justify-end gap-6 w-[30%] shrink-0">
                             {/* Control de volumen - Ahora más profesional */}
                             <div className="flex items-center gap-3 group/vol">
                                 <button onClick={toggleMute} className="text-muted hover:text-accent transition-colors">

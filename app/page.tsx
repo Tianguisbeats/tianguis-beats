@@ -103,37 +103,37 @@ export default function Home() {
         <div className="absolute bottom-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-cyan-500/5 rounded-full blur-[100px] -z-10 dark:opacity-20"></div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card/50 backdrop-blur-sm mb-8 animate-fade-in-up">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card/50 backdrop-blur-sm mb-6 md:mb-8 animate-fade-in-up">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
             </span>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted animate-pulse-slow">
+            <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-muted animate-pulse-slow">
               🇲🇽 La Tienda de Beats #1 en México
             </span>
           </div>
 
-          <h1 className="text-4xl md:text-7xl lg:text-9xl font-black text-foreground tracking-tighter mb-8 leading-[0.9] font-heading">
+          <h1 className="text-[2.5rem] leading-[1.1] md:text-7xl lg:text-9xl font-black text-foreground tracking-tighter mb-6 md:mb-8 font-heading px-2">
             La Casa de los <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">Corridos Tumbados.</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600 block sm:inline mt-1 sm:mt-0">Corridos Tumbados.</span>
           </h1>
 
-          <p className="text-base md:text-xl text-muted font-medium max-w-3xl mx-auto mb-12 leading-relaxed tracking-tight px-4 font-body">
+          <p className="text-sm md:text-xl text-muted font-medium max-w-3xl mx-auto mb-8 md:mb-12 leading-relaxed tracking-tight px-6 font-body">
             Olvídate de interfaces lentas y llenas de anuncios. Mientras otros te saturan de opciones que no usas, aquí tienes Beats, Sound Kits y servicios profesionales en un solo lugar: sin distracciones y al grano.
           </p>
 
           {/* Buscador Integrado (Omni-Search) */}
-          <div className="max-w-2xl mx-auto relative group mb-12 px-2">
+          <div className="max-w-2xl mx-auto relative group mb-8 md:mb-12 px-4">
             <div className="absolute inset-0 bg-accent/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative flex flex-col md:flex-row items-stretch md:items-center bg-card p-2 rounded-[2rem] md:rounded-full shadow-2xl border border-border transition-all duration-300 focus-within:ring-4 focus-within:ring-accent/20">
+            <div className="relative flex flex-col md:flex-row items-stretch md:items-center bg-card p-2 rounded-[1.5rem] md:rounded-full shadow-2xl border border-border transition-all duration-300 focus-within:ring-4 focus-within:ring-accent/20">
               <div className="flex flex-1 items-center min-h-[56px]">
-                <div className="pl-6 text-muted">
-                  <Search size={22} />
+                <div className="pl-4 md:pl-6 text-muted">
+                  <Search size={20} className="md:w-5 md:h-5" />
                 </div>
                 <input
                   type="text"
-                  placeholder="Ej: Corridos 140 bpm C# minor..."
-                  className="flex-1 bg-transparent border-none px-4 py-4 outline-none font-bold text-foreground text-lg placeholder:text-muted/30"
+                  placeholder="Ej: Corridos 140 bpm C# min..."
+                  className="flex-1 bg-transparent border-none px-3 md:px-4 py-4 outline-none font-bold text-foreground text-base md:text-lg placeholder:text-muted/40"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -145,7 +145,7 @@ export default function Home() {
               </div>
               <button
                 onClick={() => handleSmartSearch(searchQuery)}
-                className="bg-accent text-white px-8 py-4 md:py-3 rounded-[1.5rem] md:rounded-full font-black uppercase text-[10px] tracking-widest hover:bg-accent/90 transition-all shadow-lg min-h-[56px] flex items-center justify-center"
+                className="bg-accent text-white px-8 py-4 md:py-3 rounded-xl md:rounded-full font-black uppercase text-[11px] tracking-widest hover:bg-accent/90 transition-all shadow-lg min-h-[56px] flex items-center justify-center mt-2 md:mt-0"
               >
                 Buscar
               </button>
@@ -153,23 +153,23 @@ export default function Home() {
           </div>
 
           {/* Botones de llamada a la acción */}
-          <div className="flex flex-col md:flex-row justify-center items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <div className="flex flex-col md:flex-row justify-center items-center gap-3 px-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <Link
               href={`/beats/catalog?view=corridos_tumbados`}
-              className="group relative inline-flex items-center gap-3 px-10 py-5 bg-card border border-border text-foreground rounded-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-accent/20 min-h-[56px] w-full md:w-auto"
+              className="group relative inline-flex items-center justify-center gap-3 px-6 py-5 bg-card border border-border text-foreground rounded-[1.25rem] md:rounded-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-accent/20 min-h-[56px] w-full md:w-auto"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <span className="relative z-10 font-black uppercase text-[11px] tracking-[0.2em] flex items-center gap-2 group-hover:text-accent transition-colors font-heading">
+              <span className="relative z-10 font-black uppercase text-[10px] tracking-widest flex items-center gap-2 group-hover:text-accent transition-colors font-heading text-center">
                 🎺 Explorar Corridos Tumbados 🇲🇽
               </span>
             </Link>
 
             <Link
               href={`/beats/catalog?view=reggaeton_mexa`}
-              className="group relative inline-flex items-center gap-3 px-10 py-5 bg-card border border-border text-foreground rounded-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-pink-500/20 min-h-[56px] w-full md:w-auto"
+              className="group relative inline-flex items-center justify-center gap-3 px-6 py-5 bg-card border border-border text-foreground rounded-[1.25rem] md:rounded-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-pink-500/20 min-h-[56px] w-full md:w-auto mt-2 md:mt-0"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 to-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <span className="relative z-10 font-black uppercase text-[11px] tracking-[0.2em] flex items-center gap-2 group-hover:text-pink-500 transition-colors font-heading">
+              <span className="relative z-10 font-black uppercase text-[10px] tracking-widest flex items-center gap-2 group-hover:text-pink-500 transition-colors font-heading text-center">
                 🍑 Explorar Reggaetón Mexa 🇲🇽
               </span>
             </Link>
