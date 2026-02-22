@@ -18,9 +18,11 @@ import Footer from '@/components/Footer';
 import { supabase } from '@/lib/supabase';
 import { getBeatFulfillmentLinks, getSoundKitFulfillmentLink } from '@/lib/fulfillment';
 import { useToast } from '@/context/ToastContext';
+import { useCart } from '@/context/CartContext';
 
 export default function SuccessPage() {
     const { showToast } = useToast();
+    const { clearCart } = useCart();
     const [purchasedItems, setPurchasedItems] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [orderId, setOrderId] = useState<string | null>(null);
@@ -49,7 +51,8 @@ export default function SuccessPage() {
                     setOrderId(orden.id);
                     setPurchasedItems(orden.items_orden);
                     // Limpiar el carrito localmente después de una compra exitosa
-                    localStorage.removeItem('tianguis-cart');
+                    clearCart();
+                    localStorage.removeItem('tianguis_cart');
                 }
             } catch (err) {
                 console.error("Error fetching purchase session:", err);

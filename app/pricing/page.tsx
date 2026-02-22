@@ -7,6 +7,7 @@ import { Check, Zap, Star, ShieldCheck, ArrowUpRight, Lock, AlertTriangle, X, Cr
 import { supabase } from '@/lib/supabase';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -20,6 +21,7 @@ export default function PricingPage() {
     const [comenzarSuscripcion, setComenzarSuscripcion] = useState<string | null>(null);
 
     const { addItem } = useCart();
+    const { formatPrice, currency } = useCurrency();
     const { showToast } = useToast();
     const router = useRouter();
 
@@ -357,8 +359,8 @@ export default function PricingPage() {
                                     </div>
                                     <div className="mb-8">
                                         <div className="flex items-baseline gap-1">
-                                            <span className="text-5xl font-black text-foreground tracking-tighter">${plan.price}</span>
-                                            <span className="text-muted font-black uppercase text-[10px] tracking-widest">MXN/Mes</span>
+                                            <span className="text-5xl font-black text-foreground tracking-tighter">{formatPrice(plan.price).split(' ')[0]}</span>
+                                            <span className="text-muted font-black uppercase text-[10px] tracking-widest">{currency}/Mes</span>
                                         </div>
                                     </div>
                                     <ul className="space-y-4 mb-10 flex-1">

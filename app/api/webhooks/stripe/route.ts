@@ -121,7 +121,7 @@ export async function POST(req: Request) {
                     .from('items_orden')
                     .insert({
                         orden_id: orden.id,
-                        producto_id: metadata.productId || product.id,
+                        producto_id: metadata.type === 'plan' ? '00000000-0000-0000-0000-000000000000' : (metadata.productId || product.id),
                         tipo_producto: metadata.type || 'beat',
                         nombre: product.name,
                         precio: item.amount_total / 100,

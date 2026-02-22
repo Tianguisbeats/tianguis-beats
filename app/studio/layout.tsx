@@ -96,7 +96,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                 profile?.subscription_tier === 'pro' ? 'bg-white/40' :
                                     'bg-slate-400/20'
                                 }`} />
-                            <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-1">Membresía</p>
+                            <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-1 text-center w-full">Membresía</p>
                             <h4 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
                                 {profile?.subscription_tier === 'premium' ? <><Crown size={14} /> Plan Premium</> :
                                     profile?.subscription_tier === 'pro' ? <><Crown size={14} /> Plan Pro</> :
