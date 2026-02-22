@@ -58,6 +58,7 @@ export default function PricingPage() {
         {
             tier: 'free',
             name: 'Gratis',
+            image: null,
             description: 'Ideal para empezar a compartir tu música.',
             price: 0,
             features: [
@@ -70,6 +71,7 @@ export default function PricingPage() {
         {
             tier: 'pro',
             name: 'Pro',
+            image: '/images/plans/pro.png',
             description: 'Para productores que se lo toman muy en serio.',
             price: billingCycle === 'monthly' ? 149 : 111,
             features: [
@@ -83,6 +85,7 @@ export default function PricingPage() {
         {
             tier: 'premium',
             name: 'Premium',
+            image: '/images/plans/premium.png',
             description: 'Para productores que ofrecen experiencia y calidad.',
             price: billingCycle === 'monthly' ? 349 : 261,
             features: [
@@ -351,12 +354,27 @@ export default function PricingPage() {
                                             {isPremium ? <Crown size={28} fill="currentColor" /> : isPro ? <Star size={28} fill="currentColor" /> : <Zap size={28} />}
                                         </div>
                                         <h3 className="text-2xl font-black text-foreground mb-2 font-heading tracking-tighter">{plan.name}</h3>
+                                        {plan.image && (
+                                            <div className="relative mb-6 group-hover:scale-110 transition-transform duration-700">
+                                                <div className={`absolute inset-0 blur-3xl opacity-30 ${isPremium ? 'bg-blue-500' : 'bg-amber-500'}`} />
+                                                <img
+                                                    src={plan.image}
+                                                    alt={plan.name}
+                                                    className="relative w-full h-32 object-contain rounded-3xl"
+                                                />
+                                            </div>
+                                        )}
                                         <p className="text-muted text-sm font-medium">{plan.description}</p>
                                     </div>
                                     <div className="mb-8">
                                         <div className="flex items-baseline gap-1">
                                             <span className="text-5xl font-black text-foreground tracking-tighter">${plan.price}</span>
-                                            <span className="text-muted font-black uppercase text-[10px] tracking-widest">MXN/Mes</span>
+                                            <div className="flex flex-col">
+                                                <span className="text-muted font-black uppercase text-[10px] tracking-widest leading-none">MXN</span>
+                                                <span className={`text-[10px] font-black uppercase tracking-widest leading-none mt-1 ${billingCycle === 'yearly' ? 'text-accent' : 'text-muted'}`}>
+                                                    {billingCycle === 'monthly' ? 'Mensual' : 'Anual'}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                     <ul className="space-y-4 mb-10 flex-1">
