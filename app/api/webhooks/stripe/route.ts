@@ -88,6 +88,35 @@ export async function POST(req: Request) {
 
                 if (itemError) throw itemError;
 
+                // --- LÓGICA DE SUSCRIPCIONES (PLANES) ---
+                if (metadata.type === 'plan') {
+                    const tier = metadata.tier;
+                    const cycle = metadata.cycle; // 'monthly' o 'yearly'
+
+                    // Calcular fecha de expiración
+                    const now = new Date();
+                    let expiryDate = new Date();
+                    if (cycle === 'yearly') {
+                        expiryDate.setFullYear(now.getFullYear() + 1);
+                    } else {
+                        expiryDate.setMonth(now.getMonth() + 1);
+                    }
+
+                    // Actualizar el perfil del usuario
+                    const { error: profileError } = await supabaseAdmin
+                        .from('profiles')
+                        .update({
+                            subscription_tier: tier,
+                            termina_suscripcion: expiryDate.toISOString(),
+                            comenzar_suscripcion: null // Limpiar cambios programados si existen
+                        })
+                        .eq('id', usuarioId);
+
+                    if (profileError) {
+                        console.error('Error actualizando suscripción en perfil:', profileError);
+                    }
+                }
+
                 // Si es un beat, insertamos en la tabla 'ventas' para el dashboard del productor
                 if (metadata.type === 'beat') {
                     await supabaseAdmin.from('ventas').insert({
