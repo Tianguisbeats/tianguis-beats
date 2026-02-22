@@ -51,7 +51,19 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ id: session.id, url: session.url });
     } catch (err: any) {
-        console.error('Stripe Checkout Error:', err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        console.error('--- STRIPE_CHECKOUT_ERROR_START ---');
+        console.error('Message:', err.message);
+        console.error('Stack:', err.stack);
+        console.error('Config:', {
+            hasSecretKey: !!process.env.STRIPE_SECRET_KEY,
+            publicUrl: process.env.NEXT_PUBLIC_URL,
+            nodeEnv: process.env.NODE_ENV
+        });
+        console.error('--- STRIPE_CHECKOUT_ERROR_END ---');
+
+        return NextResponse.json(
+            { error: err.message || "Error interno en el servidor de pagos" },
+            { status: 500 }
+        );
     }
 }
