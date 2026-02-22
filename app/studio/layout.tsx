@@ -27,7 +27,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         const fetchProfile = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                const { data } = await supabase.from('profiles').select('subscription_tier, is_verified, is_admin').eq('id', user.id).single();
+                const { data } = await supabase.from('profiles').select('subscription_tier, is_verified, is_admin, termina_suscripcion').eq('id', user.id).single();
                 setProfile(data);
 
                 if (data?.is_admin) {
@@ -102,6 +102,11 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                     profile?.subscription_tier === 'pro' ? <><Crown size={14} /> Plan Pro</> :
                                         <span className="px-2 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-black tracking-widest border border-slate-300 dark:border-slate-700">PLAN FREE</span>}
                             </h4>
+                            {profile?.termina_suscripcion && (profile.subscription_tier === 'premium' || profile.subscription_tier === 'pro') && (
+                                <p className="text-[9px] font-black tracking-widest opacity-80 mt-2 flex items-center gap-1">
+                                    Válido hasta: {new Date(profile.termina_suscripcion).toLocaleDateString()}
+                                </p>
+                            )}
 
                             {profile?.is_verified ? (
                                 <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-2 flex-nowrap min-w-fit">

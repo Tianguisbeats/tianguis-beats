@@ -432,6 +432,21 @@ function UserManager() {
                                 <DetailItem label="Nombre Completo" value={selectedUser.full_name} />
                                 <DetailItem label="ID de Usuario" value={selectedUser.id} copyable />
                                 <DetailItem label="Fecha de Registro" value={selectedUser.fecha_de_creacion ? new Date(selectedUser.fecha_de_creacion).toLocaleDateString() : 'Desconocida'} />
+
+                                {/* New Editable Dates */}
+                                <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50">
+                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">Inicio Suscripción</p>
+                                    <input
+                                        type="date"
+                                        value={selectedUser.comenzar_suscripcion ? selectedUser.comenzar_suscripcion.split('T')[0] : ''}
+                                        onChange={async (e) => {
+                                            const date = e.target.value ? new Date(e.target.value).toISOString() : null;
+                                            const { error } = await supabase.from('profiles').update({ comenzar_suscripcion: date }).eq('id', selectedUser.id);
+                                            if (!error) setUsers(users.map(u => u.id === selectedUser.id ? { ...u, comenzar_suscripcion: date } : u));
+                                        }}
+                                        className="bg-transparent font-bold text-xs text-foreground outline-none w-full"
+                                    />
+                                </div>
                             </div>
                             <div className="space-y-6">
                                 <DetailItem label="Membresía" value={
@@ -446,8 +461,24 @@ function UserManager() {
                                     </select>
                                 } />
                                 <DetailItem label="Estado de Verificación" value={selectedUser.is_verified ? 'VERIFICADO' : 'NORMAL'} />
-                                <DetailItem label="Stripe ID" value={selectedUser.stripe_customer_id || 'Sin asignar'} />
-                                <DetailItem label="Bio" value={selectedUser.bio || 'Sin descripción'} />
+
+                                {/* End Date */}
+                                <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50">
+                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">Fin Suscripción</p>
+                                    <input
+                                        type="date"
+                                        value={selectedUser.termina_suscripcion ? selectedUser.termina_suscripcion.split('T')[0] : ''}
+                                        onChange={async (e) => {
+                                            const date = e.target.value ? new Date(e.target.value).toISOString() : null;
+                                            const { error } = await supabase.from('profiles').update({ termina_suscripcion: date }).eq('id', selectedUser.id);
+                                            if (!error) {
+                                                setUsers(users.map(u => u.id === selectedUser.id ? { ...u, termina_suscripcion: date } : u));
+                                                showToast("Fecha final actualizada", "success");
+                                            }
+                                        }}
+                                        className="bg-transparent font-bold text-xs text-foreground outline-none w-full"
+                                    />
+                                </div>
                             </div>
                         </div>
 
