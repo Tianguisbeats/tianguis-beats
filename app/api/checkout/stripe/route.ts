@@ -19,7 +19,22 @@ export async function POST(req: Request) {
             // Limpiar el nombre para que sea Premium (Ej: "Girl" en vez de "girl [MP3]")
             const cleanName = item.name.split('[')[0].trim();
             const licenseInfo = item.metadata?.license || item.metadata?.licenseType || '';
-            const typeLabel = item.type === 'plan' ? 'Suscripción' : (item.type === 'beat' ? 'Licencia de Beat' : 'Producto');
+
+            // Determinar etiqueta de tipo y icono para planes
+            let typeLabel = item.type === 'plan' ? 'Suscripción' : (item.type === 'beat' ? 'Licencia de Beat' : 'Producto');
+            let itemImage = item.image ? [item.image] : [];
+
+            if (item.type === 'plan') {
+                const cycle = item.metadata?.cycle === 'yearly' ? 'Anual' : 'Mensual';
+                typeLabel = `Suscripción ${cycle}`;
+
+                // Iconos específicos (solo para Stripe)
+                if (item.metadata?.tier === 'pro') {
+                    itemImage = [`${process.env.NEXT_PUBLIC_URL}/images/stripe/pro-icon.png`];
+                } else if (item.metadata?.tier === 'premium') {
+                    itemImage = [`${process.env.NEXT_PUBLIC_URL}/images/stripe/premium-icon.png`];
+                }
+            }
 
             return {
                 price_data: {
@@ -27,7 +42,7 @@ export async function POST(req: Request) {
                     product_data: {
                         name: cleanName,
                         description: licenseInfo ? `${typeLabel}: ${licenseInfo.toUpperCase()}` : typeLabel,
-                        images: item.image ? [item.image] : [],
+                        images: itemImage,
                         metadata: {
                             productId: item.id,
                             type: item.type,
