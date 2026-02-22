@@ -46,7 +46,8 @@ export async function POST(req: Request) {
             payment_method_types: ['card'],
             line_items,
             mode: 'payment',
-            allow_promotion_codes: true, // ¡Permite usar los cupones que creamos!
+            allow_promotion_codes: false, // Desactivado: El descuento ya se aplicó en el carrito
+            locale: 'es', // Forzar español para que diga "Total" o similar según Stripe
             success_url: `${process.env.NEXT_PUBLIC_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.NEXT_PUBLIC_URL}/cart`,
             client_reference_id: customerId,
@@ -55,9 +56,7 @@ export async function POST(req: Request) {
             },
             // Opciones adicionales para feeling Premium
             billing_address_collection: 'auto',
-            phone_number_collection: {
-                enabled: false, // Mantenerlo limpio, sin pedir teléfono si no es necesario
-            },
+            submit_type: 'pay', // En lugar de 'book' o 'donate', pone 'Pagar'
         });
 
         return NextResponse.json({ id: session.id, url: session.url });
