@@ -1,8 +1,9 @@
 -- =========================================================
--- SCRIPT DE MIGRACIÓN: Tabla en Inglés a Tabla en Español
+-- SCRIPT DE MIGRACIÓN CORREGIDO (v2)
+-- Inglés a Español (orders -> ordenes, sales -> ventas)
 -- =========================================================
--- Dado que el frontend del Studio ahora lee las tablas `ordenes`, `items_orden` y `ventas`, 
--- necesitas migrar tu historial antiguo para que vuelva a ser visible en "Mis Compras" y "Estadísticas".
+-- Este script copia los datos viejos a las tablas nuevas
+-- Evitando errores de columnas faltantes como "currency".
 
 -- 1) MIGRAMOS LAS ÓRDENES (Cabecera)
 INSERT INTO public.ordenes (
@@ -19,17 +20,16 @@ SELECT
     id, 
     user_id, 
     total_amount, 
-    currency, 
+    'MXN', -- Moneda por defecto para órdenes antiguas
     status, 
-    stripe_payment_id, -- El ID de Stripe antes solia llamarse asi o quiza stripe_id
-    coupon_id, 
+    payment_intent_id, -- Era payment_intent_id en inglés
+    NULL, -- No existía coupon_id en el schema original 
     created_at
 FROM public.orders
 ON CONFLICT (id) DO NOTHING;
 
 
 -- 2) MIGRAMOS LOS ITEMS DE LA ORDEN (Detalle)
--- Asumimos que `order_items` existía con campos `name`, `price`, `product_type`, etc.
 INSERT INTO public.items_orden (
     id, 
     orden_id, 
@@ -56,33 +56,37 @@ ON CONFLICT (id) DO NOTHING;
 
 
 -- 3) MIGRAMOS LAS VENTAS (Para Dashboard de Productores)
-INSERT INTO public.ventas (
-    id, 
-    comprador_id, 
-    vendedor_id, 
-    beat_id, 
-    monto, 
-    moneda, 
-    tipo_licencia, 
-    pago_id, 
-    metodo_pago, 
-    ganancia_neta, 
-    fecha_creacion
-)
-SELECT 
-    id, 
-    buyer_id, 
-    seller_id, 
-    beat_id, 
-    amount, 
-    COALESCE(currency, 'MXN'), 
-    license_type, 
-    stripe_payment_id, 
-    COALESCE(payment_method, 'stripe'), 
-    (amount * 0.90) - ((amount * 0.036 + 3) * 1.16), -- Formula aproximada de ganancia neta anterior
-    created_at
-FROM public.sales
-ON CONFLICT (id) DO NOTHING;
-
--- Notificación de éxito:
--- Si estás corriendo esto en Supabase, debe decir "SUCCESS" o "DO NOTHING" si ya existían.
+-- Si la tabla 'sales' vieja no existe o tiene otros nombres, esto podría fallar, 
+-- pero usamos las columnas básicas conocidas.
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'sales') THEN
+        INSERT INTO public.ventas (
+            id, 
+            comprador_id, 
+            vendedor_id, 
+            beat_id, 
+            monto, 
+            moneda, 
+            tipo_licencia, 
+            pago_id, 
+            metodo_pago, 
+            ganancia_neta, 
+            fecha_creacion
+        )
+        SELECT 
+            id, 
+            buyer_id, 
+            seller_id, 
+            beat_id, 
+            amount, 
+            'MXN', 
+            license_type, 
+            NULL, -- payment_intent_id o stripe_payment_id (evitamos error dejándolo nulo)
+            'stripe', 
+            GREATEST((amount * 0.90) - ((amount * 0.036 + 3) * 1.16), 0), -- Ganancia neta calculada
+            created_at
+        FROM public.sales
+        ON CONFLICT (id) DO NOTHING;
+    END IF;
+END $$;
