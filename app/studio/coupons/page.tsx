@@ -231,12 +231,6 @@ export default function CouponsPage() {
                         <p className="text-slate-500 dark:text-muted text-[11px] font-bold uppercase tracking-[0.4em] max-w-sm mx-auto mb-12 opacity-50 leading-loose">
                             Tu motor de promociones está en modo standby. Activa una estrategia de descuentos para incentivar el checkout.
                         </p>
-                        <button
-                            onClick={() => { setCurrentCoupon({ discount_type: 'percent', target_tier: 'all', min_purchase: 0 }); setIsEditing(true); }}
-                            className="bg-accent text-white px-10 py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.5em] hover:bg-slate-900 transition-all shadow-xl shadow-accent/20"
-                        >
-                            Diseñar Primer Cupón
-                        </button>
                     </div>
                 </div>
             ) : (
