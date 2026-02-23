@@ -49,8 +49,8 @@ export default function StudioStatsPage() {
 
             // 2. Fetch Sales & Revenue (Ventas)
             const { data: sales } = await supabase
-                .from('ventas')
-                .select('monto')
+                .from('transacciones')
+                .select('precio')
                 .eq('vendedor_id', user.id);
 
             // 3. Fetch Followers
@@ -62,7 +62,7 @@ export default function StudioStatsPage() {
             if (beats) {
                 const totalPlays = beats.reduce((sum, b) => sum + (b.play_count || 0), 0);
                 const totalLikes = beats.reduce((sum, b) => sum + (b.like_count || 0), 0);
-                const totalRevenue = sales?.reduce((sum, s) => sum + (Number(s.monto) || 0), 0) || 0;
+                const totalRevenue = sales?.reduce((sum, s) => sum + (Number(s.precio) || 0), 0) || 0;
                 const totalSales = sales?.length || 0;
 
                 setStats({

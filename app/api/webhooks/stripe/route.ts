@@ -83,28 +83,9 @@ export async function POST(req: Request) {
                 return NextResponse.json({ error: 'Missing user identification' }, { status: 400 });
             }
 
-            // 2. Crear la Orden (Cabecera)
-            const { data: orden, error: orderError } = await supabaseAdmin
-                .from('ordenes')
-                .insert({
-                    usuario_id: usuarioId,
-                    monto_total: montoTotal,
-                    moneda: moneda,
-                    estado: 'completado',
-                    stripe_id: stripeId,
-                    cupon_id: cuponId || null
-                })
-                .select()
-                .single();
+            // 2. Registrar Transacciones individualmente
+            console.log('--- INSERTING TRANSACTIONS ---');
 
-            if (orderError) {
-                console.error('ERROR: Creating order in DB:', orderError);
-                throw orderError;
-            }
-
-            console.log('--- ORDER CREATED ---', orden.id);
-
-            // 3. Registrar Items y Ventas individuales
             for (const item of lineItems.data) {
                 const product = item.price?.product as Stripe.Product;
                 const metadata = product.metadata || {};
@@ -116,23 +97,30 @@ export async function POST(req: Request) {
                     cycle: metadata.cycle
                 });
 
-                // Insertar en items_orden
-                const { data: itemOrden, error: itemError } = await supabaseAdmin
-                    .from('items_orden')
-                    .insert({
-                        orden_id: orden.id,
-                        producto_id: metadata.type === 'plan' ? '00000000-0000-0000-0000-000000000000' : (metadata.productId || product.id),
-                        tipo_producto: metadata.type || 'beat',
-                        nombre: product.name,
-                        precio: item.amount_total / 100,
-                        tipo_licencia: metadata.licenseType || 'basic',
-                        metadatos: metadata
-                    })
-                    .select()
-                    .single();
+                const vendedorId = metadata.producer_id || metadata.producerId || null;
+                const itemId = metadata.type === 'plan' ? 'price_plan_fake' : (metadata.productId || product.id);
 
-                if (itemError) {
-                    console.error('ERROR: Creating item_orden (non-fatal):', itemError);
+                // Insertar en la tabla unificada 'transacciones'
+                const { error: txError } = await supabaseAdmin
+                    .from('transacciones')
+                    .insert({
+                        pago_id: stripeId,
+                        comprador_id: usuarioId,
+                        vendedor_id: vendedorId,
+                        producto_id: itemId,
+                        tipo_producto: metadata.type || 'beat',
+                        nombre_producto: product.name,
+                        precio: item.amount_total / 100,
+                        moneda: moneda,
+                        estado_pago: 'completado',
+                        metodo_pago: 'stripe',
+                        tipo_licencia: metadata.licenseType || 'basic',
+                        metadatos: metadata,
+                        cupon_id: cuponId || null
+                    });
+
+                if (txError) {
+                    console.error('ERROR: Creating transaccion:', txError);
                 }
 
                 // --- LÓGICA DE SUSCRIPCIONES (PLANES) ---
@@ -170,39 +158,18 @@ export async function POST(req: Request) {
                     }
                 }
 
-                // Si es un beat, insertamos en la tabla 'ventas' para el dashboard del productor
-                if (metadata.type === 'beat') {
+                // Actualizar el balance_pendiente del productor si es un beat/servicio
+                if (metadata.type !== 'plan' && vendedorId) {
                     const montoItem = item.amount_total / 100;
-                    const vendedorId = metadata.producer_id || metadata.producerId;
-
-                    // --- CÁLCULO DE COMISIONES (PROXIMADO) ---
-                    // Stripe México aprox: (3.6% + $3) + 16% IVA sobre la comisión
+                    // --- CÁLCULO DE COMISIONES ---
                     const comisionStripe = (montoItem * 0.036 + 3) * 1.16;
-                    // Tianguis Beats: 10% del total
                     const comisionTianguis = montoItem * 0.10;
                     const gananciaNeta = montoItem - comisionStripe - comisionTianguis;
 
-                    await supabaseAdmin.from('ventas').insert({
-                        comprador_id: usuarioId,
-                        vendedor_id: vendedorId,
-                        beat_id: metadata.productId,
-                        monto: montoItem,
-                        moneda: moneda,
-                        tipo_licencia: metadata.licenseType || 'basic',
-                        pago_id: stripeId,
-                        metodo_pago: 'stripe',
-                        comision_pasarela: comisionStripe,
-                        comision_plataforma: comisionTianguis,
-                        ganancia_neta: gananciaNeta > 0 ? gananciaNeta : 0
+                    await supabaseAdmin.rpc('incrementar_balance_productor', {
+                        id_productor: vendedorId,
+                        monto_ganancia: gananciaNeta > 0 ? gananciaNeta : 0
                     });
-
-                    // Actualizar el balance_pendiente del productor
-                    if (vendedorId) {
-                        await supabaseAdmin.rpc('incrementar_balance_productor', {
-                            id_productor: vendedorId,
-                            monto_ganancia: gananciaNeta > 0 ? gananciaNeta : 0
-                        });
-                    }
                 }
             }
 

@@ -76,9 +76,9 @@ export default function VerificationPage() {
         const beatCount = beats?.length || 0;
         const playCount = beats?.reduce((sum, b) => sum + (b.play_count || 0), 0) || 0;
 
-        // 3. Fetch Sales (Ventas)
+        // 3. Fetch Sales (Transacciones)
         const { count: saleCount } = await supabase
-            .from('ventas')
+            .from('transacciones')
             .select('id', { count: 'exact', head: true })
             .eq('vendedor_id', user.id);
 

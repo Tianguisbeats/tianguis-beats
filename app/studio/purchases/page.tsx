@@ -70,58 +70,66 @@ export default function MyPurchasesPage() {
         if (!user) return;
 
         try {
-            // Fetch orders and their items using the new Spanish schema
-            const { data: ordersData, error: ordersError } = await supabase
-                .from('ordenes')
-                .select(`
-                    id,
-                    fecha_creacion,
-                    monto_total,
-                    moneda,
-                    estado,
-                    metodo_pago,
-                    stripe_id,
-                    items_orden (
-                        id,
-                        tipo_producto,
-                        nombre,
-                        precio,
-                        tipo_licencia,
-                        metadatos
-                    )
-                `)
-                .eq('usuario_id', user.id)
+            // Fetch transactions natively from the new single schema
+            const { data: txData, error: txError } = await supabase
+                .from('transacciones')
+                .select('*')
+                .eq('comprador_id', user.id)
                 .order('fecha_creacion', { ascending: false });
 
-            if (ordersError) throw ordersError;
+            if (txError) throw txError;
 
-            // Fetch linked projects
-            const { data: projectsData } = await supabase
-                .from('service_projects')
-                .select('id, order_item_id')
-                .in('order_item_id', ordersData.flatMap(o => o.items_orden.map((i: any) => i.id)));
+            // Group transactions by pago_id to simulate the "Order -> Items" visual structure
+            const groupedOrders: Record<string, any> = {};
 
-            // Map items to include project_id
-            const formattedOrders = (ordersData || []).map(order => ({
-                id: order.id,
-                created_at: order.fecha_creacion,
-                total_amount: order.monto_total,
-                currency: order.moneda || 'MXN',
-                status: order.estado,
-                payment_method: order.metodo_pago,
-                stripe_id: order.stripe_id,
-                items: (order.items_orden || []).map((item: any) => ({
-                    id: item.id,
-                    product_type: item.tipo_producto,
-                    name: item.nombre,
-                    price: item.precio,
-                    license_type: item.tipo_licencia,
-                    metadata: item.metadatos,
-                    project_id: projectsData?.find(p => p.order_item_id === item.id)?.id
-                }))
-            }));
+            (txData || []).forEach(tx => {
+                const pagoId = tx.pago_id || tx.id; // Group key
+                if (!groupedOrders[pagoId]) {
+                    groupedOrders[pagoId] = {
+                        id: pagoId,
+                        created_at: tx.fecha_creacion,
+                        total_amount: 0,
+                        currency: tx.moneda || 'MXN',
+                        status: tx.estado_pago,
+                        payment_method: tx.metodo_pago,
+                        stripe_id: tx.pago_id,
+                        items: []
+                    };
+                }
 
-            setOrders(formattedOrders);
+                groupedOrders[pagoId].total_amount += Number(tx.precio);
+
+                groupedOrders[pagoId].items.push({
+                    id: tx.id,
+                    product_type: tx.tipo_producto,
+                    name: tx.nombre_producto,
+                    price: tx.precio,
+                    license_type: tx.tipo_licencia,
+                    metadata: tx.metadatos
+                });
+            });
+
+            const formattedOrders = Object.values(groupedOrders);
+
+            // Fetch linked projects (if any services were bought)
+            const itemIds = formattedOrders.flatMap((o: any) => o.items.map((i: any) => i.id));
+            if (itemIds.length > 0) {
+                const { data: projectsData } = await supabase
+                    .from('service_projects')
+                    .select('id, order_item_id')
+                    .in('order_item_id', itemIds);
+
+                formattedOrders.forEach((order: any) => {
+                    order.items.forEach((item: any) => {
+                        item.project_id = projectsData?.find(p => p.order_item_id === item.id)?.id;
+                    });
+                });
+            }
+
+            // Ensure chronological order
+            formattedOrders.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+            setOrders(formattedOrders as Order[]);
         } catch (err) {
             console.error("Error fetching orders:", err);
             // Fallback for demo/dev if tables don't exist yet but UI is being tested

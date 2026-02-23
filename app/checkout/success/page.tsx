@@ -38,18 +38,26 @@ export default function SuccessPage() {
             }
 
             try {
-                // 1. Buscar la orden por stripe_id
-                const { data: orden, error: orderError } = await supabase
-                    .from('ordenes')
-                    .select('id, items_orden(*)')
-                    .eq('stripe_id', sessionId)
-                    .single();
+                // 1. Buscar transacciones por pago_id (Stripe Session)
+                const { data: transacciones, error: txError } = await supabase
+                    .from('transacciones')
+                    .select('*')
+                    .eq('pago_id', sessionId);
 
-                if (orderError) throw orderError;
+                if (txError) throw txError;
 
-                if (orden) {
-                    setOrderId(orden.id);
-                    setPurchasedItems(orden.items_orden);
+                if (transacciones && transacciones.length > 0) {
+                    setOrderId(sessionId);
+                    // Adaptar las transacciones al formato que espera la UI (items_orden)
+                    const items = transacciones.map(tx => ({
+                        id: tx.id,
+                        tipo_producto: tx.tipo_producto,
+                        nombre: tx.nombre_producto,
+                        precio: tx.precio,
+                        tipo_licencia: tx.tipo_licencia,
+                        metadatos: tx.metadatos
+                    }));
+                    setPurchasedItems(items);
                     // Limpiar el carrito localmente después de una compra exitosa
                     clearCart();
                     localStorage.removeItem('tianguis_cart');

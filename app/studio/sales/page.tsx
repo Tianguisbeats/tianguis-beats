@@ -27,16 +27,17 @@ export default function StudioSalesPage() {
                 return;
             }
 
-            // Fetch sales data using the new Spanish schema
+            // Fetch sales data using the unified table
             const { data, error } = await supabase
-                .from('ventas')
+                .from('transacciones')
                 .select(`
                     id,
-                    monto,
+                    precio,
                     fecha_creacion,
                     tipo_licencia,
                     metodo_pago,
-                    beats (title, portadabeat_url),
+                    nombre_producto,
+                    tipo_producto,
                     buyer:comprador_id (username, artistic_name, foto_perfil)
                 `)
                 .eq('vendedor_id', user.id)
@@ -51,11 +52,11 @@ export default function StudioSalesPage() {
             // Map to the internal expected format to avoid breaking UI components
             const formattedSales = data.map(sale => ({
                 id: sale.id,
-                amount: sale.monto,
+                amount: sale.precio,
                 created_at: sale.fecha_creacion,
                 license_type: sale.tipo_licencia,
                 payment_method: sale.metodo_pago,
-                beats: sale.beats,
+                beats: { title: sale.nombre_producto || 'Producto Vendido', portadabeat_url: null }, // Fallback since audio cover uses custom fetching
                 buyer: sale.buyer
             }));
 
