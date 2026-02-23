@@ -1,35 +1,28 @@
 -- =========================================================
--- SCRIPT DE MIGRACIÓN CORREGIDO (v2)
--- Inglés a Español (orders -> ordenes, sales -> ventas)
+-- SCRIPT DE MIGRACIÓN DEFINITIVO (v3) - SEGURO
+-- Tablas en base a las imágenes de Supabase provistas.
 -- =========================================================
--- Este script copia los datos viejos a las tablas nuevas
--- Evitando errores de columnas faltantes como "currency".
 
 -- 1) MIGRAMOS LAS ÓRDENES (Cabecera)
+-- Solo usamos insertamos en las columnas estrictamente necesarias
 INSERT INTO public.ordenes (
     id, 
     usuario_id, 
     monto_total, 
-    moneda, 
     estado, 
-    stripe_id, 
-    cupon_id, 
     fecha_creacion
 )
 SELECT 
     id, 
     user_id, 
     total_amount, 
-    'MXN', -- Moneda por defecto para órdenes antiguas
     status, 
-    payment_intent_id, -- Era payment_intent_id en inglés
-    NULL, -- No existía coupon_id en el schema original 
     created_at
 FROM public.orders
 ON CONFLICT (id) DO NOTHING;
 
-
 -- 2) MIGRAMOS LOS ITEMS DE LA ORDEN (Detalle)
+-- Coincide exactamente con la imagen de 'items_orden'
 INSERT INTO public.items_orden (
     id, 
     orden_id, 
@@ -37,9 +30,9 @@ INSERT INTO public.items_orden (
     tipo_producto, 
     nombre, 
     precio, 
+    tipo_licencia,
     metadatos, 
-    fecha_creacion,
-    tipo_licencia
+    fecha_creacion
 )
 SELECT 
     id, 
@@ -48,16 +41,14 @@ SELECT
     COALESCE(product_type, 'beat'), 
     COALESCE(name, 'Producto Migrado'), 
     price, 
+    COALESCE(metadata->>'licenseType', metadata->>'license', 'basic'),
     metadata, 
-    created_at,
-    COALESCE(metadata->>'licenseType', metadata->>'license', 'basic') 
+    created_at
 FROM public.order_items
 ON CONFLICT (id) DO NOTHING;
 
-
--- 3) MIGRAMOS LAS VENTAS (Para Dashboard de Productores)
--- Si la tabla 'sales' vieja no existe o tiene otros nombres, esto podría fallar, 
--- pero usamos las columnas básicas conocidas.
+-- 3) MIGRAMOS LAS VENTAS 
+-- Coincide exactamente con las imágenes de 'ventas' y 'sales'
 DO $$
 BEGIN
     IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'sales') THEN
@@ -67,11 +58,8 @@ BEGIN
             vendedor_id, 
             beat_id, 
             monto, 
-            moneda, 
+            moneda,
             tipo_licencia, 
-            pago_id, 
-            metodo_pago, 
-            ganancia_neta, 
             fecha_creacion
         )
         SELECT 
@@ -82,9 +70,6 @@ BEGIN
             amount, 
             'MXN', 
             license_type, 
-            NULL, -- payment_intent_id o stripe_payment_id (evitamos error dejándolo nulo)
-            'stripe', 
-            GREATEST((amount * 0.90) - ((amount * 0.036 + 3) * 1.16), 0), -- Ganancia neta calculada
             created_at
         FROM public.sales
         ON CONFLICT (id) DO NOTHING;

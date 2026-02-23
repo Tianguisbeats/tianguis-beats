@@ -350,7 +350,7 @@ export default function PricingPage() {
                                             Más Popular
                                         </div>
                                     )}
-                                    <div className="mb-8">
+                                    <div className="mb-8 flex flex-col items-center text-center">
                                         <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${planBgSoftClass} ${planColorClass}`}>
                                             {isPremium ? <Crown size={28} fill="currentColor" /> : isPro ? <Star size={28} fill="currentColor" /> : <Zap size={28} />}
                                         </div>
