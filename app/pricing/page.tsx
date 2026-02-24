@@ -412,14 +412,18 @@ export default function PricingPage() {
                                             <span className="text-muted font-black uppercase text-[10px] tracking-widest">{currency}/Mes</span>
                                         </div>
                                     </div>
-                                    <ul className="space-y-4 mb-10 flex-1 flex flex-col items-center">
-                                        {plan.features.map((feature, i) => (
-                                            <li key={i} className="flex items-center gap-3 text-sm font-medium text-foreground w-full max-w-[240px]">
-                                                <Check size={isPro ? 18 : 16} className={`${planColorClass} shrink-0`} strokeWidth={isPro ? 3 : 2} />
-                                                <span>{feature}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                    <div className="flex justify-center mb-10">
+                                        <ul className="space-y-4 flex flex-col items-start min-w-[220px]">
+                                            {plan.features.map((feature, i) => (
+                                                <li key={i} className="flex items-center gap-4 text-sm font-bold text-foreground/90">
+                                                    <div className={`p-1 rounded-full ${planBgSoftClass} ${planColorClass} shrink-0`}>
+                                                        <Check size={isPro ? 14 : 12} strokeWidth={4} />
+                                                    </div>
+                                                    <span>{feature}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
                                     {isScheduled ? (
                                         <button
                                             onClick={handleCancelChange}
@@ -430,14 +434,20 @@ export default function PricingPage() {
                                     ) : (
                                         <button
                                             onClick={() => handleSelectPlan(plan)}
-                                            className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${isCurrentPlan && billingCycle === 'monthly'
-                                                ? 'bg-accent text-white hover:scale-105 shadow-xl' // Permitir extender si es el mismo plan
-                                                : isCurrentPlan
-                                                    ? 'bg-muted/10 text-muted cursor-default'
-                                                    : isPro ? 'bg-amber-500 text-white hover:bg-foreground hover:shadow-xl' : 'bg-foreground text-background hover:bg-accent hover:text-white'
+                                            className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${isCurrentPlan
+                                                ? 'bg-accent text-white hover:scale-105 shadow-xl'
+                                                : isPro ? 'bg-amber-500 text-white hover:bg-foreground hover:shadow-xl' : 'bg-foreground text-background hover:bg-accent hover:text-white'
                                                 }`}
                                         >
-                                            {isCurrentPlan && billingCycle === 'monthly' ? 'Extender / Comprar Anual' : isCurrentPlan ? 'Tu Plan Actual' : isUpgrade ? `Mejorar a ${plan.name}` : isDowngrade ? `Cambiar a ${plan.name}` : `Suscribirse ${plan.name}`}
+                                            {isCurrentPlan ? (
+                                                billingCycle === 'yearly' ? 'Extender Anual (Ahorra 25%)' : 'Extender Plan Actual'
+                                            ) : isUpgrade ? (
+                                                `Mejorar a ${plan.name}`
+                                            ) : isDowngrade ? (
+                                                `Cambiar a ${plan.name}`
+                                            ) : (
+                                                `Suscribirse ${plan.name}`
+                                            )}
                                         </button>
                                     )}
 
