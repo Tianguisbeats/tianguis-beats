@@ -802,7 +802,7 @@ function FeedbackManager() {
         setLoading(true);
         // Hacemos un join con profiles para obtener info del usuario productor
         const { data, error } = await supabase
-            .from('feedback')
+            .from('quejas_y_sugerencias')
             .select(`*, profiles:user_id (artistic_name, username, email)`)
             .order('fecha_creacion', { ascending: false });
 
@@ -815,7 +815,7 @@ function FeedbackManager() {
     };
 
     const handleUpdateStatus = async (id: string, newStatus: string) => {
-        const { error } = await supabase.from('feedback').update({ estado: newStatus }).eq('id', id);
+        const { error } = await supabase.from('quejas_y_sugerencias').update({ estado: newStatus }).eq('id', id);
         if (!error) {
             setFeedbacks(feedbacks.map(f => f.id === id ? { ...f, estado: newStatus } : f));
             showToast("Estado actualizado", "success");
@@ -840,14 +840,14 @@ function FeedbackManager() {
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
                                 <div className="flex items-center gap-3 mb-2">
-                                    <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${item.tipo === 'queja' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
-                                        {item.tipo}
+                                    <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${item.tipo_mensaje === 'queja' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
+                                        {item.tipo_mensaje}
                                     </span>
                                     <span className="text-[10px] font-bold text-muted uppercase tracking-widest">
                                         {new Date(item.fecha_creacion).toLocaleDateString()}
                                     </span>
                                 </div>
-                                <h3 className="font-black text-xl text-foreground">De: {item.profiles ? item.profiles.artistic_name || item.profiles.username : item.nombre}</h3>
+                                <h3 className="font-black text-xl text-foreground">De: {item.profiles ? item.profiles.artistic_name || item.profiles.username : item.nombre_usuario}</h3>
                                 <p className="text-xs text-muted font-bold tracking-widest uppercase">{item.email} {item.profiles && `(Usuario Registrado)`}</p>
                             </div>
 

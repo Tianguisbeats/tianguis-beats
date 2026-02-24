@@ -37,11 +37,11 @@ export default function QuejasSugerenciasPage() {
         try {
             const { data: { user } } = await supabase.auth.getUser();
 
-            const { error } = await supabase.from('feedback').insert([{
-                tipo,
-                nombre,
+            const { error } = await supabase.from('quejas_y_sugerencias').insert([{
+                tipo_mensaje: tipo,
+                nombre_usuario: nombre,
                 email,
-                mensaje,
+                descripcion_queja: mensaje,
                 user_id: user?.id || null,
                 estado: 'pendiente'
             }]);
@@ -158,6 +158,7 @@ export default function QuejasSugerenciasPage() {
 
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div className="space-y-4">
+                                    <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2">Nombre de Usuario</label>
                                     <input
                                         type="text"
                                         name="nombre"
