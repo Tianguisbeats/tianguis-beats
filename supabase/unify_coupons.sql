@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS cupones (
     fecha_expiracion TIMESTAMPTZ, -- NULL means it never expires
     es_activo BOOLEAN DEFAULT true,
     aplica_a TEXT DEFAULT 'todos', -- 'todos', 'beats', 'sound_kits', 'servicios', 'suscripciones'
+    nivel_objetivo TEXT DEFAULT 'todos', -- 'todos', 'free', 'pro', 'premium' (or 'gratis', but let's map 'all' -> 'todos' and keep the rest)
     fecha_creacion TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -28,18 +29,26 @@ INSERT INTO cupones (
     fecha_expiracion,
     es_activo,
     aplica_a,
+    nivel_objetivo,
     fecha_creacion
 )
 SELECT 
     c.id,
     p.id as productor_id,
-    UPPER(c.code) as codigo,
-    c.discount_value as porcentaje_descuento,
-    c.usage_limit as usos_maximos,
-    COALESCE(c.usage_count, 0) as usos_actuales,
-    c.valid_until as fecha_expiracion,
+    UPPER(c.codigo) as codigo,
+    c.porcentaje_descuento as porcentaje_descuento,
+    c.usos_maximos as usos_maximos,
+    COALESCE(c.usos_actuales, 0) as usos_actuales,
+    c.fecha_expiracion as fecha_expiracion,
     COALESCE(c.is_active, true) as es_activo,
     CASE WHEN p.id IS NULL THEN 'suscripciones' ELSE 'todos' END as aplica_a,
+    CASE 
+        WHEN c.model_restriction = 'all' THEN 'todos' 
+        WHEN c.model_restriction = 'free' OR c.model_restriction = 'gratis' THEN 'gratis'
+        WHEN c.model_restriction = 'pro' THEN 'pro'
+        WHEN c.model_restriction = 'premium' THEN 'premium'
+        ELSE 'todos' 
+    END as nivel_objetivo,
     COALESCE(c.created_at, NOW()) as fecha_creacion
 FROM coupons c
 LEFT JOIN profiles p ON c.user_id = p.id

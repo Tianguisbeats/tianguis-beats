@@ -22,6 +22,7 @@ type Coupon = {
     fecha_expiracion: string | null;
     es_activo: boolean;
     aplica_a: 'todos' | 'beats' | 'sound_kits' | 'servicios' | 'suscripciones';
+    nivel_objetivo: 'todos' | 'gratis' | 'pro' | 'premium';
     productor_id: string;
 };
 
@@ -34,6 +35,7 @@ export default function CouponsPage() {
     // Form State
     const [isEditing, setIsEditing] = useState(false);
     const [currentCoupon, setCurrentCoupon] = useState<Partial<Coupon> | null>(null);
+    const [originalCoupon, setOriginalCoupon] = useState<Partial<Coupon> | null>(null);
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
@@ -77,6 +79,7 @@ export default function CouponsPage() {
                 usos_maximos: currentCoupon.usos_maximos ? Number(currentCoupon.usos_maximos) : null,
                 fecha_expiracion: currentCoupon.fecha_expiracion || null,
                 aplica_a: currentCoupon.aplica_a || 'todos',
+                nivel_objetivo: currentCoupon.nivel_objetivo || 'todos',
                 es_activo: currentCoupon.id ? currentCoupon.es_activo : true
             };
 
@@ -181,7 +184,7 @@ export default function CouponsPage() {
                         </div>
                     </div>
                     <button
-                        onClick={() => { setCurrentCoupon({ aplica_a: 'todos' }); setIsEditing(true); }}
+                        onClick={() => { const newCp: Partial<Coupon> = { aplica_a: 'todos', nivel_objetivo: 'todos', es_activo: true }; setCurrentCoupon(newCp); setOriginalCoupon(newCp); setIsEditing(true); }}
                         className="group relative overflow-hidden bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-8 py-4 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] hover:scale-[1.02] transition-all shadow-xl active:scale-95 flex items-center gap-3"
                     >
                         <div className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
@@ -253,7 +256,9 @@ export default function CouponsPage() {
                                                 <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] opacity-80 dark:opacity-50 text-center sm:text-left">Nivel Objetivo</p>
                                                 <div className="flex items-center justify-center sm:justify-start gap-2 text-slate-900 dark:text-foreground">
                                                     <Users size={12} className={tierConfig.text} />
-                                                    <span className="text-[10px] font-black uppercase tracking-tighter">{tierConfig.label}</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-tighter">
+                                                        {coupon.nivel_objetivo === 'todos' ? 'Universal' : coupon.nivel_objetivo === 'gratis' ? 'Usuarios Free' : `Usuarios ${coupon.nivel_objetivo}`}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -296,7 +301,7 @@ export default function CouponsPage() {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <button
-                                                onClick={() => { setCurrentCoupon(coupon); setIsEditing(true); }}
+                                                onClick={() => { setCurrentCoupon(coupon); setOriginalCoupon(coupon); setIsEditing(true); }}
                                                 className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-slate-900 text-white dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400 hover:bg-slate-800 transition-all text-[11px] font-black uppercase tracking-widest shadow-xl shadow-black/10 dark:shadow-emerald-500/20 active:scale-95"
                                             >
                                                 <Edit3 size={14} /> Editar
@@ -324,7 +329,7 @@ export default function CouponsPage() {
                         <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
                         <button
-                            onClick={() => { setIsEditing(false); setCurrentCoupon(null); }}
+                            onClick={() => { setIsEditing(false); setCurrentCoupon(null); setOriginalCoupon(null); }}
                             className="absolute top-10 right-10 w-12 h-12 rounded-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-rose-50 dark:hover:bg-rose-500 text-slate-500 hover:text-rose-500 dark:text-foreground dark:hover:text-white transition-all z-10"
                         >
                             <X size={20} />
@@ -406,6 +411,37 @@ export default function CouponsPage() {
                                                 </button>
                                             ))}
                                         </div>
+
+                                        {/* NUEVO CAMPO: Nivel Objetivo */}
+                                        <div className="flex items-center gap-2 mb-2 ml-1 mt-6">
+                                            <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60">Para Usuarios</label>
+                                            <div className="group relative">
+                                                <Info size={14} className="text-slate-400 dark:text-muted/40 cursor-help" />
+                                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-bold tracking-wider rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                                                    Selecciona el nivel de membresía requerido en la cuenta del cliente para poder validar y usar este cupón al realizar su compra.
+                                                    <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 dark:bg-white rotate-45" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {[
+                                                { id: 'todos', label: 'Todos' },
+                                                { id: 'gratis', label: 'Gratis' },
+                                                { id: 'pro', label: 'Pro' },
+                                                { id: 'premium', label: 'Premium' }
+                                            ].map((tier) => (
+                                                <button
+                                                    key={tier.id}
+                                                    type="button"
+                                                    onClick={() => setCurrentCoupon({ ...currentCoupon, nivel_objetivo: tier.id as any })}
+                                                    className={`px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${currentCoupon?.nivel_objetivo === tier.id
+                                                        ? 'border-accent bg-accent/10 text-accent'
+                                                        : 'border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-muted/60 hover:border-accent/30'}`}
+                                                >
+                                                    {tier.label}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -442,29 +478,33 @@ export default function CouponsPage() {
                             </div>
 
                             <div className="flex flex-col sm:flex-row gap-6 pt-10 border-t border-slate-200 dark:border-white/5">
-                                <button
-                                    type="button"
-                                    onClick={() => { setIsEditing(false); setCurrentCoupon(null); }}
-                                    className="flex-1 py-6 rounded-2xl font-black text-slate-500 dark:text-muted/60 uppercase tracking-[0.4em] text-[10px] hover:bg-slate-50 dark:hover:bg-white/5 transition-all active:scale-95 border border-transparent hover:border-slate-200 dark:hover:border-transparent"
-                                >
-                                    Abortar
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={saving}
-                                    className="flex-[2] bg-accent text-white py-6 rounded-2xl font-black uppercase tracking-[0.4em] text-[10px] hover:scale-[1.02] transition-all shadow-xl shadow-accent/40 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
-                                >
-                                    {saving ? (
-                                        <>
-                                            <Loader2 size={16} className="animate-spin" /> Sincronizando Celda...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <CheckCircle2 size={18} />
-                                            {currentCoupon?.id ? 'Compilar Cambios' : 'Desplegar Oferta'}
-                                        </>
-                                    )}
-                                </button>
+                                {(() => {
+                                    const isDirty = JSON.stringify(currentCoupon) !== JSON.stringify(originalCoupon);
+
+                                    return (
+                                        <button
+                                            type={isDirty ? "submit" : "button"}
+                                            onClick={() => {
+                                                if (!isDirty) {
+                                                    setIsEditing(false); setCurrentCoupon(null); setOriginalCoupon(null);
+                                                }
+                                            }}
+                                            disabled={saving}
+                                            className="w-full bg-accent text-white py-6 rounded-2xl font-black uppercase tracking-[0.4em] text-[10px] hover:scale-[1.02] transition-all shadow-xl shadow-accent/40 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
+                                        >
+                                            {saving ? (
+                                                <>
+                                                    <Loader2 size={16} className="animate-spin" /> Procesando...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {isDirty ? <CheckCircle2 size={18} /> : <X size={18} />}
+                                                    {isDirty ? 'Desplegar Cupón' : 'Salir'}
+                                                </>
+                                            )}
+                                        </button>
+                                    );
+                                })()}
                             </div>
                         </form>
                     </div>

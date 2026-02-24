@@ -69,6 +69,28 @@ export default function CartPage() {
                 return;
             }
 
+            // Validar nivel_objetivo
+            if (data.nivel_objetivo && data.nivel_objetivo !== 'todos') {
+                const { data: userData } = await supabase.auth.getUser();
+                if (!userData.user) {
+                    showToast("Inicia sesión para usar cupones exclusivos de miembros.", 'info');
+                    return;
+                }
+                const { data: profile } = await supabase.from('profiles').select('subscription_tier').eq('id', userData.user.id).single();
+                if (data.nivel_objetivo === 'gratis' && profile?.subscription_tier !== 'free') {
+                    showToast("Cupones exclusivos para usuarios Free.", 'info');
+                    return;
+                }
+                if (data.nivel_objetivo === 'pro' && profile?.subscription_tier !== 'pro') {
+                    showToast("Cupones exclusivos para suscripciones PRO.", 'info');
+                    return;
+                }
+                if (data.nivel_objetivo === 'premium' && profile?.subscription_tier !== 'premium') {
+                    showToast("Cupones exclusivos para suscripciones PREMIUM.", 'info');
+                    return;
+                }
+            }
+
             // Calcular descuento item por item basado en `aplica_a`
             let totalDiscount = 0;
             let appliedItems: string[] = [];
@@ -111,6 +133,8 @@ export default function CartPage() {
             (window as any).tempCouponDiscount = totalDiscount;
             (window as any).tempCouponCode = data.codigo;
             (window as any).tempCouponId = data.id;
+            (window as any).tempCouponPercent = data.porcentaje_descuento;
+            (window as any).tempCouponAppliedItems = appliedItems;
 
             showToast(`Cupón aplicado con éxito`, 'success');
 
@@ -137,15 +161,25 @@ export default function CartPage() {
 
         try {
             const couponId = (window as any).tempCouponId;
+            const appliedItems = (window as any).tempCouponAppliedItems || [];
+            const couponPercent = (window as any).tempCouponPercent || 0;
 
             const response = await fetch('/api/checkout/stripe', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    items: items.map(item => ({
-                        ...item,
-                        price: convertPrice(item.price)
-                    })),
+                    items: items.map(item => {
+                        let finalItemPrice = item.price;
+                        // Si el item es elegible para el cupón, aplicamos el descuento a su precio final para Stripe
+                        if (couponId && appliedItems.includes(item.id)) {
+                            finalItemPrice = item.price * (1 - (couponPercent / 100));
+                        }
+
+                        return {
+                            ...item,
+                            price: convertPrice(finalItemPrice)
+                        };
+                    }),
                     customerEmail: user.email,
                     customerId: user.id,
                     couponId: couponId,
@@ -325,10 +359,16 @@ export default function CartPage() {
                                             <span className="text-lg font-black">{formatPrice(total)}</span>
                                         </div>
 
-                                        {discountApplied && (
-                                            <div className="flex justify-between items-center text-white font-black uppercase tracking-[0.3em] text-[9px] animate-in slide-in-from-right-4 duration-500 text-xs bg-white/20 px-3 py-1 rounded-lg">
-                                                <span>Descuento Cupón</span>
-                                                <span>-{formatPrice(discountAmount)}</span>
+                                        {discountApplied && typeof window !== 'undefined' && (
+                                            <div className="flex justify-between items-center bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-black uppercase tracking-[0.3em] text-[10px] animate-in slide-in-from-right-4 duration-500 px-4 py-4 rounded-[1.5rem] shadow-[0_0_20px_rgba(16,185,129,0.1)] mt-4">
+                                                <div className="flex gap-2 items-center">
+                                                    <Tag size={12} className="text-emerald-400" />
+                                                    <span className="text-white">CUPÓN {(window as any).tempCouponCode}</span>
+                                                    <span className="text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-lg border border-emerald-500/20">
+                                                        -{(window as any).tempCouponPercent}%
+                                                    </span>
+                                                </div>
+                                                <span className="text-emerald-400 text-xs">-{formatPrice(discountAmount)}</span>
                                             </div>
                                         )}
 
