@@ -136,6 +136,15 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                         </span>
                     </div>
 
+                    {/* Playing Animation Indicator */}
+                    {isThisPlaying && (
+                        <div className="absolute top-5 right-5 z-10 flex items-center gap-[2px] h-4 bg-black/40 backdrop-blur-md px-2 py-1.5 rounded-lg border border-white/10">
+                            <div className="w-[3px] h-full bg-accent animate-[playing-bar_0.6s_ease-in-out_infinite_alternate]" />
+                            <div className="w-[3px] h-full bg-accent animate-[playing-bar_0.8s_ease-in-out_infinite_alternate_0.2s]" />
+                            <div className="w-[3px] h-full bg-accent animate-[playing-bar_0.5s_ease-in-out_infinite_alternate_0.1s]" />
+                        </div>
+                    )}
+
                     {/* Play Button Overlay */}
                     <div className={`absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all flex items-center justify-center backdrop-blur-[1px] ${isThisPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                         {beat.is_sold ? (
@@ -155,16 +164,16 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
             </div>
 
             {/* Content Section */}
-            <div className="px-3 md:px-4 pt-0 pb-4 flex flex-col flex-1">
-                <Link href={`/beats/${beat.id}`} className={`block mt-1 mb-1 ${compact ? 'min-h-[24px]' : 'min-h-[32px]'} flex items-center`}>
-                    <h3 className={`font-black text-foreground ${compact ? 'text-lg' : 'text-xl md:text-2xl'} tracking-tighter leading-none truncate hover:text-accent transition-colors lowercase font-heading`}>
+            <div className="px-3 md:px-4 pt-0 pb-4 flex flex-col flex-1 items-center text-center">
+                <Link href={`/beats/${beat.id}`} className={`block mt-1 mb-1 ${compact ? 'min-h-[24px]' : 'min-h-[32px]'} flex items-center justify-center w-full`}>
+                    <h3 className={`font-black text-foreground ${compact ? 'text-lg' : 'text-xl md:text-2xl'} tracking-tighter leading-none truncate hover:text-accent transition-colors lowercase font-heading w-full text-center`}>
                         {beat.title}
                     </h3>
                 </Link>
 
                 {/* Producer Row */}
-                <Link href={`/${beat.producer_username || '#'}`} className={`flex items-center gap-2 ${compact ? 'mb-1.5' : 'mb-3'} group/prod ${compact ? 'min-h-[24px]' : 'min-h-[32px]'}`}>
-                    <div className="relative">
+                <Link href={`/${beat.producer_username || '#'}`} className={`flex items-center gap-2 ${compact ? 'mb-1.5' : 'mb-3'} group/prod ${compact ? 'min-h-[24px]' : 'min-h-[32px]'} justify-center w-full`}>
+                    <div className="relative shrink-0">
                         <div className={`${compact ? 'w-5 h-5' : 'w-6 h-6 md:w-8 md:h-8'} rounded-full overflow-hidden border-2 p-0.5 transform transition-transform group-hover/prod:scale-110 ${beat.producer_tier === 'premium' ? 'border-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)]' :
                             beat.producer_tier === 'pro' ? 'border-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.6)]' :
                                 'border-border shadow-lg shadow-black/5'
@@ -176,8 +185,8 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                             />
                         </div>
                     </div>
-                    <div className="flex flex-col truncate">
-                        <div className="flex items-center gap-1.5">
+                    <div className="flex flex-col truncate min-w-0">
+                        <div className="flex items-center gap-1.5 justify-center">
                             <p className={`${compact ? 'text-[10px]' : 'text-xs md:text-sm'} font-black uppercase text-muted tracking-tight truncate group-hover/prod:text-accent transition-colors`}>
                                 {beat.producer_artistic_name}
                             </p>
@@ -192,7 +201,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                 </Link>
 
                 {/* Pills Section */}
-                <div className={`flex flex-wrap gap-1 ${compact ? 'mb-2' : 'mb-4'}`}>
+                <div className={`flex flex-wrap gap-1 ${compact ? 'mb-2' : 'mb-4'} justify-center w-full`}>
                     {beat.genre && (
                         <span className={`text-[7px] font-black text-green-500 bg-green-500/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-green-500/20 uppercase tracking-widest leading-none`}>
                             {beat.genre}
@@ -219,10 +228,14 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                         {isOwner ? (
                             <Link
                                 href={`/studio/beats/edit/${beat.id}`}
-                                className={`w-full ${compact ? 'h-7' : 'h-9'} rounded-xl font-black ${compact ? 'text-[7px]' : 'text-[8px] md:text-[9px]'} uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 border border-slate-200 dark:border-white/10 hover:scale-[1.02] shadow-xl shadow-black/10 active:scale-95`}
+                                className={`w-full ${compact ? 'h-7' : 'h-9'} flex items-center justify-center gap-2 group/owner p-2`}
                             >
-                                <Crown size={compact ? 12 : 14} />
-                                <span>Es tu Beat</span>
+                                <div className="flex items-center gap-2 text-foreground dark:text-white">
+                                    <Crown size={compact ? 12 : 14} className="text-yellow-400 fill-yellow-400" />
+                                    <span className={`font-black uppercase tracking-[0.4em] ${compact ? 'text-[8px]' : 'text-[9px]'} opacity-70 group-hover/owner:opacity-100 transition-opacity`}>
+                                        Es tu Beat
+                                    </span>
+                                </div>
                             </Link>
                         ) : (
                             <Link

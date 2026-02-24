@@ -91,7 +91,17 @@ export default function AudioPlayer() {
                             </div>
                             <div className="min-w-0 flex flex-col justify-center">
                                 <span className="font-heading font-black text-sm text-foreground truncate uppercase">{currentBeat.title}</span>
-                                <span className="text-[10px] font-bold text-muted uppercase tracking-widest truncate">@{currentBeat.producer_username || 'Productor'}</span>
+                                <div className="flex items-center gap-1 min-w-0">
+                                    <span className="text-[10px] font-bold text-muted uppercase tracking-widest truncate">
+                                        {currentBeat.producer_artistic_name || (typeof currentBeat.producer === 'object' ? currentBeat.producer?.artistic_name : currentBeat.producer) || 'Productor'}
+                                    </span>
+                                    {(currentBeat.producer_is_verified || currentBeat.is_verified || (typeof currentBeat.producer === 'object' && currentBeat.producer?.is_verified)) && (
+                                        <img src="/verified-badge.png" className="w-2.5 h-2.5 object-contain" alt="V" />
+                                    )}
+                                    {(currentBeat.producer_is_founder || currentBeat.is_founder || (typeof currentBeat.producer === 'object' && currentBeat.producer?.is_founder)) && (
+                                        <Crown size={10} className="text-amber-500" fill="currentColor" />
+                                    )}
+                                </div>
                             </div>
                         </div>
 
@@ -165,7 +175,7 @@ export default function AudioPlayer() {
                                         className="flex items-center gap-1.5 truncate group"
                                     >
                                         <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] group-hover:text-accent transition-colors">
-                                            @{currentBeat.producer_username || (typeof currentBeat.producer === 'object' ? currentBeat.producer?.username : currentBeat.producer)}
+                                            {currentBeat.producer_artistic_name || (typeof currentBeat.producer === 'object' ? currentBeat.producer?.artistic_name : currentBeat.producer) || 'Productor'}
                                         </span>
                                         {(currentBeat.producer_is_verified || currentBeat.is_verified || (typeof currentBeat.producer === 'object' && currentBeat.producer?.is_verified)) && (
                                             <img src="/verified-badge.png" className="w-4 h-4 object-contain" alt="V" />
