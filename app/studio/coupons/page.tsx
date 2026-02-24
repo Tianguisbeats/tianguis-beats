@@ -250,14 +250,25 @@ export default function CouponsPage() {
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-1 gap-3">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             <div className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-1 relative overflow-hidden group/item">
                                                 <div className={`absolute top-0 right-0 w-8 h-8 ${tierConfig.bg} blur-xl opacity-0 group-hover/item:opacity-100 transition-opacity`} />
                                                 <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] opacity-80 dark:opacity-50 text-center sm:text-left">Nivel Objetivo</p>
                                                 <div className="flex items-center justify-center sm:justify-start gap-2 text-slate-900 dark:text-foreground">
                                                     <Users size={12} className={tierConfig.text} />
                                                     <span className="text-[10px] font-black uppercase tracking-tighter">
-                                                        {coupon.nivel_objetivo === 'todos' ? 'Universal' : coupon.nivel_objetivo === 'gratis' ? 'Usuarios Free' : `Usuarios ${coupon.nivel_objetivo}`}
+                                                        {coupon.nivel_objetivo === 'todos' ? 'Para todos' : coupon.nivel_objetivo === 'gratis' ? 'Usuarios Free' : `Usuarios ${coupon.nivel_objetivo}`}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-1 relative overflow-hidden group/item">
+                                                <div className={`absolute top-0 right-0 w-8 h-8 ${tierConfig.bg} blur-xl opacity-0 group-hover/item:opacity-100 transition-opacity`} />
+                                                <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] opacity-80 dark:opacity-50 text-center sm:text-left">Aplicable a</p>
+                                                <div className="flex items-center justify-center sm:justify-start gap-2 text-slate-900 dark:text-foreground">
+                                                    <HardDrive size={12} className={tierConfig.text} />
+                                                    <span className="text-[10px] font-black uppercase tracking-tighter">
+                                                        {coupon.aplica_a === 'todos' ? 'Todos los productos' : coupon.aplica_a === 'beats' ? 'Solo Beats' : coupon.aplica_a === 'sound_kits' ? 'Solo Sound Kits' : coupon.aplica_a === 'servicios' ? 'Solo Servicios' : 'Suscripciones'}
                                                     </span>
                                                 </div>
                                             </div>
@@ -341,8 +352,8 @@ export default function CouponsPage() {
                                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Motor de Conversión</span>
                             </div>
                             <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground leading-[0.9]">
-                                {currentCoupon?.id ? 'Refinar' : 'Arquitectura'} <br />
-                                <span className="text-accent underline decoration-slate-200 dark:decoration-accent/20 underline-offset-8">Estratégica.</span>
+                                {currentCoupon?.id ? 'Refinar' : 'Datos'} <br />
+                                <span className="text-accent underline decoration-slate-200 dark:decoration-accent/20 underline-offset-8">del Cupón.</span>
                             </h2>
                         </div>
 
