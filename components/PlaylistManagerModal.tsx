@@ -83,46 +83,48 @@ export default function PlaylistManagerModal({
 
         setSaving(true);
         try {
-            let playlistId = existingPlaylist?.id;
+            let playlistId = existingPlaylist?.id || existingPlaylist?.playlist_id;
 
-            if (existingPlaylist) {
-                // Actualizar
-                const { error } = await supabase
-                    .from('playlists')
-                    .update({ name, description })
-                    .eq('id', existingPlaylist.id);
-                if (error) throw error;
-            } else {
-                // Insertar
-                const { data, error } = await supabase
-                    .from('playlists')
-                    .insert({
-                        producer_id: producerId,
-                        name,
-                        description,
-                        is_public: true
-                    })
-                    .select()
-                    .single();
-                if (error) throw error;
-                playlistId = data.id;
+            if (!playlistId) {
+                // Generar un nuevo UUID para la playlist si no existe
+                playlistId = crypto.randomUUID();
             }
 
-            // Sincronizar Beats (Eliminar antiguos, insertar nuevos)
-            // Nota: En una app en producción haríamos esto de manera más eficiente con un diff
+            // Eliminar registros previos de esta playlist para reconstruirla (denormalización)
             await supabase
-                .from('playlist_beats')
+                .from('listas_reproduccion')
                 .delete()
                 .eq('playlist_id', playlistId);
 
             if (selectedBeatIds.length > 0) {
+                // Insertar un registro por cada beat
                 const { error: plError } = await supabase
-                    .from('playlist_beats')
+                    .from('listas_reproduccion')
                     .insert(selectedBeatIds.map((bid, index) => ({
                         playlist_id: playlistId,
+                        productor_id: producerId,
+                        nombre: name,
+                        descripcion: description,
+                        es_publica: true,
                         beat_id: bid,
-                        order_index: index
+                        indice_orden_beat: index,
+                        indice_orden_playlist: existingPlaylist?.indice_orden_playlist || 0
                     })));
+                if (plError) throw plError;
+            } else {
+                // Insertar un registro vacío (sin beats) para preservar la playlist
+                const { error: plError } = await supabase
+                    .from('listas_reproduccion')
+                    .insert({
+                        playlist_id: playlistId,
+                        productor_id: producerId,
+                        nombre: name,
+                        descripcion: description,
+                        es_publica: true,
+                        beat_id: null,
+                        indice_orden_beat: 0,
+                        indice_orden_playlist: existingPlaylist?.indice_orden_playlist || 0
+                    });
                 if (plError) throw plError;
             }
 
@@ -140,10 +142,11 @@ export default function PlaylistManagerModal({
         if (!window.confirm("¿Seguro que quieres eliminar esta playlist?")) return;
         setSaving(true);
         try {
+            const playlistId = existingPlaylist?.id || existingPlaylist?.playlist_id;
             const { error } = await supabase
-                .from('playlists')
+                .from('listas_reproduccion')
                 .delete()
-                .eq('id', existingPlaylist.id);
+                .eq('playlist_id', playlistId);
             if (error) throw error;
             onSuccess();
             onClose();

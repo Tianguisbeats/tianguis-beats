@@ -283,29 +283,36 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 }
 
                 // 3. Get Playlists
-                const { data: playlistsData } = await supabase
-                    .from('playlists')
-                    .select(`
-                        id, 
-                        name, 
-                        description, 
-                        playlist_beats (
-                            order_index,
-                            beats (*)
-                        )
-                    `)
-                    .eq('producer_id', profileData.id)
-                    .eq('is_public', true)
-                    .order('created_at', { ascending: false });
+                const { data: playlistsRaw } = await supabase
+                    .from('listas_reproduccion')
+                    .select('*, beats(*)')
+                    .eq('productor_id', profileData.id)
+                    .eq('es_publica', true)
+                    .order('indice_orden_playlist', { ascending: true })
+                    .order('indice_orden_beat', { ascending: true });
 
-                if (playlistsData) {
-                    const formattedPlaylists = await Promise.all(playlistsData.map(async (pl: any) => {
-                        const playlistBeats = pl.playlist_beats
-                            .map((pb: any) => pb.beats)
-                            .filter(Boolean);
+                if (playlistsRaw) {
+                    // Agrupar por playlist_id
+                    const grouped = playlistsRaw.reduce((acc: any, item: any) => {
+                        if (!acc[item.playlist_id]) {
+                            acc[item.playlist_id] = {
+                                id: item.playlist_id,
+                                playlist_id: item.playlist_id,
+                                name: item.nombre,
+                                description: item.descripcion,
+                                indice_orden_playlist: item.indice_orden_playlist,
+                                beats: []
+                            };
+                        }
+                        if (item.beats) {
+                            acc[item.playlist_id].beats.push(item.beats);
+                        }
+                        return acc;
+                    }, {});
 
+                    const formattedPlaylists = await Promise.all(Object.values(grouped).map(async (pl: any) => {
                         // Transform URLs for playlist beats (reusing logic)
-                        const transformedPLBeats = await Promise.all(playlistBeats.map(async (b: any) => {
+                        const transformedPLBeats = await Promise.all(pl.beats.map(async (b: any) => {
                             const path = b.mp3_tag_url || b.mp3_url || '';
                             let publicUrl = '';
 
@@ -338,10 +345,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         }));
 
                         return {
-                            id: pl.id,
-                            name: pl.name,
-                            description: pl.description,
-                            order_index: pl.order_index,
+                            ...pl,
                             beats: transformedPLBeats
                         };
                     }));
@@ -1205,7 +1209,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                     setHasChangedOrder(true);
                                                                     // Persist order
                                                                     await Promise.all(newPlaylists.map((p, i) =>
-                                                                        supabase.from('playlists').update({ order_index: i }).eq('id', p.id)
+                                                                        supabase.from('listas_reproduccion').update({ indice_orden_playlist: i }).eq('playlist_id', p.playlist_id || p.id)
                                                                     ));
                                                                 }}
                                                                 className="p-2 hover:bg-slate-50 text-slate-400 rounded-lg disabled:opacity-20"
@@ -1221,7 +1225,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                     setHasChangedOrder(true);
                                                                     // Persist order
                                                                     await Promise.all(newPlaylists.map((p, i) =>
-                                                                        supabase.from('playlists').update({ order_index: i }).eq('id', p.id)
+                                                                        supabase.from('listas_reproduccion').update({ indice_orden_playlist: i }).eq('playlist_id', p.playlist_id || p.id)
                                                                     ));
                                                                 }}
                                                                 className="p-2 hover:bg-slate-50 text-slate-400 rounded-lg disabled:opacity-20"

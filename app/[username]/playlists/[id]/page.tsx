@@ -42,23 +42,15 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                 if (user?.id === profileData.id) setIsOwner(true);
 
                 // 2. Get Playlist
-                const { data: playlistData } = await supabase
-                    .from('playlists')
-                    .select(`
-                        id, 
-                        name, 
-                        description, 
-                        playlist_beats (
-                            order_index,
-                            beats (*)
-                        )
-                    `)
-                    .eq('id', playlistId)
-                    .single();
+                const { data: playlistRows } = await supabase
+                    .from('listas_reproduccion')
+                    .select('*, beats(*)')
+                    .eq('playlist_id', playlistId)
+                    .order('indice_orden_beat', { ascending: true });
 
-                if (playlistData) {
-                    const playlistBeats = playlistData.playlist_beats
-                        .sort((a: any, b: any) => a.order_index - b.order_index)
+                if (playlistRows && playlistRows.length > 0) {
+                    const firstRow = playlistRows[0];
+                    const playlistBeats = playlistRows
                         .map((pb: any) => pb.beats)
                         .filter(Boolean);
 
@@ -88,9 +80,9 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                     }));
 
                     setPlaylist({
-                        id: playlistData.id,
-                        name: playlistData.name,
-                        description: playlistData.description,
+                        id: firstRow.playlist_id,
+                        name: firstRow.nombre,
+                        description: firstRow.descripcion,
                         beats: transformedBeats
                     });
                     setBeatsInPlaylist(transformedBeats);
@@ -140,9 +132,9 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
 
     return (
         <div className={`min-h-screen font-sans flex flex-col transition-colors duration-500 ${profile.tema_perfil === 'dark' ? 'bg-[#020205] text-white selection:bg-white selection:text-slate-900' :
-                profile.tema_perfil === 'neon' ? 'bg-[#09090b] text-white selection:bg-green-400 selection:text-black' :
-                    profile.tema_perfil === 'gold' ? 'bg-[#1a1610] text-amber-50 font-serif selection:bg-amber-400 selection:text-black' :
-                        'bg-white text-slate-900 selection:bg-blue-600 selection:text-white'
+            profile.tema_perfil === 'neon' ? 'bg-[#09090b] text-white selection:bg-green-400 selection:text-black' :
+                profile.tema_perfil === 'gold' ? 'bg-[#1a1610] text-amber-50 font-serif selection:bg-amber-400 selection:text-black' :
+                    'bg-white text-slate-900 selection:bg-blue-600 selection:text-white'
             }`} style={{
                 '--accent': profile.color_acento || '#2563eb'
             } as React.CSSProperties}>
@@ -150,14 +142,14 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
             <main className="flex-1 pt-32 pb-20 relative overflow-hidden">
                 {/* Ambient logic */}
                 <div className={`absolute top-0 right-0 w-[500px] h-[500px] blur-[150px] -z-10 rounded-full ${profile.tema_perfil === 'dark' ? 'bg-white/5' :
-                        profile.tema_perfil === 'neon' ? 'bg-green-500/10' :
-                            profile.tema_perfil === 'gold' ? 'bg-amber-500/10' :
-                                'bg-blue-50/50'
+                    profile.tema_perfil === 'neon' ? 'bg-green-500/10' :
+                        profile.tema_perfil === 'gold' ? 'bg-amber-500/10' :
+                            'bg-blue-50/50'
                     }`} />
                 <div className={`absolute bottom-0 left-0 w-[300px] h-[300px] blur-[120px] -z-10 rounded-full ${profile.tema_perfil === 'dark' ? 'bg-white/5' :
-                        profile.tema_perfil === 'neon' ? 'bg-purple-500/10' :
-                            profile.tema_perfil === 'gold' ? 'bg-amber-600/10' :
-                                'bg-indigo-50/50'
+                    profile.tema_perfil === 'neon' ? 'bg-purple-500/10' :
+                        profile.tema_perfil === 'gold' ? 'bg-amber-600/10' :
+                            'bg-indigo-50/50'
                     }`} />
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -170,9 +162,9 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                     <div className="flex flex-col md:flex-row items-center justify-between gap-12 mb-20">
                         <div className="flex flex-col md:flex-row items-center gap-10 text-center md:text-left">
                             <div className={`w-32 h-32 md:w-40 md:h-40 rounded-[3rem] flex items-center justify-center shadow-2xl relative group ${profile.tema_perfil === 'dark' ? 'bg-white/5 text-white border border-white/10' :
-                                    profile.tema_perfil === 'neon' ? 'bg-black text-green-400 border border-green-500/20 shadow-[0_0_30px_rgba(74,222,128,0.2)]' :
-                                        profile.tema_perfil === 'gold' ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-100 border border-amber-500/20' :
-                                            'bg-gradient-to-br from-blue-600 via-indigo-600 to-indigo-800 text-white'
+                                profile.tema_perfil === 'neon' ? 'bg-black text-green-400 border border-green-500/20 shadow-[0_0_30px_rgba(74,222,128,0.2)]' :
+                                    profile.tema_perfil === 'gold' ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-100 border border-amber-500/20' :
+                                        'bg-gradient-to-br from-blue-600 via-indigo-600 to-indigo-800 text-white'
                                 }`}>
                                 <div className="absolute inset-0 bg-white/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
                                 <ListMusic size={60} className="relative z-10" />
@@ -185,8 +177,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                                     <span className={`text-[9px] font-bold uppercase tracking-widest ${profile.tema_perfil === 'light' ? 'text-slate-400' : 'text-white/40'}`}>{beatsInPlaylist.length} Beats Guardados</span>
                                 </div>
                                 <h1 className={`text-4xl md:text-7xl font-black uppercase tracking-tighter leading-none italic ${profile.tema_perfil === 'light'
-                                        ? 'bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600'
-                                        : 'text-white drop-shadow-lg'
+                                    ? 'bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600'
+                                    : 'text-white drop-shadow-lg'
                                     }`}>
                                     {playlist.name}
                                 </h1>
@@ -222,8 +214,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                                     alert("¡Enlace de la playlist copiado! 🚀");
                                 }}
                                 className={`p-4 rounded-2xl border transition-all hover:shadow-lg active:scale-90 ${profile.tema_perfil === 'light'
-                                        ? 'bg-white text-slate-400 border-slate-100 hover:text-blue-600 hover:border-blue-200'
-                                        : 'bg-white/5 text-white/40 border-white/5 hover:text-white hover:bg-white/10 hover:border-white/20'
+                                    ? 'bg-white text-slate-400 border-slate-100 hover:text-blue-600 hover:border-blue-200'
+                                    : 'bg-white/5 text-white/40 border-white/5 hover:text-white hover:bg-white/10 hover:border-white/20'
                                     }`}
                             >
                                 <Share2 size={24} />
@@ -244,8 +236,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                         </div>
                     ) : (
                         <div className={`rounded-[4rem] py-40 text-center border-2 border-dashed backdrop-blur-sm ${profile.tema_perfil === 'light'
-                                ? 'bg-slate-50/50 border-slate-100'
-                                : 'bg-white/5 border-white/5'
+                            ? 'bg-slate-50/50 border-slate-100'
+                            : 'bg-white/5 border-white/5'
                             }`}>
                             <Music size={60} className={`mx-auto mb-10 ${profile.tema_perfil === 'light' ? 'text-slate-200' : 'text-white/20'}`} />
                             <h3 className={`text-3xl font-black uppercase tracking-tighter mb-4 italic ${profile.tema_perfil === 'light' ? 'text-slate-900' : 'text-white'}`}>Playlist sin beats</h3>
