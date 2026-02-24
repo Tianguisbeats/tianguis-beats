@@ -79,6 +79,7 @@ WHERE pb.playlist_id IS NULL;
 ALTER TABLE listas_reproduccion ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Producers can manage their own playlists
+DROP POLICY IF EXISTS "Producers can manage their own playlists" ON listas_reproduccion;
 CREATE POLICY "Producers can manage their own playlists" 
 ON listas_reproduccion 
 FOR ALL 
@@ -87,6 +88,7 @@ USING (auth.uid() = productor_id)
 WITH CHECK (auth.uid() = productor_id);
 
 -- Policy: Everyone can view public playlists
+DROP POLICY IF EXISTS "Everyone can view public playlists" ON listas_reproduccion;
 CREATE POLICY "Everyone can view public playlists" 
 ON listas_reproduccion 
 FOR SELECT 
@@ -96,8 +98,7 @@ USING (es_publica = true);
 CREATE INDEX IF NOT EXISTS idx_listas_reproduccion_productor ON listas_reproduccion(productor_id);
 CREATE INDEX IF NOT EXISTS idx_listas_reproduccion_playlist_id ON listas_reproduccion(playlist_id);
 
--- 5. Comments on instructions for the user (cleanup)
--- IMPORTANT: After running this script and verifying the app works, 
--- you can manually drop the old tables:
--- DROP TABLE playlist_beats;
--- DROP TABLE playlists;
+-- 5. Final Cleanup: Delete old tables
+-- Solo ejecuta esto una vez que hayas verificado que los datos están en listas_reproduccion
+DROP TABLE IF EXISTS playlist_beats CASCADE;
+DROP TABLE IF EXISTS playlists CASCADE;
