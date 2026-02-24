@@ -530,6 +530,7 @@ function CouponManager() {
         codigo: '',
         porcentaje_descuento: 20,
         fecha_expiracion: '',
+        nivel_objetivo: 'todos',
         es_activo: true
     });
     const { showToast } = useToast();
@@ -563,6 +564,7 @@ function CouponManager() {
                     codigo: newCoupon.codigo.toUpperCase(),
                     porcentaje_descuento: newCoupon.porcentaje_descuento,
                     fecha_expiracion: newCoupon.fecha_expiracion || null,
+                    nivel_objetivo: newCoupon.nivel_objetivo,
                     es_activo: newCoupon.es_activo
                 }).eq('id', editingId);
                 if (error) throw error;
@@ -572,12 +574,13 @@ function CouponManager() {
                     codigo: newCoupon.codigo.toUpperCase(),
                     porcentaje_descuento: newCoupon.porcentaje_descuento,
                     fecha_expiracion: newCoupon.fecha_expiracion || null,
+                    nivel_objetivo: newCoupon.nivel_objetivo,
                     aplica_a: 'suscripciones'
                 }]);
                 if (error) throw error;
                 showToast("Cupón creado", "success");
             }
-            setNewCoupon({ codigo: '', porcentaje_descuento: 20, fecha_expiracion: '', es_activo: true });
+            setNewCoupon({ codigo: '', porcentaje_descuento: 20, fecha_expiracion: '', nivel_objetivo: 'todos', es_activo: true });
             setEditingId(null);
             fetchCoupons();
         } catch (error: any) { showToast(error.message, "error"); }
@@ -611,12 +614,12 @@ function CouponManager() {
                         {editingId ? 'Refinar Cupón' : 'Nuevo Cupón'}
                     </h2>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500/80 dark:text-muted/60 mt-2">
-                        Exclusivo para descuentos en planes de Suscripción Anual o Mensual.
+                        Exclusivo para descuentos en planes de Suscripción. Dirigido a: <span className="text-accent">{newCoupon.nivel_objetivo.toUpperCase()}</span>
                     </p>
                 </div>
 
                 <form onSubmit={handleAction} className="relative z-10 space-y-8">
-                    <div className="grid md:grid-cols-3 gap-6">
+                    <div className="grid md:grid-cols-4 gap-6">
                         <div className="space-y-3">
                             <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2">Código Promocional</label>
                             <input
@@ -643,7 +646,20 @@ function CouponManager() {
                             </div>
                         </div>
                         <div className="space-y-3">
-                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2">Expiración (Opcional)</label>
+                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2">Dirigido a</label>
+                            <select
+                                value={newCoupon.nivel_objetivo}
+                                onChange={e => setNewCoupon({ ...newCoupon, nivel_objetivo: e.target.value })}
+                                className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all uppercase tracking-widest shadow-sm appearance-none cursor-pointer"
+                            >
+                                <option value="todos">Todos</option>
+                                <option value="free">Free</option>
+                                <option value="pro">Pro</option>
+                                <option value="premium">Premium</option>
+                            </select>
+                        </div>
+                        <div className="space-y-3">
+                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2">Expiración <span className="text-[8px] opacity-60 lowercase font-bold tracking-normal text-slate-400">(opcional)</span></label>
                             <input
                                 type="datetime-local"
                                 value={newCoupon.fecha_expiracion}
@@ -664,7 +680,7 @@ function CouponManager() {
                         {editingId && (
                             <button
                                 type="button"
-                                onClick={() => { setEditingId(null); setNewCoupon({ codigo: '', porcentaje_descuento: 20, fecha_expiracion: '', es_activo: true }); }}
+                                onClick={() => { setEditingId(null); setNewCoupon({ codigo: '', porcentaje_descuento: 20, fecha_expiracion: '', nivel_objetivo: 'todos', es_activo: true }); }}
                                 className="w-14 h-14 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-white rounded-2xl flex items-center justify-center hover:bg-rose-50 dark:hover:bg-rose-500 hover:text-rose-500 dark:hover:text-white transition-all shadow-sm active:scale-95"
                             >
                                 <XCircle size={20} />
@@ -693,7 +709,12 @@ function CouponManager() {
                                         </div>
                                     </div>
                                     <div className="px-4 py-2 bg-slate-100 dark:bg-slate-500/10 border border-slate-200 dark:border-slate-500/20 text-slate-600 dark:text-slate-500 rounded-xl text-base font-black tracking-widest uppercase shadow-sm dark:shadow-inner flex items-center gap-2">
-                                        <Crown size={14} className="text-amber-500" /> -{cp.porcentaje_descuento}%
+                                        <div className="flex flex-col items-end">
+                                            <span className="text-[8px] font-black opacity-40 leading-none mb-1">{cp.nivel_objetivo || 'TODOS'}</span>
+                                            <div className="flex items-center gap-2">
+                                                <Crown size={14} className="text-amber-500" /> -{cp.porcentaje_descuento}%
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -705,7 +726,7 @@ function CouponManager() {
                                         {cp.es_activo ? 'Desactivar' : 'Activar'}
                                     </button>
                                     <div className="flex items-center gap-2">
-                                        <button onClick={() => { setEditingId(cp.id); setNewCoupon({ codigo: cp.codigo, porcentaje_descuento: cp.porcentaje_descuento, fecha_expiracion: cp.fecha_expiracion || '', es_activo: cp.es_activo }); }} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-slate-900 text-white dark:bg-emerald-500 dark:hover:bg-emerald-400 hover:bg-slate-800 transition-all text-[11px] font-black uppercase tracking-widest shadow-xl shadow-black/10 dark:shadow-emerald-500/20 active:scale-95">
+                                        <button onClick={() => { setEditingId(cp.id); setNewCoupon({ codigo: cp.codigo, porcentaje_descuento: cp.porcentaje_descuento, fecha_expiracion: cp.fecha_expiracion || '', nivel_objetivo: cp.nivel_objetivo || 'todos', es_activo: cp.es_activo }); }} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-slate-900 text-white dark:bg-emerald-500 dark:hover:bg-emerald-400 hover:bg-slate-800 transition-all text-[11px] font-black uppercase tracking-widest shadow-xl shadow-black/10 dark:shadow-emerald-500/20 active:scale-95">
                                             <Edit2 size={14} /> Editar
                                         </button>
                                         <button onClick={() => handleDelete(cp.id)} className="w-11 h-11 rounded-xl bg-rose-50 text-rose-500 dark:bg-rose-500 dark:text-white dark:hover:bg-rose-400 hover:bg-rose-100 transition-all flex items-center justify-center flex-shrink-0 shadow-sm dark:shadow-xl dark:shadow-rose-500/20 active:scale-95">
