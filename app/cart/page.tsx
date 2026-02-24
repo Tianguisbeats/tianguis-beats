@@ -46,10 +46,10 @@ export default function CartPage() {
 
         try {
             const { data, error } = await supabase
-                .from('coupons')
+                .from('cupones')
                 .select('*')
-                .eq('code', coupon.toUpperCase())
-                .eq('is_active', true)
+                .eq('codigo', coupon.toUpperCase())
+                .eq('es_activo', true)
                 .single();
 
             if (error || !data) {
@@ -58,89 +58,58 @@ export default function CartPage() {
             }
 
             // Validar expiración
-            const validUntil = data.valid_until || data.fecha_expiracion;
-            if (validUntil && new Date(validUntil) < new Date()) {
+            if (data.fecha_expiracion && new Date(data.fecha_expiracion) < new Date()) {
                 showToast("Este cupón ha expirado.", 'error');
                 return;
             }
 
             // Validar límite de usos
-            const usageLimit = data.usage_limit || data.usos_maximos;
-            const usageCount = data.usage_count || data.usos_actuales || 0;
-            if (usageLimit && usageCount >= usageLimit) {
+            if (data.usos_maximos && data.usos_actuales >= data.usos_maximos) {
                 showToast("Este cupón ha agotado su límite de usos.", 'error');
                 return;
             }
 
-            // Validar Tier de Usuario
-            const { data: { user } } = await supabase.auth.getUser();
-            if (data.target_tier && data.target_tier !== 'all') {
-                if (!user) {
-                    showToast("Inicia sesión para usar este cupón reservado.", 'info');
-                    return;
-                }
-                const { data: profile } = await supabase.from('profiles').select('subscription_tier').eq('id', user.id).single();
-                if (profile?.subscription_tier !== data.target_tier) {
-                    showToast(`Este cupón es exclusivo para usuarios ${data.target_tier.toUpperCase()}.`, 'info');
-                    return;
-                }
-            }
-
-            // Calcular descuento item por item
+            // Calcular descuento item por item basado en `aplica_a`
             let totalDiscount = 0;
             let appliedItems: string[] = [];
-            const producerId = data.user_id || data.producer_id;
+            const producerId = data.productor_id;
 
             items.forEach(item => {
                 const itemProducerId = item.metadata?.producer_id || item.metadata?.producerId;
-
-                // REGLA DE CUPONES REFINADA:
-                // 1. Cupón de Productor: Solo aplica a sus productos (Beats, Kits, Servicios). NUNCA a planes.
-                // 2. Cupón de Administrador (sin producerId): Solo aplica a SUSCRIPCIONES (Planes). 
-                //    No interfiere en los precios que el productor puso a sus beats.
-
                 let isItemEligible = false;
 
-                if (producerId) {
-                    // Es cupón de productor
-                    isItemEligible = item.type !== 'plan' && itemProducerId === producerId;
+                if (!producerId) {
+                    // Es cupón de administrador, solo aplica a suscripciones
+                    isItemEligible = (data.aplica_a === 'suscripciones' && item.type === 'plan');
                 } else {
-                    // Es cupón de administrador
-                    isItemEligible = item.type === 'plan';
+                    // Es cupón de productor, aplica a sus propios productos según `aplica_a`
+                    if (itemProducerId === producerId && item.type !== 'plan') {
+                        if (data.aplica_a === 'todos') isItemEligible = true;
+                        if (data.aplica_a === 'beats' && item.type === 'beat') isItemEligible = true;
+                        if (data.aplica_a === 'sound_kits' && item.type === 'sound_kit') isItemEligible = true;
+                        if (data.aplica_a === 'servicios' && item.type === 'service') isItemEligible = true;
+                    }
                 }
 
                 if (isItemEligible) {
-                    if (data.discount_type !== 'fixed') {
-                        // Porcentual aplica a cada item
-                        totalDiscount += item.price * ((data.discount_value || data.porcentaje_descuento) / 100);
-                    }
+                    totalDiscount += item.price * (data.porcentaje_descuento / 100);
                     appliedItems.push(item.id);
                 }
             });
 
             if (appliedItems.length === 0) {
-                showToast(producerId
-                    ? "Este cupón solo es válido para productos del artista emisor."
-                    : "Este cupón no aplica a los artículos en tu carrito.",
+                showToast(
+                    producerId
+                        ? `Este cupón es válido solo para ${data.aplica_a.replace('_', ' ')} del productor emisor.`
+                        : "Este cupón solo aplica para suscripciones premium o pro.",
                     'info'
                 );
                 return;
             }
 
-            // Finalizar cálculo de descuento fijo
-            if (data.discount_type === 'fixed') {
-                totalDiscount = Math.min(data.discount_value, total); // No descontar más del total
-            }
-
-            // Validar compra mínima
-            if (data.min_purchase && total < data.min_purchase) {
-                showToast(`Compra mínima de ${formatPrice(data.min_purchase)} requerida.`, 'info');
-                return;
-            }
-
             setDiscountApplied(true);
             (window as any).tempCouponDiscount = totalDiscount;
-            (window as any).tempCouponCode = data.code || data.codigo;
+            (window as any).tempCouponCode = data.codigo;
             (window as any).tempCouponId = data.id;
 
             showToast(`Cupón aplicado con éxito`, 'success');

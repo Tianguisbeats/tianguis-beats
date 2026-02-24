@@ -522,10 +522,10 @@ function CouponManager() {
     const [loading, setLoading] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [newCoupon, setNewCoupon] = useState({
-        code: '',
-        discount_percent: 20,
-        valid_until: '',
-        is_active: true
+        codigo: '',
+        porcentaje_descuento: 20,
+        fecha_expiracion: '',
+        es_activo: true
     });
     const { showToast } = useToast();
 
@@ -534,9 +534,14 @@ function CouponManager() {
     const fetchCoupons = async () => {
         setLoading(true);
         try {
-            const { data, error } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
+            const { data, error } = await supabase.from('cupones')
+                .select('*')
+                .is('productor_id', null)
+                .order('fecha_creacion', { ascending: false });
             if (error) {
-                const { data: retryData } = await supabase.from('coupons').select('*');
+                const { data: retryData } = await supabase.from('cupones')
+                    .select('*')
+                    .is('productor_id', null);
                 setCoupons(retryData || []);
             } else {
                 setCoupons(data || []);
@@ -549,24 +554,25 @@ function CouponManager() {
         e.preventDefault();
         try {
             if (editingId) {
-                const { error } = await supabase.from('coupons').update({
-                    code: newCoupon.code.toUpperCase(),
-                    discount_percent: newCoupon.discount_percent,
-                    valid_until: newCoupon.valid_until || null,
-                    is_active: newCoupon.is_active
+                const { error } = await supabase.from('cupones').update({
+                    codigo: newCoupon.codigo.toUpperCase(),
+                    porcentaje_descuento: newCoupon.porcentaje_descuento,
+                    fecha_expiracion: newCoupon.fecha_expiracion || null,
+                    es_activo: newCoupon.es_activo
                 }).eq('id', editingId);
                 if (error) throw error;
                 showToast("Cupón actualizado", "success");
             } else {
-                const { error } = await supabase.from('coupons').insert([{
-                    code: newCoupon.code.toUpperCase(),
-                    discount_percent: newCoupon.discount_percent,
-                    valid_until: newCoupon.valid_until || null
+                const { error } = await supabase.from('cupones').insert([{
+                    codigo: newCoupon.codigo.toUpperCase(),
+                    porcentaje_descuento: newCoupon.porcentaje_descuento,
+                    fecha_expiracion: newCoupon.fecha_expiracion || null,
+                    aplica_a: 'suscripciones'
                 }]);
                 if (error) throw error;
                 showToast("Cupón creado", "success");
             }
-            setNewCoupon({ code: '', discount_percent: 20, valid_until: '', is_active: true });
+            setNewCoupon({ codigo: '', porcentaje_descuento: 20, fecha_expiracion: '', es_activo: true });
             setEditingId(null);
             fetchCoupons();
         } catch (error: any) { showToast(error.message, "error"); }
@@ -574,7 +580,7 @@ function CouponManager() {
 
     const handleDelete = async (id: string) => {
         if (!confirm("¿Eliminar cupón?")) return;
-        await supabase.from('coupons').delete().eq('id', id);
+        await supabase.from('cupones').delete().eq('id', id);
         fetchCoupons();
     };
 
@@ -588,22 +594,22 @@ function CouponManager() {
                 <form onSubmit={handleAction} className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
                     <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase text-muted tracking-widest pl-2">Código</label>
-                        <input value={newCoupon.code} onChange={e => setNewCoupon({ ...newCoupon, code: e.target.value })} placeholder="VERANO50" className="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-border rounded-xl font-bold text-sm uppercase" required />
+                        <input value={newCoupon.codigo} onChange={e => setNewCoupon({ ...newCoupon, codigo: e.target.value })} placeholder="VERANO50" className="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-border rounded-xl font-bold text-sm uppercase" required />
                     </div>
                     <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase text-muted tracking-widest pl-2">Desc %</label>
-                        <input type="number" min="1" max="100" value={newCoupon.discount_percent} onChange={e => setNewCoupon({ ...newCoupon, discount_percent: parseInt(e.target.value) })} className="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-border rounded-xl font-bold text-sm" required />
+                        <input type="number" min="1" max="100" value={newCoupon.porcentaje_descuento} onChange={e => setNewCoupon({ ...newCoupon, porcentaje_descuento: parseInt(e.target.value) })} className="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-border rounded-xl font-bold text-sm" required />
                     </div>
                     <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase text-muted tracking-widest pl-2">Expira</label>
-                        <input type="datetime-local" value={newCoupon.valid_until} onChange={e => setNewCoupon({ ...newCoupon, valid_until: e.target.value })} className="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-border rounded-xl font-bold text-sm" />
+                        <input type="datetime-local" value={newCoupon.fecha_expiracion} onChange={e => setNewCoupon({ ...newCoupon, fecha_expiracion: e.target.value })} className="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-border rounded-xl font-bold text-sm" />
                     </div>
                     <div className="flex gap-2">
                         <button type="submit" className="flex-1 py-4 bg-accent text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:shadow-xl transition-all">
                             {editingId ? 'Actualizar' : 'Guardar'}
                         </button>
                         {editingId && (
-                            <button onClick={() => { setEditingId(null); setNewCoupon({ code: '', discount_percent: 20, valid_until: '', is_active: true }); }} className="p-4 bg-slate-200 dark:bg-white/10 text-foreground rounded-xl">
+                            <button onClick={() => { setEditingId(null); setNewCoupon({ codigo: '', porcentaje_descuento: 20, fecha_expiracion: '', es_activo: true }); }} className="p-4 bg-slate-200 dark:bg-white/10 text-foreground rounded-xl">
                                 <XCircle size={18} />
                             </button>
                         )}
@@ -616,18 +622,18 @@ function CouponManager() {
                     <div key={cp.id} className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6 hover:border-accent/40 hover:shadow-lg dark:hover:shadow-accent/5 transition-all shadow-md dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)]">
                         <div className="flex items-center gap-6">
                             <div className="w-16 h-16 rounded-2xl bg-accent-soft flex items-center justify-center text-accent font-black text-2xl">
-                                {cp.discount_percent}%
+                                {cp.porcentaje_descuento}%
                             </div>
                             <div>
-                                <h4 className="text-2xl font-black uppercase tracking-tighter">{cp.code}</h4>
+                                <h4 className="text-2xl font-black uppercase tracking-tighter">{cp.codigo}</h4>
                                 <div className="flex gap-4 text-[9px] font-black uppercase tracking-widest text-muted/60 mt-1">
-                                    <span>Válido hasta: {cp.valid_until ? new Date(cp.valid_until).toLocaleDateString() : 'Siempre'}</span>
-                                    <span className={cp.is_active ? 'text-emerald-500' : 'text-red-500'}>{cp.is_active ? 'Activo' : 'Inactivo'}</span>
+                                    <span>Válido hasta: {cp.fecha_expiracion ? new Date(cp.fecha_expiracion).toLocaleDateString() : 'Siempre'}</span>
+                                    <span className={cp.es_activo ? 'text-emerald-500' : 'text-red-500'}>{cp.es_activo ? 'Activo' : 'Inactivo'}</span>
                                 </div>
                             </div>
                         </div>
                         <div className="flex gap-2 w-full md:w-auto">
-                            <button onClick={() => { setEditingId(cp.id); setNewCoupon({ code: cp.code, discount_percent: cp.discount_percent, valid_until: cp.valid_until || '', is_active: cp.is_active }); }} className="flex-1 md:flex-none px-6 py-3 bg-slate-100 dark:bg-white/10 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-accent hover:text-white transition-all">Editar</button>
+                            <button onClick={() => { setEditingId(cp.id); setNewCoupon({ codigo: cp.codigo, porcentaje_descuento: cp.porcentaje_descuento, fecha_expiracion: cp.fecha_expiracion || '', es_activo: cp.es_activo }); }} className="flex-1 md:flex-none px-6 py-3 bg-slate-100 dark:bg-white/10 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-accent hover:text-white transition-all">Editar</button>
                             <button onClick={() => handleDelete(cp.id)} className="p-3 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all"><Trash2 size={16} /></button>
                         </div>
                     </div>

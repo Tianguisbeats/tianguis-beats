@@ -12,24 +12,17 @@ import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
 import Switch from '@/components/ui/Switch';
 
-// Tipos reflejando el nuevo esquema DB (combinado con legado para compatibilidad)
+// Tipos reflejando el nuevo esquema DB de Cupones
 type Coupon = {
     id: string;
-    code: string;
-    codigo?: string; // Legacy
-    discount_type: 'percent' | 'fixed';
-    discount_value: number;
-    porcentaje_descuento?: number; // Legacy
-    usage_limit: number | null;
-    usos_maximos?: number | null; // Legacy
-    usage_count: number;
-    usos_actuales?: number; // Legacy
-    valid_until: string | null;
-    fecha_expiracion?: string | null; // Legacy
-    target_tier: 'all' | 'free' | 'pro' | 'premium';
-    min_purchase: number;
-    is_active: boolean;
-    user_id: string;
+    codigo: string;
+    porcentaje_descuento: number;
+    usos_maximos: number | null;
+    usos_actuales: number;
+    fecha_expiracion: string | null;
+    es_activo: boolean;
+    aplica_a: 'todos' | 'beats' | 'sound_kits' | 'servicios' | 'suscripciones';
+    productor_id: string;
 };
 
 export default function CouponsPage() {
@@ -55,27 +48,15 @@ export default function CouponsPage() {
         const { data: profile } = await supabase.from('profiles').select('subscription_tier').eq('id', user.id).single();
         setUserTier(profile?.subscription_tier);
 
-        // Get Coupons (Intentamos primero con nuevos nombres, fallback a viejos)
+        // Get Coupons
         const { data: couponsData, error } = await supabase
-            .from('coupons')
+            .from('cupones')
             .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false });
+            .eq('productor_id', user.id)
+            .order('fecha_creacion', { ascending: false });
 
         if (couponsData) {
-            // Normalizar datos para la UI
-            const normalized = couponsData.map(c => ({
-                ...c,
-                code: c.code || c.codigo || '',
-                discount_value: c.discount_value !== undefined ? c.discount_value : (c.porcentaje_descuento || 0),
-                usage_limit: c.usage_limit !== undefined ? c.usage_limit : (c.usos_maximos || null),
-                usage_count: c.usage_count !== undefined ? c.usage_count : (c.usos_actuales || 0),
-                valid_until: c.valid_until || c.fecha_expiracion || null,
-                discount_type: c.discount_type || 'percent',
-                target_tier: c.target_tier || 'all',
-                min_purchase: c.min_purchase || 0
-            }));
-            setCoupons(normalized);
+            setCoupons(couponsData as Coupon[]);
         }
         setLoading(false);
     };
@@ -89,29 +70,22 @@ export default function CouponsPage() {
 
         setSaving(true);
         try {
-            // Preparamos payload con nombres nuevos (el trigger o DB migrada se encargará)
             const payload: any = {
-                user_id: user.id,
-                code: currentCoupon.code?.toUpperCase(),
-                codigo: currentCoupon.code?.toUpperCase(), // Compatibilidad
-                discount_type: currentCoupon.discount_type || 'percent',
-                discount_value: Number(currentCoupon.discount_value),
-                porcentaje_descuento: Number(currentCoupon.discount_value), // Compatibilidad
-                usage_limit: currentCoupon.usage_limit ? Number(currentCoupon.usage_limit) : null,
-                usos_maximos: currentCoupon.usage_limit ? Number(currentCoupon.usage_limit) : null, // Compatibilidad
-                valid_until: currentCoupon.valid_until || null,
-                fecha_expiracion: currentCoupon.valid_until || null, // Compatibilidad
-                target_tier: currentCoupon.target_tier || 'all',
-                min_purchase: Number(currentCoupon.min_purchase) || 0,
-                is_active: currentCoupon.id ? currentCoupon.is_active : true
+                productor_id: user.id,
+                codigo: currentCoupon.codigo?.toUpperCase(),
+                porcentaje_descuento: Number(currentCoupon.porcentaje_descuento),
+                usos_maximos: currentCoupon.usos_maximos ? Number(currentCoupon.usos_maximos) : null,
+                fecha_expiracion: currentCoupon.fecha_expiracion || null,
+                aplica_a: currentCoupon.aplica_a || 'todos',
+                es_activo: currentCoupon.id ? currentCoupon.es_activo : true
             };
 
             let error;
             if (currentCoupon.id) {
-                const { error: err } = await supabase.from('coupons').update(payload).eq('id', currentCoupon.id);
+                const { error: err } = await supabase.from('cupones').update(payload).eq('id', currentCoupon.id);
                 error = err;
             } else {
-                const { error: err } = await supabase.from('coupons').insert(payload);
+                const { error: err } = await supabase.from('cupones').insert(payload);
                 error = err;
             }
 
@@ -132,7 +106,7 @@ export default function CouponsPage() {
     const handleDelete = async (id: string) => {
         if (!confirm("¿Estás seguro de eliminar este cupón? Esta acción no se puede deshacer.")) return;
 
-        const { error } = await supabase.from('coupons').delete().eq('id', id);
+        const { error } = await supabase.from('cupones').delete().eq('id', id);
         if (error) {
             showToast("Error al eliminar", "error");
         } else {
@@ -142,9 +116,9 @@ export default function CouponsPage() {
     };
 
     const toggleStatus = async (id: string, current: boolean) => {
-        const { error } = await supabase.from('coupons').update({ is_active: !current }).eq('id', id);
+        const { error } = await supabase.from('cupones').update({ es_activo: !current }).eq('id', id);
         if (!error) {
-            setCoupons(prev => prev.map(c => c.id === id ? { ...c, is_active: !current } : c));
+            setCoupons(prev => prev.map(c => c.id === id ? { ...c, es_activo: !current } : c));
         }
     };
 
@@ -203,11 +177,11 @@ export default function CouponsPage() {
                         </div>
                         <div className="text-right">
                             <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-muted mb-1">Cupones Activos</p>
-                            <p className="text-2xl font-black text-slate-900 dark:text-foreground tabular-nums">{coupons.filter(c => c.is_active).length}</p>
+                            <p className="text-2xl font-black text-slate-900 dark:text-foreground tabular-nums">{coupons.filter(c => c.es_activo).length}</p>
                         </div>
                     </div>
                     <button
-                        onClick={() => { setCurrentCoupon({ discount_type: 'percent', target_tier: 'all', min_purchase: 0 }); setIsEditing(true); }}
+                        onClick={() => { setCurrentCoupon({ aplica_a: 'todos' }); setIsEditing(true); }}
                         className="group relative overflow-hidden bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-8 py-4 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] hover:scale-[1.02] transition-all shadow-xl active:scale-95 flex items-center gap-3"
                     >
                         <div className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
@@ -227,28 +201,29 @@ export default function CouponsPage() {
                         <div className="w-24 h-24 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 shadow-sm shadow-black/5 dark:shadow-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 text-accent">
                             <Ticket size={40} strokeWidth={1.5} className="rotate-12" />
                         </div>
-                        <h3 className="text-4xl font-black text-slate-900 dark:text-foreground uppercase tracking-tighter mb-4">Sistemas Vacíos</h3>
+                        <h3 className="text-4xl font-black text-slate-900 dark:text-foreground uppercase tracking-tighter mb-4">Sin cupones</h3>
                         <p className="text-slate-500 dark:text-muted text-[11px] font-bold uppercase tracking-[0.4em] max-w-sm mx-auto mb-12 opacity-50 leading-loose">
-                            Tu motor de promociones está en modo standby. Activa una estrategia de descuentos para incentivar el checkout.
+                            Crea tu primera estrategia de descuentos para incentivar las ventas de tus instrumentales, sound kits y servicios.
                         </p>
                     </div>
                 </div>
             ) : (
                 <div className="grid lg:grid-cols-2 gap-10">
                     {coupons.map(coupon => {
-                        const usagePercent = coupon.usage_limit ? (coupon.usage_count / coupon.usage_limit) * 100 : 0;
-                        const isExpired = coupon.valid_until && new Date(coupon.valid_until) < new Date();
+                        const usagePercent = coupon.usos_maximos ? (coupon.usos_actuales / coupon.usos_maximos) * 100 : 0;
+                        const isExpired = coupon.fecha_expiracion && new Date(coupon.fecha_expiracion) < new Date();
 
-                        // Configuración de colores por Tier
+                        // Configuración de colores por Aplica A
                         const tierConfig = {
-                            all: { color: 'blue', label: 'Universal', bg: 'bg-blue-100 dark:bg-blue-500/10', border: 'border-blue-200 dark:border-blue-500/20', text: 'text-blue-600 dark:text-blue-500' },
-                            free: { color: 'slate', label: 'Free', bg: 'bg-slate-100 dark:bg-slate-500/10', border: 'border-slate-200 dark:border-slate-500/20', text: 'text-slate-600 dark:text-slate-500' },
-                            pro: { color: 'emerald', label: 'Pro', bg: 'bg-emerald-100 dark:bg-emerald-500/10', border: 'border-emerald-200 dark:border-emerald-500/20', text: 'text-emerald-600 dark:text-emerald-500' },
-                            premium: { color: 'amber', label: 'Premium', bg: 'bg-amber-100 dark:bg-amber-500/10', border: 'border-amber-200 dark:border-amber-500/20', text: 'text-amber-600 dark:text-amber-500' }
-                        }[coupon.target_tier as 'all' | 'free' | 'pro' | 'premium'] || { color: 'accent', label: 'Unknown', bg: 'bg-accent/10', border: 'border-accent/20', text: 'text-accent' };
+                            todos: { color: 'blue', label: 'Todos los Productos', bg: 'bg-blue-100 dark:bg-blue-500/10', border: 'border-blue-200 dark:border-blue-500/20', text: 'text-blue-600 dark:text-blue-500' },
+                            beats: { color: 'emerald', label: 'Solo Beats', bg: 'bg-emerald-100 dark:bg-emerald-500/10', border: 'border-emerald-200 dark:border-emerald-500/20', text: 'text-emerald-600 dark:text-emerald-500' },
+                            sound_kits: { color: 'amber', label: 'Solo Sound Kits', bg: 'bg-amber-100 dark:bg-amber-500/10', border: 'border-amber-200 dark:border-amber-500/20', text: 'text-amber-600 dark:text-amber-500' },
+                            servicios: { color: 'purple', label: 'Solo Servicios', bg: 'bg-purple-100 dark:bg-purple-500/10', border: 'border-purple-200 dark:border-purple-500/20', text: 'text-purple-600 dark:text-purple-500' },
+                            suscripciones: { color: 'slate', label: 'Suscripciones', bg: 'bg-slate-100 dark:bg-slate-500/10', border: 'border-slate-200 dark:border-slate-500/20', text: 'text-slate-600 dark:text-slate-500' }
+                        }[coupon.aplica_a] || { color: 'accent', label: 'Unknown', bg: 'bg-accent/10', border: 'border-accent/20', text: 'text-accent' };
 
                         return (
-                            <div key={coupon.id} className={`group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 transition-all duration-700 hover:border-accent/40 hover:shadow-2xl dark:hover:shadow-accent/10 hover:-translate-y-1 overflow-hidden shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] ${(!coupon.is_active || isExpired) && 'opacity-60 grayscale'}`}>
+                            <div key={coupon.id} className={`group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 transition-all duration-700 hover:border-accent/40 hover:shadow-2xl dark:hover:shadow-accent/10 hover:-translate-y-1 overflow-hidden shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] ${(!coupon.es_activo || isExpired) && 'opacity-60 grayscale'}`}>
 
                                 {/* Estética de Ticket: Recortes laterales */}
                                 <div className="absolute top-1/2 -left-4 w-8 h-8 rounded-full bg-slate-50 dark:bg-[#050508] border-r border-slate-200 dark:border-white/5 -translate-y-1/2 z-20" />
@@ -261,31 +236,24 @@ export default function CouponsPage() {
                                     <div className="flex-1 space-y-6">
                                         <div className="flex justify-between items-start">
                                             <div className="space-y-1">
-                                                <h3 className="font-black text-3xl text-slate-900 dark:text-foreground tracking-[-0.05em] uppercase font-mono leading-none">{coupon.code}</h3>
+                                                <h3 className="font-black text-3xl text-slate-900 dark:text-foreground tracking-[-0.05em] uppercase font-mono leading-none">{coupon.codigo}</h3>
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`w-1.5 h-1.5 rounded-full ${coupon.is_active ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`} />
-                                                    <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] opacity-60 dark:opacity-40">EXP: {coupon.valid_until ? new Date(coupon.valid_until).toLocaleDateString() : '∞'}</p>
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${coupon.es_activo ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`} />
+                                                    <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] opacity-60 dark:opacity-40">EXP: {coupon.fecha_expiracion ? new Date(coupon.fecha_expiracion).toLocaleDateString() : '∞'}</p>
                                                 </div>
                                             </div>
                                             <div className={`px-4 py-2 ${tierConfig.bg} ${tierConfig.border} border ${tierConfig.text} rounded-xl text-base font-black tracking-widest uppercase shadow-sm dark:shadow-inner`}>
-                                                {coupon.discount_type === 'percent' ? `-${coupon.discount_value}%` : `-${coupon.discount_value} MXN`}
+                                                -{coupon.porcentaje_descuento}%
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-3">
+                                        <div className="grid grid-cols-1 gap-3">
                                             <div className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-1 relative overflow-hidden group/item">
                                                 <div className={`absolute top-0 right-0 w-8 h-8 ${tierConfig.bg} blur-xl opacity-0 group-hover/item:opacity-100 transition-opacity`} />
                                                 <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] opacity-80 dark:opacity-50 text-center sm:text-left">Nivel Objetivo</p>
                                                 <div className="flex items-center justify-center sm:justify-start gap-2 text-slate-900 dark:text-foreground">
                                                     <Users size={12} className={tierConfig.text} />
-                                                    <span className="text-[10px] font-black uppercase tracking-tighter">{tierConfig.label === 'Universal' ? 'Todos' : tierConfig.label}</span>
-                                                </div>
-                                            </div>
-                                            <div className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-1">
-                                                <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] opacity-80 dark:opacity-50 text-center sm:text-left">Compra Mínima</p>
-                                                <div className="flex items-center justify-center sm:justify-start gap-2 text-slate-900 dark:text-foreground">
-                                                    <DollarSign size={12} className="text-accent" />
-                                                    <span className="text-[10px] font-black uppercase tracking-tighter">{coupon.min_purchase > 0 ? `$${coupon.min_purchase}` : 'Sin mínimo'}</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-tighter">{tierConfig.label}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -294,16 +262,16 @@ export default function CouponsPage() {
                                         <div className="bg-slate-100/50 dark:bg-black/20 rounded-2xl p-4 border border-slate-200 dark:border-white/10 space-y-3">
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-baseline gap-2">
-                                                    <p className="text-xl font-black text-slate-900 dark:text-foreground tabular-nums">{coupon.usage_count}</p>
+                                                    <p className="text-xl font-black text-slate-900 dark:text-foreground tabular-nums">{coupon.usos_actuales}</p>
                                                     <p className="text-[9px] font-bold text-slate-500 dark:text-muted uppercase tracking-widest opacity-80 dark:opacity-40">Usos realizados</p>
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="text-[10px] font-black text-slate-900 dark:text-foreground tabular-nums">
-                                                        {coupon.usage_limit ? `${Math.round(usagePercent)}%` : '∞'}
+                                                        {coupon.usos_maximos ? `${Math.round(usagePercent)}%` : '∞'}
                                                     </p>
                                                 </div>
                                             </div>
-                                            {coupon.usage_limit && (
+                                            {coupon.usos_maximos && (
                                                 <div className="h-1 w-full bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden">
                                                     <div
                                                         className={`h-full transition-all duration-1000 ease-out ${usagePercent > 90 ? 'bg-rose-500' : `${tierConfig.bg.replace('/10', '').replace('bg-', 'bg-')} shadow-[0_0_8px_rgba(var(--accent-rgb),0.3)]`}`}
@@ -318,12 +286,12 @@ export default function CouponsPage() {
                                     <div className="mt-12 pt-0 flex items-center justify-between gap-4">
                                         <div className="flex items-center gap-3">
                                             <Switch
-                                                active={coupon.is_active}
-                                                onChange={() => toggleStatus(coupon.id, coupon.is_active)}
+                                                active={coupon.es_activo}
+                                                onChange={() => toggleStatus(coupon.id, coupon.es_activo)}
                                                 activeColor="bg-emerald-500"
                                             />
-                                            <span className={`text-[10px] font-black uppercase tracking-widest ${coupon.is_active ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                                {coupon.is_active ? 'Activo' : 'Inactivo'}
+                                            <span className={`text-[10px] font-black uppercase tracking-widest ${coupon.es_activo ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                {coupon.es_activo ? 'Activo' : 'Inactivo'}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -381,64 +349,60 @@ export default function CouponsPage() {
                                         <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Código Promocional</label>
                                         <input
                                             required
-                                            value={currentCoupon?.code || ''}
-                                            onChange={e => setCurrentCoupon({ ...currentCoupon, code: e.target.value.toUpperCase() })}
+                                            value={currentCoupon?.codigo || ''}
+                                            onChange={e => setCurrentCoupon({ ...currentCoupon, codigo: e.target.value.toUpperCase() })}
                                             placeholder="EJ. FUEGO20"
                                             className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-5 font-black text-slate-900 dark:text-foreground text-2xl outline-none focus:border-accent transition-all uppercase tracking-widest placeholder:text-slate-300 dark:placeholder:text-muted/10 font-mono shadow-sm dark:shadow-inner"
                                         />
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-3">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Magnitud</label>
+                                            <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Descuento (%)</label>
                                             <div className="relative">
                                                 <input
                                                     type="number"
                                                     required
                                                     min="1"
-                                                    value={currentCoupon?.discount_value || ''}
-                                                    onChange={e => setCurrentCoupon({ ...currentCoupon, discount_value: Number(e.target.value) })}
+                                                    max="100"
+                                                    value={currentCoupon?.porcentaje_descuento || ''}
+                                                    onChange={e => setCurrentCoupon({ ...currentCoupon, porcentaje_descuento: Number(e.target.value) })}
                                                     className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-6 py-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-all tabular-nums font-mono"
                                                 />
                                                 <div className="absolute left-5 top-1/2 -translate-y-1/2 text-accent/60">
-                                                    {currentCoupon?.discount_type === 'percent' ? <Percent size={18} /> : <DollarSign size={18} />}
+                                                    <Percent size={18} />
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-3">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Modo</label>
-                                            <div className="flex bg-slate-50 dark:bg-white/5 p-1 rounded-2xl border border-slate-200 dark:border-white/10 h-[66px]">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setCurrentCoupon({ ...currentCoupon, discount_type: 'percent' })}
-                                                    className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${currentCoupon?.discount_type === 'percent' ? 'bg-accent text-white shadow-lg' : 'text-slate-500 dark:text-muted/60 hover:text-slate-900 dark:hover:text-foreground'}`}
-                                                >
-                                                    %
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setCurrentCoupon({ ...currentCoupon, discount_type: 'fixed' })}
-                                                    className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${currentCoupon?.discount_type === 'fixed' ? 'bg-accent text-white shadow-lg' : 'text-slate-500 dark:text-muted/60 hover:text-slate-900 dark:hover:text-foreground'}`}
-                                                >
-                                                    MXN
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Protocolo de Segmentación</label>
+                                        <div className="flex items-center gap-2 mb-2 ml-1">
+                                            <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60">Aplícable a</label>
+                                            <div className="group relative">
+                                                <Info size={14} className="text-slate-400 dark:text-muted/40 cursor-help" />
+                                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-bold tracking-wider rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                                                    Selecciona a qué tipo de productos de tu catálogo se aplicará este descuento al momento del pago.
+                                                    <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 dark:bg-white rotate-45" />
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div className="grid grid-cols-2 gap-3">
-                                            {['all', 'free', 'pro', 'premium'].map((tier) => (
+                                            {[
+                                                { id: 'todos', label: 'Todos mis productos' },
+                                                { id: 'beats', label: 'Solo Beats' },
+                                                { id: 'sound_kits', label: 'Solo Sound Kits' },
+                                                { id: 'servicios', label: 'Solo Servicios' }
+                                            ].map((type) => (
                                                 <button
-                                                    key={tier}
+                                                    key={type.id}
                                                     type="button"
-                                                    onClick={() => setCurrentCoupon({ ...currentCoupon, target_tier: tier as any })}
-                                                    className={`px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${currentCoupon?.target_tier === tier
+                                                    onClick={() => setCurrentCoupon({ ...currentCoupon, aplica_a: type.id as any })}
+                                                    className={`px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${currentCoupon?.aplica_a === type.id
                                                         ? 'border-accent bg-accent/10 text-accent'
                                                         : 'border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-muted/60 hover:border-accent/30'}`}
                                                 >
-                                                    {tier === 'all' ? 'Universal' : tier}
+                                                    {type.label}
                                                 </button>
                                             ))}
                                         </div>
@@ -448,15 +412,15 @@ export default function CouponsPage() {
                                 {/* Right Side: Advanced Rules */}
                                 <div className="space-y-8">
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Límite Operativo</label>
+                                        <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Límite de usos</label>
                                         <div className="relative">
                                             <Hash size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-muted/20" />
                                             <input
                                                 type="number"
                                                 min="1"
                                                 placeholder="SIN LÍMITE (∞)"
-                                                value={currentCoupon?.usage_limit || ''}
-                                                onChange={e => setCurrentCoupon({ ...currentCoupon, usage_limit: e.target.value ? Number(e.target.value) : null })}
+                                                value={currentCoupon?.usos_maximos || ''}
+                                                onChange={e => setCurrentCoupon({ ...currentCoupon, usos_maximos: e.target.value ? Number(e.target.value) : null })}
                                                 className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-6 py-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-all tabular-nums font-mono placeholder:text-[9px] placeholder:tracking-[0.3em] placeholder:text-slate-400 dark:placeholder:text-muted/20"
                                             />
                                         </div>
@@ -468,23 +432,9 @@ export default function CouponsPage() {
                                             <Calendar size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-muted/20" />
                                             <input
                                                 type="date"
-                                                value={currentCoupon?.valid_until?.split('T')[0] || ''}
-                                                onChange={e => setCurrentCoupon({ ...currentCoupon, valid_until: e.target.value })}
+                                                value={currentCoupon?.fecha_expiracion?.split('T')[0] || ''}
+                                                onChange={e => setCurrentCoupon({ ...currentCoupon, fecha_expiracion: e.target.value })}
                                                 className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-6 py-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-all font-mono"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Umbral de Inversión Mínima</label>
-                                        <div className="relative">
-                                            <DollarSign size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-accent/40" />
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                value={currentCoupon?.min_purchase || ''}
-                                                onChange={e => setCurrentCoupon({ ...currentCoupon, min_purchase: Number(e.target.value) })}
-                                                className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-6 py-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-all tabular-nums font-mono"
                                             />
                                         </div>
                                     </div>
