@@ -54,7 +54,8 @@ export default function QuejasSugerenciasPage() {
             e.currentTarget.reset();
         } catch (error: any) {
             console.error("Error submitting feedback:", error);
-            showToast("Hubo un error al enviar tu mensaje. Verifica tu conexión e intenta nuevamente.", "error");
+            const errorMsg = error.message || "Verifica tu conexión e intenta nuevamente.";
+            showToast(`Error: ${errorMsg}`, "error");
             setStatus('idle');
         }
     };
