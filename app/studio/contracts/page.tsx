@@ -12,37 +12,42 @@ const CONTRACT_TYPES = [
     {
         id: 'basic' as ContractType,
         name: 'Licencia Básica (MP3)',
-        icon: <FileText size={20} />,
+        icon: <FileText size={24} />,
         color: 'text-blue-500',
-        bg: 'bg-blue-500/10'
+        gradient: 'from-blue-500/20 to-blue-400/5',
+        glow: 'group-hover:shadow-blue-500/20'
     },
     {
         id: 'premium' as ContractType,
         name: 'Licencia Premium (WAV)',
-        icon: <Zap size={20} />,
+        icon: <Zap size={24} />,
         color: 'text-purple-500',
-        bg: 'bg-purple-500/10'
+        gradient: 'from-purple-500/20 to-purple-400/5',
+        glow: 'group-hover:shadow-purple-500/20'
     },
     {
         id: 'unlimited' as ContractType,
         name: 'Ilimitada (STEMS)',
-        icon: <Crown size={20} />,
+        icon: <Crown size={24} />,
         color: 'text-amber-500',
-        bg: 'bg-amber-500/10'
+        gradient: 'from-amber-500/20 to-amber-400/5',
+        glow: 'group-hover:shadow-amber-500/20'
     },
     {
         id: 'exclusive' as ContractType,
         name: 'Compra Exclusiva',
-        icon: <ShieldCheck size={20} />,
+        icon: <ShieldCheck size={24} />,
         color: 'text-emerald-500',
-        bg: 'bg-emerald-500/10'
+        gradient: 'from-emerald-500/20 to-emerald-400/5',
+        glow: 'group-hover:shadow-emerald-500/20'
     },
     {
         id: 'soundkit' as ContractType,
         name: 'Sound Kits (Royalty-Free)',
-        icon: <Package size={20} />,
+        icon: <Package size={24} />,
         color: 'text-rose-500',
-        bg: 'bg-rose-500/10'
+        gradient: 'from-rose-500/20 to-rose-400/5',
+        glow: 'group-hover:shadow-rose-500/20'
     }
 ];
 
@@ -185,49 +190,63 @@ export default function ContractsPage() {
                     Tus <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Contratos</span>
                 </h1>
                 <p className="text-muted text-xs font-bold uppercase tracking-widest max-w-2xl">
-                    Personaliza los términos legales y límites de cada licencia. Generaremos un PDF World-Class firmado automáticamente para tus clientes en cada venta.
+                    Personaliza los términos legales y límites de cada licencia.
                 </p>
             </div>
 
             {/* Grid de Licencias */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
                 {CONTRACT_TYPES.map((contract) => {
                     const isConfigured = !!templates[contract.id];
                     const isCustom = templates[contract.id]?.usar_texto_personalizado;
 
                     return (
-                        <div key={contract.id} className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-sm hover:shadow-xl hover:border-accent/40 transition-all group">
-                            <div className="flex items-center gap-4 mb-6">
-                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${contract.bg} ${contract.color}`}>
-                                    {contract.icon}
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="font-black text-lg text-foreground uppercase tracking-tight leading-tight">
-                                        {contract.name}
-                                    </h3>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <div className={`w-2 h-2 rounded-full ${isConfigured ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-white/20'}`} />
-                                        <span className="text-[9px] font-bold text-muted uppercase tracking-widest">
-                                            {isConfigured ? (isCustom ? 'Texto Libre (Experto)' : 'Límites (Fácil)') : 'Por defecto'}
-                                        </span>
+                        <div key={contract.id} className={`relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3rem] p-10 shadow-sm hover:shadow-2xl transition-all duration-500 group overflow-hidden ${contract.glow}`}>
+                            {/* Background Glow Ornament */}
+                            <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br ${contract.gradient} blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
+
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-5 mb-10">
+                                    <div className={`w-16 h-16 rounded-3xl flex items-center justify-center bg-gradient-to-br ${contract.gradient} ${contract.color} shadow-inner`}>
+                                        {contract.icon}
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="font-black text-xl text-foreground uppercase tracking-tighter leading-tight italic">
+                                            {contract.name}
+                                        </h3>
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <div className={`w-2.5 h-2.5 rounded-full ${isConfigured ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-slate-300 dark:bg-white/20'}`} />
+                                            <span className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">
+                                                {isConfigured ? (isCustom ? 'PRO: TEXTO LIBRE' : 'PRO: PARÁMETROS') : 'CONFIGURACIÓN BASE'}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="space-y-3 mt-8">
-                                <button
-                                    onClick={() => openModal(contract.id, 'easy')}
-                                    className="w-full py-4 px-6 bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                                >
-                                    <Settings size={14} /> Configurar Parámetros
-                                </button>
+                                <div className="space-y-4 mt-4">
+                                    <button
+                                        onClick={() => openModal(contract.id, 'easy')}
+                                        className="w-full py-5 px-6 bg-slate-50 hover:bg-white dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground rounded-[1.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-between group/btn"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <Settings size={16} className="text-muted group-hover/btn:rotate-90 transition-transform duration-500" />
+                                            Modo Parámetros
+                                        </div>
+                                        <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-white/10 flex items-center justify-center group-hover/btn:bg-accent group-hover/btn:text-white transition-colors">
+                                            <Zap size={10} />
+                                        </div>
+                                    </button>
 
-                                <button
-                                    onClick={() => openModal(contract.id, 'expert')}
-                                    className="w-full py-4 px-6 bg-accent hover:bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg hover:shadow-accent/20 flex items-center justify-center gap-2"
-                                >
-                                    <AlignLeft size={14} /> Editar Texto Legal
-                                </button>
+                                    <button
+                                        onClick={() => openModal(contract.id, 'expert')}
+                                        className="w-full py-5 px-6 bg-[#0a0a0b] hover:bg-accent text-white rounded-[1.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl hover:shadow-accent/40 flex items-center justify-between group/btn"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <AlignLeft size={16} /> Redactar Contrato
+                                        </div>
+                                        <ShieldCheck size={18} className="opacity-40 group-hover/btn:opacity-100 transition-opacity" />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     );
@@ -241,14 +260,16 @@ export default function ContractsPage() {
 
                     <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
                         {/* Header Modal */}
-                        <div className="p-8 border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/20">
-                            <div className="flex items-center gap-3 text-accent mb-2">
-                                {activeModal.mode === 'easy' ? <Settings size={20} /> : <FileKey size={20} />}
-                                <span className="font-bold text-[10px] uppercase tracking-[0.3em]">
-                                    {activeModal.mode === 'easy' ? 'Modo Fácil (Límites)' : 'Modo Experto (Redacción Completa)'}
+                        <div className="p-10 border-b border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/5 backdrop-blur-xl">
+                            <div className="flex items-center gap-3 text-accent mb-3">
+                                <div className="p-2 bg-accent/10 rounded-lg">
+                                    {activeModal.mode === 'easy' ? <Settings size={22} /> : <FileKey size={22} />}
+                                </div>
+                                <span className="font-black text-[11px] uppercase tracking-[0.4em] italic">
+                                    {activeModal.mode === 'easy' ? 'Módulo de Parámetros' : 'Redacción de Autor'}
                                 </span>
                             </div>
-                            <h2 className="text-2xl font-black uppercase text-foreground">
+                            <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground">
                                 {CONTRACT_TYPES.find(t => t.id === activeModal.type)?.name}
                             </h2>
                         </div>
@@ -257,43 +278,43 @@ export default function ContractsPage() {
                         <div className="p-8">
                             {activeModal.mode === 'easy' ? (
                                 <div className="grid md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted">Streams de Audio (Max)</label>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">Streams de Audio (Max)</label>
                                         <input
                                             type="text"
                                             value={easyFormData.streams_limite}
                                             onChange={(e) => setEasyFormData({ ...easyFormData, streams_limite: e.target.value })}
-                                            className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 font-bold text-sm text-foreground focus:border-accent outline-none"
+                                            className="w-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 font-bold text-sm text-foreground focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all outline-none shadow-inner"
                                             placeholder="Ej: 500,000 / Ilimitado"
                                         />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted">Distribución / Ventas</label>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">Distribución / Ventas</label>
                                         <input
                                             type="text"
                                             value={easyFormData.copias_limite}
                                             onChange={(e) => setEasyFormData({ ...easyFormData, copias_limite: e.target.value })}
-                                            className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 font-bold text-sm text-foreground focus:border-accent outline-none"
+                                            className="w-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 font-bold text-sm text-foreground focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all outline-none shadow-inner"
                                             placeholder="Ej: 5,000 copias"
                                         />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted">Videos Musicales</label>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">Videos Musicales</label>
                                         <input
                                             type="text"
                                             value={easyFormData.videos_limite}
                                             onChange={(e) => setEasyFormData({ ...easyFormData, videos_limite: e.target.value })}
-                                            className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 font-bold text-sm text-foreground focus:border-accent outline-none"
+                                            className="w-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 font-bold text-sm text-foreground focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all outline-none shadow-inner"
                                             placeholder="Ej: 1 Video Monetizado"
                                         />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted">Estaciones de Radio</label>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">Estaciones de Radio</label>
                                         <input
                                             type="text"
                                             value={easyFormData.radio_limite}
                                             onChange={(e) => setEasyFormData({ ...easyFormData, radio_limite: e.target.value })}
-                                            className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 font-bold text-sm text-foreground focus:border-accent outline-none"
+                                            className="w-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 font-bold text-sm text-foreground focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all outline-none shadow-inner"
                                             placeholder="Ej: 2 Estaciones FM"
                                         />
                                     </div>
@@ -306,18 +327,21 @@ export default function ContractsPage() {
 
                                     {/* Toggle Cláusulas Pro */}
                                     <div className="col-span-full mt-2 pt-6 border-t border-slate-200 dark:border-white/10">
-                                        <div className="flex items-center justify-between p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl group cursor-pointer" onClick={() => setIncludeProClauses(!includeProClauses)}>
-                                            <div className="flex gap-4 items-center">
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${includeProClauses ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
-                                                    <ShieldCheck size={20} />
+                                        <div
+                                            className={`flex items-center justify-between p-6 rounded-3xl group cursor-pointer transition-all duration-500 border ${includeProClauses ? 'bg-emerald-500/10 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.1)]' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10'}`}
+                                            onClick={() => setIncludeProClauses(!includeProClauses)}
+                                        >
+                                            <div className="flex gap-5 items-center">
+                                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-700 shadow-lg ${includeProClauses ? 'bg-emerald-500 text-white scale-110 rotate-[10deg]' : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
+                                                    <ShieldCheck size={28} />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-xs font-black uppercase tracking-tight text-foreground">¿Incluir Cláusulas de Protección Pro?</h4>
-                                                    <p className="text-[9px] font-bold text-muted uppercase tracking-widest mt-0.5">Publishing 50/50, Content ID, Sincronización y Respaldo Legal.</p>
+                                                    <h4 className="text-sm font-black uppercase tracking-tight text-foreground">¿Activar Protección Pro de Tianguis?</h4>
+                                                    <p className="text-[10px] font-bold text-muted uppercase tracking-widest mt-1">Inyectar las 5 Cláusulas de Oro y Sello de Seguridad Real.</p>
                                                 </div>
                                             </div>
-                                            <div className={`w-12 h-6 rounded-full relative transition-colors ${includeProClauses ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'}`}>
-                                                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${includeProClauses ? 'left-7' : 'left-1'}`} />
+                                            <div className={`w-14 h-7 rounded-full relative transition-all duration-500 ${includeProClauses ? 'bg-emerald-500' : 'bg-slate-400 dark:bg-slate-700'}`}>
+                                                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-500 shadow-md ${includeProClauses ? 'left-8' : 'left-1'}`} />
                                             </div>
                                         </div>
                                     </div>
@@ -345,18 +369,21 @@ export default function ContractsPage() {
 
                                     {/* Toggle Cláusulas Pro en Modo Experto */}
                                     <div className="mt-4 pt-6 border-t border-slate-200 dark:border-white/10">
-                                        <div className="flex items-center justify-between p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl group cursor-pointer" onClick={() => setIncludeProClauses(!includeProClauses)}>
-                                            <div className="flex gap-4 items-center">
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${includeProClauses ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
-                                                    <ShieldCheck size={20} />
+                                        <div
+                                            className={`flex items-center justify-between p-6 rounded-3xl group cursor-pointer transition-all duration-500 border ${includeProClauses ? 'bg-emerald-500/10 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.1)]' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10'}`}
+                                            onClick={() => setIncludeProClauses(!includeProClauses)}
+                                        >
+                                            <div className="flex gap-5 items-center">
+                                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-700 shadow-lg ${includeProClauses ? 'bg-emerald-500 text-white scale-110 rotate-[10deg]' : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
+                                                    <ShieldCheck size={28} />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-xs font-black uppercase tracking-tight text-foreground">Añadir Adéndum de Protección Pro</h4>
-                                                    <p className="text-[9px] font-bold text-muted uppercase tracking-widest mt-0.5">Agregaremos las 5 Cláusulas de Oro de Tianguis Beats al final de tu texto.</p>
+                                                    <h4 className="text-sm font-black uppercase tracking-tight text-foreground">Inyectar Adéndum Pro</h4>
+                                                    <p className="text-[10px] font-bold text-muted uppercase tracking-widest mt-1">Añadiremos las 5 Cláusulas de Oro al final de tu texto.</p>
                                                 </div>
                                             </div>
-                                            <div className={`w-12 h-6 rounded-full relative transition-colors ${includeProClauses ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'}`}>
-                                                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${includeProClauses ? 'left-7' : 'left-1'}`} />
+                                            <div className={`w-14 h-7 rounded-full relative transition-all duration-500 ${includeProClauses ? 'bg-emerald-500' : 'bg-slate-400 dark:bg-slate-700'}`}>
+                                                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-500 shadow-md ${includeProClauses ? 'left-8' : 'left-1'}`} />
                                             </div>
                                         </div>
                                     </div>
