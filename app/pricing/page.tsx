@@ -105,7 +105,11 @@ export default function PricingPage() {
         }
 
         const currentTier = (userTier || 'free').toLowerCase();
-        if (currentTier === plan.tier) return;
+
+        // Permitir seleccionar el mismo plan si el ciclo de facturación es diferente (ej. de mensual a anual)
+        // O si ya está en ese plan y simplemente quiere extenderlo/comprarlo de nuevo
+        // (Anteriormente se bloqueaba si currentTier === plan.tier)
+        // Eliminamos el: if (currentTier === plan.tier) return;
 
         const tierOrder = ['free', 'pro', 'premium'];
         const currentIdx = tierOrder.indexOf(currentTier);
@@ -149,12 +153,14 @@ export default function PricingPage() {
                 ]
             });
             setShowDowngradeModal(true);
-        } else {
+            const isExtending = currentTier === plan.tier;
             setSelectedPlan({
                 ...plan,
-                type: 'upgrade',
-                messages: ["¡Activación Inmediata!", "Acceso total a nuevas funciones."],
-                disclaimer: "Importante: Tu nuevo plan comienza hoy."
+                type: isExtending ? 'extend' : 'upgrade',
+                messages: isExtending
+                    ? ["Tu tiempo actual se mantiene.", "Se sumará el nuevo periodo a tu fecha de vencimiento actual."]
+                    : ["¡Activación Inmediata!", "Acceso total a nuevas funciones."],
+                disclaimer: isExtending ? "Tu suscripción se extenderá automáticamente." : "Importante: Tu nuevo plan comienza hoy."
             });
             setShowDowngradeModal(true);
         }
@@ -230,7 +236,7 @@ export default function PricingPage() {
                         </button>
                         <div className="text-center mb-6">
                             <h2 className="text-2xl font-black uppercase tracking-tighter text-foreground mb-4">
-                                {selectedPlan.type === 'downgrade' ? 'Confirmar Cambio' : 'Mejorar Plan'}
+                                {selectedPlan.type === 'downgrade' ? 'Confirmar Cambio' : selectedPlan.type === 'extend' ? 'Extender Suscripción' : 'Mejorar Plan'}
                             </h2>
 
                             {selectedPlan.type === 'downgrade' && terminaSuscripcion && (
@@ -358,15 +364,16 @@ export default function PricingPage() {
                                         <p className="text-muted text-sm font-medium">{plan.description}</p>
                                     </div>
                                     <div className="mb-8">
-                                        <div className="flex items-baseline gap-1">
+                                        <div className="flex items-baseline justify-center gap-1">
                                             <span className="text-5xl font-black text-foreground tracking-tighter">{formatPrice(plan.price).split(' ')[0]}</span>
                                             <span className="text-muted font-black uppercase text-[10px] tracking-widest">{currency}/Mes</span>
                                         </div>
                                     </div>
-                                    <ul className="space-y-4 mb-10 flex-1">
+                                    <ul className="space-y-4 mb-10 flex-1 flex flex-col items-center">
                                         {plan.features.map((feature, i) => (
-                                            <li key={i} className="flex items-center gap-3 text-sm font-medium text-foreground">
-                                                <Check size={isPro ? 18 : 16} className={planColorClass} strokeWidth={isPro ? 3 : 2} /> {feature}
+                                            <li key={i} className="flex items-center gap-3 text-sm font-medium text-foreground w-full max-w-[240px]">
+                                                <Check size={isPro ? 18 : 16} className={`${planColorClass} shrink-0`} strokeWidth={isPro ? 3 : 2} />
+                                                <span>{feature}</span>
                                             </li>
                                         ))}
                                     </ul>
@@ -380,13 +387,14 @@ export default function PricingPage() {
                                     ) : (
                                         <button
                                             onClick={() => handleSelectPlan(plan)}
-                                            disabled={isCurrentPlan}
-                                            className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${isCurrentPlan
-                                                ? 'bg-muted/10 text-muted cursor-default'
-                                                : isPro ? 'bg-amber-500 text-white hover:bg-foreground hover:shadow-xl' : 'bg-foreground text-background hover:bg-accent hover:text-white'
+                                            className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${isCurrentPlan && billingCycle === 'monthly'
+                                                ? 'bg-accent text-white hover:scale-105 shadow-xl' // Permitir extender si es el mismo plan
+                                                : isCurrentPlan
+                                                    ? 'bg-muted/10 text-muted cursor-default'
+                                                    : isPro ? 'bg-amber-500 text-white hover:bg-foreground hover:shadow-xl' : 'bg-foreground text-background hover:bg-accent hover:text-white'
                                                 }`}
                                         >
-                                            {isCurrentPlan ? 'Tu Plan Actual' : isUpgrade ? `Mejorar a ${plan.name}` : isDowngrade ? `Cambiar a ${plan.name}` : `Suscribirse ${plan.name}`}
+                                            {isCurrentPlan && billingCycle === 'monthly' ? 'Extender / Comprar Anual' : isCurrentPlan ? 'Tu Plan Actual' : isUpgrade ? `Mejorar a ${plan.name}` : isDowngrade ? `Cambiar a ${plan.name}` : `Suscribirse ${plan.name}`}
                                         </button>
                                     )}
 

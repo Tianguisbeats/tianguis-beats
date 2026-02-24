@@ -130,13 +130,29 @@ export async function POST(req: Request) {
 
                     console.log('--- ACTIVATING PLAN ---', { tier, cycle, usuarioId });
 
-                    // Calcular fecha de expiración
-                    const now = new Date();
-                    let expiryDate = new Date();
+                    // 1. Obtener vencimiento actual
+                    const { data: profileData } = await supabaseAdmin
+                        .from('profiles')
+                        .select('termina_suscripcion, subscription_tier')
+                        .eq('id', usuarioId)
+                        .single();
+
+                    const currentExpiry = profileData?.termina_suscripcion ? new Date(profileData.termina_suscripcion) : null;
+                    const isSameTier = profileData?.subscription_tier === tier;
+
+                    let baseDate = new Date();
+                    // Si ya tiene una suscripción activa del mismo tier, sumamos desde el vencimiento
+                    // Si es un tier superior (upgrade), empezamos desde hoy (Stripe prorratea o el usuario paga full por nuevo periodo)
+                    if (currentExpiry && currentExpiry > new Date() && isSameTier) {
+                        baseDate = currentExpiry;
+                        console.log('SUMMING TIME: Starting from existing expiry', baseDate.toISOString());
+                    }
+
+                    let expiryDate = new Date(baseDate);
                     if (cycle === 'yearly') {
-                        expiryDate.setFullYear(now.getFullYear() + 1);
+                        expiryDate.setFullYear(baseDate.getFullYear() + 1);
                     } else {
-                        expiryDate.setMonth(now.getMonth() + 1);
+                        expiryDate.setMonth(baseDate.getMonth() + 1);
                     }
 
                     // Actualizar el perfil del usuario
@@ -147,14 +163,14 @@ export async function POST(req: Request) {
                             termina_suscripcion: expiryDate.toISOString(),
                             stripe_subscription_id: subscriptionId || `one_time_${stripeId}`,
                             is_founder: true,
-                            comenzar_suscripcion: now.toISOString()
+                            comenzar_suscripcion: new Date().toISOString()
                         })
                         .eq('id', usuarioId);
 
                     if (profileError) {
                         console.error('ERROR: Updating profile subscription:', profileError);
                     } else {
-                        console.log('--- PROFILE ACTIVATED SUCCESSFULLY ---');
+                        console.log('--- PROFILE ACTIVATED SUCCESSFULLY ---', { newExpiry: expiryDate.toISOString() });
                     }
                 }
 
