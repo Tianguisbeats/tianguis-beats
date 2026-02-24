@@ -26,9 +26,10 @@ export default function QuejasSugerenciasPage() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        const form = e.currentTarget; // Guardar referencia antes del async
         setStatus('loading');
 
-        const formData = new FormData(e.currentTarget);
+        const formData = new FormData(form);
         const tipo = formData.get('tipo') as string;
         const nombre = formData.get('nombre') as string;
         const email = formData.get('email') as string;
@@ -50,8 +51,7 @@ export default function QuejasSugerenciasPage() {
 
             setLastType(tipo as 'queja' | 'sugerencia');
             setStatus('success');
-            // Ya no reseteamos el estado a 'idle' automáticamente tan pronto
-            e.currentTarget.reset();
+            form.reset();
         } catch (error: any) {
             console.error("Error submitting feedback:", error);
             const errorMsg = error.message || "Verifica tu conexión e intenta nuevamente.";

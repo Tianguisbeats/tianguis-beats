@@ -102,6 +102,17 @@ export default function SuccessPage() {
     };
 
     const handleDownloadLicense = (item: any) => {
+        // 1. Intentar descargar el PDF oficial generado y guardado en la Base de Datos
+        const savedPdfUrl = item.metadatos?.contract_pdf_url || item.metadatos?.contractPdfUrl;
+
+        if (savedPdfUrl) {
+            showToast("Obteniendo Licencia Oficial...", 'info');
+            window.open(savedPdfUrl, '_blank');
+            return;
+        }
+
+        // 2. Fallback: Si no hay URL (compras antiguas), se genera en vivo como antes
+        showToast("Generando certificado legacy...", 'info');
         import('@/lib/pdfGenerator').then(({ downloadLicensePDF }) => {
             downloadLicensePDF({
                 type: item.tipo_licencia as any || 'basic',
@@ -112,7 +123,7 @@ export default function SuccessPage() {
                 amount: item.precio,
                 orderId: orderId || 'N/A'
             });
-            showToast("Licencia PDF generada con éxito", 'success');
+            showToast("Licencia legacy generada con éxito", 'success');
         });
     };
 

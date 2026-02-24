@@ -49,7 +49,11 @@ export async function POST(req: Request) {
                             tier: item.metadata?.tier || '',
                             cycle: item.metadata?.cycle || '',
                             licenseType: item.metadata?.licenseType || '',
-                            producerId: item.metadata?.producer_id || item.metadata?.seller_id || item.metadata?.producerId || ''
+                            producerId: item.metadata?.producer_id || item.metadata?.seller_id || item.metadata?.producerId || '',
+                            mp3_url: item.metadata?.mp3_url || '',
+                            wav_url: item.metadata?.wav_url || '',
+                            stems_url: item.metadata?.stems_url || '',
+                            file_url: item.metadata?.file_url || ''
                         }
                     },
                     unit_amount: Math.round(item.price * 100), // En centavos

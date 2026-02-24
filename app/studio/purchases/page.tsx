@@ -194,7 +194,17 @@ export default function MyPurchasesPage() {
 
     const handleDownloadLicense = (order: Order, item: OrderItem) => {
         try {
-            // Mapping product type and license
+            // 1. Intentar descargar el PDF oficial generado y guardado en la Base de Datos
+            const savedPdfUrl = item.metadata?.contract_pdf_url || item.metadata?.contractPdfUrl;
+
+            if (savedPdfUrl) {
+                showToast("Obteniendo Licencia Oficial...", "info");
+                window.open(savedPdfUrl, '_blank');
+                return;
+            }
+
+            // 2. Fallback: Si no hay URL (compras antiguas antes de esta actualización), se genera en vivo como antes
+            showToast("Generando certificado legacy...", "info");
             let licenseType: LicenseType = 'basic';
             if (item.product_type === 'sound_kit') licenseType = 'soundkit';
             else if (item.product_type === 'service') licenseType = 'service';
@@ -210,10 +220,10 @@ export default function MyPurchasesPage() {
                 orderId: order.id
             });
 
-            showToast("Licencia generada con éxito", "success");
+            showToast("Licencia legacy generada con éxito", "success");
         } catch (error) {
             console.error("Error generating PDF:", error);
-            showToast("Error al generar la licencia", "error");
+            showToast("Error al procesar la licencia", "error");
         }
     };
 
