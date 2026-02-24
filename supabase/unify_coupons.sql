@@ -11,10 +11,13 @@ CREATE TABLE IF NOT EXISTS cupones (
     usos_actuales INTEGER DEFAULT 0,
     fecha_expiracion TIMESTAMPTZ, -- NULL means it never expires
     es_activo BOOLEAN DEFAULT true,
-    aplica_a TEXT DEFAULT 'todos', -- 'todos', 'beats', 'sound_kits', 'servicios', 'suscripciones'
-    nivel_objetivo TEXT DEFAULT 'todos', -- 'todos', 'free', 'pro', 'premium' (or 'gratis', but let's map 'all' -> 'todos' and keep the rest)
+    nivel_objetivo TEXT DEFAULT 'todos', -- 'todos', 'gratis', 'pro', 'premium' (or 'gratis', but let's map 'all' -> 'todos' and keep the rest)
     fecha_creacion TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- 1.1 Ensure columns exist if table was already created
+ALTER TABLE cupones ADD COLUMN IF NOT EXISTS aplica_a TEXT DEFAULT 'todos';
+ALTER TABLE cupones ADD COLUMN IF NOT EXISTS nivel_objetivo TEXT DEFAULT 'todos';
 
 -- 2. Migrate data from old coupons table
 -- Assuming the old table has: id, user_id, code, discount_value, usage_limit, usage_count, valid_until, is_active, created_at
