@@ -6,10 +6,7 @@
 ALTER TABLE IF EXISTS public.beats ADD COLUMN IF NOT EXISTS weekly_play_count INTEGER DEFAULT 0;
 ALTER TABLE IF EXISTS public.beats ADD COLUMN IF NOT EXISTS weekly_sale_count INTEGER DEFAULT 0;
 
--- 2. TRADUCIR TABLA LIKES A FAVORITOS
-ALTER TABLE IF EXISTS public.likes RENAME TO favoritos;
-ALTER TABLE public.favoritos RENAME COLUMN user_id TO usuario_id;
-ALTER TABLE public.favoritos RENAME COLUMN created_at TO fecha_creacion;
+-- 2. (OMITIDO: La tabla likes ya se renombró a favoritos exitosamente)
 
 -- (Opcional) Puedes borrar manualmente la tabla 'listens' desde el panel de Supabase 
 -- ya que ahora las reproducciones se cuentan directamente en 'play_count'.
