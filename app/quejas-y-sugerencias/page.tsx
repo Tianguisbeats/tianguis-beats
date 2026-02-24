@@ -1,15 +1,28 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Send, AlertCircle, MessageSquare, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/context/ToastContext';
+import Link from 'next/link';
 
 export default function QuejasSugerenciasPage() {
     const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+    const [lastType, setLastType] = useState<'queja' | 'sugerencia'>('queja');
+    const [user, setUser] = useState<any>(null);
+    const [checkingAuth, setCheckingAuth] = useState(true);
     const { showToast } = useToast();
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+            setCheckingAuth(false);
+        };
+        checkUser();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -35,8 +48,9 @@ export default function QuejasSugerenciasPage() {
 
             if (error) throw error;
 
+            setLastType(tipo as 'queja' | 'sugerencia');
             setStatus('success');
-            setTimeout(() => setStatus('idle'), 5000);
+            setTimeout(() => setStatus('idle'), 8000);
             e.currentTarget.reset();
         } catch (error: any) {
             console.error("Error submitting feedback:", error);
@@ -80,9 +94,43 @@ export default function QuejasSugerenciasPage() {
                             <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground mb-4">
                                 Mensaje Enviado
                             </h2>
-                            <p className="text-slate-500 dark:text-muted text-sm font-bold uppercase tracking-widest max-w-md">
-                                Gracias por ayudarnos a mejorar. Nuestro equipo revisará tus comentarios a la brevedad.
+                            <p className="text-slate-500 dark:text-muted text-sm font-bold uppercase tracking-widest max-w-md leading-relaxed">
+                                {lastType === 'sugerencia' ? (
+                                    "Gracias por tu sugerencia, la valoramos mucho. Tu aporte nos ayuda a crecer."
+                                ) : (
+                                    "No te preocupes, estamos para servirte. Lo solucionaremos lo antes posible y nos contactaremos contigo."
+                                )}
                             </p>
+                            <button
+                                onClick={() => setStatus('idle')}
+                                className="mt-10 text-[10px] font-black uppercase tracking-widest text-accent hover:underline"
+                            >
+                                Enviar otro mensaje
+                            </button>
+                        </div>
+                    ) : checkingAuth ? (
+                        <div className="flex justify-center py-20">
+                            <div className="w-8 h-8 border-2 border-accent/20 border-t-accent rounded-full animate-spin" />
+                        </div>
+                    ) : !user ? (
+                        <div className="flex flex-col items-center justify-center py-16 text-center">
+                            <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mb-6">
+                                <AlertCircle size={40} className="text-rose-500" />
+                            </div>
+                            <h2 className="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground mb-4">
+                                Acceso Restringido
+                            </h2>
+                            <p className="text-slate-500 dark:text-muted text-xs font-bold uppercase tracking-widest max-w-sm mb-10 leading-relaxed">
+                                Necesitas tener una cuenta o registrarte para enviar tu queja o sugerencia.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs">
+                                <Link href="/login" className="flex-1 bg-slate-900 dark:bg-white text-white dark:text-black py-4 rounded-xl font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-all text-center">
+                                    Iniciar Sesión
+                                </Link>
+                                <Link href="/signup" className="flex-1 border border-slate-200 dark:border-white/10 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 dark:hover:bg-white/5 transition-all text-center">
+                                    Registrarse
+                                </Link>
+                            </div>
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
@@ -111,6 +159,7 @@ export default function QuejasSugerenciasPage() {
                                         type="text"
                                         name="nombre"
                                         required
+                                        defaultValue={user?.user_metadata?.artistic_name || user?.user_metadata?.username || ''}
                                         className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl p-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-colors placeholder:text-muted/40 uppercase tracking-widest text-xs"
                                         placeholder="EJ. PRODUCTOR X"
                                     />
@@ -121,6 +170,7 @@ export default function QuejasSugerenciasPage() {
                                         type="email"
                                         name="email"
                                         required
+                                        defaultValue={user?.email || ''}
                                         className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl p-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-colors placeholder:text-muted/40 uppercase tracking-widest text-xs"
                                         placeholder="EJ. TU@CORREO.COM"
                                     />
@@ -157,7 +207,7 @@ export default function QuejasSugerenciasPage() {
                             <div className="flex items-center gap-3 p-4 bg-slate-100/50 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 mt-6">
                                 <AlertCircle size={16} className="text-slate-500 dark:text-muted shrink-0" />
                                 <p className="text-[9px] font-bold text-slate-500 dark:text-muted/80 uppercase tracking-widest">
-                                    Todas las quejas y sugerencias son leídas por nuestro equipo fundador para mejorar la experiencia de Tianguis Beats.
+                                    Todas las quejas y sugerencias son leídas por nuestro equipo de soporte para mejorar la experiencia de Tianguis Beats.
                                 </p>
                             </div>
                         </form>
