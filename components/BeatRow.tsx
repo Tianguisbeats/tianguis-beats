@@ -114,9 +114,8 @@ export default function BeatRow({ beat }: BeatRowProps) {
                             href={`/studio/beats/edit/${beat.id}`}
                             className="bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
                         >
-                            Studio
+                            Es tu Beat
                         </Link>
-                        <span className="text-[7px] font-black text-muted uppercase tracking-[0.2em] mr-1">Tu Beat</span>
                     </div>
                 ) : (
                     <>
@@ -124,9 +123,9 @@ export default function BeatRow({ beat }: BeatRowProps) {
                             <p className="text-accent font-black text-lg leading-none mb-1">
                                 {formatPrice(beat.price_mxn || 299)}
                             </p>
-                            <button onClick={handleAddToCart} className="text-[8px] font-black text-muted uppercase tracking-widest hover:text-accent transition-colors flex items-center justify-end gap-1 p-2 -mr-2">
+                            <Link href={`/beats/${beat.id}`} className="text-[8px] font-black text-muted uppercase tracking-widest hover:text-accent transition-colors flex items-center justify-end gap-1 p-2 -mr-2">
                                 Ver Licencias <ChevronRight size={10} />
-                            </button>
+                            </Link>
                         </div>
 
                         <div className="flex flex-col items-end sm:hidden mb-1">

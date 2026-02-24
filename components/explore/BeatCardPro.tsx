@@ -221,15 +221,14 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                                 href={`/studio/beats/edit/${beat.id}`}
                                 className={`w-full ${compact ? 'h-7' : 'h-9'} rounded-xl font-black ${compact ? 'text-[7px]' : 'text-[8px] md:text-[9px]'} uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 border border-slate-200 dark:border-white/10 hover:scale-[1.02] shadow-xl shadow-black/10 active:scale-95`}
                             >
-                                <Edit3 size={compact ? 12 : 14} />
-                                <span>Studio</span>
+                                <Crown size={compact ? 12 : 14} />
+                                <span>Es tu Beat</span>
                             </Link>
                         ) : (
-                            <button
-                                onClick={!beat.is_sold ? handleAddToCart : undefined}
-                                disabled={!!beat.is_sold}
+                            <Link
+                                href={`/beats/${beat.id}`}
                                 className={`w-full ${compact ? 'h-7' : 'h-9'} rounded-xl font-black ${compact ? 'text-[7px]' : 'text-[8px] md:text-[9px]'} uppercase tracking-widest transition-all flex items-center justify-center gap-2 group/btn active:scale-95 ${beat.is_sold
-                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
+                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none pointer-events-none'
                                     : 'bg-accent text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900 shadow-[0_8px_16px_-4px_rgba(59,130,246,0.3)] hover:shadow-accent/40'
                                     }`}
                             >
@@ -238,7 +237,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                                         <span>{compact ? 'Ver Licencia' : `Ver Licencias`}</span>
                                     </>
                                 )}
-                            </button>
+                            </Link>
                         )}
                     </div>
 

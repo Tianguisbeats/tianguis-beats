@@ -73,20 +73,20 @@ export default function CartPage() {
             if (data.nivel_objetivo && data.nivel_objetivo !== 'todos') {
                 const { data: userData } = await supabase.auth.getUser();
                 if (!userData.user) {
-                    showToast("Inicia sesión para usar cupones exclusivos de miembros.", 'info');
+                    showToast("Inicia sesión para usar cupones exclusivos de miembros.", 'error');
                     return;
                 }
                 const { data: profile } = await supabase.from('profiles').select('subscription_tier').eq('id', userData.user.id).single();
                 if (data.nivel_objetivo === 'gratis' && profile?.subscription_tier !== 'free') {
-                    showToast("Cupones exclusivos para usuarios Free.", 'info');
+                    showToast("Cupones exclusivos para usuarios Free.", 'error');
                     return;
                 }
                 if (data.nivel_objetivo === 'pro' && profile?.subscription_tier !== 'pro') {
-                    showToast("Cupones exclusivos para suscripciones PRO.", 'info');
+                    showToast("Cupones exclusivos para suscripciones PRO.", 'error');
                     return;
                 }
                 if (data.nivel_objetivo === 'premium' && profile?.subscription_tier !== 'premium') {
-                    showToast("Cupones exclusivos para suscripciones PREMIUM.", 'info');
+                    showToast("Cupones exclusivos para suscripciones PREMIUM.", 'error');
                     return;
                 }
             }
@@ -132,7 +132,7 @@ export default function CartPage() {
                 } else {
                     errorMessage = "Este cupón solo aplica para suscripciones premium o pro.";
                 }
-                showToast(errorMessage, 'info');
+                showToast(errorMessage, 'error');
                 return;
             }
 

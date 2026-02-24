@@ -67,7 +67,7 @@ export default function AdminDashboard() {
                         <ShieldCheck size={12} className="text-accent" />
                         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Nivel de Acceso: Dios</span>
                     </div>
-                    <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tighter text-foreground mb-2 italic">
+                    <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tighter text-foreground mb-2">
                         Control <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Maestro</span>
                     </h1>
                     <p className="text-muted text-[11px] font-black uppercase tracking-[0.3em] opacity-60">
@@ -644,19 +644,19 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                 </div>
 
                 <form onSubmit={handleAction} className="relative z-10 space-y-8">
-                    <div className="grid md:grid-cols-2 gap-x-12 gap-y-10">
-                        <div className="space-y-3">
-                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2 whitespace-nowrap">Código Promocional</label>
+                    <div className="grid md:grid-cols-4 gap-6 items-start">
+                        <div className="space-y-2">
+                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 pl-2 whitespace-nowrap">Código Promocional</label>
                             <input
                                 required
                                 value={newCoupon.codigo}
                                 onChange={e => setNewCoupon({ ...newCoupon, codigo: e.target.value.toUpperCase() })}
                                 placeholder="EJ. BLACKFRIDAY"
-                                className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 font-black text-slate-900 dark:text-foreground text-xl outline-none focus:border-accent transition-all uppercase tracking-widest placeholder:text-muted/20 font-mono shadow-sm"
+                                className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-3 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all uppercase tracking-widest placeholder:text-muted/30 font-mono shadow-sm"
                             />
                         </div>
-                        <div className="space-y-3">
-                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2 whitespace-nowrap">Descuento (%)</label>
+                        <div className="space-y-2">
+                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 pl-2 whitespace-nowrap">Descuento (%)</label>
                             <div className="relative">
                                 <input
                                     type="number"
@@ -665,31 +665,33 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                                     required
                                     value={newCoupon.porcentaje_descuento || ''}
                                     onChange={e => setNewCoupon({ ...newCoupon, porcentaje_descuento: parseInt(e.target.value) })}
-                                    className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-5 py-4 font-black text-slate-900 dark:text-foreground text-xl outline-none focus:border-accent transition-all tabular-nums font-mono shadow-sm"
+                                    className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl pl-10 pr-4 py-3 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all tabular-nums font-mono shadow-sm"
                                 />
-                                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-accent/60 font-black text-xl">%</div>
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-accent/60 font-black text-sm">%</div>
                             </div>
                         </div>
-                        <div className="space-y-3">
-                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2 whitespace-nowrap">Dirigido a</label>
+                        <div className="space-y-2">
+                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 pl-2 whitespace-nowrap">Aplica a</label>
                             <select
                                 value={newCoupon.nivel_objetivo}
                                 onChange={e => setNewCoupon({ ...newCoupon, nivel_objetivo: e.target.value })}
-                                className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all uppercase tracking-widest shadow-sm appearance-none cursor-pointer"
+                                className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-3 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all uppercase tracking-widest shadow-sm appearance-none cursor-pointer"
                             >
-                                <option value="todos">Todos</option>
-                                <option value="free">Free</option>
-                                <option value="pro">Pro</option>
-                                <option value="premium">Premium</option>
+                                <option value="todos">Todos los Planes</option>
+                                <option value="free">Solo Free</option>
+                                <option value="pro">Solo Pro</option>
+                                <option value="premium">Solo Premium</option>
                             </select>
                         </div>
-                        <div className="space-y-3">
-                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2 whitespace-nowrap">Expiración <span className="text-[8px] opacity-40 lowercase font-bold tracking-normal ml-2">opcional</span></label>
+                        <div className="space-y-2">
+                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 pl-2 whitespace-nowrap">
+                                Expiración <span className="opacity-40 lowercase font-bold tracking-normal">*Opcional</span>
+                            </label>
                             <input
                                 type="datetime-local"
                                 value={newCoupon.fecha_expiracion}
                                 onChange={e => setNewCoupon({ ...newCoupon, fecha_expiracion: e.target.value })}
-                                className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 font-bold text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all shadow-sm"
+                                className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-3 font-bold text-slate-900 dark:text-foreground text-xs outline-none focus:border-accent transition-all shadow-sm"
                             />
                         </div>
                     </div>
