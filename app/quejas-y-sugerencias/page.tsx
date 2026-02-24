@@ -50,13 +50,17 @@ export default function QuejasSugerenciasPage() {
 
             setLastType(tipo as 'queja' | 'sugerencia');
             setStatus('success');
-            setTimeout(() => setStatus('idle'), 8000);
+            // Ya no reseteamos el estado a 'idle' automáticamente tan pronto
             e.currentTarget.reset();
         } catch (error: any) {
             console.error("Error submitting feedback:", error);
-            showToast("Hubo un error al enviar tu mensaje. Intenta nuevamente.", "error");
+            showToast("Hubo un error al enviar tu mensaje. Verifica tu conexión e intenta nuevamente.", "error");
             setStatus('idle');
         }
+    };
+
+    const handleReset = () => {
+        setStatus('idle');
     };
 
     return (
@@ -102,8 +106,8 @@ export default function QuejasSugerenciasPage() {
                                 )}
                             </p>
                             <button
-                                onClick={() => setStatus('idle')}
-                                className="mt-10 text-[10px] font-black uppercase tracking-widest text-accent hover:underline"
+                                onClick={handleReset}
+                                className="mt-10 px-8 py-4 bg-accent text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-all shadow-lg shadow-accent/20"
                             >
                                 Enviar otro mensaje
                             </button>
@@ -154,13 +158,13 @@ export default function QuejasSugerenciasPage() {
 
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2">Tu Nombre</label>
                                     <input
                                         type="text"
                                         name="nombre"
                                         required
-                                        defaultValue={user?.user_metadata?.artistic_name || user?.user_metadata?.username || ''}
-                                        className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl p-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-colors placeholder:text-muted/40 uppercase tracking-widest text-xs"
+                                        readOnly={!!user}
+                                        defaultValue={user?.user_metadata?.artistic_name || user?.user_metadata?.username || user?.user_metadata?.full_name || ''}
+                                        className={`w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl p-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-colors placeholder:text-muted/40 uppercase tracking-widest text-xs ${user ? 'opacity-60 cursor-not-allowed' : ''}`}
                                         placeholder="EJ. PRODUCTOR X"
                                     />
                                 </div>
@@ -170,8 +174,9 @@ export default function QuejasSugerenciasPage() {
                                         type="email"
                                         name="email"
                                         required
+                                        readOnly={!!user}
                                         defaultValue={user?.email || ''}
-                                        className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl p-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-colors placeholder:text-muted/40 uppercase tracking-widest text-xs"
+                                        className={`w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl p-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-colors placeholder:text-muted/40 uppercase tracking-widest text-xs ${user ? 'opacity-60 cursor-not-allowed' : ''}`}
                                         placeholder="EJ. TU@CORREO.COM"
                                     />
                                 </div>

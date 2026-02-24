@@ -116,6 +116,8 @@ export default function PricingPage() {
         const targetIdx = tierOrder.indexOf(plan.tier);
 
         const isDowngrade = targetIdx < currentIdx;
+        const isUpgrade = targetIdx > currentIdx;
+        const isSameTier = currentTier === plan.tier;
 
         if (isDowngrade) {
             let downgradeMessages: string[] = [];
@@ -125,7 +127,7 @@ export default function PricingPage() {
                     "Perderás el acceso a la descarga de Stems (Pistas).",
                     "Perderás la capacidad de vender Licencias Exclusivas.",
                     "Se desactivarán tus Sound Kits y tu Smart Bio Premium.",
-                    "Tu cuenta ya no tendrá el Impulso Algorítmico."
+                    "Ya no tendrás Impulso Algorítmico en el catálogo."
                 ];
             } else if (currentTier === 'premium' && plan.tier === 'free') {
                 downgradeMessages = [
@@ -139,7 +141,7 @@ export default function PricingPage() {
                     "Tu comisión por venta subirá del 0% al 15%.",
                     "Solo podrás tener 5 Beats públicos.",
                     "Perderás el soporte 24/7 y la descarga de WAV.",
-                    "Se desactivarán tus servicios de mezcla y masterización."
+                    "Se desactivarán tus servicios profesionales."
                 ];
             }
 
@@ -153,13 +155,29 @@ export default function PricingPage() {
                 ]
             });
             setShowDowngradeModal(true);
-            const isExtending = currentTier === plan.tier;
+        } else if (isUpgrade && currentTier !== 'free') {
+            // Upgrade Secuencial (Pro a Premium)
+            setSelectedPlan({
+                ...plan,
+                type: 'upgrade_sequential',
+                messages: [
+                    `Para no desperdiciar tus días pagados, primero terminará tu plan ${currentTier.toUpperCase()}.`,
+                    `Hoy compras tu ${plan.name} que se SUMARÁ a tu tiempo actual.`,
+                    `Podrás usar ${plan.name} totalmente cuando termine tu periodo actual.`,
+                    `Nueva fecha estimada de vencimiento: ${new Date(new Date(terminaSuscripcion || Date.now()).getTime() + (billingCycle === 'yearly' ? 365 : 30) * 86400000).toLocaleDateString()}`
+                ],
+                disclaimer: "Importante: El cambio de nivel se activará al finalizar tu suscripción pro actual para evitar pérdida de valor."
+            });
+            setShowDowngradeModal(true);
+        } else {
+            // Upgrade desde Free o Extensión del mismo plan
+            const isExtending = isSameTier;
             setSelectedPlan({
                 ...plan,
                 type: isExtending ? 'extend' : 'upgrade',
                 messages: isExtending
                     ? ["Tu tiempo actual se mantiene.", "Se sumará el nuevo periodo a tu fecha de vencimiento actual."]
-                    : ["¡Activación Inmediata!", "Acceso total a nuevas funciones."],
+                    : ["¡Activación Inmediata!", "Acceso total a todas las funciones de " + plan.name + "."],
                 disclaimer: isExtending ? "Tu suscripción se extenderá automáticamente." : "Importante: Tu nuevo plan comienza hoy."
             });
             setShowDowngradeModal(true);
@@ -177,7 +195,7 @@ export default function PricingPage() {
 
             if (error) throw error;
             setComenzarSuscripcion(null);
-            showToast("Cambio cancelado. Mantendrás tu plan actual.", 'success');
+            showToast("Cambio programado cancelado. Mantendrás tu plan actual.", 'success');
         } catch (err) {
             console.error(err);
             showToast("Error al cancelar el cambio.", 'error');
@@ -189,20 +207,45 @@ export default function PricingPage() {
     const confirmAction = async () => {
         if (!selectedPlan || !session) return;
 
-        if (selectedPlan.type === 'downgrade') {
+        if (selectedPlan.type === 'downgrade' || selectedPlan.type === 'upgrade_sequential') {
+            const isDowngrade = selectedPlan.type === 'downgrade';
             try {
-                const { error } = await supabase
-                    .from('profiles')
-                    .update({ comenzar_suscripcion: selectedPlan.tier })
-                    .eq('id', session.user.id);
+                // Si es solo programar el cambio sin pago inmediato (downgrade a free)
+                if (isDowngrade && selectedPlan.tier === 'free') {
+                    const { error } = await supabase
+                        .from('profiles')
+                        .update({ comenzar_suscripcion: selectedPlan.tier })
+                        .eq('id', session.user.id);
 
-                if (error) throw error;
-                setShowDowngradeModal(false);
-                setComenzarSuscripcion(selectedPlan.tier);
-                showToast("Cambio programado exitosamente.", 'success');
+                    if (error) throw error;
+                    setShowDowngradeModal(false);
+                    setComenzarSuscripcion(selectedPlan.tier);
+                    showToast("Cambio programado exitosamente.", 'success');
+                } else {
+                    // Si requiere pago (Upgrade Secuencial o Downgrade pagado)
+                    const isYearly = billingCycle === 'yearly';
+                    const totalPrice = isYearly ? (selectedPlan.price * 12) : selectedPlan.price;
+
+                    const wasAdded = addItem({
+                        id: `plan-${selectedPlan.tier}-${billingCycle}`,
+                        type: 'plan',
+                        name: `Plan ${selectedPlan.name} ${isYearly ? '[Anual]' : '[Mensual]'}`,
+                        price: totalPrice,
+                        subtitle: selectedPlan.description,
+                        metadata: {
+                            tier: selectedPlan.tier,
+                            cycle: billingCycle,
+                            sequential: selectedPlan.type === 'upgrade_sequential'
+                        }
+                    });
+
+                    if (wasAdded) {
+                        router.push('/cart');
+                    }
+                }
             } catch (err) {
                 console.error(err);
-                showToast("Error al programar el cambio.", 'error');
+                showToast("Error al procesar la solicitud.", 'error');
             }
         } else {
             const isYearly = billingCycle === 'yearly';

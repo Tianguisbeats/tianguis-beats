@@ -127,8 +127,9 @@ export async function POST(req: Request) {
                 if (metadata.type === 'plan') {
                     const tier = metadata.tier;
                     const cycle = metadata.cycle; // 'monthly' o 'yearly'
+                    const isSequential = metadata.sequential === 'true';
 
-                    console.log('--- ACTIVATING PLAN ---', { tier, cycle, usuarioId });
+                    console.log('--- ACTIVATING PLAN ---', { tier, cycle, usuarioId, isSequential });
 
                     // 1. Obtener vencimiento actual
                     const { data: profileData } = await supabaseAdmin
@@ -141,9 +142,8 @@ export async function POST(req: Request) {
                     const isSameTier = profileData?.subscription_tier === tier;
 
                     let baseDate = new Date();
-                    // Si ya tiene una suscripción activa del mismo tier, sumamos desde el vencimiento
-                    // Si es un tier superior (upgrade), empezamos desde hoy (Stripe prorratea o el usuario paga full por nuevo periodo)
-                    if (currentExpiry && currentExpiry > new Date() && isSameTier) {
+                    // Si ya tiene una suscripción activa del mismo tier, o si es secuencial, sumamos desde el vencimiento
+                    if (currentExpiry && currentExpiry > new Date() && (isSameTier || isSequential)) {
                         baseDate = currentExpiry;
                         console.log('SUMMING TIME: Starting from existing expiry', baseDate.toISOString());
                     }
@@ -156,21 +156,30 @@ export async function POST(req: Request) {
                     }
 
                     // Actualizar el perfil del usuario
+                    const updates: any = {
+                        termina_suscripcion: expiryDate.toISOString(),
+                        stripe_subscription_id: subscriptionId || `one_time_${stripeId}`,
+                        is_founder: true
+                    };
+
+                    // Si es secuencial, NO cambiamos el tier actual todavía, guardamos el objetivo
+                    if (isSequential && !isSameTier) {
+                        updates.comenzar_suscripcion = tier;
+                        console.log('SEQUENTIAL UPGRADE: Target tier saved', tier);
+                    } else {
+                        updates.subscription_tier = tier;
+                        updates.comenzar_suscripcion = null; // Limpiar cambios programados si ya se aplicó un plan directo
+                    }
+
                     const { error: profileError } = await supabaseAdmin
                         .from('profiles')
-                        .update({
-                            subscription_tier: tier,
-                            termina_suscripcion: expiryDate.toISOString(),
-                            stripe_subscription_id: subscriptionId || `one_time_${stripeId}`,
-                            is_founder: true,
-                            comenzar_suscripcion: new Date().toISOString()
-                        })
+                        .update(updates)
                         .eq('id', usuarioId);
 
                     if (profileError) {
                         console.error('ERROR: Updating profile subscription:', profileError);
                     } else {
-                        console.log('--- PROFILE ACTIVATED SUCCESSFULLY ---', { newExpiry: expiryDate.toISOString() });
+                        console.log('--- PROFILE UPDATED SUCCESSFULLY ---', { newExpiry: expiryDate.toISOString(), tierApplied: updates.subscription_tier || 'sequential_pending' });
                     }
                 }
 
