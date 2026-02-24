@@ -335,149 +335,148 @@ export default function CouponsPage() {
                             <X size={20} />
                         </button>
 
-                        <div className="mb-12 relative z-10">
+                        <div className="mb-10 relative z-10">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full mb-4">
                                 <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Configuración Estructural</span>
+                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Motor de Conversión</span>
                             </div>
-                            <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground leading-[0.9]">
+                            <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground leading-[0.9]">
                                 {currentCoupon?.id ? 'Refinar' : 'Arquitectura'} <br />
-                                <span className="text-accent underline decoration-slate-200 dark:decoration-accent/20 underline-offset-8">del Cupón.</span>
+                                <span className="text-accent underline decoration-slate-200 dark:decoration-accent/20 underline-offset-8">Estratégica.</span>
                             </h2>
                         </div>
 
-                        <form onSubmit={handleSave} className="space-y-10 relative z-10">
-                            <div className="grid md:grid-cols-2 gap-10">
-                                {/* Left Side: Basic Info */}
-                                <div className="space-y-8">
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Código Promocional</label>
-                                        <input
-                                            required
-                                            value={currentCoupon?.codigo || ''}
-                                            onChange={e => setCurrentCoupon({ ...currentCoupon, codigo: e.target.value.toUpperCase() })}
-                                            placeholder="EJ. FUEGO20"
-                                            className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-5 font-black text-slate-900 dark:text-foreground text-2xl outline-none focus:border-accent transition-all uppercase tracking-widest placeholder:text-slate-300 dark:placeholder:text-muted/10 font-mono shadow-sm dark:shadow-inner"
-                                        />
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-3">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Descuento (%)</label>
-                                            <div className="relative">
-                                                <input
-                                                    type="number"
-                                                    required
-                                                    min="1"
-                                                    max="100"
-                                                    value={currentCoupon?.porcentaje_descuento || ''}
-                                                    onChange={e => setCurrentCoupon({ ...currentCoupon, porcentaje_descuento: Number(e.target.value) })}
-                                                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-6 py-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-all tabular-nums font-mono"
-                                                />
-                                                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-accent/60">
-                                                    <Percent size={18} />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-2 mb-2 ml-1">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60">Aplícable a</label>
-                                            <div className="group relative">
-                                                <Info size={14} className="text-slate-400 dark:text-muted/40 cursor-help" />
-                                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-bold tracking-wider rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                                                    Selecciona a qué tipo de productos de tu catálogo se aplicará este descuento al momento del pago.
-                                                    <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 dark:bg-white rotate-45" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            {[
-                                                { id: 'todos', label: 'Todos mis productos' },
-                                                { id: 'beats', label: 'Solo Beats' },
-                                                { id: 'sound_kits', label: 'Solo Sound Kits' },
-                                                { id: 'servicios', label: 'Solo Servicios' }
-                                            ].map((type) => (
-                                                <button
-                                                    key={type.id}
-                                                    type="button"
-                                                    onClick={() => setCurrentCoupon({ ...currentCoupon, aplica_a: type.id as any })}
-                                                    className={`px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${currentCoupon?.aplica_a === type.id
-                                                        ? 'border-accent bg-accent/10 text-accent'
-                                                        : 'border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-muted/60 hover:border-accent/30'}`}
-                                                >
-                                                    {type.label}
-                                                </button>
-                                            ))}
-                                        </div>
-
-                                        {/* NUEVO CAMPO: Nivel Objetivo */}
-                                        <div className="flex items-center gap-2 mb-2 ml-1 mt-6">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60">Para Usuarios</label>
-                                            <div className="group relative">
-                                                <Info size={14} className="text-slate-400 dark:text-muted/40 cursor-help" />
-                                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-bold tracking-wider rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                                                    Selecciona el nivel de membresía requerido en la cuenta del cliente para poder validar y usar este cupón al realizar su compra.
-                                                    <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 dark:bg-white rotate-45" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            {[
-                                                { id: 'todos', label: 'Todos' },
-                                                { id: 'gratis', label: 'Gratis' },
-                                                { id: 'pro', label: 'Pro' },
-                                                { id: 'premium', label: 'Premium' }
-                                            ].map((tier) => (
-                                                <button
-                                                    key={tier.id}
-                                                    type="button"
-                                                    onClick={() => setCurrentCoupon({ ...currentCoupon, nivel_objetivo: tier.id as any })}
-                                                    className={`px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${currentCoupon?.nivel_objetivo === tier.id
-                                                        ? 'border-accent bg-accent/10 text-accent'
-                                                        : 'border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-muted/60 hover:border-accent/30'}`}
-                                                >
-                                                    {tier.label}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
+                        <form onSubmit={handleSave} className="space-y-8 relative z-10">
+                            {/* Grupo 1: Identidad y Valor */}
+                            <div className="grid md:grid-cols-2 gap-8 bg-slate-50/50 dark:bg-white/[0.02] p-6 rounded-[2rem] border border-slate-200/50 dark:border-white/5 shadow-inner">
+                                <div className="space-y-3">
+                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Código Promocional</label>
+                                    <input
+                                        required
+                                        value={currentCoupon?.codigo || ''}
+                                        onChange={e => setCurrentCoupon({ ...currentCoupon, codigo: e.target.value.toUpperCase() })}
+                                        placeholder="EJ. FUEGO20"
+                                        className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-5 py-4 font-black text-slate-900 dark:text-foreground text-xl outline-none focus:border-accent transition-all uppercase tracking-widest placeholder:text-slate-300 dark:placeholder:text-muted/10 font-mono shadow-sm"
+                                    />
                                 </div>
-
-                                {/* Right Side: Advanced Rules */}
-                                <div className="space-y-8">
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Límite de usos</label>
-                                        <div className="relative">
-                                            <Hash size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-muted/20" />
-                                            <input
-                                                type="number"
-                                                min="1"
-                                                placeholder="SIN LÍMITE (∞)"
-                                                value={currentCoupon?.usos_maximos || ''}
-                                                onChange={e => setCurrentCoupon({ ...currentCoupon, usos_maximos: e.target.value ? Number(e.target.value) : null })}
-                                                className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-6 py-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-all tabular-nums font-mono placeholder:text-[9px] placeholder:tracking-[0.3em] placeholder:text-slate-400 dark:placeholder:text-muted/20"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Cronología de Expiración</label>
-                                        <div className="relative">
-                                            <Calendar size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-muted/20" />
-                                            <input
-                                                type="date"
-                                                value={currentCoupon?.fecha_expiracion?.split('T')[0] || ''}
-                                                onChange={e => setCurrentCoupon({ ...currentCoupon, fecha_expiracion: e.target.value })}
-                                                className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-6 py-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-all font-mono"
-                                            />
+                                <div className="space-y-3">
+                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Descuento (%)</label>
+                                    <div className="relative">
+                                        <input
+                                            type="number"
+                                            required
+                                            min="1"
+                                            max="100"
+                                            value={currentCoupon?.porcentaje_descuento || ''}
+                                            onChange={e => setCurrentCoupon({ ...currentCoupon, porcentaje_descuento: Number(e.target.value) })}
+                                            className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl pl-12 pr-5 py-4 font-black text-slate-900 dark:text-foreground text-xl outline-none focus:border-accent transition-all tabular-nums font-mono"
+                                        />
+                                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-accent/60">
+                                            <Percent size={18} />
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex flex-col sm:flex-row gap-6 pt-10 border-t border-slate-200 dark:border-white/5">
+                            {/* Grupo 2: Segmentación y Target (UNIFICADO) */}
+                            <div className="grid md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 ml-1">
+                                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60">Aplicable a</label>
+                                        <div className="group relative">
+                                            <Info size={12} className="text-slate-400 dark:text-muted/40 cursor-help" />
+                                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-bold tracking-wider rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                                                Selecciona a qué tipo de productos de tu catálogo se aplicará este descuento.
+                                                <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 dark:bg-white rotate-45" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {[
+                                            { id: 'todos', label: 'Todos' },
+                                            { id: 'beats', label: 'Beats' },
+                                            { id: 'sound_kits', label: 'Kits' },
+                                            { id: 'servicios', label: 'Servicios' }
+                                        ].map((type) => (
+                                            <button
+                                                key={type.id}
+                                                type="button"
+                                                onClick={() => setCurrentCoupon({ ...currentCoupon, aplica_a: type.id as any })}
+                                                className={`px-3 py-2.5 rounded-xl text-[8px] font-black uppercase tracking-widest border transition-all ${currentCoupon?.aplica_a === type.id
+                                                    ? 'border-accent bg-accent text-white shadow-lg shadow-accent/20'
+                                                    : 'border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-muted/60 hover:border-accent/30'}`}
+                                            >
+                                                {type.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 ml-1">
+                                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60">Para Usuarios</label>
+                                        <div className="group relative">
+                                            <Info size={12} className="text-slate-400 dark:text-muted/40 cursor-help" />
+                                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-bold tracking-wider rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                                                Filtra quién puede usar este cupón basado en su plan de membresía.
+                                                <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 dark:bg-white rotate-45" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {[
+                                            { id: 'todos', label: 'Cualquiera' },
+                                            { id: 'gratis', label: 'Free' },
+                                            { id: 'pro', label: 'Pro' },
+                                            { id: 'premium', label: 'Premium' }
+                                        ].map((tier) => (
+                                            <button
+                                                key={tier.id}
+                                                type="button"
+                                                onClick={() => setCurrentCoupon({ ...currentCoupon, nivel_objetivo: tier.id as any })}
+                                                className={`px-3 py-2.5 rounded-xl text-[8px] font-black uppercase tracking-widest border transition-all ${currentCoupon?.nivel_objetivo === tier.id
+                                                    ? 'border-blue-500 bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                                                    : 'border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-muted/60 hover:border-accent/30'}`}
+                                            >
+                                                {tier.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Grupo 3: Reglas de Uso y Control */}
+                            <div className="grid md:grid-cols-2 gap-8 pt-4">
+                                <div className="space-y-3">
+                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Límite de usos</label>
+                                    <div className="relative">
+                                        <Hash size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-muted/20" />
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="SIN LÍMITE (∞)"
+                                            value={currentCoupon?.usos_maximos || ''}
+                                            onChange={e => setCurrentCoupon({ ...currentCoupon, usos_maximos: e.target.value ? Number(e.target.value) : null })}
+                                            className="w-full bg-slate-50/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl pl-12 pr-5 py-4 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all tabular-nums font-mono shadow-sm"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Expiración</label>
+                                    <div className="relative">
+                                        <Calendar size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-muted/20" />
+                                        <input
+                                            type="date"
+                                            value={currentCoupon?.fecha_expiracion?.split('T')[0] || ''}
+                                            onChange={e => setCurrentCoupon({ ...currentCoupon, fecha_expiracion: e.target.value })}
+                                            className="w-full bg-slate-50/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl pl-12 pr-5 py-4 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all font-mono shadow-sm"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row gap-6 pt-6 border-t border-slate-200 dark:border-white/5">
                                 {(() => {
                                     const isDirty = JSON.stringify(currentCoupon) !== JSON.stringify(originalCoupon);
 
@@ -490,7 +489,7 @@ export default function CouponsPage() {
                                                 }
                                             }}
                                             disabled={saving}
-                                            className="w-full bg-accent text-white py-6 rounded-2xl font-black uppercase tracking-[0.4em] text-[10px] hover:scale-[1.02] transition-all shadow-xl shadow-accent/40 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
+                                            className="w-full bg-accent text-white py-5 rounded-xl font-black uppercase tracking-[0.4em] text-[10px] hover:scale-[1.01] transition-all shadow-xl shadow-accent/40 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
                                         >
                                             {saving ? (
                                                 <>
@@ -498,8 +497,8 @@ export default function CouponsPage() {
                                                 </>
                                             ) : (
                                                 <>
-                                                    {isDirty ? <CheckCircle2 size={18} /> : <X size={18} />}
-                                                    {isDirty ? 'Desplegar Cupón' : 'Salir'}
+                                                    {isDirty ? <CheckCircle2 size={16} /> : <X size={16} />}
+                                                    {isDirty ? 'Desplegar Arquitectura' : 'Cerrar sin cambios'}
                                                 </>
                                             )}
                                         </button>
