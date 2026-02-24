@@ -65,12 +65,12 @@ export default function StudioBeatsPage() {
     if (loading) return <div className="p-8 text-center text-muted font-bold">Cargando tu inventario...</div>;
 
     return (
-        <div className="space-y-12 animate-in fade-in duration-700">
+        <div className="space-y-12">
             {/* Header Section */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                 <div>
                     <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-4">
-                        Inventario de <span className="text-accent underline decoration-white/10 underline-offset-8">Beats</span>
+                        Inventario de <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Beats</span>
                     </h1>
                     <div className="flex flex-wrap items-center gap-4 text-muted">
                         <div className="flex items-center gap-2 bg-accent/10 text-accent px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-accent/10">
@@ -78,7 +78,7 @@ export default function StudioBeatsPage() {
                             {beats.length} Activos
                         </div>
                         <span className="text-[10px] font-bold uppercase tracking-widest opacity-60 flex items-center gap-2">
-                            Sincronizado con Catálogo Maestro
+                            Sincronizado con el Catálogo del tianguis
                         </span>
                     </div>
                 </div>

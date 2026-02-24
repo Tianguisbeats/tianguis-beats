@@ -64,7 +64,7 @@ export default function AdminDashboard() {
             <header className="mb-12 flex flex-col items-center justify-center gap-6 text-center">
                 <div>
                     <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground mb-2">
-                        Control <span className="text-accent">Maestro</span>
+                        Control <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Maestro</span>
                     </h1>
                     <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em]">
                         Panel de Administración de Tianguis Beats
@@ -696,61 +696,83 @@ function CouponManager() {
                 </form>
             </div>
 
-            {/* Coupons List */}
+            {/* Coupons List - Premium Redesign */}
             {coupons.length > 0 && (
                 <div className="grid lg:grid-cols-2 gap-8">
                     {coupons.map(cp => {
                         const isExpired = cp.fecha_expiracion && new Date(cp.fecha_expiracion) < new Date();
-                        return (
-                            <div key={cp.id} className={`group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 transition-all duration-700 hover:border-accent/40 hover:shadow-2xl dark:hover:shadow-accent/10 hover:-translate-y-1 overflow-hidden shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] ${(!cp.es_activo || isExpired) && 'opacity-60 grayscale'}`}>
-                                {/* Línea punteada de ticket */}
-                                <div className="absolute top-[80px] left-8 right-8 h-px border-t border-dashed border-slate-300 dark:border-white/10 z-10" />
 
-                                <div className="flex justify-between items-start mb-10 relative z-10">
+                        // Determinar el estilo basado en el nivel_objetivo, similar a la suite de productores
+                        let tierConfig = { bg: 'bg-emerald-500/10', text: 'text-emerald-500', label: 'TODOS' };
+                        if (cp.nivel_objetivo === 'free') tierConfig = { bg: 'bg-blue-500/10', text: 'text-blue-500', label: 'FREE' };
+                        if (cp.nivel_objetivo === 'pro') tierConfig = { bg: 'bg-indigo-500/10', text: 'text-indigo-500', label: 'PRO' };
+                        if (cp.nivel_objetivo === 'premium') tierConfig = { bg: 'bg-amber-500/10', text: 'text-amber-500', label: 'PREMIUM' };
+
+                        return (
+                            <div key={cp.id} className={`group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 transition-all duration-700 hover:border-accent/40 hover:shadow-2xl dark:hover:shadow-[0_0_40px_rgba(var(--accent-rgb),0.1)] hover:-translate-y-1 overflow-hidden shadow-lg dark:shadow-none ${(!cp.es_activo || isExpired) && 'opacity-60 grayscale'}`}>
+                                {/* Ticket pattern */}
+                                <div className="absolute top-[88px] left-8 right-8 h-px border-t-2 border-dashed border-slate-200 dark:border-white/10 z-10" />
+
+                                <div className="flex justify-between items-start mb-12 relative z-10">
                                     <div className="space-y-1">
-                                        <h3 className="font-black text-3xl text-slate-900 dark:text-foreground tracking-[-0.05em] uppercase font-mono leading-none">{cp.codigo}</h3>
-                                        <div className="flex items-center gap-2">
+                                        <h3 className="font-black text-4xl text-slate-900 dark:text-foreground tracking-[-0.05em] uppercase font-mono leading-none">{cp.codigo}</h3>
+                                        <div className="flex items-center gap-2 mt-2">
                                             <span className={`w-1.5 h-1.5 rounded-full ${cp.es_activo ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`} />
-                                            <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] opacity-60 dark:opacity-40">EXP: {cp.fecha_expiracion ? new Date(cp.fecha_expiracion).toLocaleDateString() : '∞'}</p>
+                                            <p className="text-[9px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] opacity-80 dark:opacity-60">
+                                                EXP: {cp.fecha_expiracion ? new Date(cp.fecha_expiracion).toLocaleDateString() : '∞'}
+                                            </p>
                                         </div>
                                     </div>
-                                    <div className="px-5 py-2.5 bg-slate-100 dark:bg-slate-500/10 border border-slate-200 dark:border-slate-500/20 text-slate-600 dark:text-slate-400 rounded-xl text-[10px] font-black tracking-widest uppercase shadow-sm dark:shadow-inner flex items-center gap-3">
-                                        <div className="flex flex-col items-end gap-1">
-                                            <div className="flex items-center gap-1.5 opacity-60">
-                                                <Users size={10} />
-                                                <span>{cp.nivel_objetivo || 'TODOS'}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2 text-sm text-slate-900 dark:text-foreground">
-                                                <Crown size={14} className="text-amber-500" />
-                                                <span>-{cp.porcentaje_descuento}% DESC.</span>
-                                            </div>
+                                    <div className={`px-5 py-3 ${tierConfig.bg} border border-${tierConfig.text.replace('text-', '')}/20 rounded-2xl flex flex-col items-center gap-1 shadow-inner relative overflow-hidden group-hover:scale-105 transition-transform`}>
+                                        <div className={`absolute top-0 right-0 w-16 h-16 bg-white/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity`} />
+                                        <span className={`text-[9px] font-black uppercase tracking-widest ${tierConfig.text}`}>{tierConfig.label}</span>
+                                        <span className="text-xl font-black text-slate-900 dark:text-foreground tabular-nums tracking-tighter loading-none">
+                                            -{cp.porcentaje_descuento}<span className="text-xs text-muted">%</span>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Target info */}
+                                <div className="grid grid-cols-2 gap-4 mb-10 relative z-10">
+                                    <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 border border-slate-200 dark:border-white/10">
+                                        <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] mb-2">Aplica a</p>
+                                        <div className="flex items-center gap-2 text-slate-900 dark:text-foreground">
+                                            <TrendingUp size={14} className="text-accent" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest">SUSCRIPCIONES</span>
+                                        </div>
+                                    </div>
+                                    <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 border border-slate-200 dark:border-white/10">
+                                        <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] mb-2">Usos Realizados</p>
+                                        <div className="flex items-center justify-between text-slate-900 dark:text-foreground">
+                                            <span className="text-lg font-black tabular-nums leading-none">0</span>
+                                            <span className="text-[10px] font-bold text-muted/60">∞ max</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between gap-4 mt-8 relative z-10 pt-6 border-t border-slate-100 dark:border-white/5">
+                                {/* Actions Footer */}
+                                <div className="flex items-center justify-between gap-4 relative z-10 pt-6 border-t border-slate-100 dark:border-white/5">
                                     <div className="flex items-center gap-3">
                                         <button
                                             onClick={() => toggleStatus(cp.id, cp.es_activo)}
-                                            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${cp.es_activo ? 'border-emerald-500/20 text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20' : 'border-rose-500/20 text-rose-500 bg-rose-500/10 hover:bg-rose-500/20'}`}
+                                            className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${cp.es_activo ? 'border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20' : 'border-rose-500/30 text-rose-600 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20'} active:scale-95`}
                                         >
                                             {cp.es_activo ? 'Activo' : 'Inactivo'}
                                         </button>
-                                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest opacity-40">Suscripciones</p>
                                     </div>
 
                                     <div className="flex items-center gap-2 min-h-[44px]">
                                         {confirmDeleteId === cp.id ? (
-                                            <div className="flex items-center gap-1 bg-rose-500 rounded-xl overflow-hidden animate-in fade-in slide-in-from-right-4 duration-300 shadow-lg shadow-rose-500/20">
-                                                <button onClick={() => handleDelete(cp.id)} className="px-5 py-2.5 text-white font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 transition-colors">Confirmar Borrado</button>
-                                                <button onClick={() => setConfirmDeleteId(null)} className="p-2.5 text-white/60 hover:text-white transition-colors border-l border-white/10"><XCircle size={16} /></button>
+                                            <div className="flex items-center gap-1 bg-rose-500 rounded-xl overflow-hidden animate-in fade-in slide-in-from-right-4 duration-300 shadow-lg shadow-rose-500/30">
+                                                <button onClick={() => handleDelete(cp.id)} className="px-6 py-2.5 text-white font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 transition-colors">Borrar Cupón</button>
+                                                <button onClick={() => setConfirmDeleteId(null)} className="p-2.5 text-white/60 hover:text-white transition-colors border-l border-white/20"><XCircle size={16} /></button>
                                             </div>
                                         ) : (
                                             <>
-                                                <button onClick={() => { setEditingId(cp.id); setNewCoupon({ codigo: cp.codigo, porcentaje_descuento: cp.porcentaje_descuento, fecha_expiracion: cp.fecha_expiracion || '', nivel_objetivo: cp.nivel_objetivo || 'todos', es_activo: cp.es_activo }); document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white dark:bg-white/10 dark:hover:bg-white/15 hover:bg-slate-800 transition-all text-[10px] font-black uppercase tracking-widest active:scale-95">
+                                                <button onClick={() => { setEditingId(cp.id); setNewCoupon({ codigo: cp.codigo, porcentaje_descuento: cp.porcentaje_descuento, fecha_expiracion: cp.fecha_expiracion || '', nivel_objetivo: cp.nivel_objetivo || 'todos', es_activo: cp.es_activo }); document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 hover:bg-slate-200 transition-all text-[10px] font-black uppercase tracking-widest active:scale-95">
                                                     <Edit2 size={12} /> Editar
                                                 </button>
-                                                <button onClick={() => setConfirmDeleteId(cp.id)} className="w-11 h-11 rounded-xl bg-rose-50 text-rose-500 dark:bg-rose-500/10 dark:text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center justify-center flex-shrink-0 active:scale-95">
+                                                <button onClick={() => setConfirmDeleteId(cp.id)} className="w-11 h-11 rounded-xl bg-rose-50 text-rose-500 dark:bg-rose-500/10 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center justify-center flex-shrink-0 active:scale-95">
                                                     <Trash2 size={16} />
                                                 </button>
                                             </>

@@ -120,12 +120,13 @@ export default function StudioSalesPage() {
     );
 
     return (
-        <div className="space-y-12 animate-in fade-in duration-700">
+        <div className="space-y-12">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-blue-600 opacity-20" />
             {/* Header Section */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                 <div>
                     <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-4">
-                        Tesorería <span className="text-accent underline decoration-white/10 underline-offset-8">Elite</span>
+                        Historial de <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Ventas</span>
                     </h1>
                     <div className="flex flex-wrap items-center gap-4 text-muted">
                         <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/10">

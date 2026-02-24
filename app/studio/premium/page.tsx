@@ -105,7 +105,7 @@ export default function PremiumHubPage() {
                     <div className="space-y-2">
                         <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground leading-[1] flex flex-col">
                             Características
-                            <span className="text-accent">Premium.</span>
+                            <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Premium.</span>
                         </h1>
                         <p className="text-slate-500 dark:text-muted text-[11px] font-bold uppercase tracking-[0.4em] opacity-60 ml-1">
                             Control centralizado de identidad y alcance

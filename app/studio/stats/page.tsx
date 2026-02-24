@@ -98,12 +98,12 @@ export default function StudioStatsPage() {
     );
 
     return (
-        <div className="space-y-12 animate-in fade-in duration-700">
+        <div className="space-y-12">
             {/* Header & Quick Actions */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                 <div>
                     <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-4">
-                        Analítica <span className="text-accent underline decoration-white/10 underline-offset-8">Elite</span>
+                        Analítica <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Elite</span>
                     </h1>
                     <div className="flex flex-wrap items-center gap-4">
                         <div className="bg-emerald-500/10 text-emerald-500 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 border border-emerald-500/10">
