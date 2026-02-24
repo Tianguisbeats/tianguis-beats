@@ -756,7 +756,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 )}
                                             </div>
                                         ) : (
-                                            <span className="flex items-center gap-1.5"><MapPin size={12} className="text-accent" /> {profile.country || "Planeta Tierra"}</span>
+                                            <span className="flex items-center gap-1.5"><MapPin size={12} className="text-accent" /> {profile.country || (isOwner ? "Agrega tu país" : "Planeta Tierra")}</span>
                                         )}
                                         <span className="opacity-30">•</span>
                                         <span className="flex items-center gap-1.5"><Calendar size={12} /> {profile.fecha_de_creacion ? new Date(profile.fecha_de_creacion).getFullYear() : '2025'}</span>
@@ -1085,49 +1085,63 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         </div>
                                     ) : (
                                         <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-                                            {services.map(service => (
-                                                <div key={service.id} className={`p-10 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md 
-                                                    ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
-                                                        'bg-slate-900/60 border-white/5 hover:border-accent/40 shadow-2xl shadow-black/80 text-white' :
-                                                        'bg-white dark:bg-slate-900/60 border-slate-100 dark:border-white/5 hover:shadow-xl text-slate-900 dark:text-white'
-                                                    }`}>
-                                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    <div className="flex justify-between items-start mb-6">
-                                                        <span className="bg-blue-500/20 text-blue-500 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500/10">
-                                                            {service.tipo_servicio === 'beat_custom' ? 'Beat a Medida' :
-                                                                service.tipo_servicio === 'mentor' ? 'Mentoría / Clase' :
-                                                                    service.tipo_servicio === 'mixing' ? 'Mezcla y Masterización' :
-                                                                        service.tipo_servicio?.replace(/_/g, ' ') || service.tipo_servicio}
-                                                        </span>
-                                                        <span className="text-2xl font-black text-slate-900 dark:text-white">${service.precio}</span>
-                                                    </div>
-                                                    <h3 className="font-black text-xl mb-3 group-hover:text-blue-500 transition-colors text-slate-900 dark:text-white">{service.titulo}</h3>
-                                                    <p className="text-xs mb-8 line-clamp-3 leading-relaxed font-medium text-slate-500 dark:text-slate-300">{service.descripcion}</p>
-
-                                                    <div className={`flex items-center justify-between pt-6 border-t ${profile.tema_perfil === 'light' ? 'border-slate-100' : 'border-white/10'}`}>
-                                                        <div className="flex items-center gap-2 text-slate-400 dark:text-slate-200 text-[10px] font-black uppercase tracking-widest">
-                                                            <Clock size={16} className="text-blue-500" />
-                                                            {service.tiempo_entrega_dias} Días hábiles
+                                            {services.length > 0 ? (
+                                                services.map(service => (
+                                                    <div key={service.id} className={`p-10 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md 
+                                                        ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
+                                                            'bg-slate-900/60 border-white/5 hover:border-accent/40 shadow-2xl shadow-black/80 text-white' :
+                                                            'bg-white dark:bg-slate-900/60 border-slate-100 dark:border-white/5 hover:shadow-xl text-slate-900 dark:text-white'
+                                                        }`}>
+                                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        <div className="flex justify-between items-start mb-6">
+                                                            <span className="bg-blue-500/20 text-blue-500 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500/10">
+                                                                {service.tipo_servicio === 'beat_custom' ? 'Beat a Medida' :
+                                                                    service.tipo_servicio === 'mentor' ? 'Mentoría / Clase' :
+                                                                        service.tipo_servicio === 'mixing' ? 'Mezcla y Masterización' :
+                                                                            service.tipo_servicio?.replace(/_/g, ' ') || service.tipo_servicio}
+                                                            </span>
+                                                            <span className="text-2xl font-black text-slate-900 dark:text-white">${service.precio}</span>
                                                         </div>
-                                                        {isOwner ? (
-                                                            <Link
-                                                                href={`/studio/services?edit_service=${service.id}`}
-                                                                className="bg-blue-600/10 text-blue-600 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-600/20 hover:bg-blue-600 hover:text-white transition-all shadow-xl shadow-blue-500/10 active:scale-95 flex items-center gap-2"
-                                                            >
-                                                                <Edit3 size={14} /> Editar
-                                                            </Link>
-                                                        ) : (
-                                                            <button
-                                                                onClick={() => handleAddToCart(service, 'service')}
-                                                                className="bg-blue-600 text-white px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest border border-blue-500/20 hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/10 active:scale-95"
-                                                            >
-                                                                Contratar
-                                                            </button>
-                                                        )}
+                                                        <h3 className="font-black text-xl mb-3 group-hover:text-blue-500 transition-colors text-slate-900 dark:text-white">{service.titulo}</h3>
+                                                        <p className="text-xs mb-8 line-clamp-3 leading-relaxed font-medium text-slate-500 dark:text-slate-300">{service.descripcion}</p>
+
+                                                        <div className={`flex items-center justify-between pt-6 border-t ${profile.tema_perfil === 'light' ? 'border-slate-100' : 'border-white/10'}`}>
+                                                            <div className="flex items-center gap-2 text-slate-400 dark:text-slate-200 text-[10px] font-black uppercase tracking-widest">
+                                                                <Clock size={16} className="text-blue-500" />
+                                                                {service.tiempo_entrega_dias} Días hábiles
+                                                            </div>
+                                                            {isOwner ? (
+                                                                <Link
+                                                                    href={`/studio/services?edit_service=${service.id}`}
+                                                                    className="bg-blue-600/10 text-blue-600 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-600/20 hover:bg-blue-600 hover:text-white transition-all shadow-xl shadow-blue-500/10 active:scale-95 flex items-center gap-2"
+                                                                >
+                                                                    <Edit3 size={14} /> Editar
+                                                                </Link>
+                                                            ) : (
+                                                                <button
+                                                                    onClick={() => handleAddToCart(service, 'service')}
+                                                                    className="bg-blue-600 text-white px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest border border-blue-500/20 hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/10 active:scale-95"
+                                                                >
+                                                                    Contratar
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </div>
+                                                ))
+                                            ) : (
+                                                <div className="col-span-full py-20 bg-white/5 rounded-[3rem] border border-white/5 text-center flex flex-col items-center justify-center">
+                                                    <Briefcase size={48} className="text-muted mb-6" />
+                                                    <h3 className="text-xl font-black uppercase tracking-tight text-foreground mb-6">Aún no se publican servicios</h3>
+                                                    {isOwner && (
+                                                        <Link
+                                                            href="/studio/services"
+                                                            className="px-8 py-4 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent/20"
+                                                        >
+                                                            Crea tu primer servicio
+                                                        </Link>
+                                                    )}
                                                 </div>
-                                            ))
-                                            }
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -1235,7 +1249,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             />
                                         </div>
                                     ) : (
-                                        <div className="empty-state-card mt-12 bg-card">
+                                        <div className="empty-state-card mt-12 bg-card text-center flex flex-col items-center justify-center">
                                             {profile.tema_perfil !== 'light' && (
                                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
                                             )}
@@ -1245,16 +1259,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     <ListMusic size={48} className="text-accent opacity-50" />
                                                 </div>
                                             </div>
-                                            <h3 className="text-2xl font-black uppercase tracking-tight mb-4 text-foreground">Este productor aún no ha creado playlist</h3>
+                                            <h3 className="text-2xl font-black uppercase tracking-tight mb-4 text-foreground text-center">
+                                                {isOwner ? "Sube tu primera playlist" : "Este productor aún no ha creado playlist"}
+                                            </h3>
 
                                             {isOwner && (
-                                                <div className="mt-10">
+                                                <div className="mt-10 flex justify-center w-full">
                                                     <button
                                                         onClick={() => {
                                                             setEditingPlaylist(null);
                                                             setIsPlaylistModalOpen(true);
                                                         }}
-                                                        className="px-12 py-5 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent/20"
+                                                        className="px-12 py-5 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent/20 mx-auto"
                                                     >
                                                         Crear mi primera Playlist
                                                     </button>
@@ -1307,13 +1323,15 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <>
                                             {/* Logic for Visitors OR Premium Owner */}
                                             {soundKits.length === 0 ? (
-                                                <div className="empty-state-card bg-card">
+                                                <div className="empty-state-card bg-card text-center flex flex-col items-center justify-center">
                                                     <div className="w-24 h-24 bg-amber-400/10 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 text-amber-400">
                                                         <Package size={40} />
                                                     </div>
-                                                    <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-3">Aún no hay Sound Kits disponibles</h3>
+                                                    <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-3">
+                                                        {isOwner ? "Sube tu primera librería" : "Aún no hay Sound Kits disponibles"}
+                                                    </h3>
                                                     {isOwner ? (
-                                                        <Link href="/studio/services" className="bg-amber-400 text-slate-900 px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all inline-block shadow-xl shadow-amber-400/20">
+                                                        <Link href="/studio/services" className="bg-amber-400 text-slate-900 px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all inline-block shadow-xl shadow-amber-400/20 mx-auto">
                                                             Subir mi primer Kit
                                                         </Link>
                                                     ) : (
