@@ -160,7 +160,7 @@ function CatalogContent() {
                 setErrorMsg(null);
 
                 let query = supabase
-                    .from("v_beats_search")
+                    .from("beats_busqueda")
                     .select("*")
                     .eq("is_public", true);
 

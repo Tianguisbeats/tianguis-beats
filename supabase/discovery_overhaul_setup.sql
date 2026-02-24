@@ -15,7 +15,7 @@ ALTER TABLE public.favoritos RENAME COLUMN created_at TO fecha_creacion;
 -- ya que ahora las reproducciones se cuentan directamente en 'play_count'.
 
 -- 3. CREATE SEARCH VIEW (Uses original English names for beat properties)
-CREATE OR REPLACE VIEW public.v_beats_search AS
+CREATE OR REPLACE VIEW public.beats_busqueda AS
 SELECT 
     b.id,
     b.producer_id,
@@ -56,7 +56,7 @@ FROM public.beats b
 JOIN public.profiles p ON b.producer_id = p.id
 WHERE b.is_public = true;
 
-GRANT SELECT ON public.v_beats_search TO anon, authenticated;
+GRANT SELECT ON public.beats_busqueda TO anon, authenticated;
 
 -- 4. ACTIVITY TRACKING FUNCTIONS
 CREATE OR REPLACE FUNCTION public.track_beat_activity(p_beat_id UUID, p_type TEXT)
