@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { renderContractToBuffer, ContractData } from '@/lib/pdfCustomRenderer';
 
 // Inicialización perezosa para evitar errores en Build si faltan variables de entorno
 const getStripe = () => {
@@ -100,6 +101,91 @@ export async function POST(req: Request) {
                 const vendedorId = metadata.producer_id || metadata.producerId || null;
                 const itemId = metadata.type === 'plan' ? 'price_plan_fake' : (metadata.productId || product.id);
 
+                let pdfUrl = null;
+
+                // --- GENERACIÓN DE CONTRATO PDF AVANZADO ---
+                if (metadata.type === 'beat' || metadata.type === 'soundkit') {
+                    console.log('--- GENERATING ADVANCED PDF CONTRACT ---');
+                    try {
+                        const sellerId = metadata.producerId || metadata.producer_id || metadata.seller_id;
+                        let templateOverrides = {};
+
+                        // Intentar obtener plantilla personalizada del productor
+                        if (sellerId) {
+                            const { data: templateData } = await supabaseAdmin
+                                .from('licencias_plantillas')
+                                .select('*, incluir_clausulas_pro')
+                                .eq('productor_id', sellerId)
+                                .eq('tipo', metadata.licenseType || 'basic')
+                                .single();
+
+                            if (templateData) {
+                                templateOverrides = {
+                                    isCustomText: templateData.usar_texto_personalizado,
+                                    customText: templateData.texto_legal,
+                                    incluir_clausulas_pro: templateData.incluir_clausulas_pro,
+                                    limits: {
+                                        streams: templateData.streams_limite,
+                                        copies: templateData.copias_limite,
+                                        videos: templateData.videos_limite,
+                                        radio: templateData.radio_limite
+                                    }
+                                };
+                            }
+                        }
+
+                        // Obtener nombre del productor (fallback)
+                        const { data: prodProfile } = await supabaseAdmin
+                            .from('profiles')
+                            .select('artistic_name, email')
+                            .eq('id', sellerId)
+                            .single();
+
+                        const contractData: ContractData = {
+                            orderId: stripeId,
+                            transactionDate: new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+                            licenseType: metadata.licenseType || 'basic',
+                            productName: product.name,
+                            price: (item.amount_total / 100).toString(),
+                            producerName: prodProfile?.artistic_name || 'Productor Tianguis',
+                            producerEmail: prodProfile?.email || '',
+                            buyerName: session.customer_details?.name || 'Cliente Verificado',
+                            buyerEmail: customerEmail || '',
+                            isCustomText: false,
+                            incluir_clausulas_pro: true, // Por defecto si no hay plantilla
+                            ...templateOverrides
+                        };
+
+                        // Renderizar PDF a Buffer
+                        const pdfBuffer = await renderContractToBuffer(contractData);
+
+                        // Mapear nombre de archivo seguro
+                        const safeFileName = `Licencia_${product.name.replace(/[^a-zA-Z0-9]/g, '_')}_${stripeId.slice(-8)}.pdf`;
+                        const uploadPath = `${usuarioId}/${safeFileName}`;
+
+                        // Subir a Supabase Storage (licencias-generadas)
+                        const { data: uploadData, error: uploadError } = await supabaseAdmin
+                            .storage
+                            .from('licencias-generadas')
+                            .upload(uploadPath, pdfBuffer, {
+                                contentType: 'application/pdf',
+                                upsert: true
+                            });
+
+                        if (uploadError) {
+                            console.error('ERROR uploading PDF to Storage:', uploadError);
+                        } else {
+                            // Obtener URL Pública
+                            const { data: publicUrlData } = supabaseAdmin.storage.from('licencias-generadas').getPublicUrl(uploadPath);
+                            pdfUrl = publicUrlData.publicUrl;
+                            console.log('PDF Contract successfully generated and stored:', pdfUrl);
+                        }
+
+                    } catch (pdfErr) {
+                        console.error('ERROR generating PDF in Webhook:', pdfErr);
+                    }
+                }
+
                 // Insertar en la tabla unificada 'transacciones'
                 const { error: txError } = await supabaseAdmin
                     .from('transacciones')
@@ -115,7 +201,7 @@ export async function POST(req: Request) {
                         estado_pago: 'completado',
                         metodo_pago: 'stripe',
                         tipo_licencia: metadata.licenseType || 'basic',
-                        metadatos: metadata,
+                        metadatos: { ...metadata, contract_pdf_url: pdfUrl }, // Guardar la URL aquí
                         cupon_id: cuponId || null
                     });
 
