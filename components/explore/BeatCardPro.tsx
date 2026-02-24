@@ -4,7 +4,7 @@
 
 import { Beat } from '@/lib/types';
 import Link from 'next/link';
-import { Play, Pause, Music, Crown, Flame, Heart } from 'lucide-react';
+import { Play, Pause, Music, Crown, Flame, Heart, Edit3 } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -217,9 +217,13 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                 <div className={`mt-auto ${compact ? 'pt-2' : 'pt-4'} border-t border-border flex items-center justify-between gap-2`}>
                     <div className="flex-1 min-w-0">
                         {isOwner ? (
-                            <div className={`flex flex-col items-start justify-center ${compact ? 'h-7' : 'h-9'}`}>
-                                <span className={`${compact ? 'text-[8px]' : 'text-[10px]'} font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]`}>ES TU BEAT</span>
-                            </div>
+                            <Link
+                                href={`/studio/beats/edit/${beat.id}`}
+                                className={`w-full ${compact ? 'h-7' : 'h-9'} rounded-xl font-black ${compact ? 'text-[7px]' : 'text-[8px] md:text-[9px]'} uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 border border-slate-200 dark:border-white/10 hover:scale-[1.02] shadow-xl shadow-black/10 active:scale-95`}
+                            >
+                                <Edit3 size={compact ? 12 : 14} />
+                                <span>Studio</span>
+                            </Link>
                         ) : (
                             <button
                                 onClick={!beat.is_sold ? handleAddToCart : undefined}
@@ -231,7 +235,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                             >
                                 {beat.is_sold ? 'No Disponible' : (
                                     <>
-                                        <span>{compact ? 'Ver Licencia' : `Ver Licencias desde ${formatPrice(beat.price_mxn || 0)}`}</span>
+                                        <span>{compact ? 'Ver Licencia' : `Ver Licencias`}</span>
                                     </>
                                 )}
                             </button>

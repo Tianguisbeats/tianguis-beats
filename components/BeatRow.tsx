@@ -24,11 +24,12 @@ function formatPriceMXN(value?: number | null) {
 
 export default function BeatRow({ beat }: BeatRowProps) {
     const { currentBeat, isPlaying, playBeat } = usePlayer();
-    const { addItem, isInCart } = useCart();
+    const { addItem, isInCart, currentUserId } = useCart();
     const { formatPrice } = useCurrency();
     const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
     const isThisPlaying = currentBeat?.id === beat.id && isPlaying;
     const itemInCart = isInCart(beat.id);
+    const isOwner = currentUserId && beat.producer_id === currentUserId;
 
     const handlePlay = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -107,27 +108,41 @@ export default function BeatRow({ beat }: BeatRowProps) {
 
             {/* 3. Precio y Acción (Touch Target de 48x48 mínimo para Carrito) */}
             <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-6 shrink-0">
-                <div className="text-right hidden sm:block">
-                    <p className="text-accent font-black text-lg leading-none mb-1">
-                        {formatPrice(beat.price_mxn || 299)}
-                    </p>
-                    <button onClick={handleAddToCart} className="text-[8px] font-black text-muted uppercase tracking-widest hover:text-accent transition-colors flex items-center justify-end gap-1 p-2 -mr-2">
-                        Ver Licencias <ChevronRight size={10} />
-                    </button>
-                </div>
+                {isOwner ? (
+                    <div className="flex flex-col items-end gap-1">
+                        <Link
+                            href={`/studio/beats/edit/${beat.id}`}
+                            className="bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
+                        >
+                            Studio
+                        </Link>
+                        <span className="text-[7px] font-black text-muted uppercase tracking-[0.2em] mr-1">Tu Beat</span>
+                    </div>
+                ) : (
+                    <>
+                        <div className="text-right hidden sm:block">
+                            <p className="text-accent font-black text-lg leading-none mb-1">
+                                {formatPrice(beat.price_mxn || 299)}
+                            </p>
+                            <button onClick={handleAddToCart} className="text-[8px] font-black text-muted uppercase tracking-widest hover:text-accent transition-colors flex items-center justify-end gap-1 p-2 -mr-2">
+                                Ver Licencias <ChevronRight size={10} />
+                            </button>
+                        </div>
 
-                <div className="flex flex-col items-end sm:hidden mb-1">
-                    <span className="text-accent font-black text-sm">{formatPrice(beat.price_mxn || 299)}</span>
-                </div>
+                        <div className="flex flex-col items-end sm:hidden mb-1">
+                            <span className="text-accent font-black text-sm">{formatPrice(beat.price_mxn || 299)}</span>
+                        </div>
 
-                <button
-                    onClick={handleAddToCart}
-                    className={`w-12 h-12 shrink-0 rounded-[1.25rem] flex items-center justify-center transition-all shadow-lg active:scale-90 ${itemInCart
-                        ? 'bg-green-500 text-white shadow-green-500/20'
-                        : 'bg-accent text-white hover:bg-slate-900 dark:hover:bg-slate-800 hover:shadow-accent/30'}`}
-                >
-                    {itemInCart ? <Check size={20} strokeWidth={3} /> : <ShoppingCart size={20} />}
-                </button>
+                        <button
+                            onClick={handleAddToCart}
+                            className={`w-12 h-12 shrink-0 rounded-[1.25rem] flex items-center justify-center transition-all shadow-lg active:scale-90 ${itemInCart
+                                ? 'bg-green-500 text-white shadow-green-500/20'
+                                : 'bg-accent text-white hover:bg-slate-900 dark:hover:bg-slate-800 hover:shadow-accent/30'}`}
+                        >
+                            {itemInCart ? <Check size={20} strokeWidth={3} /> : <ShoppingCart size={20} />}
+                        </button>
+                    </>
+                )}
             </div>
 
             <LicenseSelectionModal

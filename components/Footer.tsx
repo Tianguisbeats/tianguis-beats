@@ -14,10 +14,11 @@ export default function Footer() {
                     </div>
                 </div>
 
-                <div className="flex gap-8 text-[10px] font-black text-muted uppercase tracking-[0.2em]">
+                <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-[10px] font-black text-muted uppercase tracking-[0.2em]">
                     <Link href="/terms" className="hover:text-accent transition-colors">Términos</Link>
                     <Link href="/privacy" className="hover:text-accent transition-colors">Privacidad</Link>
                     <Link href="/help" className="hover:text-accent transition-colors">Ayuda</Link>
+                    <Link href="/quejas-y-sugerencias" className="hover:text-accent transition-colors">Quejas y Sugerencias</Link>
                 </div>
 
                 <div className="flex items-center gap-2 px-5 py-2 rounded-full bg-card border border-border text-muted text-[9px] font-black uppercase tracking-[0.2em] shadow-sm">

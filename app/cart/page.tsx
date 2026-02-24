@@ -120,12 +120,19 @@ export default function CartPage() {
             });
 
             if (appliedItems.length === 0) {
-                showToast(
-                    producerId
-                        ? `Este cupón es válido solo para ${data.aplica_a.replace('_', ' ')} del productor emisor.`
-                        : "Este cupón solo aplica para suscripciones premium o pro.",
-                    'info'
-                );
+                let errorMessage = "";
+                if (producerId) {
+                    if (data.aplica_a === 'todos') {
+                        errorMessage = "Este cupón es válido solo para productos de este productor.";
+                    } else if (data.aplica_a === 'sound_kits') {
+                        errorMessage = "Este cupón es válido solo para Sound Kits de este productor.";
+                    } else {
+                        errorMessage = `Este cupón es válido solo para ${data.aplica_a.charAt(0).toUpperCase() + data.aplica_a.slice(1)} de este productor.`;
+                    }
+                } else {
+                    errorMessage = "Este cupón solo aplica para suscripciones premium o pro.";
+                }
+                showToast(errorMessage, 'info');
                 return;
             }
 
