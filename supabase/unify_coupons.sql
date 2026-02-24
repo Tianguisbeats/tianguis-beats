@@ -22,40 +22,45 @@ ALTER TABLE cupones ADD COLUMN IF NOT EXISTS nivel_objetivo TEXT DEFAULT 'todos'
 -- 2. Migrate data from old coupons table
 -- Assuming the old table has: id, user_id, code, discount_value, usage_limit, usage_count, valid_until, is_active, created_at
 -- We map user_id -> productor_id. If a user_id doesn't exist in profiles, we assume it's an old admin coupon and set productor_id = NULL
-INSERT INTO cupones (
-    id,
-    productor_id,
-    codigo,
-    porcentaje_descuento,
-    usos_maximos,
-    usos_actuales,
-    fecha_expiracion,
-    es_activo,
-    aplica_a,
-    nivel_objetivo,
-    fecha_creacion
-)
-SELECT 
-    c.id,
-    p.id as productor_id,
-    UPPER(c.codigo) as codigo,
-    c.porcentaje_descuento as porcentaje_descuento,
-    c.usos_maximos as usos_maximos,
-    COALESCE(c.usos_actuales, 0) as usos_actuales,
-    c.fecha_expiracion as fecha_expiracion,
-    COALESCE(c.is_active, true) as es_activo,
-    CASE WHEN p.id IS NULL THEN 'suscripciones' ELSE 'todos' END as aplica_a,
-    CASE 
-        WHEN c.model_restriction = 'all' THEN 'todos' 
-        WHEN c.model_restriction = 'free' OR c.model_restriction = 'gratis' THEN 'gratis'
-        WHEN c.model_restriction = 'pro' THEN 'pro'
-        WHEN c.model_restriction = 'premium' THEN 'premium'
-        ELSE 'todos' 
-    END as nivel_objetivo,
-    COALESCE(c.created_at, NOW()) as fecha_creacion
-FROM coupons c
-LEFT JOIN profiles p ON c.user_id = p.id
-ON CONFLICT (id) DO NOTHING;
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'coupons') THEN
+        INSERT INTO cupones (
+            id,
+            productor_id,
+            codigo,
+            porcentaje_descuento,
+            usos_maximos,
+            usos_actuales,
+            fecha_expiracion,
+            es_activo,
+            aplica_a,
+            nivel_objetivo,
+            fecha_creacion
+        )
+        SELECT 
+            c.id,
+            p.id as productor_id,
+            UPPER(c.codigo) as codigo,
+            c.porcentaje_descuento as porcentaje_descuento,
+            c.usos_maximos as usos_maximos,
+            COALESCE(c.usos_actuales, 0) as usos_actuales,
+            c.fecha_expiracion as fecha_expiracion,
+            COALESCE(c.is_active, true) as es_activo,
+            CASE WHEN p.id IS NULL THEN 'suscripciones' ELSE 'todos' END as aplica_a,
+            CASE 
+                WHEN c.model_restriction = 'all' THEN 'todos' 
+                WHEN c.model_restriction = 'free' OR c.model_restriction = 'gratis' THEN 'gratis'
+                WHEN c.model_restriction = 'pro' THEN 'pro'
+                WHEN c.model_restriction = 'premium' THEN 'premium'
+                ELSE 'todos' 
+            END as nivel_objetivo,
+            COALESCE(c.created_at, NOW()) as fecha_creacion
+        FROM coupons c
+        LEFT JOIN profiles p ON c.user_id = p.id
+        ON CONFLICT (id) DO NOTHING;
+    END IF;
+END $$;
 
 -- 3. Configure RLS (Row Level Security)
 ALTER TABLE cupones ENABLE ROW LEVEL SECURITY;
