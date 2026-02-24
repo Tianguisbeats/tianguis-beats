@@ -39,10 +39,10 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 const { count } = await supabase
-                    .from('likes')
+                    .from('favoritos')
                     .select('id', { count: 'exact', head: true })
                     .eq('beat_id', beat.id)
-                    .eq('user_id', user.id);
+                    .eq('usuario_id', user.id);
                 setIsLiked(!!count);
             }
         };
@@ -61,20 +61,20 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
 
         if (isLiked) {
             const { error } = await supabase
-                .from('likes')
+                .from('favoritos')
                 .delete()
                 .eq('beat_id', beat.id)
-                .eq('user_id', user.id);
+                .eq('usuario_id', user.id);
 
             if (!error) {
                 setIsLiked(false);
             }
         } else {
             const { error } = await supabase
-                .from('likes')
+                .from('favoritos')
                 .insert({
                     beat_id: beat.id,
-                    user_id: user.id
+                    usuario_id: user.id
                 });
 
             if (!error) {

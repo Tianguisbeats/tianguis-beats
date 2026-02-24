@@ -75,6 +75,8 @@ export default function Home() {
     // 4. Detectar Géneros de la lista oficial
     if (lowerQuery.includes('mexa')) {
       params.set('genre', 'Reggaetón Mexa 🇲🇽');
+    } else if (lowerQuery.includes('corrido')) {
+      params.set('genre', 'Corridos Tumbados 🇲🇽');
     } else {
       GENRES.forEach(g => {
         const genreLabel = g.toLowerCase().replace(/🇲🇽|🌵|🎺|🎻|🍑|🇩🇴|🇯🇲|🔥|🕯️|🇧🇷|🌍|🥁|🔪|☕|🔫|🏠|🍭|⛓️|🚗|🎸|🎹|💎|🎤|🤘|🌀/g, '').trim();

@@ -209,10 +209,10 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
                     const { count } = await supabase
-                        .from('likes')
+                        .from('favoritos')
                         .select('id', { count: 'exact', head: true })
                         .eq('beat_id', data.id)
-                        .eq('user_id', user.id);
+                        .eq('usuario_id', user.id);
                     setIsLiked(!!count);
                 }
             } catch (err: any) {
@@ -234,11 +234,11 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
         }
 
         if (isLiked) {
-            await supabase.from('likes').delete().eq('beat_id', id).eq('user_id', user.id);
+            await supabase.from('favoritos').delete().eq('beat_id', id).eq('usuario_id', user.id);
             setIsLiked(false);
             if (beat) setBeat({ ...beat, like_count: (beat.like_count || 1) - 1 });
         } else {
-            await supabase.from('likes').insert({ beat_id: id, user_id: user.id });
+            await supabase.from('favoritos').insert({ beat_id: id, usuario_id: user.id });
             setIsLiked(true);
             if (beat) setBeat({ ...beat, like_count: (beat.like_count || 0) + 1 });
         }

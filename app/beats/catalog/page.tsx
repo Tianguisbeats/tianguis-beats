@@ -160,12 +160,8 @@ function CatalogContent() {
                 setErrorMsg(null);
 
                 let query = supabase
-                    .from("beats")
-                    .select(`
-            id, producer_id, title, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count, sale_count, like_count,
-            is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active,
-            producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
-          `)
+                    .from("v_beats_search")
+                    .select("*")
                     .eq("is_public", true);
 
                 if (filterState.genre !== 'Todos') query = query.eq('genre', filterState.genre);
@@ -186,8 +182,12 @@ function CatalogContent() {
 
                 if (filterState.searchQuery.trim()) {
                     const q = filterState.searchQuery.trim();
-                    // Búsqueda global mejorada con ilike parcial en artistas
-                    query = query.or(`title.ilike.%${q}%,genre.ilike.%${q}%,subgenre.ilike.%${q}%,mood.ilike.%${q}%,musical_key.ilike.%${q}%,musical_scale.ilike.%${q}%,reference_artist.ilike.%${q}%`);
+                    if (q.startsWith('@')) {
+                        const username = q.substring(1);
+                        query = query.ilike('producer_username', `%${username}%`);
+                    } else {
+                        query = query.or(`title.ilike.%${q}%,producer_name.ilike.%${q}%,producer_username.ilike.%${q}%,genre.ilike.%${q}%,mood.ilike.%${q}%`);
+                    }
                 }
 
                 if (filterState.refArtist.trim()) {
@@ -197,28 +197,65 @@ function CatalogContent() {
                 }
 
                 switch (viewMode) {
-                    case 'new': query = query.order("created_at", { ascending: false }); break;
-                    case 'trending': query = query.order("play_count", { ascending: false, nullsFirst: false }); break;
-                    case 'best_sellers': query = query.order("sale_count", { ascending: false, nullsFirst: false }); break;
-                    case 'hidden_gems': query = query.order("like_count", { ascending: false }).lte('play_count', 2000); break;
-                    case 'recommended': query = query.order("play_count", { ascending: false }); break;
-                    case 'corridos_tumbados': query = query.eq('genre', 'Corridos Tumbados 🇲🇽').order("created_at", { ascending: false }); break;
-                    case 'reggaeton_mexa': query = query.eq('genre', 'Reggaetón Mexa 🇲🇽').order("created_at", { ascending: false }); break;
-                    default: query = query.order("created_at", { ascending: false }); break;
+                    case 'new':
+                        query = query.order("created_at", { ascending: false });
+                        break;
+                    case 'trending':
+                        // Priorizar plays de la semana para una sensación de "frescura"
+                        query = query.order("weekly_play_count", { ascending: false, nullsFirst: false });
+                        break;
+                    case 'best_sellers':
+                        // Priorizar ventas de la semana
+                        query = query.order("weekly_sale_count", { ascending: false, nullsFirst: false });
+                        break;
+                    case 'hidden_gems':
+                        // "Joyas": Free users con pocas reproducciones totales pero buen engagement
+                        query = query.eq('producer_tier', 'free').lte('play_count', 1500).order("like_count", { ascending: false });
+                        break;
+                    case 'recommended':
+                        // "Recomendados IA": Priority to Premium Users
+                        query = query.eq('producer_tier', 'premium').order("play_count", { ascending: false });
+                        break;
+                    case 'corridos_tumbados':
+                        query = query.eq('genre', 'Corridos Tumbados 🇲🇽').order("created_at", { ascending: false });
+                        break;
+                    case 'reggaeton_mexa':
+                        query = query.eq('genre', 'Reggaetón Mexa 🇲🇽').order("created_at", { ascending: false });
+                        break;
+                    default:
+                        query = query.order("created_at", { ascending: false });
+                        break;
                 }
 
                 const { data, error } = await query.limit(50);
                 if (cancel) return;
                 if (error) { setErrorMsg(error.message); return; }
 
-                let transformed = await Promise.all((data || []).map(transformBeat));
-                const tierOrder: any = { premium: 0, pro: 1, free: 2 };
-                transformed.sort((a, b) => {
-                    const tierA = tierOrder[a.producer_tier as any] ?? 3;
-                    const tierB = tierOrder[b.producer_tier as any] ?? 3;
-                    if (tierA !== tierB) return tierA - tierB;
-                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-                });
+                let transformed = await Promise.all((data || []).map(async (b: any) => {
+                    // Adapt v_beats_search fields to the expected Beat interface in the app
+                    const untransformed = {
+                        ...b,
+                        producer: {
+                            artistic_name: b.producer_name,
+                            username: b.producer_username,
+                            is_verified: b.producer_verified,
+                            subscription_tier: b.producer_tier,
+                            foto_perfil: b.producer_avatar
+                        }
+                    };
+                    return transformBeat(untransformed);
+                }));
+
+                // Multi-tier priority sorting for 'all' mode
+                if (viewMode === 'all') {
+                    const tierOrder: any = { premium: 0, pro: 1, free: 2 };
+                    transformed.sort((a, b) => {
+                        const tierA = tierOrder[a.producer_tier as any] ?? 3;
+                        const tierB = tierOrder[b.producer_tier as any] ?? 3;
+                        if (tierA !== tierB) return tierA - tierB;
+                        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                    });
+                }
 
                 setBeats(transformed);
             } catch (err) {
@@ -276,8 +313,8 @@ function CatalogContent() {
 
                             <div id="tabs-container" className="flex items-end gap-1 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth justify-start border-b border-border px-10">
                                 <TabButton mode="all" label="Todos" icon={Music} />
-                                <TabButton mode="corridos_tumbados" label="Corridos 🇲🇽" icon={Zap} />
-                                <TabButton mode="reggaeton_mexa" label="Mexa 🇲🇽" icon={Zap} />
+                                <TabButton mode="corridos_tumbados" label="Corridos Tumbados 🇲🇽" icon={Zap} />
+                                <TabButton mode="reggaeton_mexa" label="Reggaetón Mexa 🇲🇽" icon={Zap} />
                                 <TabButton mode="new" label="Nuevos" icon={Clock} />
                                 <TabButton mode="trending" label="Tendencias" icon={TrendingUp} />
                                 <TabButton mode="best_sellers" label="Más comprados" icon={Trophy} />

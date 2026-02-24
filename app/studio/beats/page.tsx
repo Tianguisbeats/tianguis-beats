@@ -160,6 +160,7 @@ export default function StudioBeatsPage() {
                                                     .eq('id', beat.id);
 
                                                 if (!error) {
+                                                    const playCount = beats?.reduce((sum, b) => sum + (b.play_count || 0), 0) || 0;
                                                     const updatedBeats = beats.map(b =>
                                                         b.id === beat.id ? { ...b, is_public: newStatus } : b
                                                     );

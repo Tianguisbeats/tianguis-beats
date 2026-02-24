@@ -5,17 +5,17 @@ import { supabase } from '@/lib/supabase';
 import {
     Loader2, ShieldCheck, XCircle, CheckCircle, ExternalLink, User,
     Users, Ticket, DollarSign, TrendingUp, Search, Crown,
-    Save, Trash2, Edit2, AlertCircle, Music, MessageSquare
+    Save, Trash2, Edit2, AlertCircle, Music, MessageSquare, FileKey
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
 
-type Tab = 'dashboard' | 'verifications' | 'users' | 'coupons' | 'feedback';
+type View = 'dashboard' | 'verifications' | 'users' | 'coupons' | 'feedback' | 'income' | 'beats';
 
 export default function AdminDashboard() {
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+    const [currentView, setCurrentView] = useState<View>('dashboard');
     const { showToast } = useToast();
 
     useEffect(() => {
@@ -62,51 +62,35 @@ export default function AdminDashboard() {
     return (
         <div className="max-w-[1400px] mx-auto">
             <header className="mb-12 flex flex-col items-center justify-center gap-6 text-center">
-                <div>
-                    <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground mb-2">
+                <div className="animate-in fade-in slide-in-from-top-4 duration-700">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full mb-4">
+                        <ShieldCheck size={12} className="text-accent" />
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Nivel de Acceso: Dios</span>
+                    </div>
+                    <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tighter text-foreground mb-2 italic">
                         Control <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Maestro</span>
                     </h1>
-                    <p className="text-muted text-[10px] font-black uppercase tracking-[0.2em]">
-                        Panel de Administración de Tianguis Beats
+                    <p className="text-muted text-[11px] font-black uppercase tracking-[0.3em] opacity-60">
+                        Tianguis Beats Infrastructure Management
                     </p>
-                </div>
-
-                {/* Tab Navigation */}
-                <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-[1.25rem] border border-slate-200 dark:border-white/10 shadow-inner dark:shadow-none overflow-x-auto custom-scrollbar max-w-full">
-                    {[
-                        { id: 'dashboard', label: 'Dashboard', icon: <TrendingUp size={14} /> },
-                        { id: 'verifications', label: 'Verificaciones', icon: <ShieldCheck size={14} /> },
-                        { id: 'users', label: 'Usuarios', icon: <Users size={14} /> },
-                        { id: 'coupons', label: 'Cupones', icon: <Ticket size={14} /> },
-                        { id: 'feedback', label: 'Quejas / Sugerencias', icon: <MessageSquare size={14} /> }
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id as Tab)}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id
-                                ? 'bg-white dark:bg-white/10 text-foreground shadow-md dark:shadow-[0_4px_10px_rgba(255,255,255,0.02)] border border-slate-200 dark:border-white/5'
-                                : 'text-muted hover:text-slate-900 dark:hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5'
-                                }`}
-                        >
-                            {tab.icon} {tab.label}
-                        </button>
-                    ))}
                 </div>
             </header>
 
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {activeTab === 'dashboard' && <GlobalStats />}
-                {activeTab === 'verifications' && <VerificationManager />}
-                {activeTab === 'users' && <UserManager />}
-                {activeTab === 'coupons' && <CouponManager />}
-                {activeTab === 'feedback' && <FeedbackManager />}
+            <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
+                {currentView === 'dashboard' && <GlobalStats onViewChange={setCurrentView} />}
+                {currentView === 'verifications' && <VerificationManager onBack={() => setCurrentView('dashboard')} />}
+                {currentView === 'users' && <UserManager onBack={() => setCurrentView('dashboard')} />}
+                {currentView === 'coupons' && <CouponManager onBack={() => setCurrentView('dashboard')} />}
+                {currentView === 'feedback' && <FeedbackManager onBack={() => setCurrentView('dashboard')} />}
+                {currentView === 'income' && <IncomeManager onBack={() => setCurrentView('dashboard')} />}
+                {currentView === 'beats' && <BeatsManager onBack={() => setCurrentView('dashboard')} />}
             </div>
         </div>
     );
 }
 
 // --- GLOBAL STATS MODULE ---
-function GlobalStats() {
+function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
     const [stats, setStats] = useState({
         totalSales: 0,
         totalUsers: 0,
@@ -124,7 +108,7 @@ function GlobalStats() {
                 supabase.from('profiles').select('id', { count: 'exact', head: true }),
                 supabase.from('beats').select('id', { count: 'exact', head: true }),
                 supabase.from('verification_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-                supabase.from('feedback').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente')
+                supabase.from('quejas_y_sugerencias').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente')
             ]);
 
             const revenue = sales.data?.reduce((acc, s) => acc + (s.precio || 0), 0) || 0;
@@ -145,30 +129,41 @@ function GlobalStats() {
     if (loading) return <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-accent" /></div>;
 
     const cards = [
-        { label: 'Ingresos Totales', value: `$${stats.totalSales.toLocaleString()}`, sub: 'Ventas de Beats/Kits', icon: <DollarSign className="text-emerald-500" /> },
-        { label: 'Usuarios', value: stats.totalUsers, sub: 'Productores registrados', icon: <Users className="text-blue-500" /> },
-        { label: 'Total Beats', value: stats.totalBeats, sub: 'En catálogo global', icon: <Music className="text-purple-500" /> },
-        { label: 'Quejas Pendientes', value: stats.pendingFeedback, sub: 'Ideas y reportes sin leer', icon: <MessageSquare className="text-rose-500" /> }
+        { id: 'income', label: 'Ingresos Totales', value: `$${stats.totalSales.toLocaleString()}`, sub: 'Ventas de Beats/Kits', icon: <DollarSign className="text-emerald-500" />, gradient: 'hover:shadow-emerald-500/10' },
+        { id: 'users', label: 'Usuarios', value: stats.totalUsers, sub: 'Productores registrados', icon: <Users className="text-blue-500" />, gradient: 'hover:shadow-blue-500/10' },
+        { id: 'beats', label: 'Total Beats', value: stats.totalBeats, sub: 'En catálogo global', icon: <Music className="text-purple-500" />, gradient: 'hover:shadow-purple-500/10' },
+        { id: 'verifications', label: 'Verificaciones', value: stats.pendingVerifications, sub: 'Solicitudes por revisar', icon: <ShieldCheck className="text-amber-500" />, gradient: 'hover:shadow-amber-500/10' },
+        { id: 'coupons', label: 'Cupones', value: 'PRO', sub: 'Gestión de descuentos', icon: <Ticket className="text-emerald-500" />, gradient: 'hover:shadow-emerald-500/10' },
+        { id: 'feedback', label: 'Quejas Pendientes', value: stats.pendingFeedback, sub: 'Ideas y reportes sin leer', icon: <MessageSquare className="text-rose-500" />, gradient: 'hover:shadow-rose-500/10' }
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
             {cards.map((card, i) => (
-                <div key={i} className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] hover:shadow-xl dark:hover:shadow-accent/5 hover:border-accent/30 hover:translate-y-[-4px] transition-all">
-                    <div className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-white/5 flex items-center justify-center mb-6">
-                        {card.icon}
+                <button
+                    key={i}
+                    onClick={() => onViewChange(card.id as View)}
+                    className={`bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3rem] p-10 shadow-lg dark:shadow-none transition-all duration-500 text-left group hover:scale-[1.02] hover:border-accent/40 ${card.gradient}`}
+                >
+                    <div className="flex justify-between items-start mb-8">
+                        <div className="w-16 h-16 rounded-3xl bg-slate-50 dark:bg-white/5 flex items-center justify-center transition-transform group-hover:rotate-[10deg] duration-500 text-foreground">
+                            {React.cloneElement(card.icon as React.ReactElement<any>, { size: 28 })}
+                        </div>
+                        <div className="w-10 h-10 rounded-full border border-slate-100 dark:border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                            <ExternalLink size={14} className="text-accent" />
+                        </div>
                     </div>
-                    <h3 className="text-3xl font-black tracking-tighter mb-1">{card.value}</h3>
-                    <p className="text-muted text-[10px] font-black uppercase tracking-widest">{card.label}</p>
-                    <p className="text-[9px] text-muted/50 mt-1">{card.sub}</p>
-                </div>
+                    <h3 className="text-4xl font-black tracking-tighter mb-2 text-foreground group-hover:text-accent transition-colors">{card.value}</h3>
+                    <p className="text-muted text-[11px] font-black uppercase tracking-[0.3em]">{card.label}</p>
+                    <p className="text-[10px] text-muted/40 font-bold mt-2 uppercase tracking-widest">{card.sub}</p>
+                </button>
             ))}
         </div>
     );
 }
 
 // --- VERIFICATION MANAGER MODULE ---
-function VerificationManager() {
+function VerificationManager({ onBack }: { onBack: () => void }) {
     const [requests, setRequests] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const { showToast } = useToast();
@@ -226,6 +221,14 @@ function VerificationManager() {
 
     return (
         <div className="space-y-6">
+            <header className="flex items-center justify-between mb-8">
+                <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
+                    ← Volver al Dashboard
+                </button>
+                <div className="px-4 py-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-border">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground">{requests.length} Pendientes</span>
+                </div>
+            </header>
             {requests.length === 0 ? (
                 <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] rounded-[2rem] p-12 text-center">
                     <CheckCircle size={48} className="mx-auto text-emerald-500 mb-4" />
@@ -285,7 +288,7 @@ function VerificationManager() {
 }
 
 // --- USER MANAGER MODULE ---
-function UserManager() {
+function UserManager({ onBack }: { onBack: () => void }) {
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -345,6 +348,14 @@ function UserManager() {
 
     return (
         <div className="space-y-6">
+            <header className="flex items-center justify-between mb-8">
+                <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
+                    ← Volver al Dashboard
+                </button>
+                <div className="px-4 py-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-border">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Gestión de Usuarios</span>
+                </div>
+            </header>
             <div className="relative max-w-md">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
                 <input
@@ -522,7 +533,7 @@ function DetailItem({ label, value, copyable }: { label: string, value: any, cop
 }
 
 // --- COUPON MANAGER MODULE ---
-function CouponManager() {
+function CouponManager({ onBack }: { onBack: () => void }) {
     const [coupons, setCoupons] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -607,6 +618,14 @@ function CouponManager() {
 
     return (
         <div className="space-y-12">
+            <header className="flex items-center justify-between mb-8">
+                <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
+                    ← Volver al Dashboard
+                </button>
+                <div className="px-4 py-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-border">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Control de Cupones</span>
+                </div>
+            </header>
             <div className="bg-white/5 dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3rem] p-10 md:p-14 shadow-2xl relative overflow-hidden backdrop-blur-xl">
                 {/* Decoración Glassmorphism */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[80px] rounded-full pointer-events-none" />
@@ -789,7 +808,7 @@ function CouponManager() {
 }
 
 // --- FEEDBACK MANAGER MODULE ---
-function FeedbackManager() {
+function FeedbackManager({ onBack }: { onBack: () => void }) {
     const [feedbacks, setFeedbacks] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const { showToast } = useToast();
@@ -828,6 +847,14 @@ function FeedbackManager() {
 
     return (
         <div className="space-y-6">
+            <header className="flex items-center justify-between mb-8">
+                <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
+                    ← Volver al Dashboard
+                </button>
+                <div className="px-4 py-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-border">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Buzón de Sugerencias</span>
+                </div>
+            </header>
             {feedbacks.length === 0 ? (
                 <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] rounded-[2.5rem] p-12 text-center">
                     <CheckCircle size={48} className="mx-auto text-emerald-500 mb-4" />
@@ -869,6 +896,148 @@ function FeedbackManager() {
                     </div>
                 ))
             )}
+        </div>
+    );
+}
+
+// --- INCOME MANAGER MODULE ---
+function IncomeManager({ onBack }: { onBack: () => void }) {
+    const [transactions, setTransactions] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTransactions = async () => {
+            const { data, error } = await supabase
+                .from('transacciones')
+                .select(`*, profiles:comprador_id (username, artistic_name, email)`)
+                .order('fecha_creacion', { ascending: false });
+            if (!error) setTransactions(data || []);
+            setLoading(false);
+        };
+        fetchTransactions();
+    }, []);
+
+    return (
+        <div className="space-y-6">
+            <header className="flex items-center justify-between mb-8">
+                <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
+                    ← Volver al Dashboard
+                </button>
+                <div className="px-4 py-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-border">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Historial de Transacciones</span>
+                </div>
+            </header>
+
+            <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-lg">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="border-b border-border bg-slate-50 dark:bg-white/5">
+                                <th className="px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Fecha</th>
+                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Comprador</th>
+                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Producto</th>
+                                <th className="px-8 py-4 text-right text-[9px] font-black uppercase tracking-[0.2em] text-muted">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                            {loading ? (
+                                <tr><td colSpan={4} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent" /></td></tr>
+                            ) : transactions.length === 0 ? (
+                                <tr><td colSpan={4} className="py-20 text-center text-muted text-xs font-bold uppercase tracking-widest">No hay transacciones registradas</td></tr>
+                            ) : transactions.map(tx => (
+                                <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                    <td className="px-8 py-5 text-[10px] font-bold text-muted">
+                                        {new Date(tx.fecha_creacion).toLocaleDateString()}
+                                    </td>
+                                    <td className="px-6 py-5">
+                                        <p className="font-black text-xs">@{tx.profiles?.username || 'Desconocido'}</p>
+                                        <p className="text-[9px] text-muted uppercase tracking-widest">{tx.profiles?.email}</p>
+                                    </td>
+                                    <td className="px-6 py-5">
+                                        <p className="font-bold text-xs capitalize">{tx.tipo_item || 'Beat'}</p>
+                                        <p className="text-[9px] text-muted uppercase tracking-widest">{tx.beat_id ? 'ID: ' + tx.beat_id.slice(0, 8) : '---'}</p>
+                                    </td>
+                                    <td className="px-8 py-5 text-right font-black text-emerald-500">
+                                        ${tx.precio || 0}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// --- BEATS MANAGER MODULE ---
+function BeatsManager({ onBack }: { onBack: () => void }) {
+    const [beats, setBeats] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchBeats = async () => {
+            const { data, error } = await supabase
+                .from('beats')
+                .select(`*, profiles:productor_id (username, artistic_name)`)
+                .order('created_at', { ascending: false });
+            if (!error) setBeats(data || []);
+            setLoading(false);
+        };
+        fetchBeats();
+    }, []);
+
+    return (
+        <div className="space-y-6">
+            <header className="flex items-center justify-between mb-8">
+                <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
+                    ← Volver al Dashboard
+                </button>
+                <div className="px-4 py-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-border">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Catálogo Global de Beats</span>
+                </div>
+            </header>
+
+            <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-lg">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="border-b border-border bg-slate-50 dark:bg-white/5">
+                                <th className="px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Fecha</th>
+                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Productor</th>
+                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Beat</th>
+                                <th className="px-8 py-4 text-right text-[9px] font-black uppercase tracking-[0.2em] text-muted">Detalle</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                            {loading ? (
+                                <tr><td colSpan={4} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent" /></td></tr>
+                            ) : beats.length === 0 ? (
+                                <tr><td colSpan={4} className="py-20 text-center text-muted text-xs font-bold uppercase tracking-widest">No hay beats registrados</td></tr>
+                            ) : beats.map(beat => (
+                                <tr key={beat.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                    <td className="px-8 py-5 text-[10px] font-bold text-muted">
+                                        {new Date(beat.created_at).toLocaleDateString()}
+                                    </td>
+                                    <td className="px-6 py-5">
+                                        <p className="font-black text-xs">{beat.profiles?.artistic_name || 'Desconocido'}</p>
+                                        <p className="text-[9px] text-muted uppercase tracking-widest">@{beat.profiles?.username}</p>
+                                    </td>
+                                    <td className="px-6 py-5">
+                                        <p className="font-bold text-xs">{beat.titulo}</p>
+                                        <p className="text-[9px] text-muted uppercase tracking-widest">{beat.genero} • {beat.bpm} BPM</p>
+                                    </td>
+                                    <td className="px-8 py-5 text-right">
+                                        <Link href={`/beat/${beat.id}`} target="_blank" className="p-2 bg-slate-100 dark:bg-white/5 rounded-lg hover:bg-accent hover:text-white transition-all inline-block">
+                                            <ExternalLink size={14} />
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     );
 }
