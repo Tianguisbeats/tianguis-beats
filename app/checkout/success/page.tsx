@@ -151,7 +151,7 @@ export default function SuccessPage() {
                         <p className="text-white/60 text-lg font-medium max-w-lg mx-auto leading-relaxed">
                             {purchasedItems.length > 0 && purchasedItems.every(i => i.tipo_producto === 'plan')
                                 ? "Tu suscripción ha sido activada. Ya puedes disfrutar de todos los beneficios premium en tu perfil y Studio."
-                                : "Tus archivos están listos para descargar. También puedes descargar tus licencias oficiales en formato PDF."
+                                : "Tus archivos están listos para descargar. También puedes descargar estos archivos y licencias en el panel de Mis Compras en Tianguis Studio."
                             }
                         </p>
 
@@ -206,7 +206,7 @@ export default function SuccessPage() {
                                                         className="px-6 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 hover:border-white/20 transition-all flex items-center gap-2"
                                                     >
                                                         <FileText size={14} />
-                                                        Licencia PDF
+                                                        Descargar Licencia
                                                     </button>
                                                 </>
                                             )}

@@ -48,16 +48,41 @@ export const downloadLicensePDF = (params: LicenseExportParams) => {
     doc.setFontSize(11);
     doc.setTextColor(200, 200, 200);
 
-    // Dividir texto para que quepa en el PDF
     const splitText = doc.splitTextToSize(licenseText, 170);
-    doc.text(splitText, 20, 60);
 
-    // Pie de página
-    doc.setFontSize(8);
-    doc.setTextColor(100, 100, 100);
-    doc.text('Este documento es una representación digital del contrato aceptado al momento de la compra.', 20, 275);
-    doc.text(`Identificador de Verificación: ${params.orderId.toUpperCase()}-${Date.now()}`, 20, 280);
+    let y = 60;
+    const pageHeight = 297;
+    const marginBottom = 30;
+
+    for (let i = 0; i < splitText.length; i++) {
+        if (y > pageHeight - marginBottom) {
+            // Generar pie de página en la hoja actual
+            doc.setFontSize(8);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Identificador de Verificación: ${params.orderId.toUpperCase()}-${Date.now()}`, 20, pageHeight - 15);
+
+            // Nueva página
+            doc.addPage();
+            doc.setFillColor(15, 15, 20); // Mantener fondo oscuro
+            doc.rect(0, 0, 210, 297, 'F');
+
+            y = 25; // Resetear posición Y
+            doc.setFontSize(11);
+            doc.setTextColor(200, 200, 200);
+        }
+
+        doc.text(splitText[i], 20, y);
+        y += 6; // Altura de línea
+    }
+
+    // Pie de página en la última hoja
+    if (y < pageHeight - marginBottom) {
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text('Este documento es una representación digital del contrato oficial celebrado entre las partes.', 20, y + 15);
+        doc.text(`Identificador de Verificación: ${params.orderId.toUpperCase()}-${Date.now()}`, 20, y + 20);
+    }
 
     // Guardar
-    doc.save(`Licencia_${params.productName.replace(/\s+/g, '_')}.pdf`);
+    doc.save(`Licencia_${params.productName.replace(/[^a-zA-Z0-9]/g, '_')}_TB.pdf`);
 };
