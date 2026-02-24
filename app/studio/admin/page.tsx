@@ -526,6 +526,7 @@ function CouponManager() {
     const [coupons, setCoupons] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
     const [newCoupon, setNewCoupon] = useState({
         codigo: '',
         porcentaje_descuento: 20,
@@ -587,9 +588,14 @@ function CouponManager() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("¿Eliminar cupón?")) return;
-        await supabase.from('cupones').delete().eq('id', id);
-        fetchCoupons();
+        const { error } = await supabase.from('cupones').delete().eq('id', id);
+        if (error) {
+            showToast("Error al eliminar", "error");
+        } else {
+            showToast("Cupón eliminado definitivamente", "success");
+            fetchCoupons();
+        }
+        setConfirmDeleteId(null);
     };
 
     const toggleStatus = async (id: string, currentStatus: boolean) => {
@@ -614,14 +620,14 @@ function CouponManager() {
                         {editingId ? 'Refinar Cupón' : 'Nuevo Cupón'}
                     </h2>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500/80 dark:text-muted/60 mt-2">
-                        Exclusivo para descuentos en planes de Suscripción. Dirigido a: <span className="text-accent">{newCoupon.nivel_objetivo.toUpperCase()}</span>
+                        Exclusivo para descuentos en planes de Suscripción.
                     </p>
                 </div>
 
                 <form onSubmit={handleAction} className="relative z-10 space-y-8">
-                    <div className="grid md:grid-cols-4 gap-6">
+                    <div className="grid md:grid-cols-2 gap-x-12 gap-y-10">
                         <div className="space-y-3">
-                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2">Código Promocional</label>
+                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2 whitespace-nowrap">Código Promocional</label>
                             <input
                                 required
                                 value={newCoupon.codigo}
@@ -631,7 +637,7 @@ function CouponManager() {
                             />
                         </div>
                         <div className="space-y-3">
-                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2">Descuento (%)</label>
+                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2 whitespace-nowrap">Descuento (%)</label>
                             <div className="relative">
                                 <input
                                     type="number"
@@ -646,7 +652,7 @@ function CouponManager() {
                             </div>
                         </div>
                         <div className="space-y-3">
-                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2">Dirigido a</label>
+                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2 whitespace-nowrap">Dirigido a</label>
                             <select
                                 value={newCoupon.nivel_objetivo}
                                 onChange={e => setNewCoupon({ ...newCoupon, nivel_objetivo: e.target.value })}
@@ -659,7 +665,7 @@ function CouponManager() {
                             </select>
                         </div>
                         <div className="space-y-3">
-                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2">Expiración <span className="text-[8px] opacity-60 lowercase font-bold tracking-normal text-slate-400">(opcional)</span></label>
+                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2 whitespace-nowrap">Expiración <span className="text-[8px] opacity-40 lowercase font-bold tracking-normal ml-2">opcional</span></label>
                             <input
                                 type="datetime-local"
                                 value={newCoupon.fecha_expiracion}
@@ -726,12 +732,21 @@ function CouponManager() {
                                         {cp.es_activo ? 'Desactivar' : 'Activar'}
                                     </button>
                                     <div className="flex items-center gap-2">
-                                        <button onClick={() => { setEditingId(cp.id); setNewCoupon({ codigo: cp.codigo, porcentaje_descuento: cp.porcentaje_descuento, fecha_expiracion: cp.fecha_expiracion || '', nivel_objetivo: cp.nivel_objetivo || 'todos', es_activo: cp.es_activo }); }} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-slate-900 text-white dark:bg-emerald-500 dark:hover:bg-emerald-400 hover:bg-slate-800 transition-all text-[11px] font-black uppercase tracking-widest shadow-xl shadow-black/10 dark:shadow-emerald-500/20 active:scale-95">
+                                        <button onClick={() => { setEditingId(cp.id); setNewCoupon({ codigo: cp.codigo, porcentaje_descuento: cp.porcentaje_descuento, fecha_expiracion: cp.fecha_expiracion || '', nivel_objetivo: cp.nivel_objetivo || 'todos', es_activo: cp.es_activo }); document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-slate-900 text-white dark:bg-emerald-500 dark:hover:bg-emerald-400 hover:bg-slate-800 transition-all text-[11px] font-black uppercase tracking-widest shadow-xl shadow-black/10 dark:shadow-emerald-500/20 active:scale-95">
                                             <Edit2 size={14} /> Editar
                                         </button>
-                                        <button onClick={() => handleDelete(cp.id)} className="w-11 h-11 rounded-xl bg-rose-50 text-rose-500 dark:bg-rose-500 dark:text-white dark:hover:bg-rose-400 hover:bg-rose-100 transition-all flex items-center justify-center flex-shrink-0 shadow-sm dark:shadow-xl dark:shadow-rose-500/20 active:scale-95">
-                                            <Trash2 size={16} />
-                                        </button>
+                                        <div className="relative group/del">
+                                            {confirmDeleteId === cp.id ? (
+                                                <div className="flex items-center gap-1 bg-rose-500 rounded-xl overflow-hidden animate-in fade-in slide-in-from-right-2 duration-300">
+                                                    <button onClick={() => handleDelete(cp.id)} className="px-4 py-2.5 text-white font-black text-[9px] uppercase tracking-widest hover:bg-rose-600 transition-colors">Confirmar</button>
+                                                    <button onClick={() => setConfirmDeleteId(null)} className="p-2.5 text-white/60 hover:text-white transition-colors border-l border-white/10"><XCircle size={14} /></button>
+                                                </div>
+                                            ) : (
+                                                <button onClick={() => setConfirmDeleteId(cp.id)} className="w-11 h-11 rounded-xl bg-rose-50 text-rose-500 dark:bg-rose-500 dark:text-white dark:hover:bg-rose-400 hover:bg-rose-100 transition-all flex items-center justify-center flex-shrink-0 shadow-sm dark:shadow-xl dark:shadow-rose-500/20 active:scale-95">
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
