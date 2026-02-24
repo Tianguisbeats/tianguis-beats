@@ -96,18 +96,17 @@ export default function StudioBeatsPage() {
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent to-blue-600 opacity-20" />
 
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-                    <h3 className="text-2xl font-black text-slate-900 dark:text-foreground uppercase tracking-tighter shrink-0">
-                        Bóveda de <span className="text-accent">Pistas</span>
-                    </h3>
-
-                    <div className="relative w-full lg:max-w-xl group">
+                    <div className="relative w-full group">
                         <input
                             type="text"
                             placeholder="Buscar beat por nombre o género..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-3 font-bold text-[11px] text-slate-700 dark:text-white uppercase tracking-widest focus:outline-none focus:border-accent/40 transition-all placeholder:text-slate-400 dark:placeholder:text-muted"
+                            className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-4 font-bold text-[11px] text-slate-700 dark:text-white uppercase tracking-widest focus:outline-none focus:border-accent/40 transition-all placeholder:text-slate-400 dark:placeholder:text-muted shadow-inner"
                         />
+                        <div className="absolute right-6 top-1/2 -translate-y-1/2 text-muted opacity-40">
+                            <Play size={14} className="rotate-90" />
+                        </div>
                     </div>
                 </div>
 

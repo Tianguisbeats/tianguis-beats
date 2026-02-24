@@ -714,39 +714,47 @@ function CouponManager() {
                                             <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] opacity-60 dark:opacity-40">EXP: {cp.fecha_expiracion ? new Date(cp.fecha_expiracion).toLocaleDateString() : '∞'}</p>
                                         </div>
                                     </div>
-                                    <div className="px-4 py-2 bg-slate-100 dark:bg-slate-500/10 border border-slate-200 dark:border-slate-500/20 text-slate-600 dark:text-slate-500 rounded-xl text-base font-black tracking-widest uppercase shadow-sm dark:shadow-inner flex items-center gap-2">
-                                        <div className="flex flex-col items-end">
-                                            <span className="text-[8px] font-black opacity-40 leading-none mb-1">{cp.nivel_objetivo || 'TODOS'}</span>
-                                            <div className="flex items-center gap-2">
-                                                <Crown size={14} className="text-amber-500" /> -{cp.porcentaje_descuento}%
+                                    <div className="px-5 py-2.5 bg-slate-100 dark:bg-slate-500/10 border border-slate-200 dark:border-slate-500/20 text-slate-600 dark:text-slate-400 rounded-xl text-[10px] font-black tracking-widest uppercase shadow-sm dark:shadow-inner flex items-center gap-3">
+                                        <div className="flex flex-col items-end gap-1">
+                                            <div className="flex items-center gap-1.5 opacity-60">
+                                                <Users size={10} />
+                                                <span>{cp.nivel_objetivo || 'TODOS'}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-sm text-slate-900 dark:text-foreground">
+                                                <Crown size={14} className="text-amber-500" />
+                                                <span>-{cp.porcentaje_descuento}% DESC.</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between gap-4 mt-8 relative z-10">
-                                    <button
-                                        onClick={() => toggleStatus(cp.id, cp.es_activo)}
-                                        className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${cp.es_activo ? 'border-emerald-500/20 text-emerald-500 bg-emerald-500/10' : 'border-rose-500/20 text-rose-500 bg-rose-500/10'}`}
-                                    >
-                                        {cp.es_activo ? 'Desactivar' : 'Activar'}
-                                    </button>
-                                    <div className="flex items-center gap-2">
-                                        <button onClick={() => { setEditingId(cp.id); setNewCoupon({ codigo: cp.codigo, porcentaje_descuento: cp.porcentaje_descuento, fecha_expiracion: cp.fecha_expiracion || '', nivel_objetivo: cp.nivel_objetivo || 'todos', es_activo: cp.es_activo }); document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-slate-900 text-white dark:bg-emerald-500 dark:hover:bg-emerald-400 hover:bg-slate-800 transition-all text-[11px] font-black uppercase tracking-widest shadow-xl shadow-black/10 dark:shadow-emerald-500/20 active:scale-95">
-                                            <Edit2 size={14} /> Editar
+                                <div className="flex items-center justify-between gap-4 mt-8 relative z-10 pt-6 border-t border-slate-100 dark:border-white/5">
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => toggleStatus(cp.id, cp.es_activo)}
+                                            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${cp.es_activo ? 'border-emerald-500/20 text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20' : 'border-rose-500/20 text-rose-500 bg-rose-500/10 hover:bg-rose-500/20'}`}
+                                        >
+                                            {cp.es_activo ? 'Activo' : 'Inactivo'}
                                         </button>
-                                        <div className="relative group/del">
-                                            {confirmDeleteId === cp.id ? (
-                                                <div className="flex items-center gap-1 bg-rose-500 rounded-xl overflow-hidden animate-in fade-in slide-in-from-right-2 duration-300">
-                                                    <button onClick={() => handleDelete(cp.id)} className="px-4 py-2.5 text-white font-black text-[9px] uppercase tracking-widest hover:bg-rose-600 transition-colors">Confirmar</button>
-                                                    <button onClick={() => setConfirmDeleteId(null)} className="p-2.5 text-white/60 hover:text-white transition-colors border-l border-white/10"><XCircle size={14} /></button>
-                                                </div>
-                                            ) : (
-                                                <button onClick={() => setConfirmDeleteId(cp.id)} className="w-11 h-11 rounded-xl bg-rose-50 text-rose-500 dark:bg-rose-500 dark:text-white dark:hover:bg-rose-400 hover:bg-rose-100 transition-all flex items-center justify-center flex-shrink-0 shadow-sm dark:shadow-xl dark:shadow-rose-500/20 active:scale-95">
+                                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest opacity-40">Suscripciones</p>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 min-h-[44px]">
+                                        {confirmDeleteId === cp.id ? (
+                                            <div className="flex items-center gap-1 bg-rose-500 rounded-xl overflow-hidden animate-in fade-in slide-in-from-right-4 duration-300 shadow-lg shadow-rose-500/20">
+                                                <button onClick={() => handleDelete(cp.id)} className="px-5 py-2.5 text-white font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 transition-colors">Confirmar Borrado</button>
+                                                <button onClick={() => setConfirmDeleteId(null)} className="p-2.5 text-white/60 hover:text-white transition-colors border-l border-white/10"><XCircle size={16} /></button>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <button onClick={() => { setEditingId(cp.id); setNewCoupon({ codigo: cp.codigo, porcentaje_descuento: cp.porcentaje_descuento, fecha_expiracion: cp.fecha_expiracion || '', nivel_objetivo: cp.nivel_objetivo || 'todos', es_activo: cp.es_activo }); document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white dark:bg-white/10 dark:hover:bg-white/15 hover:bg-slate-800 transition-all text-[10px] font-black uppercase tracking-widest active:scale-95">
+                                                    <Edit2 size={12} /> Editar
+                                                </button>
+                                                <button onClick={() => setConfirmDeleteId(cp.id)} className="w-11 h-11 rounded-xl bg-rose-50 text-rose-500 dark:bg-rose-500/10 dark:text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center justify-center flex-shrink-0 active:scale-95">
                                                     <Trash2 size={16} />
                                                 </button>
-                                            )}
-                                        </div>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </div>

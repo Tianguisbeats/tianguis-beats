@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import Switch from '@/components/ui/Switch';
 
 // Tipos
 type Service = {
@@ -95,6 +96,17 @@ function ServicesManagerPage() {
         if (kitsData) setSoundKits(kitsData);
 
         setLoading(false);
+    };
+
+    const handleTogglePublicKit = async (id: string, currentStatus: boolean) => {
+        const { error } = await supabase
+            .from('sound_kits')
+            .update({ is_public: !currentStatus })
+            .eq('id', id);
+
+        if (!error) {
+            setSoundKits(prev => prev.map(k => k.id === id ? { ...k, is_public: !currentStatus } : k));
+        }
     };
 
     // Deep Linking Effect
@@ -438,7 +450,13 @@ function ServicesManagerPage() {
                             Sound <span className="text-amber-500 underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Kits</span>
                             <span className="bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500 text-[10px] px-4 py-1.5 rounded-full font-black uppercase tracking-widest border border-amber-200 dark:border-amber-500/10 shadow-sm md:shadow-lg dark:shadow-amber-500/5">Premium</span>
                         </h2>
-                        <p className="text-slate-500 dark:text-muted font-bold text-[10px] uppercase tracking-[0.3em] mt-6 opacity-60">Monetiza tus librerías y bancos de sonidos</p>
+                        <div className="flex flex-col md:flex-row md:items-center gap-4 mt-6">
+                            <p className="text-slate-500 dark:text-muted font-bold text-[10px] uppercase tracking-[0.3em] opacity-60">Monetiza tus librerías y bancos de sonidos</p>
+                            <div className="flex items-center gap-2 bg-amber-500/10 text-amber-500 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-amber-500/10 w-fit">
+                                <Package size={12} />
+                                {soundKits.length} Sound Kits Subidos
+                            </div>
+                        </div>
                     </div>
                     <button
                         onClick={() => {
@@ -468,9 +486,18 @@ function ServicesManagerPage() {
                                     alt={kit.title}
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-[#020205] via-white/40 dark:via-[#020205]/40 to-transparent" />
-                                <div className="absolute top-6 left-6 flex gap-2">
+                                <div className="absolute top-6 left-6 flex items-center gap-2">
                                     <div className="bg-amber-500/20 backdrop-blur-md border border-amber-500/20 text-amber-600 dark:text-amber-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm">
                                         Digital Kit
+                                    </div>
+                                    <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
+                                        <Switch
+                                            active={kit.is_public}
+                                            onChange={() => handleTogglePublicKit(kit.id, kit.is_public)}
+                                        />
+                                        <span className="text-[8px] font-black uppercase text-white tracking-widest leading-none">
+                                            {kit.is_public ? 'Público' : 'Privado'}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

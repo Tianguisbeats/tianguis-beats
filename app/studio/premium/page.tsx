@@ -103,7 +103,7 @@ export default function PremiumHubPage() {
                         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Suite de Marca v3.4</span>
                     </div>
                     <div className="space-y-2">
-                        <h1 className="text-4xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground leading-[1] flex flex-col">
+                        <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground leading-[1] flex flex-col">
                             Características
                             <span className="text-accent">Premium.</span>
                         </h1>
