@@ -29,14 +29,14 @@ export default function PlaylistSection({ playlists, isOwner, onEdit }: Playlist
                     <div className="flex items-center justify-between mb-8">
                         <div>
                             <div className="flex items-center gap-2 mb-1">
-                                <ListMusic size={16} className="text-blue-600" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Colección</span>
+                                <ListMusic size={16} className="text-accent" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted">Colección</span>
                             </div>
-                            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-white leading-none">
+                            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-foreground leading-none">
                                 {playlist.name}
                             </h2>
                             {playlist.description && (
-                                <p className="text-slate-400 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mt-3">
+                                <p className="text-muted text-xs font-bold uppercase tracking-widest mt-3">
                                     {playlist.description}
                                 </p>
                             )}
@@ -46,14 +46,14 @@ export default function PlaylistSection({ playlists, isOwner, onEdit }: Playlist
                             {isOwner && (
                                 <button
                                     onClick={() => onEdit?.(playlist.id)}
-                                    className="px-6 py-2.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 hover:bg-slate-900 dark:hover:bg-white hover:text-white dark:hover:text-slate-900 transition-all shadow-sm"
+                                    className="px-6 py-2.5 bg-background border border-border rounded-full text-[10px] font-black uppercase tracking-widest text-muted hover:bg-foreground hover:text-background transition-all shadow-sm"
                                 >
                                     Editar Playlist
                                 </button>
                             )}
                             <Link
                                 href={`/${playlist.beats[0]?.productor_nombre_usuario || 'beats'}/playlists/${playlist.id}`}
-                                className="px-6 py-2.5 bg-blue-50 dark:bg-blue-600/10 border border-blue-100 dark:border-blue-500/20 rounded-full text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white transition-all shadow-sm flex items-center gap-2"
+                                className="px-6 py-2.5 bg-accent/10 border border-accent/20 rounded-full text-[10px] font-black uppercase tracking-widest text-accent hover:bg-accent hover:text-white transition-all shadow-sm flex items-center gap-2"
                             >
                                 Ver playlist <ChevronRight size={12} />
                             </Link>

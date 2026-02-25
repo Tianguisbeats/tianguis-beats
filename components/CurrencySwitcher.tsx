@@ -31,7 +31,7 @@ export default function CurrencySwitcher() {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 rounded-xl transition-all border border-transparent hover:border-border group min-h-[48px] min-w-[85px]"
+                className="flex items-center gap-2 px-3 py-2 bg-card border-border hover:bg-accent-soft rounded-xl transition-all border hover:border-border group min-h-[48px] min-w-[85px]"
                 title="Seleccionar Moneda"
             >
                 <span className="text-base group-hover:scale-110 transition-transform">{current.flag}</span>
@@ -43,7 +43,7 @@ export default function CurrencySwitcher() {
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-2xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-2xl shadow-2xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="py-2">
                         {CURRENCIES.map((c) => (
                             <button
@@ -52,7 +52,8 @@ export default function CurrencySwitcher() {
                                     setCurrency(c.code);
                                     setIsOpen(false);
                                 }}
-                                className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors text-left ${currency === c.code ? 'bg-slate-50 dark:bg-white/5' : ''
+                                // eslint-disable-next-line
+                                className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-accent-soft transition-colors text-left ${currency === c.code ? 'bg-accent-soft' : ''
                                     }`}
                             >
                                 <span className="text-xl">{c.flag}</span>

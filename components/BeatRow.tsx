@@ -47,11 +47,11 @@ export default function BeatRow({ beat }: BeatRowProps) {
     };
 
     return (
-        <div className="group bg-white dark:bg-[#020205] rounded-[2rem] overflow-hidden border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-xl dark:hover:shadow-white/5 transition-all flex flex-row items-center p-3 sm:p-4 gap-3 sm:gap-6 relative">
+        <div className="group bg-card rounded-[2rem] overflow-hidden border border-border shadow-sm hover:shadow-xl transition-all flex flex-row items-center p-3 sm:p-4 gap-3 sm:gap-6 relative">
             {/* 1. Miniatura del arte (Touch Target Grande en Móvil) */}
             <div
                 onClick={handlePlay}
-                className="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-900 group/artwork cursor-pointer active:scale-95 transition-transform"
+                className="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl overflow-hidden bg-background border border-border group/artwork cursor-pointer active:scale-95 transition-transform"
             >
                 {beat.portada_url ? (
                     <img
@@ -60,7 +60,7 @@ export default function BeatRow({ beat }: BeatRowProps) {
                         alt={beat.titulo}
                     />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-700">
+                    <div className="w-full h-full flex items-center justify-center text-muted">
                         <Music size={24} />
                     </div>
                 )}
@@ -75,7 +75,7 @@ export default function BeatRow({ beat }: BeatRowProps) {
             {/* 2. Título y Productor (Texto un poco más grande y fácil de leer) */}
             <div className="flex-1 min-w-0 pr-2">
                 <Link href={`/beats/${beat.id}`} className="block">
-                    <h3 className="font-black text-slate-900 dark:text-foreground text-sm sm:text-base truncate uppercase tracking-tight hover:text-accent transition-colors">
+                    <h3 className="font-black text-foreground text-sm sm:text-base truncate uppercase tracking-tight hover:text-accent transition-colors">
                         {beat.titulo || "Sin título"}
                     </h3>
                 </Link>
@@ -112,7 +112,7 @@ export default function BeatRow({ beat }: BeatRowProps) {
                     <div className="flex flex-col items-end gap-1">
                         <Link
                             href={`/studio/beats/edit/${beat.id}`}
-                            className="bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
+                            className="bg-foreground text-background px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
                         >
                             Es tu Beat
                         </Link>
@@ -136,7 +136,7 @@ export default function BeatRow({ beat }: BeatRowProps) {
                             onClick={handleAddToCart}
                             className={`w-12 h-12 shrink-0 rounded-[1.25rem] flex items-center justify-center transition-all shadow-lg active:scale-90 ${itemInCart
                                 ? 'bg-green-500 text-white shadow-green-500/20'
-                                : 'bg-accent text-white hover:bg-slate-900 dark:hover:bg-slate-800 hover:shadow-accent/30'}`}
+                                : 'bg-accent text-white hover:bg-accent/80'}`}
                         >
                             {itemInCart ? <Check size={20} strokeWidth={3} /> : <ShoppingCart size={20} />}
                         </button>

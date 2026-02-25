@@ -147,7 +147,7 @@ export default function Home() {
               </div>
               <button
                 onClick={() => handleSmartSearch(searchQuery)}
-                className="bg-accent text-white px-8 py-4 md:py-3 rounded-xl md:rounded-full font-black uppercase text-[11px] tracking-widest hover:bg-accent/90 transition-all shadow-lg min-h-[56px] flex items-center justify-center mt-2 md:mt-0"
+                className="btn-standard px-8 py-4 md:py-3 min-h-[56px] mt-2 md:mt-0 shadow-lg border-none"
               >
                 Buscar
               </button>
@@ -307,7 +307,7 @@ export default function Home() {
             <span className="italic">romperla?</span>
           </h2>
           <div className="flex justify-center gap-4">
-            <Link href="/beats" className="bg-accent text-white px-12 py-5 rounded-full font-black uppercase text-[12px] tracking-widest hover:scale-105 transition-transform flex items-center gap-2 min-h-[64px] shadow-2xl">
+            <Link href="/beats" className="btn-standard px-12 py-5 text-[12px] min-h-[64px] shadow-2xl flex items-center justify-center gap-2">
               Explorar Beats <Music size={18} />
             </Link>
           </div>

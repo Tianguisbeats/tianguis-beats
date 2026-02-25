@@ -154,31 +154,31 @@ export default function SignupPage() {
             <main className="flex-1 flex items-center justify-center pt-24 pb-20 px-4">
                 <div className="max-w-xl w-full">
                     {success ? (
-                        <div className="text-center bg-blue-50 p-12 rounded-[3.5rem] border-2 border-blue-100 animate-in zoom-in duration-500">
-                            <div className="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl shadow-blue-600/20">
+                        <div className="text-center bg-accent-soft p-12 rounded-[3.5rem] border border-accent/20 animate-in zoom-in duration-500">
+                            <div className="w-20 h-20 bg-accent rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl shadow-accent/20">
                                 <Music className="text-white w-10 h-10" />
                             </div>
                             <h2 className="text-3xl font-black uppercase tracking-tighter mb-4">¡Casi listo!</h2>
-                            <p className="text-slate-600 font-medium mb-8">Hemos enviado un correo de confirmación a <span className="font-bold text-blue-600">{email}</span>. Revisa tu bandeja de entrada para verificar tu cuenta.</p>
-                            <Link href="/login" className="inline-flex items-center gap-2 text-blue-600 font-black uppercase tracking-widest text-xs hover:underline">
+                            <p className="text-muted font-medium mb-8">Hemos enviado un correo de confirmación a <span className="font-bold text-accent">{email}</span>. Revisa tu bandeja de entrada para verificar tu cuenta.</p>
+                            <Link href="/login" className="inline-flex items-center gap-2 text-accent font-black uppercase tracking-widest text-xs hover:underline">
                                 Ir al Inicio de Sesión <ArrowRight size={16} />
                             </Link>
                         </div>
                     ) : (
                         <>
                             <div className="text-center mb-8">
-                                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl transform rotate-3 shadow-xl shadow-blue-600/20 mb-6">
+                                <div className="inline-flex items-center justify-center w-16 h-16 bg-accent rounded-2xl transform rotate-3 shadow-xl shadow-accent/20 mb-6">
                                     <Music className="text-white w-8 h-8" />
                                 </div>
                                 <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase mb-2 text-foreground">
-                                    Bienvenido al <span className="text-blue-600">Estudio</span>
+                                    Bienvenido al <span className="text-accent">Estudio</span>
                                 </h1>
-                                <p className="text-slate-500 font-medium">
+                                <p className="text-muted font-medium">
                                     Crea tu cuenta y descubre el mejor catálogo de beats.
                                 </p>
                             </div>
 
-                            <div className="bg-card border-2 border-border rounded-[2.5rem] p-8 md:p-10 shadow-soft">
+                            <div className="bg-card border border-border rounded-[2.5rem] p-8 md:p-10 shadow-soft">
                                 <form onSubmit={handleSignup} className="space-y-5">
                                     {error && (
                                         <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-xs font-bold rounded-xl text-center">
@@ -194,7 +194,7 @@ export default function SignupPage() {
                                                 value={fullName}
                                                 onChange={(e) => setFullName(e.target.value)}
                                                 placeholder="Nombres Apellidos"
-                                                className="w-full bg-accent-soft border-2 border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50"
+                                                className="w-full bg-background border border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50"
                                                 required
                                             />
                                         </div>
@@ -206,7 +206,7 @@ export default function SignupPage() {
                                                     value={username}
                                                     onChange={handleUsernameChange}
                                                     placeholder="tu_username"
-                                                    className={`w-full bg-accent-soft border-2 rounded-2xl px-5 py-3.5 outline-none transition-all font-bold text-foreground placeholder:text-muted/50 ${isUsernameAvailable === false ? 'border-red-400' : isUsernameAvailable === true ? 'border-green-400' : 'border-border focus:border-accent'}`}
+                                                    className={`w-full bg-background border rounded-2xl px-5 py-3.5 outline-none transition-all font-bold text-foreground placeholder:text-muted/50 ${isUsernameAvailable === false ? 'border-red-400' : isUsernameAvailable === true ? 'border-green-400' : 'border-border focus:border-accent'}`}
                                                     required
                                                 />
                                                 <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -231,7 +231,7 @@ export default function SignupPage() {
                                                 value={artisticName}
                                                 onChange={(e) => setArtisticName(e.target.value)}
                                                 placeholder="Tu nombre de artista"
-                                                className="w-full bg-accent-soft border-2 border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50"
+                                                className="w-full bg-background border border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50"
                                                 required
                                             />
                                         </div>
@@ -242,7 +242,7 @@ export default function SignupPage() {
                                                 type="date"
                                                 value={birthDate}
                                                 onChange={(e) => setBirthDate(e.target.value)}
-                                                className="w-full bg-accent-soft border-2 border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground"
+                                                className="w-full bg-background border border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground"
                                                 required
                                             />
                                         </div>
@@ -255,7 +255,7 @@ export default function SignupPage() {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="tu@email.com"
-                                            className="w-full bg-accent-soft border-2 border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50"
+                                            className="w-full bg-background border border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50"
                                             required
                                         />
                                     </div>
@@ -268,7 +268,7 @@ export default function SignupPage() {
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 placeholder="••••••••"
-                                                className="w-full bg-accent-soft border-2 border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50 pr-12"
+                                                className="w-full bg-background border border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50 pr-12"
                                                 required
                                             />
                                             <button
@@ -284,7 +284,7 @@ export default function SignupPage() {
                                     <button
                                         type="submit"
                                         disabled={loading || isUsernameAvailable === false}
-                                        className="w-full bg-blue-600 dark:bg-blue-600/20 text-white dark:text-blue-400 py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-blue-600/20 flex items-center justify-center gap-3 group disabled:opacity-50 mt-2 border-2 border-blue-600 dark:border-blue-500/30 hover:bg-blue-700 dark:hover:bg-blue-600/40 hover:scale-[1.02] active:scale-95"
+                                        className="btn-standard w-full py-4 rounded-2xl gap-3 mt-2 group text-[11px] disabled:opacity-50"
                                     >
                                         {loading ? (
                                             <Loader2 className="animate-spin" size={18} />
@@ -297,8 +297,8 @@ export default function SignupPage() {
                                     </button>
                                 </form>
 
-                                <p className="mt-6 text-center text-[11px] font-black uppercase tracking-widest text-slate-400">
-                                    ¿Ya tienes cuenta? <Link href="/login" className="text-blue-600 hover:underline">Inicia sesión</Link>
+                                <p className="mt-6 text-center text-[11px] font-black uppercase tracking-widest text-muted">
+                                    ¿Ya tienes cuenta? <Link href="/login" className="text-accent underline hover:opacity-80 transition-opacity">Inicia sesión</Link>
                                 </p>
                             </div>
                         </>

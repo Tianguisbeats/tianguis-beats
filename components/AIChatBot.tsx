@@ -145,32 +145,32 @@ export default function AIChatBot() {
             {!hideFloatingButton && (
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className={`pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center shadow-xl transition-all duration-500 hover:scale-110 active:scale-95 ${isOpen ? 'bg-slate-900' : 'bg-blue-600'}`}
+                    className={`pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center shadow-xl transition-all duration-500 hover:scale-110 active:scale-95 ${isOpen ? 'bg-foreground' : 'bg-accent'}`}
                 >
                     {isOpen ? <X className="text-white" size={20} /> : <span className="text-white font-black text-xs tracking-tighter">IA</span>}
                 </button>
             )}
 
             {/* Ventana de Chat Más Compacta */}
-            <div className={`pointer-events-auto absolute bottom-16 right-0 w-[300px] md:w-[320px] h-[450px] bg-white rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.12)] border border-slate-100 flex flex-col transition-all duration-500 origin-bottom-right ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none translate-y-10'}`}>
+            <div className={`pointer-events-auto absolute bottom-16 right-0 w-[300px] md:w-[320px] h-[450px] bg-card rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.12)] border border-border flex flex-col transition-all duration-500 origin-bottom-right ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none translate-y-10'}`}>
 
                 {/* Header Compacto */}
-                <div className="p-4 bg-slate-900 rounded-t-[2rem] flex items-center justify-between text-white">
+                <div className="p-4 bg-accent-soft rounded-t-[2rem] border-b border-border flex items-center justify-between text-foreground">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                        <div className="w-8 h-8 bg-accent rounded-xl flex items-center justify-center shadow-lg shadow-accent/20 text-white">
                             <Sparkles size={16} />
                         </div>
                         <div>
                             <h3 className="font-black text-[9px] uppercase tracking-widest leading-none">Tianguis IA</h3>
                             <div className="flex items-center gap-1 mt-0.5">
                                 <span className="w-1 h-1 bg-green-500 rounded-full"></span>
-                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Asistente Virtual</span>
+                                <span className="text-[8px] font-bold text-muted uppercase tracking-widest">Asistente Virtual</span>
                             </div>
                         </div>
                     </div>
                     <button
                         onClick={() => setIsOpen(false)}
-                        className="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"
+                        className="p-2 hover:bg-foreground/10 rounded-lg transition-colors text-muted hover:text-foreground"
                     >
                         <X size={16} />
                     </button>
@@ -181,10 +181,10 @@ export default function AIChatBot() {
                     {messages.map((msg, i) => (
                         <div key={i} className="space-y-2">
                             <div className={`flex items-start gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                                <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-slate-100 text-slate-400' : 'bg-blue-50 text-blue-600'}`}>
+                                <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-card border border-border text-muted' : 'bg-accent/10 text-accent'}`}>
                                     {msg.role === 'user' ? <User size={12} /> : <Bot size={12} />}
                                 </div>
-                                <div className={`max-w-[85%] px-3 py-2 rounded-xl text-[12px] font-medium leading-relaxed ${msg.role === 'user' ? 'bg-slate-900 text-white rounded-tr-none' : 'bg-slate-50 text-slate-800 rounded-tl-none'}`}>
+                                <div className={`max-w-[85%] px-3 py-2 rounded-xl text-[12px] font-medium leading-relaxed ${msg.role === 'user' ? 'bg-foreground text-background rounded-tr-none' : 'bg-card border border-border text-foreground rounded-tl-none'}`}>
                                     {msg.content}
                                 </div>
                             </div>
@@ -195,7 +195,7 @@ export default function AIChatBot() {
                                         <button
                                             key={j}
                                             onClick={opt.action}
-                                            className="flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-100 hover:border-blue-600 hover:bg-blue-50 transition-all text-[11px] font-bold text-slate-500 hover:text-blue-600 text-left"
+                                            className="flex items-center justify-between p-2.5 rounded-lg bg-card border border-border hover:border-accent hover:bg-accent/10 transition-all text-[11px] font-bold text-muted hover:text-accent text-left"
                                         >
                                             <span className="flex items-center gap-2">
                                                 {opt.icon}
@@ -212,9 +212,9 @@ export default function AIChatBot() {
                 </div>
 
                 {/* Footer con Leyenda */}
-                <div className="p-4 pt-1 flex justify-center border-t border-slate-50">
+                <div className="p-4 pt-1 flex justify-center border-t border-border mt-2">
                     <span className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-300 flex items-center gap-1.5">
-                        <Sparkles size={10} className="text-blue-300" />
+                        <Sparkles size={10} className="text-accent/50" />
                         Potenciado por IA
                     </span>
                 </div>

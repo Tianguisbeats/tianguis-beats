@@ -168,24 +168,24 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
 
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md animate-in fade-in duration-500" onClick={onClose}></div>
+            <div className="absolute inset-0 bg-background/95 backdrop-blur-md animate-in fade-in duration-500" onClick={onClose}></div>
 
-            <div className="relative bg-white dark:bg-slate-950 w-full max-w-5xl rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden animate-in zoom-in slide-in-from-bottom-12 duration-700 border border-white/10 flex flex-col lg:flex-row min-h-[600px]">
+            <div className="relative bg-card w-full max-w-5xl rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden animate-in zoom-in slide-in-from-bottom-12 duration-700 border border-white/10 flex flex-col lg:flex-row min-h-[600px]">
 
                 {/* Botón de cerrar */}
                 <button
                     onClick={onClose}
-                    className="absolute top-8 right-8 p-4 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-black dark:hover:bg-white dark:hover:text-black rounded-full transition-all z-50 group"
+                    className="absolute top-8 right-8 p-4 bg-muted/10 text-muted hover:bg-foreground hover:text-background rounded-full transition-all z-50 group"
                 >
                     <X size={20} className="group-hover:rotate-90 transition-transform" />
                 </button>
 
                 {/* PÁNEL IZQUIERDO: Especificaciones e Info del Productor */}
-                <div className="lg:w-[40%] bg-slate-50 dark:bg-slate-900 p-8 lg:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-white/5 order-2 lg:order-1">
+                <div className="lg:w-[40%] bg-background p-8 lg:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-border order-2 lg:order-1">
                     <div className="space-y-8">
                         {/* Arte Principal */}
                         <div className="space-y-6">
-                            <div className="aspect-square w-full rounded-3xl overflow-hidden bg-slate-200 dark:bg-slate-800 shadow-xl border border-white/10 group">
+                            <div className="aspect-square w-full rounded-3xl overflow-hidden bg-muted/10 shadow-xl border border-white/10 group">
                                 {beat.portada_url ? (
                                     <img src={beat.portada_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={beat.titulo} />
                                 ) : (
@@ -195,23 +195,23 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                 )}
                             </div>
 
-                            <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none">
+                            <h3 className="text-3xl font-black text-foreground uppercase tracking-tighter leading-none">
                                 {beat.titulo}
                             </h3>
 
                             {/* Fila del productor DEBAJO del título */}
-                            <div className="flex items-center gap-4 p-4 rounded-3xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5">
-                                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
+                            <div className="flex items-center gap-4 p-4 rounded-3xl bg-card border border-border">
+                                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-muted/10 shrink-0">
                                     {producerInfo?.foto_perfil || beat.productor_foto_perfil ? (
                                         <img src={producerInfo?.foto_perfil || beat.productor_foto_perfil} className="w-full h-full object-cover" alt="Producer" />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-slate-400">
+                                        <div className="w-full h-full flex items-center justify-center text-muted">
                                             <Music size={24} />
                                         </div>
                                     )}
                                 </div>
                                 <div className="min-w-0">
-                                    <h4 className="font-heading font-black text-slate-900 dark:text-white flex items-center gap-2 truncate">
+                                    <h4 className="font-heading font-black text-foreground flex items-center gap-2 truncate">
                                         {producerInfo?.nombre_artistico || beat.productor_nombre_artistico || beat.productor_nombre_usuario || 'Productor'}
                                         {(producerInfo?.esta_verificado || beat.productor_esta_verificado) && (
                                             <div className="bg-blue-500 text-white rounded-full p-0.5 shadow-lg shadow-blue-500/20">
@@ -239,17 +239,17 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                         </div>
                     </div>
 
-                    <div className="mt-8 flex items-center gap-3 text-slate-400 dark:text-slate-500">
+                    <div className="mt-8 flex items-center gap-3 text-muted">
                         <ShieldCheck size={18} />
                         <span className="text-[10px] font-black uppercase tracking-[0.2em]">Tianguis Safe Checkout</span>
                     </div>
                 </div>
 
                 {/* PÁNEL DERECHO: Selección de Licencias */}
-                <div className="flex-1 p-8 lg:p-12 flex flex-col justify-between order-1 lg:order-2 bg-white dark:bg-slate-950">
+                <div className="flex-1 p-8 lg:p-12 flex flex-col justify-between order-1 lg:order-2 bg-card">
                     <div className="space-y-10">
                         <header>
-                            <h2 className="text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-2">Licencias Disponibles</h2>
+                            <h2 className="text-4xl font-black text-foreground uppercase tracking-tighter mb-2">Licencias Disponibles</h2>
                             <p className="text-xs font-bold text-muted uppercase tracking-[0.2em]">Escala tu sonido al siguiente nivel</p>
                         </header>
 
@@ -263,23 +263,23 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                         onClick={() => setSelectedType(lic.id)}
                                         className={`w-full group px-6 py-5 rounded-[2rem] border-2 transition-all text-left flex items-center justify-between ${isSelected
                                             ? `bg-${lic.color}-500/5 border-${lic.color}-500 shadow-2xl shadow-${lic.color}-500/10 scale-[1.02]`
-                                            : 'border-slate-100 dark:border-white/5 hover:border-accent/40 bg-transparent'
+                                            : 'border-border hover:border-accent/40 bg-transparent'
                                             }`}
                                     >
                                         <div className="flex items-center gap-5">
-                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isSelected ? `bg-${lic.color}-500 text-white rotate-6` : 'bg-slate-100 dark:bg-white/5 text-muted'
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isSelected ? `bg-${lic.color}-500 text-white rotate-6` : 'bg-muted/10 text-muted'
                                                 }`}>
                                                 {lic.icon}
                                             </div>
                                             <div>
-                                                <h5 className={`font-black uppercase tracking-widest text-[11px] ${isSelected ? `text-${lic.color}-500` : 'text-slate-900 dark:text-white'}`}>
+                                                <h5 className={`font-black uppercase tracking-widest text-[11px] ${isSelected ? `text-${lic.color}-500` : 'text-foreground'}`}>
                                                     {lic.name}
                                                 </h5>
                                                 <p className="text-[10px] font-bold text-muted">Contrato profesional</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className={`text-2xl font-black ${isSelected ? `text-${lic.color}-500` : 'text-slate-900 dark:text-white'}`}>
+                                            <p className={`text-2xl font-black ${isSelected ? `text-${lic.color}-500` : 'text-foreground'}`}>
                                                 {formatPrice(lic.price)}
                                             </p>
                                         </div>
@@ -290,13 +290,13 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
 
                         {/* Caja de características dinámica */}
                         {currentLicense && (
-                            <div className="p-8 rounded-[2.5rem] bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 animate-in fade-in slide-in-from-top-4 duration-500">
+                            <div className="p-8 rounded-[2.5rem] bg-accent-soft border border-border animate-in fade-in slide-in-from-top-4 duration-500">
                                 <h6 className="text-[10px] font-black uppercase text-accent tracking-[0.2em] mb-6 flex items-center gap-2">
                                     <Zap size={14} fill="currentColor" /> Beneficios {currentLicense.id}:
                                 </h6>
                                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {currentLicense.features.map((f: string, i: number) => (
-                                        <li key={i} className="flex items-center gap-3 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                        <li key={i} className="flex items-center gap-3 text-[11px] font-bold text-foreground">
                                             <div className="w-5 h-5 rounded-full bg-accent text-white flex items-center justify-center shrink-0">
                                                 <Check size={10} strokeWidth={4} />
                                             </div>
@@ -314,7 +314,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                             disabled={!selectedType || beat.esta_vendido || beat.is_sold}
                             className={`flex-1 flex items-center justify-center gap-4 py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.4em] transition-all duration-300 active:scale-95 shadow-2xl ${beat.esta_vendido || beat.is_sold
                                 ? 'bg-red-500/10 text-red-500 cursor-not-allowed border border-red-500/20 shadow-none'
-                                : 'bg-accent text-white hover:bg-black dark:hover:bg-white dark:hover:text-black shadow-accent/30'
+                                : 'bg-accent text-white hover:bg-foreground hover:text-background shadow-accent/30'
                                 }`}
                         >
                             {beat.esta_vendido || beat.is_sold ? (
@@ -336,9 +336,9 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
 function SpecItem({ label, value }: { label: string; value: string | number }) {
     if (!value) return null;
     return (
-        <div className="p-4 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5">
+        <div className="p-4 rounded-2xl bg-card border border-border">
             <p className="text-[8px] font-black uppercase text-muted tracking-widest mb-1 leading-none">{label}</p>
-            <p className="text-[11px] font-black text-slate-900 dark:text-white truncate">{value}</p>
+            <p className="text-[11px] font-black text-foreground truncate">{value}</p>
         </div>
     );
 }

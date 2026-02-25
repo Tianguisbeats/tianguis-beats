@@ -255,7 +255,7 @@ function CatalogContent() {
                                 <ArrowLeft size={14} strokeWidth={3} />
                                 Regresar al Tianguis
                             </Link>
-                            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-3 bg-accent text-white rounded-xl shadow-lg active:scale-95 transition-all">
+                            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-3 bg-card border border-border text-foreground rounded-xl shadow-lg active:scale-95 transition-all hover:bg-accent-soft hover:text-accent hover:border-accent/20">
                                 <SlidersHorizontal size={16} />
                             </button>
                         </div>

@@ -3,21 +3,21 @@
 :root {
   --background: #ffffff;
   --foreground: #0f172a;
-  --accent: #1e40af;
-  --accent-soft: #f8fafc;
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
   --card: #ffffff;
-  --border: #f1f5f9;
+  --border: #e2e8f0;
   --muted: #64748b;
 }
 
 [data-theme='dark'] {
   --background: #02040a;
-  --foreground: #f8fafc;
+  --foreground: #ffffff;
   --accent: #3b82f6;
-  --accent-soft: #0a0c14;
-  --card: #05070f;
-  --border: #161b22;
-  --muted: #8b949e;
+  --accent-soft: #1e293b;
+  --card: #0f172a;
+  --border: #334155;
+  --muted: #94a3b8;
 }
 
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -68,19 +68,26 @@ body {
 
   button,
   a.button,
-  .btn-premium {
+  .btn-premium,
+  .btn-standard {
     @apply flex items-center justify-center transition-all duration-300;
   }
 
   button:hover,
-  a.button:hover {
+  a.button:hover,
+  .btn-standard:hover {
     @apply transform scale-[1.03] shadow-lg;
     filter: brightness(1.1);
   }
 
   button:active,
-  a.button:active {
+  a.button:active,
+  .btn-standard:active {
     @apply scale-[0.97] duration-75;
+  }
+
+  .btn-standard {
+    @apply bg-accent-soft text-accent border border-accent/20 rounded-full font-black uppercase tracking-widest shadow-sm;
   }
 }
 

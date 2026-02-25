@@ -70,9 +70,9 @@ export default function AudioPlayer() {
         <>
             {/* ====== VERSIÓN MÓVIL (MINI-PLAYER) ====== */}
             <div className="md:hidden fixed bottom-[72px] left-0 right-0 z-[100] px-2 animate-in slide-in-from-bottom-2 duration-300">
-                <div className="bg-white/95 dark:bg-[#121215]/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-lg shadow-black/5 dark:shadow-black/20 overflow-hidden relative">
+                <div className="bg-background/95 backdrop-blur-xl border border-border rounded-2xl shadow-lg shadow-black/5 dark:shadow-black/20 overflow-hidden relative">
                     {/* Barra de Progreso Superior */}
-                    <div className="absolute top-0 left-0 w-full h-[2px] bg-slate-200 dark:bg-slate-800">
+                    <div className="absolute top-0 left-0 w-full h-[2px] bg-muted/20">
                         <div
                             className="absolute top-0 left-0 h-full bg-accent transition-all duration-100"
                             style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
@@ -82,7 +82,7 @@ export default function AudioPlayer() {
                     <div className="p-2 flex items-center justify-between gap-3">
                         {/* Artwork & Info (Clic para abrir modal = Futuro) */}
                         <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden shrink-0 relative">
+                            <div className="w-10 h-10 rounded-xl bg-muted/10 flex items-center justify-center overflow-hidden shrink-0 relative">
                                 {currentBeat.portada_url ? (
                                     <img src={currentBeat.portada_url} alt={currentBeat.titulo} className="w-full h-full object-cover" />
                                 ) : (
@@ -140,7 +140,7 @@ export default function AudioPlayer() {
             {/* ====== VERSIÓN ESCRITORIO (FULL-PLAYER) ====== */}
             <div className="hidden md:block fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-6xl animate-in slide-in-from-bottom-8 duration-700">
                 {/* Contenedor principal estilo cristal */}
-                <div className="relative bg-white/70 dark:bg-slate-900/80 backdrop-blur-2xl border border-white/20 dark:border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)] overflow-hidden">
+                <div className="relative bg-background/80 backdrop-blur-2xl border border-border rounded-[2.5rem] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)] overflow-hidden">
 
                     {/* Efecto de brillo de progreso (Sólo en modo oscuro) */}
                     <div className="absolute top-0 left-0 h-[2px] bg-accent shadow-[0_0_15px_rgba(59,130,246,0.8)] transition-all duration-300 z-50 rounded-full"
@@ -152,7 +152,7 @@ export default function AudioPlayer() {
                         <div className="flex items-center gap-4 w-[30%] shrink-0">
                             <div className="relative group/artwork">
                                 <div className="absolute -inset-1 bg-gradient-to-r from-accent to-purple-600 rounded-2xl blur opacity-20 group-hover/artwork:opacity-40 transition-opacity" />
-                                <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl overflow-hidden shrink-0 border border-white/10 relative z-10 transition-transform group-hover/artwork:scale-105">
+                                <div className="w-14 h-14 bg-card rounded-2xl flex items-center justify-center text-white shadow-xl overflow-hidden shrink-0 border border-white/10 relative z-10 transition-transform group-hover/artwork:scale-105">
                                     {currentBeat.portada_url ? (
                                         <img src={currentBeat.portada_url} alt={currentBeat.titulo} className="w-full h-full object-cover" />
                                     ) : (
@@ -165,7 +165,7 @@ export default function AudioPlayer() {
 
                             <div className="min-w-0 flex-1">
                                 <Link href={`/beats/${currentBeat.id}`} className="block group">
-                                    <h4 className="font-heading font-black text-base text-slate-900 dark:text-white truncate uppercase tracking-tight group-hover:text-accent transition-colors">
+                                    <h4 className="font-heading font-black text-base text-foreground truncate uppercase tracking-tight group-hover:text-accent transition-colors">
                                         {currentBeat.titulo}
                                     </h4>
                                 </Link>
@@ -174,7 +174,7 @@ export default function AudioPlayer() {
                                         href={`/${currentBeat.productor_nombre_usuario || (typeof (currentBeat as any).productor === 'object' ? ((currentBeat as any).productor)?.nombre_usuario : (currentBeat as any).productor)}`}
                                         className="flex items-center gap-1.5 truncate group"
                                     >
-                                        <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] group-hover:text-accent transition-colors">
+                                        <span className="text-[10px] font-black text-muted uppercase tracking-[0.15em] group-hover:text-accent transition-colors">
                                             {currentBeat.productor_nombre_artistico || (typeof (currentBeat as any).productor === 'object' ? ((currentBeat as any).productor)?.nombre_artistico : (currentBeat as any).productor) || 'Productor'}
                                         </span>
                                         {(currentBeat.productor_esta_verificado || (typeof (currentBeat as any).productor === 'object' && ((currentBeat as any).productor)?.esta_verificado)) && (
@@ -212,13 +212,13 @@ export default function AudioPlayer() {
                                 <span className="text-[10px] font-black text-muted w-10 text-right font-mono tabular-nums">{formatTime(currentTime)}</span>
                                 <div className="relative flex-1 group py-3">
                                     {/* Fondo de la barra de progreso */}
-                                    <div className="absolute inset-y-0 my-auto h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full" />
+                                    <div className="absolute inset-y-0 my-auto h-1.5 w-full bg-muted/30 rounded-full" />
                                     {/* Progreso activo */}
                                     <div
                                         className="absolute inset-y-0 my-auto h-1.5 bg-accent rounded-full z-10"
                                         style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
                                     >
-                                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white dark:bg-slate-100 rounded-full shadow-lg border-2 border-accent scale-0 group-hover:scale-100 transition-transform" />
+                                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-background rounded-full shadow-lg border-2 border-accent scale-0 group-hover:scale-100 transition-transform" />
                                     </div>
                                     <input
                                         type="range"
@@ -242,7 +242,7 @@ export default function AudioPlayer() {
                                     {isMuted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
                                 </button>
                                 <div className="w-24 relative flex items-center h-8">
-                                    <div className="absolute h-1 w-full bg-slate-200 dark:bg-slate-700 rounded-full" />
+                                    <div className="absolute h-1 w-full bg-muted/30 rounded-full" />
                                     <div className="absolute h-1 bg-accent rounded-full" style={{ width: `${volume * 100}%` }} />
                                     <input
                                         type="range"
@@ -261,7 +261,7 @@ export default function AudioPlayer() {
                                 {!isOwner && (
                                     <button
                                         onClick={() => setIsLicenseModalOpen(true)}
-                                        className="bg-accent text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all shadow-lg shadow-accent/20 active:scale-95 flex items-center gap-2 whitespace-nowrap"
+                                        className="bg-accent text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-foreground hover:text-background transition-all shadow-lg shadow-accent/20 active:scale-95 flex items-center gap-2 whitespace-nowrap"
                                     >
                                         Ver Licencias
                                     </button>
@@ -269,7 +269,7 @@ export default function AudioPlayer() {
 
                                 <button
                                     onClick={closePlayer}
-                                    className="w-11 h-11 flex items-center justify-center rounded-2xl bg-card border border-border text-muted hover:text-red-500 hover:border-red-500/20 transition-all hover:bg-red-50 dark:hover:bg-red-500/10 active:scale-90"
+                                    className="w-11 h-11 flex items-center justify-center rounded-2xl bg-card border border-border text-muted hover:text-red-500 hover:border-red-500/20 transition-all hover:bg-red-500/10 active:scale-90"
                                     title="Cerrar"
                                 >
                                     <X size={20} />
