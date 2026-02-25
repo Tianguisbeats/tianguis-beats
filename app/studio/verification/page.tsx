@@ -264,7 +264,7 @@ export default function VerificationPage() {
                                 {[
                                     { label: 'Foto Perfil', passed: !!profile?.foto_perfil },
                                     { label: 'Portada', passed: !!profile?.portada_perfil },
-                                    { label: 'Smart Bio', passed: !!profile?.biografia },
+                                    { label: 'Acerca de mí', passed: !!profile?.biografia },
                                     { label: 'Aka Artístico', passed: !!profile?.nombre_artistico }
                                 ].map((item, i) => (
                                     <div key={i} className="flex items-center gap-1.5">

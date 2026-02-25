@@ -1009,7 +1009,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 )}
                             </div>
 
-                            {/* Smart Bio Card (Independent) */}
+                            {/* Acerca de mí Card (Independent) */}
                             {(isOwner || profile.enlaces_activos) && (
                                 <div className={`p-10 rounded-[3rem] border shadow-2xl transition-all duration-500 hover:scale-[1.02] 
                                     ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
@@ -1018,7 +1018,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     }`}>
                                     <div className="flex items-center gap-3 mb-8">
                                         <Zap size={14} className="text-accent" />
-                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-white/40">Smart Bio</h4>
+                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-white/40">Acerca de mí</h4>
                                     </div>
 
                                     {profile.nivel_suscripcion !== 'premium' ? (
@@ -1056,7 +1056,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 <div className="w-12 h-12 bg-white/10 dark:bg-slate-900/10 rounded-2xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
                                                     <Zap size={24} fill="currentColor" />
                                                 </div>
-                                                <span className="font-black text-sm">Mi Smart Bio</span>
+                                                <span className="font-black text-sm">Mi Acerca de mí</span>
                                             </div>
                                             <div className="w-10 h-10 rounded-full bg-white/5 dark:bg-slate-900/5 flex items-center justify-center group-hover:translate-x-1 transition-transform">
                                                 <ChevronRight size={20} />

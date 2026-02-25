@@ -46,7 +46,7 @@ export default function FreePlanPage() {
             icon: <TrendingUp className="text-slate-400" size={24} />
         },
         {
-            title: "Smart Bio",
+            title: "Acerca de mí",
             description: "No incluida. Actualiza a PREMIUM para desbloquear tu enlace único y conectar todas tus redes.",
             icon: <Heart className="text-slate-300 dark:text-slate-600" size={24} />
         }
@@ -107,7 +107,7 @@ export default function FreePlanPage() {
                                         { label: "Límite de Beats", value: "5 Activos", icon: <Check size={14} className="text-slate-400" /> },
                                         { label: "Calidad de Audio", value: "MP3 Estándar", icon: <Check size={14} className="text-slate-400" /> },
                                         { label: "Tianguis Studio", value: "Acceso Básico", icon: <Check size={14} className="text-slate-400" /> },
-                                        { label: "Smart Bio", value: "No incluida", icon: <X size={14} className="text-slate-300 dark:text-slate-600" /> }
+                                        { label: "Acerca de mí", value: "No incluida", icon: <X size={14} className="text-slate-300 dark:text-slate-600" /> }
                                     ].map((item, i) => (
                                         <div key={i} className="flex items-center justify-between py-1 border-b border-dashed border-border dark:border-white/10 last:border-0">
                                             <div className="flex items-center gap-3">

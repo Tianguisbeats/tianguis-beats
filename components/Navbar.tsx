@@ -70,14 +70,14 @@ export default function Navbar() {
 
     return (
         <div className="relative w-full z-50 h-20">
-            <nav className="fixed top-0 left-0 right-0 w-full bg-white/80 dark:bg-[#020205]/80 border-b border-border dark:border-white/5 backdrop-blur-xl shadow-sm z-50 transition-all duration-300">
+            <nav className="fixed top-0 left-0 right-0 w-full bg-background/80 border-b border-border backdrop-blur-xl shadow-sm z-50 transition-all duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
                         {/* Área del Logo */}
                         <Link href="/" className="flex items-center gap-3 group min-h-[48px]">
-                            <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-xl shadow-slate-900/10 group-hover:scale-110 transition-transform overflow-hidden">
+                            <div className="w-10 h-10 bg-accent text-white rounded-xl flex items-center justify-center shadow-xl shadow-accent/20 group-hover:scale-110 transition-transform overflow-hidden">
                                 {hasLogo ? (
-                                    <img src={logoUrl} alt="Tianguis Beats Logo" className="w-full h-full object-contain p-1 invert" />
+                                    <img src={logoUrl} alt="Tianguis Beats Logo" className="w-full h-full object-contain p-1 dark:invert" />
                                 ) : (
                                     <Music size={24} fill="currentColor" />
                                 )}
@@ -113,8 +113,8 @@ export default function Navbar() {
 
                                         <div className="flex items-center gap-4 border-l border-border pl-6">
                                             <Link href={`/${profile?.nombre_usuario || 'profile'}`} className="group flex items-center gap-3 min-h-[48px]">
-                                                <div className={`w-10 h-10 rounded-lg overflow-hidden border-2 transition-all duration-300 ${profile?.nivel_suscripcion === 'premium' ? 'border-accent shadow-lg shadow-accent/20' :
-                                                    profile?.nivel_suscripcion === 'pro' ? 'border-amber-400' : 'border-border'
+                                                <div className={`w-10 h-10 rounded-lg overflow-hidden border-2 transition-all duration-300 ${profile?.nivel_suscripcion === 'premium' ? 'border-premium shadow-lg shadow-premium/20' :
+                                                    profile?.nivel_suscripcion === 'pro' ? 'border-pro shadow-lg shadow-pro/20' : 'border-border'
                                                     }`}>
                                                     {profile?.foto_perfil ? (
                                                         <img src={profile.foto_perfil} alt="Perfil" className="w-full h-full object-cover" />

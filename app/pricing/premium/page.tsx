@@ -62,7 +62,7 @@ export default function PremiumPlanPage() {
         { label: "Licencia Stems", value: "Habilitada" },
         { label: "Exclusivas", value: "Habilitadas" },
         { label: "Sound Kits", value: "Ilimitados" },
-        { label: "Smart Bio", value: "Premium" }
+        { label: "Acerca de mí", value: "Premium" }
     ];
 
     return (

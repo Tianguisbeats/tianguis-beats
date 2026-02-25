@@ -113,7 +113,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
     const cardStyles = getGenreStyles();
 
     return (
-        <div className={`group relative rounded-[2rem] overflow-hidden border transition-all duration-700 hover:-translate-y-1 flex flex-col h-full ${compact ? 'max-w-[280px]' : ''} ${cardStyles}`}>
+        <div className={`card-modern flex flex-col h-full ${compact ? 'max-w-[280px]' : ''} ${cardStyles}`}>
             {/* Image Section */}
             <div className="relative aspect-square overflow-hidden p-2 pb-0">
                 <div className="w-full h-full rounded-[1.2rem] overflow-hidden relative shadow-inner group">
@@ -174,9 +174,9 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                 {/* Producer Row */}
                 <Link href={`/${beat.productor_nombre_usuario || '#'}`} className={`flex items-center gap-2 ${compact ? 'mb-1.5' : 'mb-3'} group/prod ${compact ? 'min-h-[24px]' : 'min-h-[32px]'} justify-center w-full`}>
                     <div className="relative shrink-0">
-                        <div className={`${compact ? 'w-5 h-5' : 'w-6 h-6 md:w-8 md:h-8'} rounded-full overflow-hidden border-2 p-0.5 transform transition-transform group-hover/prod:scale-110 ${beat.productor_nivel_suscripcion === 'premium' ? 'border-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)]' :
-                            beat.productor_nivel_suscripcion === 'pro' ? 'border-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.6)]' :
-                                'border-border shadow-lg shadow-black/5'
+                        <div className={`${compact ? 'w-5 h-5' : 'w-6 h-6 md:w-8 md:h-8'} rounded-full overflow-hidden border-2 p-0.5 transform transition-transform group-hover/prod:scale-110 ${beat.productor_nivel_suscripcion === 'premium' ? 'border-premium shadow-[0_0_12px_rgba(59,130,246,0.5)]' :
+                            beat.productor_nivel_suscripcion === 'pro' ? 'border-pro shadow-[0_0_12px_rgba(245,158,11,0.5)]' :
+                                'border-border'
                             }`}>
                             <img
                                 src={beat.productor_foto_perfil || `https://ui-avatars.com/api/?name=${beat.productor_nombre_artistico}&background=random`}
@@ -207,13 +207,13 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                             {beat.genero}
                         </span>
                     )}
-                    <span className={`text-[7px] font-black text-amber-500 bg-amber-500/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-amber-500/20 uppercase tracking-widest leading-none`}>
+                    <span className={`text-[7px] font-black text-pro bg-pro/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-pro/20 uppercase tracking-widest leading-none`}>
                         {beat.bpm} BPM
                     </span>
-                    <span className={`text-[7px] font-black text-blue-500 bg-blue-500/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-blue-500/20 uppercase tracking-widest leading-none`}>
+                    <span className={`text-[7px] font-black text-premium bg-premium/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-premium/20 uppercase tracking-widest leading-none`}>
                         {(beat.nota_musical || 'C').split(' ')[0].replace('m', '')}
                     </span>
-                    <span className={`text-[7px] font-black text-purple-500 bg-purple-500/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-purple-500/20 uppercase tracking-widest leading-none`}>
+                    <span className={`text-[7px] font-black text-accent bg-accent/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-accent/20 uppercase tracking-widest leading-none`}>
                         {beat.escala_musical || (() => {
                             const key = (beat.nota_musical || '').toLowerCase().trim();
                             if (key.includes('maj') || key === 'm') return 'Mayor';

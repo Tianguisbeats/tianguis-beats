@@ -101,8 +101,8 @@ export default function Home() {
       <section className="relative pt-24 pb-16 lg:pt-48 lg:pb-32 px-4 overflow-hidden">
         {/* Gradientes de fondo */}
         <div className="absolute top-0 left-0 w-full h-[80vh] bg-background -z-20"></div>
-        <div className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-accent/5 rounded-full blur-[120px] -z-10 dark:opacity-20"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-cyan-500/5 rounded-full blur-[100px] -z-10 dark:opacity-20"></div>
+        <div className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-pro/5 rounded-full blur-[120px] -z-10 dark:opacity-20"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-premium/5 rounded-full blur-[100px] -z-10 dark:opacity-20"></div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card/50 backdrop-blur-sm mb-6 md:mb-8 animate-fade-in-up">
@@ -117,7 +117,7 @@ export default function Home() {
 
           <h1 className="text-[2.5rem] leading-[1.1] md:text-7xl lg:text-9xl font-black text-foreground tracking-tighter mb-6 md:mb-8 font-heading px-2">
             La Casa de los <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600 block sm:inline mt-1 sm:mt-0">Corridos Tumbados.</span>
+            <span className="text-pro block sm:inline mt-1 sm:mt-0">Corridos Tumbados.</span>
           </h1>
 
           <p className="text-sm md:text-xl text-muted font-medium max-w-3xl mx-auto mb-8 md:mb-12 leading-relaxed tracking-tight px-6 font-body">
@@ -126,8 +126,8 @@ export default function Home() {
 
           {/* Buscador Integrado (Omni-Search) */}
           <div className="max-w-2xl mx-auto relative group mb-8 md:mb-12 px-4">
-            <div className="absolute inset-0 bg-accent/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative flex flex-col md:flex-row items-stretch md:items-center bg-card p-2 rounded-[1.5rem] md:rounded-full shadow-2xl border border-border transition-all duration-300 focus-within:ring-4 focus-within:ring-accent/20">
+            <div className="absolute inset-0 bg-pro/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative flex flex-col md:flex-row items-stretch md:items-center bg-card p-2 rounded-[1.5rem] md:rounded-full shadow-2xl border border-border transition-all duration-300 focus-within:ring-4 focus-within:ring-pro/20">
               <div className="flex flex-1 items-center min-h-[56px]">
                 <div className="pl-4 md:pl-6 text-muted">
                   <Search size={20} className="md:w-5 md:h-5" />
@@ -147,9 +147,12 @@ export default function Home() {
               </div>
               <button
                 onClick={() => handleSmartSearch(searchQuery)}
-                className="btn-standard px-8 py-4 md:py-3 min-h-[56px] mt-2 md:mt-0 shadow-lg border-none"
+                className="btn-standard bg-accent text-white border-none px-8 py-4 md:py-3 min-h-[56px] mt-2 md:mt-0 shadow-lg hover:bg-accent/90"
               >
-                Buscar
+                <div className="flex items-center gap-3">
+                  <Zap size={18} fill="white" className="hidden md:block" />
+                  <span className="text-[10px] tracking-[0.2em] font-black">BUSCAR AHORA</span>
+                </div>
               </button>
             </div>
           </div>
@@ -158,7 +161,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-center items-center gap-3 px-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <Link
               href={`/beats/catalog?view=corridos_tumbados`}
-              className="group relative inline-flex items-center justify-center gap-3 px-6 py-5 bg-card border border-border text-foreground rounded-[1.25rem] md:rounded-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-accent/20 min-h-[56px] w-full md:w-auto"
+              className="group relative inline-flex items-center justify-center gap-3 px-6 py-5 card-modern text-foreground rounded-[1.25rem] md:rounded-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-accent/20 min-h-[56px] w-full md:w-auto"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <span className="relative z-10 font-black uppercase text-[10px] tracking-widest flex items-center gap-2 group-hover:text-accent transition-colors font-heading text-center">
@@ -205,8 +208,8 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Característica 1 - Algoritmo (Smart Match) */}
-            <div className="bg-card p-10 rounded-[2.5rem] border border-border hover:border-accent/30 hover:shadow-2xl transition-all group">
-              <div className="w-14 h-14 bg-accent/10 text-accent rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+            <div className="card-modern p-10 group">
+              <div className="w-14 h-14 bg-pro/10 text-pro rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                 <Cpu size={28} />
               </div>
               <h3 className="text-2xl font-black text-foreground mb-4 tracking-tight font-heading">Smart Match Algorithm</h3>
@@ -216,7 +219,7 @@ export default function Home() {
             </div>
 
             {/* Característica 2 - Vista previa de Masterización Inteligente */}
-            <div className="bg-slate-900 dark:bg-slate-800 p-10 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden group border border-slate-800 dark:border-slate-700">
+            <div className="card-modern bg-slate-900 border-none p-10 text-white shadow-2xl relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-64 h-64 bg-accent rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:opacity-100 transition-opacity opacity-50"></div>
               <div className="relative z-10">
                 <div className="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center mb-8 backdrop-blur-sm">
@@ -234,8 +237,8 @@ export default function Home() {
             </div>
 
             {/* Característica 3 - Contratos Inteligentes */}
-            <div className="bg-card p-10 rounded-[2.5rem] border border-border hover:border-accent/30 hover:shadow-2xl transition-all group">
-              <div className="w-14 h-14 bg-accent/10 text-accent rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+            <div className="card-modern p-10 group">
+              <div className="w-14 h-14 bg-premium/10 text-premium rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                 <ShieldCheck size={28} />
               </div>
               <h3 className="text-2xl font-black text-foreground mb-4 tracking-tight font-heading">Smart Contracts</h3>
@@ -278,7 +281,7 @@ export default function Home() {
                 quote: "No pierdo el tiempo con procesos lentos. Aquí todo es al grano: subo, vendo y cobro. La interfaz es de otro nivel."
               }
             ].map((producer, i) => (
-              <div key={i} className="group relative overflow-hidden rounded-[2.5rem] bg-background border border-border hover:border-accent/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+              <div key={i} className="card-modern bg-background border-border p-0 group">
                 <div className="aspect-[4/5] overflow-hidden relative">
                   <img src={producer.image} alt={producer.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60"></div>

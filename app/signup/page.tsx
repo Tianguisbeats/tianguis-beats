@@ -154,13 +154,13 @@ export default function SignupPage() {
             <main className="flex-1 flex items-center justify-center pt-24 pb-20 px-4">
                 <div className="max-w-xl w-full">
                     {success ? (
-                        <div className="text-center bg-accent-soft p-12 rounded-[3.5rem] border border-accent/20 animate-in zoom-in duration-500">
+                        <div className="card-modern bg-pro/5 p-12 text-center animate-in zoom-in duration-500">
                             <div className="w-20 h-20 bg-accent rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl shadow-accent/20">
                                 <Music className="text-white w-10 h-10" />
                             </div>
                             <h2 className="text-3xl font-black uppercase tracking-tighter mb-4">¡Casi listo!</h2>
-                            <p className="text-muted font-medium mb-8">Hemos enviado un correo de confirmación a <span className="font-bold text-accent">{email}</span>. Revisa tu bandeja de entrada para verificar tu cuenta.</p>
-                            <Link href="/login" className="inline-flex items-center gap-2 text-accent font-black uppercase tracking-widest text-xs hover:underline">
+                            <p className="text-muted font-medium mb-8">Hemos enviado un correo de confirmación a <span className="font-bold text-pro">{email}</span>. Revisa tu bandeja de entrada para verificar tu cuenta.</p>
+                            <Link href="/login" className="inline-flex items-center gap-2 text-pro font-black uppercase tracking-widest text-xs hover:underline">
                                 Ir al Inicio de Sesión <ArrowRight size={16} />
                             </Link>
                         </div>
@@ -170,15 +170,15 @@ export default function SignupPage() {
                                 <div className="inline-flex items-center justify-center w-16 h-16 bg-accent rounded-2xl transform rotate-3 shadow-xl shadow-accent/20 mb-6">
                                     <Music className="text-white w-8 h-8" />
                                 </div>
-                                <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase mb-2 text-foreground">
-                                    Bienvenido al <span className="text-accent">Estudio</span>
+                                <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase mb-2 text-foreground text-center">
+                                    Bienvenido al <span className="text-pro">Estudio</span>
                                 </h1>
                                 <p className="text-muted font-medium">
                                     Crea tu cuenta y descubre el mejor catálogo de beats.
                                 </p>
                             </div>
 
-                            <div className="bg-card border border-border rounded-[2.5rem] p-8 md:p-10 shadow-soft">
+                            <div className="card-modern p-8 md:p-10">
                                 <form onSubmit={handleSignup} className="space-y-5">
                                     {error && (
                                         <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-xs font-bold rounded-xl text-center">
@@ -206,7 +206,7 @@ export default function SignupPage() {
                                                     value={username}
                                                     onChange={handleUsernameChange}
                                                     placeholder="tu_username"
-                                                    className={`w-full bg-background border rounded-2xl px-5 py-3.5 outline-none transition-all font-bold text-foreground placeholder:text-muted/50 ${isUsernameAvailable === false ? 'border-red-400' : isUsernameAvailable === true ? 'border-green-400' : 'border-border focus:border-accent'}`}
+                                                    className={`w-full bg-background border rounded-2xl px-5 py-3.5 outline-none transition-all font-bold text-foreground placeholder:text-muted/50 ${isUsernameAvailable === false ? 'border-red-400' : isUsernameAvailable === true ? 'border-green-400' : 'border-border focus:border-pro'}`}
                                                     required
                                                 />
                                                 <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -255,7 +255,7 @@ export default function SignupPage() {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="tu@email.com"
-                                            className="w-full bg-background border border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50"
+                                            className="w-full bg-background border border-border rounded-2xl px-5 py-3.5 outline-none focus:border-pro transition-all font-bold text-foreground placeholder:text-muted/50"
                                             required
                                         />
                                     </div>
@@ -268,13 +268,13 @@ export default function SignupPage() {
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 placeholder="••••••••"
-                                                className="w-full bg-background border border-border rounded-2xl px-5 py-3.5 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50 pr-12"
+                                                className="w-full bg-background border border-border rounded-2xl px-5 py-3.5 outline-none focus:border-pro transition-all font-bold text-foreground placeholder:text-muted/50 pr-12"
                                                 required
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-accent transition-colors"
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-pro transition-colors"
                                             >
                                                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                             </button>
@@ -298,7 +298,7 @@ export default function SignupPage() {
                                 </form>
 
                                 <p className="mt-6 text-center text-[11px] font-black uppercase tracking-widest text-muted">
-                                    ¿Ya tienes cuenta? <Link href="/login" className="text-accent underline hover:opacity-80 transition-opacity">Inicia sesión</Link>
+                                    ¿Ya tienes cuenta? <Link href="/login" className="text-pro underline hover:opacity-80 transition-opacity">Inicia sesión</Link>
                                 </p>
                             </div>
                         </>

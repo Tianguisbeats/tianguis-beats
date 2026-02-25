@@ -91,7 +91,7 @@ export default function PricingPage() {
                 "Stems (Pistas)",
                 "Licencia exclusiva",
                 "Sound Kits",
-                "Smart Bio",
+                "Acerca de mí",
                 "Venta de servicios",
                 "Impulso Algorítmico"
             ]
@@ -126,14 +126,14 @@ export default function PricingPage() {
                 downgradeMessages = [
                     "Perderás el acceso a la descarga de Stems (Pistas).",
                     "Perderás la capacidad de vender Licencias Exclusivas.",
-                    "Se desactivarán tus Sound Kits y tu Smart Bio Premium.",
+                    "Se desactivarán tus Sound Kits y tu Acerca de mí Premium.",
                     "Ya no tendrás Impulso Algorítmico en el catálogo."
                 ];
             } else if (currentTier === 'premium' && plan.tier === 'free') {
                 downgradeMessages = [
                     "Tu comisión por venta subirá del 0% al 15%.",
                     "Solo podrás tener 5 Beats públicos (los demás se ocultarán).",
-                    "Perderás el acceso a Stems, Sound Kits y Smart Bio.",
+                    "Perderás el acceso a Stems, Sound Kits y Acerca de mí.",
                     "Ya no podrás descargar archivos WAV de tus producciones."
                 ];
             } else if (currentTier === 'pro' && plan.tier === 'free') {

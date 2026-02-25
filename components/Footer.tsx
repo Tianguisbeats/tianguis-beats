@@ -5,7 +5,7 @@ export default function Footer() {
         <footer className="bg-background py-8 border-t border-border mt-auto">
             <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-accent-soft border border-accent/20 text-accent rounded-xl flex items-center justify-center transform -rotate-6 shadow-sm overflow-hidden group hover:rotate-0 transition-transform duration-300">
+                    <div className="w-10 h-10 bg-accent text-white rounded-xl flex items-center justify-center transform -rotate-6 shadow-sm overflow-hidden group hover:rotate-0 transition-transform duration-300">
                         <img src="/logo.png" alt="Logo" className="w-full h-full object-contain p-1.5 dark:invert" />
                     </div>
                     <div className="flex flex-col">
