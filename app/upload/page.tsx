@@ -172,6 +172,9 @@ export default function UploadPage() {
             }
 
             // 2. Audio de prueba y Alta Calidad (Beats-muestras)
+            // previewFile and coverFile are guaranteed by validator above, but TS needs explicit check
+            if (!previewFile || !coverFile) throw new Error("Archivos obligatorios faltantes");
+
             const previewPath = `${username}/${sanitize(previewFile.name)}`;
             await supabase.storage.from('muestras_beats').upload(previewPath, previewFile, { upsert: true });
 

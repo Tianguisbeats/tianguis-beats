@@ -87,18 +87,18 @@ export default function Navbar() {
                             </span>
                         </Link>
 
-                        <div className="hidden md:flex items-center gap-8">
-                            <div className="flex items-baseline space-x-6 text-[10px] font-black text-muted uppercase tracking-[0.2em]">
-                                <Link href="/beats" className="hover:text-accent transition-colors py-2">Explorar Tianguis</Link>
+                        <div className="hidden md:flex items-center gap-5">
+                            <div className="flex items-center space-x-5 text-[10px] font-black text-muted uppercase tracking-[0.2em]">
+                                <Link href="/beats" className="hover:text-accent transition-colors">Explorar Tianguis</Link>
                                 {!user && (
-                                    <Link href="/pricing" className="hover:text-accent transition-colors py-2">Planes</Link>
+                                    <Link href="/pricing" className="hover:text-accent transition-colors">Planes</Link>
                                 )}
                             </div>
 
                             <div className="flex items-center gap-4">
                                 {user ? (
-                                    <div className="flex items-center gap-6">
-                                        <Link href="/upload" className="btn-standard px-5 py-3 min-h-[48px] text-[10px] font-black uppercase tracking-[0.2em] hover:text-accent transition-all">
+                                    <div className="flex items-center gap-4">
+                                        <Link href="/upload" className="btn-standard px-5 py-2.5 min-h-[42px] text-[10px] font-black uppercase tracking-[0.2em] hover:text-accent transition-all flex items-center justify-center">
                                             Sube tu Beat
                                         </Link>
 
