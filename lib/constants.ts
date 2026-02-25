@@ -137,3 +137,37 @@ export const MOODS = [
     { label: "Bélico", emoji: "🦅", color: "text-green-800 bg-green-50 border-green-100" },
     { label: "Dolido", emoji: "🥃", color: "text-stone-800 bg-stone-50 border-stone-100" }
 ];
+
+/**
+ * Lista de tonalidades y escalas musicales.
+ * @constant {Array<{label: string, value: string}>}
+ */
+export const MUSICAL_KEYS = [
+    // TONALIDADES MAYORES (Major)
+    { label: "C Major", value: "C_maj" },
+    { label: "C# Major", value: "Csharp_maj" },
+    { label: "D Major", value: "D_maj" },
+    { label: "Eb Major", value: "Eb_maj" },
+    { label: "E Major", value: "E_maj" },
+    { label: "F Major", value: "F_maj" },
+    { label: "F# Major", value: "Fsharp_maj" },
+    { label: "G Major", value: "G_maj" },
+    { label: "Ab Major", value: "Ab_maj" },
+    { label: "A Major", value: "A_maj" },
+    { label: "Bb Major", value: "Bb_maj" },
+    { label: "B Major", value: "B_maj" },
+
+    // TONALIDADES MENORES (Minor)
+    { label: "C Minor", value: "C_min" },
+    { label: "C# Minor", value: "Csharp_min" },
+    { label: "D Minor", value: "D_min" },
+    { label: "Eb Minor", value: "Eb_min" },
+    { label: "E Minor", value: "E_min" },
+    { label: "F Minor", value: "F_min" },
+    { label: "F# Minor", value: "Fsharp_min" },
+    { label: "G Minor", value: "G_min" },
+    { label: "Ab Minor", value: "Ab_min" },
+    { label: "A Minor", value: "A_min" },
+    { label: "Bb Minor", value: "Bb_min" },
+    { label: "B Minor", value: "B_min" }
+];

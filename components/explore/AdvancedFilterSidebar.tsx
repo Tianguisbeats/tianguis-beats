@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { SlidersHorizontal, Music, X, ChevronDown, Check, Zap } from 'lucide-react';
-import { MOODS, SUBGENRES } from '@/lib/constants';
+import { MOODS, SUBGENRES, MUSICAL_KEYS } from '@/lib/constants';
 
 interface FilterState {
     searchQuery: string;
@@ -27,7 +27,6 @@ interface AdvancedFilterSidebarProps {
     onClose: () => void;
 }
 
-const KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
 export default function AdvancedFilterSidebar({
     filterState,
@@ -193,42 +192,30 @@ export default function AdvancedFilterSidebar({
                     </div>
 
 
-                    {/* Key & Scale */}
-                    <div className="space-y-6">
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                                <label className="text-[10px] font-black text-muted uppercase tracking-widest">Tonalidad (Key)</label>
-                                {filterState.key && (
-                                    <button onClick={() => updateFilter('key', '')} className="text-[9px] font-bold text-error uppercase hover:underline min-h-[40px] px-2 flex items-center">Limpiar</button>
-                                )}
-                            </div>
-                            <select
-                                value={filterState.key}
-                                onChange={(e) => updateFilter('key', e.target.value)}
-                                className="w-full bg-background border border-border text-foreground rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent appearance-none min-h-[48px]"
-                            >
-                                <option value="" className="bg-card">Cualquier Nota</option>
-                                {KEYS.map(k => <option key={k} value={k} className="bg-card">{k}</option>)}
-                            </select>
+                    {/* Key & Scale (Unified) */}
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <label className="text-[10px] font-black text-muted uppercase tracking-widest">Tonalidad & Escala</label>
+                            {filterState.key && (
+                                <button onClick={() => { updateFilter('key', ''); updateFilter('scale', ''); }} className="text-[9px] font-bold text-error uppercase hover:underline min-h-[40px] px-2 flex items-center">Limpiar</button>
+                            )}
                         </div>
-
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                                <label className="text-[10px] font-black text-muted uppercase tracking-widest">Escala</label>
-                                {filterState.scale && (
-                                    <button onClick={() => updateFilter('scale', '')} className="text-[9px] font-bold text-error uppercase hover:underline min-h-[40px] px-2 flex items-center">Limpiar</button>
-                                )}
-                            </div>
-                            <select
-                                value={filterState.scale}
-                                onChange={(e) => updateFilter('scale', e.target.value)}
-                                className="w-full bg-background border border-border text-foreground rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent appearance-none min-h-[48px]"
-                            >
-                                <option value="" className="bg-card">Cualquier Escala</option>
-                                <option value="Mayor" className="bg-card">Mayor</option>
-                                <option value="Menor" className="bg-card">Menor</option>
-                            </select>
-                        </div>
+                        <select
+                            value={filterState.key}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                updateFilter('key', val);
+                                if (val.includes('_maj')) updateFilter('scale', 'Mayor');
+                                else if (val.includes('_min')) updateFilter('scale', 'Menor');
+                                else updateFilter('scale', '');
+                            }}
+                            className="w-full bg-background border border-border text-foreground rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent appearance-none min-h-[48px]"
+                        >
+                            <option value="" className="bg-card">Cualquier Tonalidad</option>
+                            {MUSICAL_KEYS.map(k => (
+                                <option key={k.value} value={k.value} className="bg-card">{k.label}</option>
+                            ))}
+                        </select>
                     </div>
                 </div>
             </aside>

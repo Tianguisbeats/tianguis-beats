@@ -144,10 +144,22 @@ function CatalogContent() {
                 if (filterState.mood) query = query.ilike('vibras', `%${filterState.mood}%`);
                 if (filterState.bpmMin) query = query.gte('bpm', filterState.bpmMin);
                 if (filterState.bpmMax) query = query.lte('bpm', filterState.bpmMax);
-                if (filterState.key) query = query.eq('nota_musical', filterState.key);
-                if (filterState.scale) {
-                    const scale = filterState.scale;
+                if (filterState.key) {
+                    const keyVal = filterState.key;
+                    if (keyVal.includes('_')) {
+                        const [note, scaleSuffix] = keyVal.split('_');
+                        const dbNote = note.replace('sharp', '#').replace('flat', 'b');
+                        query = query.eq('nota_musical', dbNote);
 
+                        const dbScale = scaleSuffix === 'maj' ? 'Mayor' : 'Menor';
+                        query = query.eq('escala_musical', dbScale);
+                    } else {
+                        query = query.eq('nota_musical', filterState.key);
+                    }
+                }
+
+                if (filterState.scale && !filterState.key) {
+                    const scale = filterState.scale;
                     if (scale === 'Mayor') {
                         query = query.or(`escala_musical.eq.Mayor,nota_musical.ilike.%Maj%`);
                     } else if (scale === 'Menor') {

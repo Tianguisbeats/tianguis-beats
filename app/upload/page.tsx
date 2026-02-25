@@ -14,11 +14,9 @@ import Footer from '@/components/Footer';
 import TagInput from '@/components/ui/TagInput';
 import Switch from '@/components/ui/Switch';
 
-import { GENRES, MOODS, SUBGENRES } from '@/lib/constants';
+import { GENRES, MOODS, SUBGENRES, MUSICAL_KEYS } from '@/lib/constants';
 import { EXCHANGE_RATES } from '@/context/CurrencyContext';
 
-const SCALES = ["Menor", "Mayor"];
-const KEYS_BASE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
 /**
  * UploadPage: Formulario principal para la subida de beats.
@@ -365,36 +363,30 @@ export default function UploadPage() {
                                         </select>
                                     </div>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div className="space-y-4">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">BPM</label>
-                                            <input
-                                                type="number"
-                                                value={bpm}
-                                                onChange={(e) => setBpm(e.target.value)}
-                                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-sm font-bold outline-none focus:border-accent transition-all"
-                                                placeholder="140"
-                                                required
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Escala</label>
-                                            <select value={musicalScale} onChange={(e) => setMusicalScale(e.target.value)} className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all font-heading">
-                                                <option value="">Escala</option>
-                                                {SCALES.map(s => <option key={s} value={s}>{s}</option>)}
-                                            </select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Nota</label>
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Tonalidad & Escala</label>
                                             <select
-                                                value={musicalKey}
-                                                onChange={(e) => setMusicalKey(e.target.value)}
-                                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all font-heading"
-                                                disabled={!musicalScale}
+                                                value={musicalKey + (musicalScale === 'Menor' ? '_min' : '_maj')}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (!val) {
+                                                        setMusicalKey('');
+                                                        setMusicalScale('');
+                                                        return;
+                                                    }
+                                                    const [note, suffix] = val.split('_');
+                                                    const dbNote = note.replace('sharp', '#').replace('flat', 'b');
+                                                    setMusicalKey(dbNote);
+                                                    setMusicalScale(suffix === 'min' ? 'Menor' : 'Mayor');
+                                                }}
+                                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all font-heading appearance-none"
                                                 required
                                             >
-                                                <option value="">-</option>
-                                                {KEYS_BASE.map(k => <option key={k} value={k}>{k}</option>)}
+                                                <option value="">Seleccionar Tonalidad</option>
+                                                {MUSICAL_KEYS.map(k => (
+                                                    <option key={k.value} value={k.value}>{k.label}</option>
+                                                ))}
                                             </select>
                                         </div>
                                     </div>

@@ -42,23 +42,46 @@ export default function Home() {
     }
 
     // 2. Detectar Tonalidad (Key) y Escala
-    const keys = ["c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b"];
-    const scales = ["major", "minor", "mayor", "menor"];
+    const keyLabels = [
+      "C", "C#", "C-sharp", "Db", "D", "D#", "D-sharp", "Eb", "E", "F", "F#", "F-sharp",
+      "Gb", "G", "G#", "G-sharp", "Ab", "A", "A#", "A-sharp", "Bb", "B"
+    ];
 
-    keys.forEach(k => {
-      // Usar regex para buscar la nota como palabra independiente o al inicio
-      const keyRegex = new RegExp(`\\b${k === 'c#' ? 'c#' : k}\\b`, 'i');
+    // Mapeo selectivo para normalización a lo que espera el catálogo
+    const keyMap: Record<string, string> = {
+      "c-sharp": "Csharp", "d-sharp": "Dsharp", "f-sharp": "Fsharp", "g-sharp": "Gsharp", "a-sharp": "Asharp",
+      "db": "Csharp", "eb": "Eb", "gb": "Fsharp", "ab": "Ab", "bb": "Bb"
+    };
+
+    let detectedKey = "";
+    for (const k of keyLabels) {
+      const escapedK = k.replace('#', '\\#');
+      const keyRegex = new RegExp(`\\b${escapedK}\\b`, 'i');
       if (keyRegex.test(lowerQuery)) {
-        params.set('key', k.toUpperCase().replace('B', '#')); // Normalizar b -> # si fuera necesario, aunque aquí usamos #
+        detectedKey = k.toLowerCase();
+        break;
       }
-    });
+    }
 
-    scales.forEach(s => {
-      if (lowerQuery.includes(s)) {
-        const scaleValue = (s === 'minor' || s === 'menor') ? 'Menor' : 'Mayor';
-        params.set('scale', scaleValue);
+    let detectedScale = "";
+    if (lowerQuery.includes('minor') || lowerQuery.includes('menor') || lowerQuery.includes(' min')) {
+      detectedScale = "min";
+    } else if (lowerQuery.includes('major') || lowerQuery.includes('mayor') || lowerQuery.includes(' maj')) {
+      detectedScale = "maj";
+    }
+
+    if (detectedKey) {
+      // Normalizar la nota para el value final
+      const normalizedKey = keyMap[detectedKey] || detectedKey.replace('#', 'sharp').toUpperCase();
+      const finalKey = normalizedKey.charAt(0).toUpperCase() + normalizedKey.slice(1);
+
+      if (detectedScale) {
+        params.set('key', `${finalKey}_${detectedScale}`);
+      } else {
+        // Si no detecta escala, por defecto busca Major si el usuario solo puso la nota
+        params.set('key', `${finalKey}_maj`);
       }
-    });
+    }
 
     // 3. Detectar Moods de la lista oficial
     MOODS.forEach(m => {
