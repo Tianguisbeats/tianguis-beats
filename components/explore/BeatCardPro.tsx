@@ -174,10 +174,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                 {/* Producer Row */}
                 <Link href={`/${beat.productor_nombre_usuario || '#'}`} className={`flex items-center gap-2 ${compact ? 'mb-1.5' : 'mb-3'} group/prod ${compact ? 'min-h-[24px]' : 'min-h-[32px]'} justify-center w-full`}>
                     <div className="relative shrink-0">
-                        <div className={`${compact ? 'w-5 h-5' : 'w-6 h-6 md:w-8 md:h-8'} rounded-full overflow-hidden border-2 p-0.5 transform transition-transform group-hover/prod:scale-110 ${beat.productor_nivel_suscripcion === 'premium' ? 'border-premium shadow-[0_0_12px_rgba(59,130,246,0.5)]' :
-                            beat.productor_nivel_suscripcion === 'pro' ? 'border-pro shadow-[0_0_12px_rgba(245,158,11,0.5)]' :
-                                'border-border'
-                            }`}>
+                        <div className={`${compact ? 'w-5 h-5' : 'w-6 h-6 md:w-8 md:h-8'} rounded-full overflow-hidden border-2 transition-transform group-hover/prod:scale-110 border-border group-hover/prod:border-accent`}>
                             <img
                                 src={beat.productor_foto_perfil || `https://ui-avatars.com/api/?name=${beat.productor_nombre_artistico}&background=random`}
                                 className="w-full h-full object-cover rounded-full"
@@ -207,10 +204,10 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                             {beat.genero}
                         </span>
                     )}
-                    <span className={`text-[7px] font-black text-pro bg-pro/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-pro/20 uppercase tracking-widest leading-none`}>
+                    <span className={`text-[7px] font-black text-muted bg-accent-soft ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-border uppercase tracking-widest leading-none`}>
                         {beat.bpm} BPM
                     </span>
-                    <span className={`text-[7px] font-black text-premium bg-premium/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-premium/20 uppercase tracking-widest leading-none`}>
+                    <span className={`text-[7px] font-black text-muted bg-accent-soft ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-border uppercase tracking-widest leading-none`}>
                         {(beat.nota_musical || 'C').split(' ')[0].replace('m', '')}
                     </span>
                     <span className={`text-[7px] font-black text-accent bg-accent/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-accent/20 uppercase tracking-widest leading-none`}>

@@ -113,9 +113,7 @@ export default function Navbar() {
 
                                         <div className="flex items-center gap-4 border-l border-border pl-6">
                                             <Link href={`/${profile?.nombre_usuario || 'profile'}`} className="group flex items-center gap-3 min-h-[48px]">
-                                                <div className={`w-10 h-10 rounded-lg overflow-hidden border-2 transition-all duration-300 ${profile?.nivel_suscripcion === 'premium' ? 'border-premium shadow-lg shadow-premium/20' :
-                                                    profile?.nivel_suscripcion === 'pro' ? 'border-pro shadow-lg shadow-pro/20' : 'border-border'
-                                                    }`}>
+                                                <div className={`w-10 h-10 rounded-lg overflow-hidden border-2 transition-all duration-300 border-border group-hover:border-accent`}>
                                                     {profile?.foto_perfil ? (
                                                         <img src={profile.foto_perfil} alt="Perfil" className="w-full h-full object-cover" />
                                                     ) : (

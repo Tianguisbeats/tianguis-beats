@@ -124,8 +124,8 @@ export default function LoginPage() {
             <Navbar />
 
             <main className="flex-1 flex items-center justify-center pt-24 pb-20 px-4 relative overflow-hidden">
-                {/* Fondo decorativo */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-pro/5 rounded-full blur-[120px] pointer-events-none -z-10" />
+                {/* Fondo limpio */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-background rounded-full pointer-events-none -z-10" />
 
                 <div className="max-w-xl w-full">
                     <div className="text-center mb-8">
@@ -134,7 +134,7 @@ export default function LoginPage() {
                         </div>
                         <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase mb-2 text-foreground text-center">
                             {mode === 'forgot-password' ? 'Recuperar ' : 'Bienvenido al '}
-                            <span className="text-pro">{mode === 'forgot-password' ? 'Acceso' : 'Estudio'}</span>
+                            <span className="text-accent">{mode === 'forgot-password' ? 'Acceso' : 'Estudio'}</span>
                         </h1>
                         <p className="text-muted font-medium">
                             {mode === 'password' && 'Ingresa tus credenciales para continuar.'}
@@ -179,7 +179,7 @@ export default function LoginPage() {
                                             {mode === 'password' ? 'Email o Usuario' : 'Tu Correo Electrónico'}
                                         </label>
                                         <div className="relative group">
-                                            <div className="absolute left-6 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-pro transition-colors">
+                                            <div className="absolute left-6 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-accent transition-colors">
                                                 <Mail size={20} />
                                             </div>
                                             <input
@@ -187,7 +187,7 @@ export default function LoginPage() {
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 placeholder={mode === 'password' ? "usuario o email@ejemplo.com" : "tu@email.com"}
-                                                className="w-full bg-background border border-border rounded-2xl pl-16 pr-6 py-4 outline-none focus:border-pro transition-all font-bold text-foreground placeholder:text-muted/50"
+                                                className="w-full bg-background border border-border rounded-2xl pl-16 pr-6 py-4 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50"
                                                 required
                                             />
                                         </div>
@@ -197,7 +197,7 @@ export default function LoginPage() {
                                         <div>
                                             <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-2 ml-1">Contraseña</label>
                                             <div className="relative group">
-                                                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-pro transition-colors">
+                                                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-accent transition-colors">
                                                     <Lock size={20} />
                                                 </div>
                                                 <input
@@ -205,7 +205,7 @@ export default function LoginPage() {
                                                     value={password}
                                                     onChange={(e) => setPassword(e.target.value)}
                                                     placeholder="••••••••"
-                                                    className="w-full bg-background border border-border rounded-2xl pl-16 pr-12 py-4 outline-none focus:border-pro transition-all font-bold text-foreground placeholder:text-muted/50"
+                                                    className="w-full bg-background border border-border rounded-2xl pl-16 pr-12 py-4 outline-none focus:border-accent transition-all font-bold text-foreground placeholder:text-muted/50"
                                                     required
                                                 />
                                                 <button
@@ -222,7 +222,7 @@ export default function LoginPage() {
                                     {mode === 'password' && (
                                         <div className="flex items-center justify-between pt-2">
                                             <label className="flex items-center gap-3 cursor-pointer group select-none">
-                                                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${rememberMe ? 'bg-pro border-pro text-white' : 'border-border group-hover:border-pro/50 bg-background'}`}>
+                                                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${rememberMe ? 'bg-accent border-accent text-white' : 'border-border group-hover:border-accent/50 bg-card'}`}>
                                                     {rememberMe && <Check size={12} strokeWidth={3} />}
                                                 </div>
                                                 <input
@@ -231,12 +231,12 @@ export default function LoginPage() {
                                                     checked={rememberMe}
                                                     onChange={(e) => setRememberMe(e.target.checked)}
                                                 />
-                                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${rememberMe ? 'text-pro' : 'text-muted group-hover:text-foreground'}`}>Recordarme</span>
+                                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${rememberMe ? 'text-accent' : 'text-muted group-hover:text-foreground'}`}>Recordarme</span>
                                             </label>
                                             <button
                                                 type="button"
                                                 onClick={() => setMode('forgot-password')}
-                                                className="text-pro hover:opacity-80 text-[10px] font-black uppercase tracking-widest transition-opacity"
+                                                className="text-accent hover:opacity-80 text-[10px] font-black uppercase tracking-widest transition-opacity"
                                             >
                                                 ¿Olvidaste tu contraseña?
                                             </button>
@@ -281,7 +281,7 @@ export default function LoginPage() {
                         </form>
 
                         <p className="text-center text-[10px] font-black uppercase tracking-widest text-muted mt-10">
-                            ¿No tienes cuenta? <Link href="/signup" className="text-pro underline hover:opacity-80 transition-opacity">Regístrate gratis</Link>
+                            ¿No tienes cuenta? <Link href="/signup" className="text-accent underline hover:opacity-80 transition-opacity">Regístrate gratis</Link>
                         </p>
                     </div>
 

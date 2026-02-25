@@ -101,8 +101,6 @@ export default function Home() {
       <section className="relative pt-24 pb-16 lg:pt-48 lg:pb-32 px-4 overflow-hidden">
         {/* Gradientes de fondo */}
         <div className="absolute top-0 left-0 w-full h-[80vh] bg-background -z-20"></div>
-        <div className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-pro/5 rounded-full blur-[120px] -z-10 dark:opacity-20"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-premium/5 rounded-full blur-[100px] -z-10 dark:opacity-20"></div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card/50 backdrop-blur-sm mb-6 md:mb-8 animate-fade-in-up">
@@ -117,7 +115,7 @@ export default function Home() {
 
           <h1 className="text-[2.5rem] leading-[1.1] md:text-7xl lg:text-9xl font-black text-foreground tracking-tighter mb-6 md:mb-8 font-heading px-2">
             La Casa de los <br />
-            <span className="text-pro block sm:inline mt-1 sm:mt-0">Corridos Tumbados.</span>
+            <span className="text-accent block sm:inline mt-1 sm:mt-0">Corridos Tumbados.</span>
           </h1>
 
           <p className="text-sm md:text-xl text-muted font-medium max-w-3xl mx-auto mb-8 md:mb-12 leading-relaxed tracking-tight px-6 font-body">
@@ -126,8 +124,7 @@ export default function Home() {
 
           {/* Buscador Integrado (Omni-Search) */}
           <div className="max-w-2xl mx-auto relative group mb-8 md:mb-12 px-4">
-            <div className="absolute inset-0 bg-pro/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative flex flex-col md:flex-row items-stretch md:items-center bg-card p-2 rounded-[1.5rem] md:rounded-full shadow-2xl border border-border transition-all duration-300 focus-within:ring-4 focus-within:ring-pro/20">
+            <div className="relative flex flex-col md:flex-row items-stretch md:items-center bg-card p-2 rounded-[1.5rem] md:rounded-full shadow-2xl border border-border transition-all duration-300">
               <div className="flex flex-1 items-center min-h-[56px]">
                 <div className="pl-4 md:pl-6 text-muted">
                   <Search size={20} className="md:w-5 md:h-5" />
@@ -209,7 +206,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Característica 1 - Algoritmo (Smart Match) */}
             <div className="card-modern p-10 group">
-              <div className="w-14 h-14 bg-pro/10 text-pro rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+              <div className="w-14 h-14 bg-accent/10 text-accent rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                 <Cpu size={28} />
               </div>
               <h3 className="text-2xl font-black text-foreground mb-4 tracking-tight font-heading">Smart Match Algorithm</h3>
@@ -238,7 +235,7 @@ export default function Home() {
 
             {/* Característica 3 - Contratos Inteligentes */}
             <div className="card-modern p-10 group">
-              <div className="w-14 h-14 bg-premium/10 text-premium rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+              <div className="w-14 h-14 bg-accent/10 text-accent rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                 <ShieldCheck size={28} />
               </div>
               <h3 className="text-2xl font-black text-foreground mb-4 tracking-tight font-heading">Smart Contracts</h3>
