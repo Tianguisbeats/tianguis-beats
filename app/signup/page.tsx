@@ -105,6 +105,14 @@ export default function SignupPage() {
             }
 
             console.log('Registro exitoso para el ID:', authData.user.id);
+
+            // Si Supabase devuelve una sesión (sucede si la verificación de correo está desactivada)
+            // redirigimos directamente al estudio.
+            if (authData.session) {
+                window.location.href = '/studio';
+                return;
+            }
+
             setSuccess(true);
         } catch (err: any) {
             console.error('DETALLES COMPLETOS DEL ERROR DE REGISTRO:', JSON.stringify(err, null, 2));
