@@ -8,12 +8,12 @@ interface Comment {
     created_at: string;
     user_id: string;
     user: {
-        username: string;
-        artistic_name: string;
+        nombre_usuario: string;
+        nombre_artistico: string;
         foto_perfil: string | null;
-        is_verified?: boolean;
-        is_founder?: boolean;
-        subscription_tier?: string;
+        esta_verificado?: boolean;
+        es_fundador?: boolean;
+        nivel_suscripcion?: string;
     }
 }
 
@@ -38,12 +38,12 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                     created_at,
                     user_id,
                     user:user_id (
-                        username,
-                        artistic_name,
+                        nombre_usuario,
+                        nombre_artistico,
                         foto_perfil,
-                        is_verified,
-                        is_founder,
-                        subscription_tier
+                        esta_verificado,
+                        es_fundador,
+                        nivel_suscripcion
                     )
                 `)
                 .eq('beat_id', beatId)
@@ -52,7 +52,7 @@ export default function CommentSection({ beatId }: { beatId: string }) {
             if (data) {
                 const formatted = data.map((c: any) => ({
                     ...c,
-                    user: c.user || { username: 'Usuario', artistic_name: 'Usuario', foto_perfil: null }
+                    user: c.user || { nombre_usuario: 'Usuario', nombre_artistico: 'Usuario', foto_perfil: null }
                 }));
                 setComments(formatted);
             }
@@ -67,11 +67,11 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                 const fetchNewComment = async () => {
                     const { data } = await supabase
                         .from('comments')
-                        .select(`id, content, created_at, user_id, user:user_id (username, artistic_name, foto_perfil, is_verified, is_founder, subscription_tier)`)
+                        .select(`id, content, created_at, user_id, user:user_id (nombre_usuario, nombre_artistico, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)`)
                         .eq('id', (payload.new as any).id)
                         .single();
                     if (data) {
-                        setComments(prev => [{ ...data, user: (data as any).user || { username: 'Usuario', artistic_name: 'Usuario', foto_perfil: null } } as Comment, ...prev]);
+                        setComments(prev => [{ ...data, user: (data as any).user || { nombre_usuario: 'Usuario', nombre_artistico: 'Usuario', foto_perfil: null } } as Comment, ...prev]);
                     }
                 };
                 fetchNewComment();
@@ -97,7 +97,7 @@ export default function CommentSection({ beatId }: { beatId: string }) {
             content: commentText.trim(),
             beat_id: beatId,
             user_id: user.id
-        }).select(`id, content, created_at, user_id, user:user_id (username, artistic_name, foto_perfil, is_verified, is_founder, subscription_tier)`).single();
+        }).select(`id, content, created_at, user_id, user:user_id (nombre_usuario, nombre_artistico, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)`).single();
 
         if (error) {
             console.error('Error posting comment:', error);
@@ -106,7 +106,7 @@ export default function CommentSection({ beatId }: { beatId: string }) {
             // Optimistic update: Add if not already there (real-time might also add it)
             setComments(prev => {
                 if (prev.some(c => c.id === data.id)) return prev;
-                return [{ ...data, user: (data as any).user || { username: 'Usuario', artistic_name: 'Usuario', foto_perfil: null } } as Comment, ...prev];
+                return [{ ...data, user: (data as any).user || { nombre_usuario: 'Usuario', nombre_artistico: 'Usuario', foto_perfil: null } } as Comment, ...prev];
             });
         }
         setIsLoading(false);
@@ -166,28 +166,28 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                 ) : (
                     comments.map(comment => (
                         <div key={comment.id} className="flex gap-4 group">
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden border-2 transition-all ${comment.user.subscription_tier === 'premium' ? 'border-blue-600 shadow-sm' :
-                                comment.user.subscription_tier === 'pro' ? 'border-amber-500' :
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden border-2 transition-all ${comment.user.nivel_suscripcion === 'premium' ? 'border-blue-600 shadow-sm' :
+                                comment.user.nivel_suscripcion === 'pro' ? 'border-amber-500' :
                                     'border-border'
                                 }`}>
                                 {comment.user.foto_perfil ? (
-                                    <img src={comment.user.foto_perfil} alt={comment.user.username} className="w-full h-full object-cover" />
+                                    <img src={comment.user.foto_perfil} alt={comment.user.nombre_usuario} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full bg-slate-50 dark:bg-white/10 flex items-center justify-center text-muted italic font-black text-xs">
-                                        {(comment.user.artistic_name || comment.user.username || 'U').charAt(0).toUpperCase()}
+                                        {(comment.user.nombre_artistico || comment.user.nombre_usuario || 'U').charAt(0).toUpperCase()}
                                     </div>
                                 )}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between mb-1.5">
                                     <div className="flex items-center gap-2 flex-wrap">
-                                        <a href={`/${comment.user.username}`} className="text-xs font-black text-foreground uppercase tracking-tight hover:text-accent transition-colors truncate max-w-[150px]">
-                                            {comment.user.artistic_name || comment.user.username}
+                                        <a href={`/${comment.user.nombre_usuario}`} className="text-xs font-black text-foreground uppercase tracking-tight hover:text-accent transition-colors truncate max-w-[150px]">
+                                            {comment.user.nombre_artistico || comment.user.nombre_usuario}
                                         </a>
-                                        {comment.user.is_verified && (
+                                        {comment.user.esta_verificado && (
                                             <img src="/verified-badge.png" className="w-4 h-4 object-contain" alt="Verificado" />
                                         )}
-                                        {comment.user.is_founder && (
+                                        {comment.user.es_fundador && (
                                             <Crown size={14} className="text-amber-500" fill="currentColor" />
                                         )}
                                     </div>

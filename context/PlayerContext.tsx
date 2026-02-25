@@ -60,18 +60,18 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         }
     }, [volume]);
 
-    const [playCountTracked, setPlayCountTracked] = useState<string | null>(null);
+    const [playCountTracked, setPlayCountTracked] = useState<Set<string>>(new Set());
 
     // Rastrear el conteo de reproducciones con un retraso de 10 segundos
     useEffect(() => {
-        if (!currentBeat || playCountTracked === currentBeat.id) return;
+        if (!currentBeat || playCountTracked.has(currentBeat.id)) return;
 
         if (currentTime >= 10) {
             const incrementPlays = async () => {
                 try {
-                    setPlayCountTracked(currentBeat.id);
-                    // Usar la nueva función track_beat_activity que maneja stats semanales
-                    await supabase.rpc('track_beat_activity', { p_beat_id: currentBeat.id, p_type: 'play' });
+                    setPlayCountTracked(prev => new Set(prev).add(currentBeat.id));
+                    // Usar la función correcta definida en el master logic
+                    await supabase.rpc('incrementar_reproduccion', { id_beat: currentBeat.id });
                 } catch (err) {
                     console.error("Error al incrementar el conteo de reproducciones:", err);
                     // Respaldo en caso de fallo del RPC
@@ -95,7 +95,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
         // Reiniciar el rastreo para el nuevo beat
         if (currentBeat?.id !== beat.id) {
-            setPlayCountTracked(null);
+            setPlayCountTracked(new Set());
         }
 
         // Resolve the URL: Try multiple sources in order of preference

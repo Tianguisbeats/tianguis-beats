@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
+import { usePlayer } from '@/context/PlayerContext';
 
 interface WaveformPlayerProps {
     url: string;
@@ -10,21 +11,30 @@ interface WaveformPlayerProps {
     height?: number;
     waveColor?: string;
     progressColor?: string;
+    isSync?: boolean; // New prop for synchronization
+    beatId?: string;  // Required if isSync is true
 }
 
 export default function WaveformPlayer({
     url,
     onPlayPause,
     height = 80,
-    waveColor = 'rgba(255, 255, 255, 0.1)',
-    progressColor = '#3b82f6'
+    waveColor = 'rgba(59, 130, 246, 0.1)', // Mau-soft default
+    progressColor = '#3b82f6',             // Mau-accent default
+    isSync = false,
+    beatId
 }: WaveformPlayerProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const wavesurfer = useRef<WaveSurfer | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [localIsPlaying, setLocalIsPlaying] = useState(false);
     const [duration, setDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const [isMuted, setIsMuted] = useState(false);
+
+    const { currentBeat, isPlaying: globalIsPlaying, togglePlay: globalTogglePlay, currentTime: globalCurrentTime, seek: globalSeek } = usePlayer();
+
+    // Determine if this specific waveform should sync with the global player
+    const isActuallySyncing = isSync && beatId && currentBeat?.id === beatId;
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -36,7 +46,7 @@ export default function WaveformPlayer({
             height: height,
             barWidth: 2,
             barGap: 3,
-            barRadius: 10,
+            barRadius: 2,
             cursorWidth: 2,
             cursorColor: progressColor,
             normalize: true,
@@ -49,26 +59,59 @@ export default function WaveformPlayer({
         ws.on('ready', () => {
             setDuration(ws.getDuration());
             wavesurfer.current = ws;
+            // If already playing in global, sync position
+            if (isActuallySyncing) {
+                ws.setTime(globalCurrentTime);
+                if (globalIsPlaying) ws.play();
+            }
         });
 
-        ws.on('play', () => setIsPlaying(true));
-        ws.on('pause', () => setIsPlaying(false));
-        ws.on('timeupdate', (time) => setCurrentTime(time));
+        ws.on('play', () => setLocalIsPlaying(true));
+        ws.on('pause', () => setLocalIsPlaying(false));
+        ws.on('timeupdate', (time) => {
+            if (!isActuallySyncing) setCurrentTime(time);
+        });
+
+        // Handle clicks on waveform for seeking
+        ws.on('interaction', () => {
+            if (isActuallySyncing) {
+                globalSeek(ws.getCurrentTime());
+            }
+        });
 
         return () => {
             ws.destroy();
         };
-    }, [url, height, waveColor, progressColor]);
+    }, [url, height, waveColor, progressColor, isActuallySyncing]);
+
+    // Sync state from global player to waveform
+    useEffect(() => {
+        if (!wavesurfer.current || !isActuallySyncing) return;
+
+        if (globalIsPlaying) {
+            wavesurfer.current.play();
+        } else {
+            wavesurfer.current.pause();
+        }
+    }, [globalIsPlaying, isActuallySyncing]);
+
+    // Update time displays properly
+    const displayTime = isActuallySyncing ? globalCurrentTime : currentTime;
 
     const handleTogglePlay = () => {
-        if (wavesurfer.current) {
+        if (isActuallySyncing) {
+            globalTogglePlay();
+        } else if (wavesurfer.current) {
             wavesurfer.current.playPause();
             onPlayPause?.(wavesurfer.current.isPlaying());
         }
     };
 
     const handleSeek = (seconds: number) => {
-        if (wavesurfer.current) {
+        if (isActuallySyncing) {
+            globalSeek(globalCurrentTime + seconds);
+            wavesurfer.current?.setTime(globalCurrentTime + seconds);
+        } else if (wavesurfer.current) {
             wavesurfer.current.skip(seconds);
         }
     };
@@ -94,7 +137,7 @@ export default function WaveformPlayer({
                         onClick={handleTogglePlay}
                         className="w-20 h-20 bg-background text-foreground rounded-[1.5rem] flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all text-accent"
                     >
-                        {isPlaying ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />}
+                        {isActuallySyncing ? (globalIsPlaying ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />) : (localIsPlaying ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />)}
                     </button>
 
                     <div className="flex items-center gap-2">

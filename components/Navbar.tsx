@@ -70,7 +70,7 @@ export default function Navbar() {
 
     return (
         <div className="relative w-full z-50 h-20">
-            <nav className="fixed top-0 left-0 right-0 w-full bg-background/80 border-b border-border backdrop-blur-xl shadow-sm z-50 transition-all duration-300">
+            <nav className="fixed top-0 left-0 right-0 w-full bg-background/80 border-b border-border backdrop-blur-xl shadow-sm z-50 transition-all duration-500 hover:shadow-lg hover:shadow-accent/5 hover:border-accent/20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
                         {/* Área del Logo */}
@@ -82,8 +82,8 @@ export default function Navbar() {
                                     <Music size={24} fill="currentColor" />
                                 )}
                             </div>
-                            <span className="text-xl font-heading font-black text-foreground tracking-tighter uppercase whitespace-nowrap">
-                                Tianguis<span className="text-accent">Beats</span>
+                            <span className="text-xl font-heading font-black tracking-tighter uppercase whitespace-nowrap">
+                                <span className="text-muted">Tianguis</span><span className="text-accent">Beats</span>
                             </span>
                         </Link>
 
@@ -98,7 +98,7 @@ export default function Navbar() {
                             <div className="flex items-center gap-4">
                                 {user ? (
                                     <div className="flex items-center gap-6">
-                                        <Link href="/upload" className="btn-standard px-5 py-3 min-h-[48px]">
+                                        <Link href="/upload" className="btn-standard px-5 py-3 min-h-[48px] text-[10px] font-black uppercase tracking-[0.2em] hover:text-accent transition-all">
                                             Sube tu Beat
                                         </Link>
 
@@ -135,7 +135,7 @@ export default function Navbar() {
                                                 </div>
                                             </Link>
 
-                                            <Link href="/studio" className="w-12 h-12 flex items-center justify-center text-muted hover:text-foreground transition-colors" title="Tianguis Studio">
+                                            <Link href="/studio" className="w-12 h-12 flex items-center justify-center text-muted hover:text-accent transition-colors" title="Tianguis Studio">
                                                 <Settings size={20} />
                                             </Link>
                                             <CurrencySwitcher />
@@ -143,7 +143,7 @@ export default function Navbar() {
 
                                             <button
                                                 onClick={handleLogout}
-                                                className="w-12 h-12 flex items-center justify-center text-muted hover:text-error transition-colors"
+                                                className="w-12 h-12 flex items-center justify-center text-muted hover:text-red-500 transition-colors"
                                                 title="Salir"
                                             >
                                                 <LogOut size={20} />

@@ -409,20 +409,14 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-ping" />
                                 </div>
                             </div>
-                            <div className="block dark:hidden">
+                            <div className="w-full">
                                 <WaveformPlayer
                                     url={beat.archivo_mp3_url || ''}
                                     height={140}
-                                    waveColor="rgba(0, 0, 0, 0.05)"
+                                    waveColor="rgba(59, 130, 246, 0.1)"
                                     progressColor="#3b82f6"
-                                />
-                            </div>
-                            <div className="hidden dark:block">
-                                <WaveformPlayer
-                                    url={beat.archivo_mp3_url || ''}
-                                    height={140}
-                                    waveColor="rgba(255, 255, 255, 0.1)"
-                                    progressColor="rgba(255, 255, 255, 0.4)"
+                                    isSync={true}
+                                    beatId={beat.id}
                                 />
                             </div>
                         </div>
