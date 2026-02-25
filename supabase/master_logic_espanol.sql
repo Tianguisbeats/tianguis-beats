@@ -9,6 +9,12 @@
 BEGIN;
 
 -- ==============================================================================
+-- 0. CONFIGURACIÓN GLOBAL (MÉXICO)
+-- ==============================================================================
+ALTER DATABASE postgres SET timezone TO 'America/Mexico_City';
+SET timezone TO 'America/Mexico_City';
+
+-- ==============================================================================
 -- 1. LIMPIEZA DE LÓGICA ANTIGUA (INGLÉS)
 -- ==============================================================================
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
@@ -104,22 +110,49 @@ FOR EACH ROW EXECUTE FUNCTION public.manejar_escalera_perfiles();
 -- B) Crear perfil al registrarse (Sync con Auth)
 CREATE OR REPLACE FUNCTION public.crear_perfil_nuevo_usuario()
 RETURNS trigger AS $$
+DECLARE
+    username_final TEXT;
+    nombre_artista_final TEXT;
 BEGIN
-  INSERT INTO public.perfiles (
-    id, nombre_usuario, nombre_artistico, nombre_completo, 
-    fecha_nacimiento, correo, fecha_creacion, esta_completado, nivel_suscripcion
-  )
-  VALUES (
-    new.id, 
-    COALESCE(new.raw_user_meta_data->>'nombre_usuario', 'usuario_' || substr(new.id::text, 1, 6)),
-    COALESCE(new.raw_user_meta_data->>'nombre_artistico', 'Artista'),
-    COALESCE(new.raw_user_meta_data->>'nombre_completo', ''),
-    (new.raw_user_meta_data->>'fecha_nacimiento')::DATE,
-    new.email, now(), true, 'free'
-  );
-  RETURN new;
+    -- Determinar Username (prioridad al metadato, fallback a email prefix)
+    username_final := COALESCE(
+        new.raw_user_meta_data->>'nombre_usuario', 
+        split_part(new.email, '@', 1) || substr(new.id::text, 1, 4)
+    );
+
+    -- Determinar Nombre Artístico (prioridad al metadato, fallback al username)
+    nombre_artista_final := COALESCE(
+        new.raw_user_meta_data->>'nombre_artistico', 
+        username_final
+    );
+
+    INSERT INTO public.perfiles (
+        id, 
+        nombre_usuario, 
+        nombre_artistico, 
+        nombre_completo, 
+        fecha_nacimiento, 
+        correo, 
+        fecha_creacion,
+        esta_completado,
+        nivel_suscripcion,
+        es_fundador
+    )
+    VALUES (
+        new.id, 
+        username_final,
+        nombre_artista_final,
+        COALESCE(new.raw_user_meta_data->>'nombre_completo', ''),
+        (nullif(new.raw_user_meta_data->>'fecha_nacimiento', ''))::DATE,
+        new.email, 
+        now(), 
+        true,
+        'free',
+        false
+    );
+    RETURN new;
 EXCEPTION WHEN OTHERS THEN
-  RETURN new;
+    RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
