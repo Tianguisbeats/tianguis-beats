@@ -171,7 +171,7 @@ export async function POST(req: Request) {
                         // Subir a Supabase Storage (licencias-generadas)
                         const { data: uploadData, error: uploadError } = await supabaseAdmin
                             .storage
-                            .from('licencias-generadas')
+                            .from('licencias_generadas')
                             .upload(uploadPath, pdfBuffer, {
                                 contentType: 'application/pdf',
                                 upsert: true
@@ -181,7 +181,7 @@ export async function POST(req: Request) {
                             console.error('ERROR uploading PDF to Storage:', uploadError);
                         } else {
                             // Obtener URL Pública
-                            const { data: publicUrlData } = supabaseAdmin.storage.from('licencias-generadas').getPublicUrl(uploadPath);
+                            const { data: publicUrlData } = supabaseAdmin.storage.from('licencias_generadas').getPublicUrl(uploadPath);
                             pdfUrl = publicUrlData.publicUrl;
                             console.log('PDF Contract successfully generated and stored:', pdfUrl);
                         }
