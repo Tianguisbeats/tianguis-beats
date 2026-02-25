@@ -37,8 +37,8 @@ export default function MobileBottomNav() {
 
     const fetchProfile = async (userId: string) => {
         const { data } = await supabase
-            .from('profiles')
-            .select('foto_perfil, username, is_founder')
+            .from('perfiles')
+            .select('foto_perfil, nombre_usuario, es_fundador')
             .eq('id', userId)
             .single();
         if (data) setProfile(data);
@@ -50,9 +50,9 @@ export default function MobileBottomNav() {
         { name: 'Carrito', href: '/cart', icon: ShoppingCart, isActive: pathname === '/cart', count: itemCount },
         {
             name: user ? 'Perfil' : 'Ingresar',
-            href: user ? (profile?.username ? `/${profile.username}` : '/studio') : '/login',
+            href: user ? (profile?.nombre_usuario ? `/${profile.nombre_usuario}` : '/studio') : '/login',
             icon: User,
-            isActive: user ? pathname.includes(`/${profile?.username}`) : pathname === '/login',
+            isActive: user ? pathname.includes(`/${profile?.nombre_usuario}`) : pathname === '/login',
             isProfile: true
         },
     ];
@@ -87,7 +87,7 @@ export default function MobileBottomNav() {
                                         {tab.count}
                                     </span>
                                 )}
-                                {tab.isProfile && profile?.is_founder && (
+                                {tab.isProfile && profile?.es_fundador && (
                                     <Crown size={12} className="absolute -top-1.5 -right-1 text-amber-500 fill-amber-500 drop-shadow-md" />
                                 )}
                             </div>

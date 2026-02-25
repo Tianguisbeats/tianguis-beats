@@ -39,9 +39,9 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
 
             // 1. Get Profile
             const { data: profileData } = await supabase
-                .from('profiles')
+                .from('perfiles')
                 .select('*')
-                .eq('username', username)
+                .eq('nombre_usuario', username)
                 .single();
 
             if (profileData) {
@@ -52,33 +52,33 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                 const { data: beatsData } = await supabase
                     .from('beats')
                     .select('*')
-                    .eq('producer_id', profileData.id)
-                    .eq('is_public', true)
+                    .eq('productor_id', profileData.id)
+                    .eq('es_publico', true)
                     .order('created_at', { ascending: false });
 
                 if (beatsData) {
                     const transformedBeats = await Promise.all(beatsData.map(async (b: any) => {
-                        const path = b.mp3_tag_url || b.mp3_url || '';
+                        const path = b.archivo_muestra_url || b.archivo_mp3_url || '';
                         const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-                        const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+                        const bucket = path.includes('-hq-') ? 'beats_mp3' : 'muestras_beats';
                         const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
 
-                        const finalCoverUrl = b.portadabeat_url?.startsWith('http')
-                            ? b.portadabeat_url
-                            : b.portadabeat_url
-                                ? supabase.storage.from('portadas-beats').getPublicUrl(b.portadabeat_url).data.publicUrl
+                        const finalCoverUrl = b.portada_url?.startsWith('http')
+                            ? b.portada_url
+                            : b.portada_url
+                                ? supabase.storage.from('portadas_beats').getPublicUrl(b.portada_url).data.publicUrl
                                 : null;
 
                         return {
                             ...b,
-                            mp3_url: publicUrl,
-                            portadabeat_url: finalCoverUrl,
-                            producer_username: profileData.username,
-                            producer_artistic_name: profileData.artistic_name,
-                            producer_foto_perfil: profileData.foto_perfil,
-                            producer_is_verified: profileData.is_verified,
-                            producer_is_founder: profileData.is_founder,
-                            producer_tier: profileData.subscription_tier
+                            archivo_mp3_url: publicUrl,
+                            portada_url: finalCoverUrl,
+                            productor_nombre_usuario: profileData.nombre_usuario,
+                            productor_nombre_artistico: profileData.nombre_artistico,
+                            productor_foto_perfil: profileData.foto_perfil,
+                            productor_esta_verificado: profileData.esta_verificado,
+                            productor_es_fundador: profileData.es_fundador,
+                            productor_nivel_suscripcion: profileData.nivel_suscripcion
                         };
                     }));
                     setBeats(transformedBeats);
@@ -99,14 +99,14 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
     }, [username]);
 
     // Stats Calculations
-    const totalLikes = beats.reduce((acc, b) => acc + (b.like_count || 0), 0);
-    const totalPlays = beats.reduce((acc, b) => acc + (b.play_count || 0), 0);
+    const totalLikes = beats.reduce((acc, b) => acc + (b.conteo_likes || 0), 0);
+    const totalPlays = beats.reduce((acc, b) => acc + (b.conteo_reproducciones || 0), 0);
 
-    const genres = ['Todos', ...new Set(beats.map(b => b.genre).filter(Boolean) as string[])];
-    const moods = ['Todos', ...new Set(beats.map(b => b.mood).filter(Boolean) as string[])];
+    const genres = ['Todos', ...new Set(beats.map(b => b.genero).filter(Boolean) as string[])];
+    const moods = ['Todos', ...new Set(beats.map(b => b.vibras).filter(Boolean) as string[])];
 
     const filteredBeats = beats.filter(b => {
-        return b.title.toLowerCase().includes(searchQuery.toLowerCase());
+        return b.titulo.toLowerCase().includes(searchQuery.toLowerCase());
     });
 
     if (loading) return (
@@ -137,13 +137,13 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                             {/* Pro Avatar Container */}
                             <div className="relative group shrink-0 mx-auto md:mx-0">
                                 <div className="absolute -inset-4 bg-accent rounded-full blur-2xl opacity-10 group-hover:opacity-20 transition-opacity" />
-                                <div className={`relative w-48 h-48 md:w-56 md:h-56 rounded-full p-1.5 bg-gradient-to-br from-card to-transparent backdrop-blur-3xl border border-border shadow-2xl transition-all duration-700 ${profile?.subscription_tier === 'premium' ? 'ring-2 ring-accent/50 ring-offset-4 ring-offset-background' : ''}`}>
+                                <div className={`relative w-48 h-48 md:w-56 md:h-56 rounded-full p-1.5 bg-gradient-to-br from-card to-transparent backdrop-blur-3xl border border-border shadow-2xl transition-all duration-700 ${profile?.nivel_suscripcion === 'premium' ? 'ring-2 ring-accent/50 ring-offset-4 ring-offset-background' : ''}`}>
                                     {profile?.foto_perfil ? (
                                         <img src={profile.foto_perfil} className="w-full h-full object-cover rounded-full" alt="Avatar" />
                                     ) : (
                                         <div className="w-full h-full bg-slate-800 rounded-full flex items-center justify-center text-slate-500"><Music size={60} /></div>
                                     )}
-                                    {profile?.is_verified && (
+                                    {profile?.esta_verificado && (
                                         <div className="absolute bottom-2 right-2 translate-x-1/4 translate-y-1/4">
                                             <img src="/verified-badge.png" className="w-12 h-12 md:w-14 md:h-14 drop-shadow-2xl" alt="Verificado" />
                                         </div>
@@ -159,12 +159,12 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
 
                                 <div>
                                     <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-2 leading-none">
-                                        {profile.artistic_name || profile.username}
+                                        {profile.nombre_artistico || profile.nombre_usuario}
                                     </h1>
                                     <div className="flex items-center justify-center md:justify-start gap-3">
                                         <span className="text-accent text-[10px] font-black uppercase tracking-[0.4em]">TIANGUIS PRO CATALOGO</span>
                                         <div className="w-8 h-px bg-border" />
-                                        {profile.is_founder && <span className="flex items-center gap-1.5 text-[#FDE047] text-[9px] font-black uppercase tracking-widest bg-yellow-400/10 px-3 py-1 rounded-full border border-yellow-400/20"><Crown size={12} fill="currentColor" /> Founder</span>}
+                                        {profile.es_fundador && <span className="flex items-center gap-1.5 text-[#FDE047] text-[9px] font-black uppercase tracking-widest bg-yellow-400/10 px-3 py-1 rounded-full border border-yellow-400/20"><Crown size={12} fill="currentColor" /> Founder</span>}
                                     </div>
                                 </div>
 

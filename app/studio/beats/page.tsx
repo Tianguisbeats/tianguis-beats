@@ -26,20 +26,20 @@ export default function StudioBeatsPage() {
 
         const { data, error } = await supabase
             .from('beats')
-            .select('id, producer_id, title, genre, bpm, price_mxn, portadabeat_url, mp3_url, is_public, play_count, sale_count, like_count, created_at')
-            .eq('producer_id', user.id)
+            .select('id, productor_id, titulo, genero, bpm, precio_basico_mxn, portada_url, archivo_mp3_url, es_publico, conteo_reproducciones, conteo_ventas, conteo_likes, created_at')
+            .eq('productor_id', user.id)
             .order('created_at', { ascending: false });
 
         if (data) {
             const transformed = data.map((b: any) => {
-                let finalCoverUrl = b.portadabeat_url;
+                let finalCoverUrl = b.portada_url;
                 if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
-                    const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(finalCoverUrl);
+                    const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas_beats').getPublicUrl(finalCoverUrl);
                     finalCoverUrl = cpUrl;
                 } else if (!finalCoverUrl) {
                     finalCoverUrl = null;
                 }
-                return { ...b, portadabeat_url: finalCoverUrl };
+                return { ...b, portada_url: finalCoverUrl };
             });
             setBeats(transformed);
         }
@@ -123,17 +123,17 @@ export default function StudioBeatsPage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {beats.filter(b => b.title.toLowerCase().includes(searchTerm.toLowerCase()) || (b.genre && b.genre.toLowerCase().includes(searchTerm.toLowerCase()))).map((beat) => (
+                        {beats.filter(b => b.titulo.toLowerCase().includes(searchTerm.toLowerCase()) || (b.genero && b.genero.toLowerCase().includes(searchTerm.toLowerCase()))).map((beat) => (
                             <div
                                 key={beat.id}
                                 className="group bg-slate-50 dark:bg-[#08080a]/60 hover:bg-white dark:hover:bg-[#0c0c0f] border border-slate-200 dark:border-white/5 hover:border-accent/30 rounded-[2.5rem] p-6 transition-all duration-500 flex flex-col gap-6 shadow-sm hover:shadow-2xl dark:shadow-none dark:hover:shadow-black/40"
                             >
                                 <div className="relative aspect-square rounded-[2rem] overflow-hidden bg-slate-100 dark:bg-[#020205] shadow-inner group-hover:shadow-2xl transition-all duration-500 border border-slate-300 dark:border-white/5">
-                                    {beat.portadabeat_url ? (
-                                        <img src={beat.portadabeat_url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={beat.title} />
+                                    {beat.portada_url ? (
+                                        <img src={beat.portada_url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={beat.titulo} />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-slate-400 dark:text-muted font-black text-[10px] uppercase tracking-[0.3em]">
-                                            {beat.title.charAt(0)}
+                                            {beat.titulo.charAt(0)}
                                         </div>
                                     )}
                                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-[2px]">
@@ -142,27 +142,27 @@ export default function StudioBeatsPage() {
                                 </div>
 
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="font-black text-slate-900 dark:text-foreground text-xl tracking-tight truncate mb-4">{beat.title}</h4>
+                                    <h4 className="font-black text-slate-900 dark:text-foreground text-xl tracking-tight truncate mb-4">{beat.titulo}</h4>
                                     <div className="flex items-center justify-between px-2">
                                         <div className="flex flex-col">
                                             <span className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-muted mb-1">Visibilidad</span>
-                                            <span className={`text-[10px] font-black uppercase tracking-widest ${beat.is_public ? 'text-emerald-500' : 'text-amber-500'}`}>
-                                                {beat.is_public ? 'Público' : 'Oculto'}
+                                            <span className={`text-[10px] font-black uppercase tracking-widest ${beat.es_publico ? 'text-emerald-500' : 'text-amber-500'}`}>
+                                                {beat.es_publico ? 'Público' : 'Oculto'}
                                             </span>
                                         </div>
 
                                         <Switch
-                                            active={beat.is_public}
+                                            active={beat.es_publico}
                                             onChange={async (newStatus) => {
                                                 const { error } = await supabase
                                                     .from('beats')
-                                                    .update({ is_public: newStatus })
+                                                    .update({ es_publico: newStatus })
                                                     .eq('id', beat.id);
 
                                                 if (!error) {
-                                                    const playCount = beats?.reduce((sum, b) => sum + (b.play_count || 0), 0) || 0;
+                                                    const playCount = beats?.reduce((sum, b) => sum + (b.conteo_reproducciones || 0), 0) || 0;
                                                     const updatedBeats = beats.map(b =>
-                                                        b.id === beat.id ? { ...b, is_public: newStatus } : b
+                                                        b.id === beat.id ? { ...b, es_publico: newStatus } : b
                                                     );
                                                     setBeats(updatedBeats);
                                                     showToast(newStatus ? 'Beat publicado' : 'Beat ocultado', 'success');

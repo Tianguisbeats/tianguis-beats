@@ -18,11 +18,11 @@ export default function FreePlanPage() {
             if (session?.user) {
                 setIsLoggedIn(true);
                 const { data } = await supabase
-                    .from('profiles')
-                    .select('subscription_tier')
+                    .from('perfiles')
+                    .select('nivel_suscripcion')
                     .eq('id', session.user.id)
                     .single();
-                if (data) setUserTier(data.subscription_tier);
+                if (data) setUserTier(data.nivel_suscripcion);
             }
             setLoading(false);
         };

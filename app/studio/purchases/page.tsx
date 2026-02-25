@@ -105,7 +105,9 @@ export default function MyPurchasesPage() {
                     name: tx.nombre_producto,
                     price: tx.precio,
                     license_type: tx.tipo_licencia,
-                    metadata: tx.metadatos
+                    metadata: tx.metadatos,
+                    producer_id: tx.vendedor_id,
+                    buyer_id: tx.comprador_id
                 });
             });
 
@@ -115,13 +117,13 @@ export default function MyPurchasesPage() {
             const itemIds = formattedOrders.flatMap((o: any) => o.items.map((i: any) => i.id));
             if (itemIds.length > 0) {
                 const { data: projectsData } = await supabase
-                    .from('service_projects')
-                    .select('id, order_item_id')
-                    .in('order_item_id', itemIds);
+                    .from('proyectos_servicio')
+                    .select('id, transaccion_id')
+                    .in('transaccion_id', itemIds);
 
                 formattedOrders.forEach((order: any) => {
                     order.items.forEach((item: any) => {
-                        item.project_id = projectsData?.find(p => p.order_item_id === item.id)?.id;
+                        item.project_id = projectsData?.find(p => p.transaccion_id === item.id)?.id;
                     });
                 });
             }

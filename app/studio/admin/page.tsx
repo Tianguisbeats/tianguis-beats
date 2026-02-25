@@ -27,12 +27,12 @@ export default function AdminDashboard() {
             }
 
             const { data: profile } = await supabase
-                .from('profiles')
-                .select('is_admin')
+                .from('perfiles')
+                .select('es_admin')
                 .eq('id', user.id)
                 .single();
 
-            if (profile?.is_admin) {
+            if (profile?.es_admin) {
                 setIsAdmin(true);
             } else {
                 setLoading(false);
@@ -105,7 +105,7 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
         const fetchStats = async () => {
             const [sales, users, beats, verifs, feedback] = await Promise.all([
                 supabase.from('transacciones').select('precio'),
-                supabase.from('profiles').select('id', { count: 'exact', head: true }),
+                supabase.from('perfiles').select('id', { count: 'exact', head: true }),
                 supabase.from('beats').select('id', { count: 'exact', head: true }),
                 supabase.from('verification_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
                 supabase.from('quejas_y_sugerencias').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente')
@@ -177,14 +177,14 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
         try {
             const { data, error } = await supabase
                 .from('verification_requests')
-                .select(`*, profiles:user_id (username, foto_perfil, email)`)
+                .select(`*, perfiles:user_id (nombre_usuario, foto_perfil, email)`)
                 .eq('status', 'pending')
                 .order('created_at', { ascending: false });
 
             if (error) {
                 const { data: retryData } = await supabase
                     .from('verification_requests')
-                    .select(`*, profiles:user_id (username, foto_perfil, email)`)
+                    .select(`*, perfiles:user_id (nombre_usuario, foto_perfil, email)`)
                     .eq('status', 'pending');
                 setRequests(retryData || []);
             } else {
@@ -207,7 +207,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
             if (reqError) throw reqError;
 
             if (status === 'approved') {
-                await supabase.from('profiles').update({ is_verified: true }).eq('id', userId);
+                await supabase.from('perfiles').update({ esta_verificado: true }).eq('id', userId);
             }
 
             setRequests(requests.filter(r => r.id !== requestId));
@@ -241,15 +241,15 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                         <div className="lg:w-1/4">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-12 h-12 rounded-full overflow-hidden bg-accent-soft">
-                                    <img src={req.profiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.artistic_name}`} alt="Avatar" className="w-full h-full object-cover" />
+                                    <img src={req.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.artistic_name}`} alt="Avatar" className="w-full h-full object-cover" />
                                 </div>
                                 <div>
                                     <h3 className="font-black text-lg text-foreground">{req.artistic_name}</h3>
-                                    <p className="text-xs text-muted">@{req.profiles?.username}</p>
+                                    <p className="text-xs text-muted">@{req.perfiles?.nombre_usuario}</p>
                                 </div>
                             </div>
                             <div className="space-y-1 text-[10px] font-bold uppercase tracking-widest text-muted/60">
-                                <p>Email: {req.profiles?.email}</p>
+                                <p>Email: {req.perfiles?.email}</p>
                                 <p>Nombre: {req.real_name}</p>
                                 <p>ID: {req.user_id}</p>
                             </div>
@@ -301,14 +301,14 @@ function UserManager({ onBack }: { onBack: () => void }) {
         setLoading(true);
         try {
             const { data, error } = await supabase
-                .from('profiles')
+                .from('perfiles')
                 .select('*')
-                .order('fecha_de_creacion', { ascending: false })
+                .order('fecha_creacion', { ascending: false })
                 .limit(100);
 
             if (error) {
                 // Si fecha_de_creacion falla, intentamos sin orden (o con created_at por si acaso)
-                const { data: retryData } = await supabase.from('profiles').select('*').limit(100);
+                const { data: retryData } = await supabase.from('perfiles').select('*').limit(100);
                 setUsers(retryData || []);
             } else {
                 setUsers(data || []);
@@ -324,7 +324,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
     }, []);
 
     const updateTier = async (userId: string, tier: string) => {
-        const { error } = await supabase.from('profiles').update({ subscription_tier: tier }).eq('id', userId);
+        const { error } = await supabase.from('perfiles').update({ nivel_suscripcion: tier }).eq('id', userId);
         if (!error) {
             setUsers(users.map(u => u.id === userId ? { ...u, subscription_tier: tier } : u));
             showToast("Nivel actualizado con éxito", "success");
@@ -333,7 +333,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
 
     const toggleAdmin = async (userId: string, currentStatus: boolean) => {
         if (!confirm(`¿${currentStatus ? 'Quitar' : 'Asignar'} permisos de administrador?`)) return;
-        const { error } = await supabase.from('profiles').update({ is_admin: !currentStatus }).eq('id', userId);
+        const { error } = await supabase.from('perfiles').update({ es_admin: !currentStatus }).eq('id', userId);
         if (!error) {
             setUsers(users.map(u => u.id === userId ? { ...u, is_admin: !currentStatus } : u));
             showToast("Permisos actualizados", "success");
@@ -341,8 +341,8 @@ function UserManager({ onBack }: { onBack: () => void }) {
     };
 
     const filteredUsers = users.filter(u =>
-        u.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.artistic_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        u.nombre_usuario?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        u.nombre_artistico?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         u.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -388,24 +388,24 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-3">
                                             <div className="w-9 h-9 rounded-xl overflow-hidden bg-accent-soft shrink-0 border border-border/50">
-                                                <img src={user.foto_perfil || `https://ui-avatars.com/api/?name=${user.username}`} alt="" className="w-full h-full object-cover" />
+                                                <img src={user.foto_perfil || `https://ui-avatars.com/api/?name=${user.nombre_usuario}`} alt="" className="w-full h-full object-cover" />
                                             </div>
                                             <div className="min-w-0">
-                                                <p className="font-black text-xs text-foreground truncate">@{user.username}</p>
-                                                <p className="text-[9px] text-muted uppercase tracking-widest truncate">{user.artistic_name}</p>
+                                                <p className="font-black text-xs text-foreground truncate">@{user.nombre_usuario}</p>
+                                                <p className="text-[9px] text-muted uppercase tracking-widest truncate">{user.nombre_artistico}</p>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-5">
-                                        <div className={`inline-flex px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${user.subscription_tier === 'premium' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
-                                            user.subscription_tier === 'pro' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                                        <div className={`inline-flex px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${user.nivel_suscripcion === 'premium' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                                            user.nivel_suscripcion === 'pro' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
                                                 'bg-slate-500/10 text-muted border-slate-500/20'
                                             }`}>
-                                            {user.subscription_tier || 'Gratis'}
+                                            {user.nivel_suscripcion || 'Gratis'}
                                         </div>
                                     </td>
                                     <td className="px-6 py-5">
-                                        <div className={`w-2 h-2 rounded-full ${user.is_admin ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-300 dark:bg-white/10'}`} />
+                                        <div className={`w-2 h-2 rounded-full ${user.es_admin ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-300 dark:bg-white/10'}`} />
                                     </td>
                                     <td className="px-8 py-5 text-right">
                                         <button
@@ -430,11 +430,11 @@ function UserManager({ onBack }: { onBack: () => void }) {
                         <header className="p-8 border-b border-border flex items-center justify-between">
                             <div className="flex items-center gap-6">
                                 <div className="w-16 h-16 rounded-2xl overflow-hidden bg-accent-soft">
-                                    <img src={selectedUser.foto_perfil || `https://ui-avatars.com/api/?name=${selectedUser.username}`} alt="" className="w-full h-full object-cover" />
+                                    <img src={selectedUser.foto_perfil || `https://ui-avatars.com/api/?name=${selectedUser.nombre_usuario}`} alt="" className="w-full h-full object-cover" />
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl font-black uppercase tracking-tighter">{selectedUser.artistic_name}</h3>
-                                    <p className="text-xs text-muted font-bold uppercase tracking-widest">@{selectedUser.username}</p>
+                                    <h3 className="text-2xl font-black uppercase tracking-tighter">{selectedUser.nombre_artistico}</h3>
+                                    <p className="text-xs text-muted font-bold uppercase tracking-widest">@{selectedUser.nombre_usuario}</p>
                                 </div>
                             </div>
                             <button onClick={() => setSelectedUser(null)} className="p-3 bg-slate-100 dark:bg-white/5 rounded-2xl hover:bg-accent hover:text-white transition-all">
@@ -445,19 +445,19 @@ function UserManager({ onBack }: { onBack: () => void }) {
                         <div className="p-8 grid md:grid-cols-2 gap-8 max-h-[60vh] overflow-y-auto">
                             <div className="space-y-6">
                                 <DetailItem label="Email" value={selectedUser.email} />
-                                <DetailItem label="Nombre Completo" value={selectedUser.full_name} />
+                                <DetailItem label="Nombre Completo" value={selectedUser.nombre_completo} />
                                 <DetailItem label="ID de Usuario" value={selectedUser.id} copyable />
-                                <DetailItem label="Fecha de Registro" value={selectedUser.fecha_de_creacion ? new Date(selectedUser.fecha_de_creacion).toLocaleDateString() : 'Desconocida'} />
+                                <DetailItem label="Fecha de Registro" value={selectedUser.fecha_creacion ? new Date(selectedUser.fecha_creacion).toLocaleDateString() : 'Desconocida'} />
 
                                 {/* New Editable Dates */}
                                 <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50">
                                     <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">Inicio Suscripción</p>
                                     <input
                                         type="date"
-                                        value={selectedUser.comenzar_suscripcion ? selectedUser.comenzar_suscripcion.split('T')[0] : ''}
+                                        value={selectedUser.fecha_inicio_suscripcion ? selectedUser.fecha_inicio_suscripcion.split('T')[0] : ''}
                                         onChange={async (e) => {
                                             const date = e.target.value ? new Date(e.target.value).toISOString() : null;
-                                            const { error } = await supabase.from('profiles').update({ comenzar_suscripcion: date }).eq('id', selectedUser.id);
+                                            const { error } = await supabase.from('perfiles').update({ comenzar_suscripcion: date }).eq('id', selectedUser.id);
                                             if (!error) setUsers(users.map(u => u.id === selectedUser.id ? { ...u, comenzar_suscripcion: date } : u));
                                         }}
                                         className="bg-transparent font-bold text-xs text-foreground outline-none w-full"
@@ -476,17 +476,17 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                         <option value="premium">Premium</option>
                                     </select>
                                 } />
-                                <DetailItem label="Estado de Verificación" value={selectedUser.is_verified ? 'VERIFICADO' : 'NORMAL'} />
+                                <DetailItem label="Estado de Verificación" value={selectedUser.esta_verificado ? 'VERIFICADO' : 'NORMAL'} />
 
                                 {/* End Date */}
                                 <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50">
                                     <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">Fin Suscripción</p>
                                     <input
                                         type="date"
-                                        value={selectedUser.termina_suscripcion ? selectedUser.termina_suscripcion.split('T')[0] : ''}
+                                        value={selectedUser.fecha_termino_suscripcion ? selectedUser.fecha_termino_suscripcion.split('T')[0] : ''}
                                         onChange={async (e) => {
                                             const date = e.target.value ? new Date(e.target.value).toISOString() : null;
-                                            const { error } = await supabase.from('profiles').update({ termina_suscripcion: date }).eq('id', selectedUser.id);
+                                            const { error } = await supabase.from('perfiles').update({ termina_suscripcion: date }).eq('id', selectedUser.id);
                                             if (!error) {
                                                 setUsers(users.map(u => u.id === selectedUser.id ? { ...u, termina_suscripcion: date } : u));
                                                 showToast("Fecha final actualizada", "success");
@@ -507,7 +507,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                 {selectedUser.is_admin ? 'Quitar Admin' : 'Hacer Admin'}
                             </button>
                             <Link
-                                href={`/${selectedUser.username}`}
+                                href={`/${selectedUser.nombre_usuario}`}
                                 target="_blank"
                                 className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest text-center"
                             >
@@ -824,7 +824,7 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
         // Hacemos un join con profiles para obtener info del usuario productor
         const { data, error } = await supabase
             .from('quejas_y_sugerencias')
-            .select(`*, profiles:user_id (artistic_name, username, email)`)
+            .select(`*, perfiles:user_id (nombre_artistico, nombre_usuario, email)`)
             .order('fecha_creacion', { ascending: false });
 
         if (error) {
@@ -876,8 +876,8 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
                                         {new Date(item.fecha_creacion).toLocaleDateString()}
                                     </span>
                                 </div>
-                                <h3 className="font-black text-xl text-foreground">De: {item.profiles ? item.profiles.artistic_name || item.profiles.username : item.nombre_usuario}</h3>
-                                <p className="text-xs text-muted font-bold tracking-widest uppercase">{item.email} {item.profiles && `(Usuario Registrado)`}</p>
+                                <h3 className="font-black text-xl text-foreground">De: {item.perfiles ? item.perfiles.nombre_artistico || item.perfiles.nombre_usuario : item.nombre_usuario}</h3>
+                                <p className="text-xs text-muted font-bold tracking-widest uppercase">{item.email} {item.perfiles && `(Usuario Registrado)`}</p>
                             </div>
 
                             <select
@@ -911,7 +911,7 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
         const fetchTransactions = async () => {
             const { data, error } = await supabase
                 .from('transacciones')
-                .select(`*, profiles:comprador_id (username, artistic_name, email)`)
+                .select(`*, perfiles:comprador_id (nombre_usuario, nombre_artistico, email)`)
                 .order('fecha_creacion', { ascending: false });
             if (!error) setTransactions(data || []);
             setLoading(false);
@@ -952,8 +952,8 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
                                         {new Date(tx.fecha_creacion).toLocaleDateString()}
                                     </td>
                                     <td className="px-6 py-5">
-                                        <p className="font-black text-xs">@{tx.profiles?.username || 'Desconocido'}</p>
-                                        <p className="text-[9px] text-muted uppercase tracking-widest">{tx.profiles?.email}</p>
+                                        <p className="font-black text-xs">@{tx.perfiles?.nombre_usuario || 'Desconocido'}</p>
+                                        <p className="text-[9px] text-muted uppercase tracking-widest">{tx.perfiles?.email}</p>
                                     </td>
                                     <td className="px-6 py-5">
                                         <p className="font-bold text-xs capitalize">{tx.tipo_item || 'Beat'}</p>
@@ -981,7 +981,7 @@ function BeatsManager({ onBack }: { onBack: () => void }) {
         const fetchBeats = async () => {
             const { data, error } = await supabase
                 .from('beats')
-                .select(`*, profiles:productor_id (username, artistic_name)`)
+                .select(`*, perfiles:productor_id (nombre_usuario, nombre_artistico)`)
                 .order('created_at', { ascending: false });
             if (!error) setBeats(data || []);
             setLoading(false);
@@ -1022,8 +1022,8 @@ function BeatsManager({ onBack }: { onBack: () => void }) {
                                         {new Date(beat.created_at).toLocaleDateString()}
                                     </td>
                                     <td className="px-6 py-5">
-                                        <p className="font-black text-xs">{beat.profiles?.artistic_name || 'Desconocido'}</p>
-                                        <p className="text-[9px] text-muted uppercase tracking-widest">@{beat.profiles?.username}</p>
+                                        <p className="font-black text-xs">{beat.perfiles?.nombre_artistico || 'Desconocido'}</p>
+                                        <p className="text-[9px] text-muted uppercase tracking-widest">@{beat.perfiles?.nombre_usuario}</p>
                                     </td>
                                     <td className="px-6 py-5">
                                         <p className="font-bold text-xs">{beat.titulo}</p>

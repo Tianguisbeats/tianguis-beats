@@ -34,9 +34,9 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
 
                 // 1. Get Target Profile
                 const { data: profileData } = await supabase
-                    .from('profiles')
-                    .select('id, username, artistic_name, foto_perfil')
-                    .eq('username', username)
+                    .from('perfiles')
+                    .select('id, nombre_usuario, nombre_artistico, foto_perfil')
+                    .eq('nombre_usuario', username)
                     .single();
 
                 if (!profileData) return;
@@ -45,17 +45,17 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                 // 2. Get Followers
                 const { data: followersData } = await supabase
                     .from('follows')
-                    .select('profiles:follower_id (id, username, artistic_name, foto_perfil, is_verified, is_founder, subscription_tier, bio)')
+                    .select('perfiles:follower_id (id, nombre_usuario, nombre_artistico, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion, biografia)')
                     .eq('following_id', profileData.id);
 
                 // 3. Get Following
                 const { data: followingData } = await supabase
                     .from('follows')
-                    .select('profiles:following_id (id, username, artistic_name, foto_perfil, is_verified, is_founder, subscription_tier, bio)')
+                    .select('perfiles:following_id (id, nombre_usuario, nombre_artistico, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion, biografia)')
                     .eq('follower_id', profileData.id);
 
-                setFollowers(followersData?.map(f => f.profiles).filter(Boolean) || []);
-                setFollowing(followingData?.map(f => f.profiles).filter(Boolean) || []);
+                setFollowers(followersData?.map(f => (f as any).perfiles).filter(Boolean) || []);
+                setFollowing(followingData?.map(f => (f as any).perfiles).filter(Boolean) || []);
 
                 // 4. Get Current User's following list to show follow buttons correctly
                 if (user) {
@@ -103,8 +103,8 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
     };
 
     const filteredList = (activeTab === 'followers' ? followers : following).filter(u =>
-        u.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.artistic_name?.toLowerCase().includes(searchQuery.toLowerCase())
+        u.nombre_usuario?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        u.nombre_artistico?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     if (loading) {
@@ -134,7 +134,7 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                     </button>
                     <div>
                         <h1 className="text-2xl sm:text-4xl font-black text-foreground uppercase tracking-tighter">
-                            Lista de amigos de <span className="text-foreground">{profile?.artistic_name || profile?.username}</span>
+                            Lista de amigos de <span className="text-foreground">{profile?.nombre_artistico || profile?.nombre_usuario}</span>
                         </h1>
                         <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mt-3">Miembros de la comunidad Tianguis</p>
                     </div>
@@ -182,30 +182,30 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                         filteredList.map((user) => (
                             <Link
                                 key={user.id}
-                                href={`/${user.username}`}
+                                href={`/${user.nombre_usuario}`}
                                 className="bg-card/40 backdrop-blur-md border border-border/50 p-4 sm:p-6 rounded-[2.5rem] flex items-center justify-between group hover:border-accent hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
                             >
                                 <div className="flex items-center gap-4 sm:gap-6">
-                                    <div className={`relative w-16 h-16 md:w-20 md:h-20 rounded-[2rem] overflow-hidden border-2 transition-transform duration-500 group-hover:scale-105 ${user.subscription_tier === 'premium' ? 'border-blue-500' :
-                                        user.subscription_tier === 'pro' ? 'border-amber-500' : 'border-border'
+                                    <div className={`relative w-16 h-16 md:w-20 md:h-20 rounded-[2rem] overflow-hidden border-2 transition-transform duration-500 group-hover:scale-105 ${user.nivel_suscripcion === 'premium' ? 'border-blue-500' :
+                                        user.nivel_suscripcion === 'pro' ? 'border-amber-500' : 'border-border'
                                         }`}>
                                         <img
-                                            src={user.foto_perfil || `https://ui-avatars.com/api/?name=${user.username}&background=random`}
+                                            src={user.foto_perfil || `https://ui-avatars.com/api/?name=${user.nombre_usuario}&background=random`}
                                             className="w-full h-full object-cover"
-                                            alt={user.username}
+                                            alt={user.nombre_usuario}
                                         />
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <div className="flex items-center gap-2">
                                             <h3 className="text-lg sm:text-2xl font-black text-foreground group-hover:text-accent transition-colors lowercase font-heading leading-tight">
-                                                {user.artistic_name || user.username}
+                                                {user.nombre_artistico || user.nombre_usuario}
                                             </h3>
                                             <div className="flex items-center gap-1.5 ml-1">
-                                                {user.is_verified && <img src="/verified-badge.png" className="w-5 h-5 shadow-lg shadow-blue-500/20" alt="V" />}
-                                                {user.is_founder && <Crown size={18} className="text-amber-500" fill="currentColor" />}
+                                                {user.esta_verificado && <img src="/verified-badge.png" className="w-5 h-5 shadow-lg shadow-blue-500/20" alt="V" />}
+                                                {user.es_fundador && <Crown size={18} className="text-amber-500" fill="currentColor" />}
                                             </div>
                                         </div>
-                                        <p className="text-[11px] font-black text-muted uppercase tracking-[0.2em]">@{user.username}</p>
+                                        <p className="text-[11px] font-black text-muted uppercase tracking-[0.2em]">@{user.nombre_usuario}</p>
                                     </div>
                                 </div>
 
@@ -230,9 +230,9 @@ export default function ConnectionsPage({ params }: { params: Promise<{ username
                         </div>
                     )}
                 </div>
-            </main>
+            </main >
 
             <Footer />
-        </div>
+        </div >
     );
 }

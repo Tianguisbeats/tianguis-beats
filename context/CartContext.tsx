@@ -74,7 +74,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Validar autocompra (Evitar que un productor compre sus propios beats o servicios)
-        const producerId = item.metadata?.producer_id || item.metadata?.seller_id || item.metadata?.producerId;
+        const producerId = item.metadata?.productor_id || item.metadata?.producer_id || item.metadata?.seller_id || item.metadata?.producerId;
 
         if (currentUserId && producerId && currentUserId === producerId) {
             showToast("No puedes comprar tus propios productos.", 'error');

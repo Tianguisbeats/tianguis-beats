@@ -39,19 +39,19 @@ function HubContent() {
         const { data: trendData } = await supabase
           .from('beats')
           .select(`
-            id, title, price_mxn, bpm, genre, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, created_at, play_count,
-            producer:producer_id ( artistic_name, username, is_verified, is_founder, foto_perfil, subscription_tier )
+            id, titulo, precio_basico_mxn, bpm, genero, portada_url, archivo_mp3_url, archivo_muestra_url, nota_musical, escala_musical, vibras, created_at, conteo_reproducciones,
+            producer:productor_id ( nombre_artistico, nombre_usuario, esta_verificado, es_fundador, foto_perfil, nivel_suscripcion )
           `)
-          .eq('is_public', true)
-          .order('play_count', { ascending: false, nullsFirst: false })
+          .eq('es_publico', true)
+          .order('conteo_reproducciones', { ascending: false, nullsFirst: false })
           .limit(10);
 
         if (trendData) setTrendingBeats(trendData as any);
 
         const { data: trendProd } = await supabase
-          .from('profiles')
-          .select('id, artistic_name, username, foto_perfil, subscription_tier, is_verified, is_founder, bio, created_at')
-          .order('subscription_tier', { ascending: false })
+          .from('perfiles')
+          .select('id, nombre_artistico, nombre_usuario, foto_perfil, nivel_suscripcion, esta_verificado, es_fundador, biografia, created_at')
+          .order('nivel_suscripcion', { ascending: false })
           .limit(5);
 
         if (trendProd) setTrendingProducers(trendProd);

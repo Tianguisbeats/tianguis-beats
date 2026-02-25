@@ -44,30 +44,30 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
 
     // Helper para obtener info del productor de forma segura
     const getProducerInfo = (): {
-        artistic_name: string;
-        username: string;
+        nombre_artistico: string;
+        nombre_usuario: string;
         foto_perfil: string;
-        is_verified: boolean;
-        is_founder: boolean;
+        esta_verificado: boolean;
+        es_fundador: boolean;
     } => {
         if (isBeat) {
             const beat = data as Beat;
-            const producerObj = beat.producer as Record<string, unknown>;
+            const producerObj = (beat as any).productor as Record<string, unknown>;
             return {
-                artistic_name: (producerObj?.artistic_name as string) || beat.producer_artistic_name || "Productor",
-                username: (producerObj?.username as string) || beat.producer_username || "anonymous",
-                foto_perfil: (producerObj?.foto_perfil as string) || beat.producer_foto_perfil || "",
-                is_verified: !!(producerObj?.is_verified || beat.producer_is_verified),
-                is_founder: !!(producerObj?.is_founder || beat.producer_is_founder)
+                nombre_artistico: (producerObj?.nombre_artistico as string) || beat.productor_nombre_artistico || "Productor",
+                nombre_usuario: (producerObj?.nombre_usuario as string) || beat.productor_nombre_usuario || "anonymous",
+                foto_perfil: (producerObj?.foto_perfil as string) || beat.productor_foto_perfil || "",
+                esta_verificado: !!(producerObj?.esta_verificado || beat.productor_esta_verificado),
+                es_fundador: !!(producerObj?.es_fundador || beat.productor_es_fundador)
             };
         } else {
             const profile = data as Record<string, unknown>;
             return {
-                artistic_name: (profile.artistic_name as string) || (profile.username as string),
-                username: profile.username as string,
+                nombre_artistico: (profile.nombre_artistico as string) || (profile.nombre_usuario as string),
+                nombre_usuario: profile.nombre_usuario as string,
                 foto_perfil: (profile.foto_perfil as string) || "",
-                is_verified: !!profile.is_verified,
-                is_founder: !!profile.is_founder
+                esta_verificado: !!profile.esta_verificado,
+                es_fundador: !!profile.es_fundador
             };
         }
     };
@@ -82,7 +82,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                 {/* Dynamic Background */}
                 <div className="absolute inset-0 overflow-hidden">
                     <img
-                        src={(isBeat ? (data as Beat).portadabeat_url : (data as Record<string, unknown>).foto_perfil as string) || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop"}
+                        src={(isBeat ? (data as Beat).portada_url : (data as Record<string, unknown>).foto_perfil as string) || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop"}
                         className="w-full h-full object-cover opacity-30 blur-2xl scale-125 transition-all duration-1000 ease-in-out"
                         alt="Background Glow"
                     />
@@ -98,7 +98,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                         <div className="relative shrink-0 perspective-1000 group/art">
                             <div className="w-48 h-48 md:w-80 md:h-80 rounded-[3rem] overflow-hidden rotate-3 group-hover/art:rotate-0 transition-transform duration-700 shadow-2xl border border-white/10 relative">
                                 <img
-                                    src={(isBeat ? (data as Beat).portadabeat_url : (data as Record<string, unknown>).foto_perfil as string) || `https://ui-avatars.com/api/?name=${prodInfo.artistic_name}&background=random`}
+                                    src={(isBeat ? (data as Beat).portada_url : (data as Record<string, unknown>).foto_perfil as string) || `https://ui-avatars.com/api/?name=${prodInfo.nombre_artistico}&background=random`}
                                     className="w-full h-full object-cover"
                                     alt="Artwork"
                                 />
@@ -127,20 +127,20 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                 <span className="bg-accent/10 border border-accent/20 text-accent text-[9px] font-black uppercase tracking-[0.4em] px-4 py-1.5 rounded-full">
                                     {isBeat ? 'Trending Track' : 'Featured Producer'}
                                 </span>
-                                {prodInfo.is_verified && (
+                                {prodInfo.esta_verificado && (
                                     <CheckCircle2 size={16} className="text-blue-400" />
                                 )}
                             </div>
 
                             <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter mb-4 font-heading leading-none group-hover:tracking-tight transition-all duration-700">
-                                {isBeat ? (data as Beat).title : prodInfo.artistic_name}
+                                {isBeat ? (data as Beat).titulo : prodInfo.nombre_artistico}
                             </h2>
 
                             <div className="flex items-center gap-6 mb-10 text-slate-400">
-                                <Link href={`/${prodInfo.username}`} className="flex items-center gap-6 group/prod">
+                                <Link href={`/${prodInfo.nombre_usuario}`} className="flex items-center gap-6 group/prod">
                                     <div className="relative">
-                                        <img src={prodInfo.foto_perfil || `https://ui-avatars.com/api/?name=${prodInfo.artistic_name}`} alt={prodInfo.artistic_name as string} className="w-20 h-20 md:w-28 md:h-28 rounded-3xl object-cover border-2 border-white/10 group-hover/prod:border-accent transition-all duration-500 shadow-2xl" />
-                                        {prodInfo.is_verified && (
+                                        <img src={prodInfo.foto_perfil || `https://ui-avatars.com/api/?name=${prodInfo.nombre_artistico}`} alt={prodInfo.nombre_artistico as string} className="w-20 h-20 md:w-28 md:h-28 rounded-3xl object-cover border-2 border-white/10 group-hover/prod:border-accent transition-all duration-500 shadow-2xl" />
+                                        {prodInfo.esta_verificado && (
                                             <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-background rounded-full flex items-center justify-center border-2 border-border shadow-lg">
                                                 <img src="/verified-badge.png" className="w-5 h-5 object-contain" alt="Verified" />
                                             </div>
@@ -148,10 +148,10 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xl md:text-2xl font-black uppercase tracking-widest group-hover/prod:text-accent transition-colors leading-none">{prodInfo.artistic_name}</span>
-                                            {prodInfo.is_founder && <Crown size={22} className="text-amber-400 fill-amber-400 animate-pulse" />}
+                                            <span className="text-xl md:text-2xl font-black uppercase tracking-widest group-hover/prod:text-accent transition-colors leading-none">{prodInfo.nombre_artistico}</span>
+                                            {prodInfo.es_fundador && <Crown size={22} className="text-amber-400 fill-amber-400 animate-pulse" />}
                                         </div>
-                                        <span className="text-xs font-bold text-muted-foreground tracking-[0.2em] uppercase opacity-60 group-hover/prod:opacity-100 transition-opacity">@{prodInfo.username}</span>
+                                        <span className="text-xs font-bold text-muted-foreground tracking-[0.2em] uppercase opacity-60 group-hover/prod:opacity-100 transition-opacity">@{prodInfo.nombre_usuario}</span>
                                     </div>
                                 </Link>
                                 <div className="h-4 w-[1px] bg-white/10"></div>
@@ -180,7 +180,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                     </>
                                 ) : (
                                     <Link
-                                        href={`/${prodInfo.username}`}
+                                        href={`/${prodInfo.nombre_usuario}`}
                                         className="px-8 h-14 bg-accent text-white rounded-2xl flex items-center gap-3 group/btn transition-all shadow-lg shadow-accent/40 active:scale-95"
                                     >
                                         <span className="text-[9px] font-black uppercase tracking-widest">Ver Perfil</span>

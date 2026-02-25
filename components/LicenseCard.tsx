@@ -2,7 +2,7 @@ import React from 'react';
 import { Check, ShoppingCart } from 'lucide-react';
 
 interface LicenseProps {
-    type: 'MP3' | 'WAV' | 'STEMS' | 'ILIMITADA';
+    type: 'Básica' | 'Pro' | 'Premium' | 'Ilimitada' | 'Exclusiva';
     price: number;
     features: string[];
     active: boolean;
@@ -58,9 +58,9 @@ export default function LicenseCard({ type, price, features, active, onSelect, s
             </ul>
 
             {/* Recommended Badge */}
-            {type === 'WAV' && !selected && (
+            {type === 'Premium' && !selected && (
                 <div className="absolute -top-3 left-10 bg-accent text-white text-[8px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full shadow-lg">
-                    Más popular
+                    Recomendado
                 </div>
             )}
         </div>

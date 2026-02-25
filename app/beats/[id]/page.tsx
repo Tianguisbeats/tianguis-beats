@@ -18,20 +18,7 @@ import BeatCardPro from '@/components/explore/BeatCardPro';
 
 // Extend Beat interface to include detail columns
 interface BeatDetail extends Beat {
-    price_mp3?: number;
-    price_wav?: number;
-    price_stems?: number;
-    price_exclusive?: number;
-    is_mp3_active?: boolean;
-    is_wav_active?: boolean;
-    is_stems_active?: boolean;
-    is_exclusive_active?: boolean;
-    is_sold?: boolean;
-    beat_types?: string[] | null;
-    moods?: string[];
-    description?: string;
-    portadabeat_url?: string | null;
-    created_at: string;
+    // All properties are now in the global Beat interface in Spanish
 }
 
 /**
@@ -47,7 +34,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
     const [relatedBeats, setRelatedBeats] = useState<Beat[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedLicense, setSelectedLicense] = useState<'MP3' | 'WAV' | 'STEMS' | 'ILIMITADA' | null>(null);
+    const [selectedLicense, setSelectedLicense] = useState<'Básica' | 'Pro' | 'Premium' | 'Ilimitada' | 'Exclusiva' | null>(null);
     const [isLiked, setIsLiked] = useState(false);
 
     const { currentBeat, isPlaying, playBeat } = usePlayer();
@@ -58,46 +45,48 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
     useEffect(() => {
         if (beat && currentUserId) {
-            setIsOwner(beat.producer_id === currentUserId);
+            setIsOwner(beat.productor_id === currentUserId);
         }
     }, [beat, currentUserId]);
 
     // Determine initial selected license based on availability
     useEffect(() => {
         if (beat) {
-            if (beat.is_sold) {
+            if (beat.esta_vendido) {
                 setSelectedLicense(null);
                 return;
             }
-            if (beat.is_mp3_active !== false) setSelectedLicense('MP3');
-            else if (beat.is_wav_active !== false) setSelectedLicense('WAV');
-            else if (beat.is_stems_active !== false) setSelectedLicense('STEMS');
-            else if (beat.is_exclusive_active !== false) setSelectedLicense('ILIMITADA');
+            if (beat.es_basica_activa !== false) setSelectedLicense('Básica');
+            else if (beat.es_pro_activa !== false) setSelectedLicense('Pro');
+            else if (beat.es_premium_activa !== false) setSelectedLicense('Premium');
+            else if (beat.es_ilimitada_activa !== false) setSelectedLicense('Ilimitada');
+            else if (beat.es_exclusiva_activa !== false) setSelectedLicense('Exclusiva');
             else setSelectedLicense(null); // No licenses available
         }
     }, [beat]);
 
     const handleAddToCart = () => {
-        if (!beat || !selectedLicense || beat.is_sold) return;
+        if (!beat || !selectedLicense || beat.esta_vendido) return;
 
         const priceMap = {
-            'MP3': beat.price_mp3 || beat.price_mxn || 299,
-            'WAV': beat.price_wav || Math.ceil((beat.price_mxn || 299) * 1.5),
-            'STEMS': beat.price_stems || Math.ceil((beat.price_mxn || 299) * 2.5),
-            'ILIMITADA': beat.price_exclusive || 2999
+            'Básica': beat.precio_basico_mxn || 199,
+            'Pro': beat.precio_pro_mxn || 499,
+            'Premium': beat.precio_premium_mxn || 999,
+            'Ilimitada': beat.precio_ilimitado_mxn || 1999,
+            'Exclusiva': beat.precio_exclusivo_mxn || 3500
         };
 
         const wasAdded = addItem({
             id: `${beat.id}-${selectedLicense}`,
             type: 'beat',
-            name: `${beat.title} [${selectedLicense}]`,
+            name: `${beat.titulo} [${selectedLicense}]`,
             price: priceMap[selectedLicense as keyof typeof priceMap],
-            image: beat.portadabeat_url || undefined,
-            subtitle: `Prod. by ${(beat.producer as any)?.artistic_name || (beat.producer as any)?.username}`,
+            image: beat.portada_url || undefined,
+            subtitle: `Prod. by ${beat.productor_nombre_artistico || beat.productor_nombre_usuario}`,
             metadata: {
                 license: selectedLicense,
                 beatId: beat.id,
-                producer_id: beat.producer_id
+                producer_id: beat.productor_id // Sync with CartContext which might still use producer_id
             }
         });
 
@@ -112,7 +101,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 setLoading(true);
                 const { data, error: fetchError } = await supabase
                     .from('beats')
-                    .select('id, title, genre, bpm, price_mxn, price_wav_mxn, price_stems_mxn, exclusive_price_mxn, is_mp3_active, is_wav_active, is_stems_active, is_exclusive_active, is_sold, portadabeat_url, mp3_url, mp3_tag_url, musical_key, musical_scale, mood, description, play_count, like_count, created_at, beat_types, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
+                    .select('id, titulo, genero, bpm, precio_basico_mxn, precio_pro_mxn, precio_premium_mxn, precio_ilimitado_mxn, precio_exclusivo_mxn, es_basica_activa, es_pro_activa, es_premium_activa, es_ilimitada_activa, es_exclusiva_activa, esta_vendido, portada_url, archivo_mp3_url, archivo_muestra_url, nota_musical, escala_musical, vibras, descripcion, conteo_reproducciones, conteo_likes, created_at, tipos_beat, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
                     .eq('id', id)
                     .single();
 
@@ -120,27 +109,27 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 if (!data) throw new Error("Beat not found");
 
                 // Resolve high-quality preview
-                const path = data.mp3_tag_url || data.mp3_url || '';
+                const path = data.archivo_muestra_url || data.archivo_mp3_url || '';
                 const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-                const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+                const bucket = path.includes('-hq-') ? 'beats_mp3' : 'muestras_beats';
                 const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
 
                 // Resolve Cover Art URL
-                let finalCoverUrl = data.portadabeat_url;
+                let finalCoverUrl = data.portada_url;
                 if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
-                    const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(finalCoverUrl);
+                    const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas_beats').getPublicUrl(finalCoverUrl);
                     finalCoverUrl = cpUrl;
                 }
 
                 // Handle producer as object
                 const rawData = data as any;
-                const producerObj = Array.isArray(rawData.producer) ? rawData.producer[0] : rawData.producer;
+                const producerObj = Array.isArray(rawData.productor) ? rawData.productor[0] : rawData.productor;
 
                 const beatData = {
                     ...data,
                     producer: producerObj,
-                    mp3_url: publicUrl,
-                    portadabeat_url: finalCoverUrl
+                    archivo_mp3_url: publicUrl,
+                    portada_url: finalCoverUrl
                 } as any;
 
                 setBeat(beatData as BeatDetail);
@@ -149,26 +138,26 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 const fetchRelated = async (beatForRelated: any) => {
                     let query = supabase
                         .from('beats')
-                        .select('id, title, genre, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, beat_types, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
+                        .select('id, titulo, genero, bpm, precio_basico_mxn, portada_url, productor_id, nota_musical, escala_musical, vibras, tipos_beat, conteo_reproducciones, conteo_likes, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
                         .neq('id', beatForRelated.id)
                         .limit(10);
 
                     // Priority 1: Overlap in beat_types
-                    if (beatForRelated.beat_types && beatForRelated.beat_types.length > 0) {
-                        query = query.filter('beat_types', 'ov', beatForRelated.beat_types);
-                    } else if (beatForRelated.genre) {
-                        query = query.eq('genre', beatForRelated.genre);
+                    if (beatForRelated.tipos_beat && beatForRelated.tipos_beat.length > 0) {
+                        query = query.filter('tipos_beat', 'ov', beatForRelated.tipos_beat);
+                    } else if (beatForRelated.genero) {
+                        query = query.eq('genero', beatForRelated.genero);
                     }
 
                     let { data: related } = await query;
 
                     // Priority 2: Genre fallback
-                    if ((!related || related.length < 4) && beatForRelated.genre) {
+                    if ((!related || related.length < 4) && beatForRelated.genero) {
                         const { data: byGenre } = await supabase
                             .from('beats')
-                            .select('id, title, genre, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, beat_types, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
+                            .select('id, titulo, genero, bpm, precio_basico_mxn, portada_url, productor_id, nota_musical, escala_musical, vibras, tipos_beat, conteo_reproducciones, conteo_likes, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
                             .neq('id', beatForRelated.id)
-                            .eq('genre', beatForRelated.genre)
+                            .eq('genero', beatForRelated.genero)
                             .limit(10);
 
                         if (byGenre) {
@@ -177,13 +166,13 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     }
 
                     // Priority 3: Moods
-                    if ((!related || related.length < 4) && beatForRelated.mood) {
-                        const firstMood = beatForRelated.mood.split(',')[0].trim();
+                    if ((!related || related.length < 4) && beatForRelated.vibras) {
+                        const firstMood = beatForRelated.vibras.split(',')[0].trim();
                         const { data: byMood } = await supabase
                             .from('beats')
-                            .select('id, title, genre, bpm, price_mxn, portadabeat_url, producer_id, musical_key, musical_scale, mood, beat_types, play_count, like_count, producer:producer_id(artistic_name, username, foto_perfil, is_verified, is_founder, subscription_tier)')
+                            .select('id, titulo, genero, bpm, precio_basico_mxn, portada_url, productor_id, nota_musical, escala_musical, vibras, tipos_beat, conteo_reproducciones, conteo_likes, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
                             .neq('id', beatForRelated.id)
-                            .ilike('mood', `%${firstMood}%`)
+                            .ilike('vibras', `%${firstMood}%`)
                             .limit(10);
 
                         if (byMood) {
@@ -191,14 +180,14 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         }
                     }
 
-                    const mappedRelated = (related || []).map(r => ({
+                    const mappedRelated = (related || []).map((r: any) => ({
                         ...r,
-                        producer_artistic_name: (r.producer as any)?.artistic_name,
-                        producer_username: (r.producer as any)?.username,
-                        producer_foto_perfil: (r.producer as any)?.foto_perfil,
-                        producer_is_verified: (r.producer as any)?.is_verified,
-                        producer_is_founder: (r.producer as any)?.is_founder,
-                        producer_tier: (r.producer as any)?.subscription_tier
+                        productor_nombre_artistico: (r.productor as any)?.nombre_artistico,
+                        productor_nombre_usuario: (r.productor as any)?.nombre_usuario,
+                        productor_foto_perfil: (r.productor as any)?.foto_perfil,
+                        productor_esta_verificado: (r.productor as any)?.esta_verificado,
+                        productor_es_fundador: (r.productor as any)?.es_fundador,
+                        productor_nivel_suscripcion: (r.productor as any)?.nivel_suscripcion
                     }));
 
                     setRelatedBeats(mappedRelated as any);
@@ -236,11 +225,11 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
         if (isLiked) {
             await supabase.from('favoritos').delete().eq('beat_id', id).eq('usuario_id', user.id);
             setIsLiked(false);
-            if (beat) setBeat({ ...beat, like_count: (beat.like_count || 1) - 1 });
+            if (beat) setBeat({ ...beat, conteo_likes: (beat.conteo_likes || 1) - 1 });
         } else {
             await supabase.from('favoritos').insert({ beat_id: id, usuario_id: user.id });
             setIsLiked(true);
-            if (beat) setBeat({ ...beat, like_count: (beat.like_count || 0) + 1 });
+            if (beat) setBeat({ ...beat, conteo_likes: (beat.conteo_likes || 0) + 1 });
         }
     };
 
@@ -284,8 +273,8 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16">
                         <div className="relative group shrink-0">
                             <div className="w-64 h-64 md:w-96 md:h-96 rounded-[3.5rem] bg-card shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden border border-border/50 relative z-10 transition-all duration-700 group-hover:scale-[1.03] group-hover:-rotate-1">
-                                {beat.portadabeat_url ? (
-                                    <img src={beat.portadabeat_url} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={beat.title} />
+                                {beat.portada_url ? (
+                                    <img src={beat.portada_url} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={beat.titulo} />
                                 ) : (
                                     <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300"><Music2 size={100} /></div>
                                 )}
@@ -308,27 +297,27 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                         Nuevo lanzamiento
                                     </span>
                                     <div className="flex items-center gap-4 text-muted text-[10px] font-black uppercase tracking-[0.2em]">
-                                        <span className="flex items-center gap-2"><Speaker size={16} className="text-accent" /> {beat.play_count?.toLocaleString() || 0}</span>
-                                        <span className="flex items-center gap-2"><Heart size={16} className="text-red-500" /> {beat.like_count?.toLocaleString() || 0}</span>
+                                        <span className="flex items-center gap-2"><Speaker size={16} className="text-accent" /> {beat.conteo_reproducciones?.toLocaleString() || 0}</span>
+                                        <span className="flex items-center gap-2"><Heart size={16} className="text-red-500" /> {beat.conteo_likes?.toLocaleString() || 0}</span>
                                     </div>
                                 </div>
 
                                 <h1 className="text-5xl md:text-8xl lg:text-9xl font-black text-foreground leading-[1] uppercase tracking-tighter mb-4 drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
-                                    {beat.title}
+                                    {beat.titulo}
                                 </h1>
 
-                                <Link href={`/${(beat.producer as any)?.username || ''}`} className="inline-flex items-center gap-4 group">
-                                    <div className={`p-1 rounded-2xl border-2 transition-all group-hover:scale-110 ${(beat.producer as any)?.subscription_tier === 'premium' ? 'border-blue-600' :
-                                        (beat.producer as any)?.subscription_tier === 'pro' ? 'border-amber-500' :
+                                <Link href={`/${beat.productor_nombre_usuario || ''}`} className="inline-flex items-center gap-4 group">
+                                    <div className={`p-1 rounded-2xl border-2 transition-all group-hover:scale-110 ${beat.productor_nivel_suscripcion === 'premium' ? 'border-blue-600' :
+                                        beat.productor_nivel_suscripcion === 'pro' ? 'border-amber-500' :
                                             'border-border'
                                         }`}>
-                                        <img src={(beat.producer as any)?.foto_perfil || "/logo.png"} className="w-12 h-12 rounded-xl object-cover" alt="Prod" />
+                                        <img src={beat.productor_foto_perfil || "/logo.png"} className="w-12 h-12 rounded-xl object-cover" alt="Prod" />
                                     </div>
                                     <div className="text-left">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xl font-black text-foreground uppercase tracking-tighter group-hover:text-accent transition-colors">{(beat.producer as any)?.artistic_name || (beat.producer as any)?.username}</span>
-                                            {(beat.producer as any)?.is_verified && <img src="/verified-badge.png" className="w-5 h-5" alt="V" />}
-                                            {(beat.producer as any)?.is_founder && <Crown size={18} className="text-amber-500" fill="currentColor" />}
+                                            <span className="text-xl font-black text-foreground uppercase tracking-tighter group-hover:text-accent transition-colors">{beat.productor_nombre_artistico || beat.productor_nombre_usuario}</span>
+                                            {beat.productor_esta_verificado && <img src="/verified-badge.png" className="w-5 h-5" alt="V" />}
+                                            {beat.productor_es_fundador && <Crown size={18} className="text-amber-500" fill="currentColor" />}
                                         </div>
                                         <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em]">Tianguis Producer</p>
                                     </div>
@@ -337,10 +326,10 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
                             <div className="grid grid-cols-2 md:flex md:flex-wrap gap-4">
                                 {[
-                                    { label: 'Género', val: beat.genre, icon: Tag, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                                    { label: 'Género', val: beat.genero, icon: Tag, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
                                     { label: 'Tempo', val: `${beat.bpm} BPM`, icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-                                    { label: 'Tonalidad', val: beat.musical_key || 'C', icon: Music2, color: 'text-accent', bg: 'bg-accent/10' },
-                                    { label: 'Escala', val: beat.musical_scale || 'Mayor', icon: Layers, color: 'text-purple-500', bg: 'bg-purple-500/10' }
+                                    { label: 'Tonalidad', val: beat.nota_musical || 'C', icon: Music2, color: 'text-accent', bg: 'bg-accent/10' },
+                                    { label: 'Escala', val: beat.escala_musical || 'Mayor', icon: Layers, color: 'text-purple-500', bg: 'bg-purple-500/10' }
                                 ].map((stat, i) => (
                                     <div key={i} className="flex-1 min-w-[120px] p-4 rounded-3xl bg-card border border-border/50 shadow-sm flex flex-col items-center md:items-start gap-2">
                                         <span className={`p-2 rounded-xl ${stat.bg} ${stat.color}`}>
@@ -369,10 +358,10 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 </button>
                             </div>
 
-                            {beat.mood && (
+                            {beat.vibras && (
                                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-4">
                                     <span className="text-[9px] font-black text-muted uppercase tracking-[0.3em] mr-2">Vibras:</span>
-                                    {beat.mood.split(',').map((m: string) => (
+                                    {beat.vibras.split(',').map((m: string) => (
                                         <Link
                                             key={m}
                                             href={`/beats/catalog?mood=${m.trim()}`}
@@ -384,10 +373,10 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 </div>
                             )}
 
-                            {beat.beat_types && beat.beat_types.length > 0 && (
+                            {beat.tipos_beat && beat.tipos_beat.length > 0 && (
                                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
                                     <span className="text-[9px] font-black text-muted uppercase tracking-[0.3em] mr-2">Beat Type:</span>
-                                    {beat.beat_types.slice(0, 5).map((t: string) => (
+                                    {beat.tipos_beat.slice(0, 5).map((t: string) => (
                                         <Link
                                             key={t}
                                             href={`/beats/catalog?beat_type=${t.trim()}`}
@@ -416,7 +405,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             </div>
                             <div className="block dark:hidden">
                                 <WaveformPlayer
-                                    url={beat.mp3_url || ''}
+                                    url={beat.archivo_mp3_url || ''}
                                     height={140}
                                     waveColor="rgba(0, 0, 0, 0.05)"
                                     progressColor="#3b82f6"
@@ -424,7 +413,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             </div>
                             <div className="hidden dark:block">
                                 <WaveformPlayer
-                                    url={beat.mp3_url || ''}
+                                    url={beat.archivo_mp3_url || ''}
                                     height={140}
                                     waveColor="rgba(255, 255, 255, 0.1)"
                                     progressColor="rgba(255, 255, 255, 0.4)"
@@ -454,48 +443,59 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         ) : (
                             <div className="space-y-10">
                                 <div className="grid md:grid-cols-2 gap-6">
-                                    {beat.is_mp3_active !== false && (
+                                    {beat.es_basica_activa !== false && (
                                         <LicenseCard
-                                            type="MP3"
-                                            price={beat.price_mp3 || beat.price_mxn || 299}
-                                            features={['MP3 Alta Calidad (320kbps)', 'Uso comercial limitado', 'Entrega instantánea']}
-                                            selected={selectedLicense === 'MP3'}
-                                            onSelect={() => setSelectedLicense('MP3')}
+                                            type="Básica"
+                                            price={beat.precio_basico_mxn || 199}
+                                            features={['MP3 con Tag (Muestra)', 'Uso comercial limitado', 'Entrega instantánea']}
+                                            selected={selectedLicense === 'Básica'}
+                                            onSelect={() => setSelectedLicense('Básica')}
                                             active={true}
-                                            isSold={beat.is_sold}
+                                            isSold={beat.esta_vendido}
                                         />
                                     )}
-                                    {beat.is_wav_active !== false && (
+                                    {beat.es_pro_activa !== false && (
                                         <LicenseCard
-                                            type="WAV"
-                                            price={beat.price_wav || Math.ceil((beat.price_mxn || 299) * 1.5)}
-                                            features={['WAV + MP3', 'Calidad Profesional', 'Acuerdo de licencia']}
-                                            selected={selectedLicense === 'WAV'}
-                                            onSelect={() => setSelectedLicense('WAV')}
+                                            type="Pro"
+                                            price={beat.precio_pro_mxn || 499}
+                                            features={['MP3 Master (HQ)', 'Mayores límites de streams', 'Distribución extendida']}
+                                            selected={selectedLicense === 'Pro'}
+                                            onSelect={() => setSelectedLicense('Pro')}
                                             active={true}
-                                            isSold={beat.is_sold}
+                                            isSold={beat.esta_vendido}
                                         />
                                     )}
-                                    {beat.is_stems_active !== false && (
+                                    {beat.es_premium_activa !== false && (
                                         <LicenseCard
-                                            type="STEMS"
-                                            price={beat.price_stems || Math.ceil((beat.price_mxn || 299) * 2.5)}
-                                            features={['Separación de pistas (Stems)', 'Control total de la mezcla', 'Ideal para estudios']}
-                                            selected={selectedLicense === 'STEMS'}
-                                            onSelect={() => setSelectedLicense('STEMS')}
+                                            type="Premium"
+                                            price={beat.precio_premium_mxn || 999}
+                                            features={['WAV de Alta Fidelidad', 'Calidad de Estudio', 'Sin tags de voz']}
+                                            selected={selectedLicense === 'Premium'}
+                                            onSelect={() => setSelectedLicense('Premium')}
                                             active={true}
-                                            isSold={beat.is_sold}
+                                            isSold={beat.esta_vendido}
                                         />
                                     )}
-                                    {beat.is_exclusive_active !== false && (
+                                    {beat.es_ilimitada_activa !== false && (
                                         <LicenseCard
-                                            type="ILIMITADA"
-                                            price={beat.price_exclusive || 2999}
-                                            features={['Propiedad Exclusiva', 'Eliminación del mercado', 'Derechos totales']}
-                                            selected={selectedLicense === 'ILIMITADA'}
-                                            onSelect={() => setSelectedLicense('ILIMITADA')}
+                                            type="Ilimitada"
+                                            price={beat.precio_ilimitado_mxn || 1999}
+                                            features={['STEMS / Trackout', 'Control total de mezcla', 'Uso ilimitado']}
+                                            selected={selectedLicense === 'Ilimitada'}
+                                            onSelect={() => setSelectedLicense('Ilimitada')}
                                             active={true}
-                                            isSold={beat.is_sold}
+                                            isSold={beat.esta_vendido}
+                                        />
+                                    )}
+                                    {beat.es_exclusiva_activa !== false && (
+                                        <LicenseCard
+                                            type="Exclusiva"
+                                            price={beat.precio_exclusivo_mxn || 3500}
+                                            features={['Propiedad Exclusiva', 'Eliminación del mercado', 'Cesión total de derechos']}
+                                            selected={selectedLicense === 'Exclusiva'}
+                                            onSelect={() => setSelectedLicense('Exclusiva')}
+                                            active={true}
+                                            isSold={beat.esta_vendido}
                                         />
                                     )}
                                 </div>
@@ -507,13 +507,13 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 ) : (
                                     <button
                                         onClick={handleAddToCart}
-                                        disabled={beat.is_sold}
-                                        className={`w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs transition-all flex items-center justify-center gap-4 group ${beat.is_sold
+                                        disabled={beat.esta_vendido}
+                                        className={`w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs transition-all flex items-center justify-center gap-4 group ${beat.esta_vendido
                                             ? 'bg-slate-200 text-slate-500 cursor-not-allowed shadow-none'
                                             : 'bg-accent text-white hover:bg-accent/90 shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)]'
                                             }`}
                                     >
-                                        {beat.is_sold ? (
+                                        {beat.esta_vendido ? (
                                             <>
                                                 <ShieldCheck size={22} />
                                                 Este beat ya ha sido vendido
@@ -529,14 +529,14 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             </div>
                         )}
 
-                        {beat.description && (
+                        {beat.descripcion && (
                             <div className="mt-20 pt-20 border-t border-border/50">
                                 <h3 className="text-xl font-black uppercase tracking-tighter text-foreground mb-8 flex items-center gap-3">
                                     <Info size={24} className="text-accent" />
                                     Notas del <span className="text-muted">Productor</span>
                                 </h3>
                                 <div className="p-10 bg-card/30 rounded-[2.5rem] border border-border/50">
-                                    <p className="text-muted leading-relaxed font-medium whitespace-pre-wrap text-lg italic">"{beat.description}"</p>
+                                    <p className="text-muted leading-relaxed font-medium whitespace-pre-wrap text-lg italic">"{beat.descripcion}"</p>
                                 </div>
                             </div>
                         )}
@@ -554,7 +554,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 <p className="text-xs font-black uppercase tracking-widest opacity-80">¿Necesitas algo a medida?</p>
                                 <h4 className="text-xl font-black leading-tight">Trabaja directamente con el productor</h4>
                                 <Link
-                                    href={`/${(beat.producer as any)?.username || ''}?tab=services`}
+                                    href={`/${beat.productor_nombre_usuario || ''}?tab=services`}
                                     className="block w-full py-4 bg-white text-accent rounded-xl text-center font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:scale-[1.02] hover:shadow-lg transition-all active:scale-95"
                                 >
                                     Ver Servicios

@@ -47,8 +47,8 @@ export default function CouponsPage() {
         if (!user) return;
 
         // Get Tier
-        const { data: profile } = await supabase.from('profiles').select('subscription_tier').eq('id', user.id).single();
-        setUserTier(profile?.subscription_tier);
+        const { data: profile } = await supabase.from('perfiles').select('nivel_suscripcion').eq('id', user.id).single();
+        setUserTier(profile?.nivel_suscripcion);
 
         // Get Coupons
         const { data: couponsData, error } = await supabase

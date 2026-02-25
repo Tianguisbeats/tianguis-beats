@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { X, Music, Check, ShoppingCart, ShieldCheck, Zap, Layers, Crown } from 'lucide-react';
+import { X, Music, Check, ShoppingCart, ShieldCheck, Zap, Layers, Crown, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Beat } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
@@ -24,51 +24,65 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
     // Definir todas las licencias posibles
     const allLicenses = [
         {
-            id: 'MP3',
-            name: 'Licencia MP3',
-            price: beat.price_mxn || 299,
+            id: 'Básica',
+            name: 'Licencia Básica',
+            price: beat.precio_basico_mxn || 299,
             features: [
                 'Archivo MP3 de alta calidad (320kbps)',
-                'Derechos de streaming (hasta 10k)',
-                'Uso básico en videos de YouTube',
+                'Uso comercial limitado (5,000 streams)',
+                'Uso en videos de YouTube (Sin monetizar)',
                 'Perfecto para maquetas y demos'
             ],
             icon: <Music size={20} />,
-            color: 'accent',
-            isActive: beat.is_mp3_active !== false
+            color: 'blue',
+            isActive: beat.es_basica_activa !== false
         },
         {
-            id: 'WAV',
-            name: 'Licencia WAV',
-            price: beat.price_wav_mxn || Math.ceil((beat.price_mxn || 299) * 2),
+            id: 'Pro',
+            name: 'Licencia Pro',
+            price: beat.precio_pro_mxn || 499,
             features: [
-                'Archivos WAV + MP3 incluidos',
-                'Uso comercial extendido offline/online',
-                'Derechos de streaming (hasta 50k)',
-                'Calidad de estudio profesional'
+                'Archivo MP3 Master HQ',
+                'Límites extendidos (10,000 streams)',
+                'Distribución en tiendas digitales',
+                'Ideal para lanzamientos independientes'
             ],
             icon: <Zap size={20} />,
-            color: 'emerald',
-            isActive: beat.is_wav_active
+            color: 'indigo',
+            isActive: beat.es_pro_activa !== false
         },
         {
-            id: 'STEMS',
-            name: 'Licencia STEMS',
-            price: beat.price_stems_mxn || Math.ceil((beat.price_mxn || 299) * 3),
+            id: 'Premium',
+            name: 'Licencia Premium',
+            price: beat.precio_premium_mxn || 999,
+            features: [
+                'Archivos WAV + MP3 incluidos',
+                'Uso comercial extendido (50,000 streams)',
+                'Derechos de radio y presentaciones',
+                'Calidad de estudio profesional'
+            ],
+            icon: <FileText size={20} />,
+            color: 'emerald',
+            isActive: beat.es_premium_activa !== false
+        },
+        {
+            id: 'Ilimitada',
+            name: 'Licencia Ilimitada',
+            price: beat.precio_ilimitado_mxn || 1999,
             features: [
                 'Pistas separadas (Audio Stems)',
+                'Streams y ventas ilimitadas',
                 'Control total sobre la mezcla final',
-                'Streaming ilimitado permitido',
-                'Ideal para ingeniería de sonido Pro'
+                'Contrato de uso ilimitado'
             ],
             icon: <Layers size={20} />,
             color: 'purple',
-            isActive: beat.is_stems_active
+            isActive: beat.es_ilimitada_activa !== false
         },
         {
-            id: 'ILIMITADA',
-            name: 'Licencia EXCLUSIVA',
-            price: beat.exclusive_price_mxn || 5000,
+            id: 'Exclusiva',
+            name: 'Licencia Exclusiva',
+            price: beat.precio_exclusivo_mxn || 5000,
             features: [
                 'Propiedad total y exclusiva del beat',
                 'El beat se retira de la tienda tras compra',
@@ -76,13 +90,13 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                 'Contrato de transferencia legal incluido'
             ],
             icon: <Crown size={20} />,
-            color: 'amber',
-            isActive: beat.is_exclusive_active
+            color: 'rose',
+            isActive: beat.es_exclusiva_activa !== false
         }
     ];
 
     // Filtrar solo las licencias activas
-    const activeLicenses = beat.is_sold ? [] : allLicenses.filter(l => l.isActive);
+    const activeLicenses = beat.esta_vendido ? [] : allLicenses.filter(l => l.isActive);
 
     const [selectedType, setSelectedType] = React.useState<string>('');
     const [producerInfo, setProducerInfo] = React.useState<any>(null);
@@ -100,11 +114,12 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
         if (isOpen) {
             const fetchData = async () => {
                 // Obtener productor
-                if (beat.producer_id) {
+                const prodId = beat.productor_id;
+                if (prodId) {
                     const { data: producerData } = await supabase
-                        .from('profiles')
-                        .select('artistic_name, username, foto_perfil, is_verified, is_founder')
-                        .eq('id', beat.producer_id)
+                        .from('perfiles')
+                        .select('nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador')
+                        .eq('id', prodId)
                         .single();
                     if (producerData) setProducerInfo(producerData);
                 }
@@ -117,7 +132,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
             };
             fetchData();
         }
-    }, [isOpen, beat.producer_id]);
+    }, [isOpen, beat.productor_id, beat.productor_id]);
 
     if (!isOpen) return null;
 
@@ -128,18 +143,18 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
         const wasAdded = addItem({
             id: `${beat.id}-${selectedType}`,
             type: 'beat',
-            name: `${beat.title} [${selectedType}]`,
+            name: `${beat.titulo || beat.title} [${selectedType}]`,
             price: license.price,
-            image: beat.portadabeat_url || undefined,
-            subtitle: `Prod. by ${producerInfo?.artistic_name || beat.producer_artistic_name || beat.producer_username}`,
+            image: beat.portada_url || beat.portadabeat_url || undefined,
+            subtitle: `Prod. by ${producerInfo?.artistic_name || beat.productor_nombre_artistico || beat.productor_nombre_usuario}`,
             metadata: {
-                licenseType: selectedType.toLowerCase(),
+                licenseType: selectedType,
                 beatId: beat.id,
-                producer_id: beat.producer_id,
-                producer_name: producerInfo?.artistic_name || beat.producer_artistic_name,
-                mp3_url: beat.mp3_url,
-                wav_url: beat.wav_url,
-                stems_url: beat.stems_url
+                producer_id: beat.productor_id,
+                producer_name: producerInfo?.artistic_name || beat.productor_nombre_artistico,
+                mp3_url: beat.archivo_muestra_url || beat.archivo_mp3_url,
+                wav_url: beat.archivo_wav_url,
+                stems_url: beat.archivo_stems_url
             }
         });
 
@@ -171,8 +186,8 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                         {/* Arte Principal */}
                         <div className="space-y-6">
                             <div className="aspect-square w-full rounded-3xl overflow-hidden bg-slate-200 dark:bg-slate-800 shadow-xl border border-white/10 group">
-                                {beat.portadabeat_url || beat.portada_url ? (
-                                    <img src={beat.portadabeat_url || beat.portada_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={beat.title} />
+                                {beat.portada_url ? (
+                                    <img src={beat.portada_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={beat.titulo} />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center opacity-10">
                                         <Music size={80} />
@@ -181,14 +196,14 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                             </div>
 
                             <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none">
-                                {beat.title}
+                                {beat.titulo}
                             </h3>
 
                             {/* Fila del productor DEBAJO del título */}
                             <div className="flex items-center gap-4 p-4 rounded-3xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5">
                                 <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
-                                    {producerInfo?.foto_perfil || beat.producer_foto_perfil ? (
-                                        <img src={producerInfo?.foto_perfil || beat.producer_foto_perfil} className="w-full h-full object-cover" alt="Producer" />
+                                    {producerInfo?.foto_perfil || beat.productor_foto_perfil ? (
+                                        <img src={producerInfo?.foto_perfil || beat.productor_foto_perfil} className="w-full h-full object-cover" alt="Producer" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-slate-400">
                                             <Music size={24} />
@@ -197,29 +212,29 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                 </div>
                                 <div className="min-w-0">
                                     <h4 className="font-heading font-black text-slate-900 dark:text-white flex items-center gap-2 truncate">
-                                        {producerInfo?.artistic_name || beat.producer_artistic_name || beat.producer_name || beat.producer_username || 'Productor'}
-                                        {(producerInfo?.is_verified || beat.producer_is_verified) && (
+                                        {producerInfo?.nombre_artistico || beat.productor_nombre_artistico || beat.productor_nombre_usuario || 'Productor'}
+                                        {(producerInfo?.esta_verificado || beat.productor_esta_verificado) && (
                                             <div className="bg-blue-500 text-white rounded-full p-0.5 shadow-lg shadow-blue-500/20">
                                                 <Check size={8} strokeWidth={4} />
                                             </div>
                                         )}
-                                        {(producerInfo?.is_founder || beat.producer_is_founder) && (
+                                        {(producerInfo?.es_fundador || beat.productor_es_fundador) && (
                                             <Crown size={14} className="text-amber-500 shrink-0" fill="currentColor" />
                                         )}
                                     </h4>
                                     <p className="text-[10px] font-black text-muted uppercase tracking-widest truncate">
-                                        @{producerInfo?.username || beat.producer_username || 'tianguis'}
+                                        @{producerInfo?.nombre_usuario || beat.productor_nombre_usuario || 'tianguis'}
                                     </p>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">
-                                <SpecItem label="Género" value={beat.genre} />
+                                <SpecItem label="Género" value={beat.genero} />
                                 <SpecItem label="BPM" value={`${beat.bpm} BPM`} />
-                                <SpecItem label="Nota" value={beat.musical_key} />
-                                <SpecItem label="Escala" value={beat.musical_scale} />
-                                <SpecItem label="Mood" value={beat.mood} />
-                                <SpecItem label="Tipo" value={Array.isArray(beat.beat_types) ? beat.beat_types[0] : (beat.beat_types || 'Original')} />
+                                <SpecItem label="Nota" value={beat.nota_musical} />
+                                <SpecItem label="Escala" value={beat.escala_musical} />
+                                <SpecItem label="Mood" value={beat.vibras} />
+                                <SpecItem label="Tipo" value={Array.isArray(beat.tipos_beat) ? beat.tipos_beat[0] : (beat.tipos_beat || 'Original')} />
                             </div>
                         </div>
                     </div>
@@ -247,24 +262,24 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                                         key={lic.id}
                                         onClick={() => setSelectedType(lic.id)}
                                         className={`w-full group px-6 py-5 rounded-[2rem] border-2 transition-all text-left flex items-center justify-between ${isSelected
-                                            ? 'bg-accent/5 border-accent shadow-2xl shadow-accent/10 scale-[1.02]'
+                                            ? `bg-${lic.color}-500/5 border-${lic.color}-500 shadow-2xl shadow-${lic.color}-500/10 scale-[1.02]`
                                             : 'border-slate-100 dark:border-white/5 hover:border-accent/40 bg-transparent'
                                             }`}
                                     >
                                         <div className="flex items-center gap-5">
-                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isSelected ? 'bg-accent text-white rotate-6' : 'bg-slate-100 dark:bg-white/5 text-muted'
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isSelected ? `bg-${lic.color}-500 text-white rotate-6` : 'bg-slate-100 dark:bg-white/5 text-muted'
                                                 }`}>
                                                 {lic.icon}
                                             </div>
                                             <div>
-                                                <h5 className={`font-black uppercase tracking-widest text-[11px] ${isSelected ? 'text-accent' : 'text-slate-900 dark:text-white'}`}>
+                                                <h5 className={`font-black uppercase tracking-widest text-[11px] ${isSelected ? `text-${lic.color}-500` : 'text-slate-900 dark:text-white'}`}>
                                                     {lic.name}
                                                 </h5>
                                                 <p className="text-[10px] font-bold text-muted">Contrato profesional</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className={`text-2xl font-black ${isSelected ? 'text-accent' : 'text-slate-900 dark:text-white'}`}>
+                                            <p className={`text-2xl font-black ${isSelected ? `text-${lic.color}-500` : 'text-slate-900 dark:text-white'}`}>
                                                 {formatPrice(lic.price)}
                                             </p>
                                         </div>
@@ -296,13 +311,13 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                     <div className="mt-12 flex gap-4">
                         <button
                             onClick={handleAddToCart}
-                            disabled={!selectedType || beat.is_sold}
-                            className={`flex-1 flex items-center justify-center gap-4 py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.4em] transition-all duration-300 active:scale-95 shadow-2xl ${beat.is_sold
+                            disabled={!selectedType || beat.esta_vendido || beat.is_sold}
+                            className={`flex-1 flex items-center justify-center gap-4 py-6 rounded-[2rem] font-black uppercase text-[12px] tracking-[0.4em] transition-all duration-300 active:scale-95 shadow-2xl ${beat.esta_vendido || beat.is_sold
                                 ? 'bg-red-500/10 text-red-500 cursor-not-allowed border border-red-500/20 shadow-none'
                                 : 'bg-accent text-white hover:bg-black dark:hover:bg-white dark:hover:text-black shadow-accent/30'
                                 }`}
                         >
-                            {beat.is_sold ? (
+                            {beat.esta_vendido || beat.is_sold ? (
                                 <>AGOTADO / SOLD OUT</>
                             ) : (
                                 <>

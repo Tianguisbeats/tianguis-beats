@@ -35,7 +35,7 @@ export default function AudioPlayer() {
     const [prevVolume, setPrevVolume] = useState(volume);
     const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
 
-    const isOwner = currentUserId && currentBeat && currentBeat.producer_id === currentUserId;
+    const isOwner = currentUserId && currentBeat && currentBeat.productor_id === currentUserId;
 
     if (!currentBeat) return null;
 
@@ -83,22 +83,22 @@ export default function AudioPlayer() {
                         {/* Artwork & Info (Clic para abrir modal = Futuro) */}
                         <div className="flex items-center gap-3 min-w-0 flex-1">
                             <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden shrink-0 relative">
-                                {currentBeat.portadabeat_url ? (
-                                    <img src={currentBeat.portadabeat_url} alt={currentBeat.title} className="w-full h-full object-cover" />
+                                {currentBeat.portada_url ? (
+                                    <img src={currentBeat.portada_url} alt={currentBeat.titulo} className="w-full h-full object-cover" />
                                 ) : (
                                     <Music size={18} className="text-muted" />
                                 )}
                             </div>
                             <div className="min-w-0 flex flex-col justify-center">
-                                <span className="font-heading font-black text-sm text-foreground truncate uppercase">{currentBeat.title}</span>
+                                <span className="font-heading font-black text-sm text-foreground truncate uppercase">{currentBeat.titulo}</span>
                                 <div className="flex items-center gap-1 min-w-0">
                                     <span className="text-[10px] font-bold text-muted uppercase tracking-widest truncate">
-                                        {currentBeat.producer_artistic_name || (typeof currentBeat.producer === 'object' ? currentBeat.producer?.artistic_name : currentBeat.producer) || 'Productor'}
+                                        {currentBeat.productor_nombre_artistico || (typeof (currentBeat as any).productor === 'object' ? ((currentBeat as any).productor)?.nombre_artistico : (currentBeat as any).productor) || 'Productor'}
                                     </span>
-                                    {(currentBeat.producer_is_verified || currentBeat.is_verified || (typeof currentBeat.producer === 'object' && currentBeat.producer?.is_verified)) && (
+                                    {(currentBeat.productor_esta_verificado || (typeof (currentBeat as any).productor === 'object' && ((currentBeat as any).productor)?.esta_verificado)) && (
                                         <img src="/verified-badge.png" className="w-2.5 h-2.5 object-contain" alt="V" />
                                     )}
-                                    {(currentBeat.producer_is_founder || currentBeat.is_founder || (typeof currentBeat.producer === 'object' && currentBeat.producer?.is_founder)) && (
+                                    {(currentBeat.productor_es_fundador || (typeof (currentBeat as any).productor === 'object' && ((currentBeat as any).productor)?.es_fundador)) && (
                                         <Crown size={10} className="text-amber-500" fill="currentColor" />
                                     )}
                                 </div>
@@ -153,8 +153,8 @@ export default function AudioPlayer() {
                             <div className="relative group/artwork">
                                 <div className="absolute -inset-1 bg-gradient-to-r from-accent to-purple-600 rounded-2xl blur opacity-20 group-hover/artwork:opacity-40 transition-opacity" />
                                 <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl overflow-hidden shrink-0 border border-white/10 relative z-10 transition-transform group-hover/artwork:scale-105">
-                                    {currentBeat.portadabeat_url ? (
-                                        <img src={currentBeat.portadabeat_url} alt={currentBeat.title} className="w-full h-full object-cover" />
+                                    {currentBeat.portada_url ? (
+                                        <img src={currentBeat.portada_url} alt={currentBeat.titulo} className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full p-2 flex items-center justify-center bg-accent/20">
                                             <Music size={24} className="text-accent" />
@@ -166,21 +166,21 @@ export default function AudioPlayer() {
                             <div className="min-w-0 flex-1">
                                 <Link href={`/beats/${currentBeat.id}`} className="block group">
                                     <h4 className="font-heading font-black text-base text-slate-900 dark:text-white truncate uppercase tracking-tight group-hover:text-accent transition-colors">
-                                        {currentBeat.title}
+                                        {currentBeat.titulo}
                                     </h4>
                                 </Link>
                                 <div className="flex items-center gap-2 mt-0.5">
                                     <Link
-                                        href={`/${currentBeat.producer_username || (typeof currentBeat.producer === 'object' ? currentBeat.producer?.username : currentBeat.producer)}`}
+                                        href={`/${currentBeat.productor_nombre_usuario || (typeof (currentBeat as any).productor === 'object' ? ((currentBeat as any).productor)?.nombre_usuario : (currentBeat as any).productor)}`}
                                         className="flex items-center gap-1.5 truncate group"
                                     >
                                         <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] group-hover:text-accent transition-colors">
-                                            {currentBeat.producer_artistic_name || (typeof currentBeat.producer === 'object' ? currentBeat.producer?.artistic_name : currentBeat.producer) || 'Productor'}
+                                            {currentBeat.productor_nombre_artistico || (typeof (currentBeat as any).productor === 'object' ? ((currentBeat as any).productor)?.nombre_artistico : (currentBeat as any).productor) || 'Productor'}
                                         </span>
-                                        {(currentBeat.producer_is_verified || currentBeat.is_verified || (typeof currentBeat.producer === 'object' && currentBeat.producer?.is_verified)) && (
+                                        {(currentBeat.productor_esta_verificado || (typeof (currentBeat as any).productor === 'object' && ((currentBeat as any).productor)?.esta_verificado)) && (
                                             <img src="/verified-badge.png" className="w-4 h-4 object-contain" alt="V" />
                                         )}
-                                        {(currentBeat.producer_is_founder || currentBeat.is_founder || (typeof currentBeat.producer === 'object' && currentBeat.producer?.is_founder)) && (
+                                        {(currentBeat.productor_es_fundador || (typeof (currentBeat as any).productor === 'object' && ((currentBeat as any).productor)?.es_fundador)) && (
                                             <Crown size={14} className="text-amber-500" fill="currentColor" />
                                         )}
                                     </Link>

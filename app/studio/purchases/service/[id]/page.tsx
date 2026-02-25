@@ -47,13 +47,13 @@ type Message = {
 
 type Project = {
     id: string;
-    status: Status;
-    order_item: {
-        name: string;
-        price: number;
+    estado: Status;
+    transaccion: {
+        nombre_producto: string;
+        precio_total: number;
     };
-    buyer_id: string;
-    producer_id: string;
+    comprador_id: string;
+    productor_id: string;
     producer_name: string;
     buyer_name: string;
 };
@@ -81,8 +81,8 @@ export default function ServiceProjectPage() {
             .on('postgres_changes', {
                 event: 'INSERT',
                 schema: 'public',
-                table: 'project_messages',
-                filter: `project_id=eq.${id}`
+                table: 'mensajes_proyecto',
+                filter: `proyecto_id=eq.${id}`
             }, (payload) => {
                 setMessages(prev => [...prev, payload.new as Message]);
             })
@@ -106,15 +106,15 @@ export default function ServiceProjectPage() {
         try {
             // Fetch project details
             const { data: projectData, error: projectError } = await supabase
-                .from('service_projects')
+                .from('proyectos_servicio')
                 .select(`
                     id,
-                    status,
-                    buyer_id,
-                    producer_id,
-                    order_items (
-                        name,
-                        price
+                    estado,
+                    comprador_id,
+                    productor_id,
+                    transacciones (
+                        nombre_producto,
+                        precio_total
                     )
                 `)
                 .eq('id', id)
@@ -124,34 +124,34 @@ export default function ServiceProjectPage() {
 
             // Get profiles to show names
             const { data: profiles } = await supabase
-                .from('profiles')
-                .select('id, artistic_name')
-                .in('id', [projectData.buyer_id, projectData.producer_id]);
+                .from('perfiles')
+                .select('id, nombre_artistico')
+                .in('id', [projectData.comprador_id, projectData.productor_id]);
 
             setProject({
                 ...projectData,
-                order_item: Array.isArray(projectData.order_items) ? projectData.order_items[0] : projectData.order_items,
-                producer_name: profiles?.find(p => p.id === projectData.producer_id)?.artistic_name || "Productor",
-                buyer_name: profiles?.find(p => p.id === projectData.buyer_id)?.artistic_name || "Cliente"
-            });
+                transaccion: Array.isArray(projectData.transacciones) ? projectData.transacciones[0] : projectData.transacciones,
+                producer_name: profiles?.find(p => p.id === projectData.productor_id)?.nombre_artistico || "Productor",
+                buyer_name: profiles?.find(p => p.id === projectData.comprador_id)?.nombre_artistico || "Cliente"
+            } as unknown as Project);
 
             // Fetch messages
             const { data: messagesData } = await supabase
-                .from('project_messages')
-                .select('*')
-                .eq('project_id', id)
-                .order('created_at', { ascending: true });
+                .from('mensajes_proyecto')
+                .select('id, contenido as content, remitente_id as sender_id, fecha_creacion as created_at')
+                .eq('proyecto_id', id)
+                .order('fecha_creacion', { ascending: true });
 
-            setMessages(messagesData || []);
+            setMessages((messagesData as any[]) || []);
 
             // Fetch files
             const { data: filesData } = await supabase
-                .from('project_files')
-                .select('*')
-                .eq('project_id', id)
-                .order('created_at', { ascending: false });
+                .from('archivos_proyecto')
+                .select('id, url_archivo as file_url, nombre_archivo as file_name, tipo_archivo as file_type, fecha_creacion as created_at, subidor_id as uploader_id')
+                .eq('proyecto_id', id)
+                .order('fecha_creacion', { ascending: false });
 
-            setFiles(filesData || []);
+            setFiles((filesData as any[]) || []);
 
         } catch (err) {
             console.error("Error fetching project data:", err);
@@ -169,11 +169,11 @@ export default function ServiceProjectPage() {
 
         try {
             const { error } = await supabase
-                .from('project_messages')
+                .from('mensajes_proyecto')
                 .insert({
-                    project_id: id,
-                    sender_id: currentUserId,
-                    content: newMessage.trim()
+                    proyecto_id: id,
+                    remitente_id: currentUserId,
+                    contenido: newMessage.trim()
                 });
 
             if (error) throw error;
@@ -204,13 +204,13 @@ export default function ServiceProjectPage() {
                 .getPublicUrl(path);
 
             const { error: dbError } = await supabase
-                .from('project_files')
+                .from('archivos_proyecto')
                 .insert({
-                    project_id: id,
-                    uploader_id: currentUserId,
-                    file_url: publicUrl,
-                    file_name: file.name,
-                    file_type: type
+                    proyecto_id: id,
+                    subidor_id: currentUserId,
+                    url_archivo: publicUrl,
+                    nombre_archivo: file.name,
+                    tipo_archivo: type
                 });
 
             if (dbError) throw dbError;
@@ -228,12 +228,12 @@ export default function ServiceProjectPage() {
     const updateStatus = async (newStatus: Status) => {
         try {
             const { error } = await supabase
-                .from('service_projects')
-                .update({ status: newStatus })
+                .from('proyectos_servicio')
+                .update({ estado: newStatus })
                 .eq('id', id);
 
             if (error) throw error;
-            setProject(prev => prev ? { ...prev, status: newStatus } : null);
+            setProject(prev => prev ? { ...prev, estado: newStatus } : null);
             showToast("Estatus actualizado", "success");
         } catch (err) {
             console.error("Error updating status:", err);
@@ -241,8 +241,8 @@ export default function ServiceProjectPage() {
         }
     };
 
-    const isProducer = currentUserId === project?.producer_id;
-    const isBuyer = currentUserId === project?.buyer_id;
+    const isProducer = currentUserId === project?.productor_id;
+    const isBuyer = currentUserId === project?.comprador_id;
 
     const timelineSteps = [
         { key: 'paid', label: 'Pago', icon: <DollarSign size={14} /> },
@@ -253,7 +253,7 @@ export default function ServiceProjectPage() {
     ];
 
     const getStepIndex = (status: string) => timelineSteps.findIndex(s => s.key === status);
-    const currentStepIndex = getStepIndex(project?.status || 'paid');
+    const currentStepIndex = getStepIndex(project?.estado || 'paid');
 
     if (loading) return <div className="p-20 text-center animate-pulse">Cargando gestión de proyecto...</div>;
     if (!project) return <div className="p-20 text-center text-red-500">No se encontró el proyecto.</div>;
@@ -266,7 +266,7 @@ export default function ServiceProjectPage() {
                     <ChevronLeft size={20} />
                 </Link>
                 <div>
-                    <h1 className="text-2xl font-black uppercase tracking-tight text-foreground">{project.order_item.name}</h1>
+                    <h1 className="text-2xl font-black uppercase tracking-tight text-foreground">{project.transaccion.nombre_producto}</h1>
                     <p className="text-[10px] font-black uppercase tracking-widest text-muted">Gestión de Servicio Pro</p>
                 </div>
             </div>
@@ -331,7 +331,7 @@ export default function ServiceProjectPage() {
                                         {msg.content}
                                     </div>
                                     <span className="text-[8px] font-black uppercase tracking-widest text-muted mt-2 px-1">
-                                        {msg.sender_id === currentUserId ? 'Tú' : (msg.sender_id === project.producer_id ? project.producer_name : project.buyer_name)} • {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        {msg.sender_id === currentUserId ? 'Tú' : (msg.sender_id === project.productor_id ? project.producer_name : project.buyer_name)} • {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
                             ))
@@ -400,12 +400,12 @@ export default function ServiceProjectPage() {
                         {/* Buyer Actions */}
                         {isBuyer && (
                             <div className="space-y-4">
-                                {project.status === 'paid' && (
+                                {project.estado === 'paid' && (
                                     <button className="w-full p-4 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] transition-all shadow-lg shadow-accent/20">
                                         Enviar Requerimientos
                                     </button>
                                 )}
-                                {project.status === 'delivered' && (
+                                {project.estado === 'delivered' && (
                                     <div className="space-y-3">
                                         <button
                                             onClick={() => updateStatus('completed')}

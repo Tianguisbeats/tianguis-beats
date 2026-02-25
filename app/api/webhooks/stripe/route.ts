@@ -68,7 +68,7 @@ export async function POST(req: Request) {
             if (!usuarioId && customerEmail) {
                 console.log('WARN: No client_reference_id. Searching by email:', customerEmail);
                 const { data: userData, error: userError } = await supabaseAdmin
-                    .from('profiles')
+                    .from('perfiles')
                     .select('id')
                     .eq('email', customerEmail)
                     .single();
@@ -98,7 +98,7 @@ export async function POST(req: Request) {
                     cycle: metadata.cycle
                 });
 
-                const vendedorId = metadata.producer_id || metadata.producerId || null;
+                const vendedorId = metadata.productor_id || metadata.productor_id || metadata.producerId || null;
                 const itemId = metadata.type === 'plan' ? 'price_plan_fake' : (metadata.productId || product.id);
 
                 let pdfUrl = null;
@@ -107,16 +107,22 @@ export async function POST(req: Request) {
                 if (metadata.type === 'beat' || metadata.type === 'soundkit') {
                     console.log('--- GENERATING ADVANCED PDF CONTRACT ---');
                     try {
-                        const sellerId = metadata.producerId || metadata.producer_id || metadata.seller_id;
+                        const sellerId = metadata.producerId || metadata.productor_id || metadata.seller_id;
                         let templateOverrides = {};
 
                         // Intentar obtener plantilla personalizada del productor
                         if (sellerId) {
+                            // Normalizar el tipo de licencia para la base de datos (Básica -> basica)
+                            const normalizedType = (metadata.licenseType || 'basica')
+                                .toLowerCase()
+                                .normalize("NFD")
+                                .replace(/[\u0300-\u036f]/g, "");
+
                             const { data: templateData } = await supabaseAdmin
-                                .from('licencias_plantillas')
+                                .from('licencias')
                                 .select('*, incluir_clausulas_pro')
                                 .eq('productor_id', sellerId)
-                                .eq('tipo', metadata.licenseType || 'basic')
+                                .eq('tipo', normalizedType)
                                 .single();
 
                             if (templateData) {
@@ -134,20 +140,19 @@ export async function POST(req: Request) {
                             }
                         }
 
-                        // Obtener nombre del productor (fallback)
                         const { data: prodProfile } = await supabaseAdmin
-                            .from('profiles')
-                            .select('artistic_name, email')
+                            .from('perfiles')
+                            .select('nombre_artistico, email')
                             .eq('id', sellerId)
                             .single();
 
                         const contractData: ContractData = {
                             orderId: stripeId,
                             transactionDate: new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
-                            licenseType: metadata.licenseType || 'basic',
+                            licenseType: metadata.licenseType || 'basica',
                             productName: product.name,
                             price: (item.amount_total / 100).toString(),
-                            producerName: prodProfile?.artistic_name || 'Productor Tianguis',
+                            producerName: prodProfile?.nombre_artistico || 'Productor Tianguis',
                             producerEmail: prodProfile?.email || '',
                             buyerName: session.customer_details?.name || 'Cliente Verificado',
                             buyerEmail: customerEmail || '',
@@ -200,7 +205,7 @@ export async function POST(req: Request) {
                         moneda: moneda,
                         estado_pago: 'completado',
                         metodo_pago: 'stripe',
-                        tipo_licencia: metadata.licenseType || 'basic',
+                        tipo_licencia: metadata.licenseType || 'basica',
                         metadatos: { ...metadata, contract_pdf_url: pdfUrl }, // Guardar la URL aquí
                         cupon_id: cuponId || null
                     });
@@ -219,19 +224,19 @@ export async function POST(req: Request) {
 
                     // 1. Obtener vencimiento actual
                     const { data: profileData } = await supabaseAdmin
-                        .from('profiles')
-                        .select('termina_suscripcion, subscription_tier')
+                        .from('perfiles')
+                        .select('fecha_termino_suscripcion, nivel_suscripcion')
                         .eq('id', usuarioId)
                         .single();
 
-                    const currentExpiry = profileData?.termina_suscripcion ? new Date(profileData.termina_suscripcion) : null;
-                    const isSameTier = profileData?.subscription_tier === tier;
+                    const currentExpiry = profileData?.fecha_termino_suscripcion ? new Date(profileData.fecha_termino_suscripcion) : null;
+                    const isSameTier = profileData?.nivel_suscripcion === tier;
 
                     let baseDate = new Date();
                     // Si ya tiene una suscripción activa del mismo tier, o si es secuencial, sumamos desde el vencimiento
                     if (currentExpiry && currentExpiry > new Date() && (isSameTier || isSequential)) {
                         baseDate = currentExpiry;
-                        console.log('SUMMING TIME: Starting from existing expiry', baseDate.toISOString());
+                        console.log('SUMMING TIME: Starting from existing exterior', baseDate.toISOString());
                     }
 
                     let expiryDate = new Date(baseDate);
@@ -243,29 +248,29 @@ export async function POST(req: Request) {
 
                     // Actualizar el perfil del usuario
                     const updates: any = {
-                        termina_suscripcion: expiryDate.toISOString(),
-                        stripe_subscription_id: subscriptionId || `one_time_${stripeId}`,
-                        is_founder: true
+                        fecha_termino_suscripcion: expiryDate.toISOString(),
+                        stripe_suscripcion_id: subscriptionId || `one_time_${stripeId}`,
+                        es_fundador: true
                     };
 
                     // Si es secuencial, NO cambiamos el tier actual todavía, guardamos el objetivo
                     if (isSequential && !isSameTier) {
-                        updates.comenzar_suscripcion = tier;
+                        updates.fecha_inicio_suscripcion = tier;
                         console.log('SEQUENTIAL UPGRADE: Target tier saved', tier);
                     } else {
-                        updates.subscription_tier = tier;
-                        updates.comenzar_suscripcion = null; // Limpiar cambios programados si ya se aplicó un plan directo
+                        updates.nivel_suscripcion = tier;
+                        updates.fecha_inicio_suscripcion = null; // Limpiar cambios programados si ya se aplicó un plan directo
                     }
 
                     const { error: profileError } = await supabaseAdmin
-                        .from('profiles')
+                        .from('perfiles')
                         .update(updates)
                         .eq('id', usuarioId);
 
                     if (profileError) {
                         console.error('ERROR: Updating profile subscription:', profileError);
                     } else {
-                        console.log('--- PROFILE UPDATED SUCCESSFULLY ---', { newExpiry: expiryDate.toISOString(), tierApplied: updates.subscription_tier || 'sequential_pending' });
+                        console.log('--- PROFILE UPDATED SUCCESSFULLY ---', { newExpiry: expiryDate.toISOString(), tierApplied: updates.nivel_suscripcion || 'sequential_pending' });
                     }
                 }
 

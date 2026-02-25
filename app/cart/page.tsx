@@ -76,16 +76,16 @@ export default function CartPage() {
                     showToast("Inicia sesión para usar cupones exclusivos de miembros.", 'error');
                     return;
                 }
-                const { data: profile } = await supabase.from('profiles').select('subscription_tier').eq('id', userData.user.id).single();
-                if (data.nivel_objetivo === 'gratis' && profile?.subscription_tier !== 'free') {
+                const { data: profile } = await supabase.from('perfiles').select('nivel_suscripcion').eq('id', userData.user.id).single();
+                if (data.nivel_objetivo === 'gratis' && profile?.nivel_suscripcion !== 'free') {
                     showToast("Cupones exclusivos para usuarios Free.", 'error');
                     return;
                 }
-                if (data.nivel_objetivo === 'pro' && profile?.subscription_tier !== 'pro') {
+                if (data.nivel_objetivo === 'pro' && profile?.nivel_suscripcion !== 'pro') {
                     showToast("Cupones exclusivos para suscripciones PRO.", 'error');
                     return;
                 }
-                if (data.nivel_objetivo === 'premium' && profile?.subscription_tier !== 'premium') {
+                if (data.nivel_objetivo === 'premium' && profile?.nivel_suscripcion !== 'premium') {
                     showToast("Cupones exclusivos para suscripciones PREMIUM.", 'error');
                     return;
                 }
@@ -97,7 +97,7 @@ export default function CartPage() {
             const producerId = data.productor_id;
 
             items.forEach(item => {
-                const itemProducerId = item.metadata?.producer_id || item.metadata?.producerId;
+                const itemProducerId = item.metadata?.productor_id || item.metadata?.producerId;
                 let isItemEligible = false;
 
                 if (!producerId) {
@@ -293,15 +293,17 @@ export default function CartPage() {
                                                     {isBeat ? 'BEAT' : isPlan ? 'SUSCRIPCIÓN' : isSoundKit ? 'SOUND KIT' : 'SERVICIO'}
                                                 </span>
 
-                                                {isBeat && Boolean(item.metadata?.license) && (
-                                                    <span className={`px-3 py-1 text-[8px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${item.metadata?.license === 'MP3' || item.metadata?.license === 'mp3' ? 'bg-green-500/10 text-green-600 dark:text-green-400' :
-                                                        item.metadata?.license === 'WAV' || item.metadata?.license === 'wav' ? 'bg-pink-200/20 text-pink-400' :
-                                                            item.metadata?.license === 'STEMS' || item.metadata?.license === 'stems' ? 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400' :
-                                                                'bg-red-200/20 text-red-400'
+                                                {(isBeat && (item.metadata?.license || item.metadata?.licenseType)) ? (
+                                                    <span className={`px-3 py-1 text-[8px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${(item.metadata?.license === 'Básica' || item.metadata?.licenseType === 'Básica') ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
+                                                        (item.metadata?.license === 'Pro' || item.metadata?.licenseType === 'Pro') ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' :
+                                                            (item.metadata?.license === 'Premium' || item.metadata?.licenseType === 'Premium') ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
+                                                                (item.metadata?.license === 'Ilimitada' || item.metadata?.licenseType === 'Ilimitada') ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' :
+                                                                    (item.metadata?.license === 'Exclusiva' || item.metadata?.licenseType === 'Exclusiva') ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400' :
+                                                                        'bg-red-200/20 text-red-400'
                                                         }`}>
-                                                        {item.metadata?.license as string}
+                                                        {(item.metadata?.license as string) || (item.metadata?.licenseType as string)}
                                                     </span>
-                                                )}
+                                                ) : null}
 
                                                 {isPlan && Boolean(item.metadata?.cycle) && (
                                                     <span className={`px-3 py-1 text-[8px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${item.metadata?.cycle === 'yearly' ? 'bg-green-600/10 text-green-600' : 'bg-sky-500/10 text-sky-600'}`}>

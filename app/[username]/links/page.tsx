@@ -48,9 +48,9 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
     useEffect(() => {
         const fetchProfile = async () => {
             const { data } = await supabase
-                .from('profiles')
+                .from('perfiles')
                 .select('*')
-                .eq('username', username)
+                .eq('nombre_usuario', username)
                 .single();
             setProfile(data);
             setLoading(false);
@@ -82,7 +82,7 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
         </div>
     );
 
-    if (!profile.links_active && !isOwner) return (
+    if (!profile.enlaces_activos && !isOwner) return (
         <div className="min-h-screen bg-[#020205] flex flex-col items-center justify-center text-white p-6">
             <h1 className="text-4xl font-black uppercase tracking-tighter mb-4 text-white/20">Página no disponible</h1>
             <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-8">El Smart Link no está habilitado actualmente</p>
@@ -90,7 +90,7 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
         </div>
     );
 
-    const socialLinks = profile.social_links || {};
+    const socialLinks = profile.enlaces_sociales || {};
     const accentColor = profile.color_acento || '#2563eb';
 
     // Grouping links for a more professional look
@@ -113,7 +113,7 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                 {/* Admin/Owner Badge */}
                 {isOwner && (
                     <div className="flex flex-col items-center gap-3 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
-                        {!profile.links_active && (
+                        {!profile.enlaces_activos && (
                             <div className="bg-amber-500/10 text-amber-500 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border border-amber-500/20 mb-2">
                                 Modo Vista Previa (Desactivado para el público)
                             </div>
@@ -135,14 +135,14 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                         <div className="absolute inset-0 bg-accent/20 blur-2xl rounded-full scale-75 group-hover:scale-110 transition-transform duration-700" />
                         <div className="relative w-32 h-32 rounded-[3.5rem] overflow-hidden border-[6px] border-white/5 shadow-2xl mx-auto p-1.5 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-sm">
                             {profile.foto_perfil ? (
-                                <img src={profile.foto_perfil} className="w-full h-full object-cover rounded-[2.8rem]" alt={profile.artistic_name || ''} />
+                                <img src={profile.foto_perfil} className="w-full h-full object-cover rounded-[2.8rem]" alt={profile.nombre_artistico || ''} />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-slate-900 rounded-[2.8rem] text-4xl font-black">
-                                    {profile.artistic_name?.charAt(0) || username.charAt(0)}
+                                    {profile.nombre_artistico?.charAt(0) || username.charAt(0)}
                                 </div>
                             )}
                         </div>
-                        {profile.is_verified && (
+                        {profile.esta_verificado && (
                             <div className="absolute bottom-1 right-1 bg-accent text-white p-2 rounded-2xl border-4 border-[#020205] shadow-xl">
                                 <ShieldCheck size={18} fill="currentColor" className="text-white" />
                             </div>
@@ -150,8 +150,8 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                     </div>
 
                     <h1 className="text-4xl font-black uppercase tracking-tighter mb-2 flex items-center justify-center gap-3">
-                        {profile.artistic_name}
-                        {profile.is_founder && (
+                        {profile.nombre_artistico}
+                        {profile.es_fundador && (
                             <div className="relative h-6 w-6">
                                 <Crown size={22} className="text-amber-500 absolute -top-4 -right-2 rotate-12 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" fill="currentColor" />
                             </div>
@@ -159,17 +159,17 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                     </h1>
 
                     <div className="flex items-center justify-center gap-4 mb-6">
-                        {profile.country && (
+                        {profile.pais && (
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-1.5">
-                                <MapPin size={12} className="text-accent" /> {profile.country}
+                                <MapPin size={12} className="text-accent" /> {profile.pais}
                             </span>
                         )}
                         <span className="w-1 h-1 bg-white/20 rounded-full" />
-                        <span className="text-[10px] font-black text-accent uppercase tracking-[0.2em]">{profile.subscription_tier} PRODUCER</span>
+                        <span className="text-[10px] font-black text-accent uppercase tracking-[0.2em]">{profile.nivel_suscripcion} PRODUCER</span>
                     </div>
 
                     <p className="text-[13px] text-slate-400 font-medium leading-relaxed max-w-xs mx-auto opacity-80 backdrop-blur-sm p-4 bg-white/5 rounded-2xl border border-white/5">
-                        {profile.bio || "Producido en Tianguis Beats. Sonidos originales y calidad premium."}
+                        {profile.biografia || "Producido en Tianguis Beats. Sonidos originales y calidad premium."}
                     </p>
                 </div>
 
@@ -259,15 +259,15 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                     )}
 
                     {/* Featured CTA (Owner custom link) */}
-                    {profile.subscription_tier === 'premium' && profile.cta_text && profile.cta_url && (
+                    {profile.nivel_suscripcion === 'premium' && profile.texto_cta && profile.url_cta && (
                         <a
-                            href={profile.cta_url}
+                            href={profile.url_cta}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="group w-full p-6 bg-gradient-to-br from-indigo-600 to-indigo-800 text-white rounded-[2.5rem] flex items-center justify-between transition-all hover:scale-[1.02] shadow-xl shadow-indigo-600/20 mt-8"
                         >
                             <div className="flex-1">
-                                <span className="block font-black text-sm uppercase tracking-tight">{profile.cta_text}</span>
+                                <span className="block font-black text-sm uppercase tracking-tight">{profile.texto_cta}</span>
                                 <span className="block text-[9px] font-bold uppercase tracking-widest opacity-60">Enlace Destacado</span>
                             </div>
                             <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
@@ -278,7 +278,7 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                 </div>
 
                 {/* Newsletter Section */}
-                {profile.subscription_tier === 'premium' && profile.newsletter_active && (
+                {profile.nivel_suscripcion === 'premium' && profile.boletin_activo && (
                     <div className="mt-16 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                         <div className="bg-white dark:bg-white/5 border border-white/10 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden text-center backdrop-blur-md">
                             <div className="absolute top-0 right-0 w-48 h-48 bg-accent/10 blur-[60px] -mr-24 -mt-24 pointer-events-none" />

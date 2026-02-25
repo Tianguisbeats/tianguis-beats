@@ -22,13 +22,13 @@ type Service = {
 
 type SoundKit = {
     id: string;
-    title: string;
-    description: string;
-    price: number;
-    file_url: string;
-    cover_url?: string;
-    is_public: boolean;
-    created_at: string;
+    titulo: string;
+    descripcion: string;
+    precio: number;
+    url_archivo: string;
+    url_portada?: string;
+    es_publico: boolean;
+    fecha_creacion: string;
 };
 
 export default function ServicesManagerPageWrapper() {
@@ -73,25 +73,25 @@ function ServicesManagerPage() {
         if (!user) return;
 
         // Get Tier & Username
-        const { data: profile } = await supabase.from('profiles').select('subscription_tier, username').eq('id', user.id).single();
-        setUserTier(profile?.subscription_tier);
-        if (profile?.username) setUsername(profile.username);
+        const { data: profile } = await supabase.from('perfiles').select('nivel_suscripcion, nombre_usuario').eq('id', user.id).single();
+        setUserTier(profile?.nivel_suscripcion);
+        if (profile?.nombre_usuario) setUsername(profile.nombre_usuario);
 
         // Get Services
         const { data: servicesData } = await supabase
-            .from('services')
+            .from('servicios')
             .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false });
+            .eq('productor_id', user.id)
+            .order('fecha_creacion', { ascending: false });
 
         if (servicesData) setServices(servicesData);
 
         // Get Sound Kits
         const { data: kitsData } = await supabase
-            .from('sound_kits')
+            .from('kits_sonido')
             .select('*')
-            .eq('producer_id', user.id)
-            .order('created_at', { ascending: false });
+            .eq('productor_id', user.id)
+            .order('fecha_creacion', { ascending: false });
 
         if (kitsData) setSoundKits(kitsData);
 
@@ -100,12 +100,12 @@ function ServicesManagerPage() {
 
     const handleTogglePublicKit = async (id: string, currentStatus: boolean) => {
         const { error } = await supabase
-            .from('sound_kits')
-            .update({ is_public: !currentStatus })
+            .from('kits_sonido')
+            .update({ es_publico: !currentStatus })
             .eq('id', id);
 
         if (!error) {
-            setSoundKits(prev => prev.map(k => k.id === id ? { ...k, is_public: !currentStatus } : k));
+            setSoundKits(prev => prev.map(k => k.id === id ? { ...k, es_publico: !currentStatus } : k));
         }
     };
 
@@ -157,23 +157,23 @@ function ServicesManagerPage() {
 
         try {
             const payload = {
-                user_id: user.id,
+                productor_id: user.id,
                 titulo: currentService.titulo,
                 descripcion: currentService.descripcion,
                 precio: currentService.precio,
                 tipo_servicio: currentService.tipo_servicio || 'mixing_mastering',
                 tiempo_entrega_dias: currentService.tiempo_entrega_dias || 3,
-                is_active: true
+                es_activo: true
             };
 
             let error;
             if (currentService.id) {
                 // Update
-                const { error: err } = await supabase.from('services').update(payload).eq('id', currentService.id);
+                const { error: err } = await supabase.from('servicios').update(payload).eq('id', currentService.id);
                 error = err;
             } else {
                 // Create
-                const { error: err } = await supabase.from('services').insert(payload);
+                const { error: err } = await supabase.from('servicios').insert(payload);
                 error = err;
             }
 
@@ -207,11 +207,11 @@ function ServicesManagerPage() {
 
         // Validation
         const errors: Record<string, string> = {};
-        if (!currentKit?.title) errors.title = "El título es obligatorio";
-        if (!currentKit?.description) errors.description = "La descripción es obligatoria";
-        if (!currentKit?.price || currentKit.price <= 0) errors.price = "El precio debe ser mayor a 0";
-        if (!kitFile && !currentKit?.file_url) errors.file = "El archivo del Sound Kit es obligatorio";
-        if (!kitCoverFile && !currentKit?.cover_url) errors.cover = "La portada es obligatoria";
+        if (!currentKit?.titulo) errors.titulo = "El título es obligatorio";
+        if (!currentKit?.descripcion) errors.descripcion = "La descripción es obligatoria";
+        if (!currentKit?.precio || currentKit.precio <= 0) errors.precio = "El precio debe ser mayor a 0";
+        if (!kitFile && !currentKit?.url_archivo) errors.file = "El archivo del Sound Kit es obligatorio";
+        if (!kitCoverFile && !currentKit?.url_portada) errors.cover = "La portada es obligatoria";
 
         if (Object.keys(errors).length > 0) {
             setKitErrors(errors);
@@ -229,32 +229,33 @@ function ServicesManagerPage() {
         }
 
         try {
-            let fileUrl = currentKit.file_url || '';
+            let fileUrl = currentKit.url_archivo || '';
 
             // Handle File Upload (ZIP/RAR)
             if (kitFile) {
-                const fileName = `${username}/${Date.now()}-${kitFile.name}`;
+                const fileName = `${user.id}/${Date.now()}-${kitFile.name}`;
                 const { data, error: uploadError } = await supabase.storage
-                    .from('sound_kits')
+                    .from('archivos_kits_sonido')
                     .upload(fileName, kitFile);
 
                 if (uploadError) throw uploadError;
-                fileUrl = fileName;
+                const { data: { publicUrl: fUrl } } = supabase.storage.from('archivos_kits_sonido').getPublicUrl(fileName); // We'd get it later normally but ok for here
+                fileUrl = fUrl; // Ensure we save url or path
             }
 
             // Handle Cover Upload
-            let coverUrl = currentKit.cover_url || null;
+            let coverUrl = currentKit.url_portada || null;
             if (kitCoverFile) {
                 const fileExt = kitCoverFile.name.split('.').pop();
-                const coverName = `${username}/${Date.now()}-cover.${fileExt}`;
+                const coverName = `${user.id}/${Date.now()}-cover.${fileExt}`;
                 const { data, error: coverError } = await supabase.storage
-                    .from('sound_kits_covers')
+                    .from('portadas_kits_sonido')
                     .upload(coverName, kitCoverFile);
 
                 if (coverError) throw coverError;
 
                 const { data: { publicUrl } } = supabase.storage
-                    .from('sound_kits_covers')
+                    .from('portadas_kits_sonido')
                     .getPublicUrl(coverName);
 
                 coverUrl = publicUrl;
@@ -267,21 +268,21 @@ function ServicesManagerPage() {
             }
 
             const payload = {
-                producer_id: user.id,
-                title: currentKit.title,
-                description: currentKit.description,
-                price: currentKit.price || 0,
-                file_url: fileUrl,
-                cover_url: coverUrl,
-                is_public: true
+                productor_id: user.id,
+                titulo: currentKit.titulo,
+                descripcion: currentKit.descripcion,
+                precio: currentKit.precio || 0,
+                url_archivo: fileUrl,
+                url_portada: coverUrl,
+                es_publico: true
             };
 
             let error;
             if (currentKit.id) {
-                const { error: err } = await supabase.from('sound_kits').update(payload).eq('id', currentKit.id);
+                const { error: err } = await supabase.from('kits_sonido').update(payload).eq('id', currentKit.id);
                 error = err;
             } else {
-                const { error: err } = await supabase.from('sound_kits').insert(payload);
+                const { error: err } = await supabase.from('kits_sonido').insert(payload);
                 error = err;
             }
 
@@ -460,7 +461,7 @@ function ServicesManagerPage() {
                     </div>
                     <button
                         onClick={() => {
-                            const empty = { price: 0 };
+                            const empty = { precio: 0 };
                             setCurrentKit(empty);
                             setInitialKit(empty);
                             setKitErrors({});
@@ -477,13 +478,12 @@ function ServicesManagerPage() {
                         <div key={kit.id} className="group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3.5rem] overflow-hidden transition-all duration-700 hover:border-amber-500/40 hover:-translate-y-2 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] dark:hover:shadow-amber-500/10">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-[100px] -mr-32 -mt-32 pointer-events-none group-hover:bg-amber-500/10 transition-colors" />
 
-                            {/* Kit Cover Preview */}
                             <div className="relative h-48 w-full overflow-hidden border-b border-slate-200 dark:border-white/5">
                                 <Image
-                                    src={kit.cover_url || '/placeholder-kit.jpg'}
+                                    src={kit.url_portada || '/placeholder-kit.jpg'}
                                     fill
                                     className="object-cover opacity-60 dark:opacity-40 group-hover:opacity-100 transition-opacity duration-700 group-hover:scale-110"
-                                    alt={kit.title}
+                                    alt={kit.titulo}
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-[#020205] via-white/40 dark:via-[#020205]/40 to-transparent" />
                                 <div className="absolute top-6 left-6 flex items-center gap-2">
@@ -492,25 +492,25 @@ function ServicesManagerPage() {
                                     </div>
                                     <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
                                         <Switch
-                                            active={kit.is_public}
-                                            onChange={() => handleTogglePublicKit(kit.id, kit.is_public)}
+                                            active={kit.es_publico}
+                                            onChange={() => handleTogglePublicKit(kit.id, kit.es_publico)}
                                         />
                                         <span className="text-[8px] font-black uppercase text-white tracking-widest leading-none">
-                                            {kit.is_public ? 'Público' : 'Privado'}
+                                            {kit.es_publico ? 'Público' : 'Privado'}
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="p-10 relative z-10">
-                                <h3 className="font-black text-2xl text-slate-900 dark:text-foreground mb-4 tracking-tight group-hover:text-amber-500 transition-colors">{kit.title}</h3>
+                                <h3 className="font-black text-2xl text-slate-900 dark:text-foreground mb-4 tracking-tight group-hover:text-amber-500 transition-colors">{kit.titulo}</h3>
                                 <p className="text-slate-500 dark:text-muted text-[11px] font-bold uppercase tracking-widest leading-relaxed mb-10 line-clamp-2 opacity-60">
-                                    {kit.description}
+                                    {kit.descripcion}
                                 </p>
                                 <div className="flex flex-col items-center gap-6 pt-8 border-t border-slate-200 dark:border-white/5">
                                     <div className="flex flex-col items-center">
                                         <span className="text-[9px] font-black text-amber-500 uppercase tracking-[0.3em] mb-1">Precio</span>
-                                        <span className="font-black text-xl text-slate-900 dark:text-foreground tracking-tighter group-hover:text-amber-500 transition-colors">${kit.price}</span>
+                                        <span className="font-black text-xl text-slate-900 dark:text-foreground tracking-tighter group-hover:text-amber-500 transition-colors">${kit.precio}</span>
                                     </div>
                                     <div className="flex items-center justify-center gap-3 w-full">
                                         <button onClick={() => {
@@ -560,13 +560,13 @@ function ServicesManagerPage() {
                                         <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Identificador Público</label>
                                         <input
                                             required
-                                            value={currentKit?.title || ''}
+                                            value={currentKit?.titulo || ''}
                                             onChange={e => {
-                                                setCurrentKit({ ...currentKit, title: e.target.value });
-                                                if (e.target.value) setKitErrors(prev => ({ ...prev, title: '' }));
+                                                setCurrentKit({ ...currentKit, titulo: e.target.value });
+                                                if (e.target.value) setKitErrors(prev => ({ ...prev, titulo: '' }));
                                             }}
                                             placeholder="EJ. URBAN DRUMS VOL. 1"
-                                            className={`w-full bg-white/5 border-2 rounded-2xl px-6 py-4 font-black text-foreground text-sm focus:outline-none focus:border-amber-500 transition-all shadow-inner ${kitErrors.title ? 'border-red-500' : 'border-white/5'}`}
+                                            className={`w-full bg-white/5 border-2 rounded-2xl px-6 py-4 font-black text-foreground text-sm focus:outline-none focus:border-amber-500 transition-all shadow-inner ${kitErrors.titulo ? 'border-red-500' : 'border-white/5'}`}
                                         />
                                     </div>
                                     <div>
@@ -577,12 +577,12 @@ function ServicesManagerPage() {
                                                 type="number"
                                                 required
                                                 min="0"
-                                                value={currentKit?.price || ''}
+                                                value={currentKit?.precio || ''}
                                                 onChange={e => {
-                                                    setCurrentKit({ ...currentKit, price: Number(e.target.value) });
-                                                    if (Number(e.target.value) > 0) setKitErrors(prev => ({ ...prev, price: '' }));
+                                                    setCurrentKit({ ...currentKit, precio: Number(e.target.value) });
+                                                    if (Number(e.target.value) > 0) setKitErrors(prev => ({ ...prev, precio: '' }));
                                                 }}
-                                                className={`w-full bg-white/5 border-2 rounded-2xl pl-12 pr-6 py-4 font-black text-foreground text-sm focus:outline-none focus:border-amber-500 transition-all shadow-inner tabular-nums ${kitErrors.price ? 'border-red-500' : 'border-white/5'}`}
+                                                className={`w-full bg-white/5 border-2 rounded-2xl pl-12 pr-6 py-4 font-black text-foreground text-sm focus:outline-none focus:border-amber-500 transition-all shadow-inner tabular-nums ${kitErrors.precio ? 'border-red-500' : 'border-white/5'}`}
                                             />
                                         </div>
                                     </div>
@@ -593,7 +593,7 @@ function ServicesManagerPage() {
                                         <input
                                             type="file"
                                             accept=".jpg,.jpeg,.png"
-                                            required={!currentKit?.cover_url}
+                                            required={!currentKit?.url_portada}
                                             onChange={(e) => {
                                                 const file = e.target.files?.[0];
                                                 if (file) setKitCoverFile(file);
@@ -601,11 +601,11 @@ function ServicesManagerPage() {
                                             className="hidden"
                                             id="kit-cover"
                                         />
-                                        <label htmlFor="kit-cover" className={`flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-[2rem] cursor-pointer hover:bg-white/5 transition-all w-full h-full overflow-hidden relative ${kitErrors.cover ? 'border-red-500 bg-red-500/5' : (kitCoverFile || currentKit?.cover_url ? 'border-amber-500/40 bg-amber-500/5' : 'border-white/10')}`}>
+                                        <label htmlFor="kit-cover" className={`flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-[2rem] cursor-pointer hover:bg-white/5 transition-all w-full h-full overflow-hidden relative ${kitErrors.cover ? 'border-red-500 bg-red-500/5' : (kitCoverFile || currentKit?.url_portada ? 'border-amber-500/40 bg-amber-500/5' : 'border-white/10')}`}>
                                             {kitCoverFile ? (
                                                 <img src={URL.createObjectURL(kitCoverFile)} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                            ) : currentKit?.cover_url ? (
-                                                <img src={currentKit.cover_url} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                            ) : currentKit?.url_portada ? (
+                                                <img src={currentKit.url_portada} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                             ) : (
                                                 <div className="flex flex-col items-center gap-3 z-10">
                                                     <Upload size={32} className={kitErrors.cover ? 'text-red-500' : 'text-muted/40'} />
@@ -645,7 +645,7 @@ function ServicesManagerPage() {
                                             ) : (
                                                 <>
                                                     <Upload className={kitErrors.file ? 'text-red-500' : 'text-muted/20 group-hover:text-amber-500 transition-colors'} size={40} strokeWidth={1.5} />
-                                                    <p className={`text-[10px] font-black uppercase tracking-widest mt-6 ${kitErrors.file ? 'text-red-500' : 'text-muted'}`}>{kitErrors.file ? "Archivo Requerido" : (currentKit?.file_url ? "Click para actualizar archivo" : "Transferencia de datos digital")}</p>
+                                                    <p className={`text-[10px] font-black uppercase tracking-widest mt-6 ${kitErrors.file ? 'text-red-500' : 'text-muted'}`}>{kitErrors.file ? "Archivo Requerido" : (currentKit?.url_archivo ? "Click para actualizar archivo" : "Transferencia de datos digital")}</p>
                                                     <p className="text-[9px] font-bold text-muted/40 uppercase tracking-widest mt-2">Maximum throughput: 2GB per upload</p>
                                                 </>
                                             )}
@@ -657,13 +657,13 @@ function ServicesManagerPage() {
                                     <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Detalles Técnicos & Contenido</label>
                                     <textarea
                                         rows={4}
-                                        value={currentKit?.description || ''}
+                                        value={currentKit?.descripcion || ''}
                                         onChange={e => {
-                                            setCurrentKit({ ...currentKit, description: e.target.value });
-                                            if (e.target.value) setKitErrors(prev => ({ ...prev, description: '' }));
+                                            setCurrentKit({ ...currentKit, descripcion: e.target.value });
+                                            if (e.target.value) setKitErrors(prev => ({ ...prev, descripcion: '' }));
                                         }}
                                         placeholder="EJ. INCLUYE +50 DRUM SAMPLES, PRESETS DE SERUM Y LOOPS EXCLUSIVOS."
-                                        className={`w-full bg-white/5 border-2 rounded-[2rem] px-8 py-6 font-bold text-foreground text-[11px] focus:outline-none focus:border-amber-500 resize-none transition-all shadow-inner ${kitErrors.description ? 'border-red-500' : 'border-white/5'}`}
+                                        className={`w-full bg-white/5 border-2 rounded-[2rem] px-8 py-6 font-bold text-foreground text-[11px] focus:outline-none focus:border-amber-500 resize-none transition-all shadow-inner ${kitErrors.descripcion ? 'border-red-500' : 'border-white/5'}`}
                                     />
                                 </div>
                             </div>

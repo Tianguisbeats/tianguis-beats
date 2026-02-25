@@ -1,31 +1,29 @@
 /**
  * TIANGUIS BEATS - Tipos Globales
- * v1.0 - 2026-01-28
+ * v2.0 - 2026-02-24 (Reset Absoluto en Español)
  * Centralización de interfaces para mantener consistencia entre DB y Frontend.
  */
 
-/** Tipos de roles de usuario disponibles en la plataforma. */
-export type UserRole = 'buyer' | 'producer' | 'artist' | 'admin';
+export type UserRole = 'comprador' | 'productor' | 'artista' | 'admin';
 
-/** Niveles de suscripción (Tiers) disponibles. */
 export type SubscriptionTier = 'free' | 'pro' | 'premium';
 
 /**
- * Interfaz principal para el Perfil de Usuario.
- * Representa la tabla `profiles` en la base de datos de Supabase.
+ * Tabla `perfiles`
  */
 export interface Profile {
     id: string;
-    username: string;
-    artistic_name: string | null;
-    full_name?: string | null;
+    nombre_usuario: string;
+    nombre_artistico: string | null;
+    nombre_completo?: string | null;
     foto_perfil?: string | null;
     portada_perfil?: string | null;
     ajuste_portada?: number;
-    bio?: string | null;
-    country?: string;
-    open_collaborations?: boolean;
-    social_links?: {
+    biografia?: string | null;
+    pais?: string;
+    idioma_preferido?: string;
+    colaboraciones_abiertas?: boolean;
+    enlaces_sociales?: {
         instagram?: string;
         youtube?: string;
         twitter?: string;
@@ -35,96 +33,152 @@ export interface Profile {
         tidal?: string;
         amazon?: string;
     };
-    birth_date?: string | null;
-    subscription_tier?: SubscriptionTier;
-    is_founder?: boolean;
-    is_verified?: boolean;
-    username_changes?: number;
-    email?: string;
-    fecha_de_creacion: string;
-    ultima_actualizacion?: string;
-    ultima_sesion?: string;
-    perfil_completado?: boolean;
+    fecha_nacimiento?: string | null;
+    nivel_suscripcion?: SubscriptionTier;
+    es_fundador?: boolean;
+    esta_verificado?: boolean;
+    es_admin?: boolean;
+    estado_verificacion?: string;
+    cambios_nombre_usuario?: number;
+    correo?: string;
+
+    // UI
+    esta_completado?: boolean;
     tema_perfil?: string;
     color_acento?: string;
     video_destacado_url?: string;
-    cta_text?: string;
-    cta_url?: string;
-    newsletter_active?: boolean;
-    links_active?: boolean;
-    verify_instagram?: string | null;
-    verify_youtube?: string | null;
-    verify_tiktok?: string | null;
-    stripe_customer_id?: string;
-    idioma_preferido?: string;
+    texto_cta?: string;
+    url_cta?: string;
+
+    // Ajustes
+    boletin_activo?: boolean;
+    enlaces_activos?: boolean;
+
+    // Verificaciones
+    verificacion_instagram?: string | null;
+    verificacion_youtube?: string | null;
+    verificacion_tiktok?: string | null;
+
+    // Stripe
+    stripe_cliente_id?: string;
+    stripe_suscripcion_id?: string | null;
+    fecha_inicio_suscripcion?: string | null;
+    fecha_termino_suscripcion?: string | null;
+
+    visitas_totales?: number;
+
+    fecha_creacion: string;
+    fecha_actualizacion?: string;
+    fecha_ultima_sesion?: string;
 }
 
 /**
- * Interfaz principal para la entidad Beat (Pista/Instrumental).
- * Representa la tabla `beats` en la base de datos e incluye propiedades 
- * de la interfaz de usuario que se agregan durante la obtención de datos.
+ * Tabla `beats`
  */
 export interface Beat {
-    /** Identificador único del beat */
     id: string;
-    producer_id?: string;
-    producer?: {
-        artistic_name: string;
-        username?: string;
-        foto_perfil?: string;
-        is_verified?: boolean;
-        is_founder?: boolean;
-    } | string;
-    title: string;
-    genre?: string | null;
-    subgenre?: string | null;
+    productor_id: string;
+    // Agregados a través de la vista o joins (antes producer)
+    productor_nombre_artistico?: string | null;
+    productor_nombre_usuario?: string | null;
+    productor_foto_perfil?: string | null;
+    productor_esta_verificado?: boolean;
+    productor_es_fundador?: boolean;
+    productor_nivel_suscripcion?: string | null;
+
+    titulo: string;
+    genero?: string | null;
+    subgenero?: string | null;
     bpm?: number | null;
-    musical_key?: string | null;
-    musical_scale?: string | null;
-    description?: string | null;
-    price_mxn?: number;
-    price_wav_mxn?: number | null;
-    price_stems_mxn?: number | null;
-    is_public?: boolean;
-    is_verified?: boolean;
-    is_founder?: boolean;
+    nota_musical?: string | null;
+    escala_musical?: string | null;
+    descripcion?: string | null;
+    vibras?: string | null;
+    tipos_beat?: string[];
+    artista_referencia?: string | null;
+
+    // Precios
+    precio_basico_mxn?: number;
+    precio_pro_mxn?: number | null;
+    precio_premium_mxn?: number | null;
+    precio_ilimitado_mxn?: number | null;
+    precio_exclusivo_mxn?: number | null;
+
+    es_publico?: boolean;
+    esta_vendido?: boolean;
 
     // Archivos
-    portadabeat_url?: string | null;
-    mp3_url?: string;
-    mp3_tag_url?: string | null;
-    wav_url?: string | null;
-    stems_url?: string | null;
+    portada_url?: string | null;
+    archivo_mp3_url?: string;
+    archivo_muestra_url?: string | null;
+    archivo_wav_url?: string | null;
+    archivo_stems_url?: string | null;
 
-    mood?: string | null;
+    // Estadísticas
+    conteo_reproducciones?: number;
+    conteo_ventas?: number;
+    conteo_likes?: number;
+    visibilidad_tier?: number;
 
-    // Stats
-    play_count?: number;
-    sale_count?: number;
-    like_count?: number;
-    comment_count?: number;
+    // Interruptores
+    es_basica_activa?: boolean;
+    es_pro_activa?: boolean;
+    es_premium_activa?: boolean;
+    es_ilimitada_activa?: boolean;
+    es_exclusiva_activa?: boolean;
 
-    is_exclusive?: boolean;
-    exclusive_price_mxn?: number | null;
-    tier_visibility?: number;
-
-    // UI-Specific flat properties (used by BeatCard)
-    producer_foto_perfil?: string | null;
-    producer_tier?: string | null;
-    producer_is_verified?: boolean;
-    producer_is_founder?: boolean;
-    producer_username?: string | null;
-    producer_artistic_name?: string | null;
-    tag?: string | null;
-    tagEmoji?: string | null;
-    tagColor?: string;
-    coverColor?: string;
-
-    is_sound_kit?: boolean;
-    is_mp3_active?: boolean;
-    is_wav_active?: boolean;
-    is_stems_active?: boolean;
-    is_exclusive_active?: boolean;
-    is_sold?: boolean;
-    created_at: string;
+    fecha_creacion: string;
 }
+
+/**
+ * Tabla `servicios`
+ */
+export interface Servicio {
+    id: string;
+    productor_id: string;
+    titulo: string;
+    descripcion?: string;
+    precio: number;
+    tipo_servicio?: string;
+    tiempo_entrega_dias?: number;
+    es_activo?: boolean;
+    fecha_creacion: string;
+}
+
+/**
+ * Tabla `kits_sonido`
+ */
+export interface KitSonido {
+    id: string;
+    productor_id: string;
+    titulo: string;
+    descripcion?: string;
+    precio: number;
+    url_archivo: string;
+    url_portada?: string;
+    es_publico?: boolean;
+    fecha_creacion: string;
+}
+
+/**
+ * Tabla `transacciones`
+ */
+export interface Transaccion {
+    id: string;
+    id_pago_stripe?: string;
+    comprador_id: string;
+    vendedor_id?: string;
+    producto_id: string;
+    tipo_producto: 'beat' | 'kit_sonido' | 'servicio' | 'suscripcion_app';
+    nombre_producto: string;
+    precio_total: number;
+    moneda: string;
+    estado_pago: string;
+    metodo_pago: string;
+    tipo_licencia?: string;
+    metadatos?: any;
+    cupon_id?: string;
+    url_recibo?: string;
+    fecha_creacion: string;
+}
+

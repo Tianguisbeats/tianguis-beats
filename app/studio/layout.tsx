@@ -28,10 +28,10 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         const fetchProfile = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                const { data } = await supabase.from('profiles').select('subscription_tier, is_verified, is_admin, termina_suscripcion').eq('id', user.id).single();
+                const { data } = await supabase.from('perfiles').select('nivel_suscripcion, esta_verificado, es_admin, fecha_termino_suscripcion').eq('id', user.id).single();
                 setProfile(data);
 
-                if (data?.is_admin) {
+                if (data?.es_admin) {
                     setNavItems(prev => {
                         if (prev.find(item => item.href === '/studio/admin')) return prev;
                         return [...prev, { name: 'Administrador', href: '/studio/admin', icon: <LayoutGrid size={18} /> }];
@@ -89,27 +89,27 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                         </div>
 
                         {/* Producer Tier Quick Status */}
-                        <div className={`p-6 rounded-[2rem] relative overflow-hidden group transition-all duration-500 ${profile?.subscription_tier === 'premium' ? 'bg-gradient-to-br from-blue-600 to-indigo-900 text-white shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)]' :
-                            profile?.subscription_tier === 'pro' ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-900 shadow-[0_20px_50px_-10px_rgba(245,158,11,0.2)]' :
+                        <div className={`p-6 rounded-[2rem] relative overflow-hidden group transition-all duration-500 ${profile?.nivel_suscripcion === 'premium' ? 'bg-gradient-to-br from-blue-600 to-indigo-900 text-white shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)]' :
+                            profile?.nivel_suscripcion === 'pro' ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-900 shadow-[0_20px_50px_-10px_rgba(245,158,11,0.2)]' :
                                 'bg-gradient-to-br from-slate-100 to-slate-200 dark:from-white/5 dark:to-white/10 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/5 shadow-sm'
                             }`}>
-                            <div className={`absolute top-0 right-0 w-20 h-20 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700 ${profile?.subscription_tier === 'premium' ? 'bg-white/20' :
-                                profile?.subscription_tier === 'pro' ? 'bg-white/40' :
+                            <div className={`absolute top-0 right-0 w-20 h-20 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700 ${profile?.nivel_suscripcion === 'premium' ? 'bg-white/20' :
+                                profile?.nivel_suscripcion === 'pro' ? 'bg-white/40' :
                                     'bg-slate-400/20'
                                 }`} />
                             <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-1 text-center w-full">Membresía</p>
                             <h4 className="text-sm font-black uppercase tracking-tight flex items-center justify-center gap-2 w-full">
-                                {profile?.subscription_tier === 'premium' ? <><Crown size={14} /> Plan Premium</> :
-                                    profile?.subscription_tier === 'pro' ? <><Crown size={14} /> Plan Pro</> :
+                                {profile?.nivel_suscripcion === 'premium' ? <><Crown size={14} /> Plan Premium</> :
+                                    profile?.nivel_suscripcion === 'pro' ? <><Crown size={14} /> Plan Pro</> :
                                         <span className="px-2 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-black tracking-widest border border-slate-300 dark:border-slate-700">PLAN FREE</span>}
                             </h4>
-                            {profile?.termina_suscripcion && (profile.subscription_tier === 'premium' || profile.subscription_tier === 'pro') && (
+                            {profile?.fecha_termino_suscripcion && (profile.nivel_suscripcion === 'premium' || profile.nivel_suscripcion === 'pro') && (
                                 <p className="text-[9px] font-black tracking-widest opacity-80 mt-2 flex items-center justify-center text-center gap-1 w-full">
-                                    Válido hasta: {new Date(profile.termina_suscripcion).toLocaleDateString()}
+                                    Válido hasta: {new Date(profile.fecha_termino_suscripcion).toLocaleDateString()}
                                 </p>
                             )}
 
-                            {profile?.is_verified ? (
+                            {profile?.esta_verificado ? (
                                 <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-center gap-2 flex-nowrap min-w-fit w-full">
                                     <img src="/verified-badge.png" alt="Verificado" className="w-3.5 h-3.5 object-contain shadow-lg" />
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 whitespace-nowrap">Verificado</span>

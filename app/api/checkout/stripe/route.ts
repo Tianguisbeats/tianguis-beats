@@ -49,10 +49,10 @@ export async function POST(req: Request) {
                             tier: item.metadata?.tier || '',
                             cycle: item.metadata?.cycle || '',
                             licenseType: item.metadata?.licenseType || '',
-                            producerId: item.metadata?.producer_id || item.metadata?.seller_id || item.metadata?.producerId || '',
-                            mp3_url: item.metadata?.mp3_url || '',
-                            wav_url: item.metadata?.wav_url || '',
-                            stems_url: item.metadata?.stems_url || '',
+                            productor_id: item.metadata?.productor_id || item.metadata?.productor_id || item.metadata?.seller_id || item.metadata?.producerId || '',
+                            archivo_muestra_url: item.metadata?.archivo_muestra_url || item.metadata?.mp3_url || '',
+                            archivo_wav_url: item.metadata?.archivo_wav_url || item.metadata?.wav_url || '',
+                            archivo_stems_url: item.metadata?.archivo_stems_url || item.metadata?.stems_url || '',
                             file_url: item.metadata?.file_url || ''
                         }
                     },

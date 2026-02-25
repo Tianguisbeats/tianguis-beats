@@ -79,44 +79,21 @@ function CatalogContent() {
     }, [searchParams]);
 
     const transformBeat = async (b: any) => {
-        const path = b.mp3_tag_url || b.mp3_url || '';
+        const path = b.archivo_muestra_url || b.archivo_mp3_url || '';
         const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-        const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+        const bucket = path.includes('-hq-') ? 'beats_mp3' : 'muestras_beats';
         const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
 
-        let finalCoverUrl = b.portadabeat_url;
+        let finalCoverUrl = b.portada_url;
         if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
-            const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(finalCoverUrl);
+            const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas_beats').getPublicUrl(finalCoverUrl);
             finalCoverUrl = cpUrl;
         }
 
         return {
-            id: b.id,
-            producer_id: b.producer_id,
-            title: b.title,
-            producer: b.producer?.artistic_name || 'Productor Anónimo',
-            producer_username: b.producer?.username || b.producer?.artistic_name,
-            producer_is_verified: b.producer?.is_verified,
-            producer_is_founder: b.producer?.is_founder,
-            producer_foto_perfil: b.producer?.foto_perfil,
-            producer_tier: b.producer?.subscription_tier,
-            producer_artistic_name: b.producer?.artistic_name,
-            price_mxn: b.price_mxn,
-            bpm: b.bpm,
-            genre: b.genre,
-            musical_key: b.musical_key,
-            musical_scale: b.musical_scale,
-            mood: b.mood,
-            portadabeat_url: finalCoverUrl,
-            mp3_url: publicUrl,
-            created_at: b.created_at,
-            play_count: b.play_count,
-            sale_count: b.sale_count,
-            like_count: b.like_count,
-            is_mp3_active: b.is_mp3_active,
-            is_wav_active: b.is_wav_active,
-            is_stems_active: b.is_stems_active,
-            is_exclusive_active: b.is_exclusive_active
+            ...b,
+            portada_url: finalCoverUrl,
+            archivo_mp3_url: publicUrl,
         };
     };
 
@@ -162,21 +139,21 @@ function CatalogContent() {
                 let query = supabase
                     .from("beats_busqueda")
                     .select("*")
-                    .eq("is_public", true);
+                    .eq("es_publico", true);
 
-                if (filterState.genre !== 'Todos') query = query.eq('genre', filterState.genre);
-                if (filterState.subgenre) query = query.eq('subgenre', filterState.subgenre);
-                if (filterState.mood) query = query.ilike('mood', `%${filterState.mood}%`);
+                if (filterState.genre !== 'Todos') query = query.eq('genero', filterState.genre);
+                if (filterState.subgenre) query = query.eq('subgenero', filterState.subgenre);
+                if (filterState.mood) query = query.ilike('vibras', `%${filterState.mood}%`);
                 if (filterState.bpmMin) query = query.gte('bpm', filterState.bpmMin);
                 if (filterState.bpmMax) query = query.lte('bpm', filterState.bpmMax);
-                if (filterState.key) query = query.eq('musical_key', filterState.key);
+                if (filterState.key) query = query.eq('nota_musical', filterState.key);
                 if (filterState.scale) {
                     const scale = filterState.scale;
 
                     if (scale === 'Mayor') {
-                        query = query.or(`musical_scale.eq.Mayor,musical_scale.eq.Major,musical_key.ilike.%Maj%`);
+                        query = query.or(`escala_musical.eq.Mayor,nota_musical.ilike.%Maj%`);
                     } else if (scale === 'Menor') {
-                        query = query.or(`musical_scale.eq.Menor,musical_scale.eq.Minor,musical_key.ilike.%min%,musical_key.ilike.%m%`);
+                        query = query.or(`escala_musical.eq.Menor,nota_musical.ilike.%min%,nota_musical.ilike.%m%`);
                     }
                 }
 
@@ -184,16 +161,16 @@ function CatalogContent() {
                     const q = filterState.searchQuery.trim();
                     if (q.startsWith('@')) {
                         const username = q.substring(1);
-                        query = query.ilike('producer_username', `%${username}%`);
+                        query = query.ilike('productor_nombre_usuario', `%${username}%`);
                     } else {
-                        query = query.or(`title.ilike.%${q}%,producer_name.ilike.%${q}%,producer_username.ilike.%${q}%,genre.ilike.%${q}%,mood.ilike.%${q}%`);
+                        query = query.or(`titulo.ilike.%${q}%,productor_nombre_artistico.ilike.%${q}%,productor_nombre_usuario.ilike.%${q}%,genero.ilike.%${q}%,vibras.ilike.%${q}%`);
                     }
                 }
 
                 if (filterState.refArtist.trim()) {
                     const ra = filterState.refArtist.trim();
                     // Búsqueda parcial "letra por letra"
-                    query = query.ilike('reference_artist', `%${ra}%`);
+                    query = query.ilike('artista_referencia', `%${ra}%`);
                 }
 
                 switch (viewMode) {
@@ -202,25 +179,25 @@ function CatalogContent() {
                         break;
                     case 'trending':
                         // Priorizar plays de la semana para una sensación de "frescura"
-                        query = query.order("weekly_play_count", { ascending: false, nullsFirst: false });
+                        query = query.order("conteo_repro_semanal", { ascending: false, nullsFirst: false });
                         break;
                     case 'best_sellers':
                         // Priorizar ventas de la semana
-                        query = query.order("weekly_sale_count", { ascending: false, nullsFirst: false });
+                        query = query.order("conteo_ventas_semanal", { ascending: false, nullsFirst: false });
                         break;
                     case 'hidden_gems':
                         // "Joyas": Free users con pocas reproducciones totales pero buen engagement
-                        query = query.eq('producer_tier', 'free').lte('play_count', 1500).order("like_count", { ascending: false });
+                        query = query.eq('productor_nivel_suscripcion', 'free').lte('conteo_reproducciones', 1500).order("conteo_likes", { ascending: false });
                         break;
                     case 'recommended':
                         // "Recomendados IA": Priority to Premium Users
-                        query = query.eq('producer_tier', 'premium').order("play_count", { ascending: false });
+                        query = query.eq('productor_nivel_suscripcion', 'premium').order("conteo_reproducciones", { ascending: false });
                         break;
                     case 'corridos_tumbados':
-                        query = query.eq('genre', 'Corridos Tumbados 🇲🇽').order("created_at", { ascending: false });
+                        query = query.eq('genero', 'Corridos Tumbados 🇲🇽').order("created_at", { ascending: false });
                         break;
                     case 'reggaeton_mexa':
-                        query = query.eq('genre', 'Reggaetón Mexa 🇲🇽').order("created_at", { ascending: false });
+                        query = query.eq('genero', 'Reggaetón Mexa 🇲🇽').order("created_at", { ascending: false });
                         break;
                     default:
                         query = query.order("created_at", { ascending: false });
@@ -232,26 +209,15 @@ function CatalogContent() {
                 if (error) { setErrorMsg(error.message); return; }
 
                 let transformed = await Promise.all((data || []).map(async (b: any) => {
-                    // Adapt v_beats_search fields to the expected Beat interface in the app
-                    const untransformed = {
-                        ...b,
-                        producer: {
-                            artistic_name: b.producer_name,
-                            username: b.producer_username,
-                            is_verified: b.producer_verified,
-                            subscription_tier: b.producer_tier,
-                            foto_perfil: b.producer_avatar
-                        }
-                    };
-                    return transformBeat(untransformed);
+                    return transformBeat(b);
                 }));
 
                 // Multi-tier priority sorting for 'all' mode
                 if (viewMode === 'all') {
                     const tierOrder: any = { premium: 0, pro: 1, free: 2 };
                     transformed.sort((a, b) => {
-                        const tierA = tierOrder[a.producer_tier as any] ?? 3;
-                        const tierB = tierOrder[b.producer_tier as any] ?? 3;
+                        const tierA = tierOrder[a.productor_nivel_suscripcion as any] ?? 3;
+                        const tierB = tierOrder[b.productor_nivel_suscripcion as any] ?? 3;
                         if (tierA !== tierB) return tierA - tierB;
                         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
                     });

@@ -37,15 +37,15 @@ export default function PricingPage() {
             if (currentSession?.user) {
                 try {
                     const { data, error } = await supabase
-                        .from('profiles')
-                        .select('subscription_tier, termina_suscripcion, comenzar_suscripcion')
+                        .from('perfiles')
+                        .select('nivel_suscripcion, fecha_termino_suscripcion, fecha_inicio_suscripcion')
                         .eq('id', currentSession.user.id)
                         .single();
 
                     if (data && !error) {
-                        setUserTier(data.subscription_tier);
-                        setTerminaSuscripcion(data.termina_suscripcion);
-                        setComenzarSuscripcion(data.comenzar_suscripcion);
+                        setUserTier(data.nivel_suscripcion);
+                        setTerminaSuscripcion(data.fecha_termino_suscripcion);
+                        setComenzarSuscripcion(data.fecha_inicio_suscripcion);
                     }
                 } catch (e) {
                     console.error("Error fetching subscription details:", e);
@@ -189,8 +189,8 @@ export default function PricingPage() {
         setLoading(true);
         try {
             const { error } = await supabase
-                .from('profiles')
-                .update({ comenzar_suscripcion: null })
+                .from('perfiles')
+                .update({ fecha_inicio_suscripcion: null })
                 .eq('id', session.user.id);
 
             if (error) throw error;
@@ -213,8 +213,8 @@ export default function PricingPage() {
                 // Si es solo programar el cambio sin pago inmediato (downgrade a free)
                 if (isDowngrade && selectedPlan.tier === 'free') {
                     const { error } = await supabase
-                        .from('profiles')
-                        .update({ comenzar_suscripcion: selectedPlan.tier })
+                        .from('perfiles')
+                        .update({ fecha_inicio_suscripcion: selectedPlan.tier })
                         .eq('id', session.user.id);
 
                     if (error) throw error;

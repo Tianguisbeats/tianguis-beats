@@ -53,7 +53,7 @@ export default function VerificationPage() {
 
         // 1. Fetch Profile
         const { data: profile } = await supabase
-            .from('profiles')
+            .from('perfiles')
             .select('*')
             .eq('id', user.id)
             .single();
@@ -62,19 +62,19 @@ export default function VerificationPage() {
         if (profile) {
             setForm(prev => ({
                 ...prev,
-                realName: profile.full_name || '',
-                artisticName: profile.artistic_name || ''
+                realName: profile.nombre_completo || '',
+                artisticName: profile.nombre_artistico || ''
             }));
         }
 
         // 2. Fetch Beats (Count & Plays)
         const { data: beats } = await supabase
             .from('beats')
-            .select('play_count')
-            .eq('producer_id', user.id);
+            .select('conteo_reproducciones')
+            .eq('productor_id', user.id);
 
         const beatCount = beats?.length || 0;
-        const playCount = beats?.reduce((sum, b) => sum + (b.play_count || 0), 0) || 0;
+        const playCount = beats?.reduce((sum, b) => sum + (b.conteo_reproducciones || 0), 0) || 0;
 
         // 3. Fetch Sales (Transacciones)
         const { count: saleCount } = await supabase
@@ -101,10 +101,10 @@ export default function VerificationPage() {
 
         // 5. Evaluate Requirements
         setChecks({
-            plan: profile?.subscription_tier === 'pro' || profile?.subscription_tier === 'premium',
-            profileComplete: !!(profile?.foto_perfil && profile?.portada_perfil && profile?.bio && profile?.artistic_name),
+            plan: profile?.nivel_suscripcion === 'pro' || profile?.nivel_suscripcion === 'premium',
+            profileComplete: !!(profile?.foto_perfil && profile?.portada_perfil && profile?.biografia && profile?.nombre_artistico),
             activityMin: beatCount >= 5,
-            socialsLinked: !!(profile?.verify_instagram && profile?.verify_youtube && profile?.verify_tiktok),
+            socialsLinked: !!(profile?.verificacion_instagram && profile?.verificacion_youtube && profile?.verificacion_tiktok),
             performance: playCount >= 100 && (saleCount || 0) >= 1
         });
 
@@ -131,7 +131,7 @@ export default function VerificationPage() {
 
             // 1. Upload ID (using username in path)
             const fileExt = form.idDocument.name.split('.').pop();
-            const fileName = `${profile.username}/${Date.now()}_verification.${fileExt}`;
+            const fileName = `${profile.nombre_usuario}/${Date.now()}_verification.${fileExt}`;
             const { error: uploadError, data: uploadData } = await supabase.storage
                 .from('verification-docs')
                 .upload(fileName, form.idDocument);
@@ -154,7 +154,7 @@ export default function VerificationPage() {
             if (insertError) throw insertError;
 
             // 3. Update Verification Status in Profile (Optimistic / Cache)
-            await supabase.from('profiles').update({ verification_status: 'pending' }).eq('id', user.id);
+            await supabase.from('perfiles').update({ estado_verificacion: 'pending' }).eq('id', user.id);
 
             setStatus('pending');
             showToast("Solicitud enviada con éxito.", "success");
@@ -264,8 +264,8 @@ export default function VerificationPage() {
                                 {[
                                     { label: 'Foto Perfil', passed: !!profile?.foto_perfil },
                                     { label: 'Portada', passed: !!profile?.portada_perfil },
-                                    { label: 'Smart Bio', passed: !!profile?.bio },
-                                    { label: 'Aka Artístico', passed: !!profile?.artistic_name }
+                                    { label: 'Smart Bio', passed: !!profile?.biografia },
+                                    { label: 'Aka Artístico', passed: !!profile?.nombre_artistico }
                                 ].map((item, i) => (
                                     <div key={i} className="flex items-center gap-1.5">
                                         {item.passed ? (

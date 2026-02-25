@@ -6,11 +6,11 @@ import { FileText, Settings, ShieldCheck, FileKey, Crown, Zap, Package, AlignLef
 import { useToast } from '@/context/ToastContext';
 
 // Define the License Types available
-export type ContractType = 'basic' | 'premium' | 'unlimited' | 'exclusive' | 'soundkit';
+export type ContractType = 'basica' | 'pro' | 'premium' | 'ilimitada' | 'exclusiva' | 'soundkit';
 
 const CONTRACT_TYPES = [
     {
-        id: 'basic' as ContractType,
+        id: 'basica' as ContractType,
         name: 'Licencia Básica (MP3)',
         icon: <FileText size={24} />,
         color: 'text-blue-500',
@@ -18,15 +18,23 @@ const CONTRACT_TYPES = [
         glow: 'group-hover:shadow-blue-500/20'
     },
     {
+        id: 'pro' as ContractType,
+        name: 'Licencia Pro (MP3/HQ)',
+        icon: <Zap size={24} />,
+        color: 'text-indigo-500',
+        gradient: 'from-indigo-500/20 to-indigo-400/5',
+        glow: 'group-hover:shadow-indigo-500/20'
+    },
+    {
         id: 'premium' as ContractType,
         name: 'Licencia Premium (WAV)',
-        icon: <Zap size={24} />,
+        icon: <Crown size={24} />,
         color: 'text-purple-500',
         gradient: 'from-purple-500/20 to-purple-400/5',
         glow: 'group-hover:shadow-purple-500/20'
     },
     {
-        id: 'unlimited' as ContractType,
+        id: 'ilimitada' as ContractType,
         name: 'Ilimitada (STEMS)',
         icon: <Crown size={24} />,
         color: 'text-amber-500',
@@ -34,7 +42,7 @@ const CONTRACT_TYPES = [
         glow: 'group-hover:shadow-amber-500/20'
     },
     {
-        id: 'exclusive' as ContractType,
+        id: 'exclusiva' as ContractType,
         name: 'Compra Exclusiva',
         icon: <ShieldCheck size={24} />,
         color: 'text-emerald-500',
@@ -83,7 +91,7 @@ export default function ContractsPage() {
             if (!user) return;
 
             const { data, error } = await supabase
-                .from('licencias_plantillas')
+                .from('licencias')
                 .select('*')
                 .eq('productor_id', user.id);
 
@@ -130,10 +138,11 @@ export default function ContractsPage() {
     const getDefaultLegalText = (type: ContractType) => {
         // Textos por defecto si no ha configurado ninguno
         const defaults: Record<string, string> = {
-            basic: "LICENCIA BÁSICA: Este contrato otorga derechos no exclusivos de uso sobre el Beat para crear una (1) Nueva Canción. Límite de streams: 10,000.",
+            basica: "LICENCIA BÁSICA: Este contrato otorga derechos no exclusivos de uso sobre el Beat para crear una (1) Nueva Canción. Límite de streams: 10,000.",
+            pro: "LICENCIA PRO: Derechos no exclusivos con límites extendidos de distribución y streams. Límite de streams: 100,000.",
             premium: "LICENCIA PREMIUM: Derechos no exclusivos para distribución comercial en plataformas. Límite de streams: 500,000.",
-            unlimited: "LICENCIA ILIMITADA: Derechos no exclusivos para explotación comercial sin límite numérico de regalías.",
-            exclusive: "COMPRA EXCLUSIVA: Cesión total y permanente de la posesión y explotación del instrumental (Master).",
+            ilimitada: "LICENCIA ILIMITADA: Derechos no exclusivos para explotación comercial sin límite numérico de regalías.",
+            exclusiva: "COMPRA EXCLUSIVA: Cesión total y permanente de la posesión y explotación del instrumental (Master).",
             soundkit: "LICENCIA ROYALTY-FREE: Todos los audios pueden ser usados libremente en construcciones de Beats, sin regalías."
         };
         return defaults[type] || '';
@@ -155,7 +164,7 @@ export default function ContractsPage() {
             };
 
             const { error } = await supabase
-                .from('licencias_plantillas')
+                .from('licencias')
                 .upsert(payload, { onConflict: 'productor_id, tipo' });
 
             if (error) {

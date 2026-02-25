@@ -48,8 +48,8 @@ export default function ProducerDashboard() {
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
                     const { data } = await supabase
-                        .from('profiles')
-                        .select('id, username, artistic_name, subscription_tier')
+                        .from('perfiles')
+                        .select('id, nombre_usuario, nombre_artistico, nivel_suscripcion')
                         .eq('id', user.id)
                         .single();
                     setProfile(data);
@@ -83,11 +83,11 @@ export default function ProducerDashboard() {
 
             // 1. Subir archivos a Storage
             const timestamp = Date.now();
-            const username = profile.username;
+            const username = profile.nombre_usuario;
             const mp3Path = `${username}/${timestamp}-preview-${sanitize(mp3File.name)}`;
 
             const { error: mp3Error } = await supabase.storage
-                .from('beats-muestras')
+                .from('muestras_beats')
                 .upload(mp3Path, mp3File);
 
             if (mp3Error) throw mp3Error;
@@ -103,7 +103,7 @@ export default function ProducerDashboard() {
             if (wavFile) {
                 wavPath = `${username}/${timestamp}-master-${sanitize(wavFile.name)}`;
                 const { error: wavError } = await supabase.storage
-                    .from('beats-wav')
+                    .from('beats_wav')
                     .upload(wavPath, wavFile);
                 if (wavError) throw wavError;
             }
@@ -113,7 +113,7 @@ export default function ProducerDashboard() {
             if (stemsFile) {
                 stemsPath = `${username}/${timestamp}-stems-${sanitize(stemsFile.name)}`;
                 const { error: stemsError } = await supabase.storage
-                    .from('beats-stems')
+                    .from('beats_stems')
                     .upload(stemsPath, stemsFile);
                 if (stemsError) throw stemsError;
             }
@@ -122,22 +122,28 @@ export default function ProducerDashboard() {
 
             // 2. Crear entrada en la base de datos
             const { error: dbError } = await supabase.from('beats').insert({
-                producer_id: user.id,
-                title,
-                genre,
+                productor_id: user.id,
+                titulo: title,
+                genero: genre,
                 bpm: bpm ? parseInt(bpm) : null,
-                musical_key: musicalKey,
-                tag: tag,
-                portadabeat_url: null,
-                price_mxn: parseFloat(price),
-                mp3_url: mp3FullUrl,
-                mp3_tag_url: mp3TagUrl,
-                wav_url: wavPath,
-                stems_url: stemsPath,
-                mood,
-                beat_types: refArtist ? refArtist.split(', ').map(s => s.trim()) : [],
-                is_exclusive: isExclusive,
-                tier_visibility: profile?.subscription_tier === 'premium' ? 2 : (profile?.subscription_tier === 'pro' ? 1 : 0)
+                nota_musical: musicalKey,
+                etiqueta: tag,
+                portada_url: null,
+                precio_basico_mxn: parseFloat(price),
+                archivo_mp3_url: mp3FullUrl,
+                archivo_muestra_url: mp3TagUrl,
+                archivo_wav_url: wavPath,
+                archivo_stems_url: stemsPath,
+                vibras: mood,
+                tipos_beat: refArtist ? refArtist.split(', ').map(s => s.trim()) : [],
+                visibilidad_tier: profile?.nivel_suscripcion === 'premium' ? 2 : (profile?.nivel_suscripcion === 'pro' ? 1 : 0),
+
+                // Set default actives for a simple upload
+                es_basica_activa: true,
+                es_pro_activa: profile?.nivel_suscripcion !== 'free',
+                es_premium_activa: wavFile ? true : false,
+                es_ilimitada_activa: stemsFile ? true : false,
+                es_exclusiva_activa: isExclusive
             });
 
             if (dbError) throw dbError;

@@ -42,7 +42,7 @@ export default function PayoutsPage() {
         try {
             // 1. Fetch balance from profile
             const { data: profile, error: profileError } = await supabase
-                .from('profiles')
+                .from('perfiles')
                 .select('balance_pendiente, balance_disponible')
                 .eq('id', user.id)
                 .single();
@@ -181,7 +181,7 @@ export default function PayoutsPage() {
                                 <div key={item.id} className="p-8 flex items-center justify-between hover:bg-white/5 transition-all">
                                     <div className="flex items-center gap-5">
                                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${item.estado === 'completado' ? 'bg-emerald-500/10 text-emerald-500' :
-                                                item.estado === 'pendiente' ? 'bg-amber-500/10 text-amber-500' : 'bg-red-500/10 text-red-500'
+                                            item.estado === 'pendiente' ? 'bg-amber-500/10 text-amber-500' : 'bg-red-500/10 text-red-500'
                                             }`}>
                                             <ArrowDownLeft size={20} />
                                         </div>
@@ -196,7 +196,7 @@ export default function PayoutsPage() {
                                         </div>
                                     </div>
                                     <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${item.estado === 'completado' ? 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' :
-                                            item.estado === 'pendiente' ? 'text-amber-500 bg-amber-500/10 border-amber-500/20' : 'text-red-500 bg-red-500/10 border-red-500/20'
+                                        item.estado === 'pendiente' ? 'text-amber-500 bg-amber-500/10 border-amber-500/20' : 'text-red-500 bg-red-500/10 border-red-500/20'
                                         }`}>
                                         {item.estado}
                                     </div>

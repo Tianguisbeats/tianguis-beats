@@ -182,14 +182,15 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         addItem({
             id: type === 'service' ? `service_${item.id}` : `kit_${item.id}`,
             type: type,
-            name: type === 'service' ? item.titulo : item.title,
-            price: Number(item.precio || item.price || 0),
-            image: type === 'sound_kit' ? (item.cover_url || profile?.foto_perfil) : profile?.foto_perfil,
+            name: type === 'service' ? item.titulo : item.titulo || item.title,
+            price: Number(item.precio || item.precio_mxn || item.price || 0),
+            image: type === 'sound_kit' ? (item.portada_url || item.cover_url || profile?.foto_perfil) : profile?.foto_perfil,
             subtitle: type === 'service' ? 'Servicio Profesional' : 'Sound Kit',
             metadata: {
                 originalId: item.id,
-                producerId: profile?.id,
-                producerName: profile?.artistic_name,
+                productor_id: profile?.id,
+                producer_id: profile?.id, // Keep for compat
+                producerName: profile?.nombre_artistico,
                 isSoundKit: type === 'sound_kit',
                 isService: type === 'service'
             }
@@ -199,14 +200,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     // Fan Capture Logic (30s playback trigger)
     useEffect(() => {
         let timer: NodeJS.Timeout;
-        if (isPlaying && currentBeat && !hasShownFanCapture && profile?.newsletter_active) {
+        if (isPlaying && currentBeat && !hasShownFanCapture && profile?.boletin_activo) {
             timer = setTimeout(() => {
                 setShowFanCapture(true);
                 setHasShownFanCapture(true);
             }, 30000); // 30 seconds
         }
         return () => clearTimeout(timer);
-    }, [isPlaying, currentBeat, hasShownFanCapture, profile?.newsletter_active]);
+    }, [isPlaying, currentBeat, hasShownFanCapture, profile?.boletin_activo]);
 
     // Fetch Data
     const fetchAll = async () => {
@@ -216,44 +217,42 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
             // 1. Get Profile
             const { data: profileData } = await supabase
-                .from('profiles')
-                .select('id, username, artistic_name, foto_perfil, portada_perfil, ajuste_portada, bio, country, social_links, is_verified, is_founder, subscription_tier, fecha_de_creacion, tema_perfil, color_acento, video_destacado_url, cta_text, cta_url, newsletter_active, links_active, verify_instagram, verify_youtube, verify_tiktok')
-                .eq('username', username)
+                .from('perfiles')
+                .select('id, nombre_usuario, nombre_artistico, foto_perfil, portada_perfil, ajuste_portada, biografia, pais, enlaces_sociales, esta_verificado, es_fundador, nivel_suscripcion, fecha_creacion, tema_perfil, color_acento, video_destacado_url, texto_cta, url_cta, boletin_activo, enlaces_activos, verificacion_instagram, verificacion_youtube, verificacion_tiktok')
+                .eq('nombre_usuario', username)
                 .single();
 
             if (profileData) {
-                setProfile(profileData);
-                setEditBio(profileData.bio || '');
-                setEditArtisticName(profileData.artistic_name || '');
-                setEditCountry(profileData.country || '');
-                setEditSocials(profileData.social_links || {});
+                setProfile(profileData as any);
+                setEditBio(profileData.biografia || '');
+                setEditArtisticName(profileData.nombre_artistico || '');
+                setEditCountry(profileData.pais || '');
+                setEditSocials(profileData.enlaces_sociales || {});
                 setEditVideoUrl(profileData.video_destacado_url || '');
-                setEditVerifyInstagram(profileData.verify_instagram || '');
-                setEditVerifyYoutube(profileData.verify_youtube || '');
-                setEditVerifyTiktok(profileData.verify_tiktok || '');
-                setTempOffset(profileData.ajuste_portada ?? 50);
-
+                setEditVerifyInstagram(profileData.verificacion_instagram || '');
+                setEditVerifyYoutube(profileData.verificacion_youtube || '');
+                setEditVerifyTiktok(profileData.verificacion_tiktok || '');
                 setTempOffset(profileData.ajuste_portada ?? 50);
 
                 // 2. Get Beats (Optimized Select)
                 const { data: beatsData } = await supabase
                     .from('beats')
-                    .select('id, producer_id, title, genre, bpm, price_mxn, portadabeat_url, mp3_url, mp3_tag_url, musical_key, mood, is_public, play_count, like_count, created_at')
-                    .eq('producer_id', profileData.id)
-                    .eq('is_public', true)
+                    .select('id, productor_id, titulo, genero, bpm, precio_basico_mxn, portada_url, archivo_mp3_url, archivo_muestra_url, nota_musical, vibras, es_publico, conteo_reproducciones, conteo_likes, created_at')
+                    .eq('productor_id', profileData.id)
+                    .eq('es_publico', true)
                     .order('created_at', { ascending: false });
 
                 if (beatsData) {
                     // Transform internal storage paths to public URLs with encoding for spaces
                     const transformedBeats = await Promise.all(beatsData.map(async (b: any) => {
-                        const path = b.mp3_tag_url || b.mp3_url || '';
+                        const path = b.archivo_muestra_url || b.archivo_mp3_url || '';
                         let publicUrl = '';
 
                         if (path.startsWith('http')) {
                             publicUrl = path;
                         } else {
                             const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-                            const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+                            const bucket = path.includes('-hq-') ? 'beats_mp3' : 'muestras_beats';
                             const { data } = supabase.storage
                                 .from(bucket)
                                 .getPublicUrl(encodedPath);
@@ -261,22 +260,22 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         }
 
                         // Resolve Cover URL
-                        const finalCoverUrl = b.portadabeat_url?.startsWith('http')
-                            ? b.portadabeat_url
-                            : b.portadabeat_url
-                                ? supabase.storage.from('portadas-beats').getPublicUrl(b.portadabeat_url).data.publicUrl
+                        const finalCoverUrl = b.portada_url?.startsWith('http')
+                            ? b.portada_url
+                            : b.portada_url
+                                ? supabase.storage.from('portadas_beats').getPublicUrl(b.portada_url).data.publicUrl
                                 : null;
 
                         return {
                             ...b,
-                            mp3_url: publicUrl,
-                            portadabeat_url: finalCoverUrl,
-                            producer_artistic_name: profileData.artistic_name,
-                            producer_username: profileData.username,
-                            producer_foto_perfil: profileData.foto_perfil,
-                            producer_is_verified: profileData.is_verified,
-                            producer_is_founder: profileData.is_founder,
-                            producer_tier: profileData.subscription_tier
+                            archivo_mp3_url: publicUrl,
+                            portada_url: finalCoverUrl,
+                            productor_nombre_artistico: profileData.nombre_artistico,
+                            productor_nombre_usuario: profileData.nombre_usuario,
+                            productor_foto_perfil: profileData.foto_perfil,
+                            productor_esta_verificado: profileData.esta_verificado,
+                            productor_es_fundador: profileData.es_fundador,
+                            productor_nivel_suscripcion: profileData.nivel_suscripcion
                         };
                     }));
                     setBeats(transformedBeats);
@@ -313,34 +312,34 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     const formattedPlaylists = await Promise.all(Object.values(grouped).map(async (pl: any) => {
                         // Transform URLs for playlist beats (reusing logic)
                         const transformedPLBeats = await Promise.all(pl.beats.map(async (b: any) => {
-                            const path = b.mp3_tag_url || b.mp3_url || '';
+                            const path = b.archivo_muestra_url || b.archivo_mp3_url || '';
                             let publicUrl = '';
 
                             if (path.startsWith('http')) {
                                 publicUrl = path;
                             } else {
                                 const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-                                const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+                                const bucket = path.includes('-hq-') ? 'beats_mp3' : 'muestras_beats';
                                 const { data } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
                                 publicUrl = data.publicUrl;
                             }
 
-                            const finalCoverUrl = b.portadabeat_url?.startsWith('http')
-                                ? b.portadabeat_url
-                                : b.portadabeat_url
-                                    ? supabase.storage.from('portadas-beats').getPublicUrl(b.portadabeat_url).data.publicUrl
+                            const finalCoverUrl = b.portada_url?.startsWith('http')
+                                ? b.portada_url
+                                : b.portada_url
+                                    ? supabase.storage.from('portadas_beats').getPublicUrl(b.portada_url).data.publicUrl
                                     : null;
 
                             return {
                                 ...b,
-                                mp3_url: publicUrl,
-                                portadabeat_url: finalCoverUrl,
-                                producer_artistic_name: profileData.artistic_name,
-                                producer_username: profileData.username,
-                                producer_foto_perfil: profileData.foto_perfil,
-                                producer_is_verified: profileData.is_verified,
-                                producer_is_founder: profileData.is_founder,
-                                producer_tier: profileData.subscription_tier
+                                archivo_mp3_url: publicUrl,
+                                portada_url: finalCoverUrl,
+                                productor_nombre_artistico: profileData.nombre_artistico,
+                                productor_nombre_usuario: profileData.nombre_usuario,
+                                productor_foto_perfil: profileData.foto_perfil,
+                                productor_esta_verificado: profileData.esta_verificado,
+                                productor_es_fundador: profileData.es_fundador,
+                                productor_nivel_suscripcion: profileData.nivel_suscripcion
                             };
                         }));
 
@@ -367,20 +366,20 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                 // 5. Get Services
                 const { data: servicesData } = await supabase
-                    .from('services')
+                    .from('servicios')
                     .select('*')
-                    .eq('user_id', profileData.id)
-                    .eq('is_active', true)
+                    .eq('productor_id', profileData.id)
+                    .eq('es_activo', true)
                     .order('created_at', { ascending: false });
 
                 setServices(servicesData || []);
 
                 // 6. Get Sound Kits
                 const { data: kitsData } = await supabase
-                    .from('sound_kits')
+                    .from('kits_sonido')
                     .select('*')
-                    .eq('producer_id', profileData.id)
-                    .eq('is_public', true)
+                    .eq('productor_id', profileData.id)
+                    .eq('es_publico', true)
                     .order('created_at', { ascending: false });
 
                 if (kitsData) {
@@ -409,15 +408,15 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
     const hasChanges = () => {
         if (!profile) return false;
-        const socialsChanged = JSON.stringify(editSocials) !== JSON.stringify(profile.social_links || {});
+        const socialsChanged = JSON.stringify(editSocials) !== JSON.stringify(profile.enlaces_sociales || {});
         return (
-            editBio !== (profile.bio || '') ||
-            editArtisticName !== (profile.artistic_name || '') ||
-            editCountry !== (profile.country || '') ||
+            editBio !== (profile.biografia || '') ||
+            editArtisticName !== (profile.nombre_artistico || '') ||
+            editCountry !== (profile.pais || '') ||
             editVideoUrl !== (profile.video_destacado_url || '') ||
-            editVerifyInstagram !== (profile.verify_instagram || '') ||
-            editVerifyYoutube !== (profile.verify_youtube || '') ||
-            editVerifyTiktok !== (profile.verify_tiktok || '') ||
+            editVerifyInstagram !== (profile.verificacion_instagram || '') ||
+            editVerifyYoutube !== (profile.verificacion_youtube || '') ||
+            editVerifyTiktok !== (profile.verificacion_tiktok || '') ||
             socialsChanged
         );
     };
@@ -426,30 +425,30 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         if (!profile) return;
         setSaving(true);
         const { error } = await supabase
-            .from('profiles')
+            .from('perfiles')
             .update({
-                bio: editBio,
-                country: editCountry,
-                artistic_name: editArtisticName,
-                social_links: editSocials,
+                biografia: editBio,
+                pais: editCountry,
+                nombre_artistico: editArtisticName,
+                enlaces_sociales: editSocials,
                 video_destacado_url: editVideoUrl,
-                verify_instagram: editVerifyInstagram,
-                verify_youtube: editVerifyYoutube,
-                verify_tiktok: editVerifyTiktok
+                verificacion_instagram: editVerifyInstagram,
+                verificacion_youtube: editVerifyYoutube,
+                verificacion_tiktok: editVerifyTiktok
             })
             .eq('id', profile.id);
 
         if (!error) {
             setProfile({
                 ...profile,
-                bio: editBio,
-                country: editCountry,
-                artistic_name: editArtisticName,
-                social_links: editSocials,
+                biografia: editBio,
+                pais: editCountry,
+                nombre_artistico: editArtisticName,
+                enlaces_sociales: editSocials,
                 video_destacado_url: editVideoUrl,
-                verify_instagram: editVerifyInstagram,
-                verify_youtube: editVerifyYoutube,
-                verify_tiktok: editVerifyTiktok
+                verificacion_instagram: editVerifyInstagram,
+                verificacion_youtube: editVerifyYoutube,
+                verificacion_tiktok: editVerifyTiktok
             });
             setIsEditing(false);
         } else {
@@ -515,10 +514,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         }
 
         const fileExt = file.name.split('.').pop();
-        const filePath = `${profile.username}/${type}-${Date.now()}.${fileExt}`;
+        const filePath = `${profile.id}/${type}.${fileExt}`;
         const bucket = type === 'avatar' ? 'fotos-perfil' : 'fotos-portada';
 
-        // Use upsert to avoid duplicate errors if any, though timestamp makes it unique
+        // Use upsert to avoid duplicate errors and replace old files
         const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file, {
             upsert: true,
             cacheControl: '3600'
@@ -528,7 +527,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath);
             const updateField = type === 'avatar' ? { foto_perfil: publicUrl } : { portada_perfil: publicUrl };
 
-            const { error: dbUpdateError } = await supabase.from('profiles').update(updateField).eq('id', profile.id);
+            const { error: dbUpdateError } = await supabase.from('perfiles').update(updateField).eq('id', profile.id);
             if (dbUpdateError) {
                 showToast("Error al actualizar base de datos: " + dbUpdateError.message, "error");
                 return;
@@ -552,7 +551,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         if (!profile) return;
         setSaving(true);
         const { error } = await supabase
-            .from('profiles')
+            .from('perfiles')
             .update({ ajuste_portada: tempOffset })
             .eq('id', profile.id);
 
@@ -687,16 +686,16 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         {/* Avatar */}
                         <div className="relative group shrink-0">
                             {/* Glow Effect */}
-                            <div className={`absolute inset-0 rounded-full blur-2xl opacity-40 transition-all duration-700 ${profile.subscription_tier === 'premium'
+                            <div className={`absolute inset-0 rounded-full blur-2xl opacity-40 transition-all duration-700 ${profile.nivel_suscripcion === 'premium'
                                 ? 'bg-blue-600'
-                                : profile.subscription_tier === 'pro'
+                                : profile.nivel_suscripcion === 'pro'
                                     ? 'bg-amber-500'
                                     : 'bg-accent'
                                 }`} />
 
-                            <div className={`w-48 h-48 md:w-56 md:h-56 rounded-full border-[6px] shadow-2xl overflow-hidden transition-all duration-700 bg-background relative z-10 ${profile.subscription_tier === 'premium'
+                            <div className={`w-48 h-48 md:w-56 md:h-56 rounded-full border-[6px] shadow-2xl overflow-hidden transition-all duration-700 bg-background relative z-10 ${profile.nivel_suscripcion === 'premium'
                                 ? 'border-blue-600 ring-4 ring-blue-600/20'
-                                : profile.subscription_tier === 'pro'
+                                : profile.nivel_suscripcion === 'pro'
                                     ? 'border-amber-500 ring-4 ring-amber-500/20'
                                     : 'border-white/10'
                                 }`}>
@@ -722,13 +721,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 <div className="space-y-4">
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
                                         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.8] text-foreground drop-shadow-sm">
-                                            {profile.artistic_name || profile.username}
+                                            {profile.nombre_artistico || profile.nombre_usuario}
                                         </h1>
                                         <div className="flex items-center gap-2 translate-y-3 md:translate-y-6">
-                                            {profile.is_verified && (
+                                            {profile.esta_verificado && (
                                                 <img src="/verified-badge.png" alt="Verificado" className="w-6 h-6 md:w-8 md:h-8 object-contain hover:scale-110 transition-transform cursor-help shadow-blue-500/20 shadow-2xl" title="Verificado" />
                                             )}
-                                            {profile.is_founder && (
+                                            {profile.es_fundador && (
                                                 <div className="flex items-center justify-center text-amber-500 hover:rotate-12 transition-transform cursor-help" title="Founder">
                                                     <Crown className="w-6 h-6 md:w-8 md:h-8" fill="currentColor" />
                                                 </div>
@@ -737,7 +736,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
 
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-[11px] font-black uppercase tracking-[0.2em] text-muted">
-                                        <span className="text-accent underline decoration-2 underline-offset-4">@{profile.username}</span>
+                                        <span className="text-accent underline decoration-2 underline-offset-4">@{profile.nombre_usuario}</span>
                                         <span className="opacity-30">•</span>
                                         {isEditing ? (
                                             <div className="flex items-center gap-2">
@@ -760,10 +759,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 )}
                                             </div>
                                         ) : (
-                                            <span className="flex items-center gap-1.5"><MapPin size={12} className="text-accent" /> {profile.country || (isOwner ? "Agrega tu país" : "Planeta Tierra")}</span>
+                                            <span className="flex items-center gap-1.5"><MapPin size={12} className="text-accent" /> {profile.pais || (isOwner ? "Agrega tu país" : "Planeta Tierra")}</span>
                                         )}
                                         <span className="opacity-30">•</span>
-                                        <span className="flex items-center gap-1.5"><Calendar size={12} /> {profile.fecha_de_creacion ? new Date(profile.fecha_de_creacion).getFullYear() : '2025'}</span>
+                                        <span className="flex items-center gap-1.5"><Calendar size={12} /> {profile.fecha_creacion ? new Date(profile.fecha_creacion).getFullYear() : '2025'}</span>
                                     </div>
                                 </div>
 
@@ -822,29 +821,29 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 <div className="space-y-8">
                                     <div className="flex items-center justify-between group">
                                         <span className="text-sm font-bold text-slate-400 dark:text-white/60">Suscripción</span>
-                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border transition-all ${profile.subscription_tier === 'premium' ? 'bg-blue-600/10 dark:bg-blue-600 border-blue-400/30 dark:border-blue-400 text-blue-600 dark:text-white shadow-lg dark:shadow-blue-500/20' : profile.subscription_tier === 'pro' ? 'bg-amber-400 border-amber-300 text-slate-900' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-white/60'}`}>
-                                            {profile.subscription_tier}
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border transition-all ${profile.nivel_suscripcion === 'premium' ? 'bg-blue-600/10 dark:bg-blue-600 border-blue-400/30 dark:border-blue-400 text-blue-600 dark:text-white shadow-lg dark:shadow-blue-500/20' : profile.nivel_suscripcion === 'pro' ? 'bg-amber-400 border-amber-300 text-slate-900' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-white/60'}`}>
+                                            {profile.nivel_suscripcion}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between group">
                                         <span className="text-sm font-bold text-slate-400 dark:text-white/60">Identidad</span>
-                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.is_verified ? 'bg-blue-600/10 border-blue-400/50 text-blue-500 shadow-lg shadow-blue-500/20' : 'bg-slate-500/10 dark:bg-white/5 border-slate-400/20 text-slate-400'}`}>
-                                            {profile.is_verified ? (
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.esta_verificado ? 'bg-blue-600/10 border-blue-400/50 text-blue-500 shadow-lg shadow-blue-500/20' : 'bg-slate-500/10 dark:bg-white/5 border-slate-400/20 text-slate-400'}`}>
+                                            {profile.esta_verificado ? (
                                                 <><img src="/verified-badge.png" className="w-4 h-4 object-contain shadow-blue-500/20 shadow-xl" alt="✓" /> Verificado</>
                                             ) : 'Sin verificar'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between group">
                                         <span className="text-sm font-bold text-slate-400 dark:text-white/60">Rango</span>
-                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.is_founder ? 'bg-amber-500/10 dark:bg-amber-400/20 border-amber-400/20 text-amber-600 dark:text-amber-400' : 'bg-slate-500/5 dark:bg-white/5 border-white/10 text-slate-400'}`}>
-                                            {profile.is_founder ? <><Crown size={12} fill="currentColor" /> Founder</> : 'Sin rango'}
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.es_fundador ? 'bg-amber-500/10 dark:bg-amber-400/20 border-amber-400/20 text-amber-600 dark:text-amber-400' : 'bg-slate-500/5 dark:bg-white/5 border-white/10 text-slate-400'}`}>
+                                            {profile.es_fundador ? <><Crown size={12} fill="currentColor" /> Founder</> : 'Sin rango'}
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Video Destacado (Minimalista) */}
-                            {profile.subscription_tier === 'premium' && profile.video_destacado_url && getYouTubeEmbedUrl(profile.video_destacado_url) && (
+                            {profile.nivel_suscripcion === 'premium' && profile.video_destacado_url && getYouTubeEmbedUrl(profile.video_destacado_url) && (
                                 <div className="space-y-4">
                                     <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted ml-2">Video Destacado</h3>
                                     <div className="rounded-[3rem] overflow-hidden border border-slate-100 shadow-2xl aspect-video bg-slate-900 group relative">
@@ -914,7 +913,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             </div>
                                         </div>
 
-                                        {profile.subscription_tier === 'premium' && (
+                                        {profile.nivel_suscripcion === 'premium' && (
                                             <div className="pt-6 border-t border-slate-100 dark:border-white/5">
                                                 <label className="text-[9px] font-black uppercase text-accent mb-2 block tracking-widest">Link YouTube Destacado (Banner)</label>
                                                 <input
@@ -928,9 +927,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center py-8 w-full">
-                                        {isOwner || profile.links_active ? (
+                                        {isOwner || profile.enlaces_activos ? (
                                             <>
-                                                {isOwner && profile.subscription_tier !== 'premium' ? (
+                                                {isOwner && profile.nivel_suscripcion !== 'premium' ? (
                                                     <Link
                                                         href="/pricing"
                                                         className="w-full max-w-md h-20 rounded-3xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-[0_20px_40px_rgba(37,99,235,0.25)] hover:scale-105 active:scale-95 border border-white/10 relative overflow-hidden group"
@@ -950,7 +949,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     </Link>
                                                 ) : (
                                                     <Link
-                                                        href={`/${profile.username}/links`}
+                                                        href={`/${profile.nombre_usuario}/links`}
                                                         className="w-full max-w-sm h-20 rounded-[2.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(255,255,255,0.05)] hover:scale-105 active:scale-95 relative overflow-hidden group border border-white/5"
                                                     >
                                                         <div className="absolute inset-0 bg-gradient-to-r from-accent/0 via-accent/20 to-accent/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
@@ -965,9 +964,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         ) : null}
 
                                         {/* Bio Text (Optional/Reduced) */}
-                                        {profile.bio && (
+                                        {profile.biografia && (
                                             <p className="mt-8 text-xs font-medium text-center text-slate-500 dark:text-slate-400 max-w-lg mx-auto line-clamp-3 italic">
-                                                "{profile.bio}"
+                                                "{profile.biografia}"
                                             </p>
                                         )}
                                     </div>
@@ -1063,7 +1062,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
 
                                     {/* Owner Upsell for Non-Premium (Services) */}
-                                    {profile.subscription_tier !== 'premium' ? (
+                                    {profile.nivel_suscripcion !== 'premium' ? (
                                         <div className={`rounded-[3rem] p-12 text-center overflow-hidden relative group border transition-all duration-700 ${profile.tema_perfil !== 'light' ? 'bg-[#050508] border-white/5 text-white shadow-[0_40px_100px_-20px_rgba(37,99,235,0.15)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-indigo-500/10'}`}>
                                             <div className="absolute top-0 right-0 p-48 bg-blue-600/10 blur-[150px] rounded-full group-hover:bg-blue-600/20 transition-all pointer-events-none" />
                                             <div className="relative z-10">
@@ -1299,7 +1298,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
 
                                     {/* Owner Upsell for Non-Premium */}
-                                    {profile.subscription_tier !== 'premium' ? (
+                                    {profile.nivel_suscripcion !== 'premium' ? (
                                         <div className={`rounded-[3rem] p-12 text-center overflow-hidden relative group border-2 transition-all duration-700 ${profile.tema_perfil !== 'light' ? 'bg-black border-white/5 text-white shadow-[0_40px_100px_-15px_rgba(245,158,11,0.15)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-amber-500/10'}`}>
                                             <div className="absolute top-0 right-0 p-48 bg-amber-500/10 blur-[150px] rounded-full group-hover:bg-amber-500/20 transition-all pointer-events-none" />
                                             <div className="relative z-10">
@@ -1409,7 +1408,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             </main>
 
             {/* Fan Capture Popup */}
-            {showFanCapture && profile?.newsletter_active && (
+            {showFanCapture && profile?.boletin_activo && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-500">
                     <div className="bg-white dark:bg-[#08080a] w-full max-w-lg rounded-[2.5rem] p-10 relative overflow-hidden shadow-2xl border border-white/5">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 blur-[80px] -mr-32 -mt-32 pointer-events-none" />
@@ -1430,7 +1429,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             </div>
                             <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground mb-4">Únete al <span className="text-accent">Círculo Exclusivo</span></h2>
                             <p className="text-sm text-muted font-medium mb-8 leading-relaxed">
-                                Suscríbete para recibir beats exclusivos, cupones de descuento y noticias directas de <span className="text-foreground font-bold">{profile.artistic_name}</span>.
+                                Suscríbete para recibir beats exclusivos, cupones de descuento y noticias directas de <span className="text-foreground font-bold">{profile.nombre_artistico}</span>.
                             </p>
 
                             <form className="space-y-4">

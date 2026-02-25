@@ -29,14 +29,14 @@ export default function BeatRow({ beat }: BeatRowProps) {
     const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
     const isThisPlaying = currentBeat?.id === beat.id && isPlaying;
     const itemInCart = isInCart(beat.id);
-    const isOwner = currentUserId && beat.producer_id === currentUserId;
+    const isOwner = currentUserId && beat.productor_id === currentUserId;
 
     const handlePlay = (e: React.MouseEvent) => {
         e.stopPropagation();
         playBeat({
             ...beat,
-            is_verified: beat.producer_is_verified,
-            is_founder: beat.producer_is_founder
+            is_verified: beat.productor_esta_verificado,
+            is_founder: beat.productor_es_fundador
         } as any);
     };
 
@@ -53,11 +53,11 @@ export default function BeatRow({ beat }: BeatRowProps) {
                 onClick={handlePlay}
                 className="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-900 group/artwork cursor-pointer active:scale-95 transition-transform"
             >
-                {beat.portadabeat_url ? (
+                {beat.portada_url ? (
                     <img
-                        src={beat.portadabeat_url}
+                        src={beat.portada_url}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover/artwork:scale-110"
-                        alt={beat.title}
+                        alt={beat.titulo}
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-700">
@@ -76,31 +76,31 @@ export default function BeatRow({ beat }: BeatRowProps) {
             <div className="flex-1 min-w-0 pr-2">
                 <Link href={`/beats/${beat.id}`} className="block">
                     <h3 className="font-black text-slate-900 dark:text-foreground text-sm sm:text-base truncate uppercase tracking-tight hover:text-accent transition-colors">
-                        {beat.title || "Sin título"}
+                        {beat.titulo || "Sin título"}
                     </h3>
                 </Link>
-                <Link href={`/${beat.producer_username || (typeof beat.producer === 'object' ? beat.producer.username : beat.producer)}`} className="flex items-center gap-1.5 hover:text-accent transition-colors mt-0.5 w-max">
+                <Link href={`/${beat.productor_nombre_usuario || (typeof (beat as any).productor === 'object' ? (beat as any).productor?.nombre_usuario : (beat as any).productor)}`} className="flex items-center gap-1.5 hover:text-accent transition-colors mt-0.5 w-max">
                     <p className="text-muted text-[9px] sm:text-[10px] font-black uppercase tracking-widest truncate">
-                        {beat.producer_artistic_name || (typeof beat.producer === 'object' ? beat.producer.artistic_name : (beat.producer || "—"))}
+                        {beat.productor_nombre_artistico || (typeof (beat as any).productor === 'object' ? (beat as any).productor?.nombre_artistico : ((beat as any).productor || "—"))}
                     </p>
-                    {(beat.producer_is_verified || (typeof beat.producer === 'object' && beat.producer?.is_verified)) && (
+                    {(beat.productor_esta_verificado || (typeof (beat as any).productor === 'object' && (beat as any).productor?.esta_verificado)) && (
                         <img src="/verified-badge.png" className="w-3 h-3 object-contain" alt="Verificado" />
                     )}
-                    {(beat.producer_is_founder || (typeof beat.producer === 'object' && beat.producer?.is_founder)) && (
+                    {(beat.productor_es_fundador || (typeof (beat as any).productor === 'object' && (beat as any).productor?.es_fundador)) && (
                         <Crown size={12} className="text-amber-500" fill="currentColor" />
                     )}
                 </Link>
 
                 {/* Metadatos (Ocultos en ultra-móvil, visibles en desktop) */}
                 <div className="hidden sm:flex items-center gap-2 mt-2">
-                    {beat.musical_key && (
+                    {beat.nota_musical && (
                         <span className="text-[9px] font-black text-accent bg-accent/10 px-3 py-1.5 rounded-xl uppercase tracking-widest">
-                            {beat.musical_key}
+                            {beat.nota_musical}
                         </span>
                     )}
-                    {beat.musical_scale && (
+                    {beat.escala_musical && (
                         <span className="text-[9px] font-black text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10 px-3 py-1.5 rounded-xl uppercase tracking-widest">
-                            {beat.musical_scale}
+                            {beat.escala_musical}
                         </span>
                     )}
                 </div>
@@ -121,7 +121,7 @@ export default function BeatRow({ beat }: BeatRowProps) {
                     <>
                         <div className="text-right hidden sm:block">
                             <p className="text-accent font-black text-lg leading-none mb-1">
-                                {formatPrice(beat.price_mxn || 299)}
+                                {formatPrice(beat.precio_basico_mxn || 299)}
                             </p>
                             <Link href={`/beats/${beat.id}`} className="text-[8px] font-black text-muted uppercase tracking-widest hover:text-accent transition-colors flex items-center justify-end gap-1 p-2 -mr-2">
                                 Ver Licencias <ChevronRight size={10} />
@@ -129,7 +129,7 @@ export default function BeatRow({ beat }: BeatRowProps) {
                         </div>
 
                         <div className="flex flex-col items-end sm:hidden mb-1">
-                            <span className="text-accent font-black text-sm">{formatPrice(beat.price_mxn || 299)}</span>
+                            <span className="text-accent font-black text-sm">{formatPrice(beat.precio_basico_mxn || 299)}</span>
                         </div>
 
                         <button

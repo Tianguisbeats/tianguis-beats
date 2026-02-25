@@ -32,13 +32,13 @@ export default function StudioSalesPage() {
                 .from('transacciones')
                 .select(`
                     id,
-                    precio,
+                    precio_total,
                     fecha_creacion,
                     tipo_licencia,
                     metodo_pago,
                     nombre_producto,
                     tipo_producto,
-                    buyer:comprador_id (username, artistic_name, foto_perfil)
+                    comprador:comprador_id (nombre_usuario, nombre_artistico, foto_perfil)
                 `)
                 .eq('vendedor_id', user.id)
                 .order('fecha_creacion', { ascending: false });
@@ -52,12 +52,12 @@ export default function StudioSalesPage() {
             // Map to the internal expected format to avoid breaking UI components
             const formattedSales = data.map(sale => ({
                 id: sale.id,
-                amount: sale.precio,
+                amount: sale.precio_total,
                 created_at: sale.fecha_creacion,
                 license_type: sale.tipo_licencia,
                 payment_method: sale.metodo_pago,
-                beats: { title: sale.nombre_producto || 'Producto Vendido', portadabeat_url: null }, // Fallback since audio cover uses custom fetching
-                buyer: sale.buyer
+                producto: { titulo: sale.nombre_producto || 'Producto Vendido', portada_url: null },
+                comprador: sale.comprador
             }));
 
             setSales(formattedSales);
@@ -84,8 +84,8 @@ export default function StudioSalesPage() {
     const filteredSales = useMemo(() => {
         return sales.filter(sale => {
             const matchesSearch =
-                sale.beats?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                sale.buyer?.username?.toLowerCase().includes(searchTerm.toLowerCase());
+                sale.producto?.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                sale.comprador?.nombre_usuario?.toLowerCase().includes(searchTerm.toLowerCase());
 
             const matchesFilter = filterLicense === "all" || sale.license_type === filterLicense;
 
@@ -221,12 +221,12 @@ export default function StudioSalesPage() {
                             <div className="flex items-center gap-6 flex-1">
                                 {/* Beat Cover */}
                                 <div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-slate-300 dark:border-white/10 shadow-xl shrink-0 group-hover:scale-105 transition-transform duration-500">
-                                    {sale.beats?.portadabeat_url ? (
+                                    {sale.producto?.portada_url ? (
                                         <Image
-                                            src={sale.beats.portadabeat_url}
+                                            src={sale.producto.portada_url}
                                             fill
                                             className="object-cover"
-                                            alt={sale.beats.title}
+                                            alt={sale.producto.titulo}
                                         />
                                     ) : (
                                         <div className="w-full h-full bg-slate-200 dark:bg-white/5 flex items-center justify-center">
@@ -239,7 +239,7 @@ export default function StudioSalesPage() {
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-3 mb-2">
                                         <h4 className="font-black text-sm text-slate-900 dark:text-white uppercase tracking-tight truncate max-w-[200px]">
-                                            {sale.beats?.title || 'Beat eliminado'}
+                                            {sale.producto?.titulo || 'Producto eliminado'}
                                         </h4>
                                         <span className={`px-2.5 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest ${sale.license_type === 'EXCLUSIVE'
                                             ? 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-500'
@@ -250,15 +250,15 @@ export default function StudioSalesPage() {
                                     </div>
                                     <div className="flex items-center gap-4">
                                         <div className="flex items-center gap-2 group/buyer">
-                                            {sale.buyer?.foto_perfil ? (
+                                            {sale.comprador?.foto_perfil ? (
                                                 <div className="w-5 h-5 rounded-full overflow-hidden border border-slate-300 dark:border-white/20">
-                                                    <Image src={sale.buyer.foto_perfil} width={20} height={20} className="object-cover" alt={sale.buyer.username} />
+                                                    <Image src={sale.comprador.foto_perfil} width={20} height={20} className="object-cover" alt={sale.comprador.nombre_usuario} />
                                                 </div>
                                             ) : (
                                                 <User size={12} className="text-slate-400 dark:text-white/40" />
                                             )}
                                             <span className="text-[10px] font-bold text-slate-500 dark:text-muted uppercase tracking-widest group-hover/buyer:text-accent transition-colors">
-                                                {sale.buyer?.artistic_name || sale.buyer?.username || 'Comprador'}
+                                                {sale.comprador?.nombre_artistico || sale.comprador?.nombre_usuario || 'Comprador'}
                                             </span>
                                         </div>
                                         <div className="h-3 w-px bg-white/10" />
@@ -283,7 +283,7 @@ export default function StudioSalesPage() {
                                         <div className="flex flex-col items-end">
                                             <span className="text-[10px] font-bold text-slate-500 dark:text-muted uppercase tracking-widest mb-1">{new Date(sale.created_at).toLocaleDateString()}</span>
                                             <span className="font-black text-lg text-slate-900 dark:text-foreground tracking-tighter">
-                                                {formatCurrency(sale.monto)} <span className="text-[10px] uppercase text-slate-400 dark:opacity-40">{sale.moneda || 'MXN'}</span>
+                                                {formatCurrency(sale.amount)} <span className="text-[10px] uppercase text-slate-400 dark:opacity-40">{sale.payment_method || 'MXN'}</span>
                                             </span>
                                         </div>
                                         <button className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-600 dark:text-white/60 hover:bg-accent hover:text-white hover:border-accent transition-all group-hover:scale-105 active:scale-95">

@@ -29,10 +29,10 @@ function ProducersContent() {
                 setLoading(true);
                 // Query más robusta: Filtramos directamente en el servidor los que tienen username
                 const { data, error } = await supabase
-                    .from('profiles')
-                    .select('id, username, artistic_name, full_name, foto_perfil, subscription_tier, is_verified, is_founder, bio, fecha_de_creacion')
-                    .not('username', 'is', null) // Asegurar que tengan al menos username
-                    .order('subscription_tier', { ascending: false })
+                    .from('perfiles')
+                    .select('id, nombre_usuario, nombre_artistico, nombre_completo, foto_perfil, nivel_suscripcion, esta_verificado, es_fundador, biografia, fecha_creacion')
+                    .not('nombre_usuario', 'is', null) // Asegurar que tengan al menos username
+                    .order('nivel_suscripcion', { ascending: false })
                     .limit(200);
 
                 if (error) {
@@ -41,16 +41,16 @@ function ProducersContent() {
                 }
 
                 // Filtrar solo los que tienen al menos username o artistic_name
-                const validProfiles = (data || []).filter(p => p.username || p.artistic_name);
+                const validProfiles = (data || []).filter(p => p.nombre_usuario || p.nombre_artistico);
 
                 // Strict sorting: Premium -> Pro -> Free
                 const sorted = validProfiles.sort((a, b) => {
                     const tier_order: any = { premium: 0, pro: 1, free: 2 };
-                    const tierA = tier_order[(a.subscription_tier || 'free').toLowerCase()] ?? 3;
-                    const tierB = tier_order[(b.subscription_tier || 'free').toLowerCase()] ?? 3;
+                    const tierA = tier_order[(a.nivel_suscripcion || 'free').toLowerCase()] ?? 3;
+                    const tierB = tier_order[(b.nivel_suscripcion || 'free').toLowerCase()] ?? 3;
 
                     if (tierA !== tierB) return tierA - tierB;
-                    return new Date(b.fecha_de_creacion || 0).getTime() - new Date(a.fecha_de_creacion || 0).getTime();
+                    return new Date(b.fecha_creacion || 0).getTime() - new Date(a.fecha_creacion || 0).getTime();
                 });
 
                 setArtists(sorted);
@@ -94,7 +94,7 @@ function ProducersContent() {
                                 <div className="flex -space-x-4 mb-4">
                                     {artists.slice(0, 5).map((a, i) => (
                                         <div key={i} className="w-12 h-12 rounded-full border-4 border-background overflow-hidden shadow-xl">
-                                            <img src={a.foto_perfil || `https://ui-avatars.com/api/?name=${a.username}`} className="w-full h-full object-cover" />
+                                            <img src={a.foto_perfil || `https://ui-avatars.com/api/?name=${a.nombre_usuario}`} className="w-full h-full object-cover" />
                                         </div>
                                     ))}
                                 </div>
@@ -115,21 +115,21 @@ function ProducersContent() {
                     ) : artists.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
                             {artists.map((artist) => {
-                                const isPremium = (artist.subscription_tier || '').toLowerCase() === 'premium';
-                                const isPro = (artist.subscription_tier || '').toLowerCase() === 'pro';
+                                const isPremium = (artist.nivel_suscripcion || '').toLowerCase() === 'premium';
+                                const isPro = (artist.nivel_suscripcion || '').toLowerCase() === 'pro';
 
                                 return (
                                     <Link
-                                        href={`/${artist.username}`}
+                                        href={`/${artist.nombre_usuario}`}
                                         key={artist.id}
                                         className="group relative flex flex-col h-full animate-fade-in"
                                     >
                                         {/* Visual Container */}
                                         <div className="relative aspect-[4/5] rounded-[3.5rem] overflow-hidden mb-8 transition-all duration-700 shadow-2xl group-hover:shadow-accent/20 border border-border group-hover:border-accent/30 group-hover:-translate-y-2">
                                             <img
-                                                src={artist.foto_perfil || `https://ui-avatars.com/api/?name=${artist.artistic_name || artist.username}&background=random&color=fff&size=512`}
+                                                src={artist.foto_perfil || `https://ui-avatars.com/api/?name=${artist.nombre_artistico || artist.nombre_usuario}&background=random&color=fff&size=512`}
                                                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0 opacity-90 group-hover:opacity-100"
-                                                alt={artist.artistic_name || artist.username}
+                                                alt={artist.nombre_artistico || artist.nombre_usuario}
                                             />
 
                                             {/* Tier Overlays */}
@@ -149,12 +149,12 @@ function ProducersContent() {
                                                     )}
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    {artist.is_founder && (
+                                                    {artist.es_fundador && (
                                                         <div className="w-10 h-10 bg-slate-950/80 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center justify-center text-amber-400 shadow-2xl">
                                                             <Crown size={20} fill="currentColor" />
                                                         </div>
                                                     )}
-                                                    {artist.is_verified && (
+                                                    {artist.esta_verificado && (
                                                         <div className="w-10 h-10 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center justify-center text-white shadow-2xl">
                                                             <img src="/verified-badge.png" className="w-6 h-6 object-contain" alt="Verificado" />
                                                         </div>
@@ -169,7 +169,7 @@ function ProducersContent() {
                                                     <span className="text-[8px] font-black uppercase tracking-[0.4em] text-accent">Ver Perfil Completo</span>
                                                 </div>
                                                 <h3 className="text-3xl font-black text-white uppercase tracking-tighter leading-none mb-3 font-heading group-hover:text-accent transition-colors">
-                                                    {artist.artistic_name || artist.username}
+                                                    {artist.nombre_artistico || artist.nombre_usuario}
                                                 </h3>
                                                 <div className="flex items-center gap-4 text-white/60">
                                                     <div className="flex items-center gap-1.5">
@@ -183,7 +183,7 @@ function ProducersContent() {
                                         {/* Metadata Box Minimal */}
                                         <div className="px-6 flex flex-col gap-4">
                                             <p className="text-xs text-muted leading-relaxed font-medium line-clamp-2 italic opacity-60 group-hover:opacity-100 transition-opacity">
-                                                {artist.bio || "Este productor ha decidido que su música hable por él. Explora su catálogo completo."}
+                                                {artist.biografia || "Este productor ha decidido que su música hable por él. Explora su catálogo completo."}
                                             </p>
                                         </div>
                                     </Link>

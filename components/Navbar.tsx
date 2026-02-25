@@ -53,8 +53,8 @@ export default function Navbar() {
 
     const fetchProfile = async (userId: string) => {
         const { data, error } = await supabase
-            .from('profiles')
-            .select('foto_perfil, artistic_name, username, is_founder, is_verified, subscription_tier, country')
+            .from('perfiles')
+            .select('foto_perfil, nombre_artistico, nombre_usuario, es_fundador, esta_verificado, nivel_suscripcion, pais')
             .eq('id', userId)
             .single();
 
@@ -112,9 +112,9 @@ export default function Navbar() {
                                         </Link>
 
                                         <div className="flex items-center gap-4 border-l border-border pl-6">
-                                            <Link href={`/${profile?.username || 'profile'}`} className="group flex items-center gap-3 min-h-[48px]">
-                                                <div className={`w-10 h-10 rounded-lg overflow-hidden border-2 transition-all duration-300 ${profile?.subscription_tier === 'premium' ? 'border-accent shadow-lg shadow-accent/20' :
-                                                    profile?.subscription_tier === 'pro' ? 'border-amber-400' : 'border-border'
+                                            <Link href={`/${profile?.nombre_usuario || 'profile'}`} className="group flex items-center gap-3 min-h-[48px]">
+                                                <div className={`w-10 h-10 rounded-lg overflow-hidden border-2 transition-all duration-300 ${profile?.nivel_suscripcion === 'premium' ? 'border-accent shadow-lg shadow-accent/20' :
+                                                    profile?.nivel_suscripcion === 'pro' ? 'border-amber-400' : 'border-border'
                                                     }`}>
                                                     {profile?.foto_perfil ? (
                                                         <img src={profile.foto_perfil} alt="Perfil" className="w-full h-full object-cover" />
@@ -126,12 +126,12 @@ export default function Navbar() {
                                                 </div>
                                                 <div className="flex items-center gap-1">
                                                     <span className="text-[10px] font-black font-heading uppercase tracking-[0.2em] text-foreground group-hover:text-accent transition-colors flex items-center gap-1.5">
-                                                        {profile?.username || 'Perfil'}
+                                                        {profile?.nombre_usuario || 'Perfil'}
                                                     </span>
-                                                    {profile?.is_verified && (
+                                                    {profile?.esta_verificado && (
                                                         <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain translate-y-[-1px]" />
                                                     )}
-                                                    {profile?.is_founder && (
+                                                    {profile?.es_fundador && (
                                                         <Crown size={16} className="text-yellow-400 translate-y-[-1px]" fill="currentColor" />
                                                     )}
                                                 </div>

@@ -218,9 +218,9 @@ export default function PlaylistManagerModal({
                                     return (
                                         <div key={id} className="flex items-center gap-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 p-2 rounded-2xl shadow-sm">
                                             <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
-                                                <img src={beat.portadabeat_url || ''} className="w-full h-full object-cover" alt="" />
+                                                <img src={beat.portada_url || ''} className="w-full h-full object-cover" alt="" />
                                             </div>
-                                            <span className="flex-1 text-[10px] font-black uppercase truncate text-slate-900 dark:text-white">{beat.title}</span>
+                                            <span className="flex-1 text-[10px] font-black uppercase truncate text-slate-900 dark:text-white">{beat.titulo}</span>
                                             <div className="flex gap-1">
                                                 <button
                                                     onClick={() => moveBeat(index, 'up')}
@@ -262,15 +262,15 @@ export default function PlaylistManagerModal({
                                         }`}
                                 >
                                     <div className="w-10 h-10 bg-white rounded-lg border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
-                                        {beat.portadabeat_url ? (
-                                            <img src={beat.portadabeat_url} className="w-full h-full object-cover" alt="Cover" />
+                                        {beat.portada_url ? (
+                                            <img src={beat.portada_url} className="w-full h-full object-cover" alt="Cover" />
                                         ) : (
                                             <Music size={16} className="text-slate-300" />
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className={`text-xs font-black uppercase truncate ${selectedBeatIds.includes(beat.id) ? 'text-blue-900 dark:text-blue-400' : 'text-slate-900 dark:text-white'}`}>{beat.title}</p>
-                                        <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{beat.genre} • {beat.bpm} BPM</p>
+                                        <p className={`text-xs font-black uppercase truncate ${selectedBeatIds.includes(beat.id) ? 'text-blue-900 dark:text-blue-400' : 'text-slate-900 dark:text-white'}`}>{beat.titulo}</p>
+                                        <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{beat.genero} • {beat.bpm} BPM</p>
                                     </div>
                                     <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${selectedBeatIds.includes(beat.id) ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-400'
                                         }`}>

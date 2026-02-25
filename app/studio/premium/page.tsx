@@ -26,19 +26,19 @@ export default function PremiumHubPage() {
         if (!user) return;
 
         const { data: profile } = await supabase
-            .from('profiles')
-            .select('subscription_tier, video_destacado_url, newsletter_active, is_verified, links_active')
+            .from('perfiles')
+            .select('nivel_suscripcion, video_destacado_url, boletin_activo, esta_verificado, enlaces_activos')
             .eq('id', user.id)
             .single();
 
         if (profile) {
-            setUserTier(profile.subscription_tier);
-            setIsVerified(profile.is_verified || false);
+            setUserTier(profile.nivel_suscripcion);
+            setIsVerified(profile.esta_verificado || false);
             setPreferences({
                 is_video_active: !!profile.video_destacado_url,
                 video_destacado_url: profile.video_destacado_url || '',
-                newsletter_active: profile.newsletter_active || false,
-                is_links_active: profile.links_active || false
+                newsletter_active: profile.boletin_activo || false,
+                is_links_active: profile.enlaces_activos || false
             });
         }
         setLoading(false);
@@ -54,11 +54,11 @@ export default function PremiumHubPage() {
         if (!user) return;
 
         const { error } = await supabase
-            .from('profiles')
+            .from('perfiles')
             .update({
                 video_destacado_url: preferences.is_video_active ? preferences.video_destacado_url : '',
-                newsletter_active: preferences.newsletter_active,
-                links_active: preferences.is_links_active
+                boletin_activo: preferences.newsletter_active,
+                enlaces_activos: preferences.is_links_active
             })
             .eq('id', user.id);
 

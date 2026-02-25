@@ -44,8 +44,8 @@ export default function StudioStatsPage() {
             const { data: beats } = await supabase
                 .from('beats')
                 .select('*')
-                .eq('producer_id', user.id)
-                .order('play_count', { ascending: false });
+                .eq('productor_id', user.id)
+                .order('conteo_reproducciones', { ascending: false });
 
             // 2. Fetch Sales & Revenue (Ventas)
             const { data: sales } = await supabase
@@ -60,8 +60,8 @@ export default function StudioStatsPage() {
                 .eq('following_id', user.id);
 
             if (beats) {
-                const totalPlays = beats.reduce((sum, b) => sum + (b.play_count || 0), 0);
-                const totalLikes = beats.reduce((sum, b) => sum + (b.like_count || 0), 0);
+                const totalPlays = beats.reduce((sum, b) => sum + (b.conteo_reproducciones || 0), 0);
+                const totalLikes = beats.reduce((sum, b) => sum + (b.conteo_likes || 0), 0);
                 const totalRevenue = sales?.reduce((sum, s) => sum + (Number(s.precio) || 0), 0) || 0;
                 const totalSales = sales?.length || 0;
 
@@ -222,16 +222,16 @@ export default function StudioStatsPage() {
                                     <div key={beat.id} className="group flex items-center justify-between p-4 rounded-3xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/10 hover:border-accent/20 transition-all">
                                         <div className="flex items-center gap-5">
                                             <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-slate-300 dark:border-white/10 group-hover:scale-105 transition-transform duration-500">
-                                                <Image src={beat.cover_url || '/placeholder-beat.jpg'} fill className="object-cover" alt={beat.title} />
+                                                <Image src={beat.portada_url || '/placeholder-beat.jpg'} fill className="object-cover" alt={beat.titulo} />
                                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <Play size={16} className="text-white" fill="white" />
                                                 </div>
                                             </div>
                                             <div>
-                                                <h4 className="text-xs font-black uppercase tracking-widest mb-1 text-slate-900 dark:text-foreground group-hover:text-accent transition-colors">{beat.title}</h4>
+                                                <h4 className="text-xs font-black uppercase tracking-widest mb-1 text-slate-900 dark:text-foreground group-hover:text-accent transition-colors">{beat.titulo}</h4>
                                                 <div className="flex items-center gap-4 text-[9px] font-bold text-slate-500 dark:text-muted uppercase tracking-[0.2em]">
-                                                    <span className="flex items-center gap-1.5"><Play size={10} /> {formatNumber(beat.play_count)}</span>
-                                                    <span className="flex items-center gap-1.5"><Heart size={10} fill="currentColor" /> {formatNumber(beat.like_count)}</span>
+                                                    <span className="flex items-center gap-1.5"><Play size={10} /> {formatNumber(beat.conteo_reproducciones)}</span>
+                                                    <span className="flex items-center gap-1.5"><Heart size={10} fill="currentColor" /> {formatNumber(beat.conteo_likes)}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -275,7 +275,7 @@ export default function StudioStatsPage() {
                                 <span className="text-[11px] font-black uppercase tracking-widest text-accent">Track Destacado</span>
                             </div>
                             <p className="text-sm text-slate-400 font-medium leading-relaxed">
-                                "{stats.topBeat?.title || 'Tu mejor beat'}" está atrayendo al 40% de tus ventas. Considera crear más tracks con un BPM o Mood similar.
+                                "{stats.topBeat?.titulo || 'Tu mejor beat'}" está atrayendo al 40% de tus ventas. Considera crear más tracks con un BPM o Mood similar.
                             </p>
                         </div>
 

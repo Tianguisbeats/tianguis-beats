@@ -70,13 +70,14 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
             const incrementPlays = async () => {
                 try {
                     setPlayCountTracked(currentBeat.id);
-                    await supabase.rpc('increment_play_count', { beat_id: currentBeat.id });
+                    // Usar la nueva función track_beat_activity que maneja stats semanales
+                    await supabase.rpc('track_beat_activity', { p_beat_id: currentBeat.id, p_type: 'play' });
                 } catch (err) {
                     console.error("Error al incrementar el conteo de reproducciones:", err);
                     // Respaldo en caso de fallo del RPC
                     await supabase
                         .from('beats')
-                        .update({ play_count: (currentBeat.play_count || 0) + 1 })
+                        .update({ conteo_reproducciones: (currentBeat.conteo_reproducciones || 0) + 1 })
                         .eq('id', currentBeat.id);
                 }
             };
@@ -98,7 +99,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Resolver la URL si es una ruta relativa de Supabase Storage
-        let finalUrl = beat.mp3_tag_url || beat.mp3_url || '';
+        let finalUrl = beat.archivo_muestra_url || beat.archivo_mp3_url || '';
 
         if (finalUrl && !finalUrl.startsWith('http')) {
             const encodedPath = finalUrl.split('/').map((s: string) => encodeURIComponent(s)).join('/');
@@ -107,7 +108,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
             finalUrl = publicUrl;
         }
 
-        setCurrentBeat({ ...beat, mp3_url: finalUrl });
+        setCurrentBeat({ ...beat, archivo_mp3_url: finalUrl });
         audioRef.current.src = finalUrl;
 
         try {

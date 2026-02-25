@@ -32,9 +32,9 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
 
             // 1. Get Profile
             const { data: profileData } = await supabase
-                .from('profiles')
+                .from('perfiles')
                 .select('*')
-                .eq('username', username)
+                .eq('nombre_usuario', username)
                 .single();
 
             if (profileData) {
@@ -55,27 +55,27 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                         .filter(Boolean);
 
                     const transformedBeats = await Promise.all(playlistBeats.map(async (b: any) => {
-                        const path = b.mp3_tag_url || b.mp3_url || '';
+                        const path = b.archivo_muestra_url || b.archivo_mp3_url || '';
                         const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-                        const bucket = path.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+                        const bucket = path.includes('-hq-') ? 'beats_mp3' : 'muestras_beats';
                         const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
 
-                        const finalCoverUrl = b.portadabeat_url?.startsWith('http')
-                            ? b.portadabeat_url
-                            : b.portadabeat_url
-                                ? supabase.storage.from('portadas-beats').getPublicUrl(b.portadabeat_url).data.publicUrl
+                        const finalCoverUrl = b.portada_url?.startsWith('http')
+                            ? b.portada_url
+                            : b.portada_url
+                                ? supabase.storage.from('portadas_beats').getPublicUrl(b.portada_url).data.publicUrl
                                 : null;
 
                         return {
                             ...b,
-                            mp3_url: publicUrl,
-                            portadabeat_url: finalCoverUrl,
-                            producer_username: profileData.username,
-                            producer_artistic_name: profileData.artistic_name,
-                            producer_foto_perfil: profileData.foto_perfil,
-                            producer_is_verified: profileData.is_verified,
-                            producer_is_founder: profileData.is_founder,
-                            producer_tier: profileData.subscription_tier
+                            archivo_mp3_url: publicUrl,
+                            portada_url: finalCoverUrl,
+                            productor_nombre_usuario: profileData.nombre_usuario,
+                            productor_nombre_artistico: profileData.nombre_artistico,
+                            productor_foto_perfil: profileData.foto_perfil,
+                            productor_esta_verificado: profileData.esta_verificado,
+                            productor_es_fundador: profileData.es_fundador,
+                            productor_nivel_suscripcion: profileData.nivel_suscripcion
                         };
                     }));
 
@@ -92,8 +92,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                         const { data: allBeatsData } = await supabase
                             .from('beats')
                             .select('*')
-                            .eq('producer_id', profileData.id)
-                            .eq('is_public', true)
+                            .eq('productor_id', profileData.id)
+                            .eq('es_publico', true)
                             .order('created_at', { ascending: false });
 
                         if (allBeatsData) {
@@ -155,7 +155,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Breadcrumbs */}
                     <Link href={`/${username}/beats`} className="inline-flex items-center gap-2 text-slate-400 font-black text-[9px] uppercase tracking-[0.4em] mb-12 hover:text-blue-600 transition-all group">
-                        <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" /> Catálogo de {profile.artistic_name || profile.username}
+                        <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" /> Catálogo de {profile.nombre_artistico || profile.nombre_usuario}
                     </Link>
 
                     {/* Header */}
@@ -191,10 +191,10 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                                         <div className="w-6 h-6 rounded-full overflow-hidden border border-slate-100">
                                             <img src={profile.foto_perfil || ''} className="w-full h-full object-cover" alt="" />
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Por {profile.artistic_name || profile.username}</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Por {profile.nombre_artistico || profile.nombre_usuario}</span>
                                     </div>
-                                    {profile.is_verified && <img src="/verified-badge.png" className="w-4 h-4 object-contain" alt="Verificado" />}
-                                    {profile.is_founder && <Crown size={14} className="text-yellow-400" fill="currentColor" />}
+                                    {profile.esta_verificado && <img src="/verified-badge.png" className="w-4 h-4 object-contain" alt="Verificado" />}
+                                    {profile.es_fundador && <Crown size={14} className="text-yellow-400" fill="currentColor" />}
                                 </div>
                             </div>
                         </div>

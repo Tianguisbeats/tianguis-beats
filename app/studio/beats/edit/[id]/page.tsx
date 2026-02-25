@@ -7,7 +7,7 @@ import Link from 'next/link';
 import {
     Upload, Music, Image as ImageIcon, CheckCircle2,
     AlertCircle, Loader2, Info, ChevronLeft, Hash, Lock,
-    Link as LinkIcon, Edit2, Zap, Eye, EyeOff, Save, X, Crown, ShieldCheck
+    Link as LinkIcon, Edit2, Zap, Eye, EyeOff, Save, X, Crown, ShieldCheck, FileText, Layers
 } from 'lucide-react';
 import TagInput from '@/components/ui/TagInput';
 import Switch from '@/components/ui/Switch';
@@ -43,15 +43,17 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     const [beatTypes, setBeatTypes] = useState<string[]>([]);
 
     // License States
-    const [isExclusive, setIsExclusive] = useState(false);
-    const [isMp3Active, setIsMp3Active] = useState(true);
-    const [isWavActive, setIsWavActive] = useState(true);
-    const [isStemsActive, setIsStemsActive] = useState(true);
+    const [isBasicActive, setIsBasicActive] = useState(true);
+    const [isProActive, setIsProActive] = useState(true);
+    const [isPremiumActive, setIsPremiumActive] = useState(true);
+    const [isUnlimitedActive, setIsUnlimitedActive] = useState(true);
+    const [isExclusiveActive, setIsExclusiveActive] = useState(false);
 
-    const [exclusivePrice, setExclusivePrice] = useState('');
-    const [standardPrice, setStandardPrice] = useState('');
-    const [wavPrice, setWavPrice] = useState('');
-    const [stemsPrice, setStemsPrice] = useState('');
+    const [basicPrice, setBasicPrice] = useState('199');
+    const [proPrice, setProPrice] = useState('499');
+    const [premiumPrice, setPremiumPrice] = useState('999');
+    const [unlimitedPrice, setUnlimitedPrice] = useState('1999');
+    const [exclusivePrice, setExclusivePrice] = useState('3500');
 
     // Existing URLs
     const [existingPortada, setExistingPortada] = useState<string | null>(null);
@@ -90,8 +92,8 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             }
 
             const { data: profile } = await supabase
-                .from('profiles')
-                .select('id, username, artistic_name, subscription_tier')
+                .from('perfiles')
+                .select('id, nombre_usuario, nombre_artistico, nivel_suscripcion')
                 .eq('id', session.user.id)
                 .single();
             setUserData(profile);
@@ -108,57 +110,58 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                 return;
             }
 
-            if (beat.producer_id !== session.user.id) {
+            if (beat.productor_id !== session.user.id) {
                 router.push('/studio/beats');
                 return;
             }
 
             // Populate Form
-            setTitle(beat.title || '');
-            setGenre(beat.genre || '');
-            setSubgenre(beat.subgenre || '');
+            setTitle(beat.titulo || '');
+            setGenre(beat.genero || '');
+            setSubgenre(beat.subgenero || '');
             setBpm(beat.bpm?.toString() || '');
-            setMusicalKey(beat.musical_key || '');
-            setMusicalScale(beat.musical_scale || 'Menor');
-            setSelectedMoods(beat.mood ? beat.mood.split(', ') : []);
-            setBeatTypes(beat.beat_types || []);
+            setMusicalKey(beat.nota_musical || '');
+            setMusicalScale(beat.escala_musical || 'Menor');
+            setSelectedMoods(beat.vibras ? beat.vibras.split(', ') : []);
+            setBeatTypes(beat.tipos_beat || []);
 
-            setStandardPrice(beat.price_mxn?.toString() || '0');
-            setWavPrice(beat.price_wav_mxn?.toString() || '0');
-            setStemsPrice(beat.price_stems_mxn?.toString() || '0');
-            setExclusivePrice(beat.exclusive_price_mxn?.toString() || '0');
+            setBasicPrice(beat.precio_basico_mxn?.toString() || '199');
+            setProPrice(beat.precio_pro_mxn?.toString() || '499');
+            setPremiumPrice(beat.precio_premium_mxn?.toString() || '999');
+            setUnlimitedPrice(beat.precio_ilimitado_mxn?.toString() || '1999');
+            setExclusivePrice(beat.precio_exclusivo_mxn?.toString() || '3500');
 
-            setIsExclusive(beat.is_exclusive || false);
-            setIsMp3Active(beat.is_mp3_active !== false);
-            setIsWavActive(beat.is_wav_active !== false);
-            setIsStemsActive(beat.is_stems_active !== false);
+            setIsBasicActive(beat.es_basica_activa !== false);
+            setIsProActive(beat.es_pro_activa !== false);
+            setIsPremiumActive(beat.es_premium_activa !== false);
+            setIsUnlimitedActive(beat.es_ilimitada_activa !== false);
+            setIsExclusiveActive(beat.es_exclusiva_activa || false);
 
-            setExistingPortada(beat.portadabeat_url);
-            setExistingMp3HQ(beat.mp3_url);
-            setExistingWav(beat.wav_url);
-            setExistingStems(beat.stems_url);
-            setExistingPreview(beat.mp3_tag_url);
+            setExistingPortada(beat.portada_url);
+            setExistingMp3HQ(beat.archivo_mp3_url);
+            setExistingWav(beat.archivo_wav_url);
+            setExistingStems(beat.archivo_stems_url);
+            setExistingPreview(beat.archivo_muestra_url);
 
-            setExistingPreview(beat.mp3_tag_url);
-
-            // Set Initial Data for comparison
             setInitialData({
-                title: beat.title || '',
-                genre: beat.genre || '',
-                subgenre: beat.subgenre || '',
+                titulo: beat.titulo || '',
+                genero: beat.genero || '',
+                subgenero: beat.subgenero || '',
                 bpm: beat.bpm?.toString() || '',
-                musicalKey: beat.musical_key || '',
-                musicalScale: beat.musical_scale || 'Menor',
-                selectedMoods: beat.mood ? beat.mood.split(', ') : [],
-                beatTypes: beat.beat_types || [],
-                standardPrice: beat.price_mxn?.toString() || '0',
-                wavPrice: beat.price_wav_mxn?.toString() || '0',
-                stemsPrice: beat.price_stems_mxn?.toString() || '0',
-                exclusivePrice: isExclusive && beat.exclusive_price_mxn ? beat.exclusive_price_mxn.toString() : '0',
-                isExclusive: beat.is_exclusive || false,
-                isMp3Active: beat.is_mp3_active !== false,
-                isWavActive: beat.is_wav_active !== false,
-                isStemsActive: beat.is_stems_active !== false,
+                nota_musical: beat.nota_musical || '',
+                escala_musical: beat.escala_musical || 'Menor',
+                vibras: beat.vibras ? beat.vibras.split(', ') : [],
+                tipos_beat: beat.tipos_beat || [],
+                precio_basico_mxn: beat.precio_basico_mxn?.toString() || '199',
+                precio_pro_mxn: beat.precio_pro_mxn?.toString() || '499',
+                precio_premium_mxn: beat.precio_premium_mxn?.toString() || '999',
+                precio_ilimitado_mxn: beat.precio_ilimitado_mxn?.toString() || '1999',
+                precio_exclusivo_mxn: beat.precio_exclusivo_mxn?.toString() || '3500',
+                es_basica_activa: beat.es_basica_activa !== false,
+                es_pro_activa: beat.es_pro_activa !== false,
+                es_premium_activa: beat.es_premium_activa !== false,
+                es_ilimitada_activa: beat.es_ilimitada_activa !== false,
+                es_exclusiva_activa: beat.es_exclusiva_activa || false,
             });
 
             setLoading(false);
@@ -176,22 +179,24 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
     // Dirty Check Logic
     const hasChanges = initialData ? (
-        title !== initialData.title ||
-        genre !== initialData.genre ||
-        subgenre !== initialData.subgenre ||
+        title !== initialData.titulo ||
+        genre !== initialData.genero ||
+        subgenre !== initialData.subgenero ||
         bpm !== initialData.bpm ||
-        musicalKey !== initialData.musicalKey ||
-        musicalScale !== initialData.musicalScale ||
-        JSON.stringify(selectedMoods.sort()) !== JSON.stringify(initialData.selectedMoods.sort()) ||
-        JSON.stringify(beatTypes.sort()) !== JSON.stringify(initialData.beatTypes.sort()) ||
-        standardPrice !== initialData.standardPrice ||
-        wavPrice !== initialData.wavPrice ||
-        stemsPrice !== initialData.stemsPrice ||
-        exclusivePrice !== initialData.exclusivePrice ||
-        isExclusive !== initialData.isExclusive ||
-        isMp3Active !== initialData.isMp3Active ||
-        isWavActive !== initialData.isWavActive ||
-        isStemsActive !== initialData.isStemsActive ||
+        musicalKey !== initialData.nota_musical ||
+        musicalScale !== initialData.escala_musical ||
+        JSON.stringify(selectedMoods.sort()) !== JSON.stringify(initialData.vibras.sort()) ||
+        JSON.stringify(beatTypes.sort()) !== JSON.stringify(initialData.tipos_beat.sort()) ||
+        basicPrice !== initialData.precio_basico_mxn ||
+        proPrice !== initialData.precio_pro_mxn ||
+        premiumPrice !== initialData.precio_premium_mxn ||
+        unlimitedPrice !== initialData.precio_ilimitado_mxn ||
+        exclusivePrice !== initialData.precio_exclusivo_mxn ||
+        isBasicActive !== initialData.es_basica_activa ||
+        isProActive !== initialData.es_pro_activa ||
+        isPremiumActive !== initialData.es_premium_activa ||
+        isUnlimitedActive !== initialData.es_ilimitada_activa ||
+        isExclusiveActive !== initialData.es_exclusiva_activa ||
         coverFile !== null ||
         previewFile !== null ||
         hqMp3File !== null ||
@@ -213,76 +218,80 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
         setError(null);
 
         try {
-            const username = userData.username;
+            const username = userData.nombre_usuario;
             const timestamp = Date.now();
             const sanitize = (name: string) => name.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
 
-            let portadabeat_url = existingPortada;
-            let mp3_url = existingMp3HQ;
-            let wav_url = existingWav;
-            let stems_url = existingStems;
-            let mp3_tag_url = existingPreview;
+            let portada_url = existingPortada;
+            let archivo_mp3_url = existingMp3HQ;
+            let archivo_wav_url = existingWav;
+            let archivo_stems_url = existingStems;
+            let archivo_muestra_url = existingPreview;
 
             // 1. Update Files
             if (coverFile) {
-                const coverExt = coverFile.name.split('.').pop();
-                const coverPath = `${username}/${timestamp}-cover.${coverExt}`;
-                await supabase.storage.from('portadas-beats').upload(coverPath, coverFile);
-                const { data: { publicUrl } } = supabase.storage.from('portadas-beats').getPublicUrl(coverPath);
-                portadabeat_url = publicUrl;
+                const coverPath = `${userData.id}/${sanitize(coverFile.name)}`;
+                await supabase.storage.from('portadas_beats').upload(coverPath, coverFile, { upsert: true });
+                const { data: { publicUrl } } = supabase.storage.from('portadas_beats').getPublicUrl(coverPath);
+                portada_url = publicUrl;
             }
 
             if (previewFile) {
-                const previewPath = `${username}/${timestamp}-preview-${sanitize(previewFile.name)}`;
-                await supabase.storage.from('beats-muestras').upload(previewPath, previewFile);
-                mp3_tag_url = previewPath;
+                const previewPath = `${userData.id}/${sanitize(previewFile.name)}`;
+                await supabase.storage.from('muestras_beats').upload(previewPath, previewFile, { upsert: true });
+                const { data: { publicUrl } } = supabase.storage.from('muestras_beats').getPublicUrl(previewPath);
+                archivo_muestra_url = publicUrl;
             }
 
             if (hqMp3File) {
-                const hqPath = `${username}/${timestamp}-hq-${sanitize(hqMp3File.name)}`;
-                await supabase.storage.from('beats-mp3-alta-calidad').upload(hqPath, hqMp3File);
-                mp3_url = hqPath;
+                const hqPath = `${userData.id}/${sanitize(hqMp3File.name)}`;
+                await supabase.storage.from('beats_mp3').upload(hqPath, hqMp3File, { upsert: true });
+                const { data: { publicUrl } } = supabase.storage.from('beats_mp3').getPublicUrl(hqPath);
+                archivo_mp3_url = publicUrl;
             }
 
-            if (wavFile && userData.subscription_tier !== 'free') {
-                const wavPath = `${username}/${timestamp}-wav-${sanitize(wavFile.name)}`;
-                await supabase.storage.from('beats-wav').upload(wavPath, wavFile);
-                wav_url = wavPath;
+            if (wavFile && userData.nivel_suscripcion !== 'free') {
+                const wavPath = `${userData.id}/${sanitize(wavFile.name)}`;
+                await supabase.storage.from('beats_wav').upload(wavPath, wavFile, { upsert: true });
+                const { data: { publicUrl } } = supabase.storage.from('beats_wav').getPublicUrl(wavPath);
+                archivo_wav_url = publicUrl;
             }
 
-            if (stemsFile && userData.subscription_tier === 'premium') {
-                const stemsPath = `${username}/${timestamp}-stems-${sanitize(stemsFile.name)}`;
-                await supabase.storage.from('beats-stems').upload(stemsPath, stemsFile);
-                stems_url = stemsPath;
+            if (stemsFile && userData.nivel_suscripcion === 'premium') {
+                const stemsPath = `${userData.id}/${sanitize(stemsFile.name)}`;
+                await supabase.storage.from('beats_stems').upload(stemsPath, stemsFile, { upsert: true });
+                const { data: { publicUrl } } = supabase.storage.from('beats_stems').getPublicUrl(stemsPath);
+                archivo_stems_url = publicUrl;
             }
 
             // 2. Update DB
             const { error: dbError } = await supabase.from('beats').update({
-                title,
-                genre,
-                subgenre,
+                titulo: title,
+                genero: genre,
+                subgenero: subgenre,
                 bpm: parseInt(bpm),
-                musical_key: musicalKey,
-                musical_scale: musicalScale,
-                mood: selectedMoods.join(', '),
-                beat_types: beatTypes,
-                reference_artist: beatTypes.join(', '), // Sync for fuzzy search
-                portadabeat_url,
-                mp3_url,
-                mp3_tag_url,
-                wav_url,
-                stems_url,
-                is_exclusive: isExclusive,
+                nota_musical: musicalKey,
+                escala_musical: musicalScale,
+                vibras: selectedMoods.join(', '),
+                tipos_beat: beatTypes,
+                artista_referencia: beatTypes.join(', '), // Sync for fuzzy search
+                portada_url,
+                archivo_mp3_url,
+                archivo_muestra_url,
+                archivo_wav_url,
+                archivo_stems_url,
 
-                is_mp3_active: isMp3Active,
-                is_wav_active: isWavActive,
-                is_stems_active: isStemsActive,
-                is_exclusive_active: isExclusive,
+                es_basica_activa: isBasicActive,
+                es_pro_activa: isProActive,
+                es_premium_activa: isPremiumActive,
+                es_ilimitada_activa: isUnlimitedActive,
+                es_exclusiva_activa: isExclusiveActive,
 
-                price_mxn: parseInt(standardPrice) || 0,
-                price_wav_mxn: parseInt(wavPrice) || 0,
-                price_stems_mxn: parseInt(stemsPrice) || 0,
-                exclusive_price_mxn: isExclusive ? parseInt(exclusivePrice) : null,
+                precio_basico_mxn: parseInt(basicPrice) || 0,
+                precio_pro_mxn: parseInt(proPrice) || 0,
+                precio_premium_mxn: parseInt(premiumPrice) || 0,
+                precio_ilimitado_mxn: parseInt(unlimitedPrice) || 0,
+                precio_exclusivo_mxn: isExclusiveActive ? parseInt(exclusivePrice) : null,
             }).eq('id', id);
 
             if (dbError) throw dbError;
@@ -303,8 +312,8 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
         </div>
     );
 
-    const isFree = userData?.subscription_tier === 'free';
-    const isPremium = userData?.subscription_tier === 'premium';
+    const isFree = userData?.nivel_suscripcion === 'free';
+    const isPremium = userData?.nivel_suscripcion === 'premium';
 
     const Toggle = ({ active, onToggle, disabled = false }: { active: boolean, onToggle: () => void, disabled?: boolean }) => (
         <Switch
@@ -502,236 +511,218 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                     <hr className="border-slate-100" />
 
                     {/* 2. Archivos y Licencias */}
-                    <div className="space-y-6">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-1">PRECIOS Y ARCHIVOS</h3>
-                            <span className="text-[10px] font-black text-muted uppercase tracking-widest">Control de licencias 🔓</span>
+                    <div className="space-y-10">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
+                                <ShieldCheck size={20} />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-foreground uppercase tracking-tighter">Archivos y Licencias</h3>
+                                <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em]">Gestiona tus archivos y precios por tier</p>
+                            </div>
                         </div>
-                        <div className="grid md:grid-cols-2 gap-6">
-                            {/* MP3 Tagged */}
-                            <div className="flex flex-col gap-4 p-6 bg-green-500/5 rounded-3xl border border-green-500/20 hover:bg-green-500/10 transition-colors group">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-green-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                            <Music size={14} className="text-green-500" /> MP3 Tag (Muestra)
-                                        </span>
-                                        <span className="text-[9px] font-bold text-green-500/50 uppercase tracking-widest">Obligatorio • Max 20MB</span>
-                                    </div>
+
+                        {/* SECTION: FILE UPLOADS */}
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-2 mb-2">
+                                <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600">
+                                    <Upload size={16} />
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <input
-                                        type="file"
-                                        accept=".mp3"
-                                        onChange={(e) => setPreviewFile(validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 Tagged', 20))}
-                                        className="hidden"
-                                        id="preview-file"
-                                    />
-                                    <label htmlFor="preview-file" className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-green-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-green-500 hover:bg-green-500/10 transition-all text-center truncate">
-                                        {previewFile ? previewFile.name : (existingPreview ? 'Actualizar MP3' : 'Subir MP3')}
-                                    </label>
-                                    {(previewFile || existingPreview) && <CheckCircle2 size={20} className="text-green-500" />}
-                                </div>
+                                <h4 className="text-sm font-black uppercase tracking-widest text-foreground">1. Gestión de Archivos</h4>
                             </div>
 
-                            {/* MP3 HQ */}
-                            <div className={`flex flex-col gap-4 p-6 rounded-3xl border transition-all ${isMp3Active ? 'bg-amber-500/5 border-amber-500/20 hover:bg-amber-500/10' : 'bg-background border-border opacity-75 grayscale'}`}>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                            <Music size={14} className="text-amber-500" /> MP3 MASTER HQ
-                                        </span>
-                                        <span className="text-[9px] font-bold text-amber-500/50 uppercase tracking-widest">Calidad 320 KBPS • Sin Tags</span>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <Toggle active={isMp3Active} onToggle={() => setIsMp3Active(!isMp3Active)} />
-                                        <div className="flex flex-col items-end">
-                                            <div className={`flex items-center gap-2 bg-background rounded-xl px-2 py-1.5 border-2 transition-all ${isMp3Active ? 'border-accent shadow-sm' : 'border-border opacity-50'}`}>
-                                                <span className={`text-[10px] font-black ${isMp3Active ? 'text-accent' : 'text-slate-300'}`}>$</span>
-                                                <input
-                                                    type="number"
-                                                    value={standardPrice}
-                                                    disabled={!isMp3Active}
-                                                    onChange={(e) => setStandardPrice(e.target.value)}
-                                                    className={`w-10 text-[10px] font-black outline-none bg-transparent ${isMp3Active ? 'text-foreground' : 'text-slate-300'}`}
-                                                />
-                                                <span className="text-[8px] font-black text-muted">MXN</span>
-                                            </div>
-                                            <PricePreview price={standardPrice} />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <input
-                                        type="file"
-                                        accept=".mp3"
-                                        onChange={(e) => setHqMp3File(validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 HQ', 50))}
-                                        className="hidden"
-                                        id="hq-file"
-                                    />
-                                    <label htmlFor="hq-file" className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-amber-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-amber-500 hover:bg-amber-500/10 transition-all text-center truncate">
-                                        {hqMp3File ? hqMp3File.name : (existingMp3HQ ? 'Actualizar MP3 HQ' : 'Subir MP3 HQ')}
-                                    </label>
-                                    {(hqMp3File || existingMp3HQ) && <CheckCircle2 size={20} className="text-green-500" />}
-                                </div>
-                            </div>
-
-                            {/* WAV + PRECIO */}
-                            <div className={`relative flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all overflow-hidden ${isFree ? 'bg-background border-amber-500/30' :
-                                isWavActive ? 'bg-blue-500/5 border-blue-500/20 hover:bg-blue-500/10' : 'bg-background border-border opacity-75'
-                                }`}>
-                                {isFree && (
-                                    <div className="absolute inset-0 z-20 bg-background/60 backdrop-blur-[1px] flex items-center justify-center">
-                                        <Link href="/pricing" className="bg-amber-500 text-slate-900 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-400 shadow-xl shadow-amber-500/20 flex items-center gap-2 hover:scale-105 transition-transform whitespace-nowrap">
-                                            <Crown size={14} fill="currentColor" /> Mejorar a Pro
-                                        </Link>
-                                    </div>
-                                )}
-                                <div className={`flex items-center justify-between ${isFree ? 'opacity-40 blur-[0.5px]' : ''}`}>
-                                    <div className="flex flex-col">
-                                        <div className="flex items-center gap-2">
-                                            <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${isFree ? 'text-amber-500' : 'text-blue-500'}`}>
-                                                <Music size={14} className={isFree ? 'text-amber-500' : 'text-blue-500'} /> Archivo WAV
+                            <div className="grid md:grid-cols-2 gap-6">
+                                {/* MP3 Tagged */}
+                                <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-slate-200 dark:border-white/10 group transition-all">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                                <Music size={14} className="text-blue-500" /> MP3 Tag (Muestra)
                                             </span>
-                                            {isFree && <Lock size={12} className="text-amber-500" />}
+                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Pre-escucha con marca de voz</span>
                                         </div>
-                                        <span className={`text-[9px] font-bold uppercase tracking-widest ${isFree ? 'text-amber-500/50' : 'text-blue-500/50'}`}>Alta Fidelidad • 24 bit</span>
-                                    </div>
-                                    <div className={`flex items-center gap-4 ${isFree ? 'pointer-events-none' : ''}`}>
-                                        {!isFree && <Toggle active={isWavActive} onToggle={() => setIsWavActive(!isWavActive)} />}
-                                        <div className="flex flex-col items-end">
-                                            <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${isWavActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50'}`}>
-                                                <span className={`text-[10px] font-black mr-1 ${isWavActive ? 'text-accent' : 'text-muted/30'}`}>$</span>
-                                                <input
-                                                    type="number"
-                                                    disabled={isFree}
-                                                    value={wavPrice}
-                                                    onChange={(e) => setWavPrice(e.target.value)}
-                                                    className="w-10 text-[10px] font-black outline-none bg-transparent text-foreground"
-                                                />
-                                                <span className="text-[8px] font-black text-muted ml-0.5">MXN</span>
-                                            </div>
-                                            <PricePreview price={wavPrice} />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className={`flex items-center gap-3 ${isFree ? 'opacity-40 blur-[0.5px] pointer-events-none' : ''}`}>
-                                    <input
-                                        type="file"
-                                        accept=".wav"
-                                        onChange={(e) => setWavFile(validateFile(e.target.files?.[0] || null, ['wav'], 'WAV', 200))}
-                                        className="hidden"
-                                        id="wav-file"
-                                    />
-                                    <label htmlFor="wav-file" className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-blue-500 hover:bg-blue-500/10 transition-all text-center truncate">
-                                        {wavFile ? wavFile.name : (existingWav ? 'Actualizar WAV' : 'Subir WAV')}
-                                    </label>
-                                    {(wavFile || existingWav) && <CheckCircle2 size={20} className="text-green-500" />}
-                                </div>
-                            </div>
-
-                            {/* STEMS (Pistas separadas) */}
-                            <div className={`relative flex flex-col gap-4 p-6 rounded-3xl border-2 transition-all ${!isPremium ? 'bg-background border-blue-600/30' :
-                                isStemsActive ? 'bg-purple-500/5 border-purple-500/20 hover:bg-purple-500/10' : 'bg-background border-border opacity-75'
-                                }`}>
-                                {!isPremium && (
-                                    <div className="absolute inset-0 z-20 bg-background/60 backdrop-blur-[1px] flex items-center justify-center">
-                                        <Link href="/pricing" className="bg-blue-600 text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-500 shadow-xl shadow-blue-600/20 flex items-center gap-2 hover:scale-105 transition-transform whitespace-nowrap">
-                                            <Crown size={14} fill="currentColor" /> Desbloquear Premium
-                                        </Link>
-                                    </div>
-                                )}
-                                <div className={`flex items-center justify-between ${!isPremium ? 'opacity-40 blur-[0.5px]' : ''}`}>
-                                    <div className="flex flex-col">
                                         <div className="flex items-center gap-2">
-                                            <span className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 ${!isPremium ? 'text-blue-500' : 'text-purple-500'}`}>
-                                                <Hash size={14} className={!isPremium ? 'text-blue-500' : 'text-purple-500'} /> Stems
-                                            </span>
-                                            {!isPremium && <Lock size={12} className="text-blue-500" />}
+                                            {(previewFile || existingPreview) && <CheckCircle2 size={16} className="text-emerald-500" />}
+                                            <span className="text-[9px] font-black text-blue-500/50 uppercase">Obligatorio</span>
                                         </div>
-                                        <span className={`text-[9px] font-bold uppercase tracking-widest ${!isPremium ? 'text-blue-500/50' : 'text-purple-500/50'}`}>Pistas separadas • .ZIP</span>
                                     </div>
-                                    <div className="flex items-center gap-4">
-                                        {isPremium && <Toggle active={isStemsActive} onToggle={() => setIsStemsActive(!isStemsActive)} />}
-                                        <div className="flex flex-col items-end">
-                                            <div className={`flex items-center rounded-xl px-2.5 py-2 border-2 transition-all ${!isPremium ? 'opacity-30 grayscale pointer-events-none bg-background border-border' : (isStemsActive ? 'bg-background border-accent shadow-sm' : 'bg-background border-border opacity-50')}`}>
-                                                <span className={`text-[10px] font-black mr-1 ${!isPremium ? 'text-muted' : (isStemsActive ? 'text-accent' : 'text-muted/30')}`}>$</span>
-                                                <input
-                                                    type="number"
-                                                    disabled={!isPremium || !isStemsActive}
-                                                    value={stemsPrice}
-                                                    onChange={(e) => setStemsPrice(e.target.value)}
-                                                    className={`w-10 text-[10px] font-black outline-none bg-transparent ${(!isPremium || !isStemsActive) ? 'text-muted' : 'text-foreground'}`}
-                                                />
-                                                <span className="text-[8px] font-black text-muted ml-0.5">MXN</span>
+                                    <div className="relative">
+                                        <input
+                                            type="file"
+                                            accept=".mp3"
+                                            onChange={(e) => setPreviewFile(validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 Tagged', 20))}
+                                            className="hidden"
+                                            id="preview-file"
+                                        />
+                                        <label htmlFor="preview-file" className="flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-blue-500 transition-all group/label overflow-hidden">
+                                            <span className="truncate max-w-[150px]">{previewFile ? previewFile.name : (existingPreview ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
+                                            <div className="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover/label:bg-blue-500 group-hover/label:text-white transition-colors">
+                                                <Upload size={12} />
                                             </div>
-                                            <PricePreview price={stemsPrice} />
-                                        </div>
+                                        </label>
                                     </div>
                                 </div>
-                                <div className={`flex items-center gap-3 ${!isPremium ? 'opacity-40 blur-[0.5px] pointer-events-none' : ''}`}>
-                                    <input
-                                        type="file"
-                                        accept=".zip,.rar"
-                                        onChange={(e) => setStemsFile(validateFile(e.target.files?.[0] || null, ['zip', 'rar'], 'Stems', 500))}
-                                        className="hidden"
-                                        id="stems-file"
-                                    />
-                                    <label htmlFor="stems-file" className="flex-1 px-4 py-3 bg-card border-2 border-dashed border-purple-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:border-purple-500 hover:bg-purple-500/10 transition-all text-center truncate">
-                                        {stemsFile ? stemsFile.name : (existingStems ? 'Actualizar Stems' : 'Subir Stems')}
-                                    </label>
-                                    {(stemsFile || existingStems) && <CheckCircle2 size={20} className="text-green-500" />}
+
+                                {/* MP3 Master */}
+                                <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-slate-200 dark:border-white/10 group transition-all">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                                <Zap size={14} className="text-indigo-500" /> MP3 Master (HQ)
+                                            </span>
+                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Calidad 320kbps sin tags</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {(hqMp3File || existingMp3HQ) && <CheckCircle2 size={16} className="text-emerald-500" />}
+                                            <span className="text-[9px] font-black text-indigo-500/50 uppercase">Altamente Recomendado</span>
+                                        </div>
+                                    </div>
+                                    <div className="relative">
+                                        <input
+                                            type="file"
+                                            accept=".mp3"
+                                            onChange={(e) => setHqMp3File(validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 HQ', 50))}
+                                            className="hidden"
+                                            id="hq-file"
+                                        />
+                                        <label htmlFor="hq-file" className="flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-indigo-500 transition-all group/label overflow-hidden">
+                                            <span className="truncate max-w-[150px]">{hqMp3File ? hqMp3File.name : (existingMp3HQ ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
+                                            <div className="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500 group-hover/label:bg-indigo-500 group-hover/label:text-white transition-colors">
+                                                <Upload size={12} />
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* WAV */}
+                                <div className={`p-6 rounded-3xl border transition-all relative ${isFree ? 'opacity-50 grayscale bg-slate-200/50' : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10'}`}>
+                                    {isFree && (
+                                        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] rounded-3xl">
+                                            <Lock size={20} className="text-slate-400 mb-2" />
+                                            <Link href="/pricing" className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-transform">Desbloquear Pro</Link>
+                                        </div>
+                                    )}
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                                <FileText size={14} className="text-emerald-500" /> WAV (Lossless)
+                                            </span>
+                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Calidad de estudio profesional</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {(wavFile || existingWav) && <CheckCircle2 size={16} className="text-emerald-500" />}
+                                        </div>
+                                    </div>
+                                    <div className="relative">
+                                        <input
+                                            type="file"
+                                            accept=".wav"
+                                            onChange={(e) => setWavFile(validateFile(e.target.files?.[0] || null, ['wav'], 'WAV', 200))}
+                                            className="hidden"
+                                            id="wav-file"
+                                            disabled={isFree}
+                                        />
+                                        <label htmlFor="wav-file" className={`flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all group/label overflow-hidden ${isFree ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-emerald-500'}`}>
+                                            <span className="truncate max-w-[150px]">{wavFile ? wavFile.name : (existingWav ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
+                                            <div className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 group-hover/label:bg-emerald-500 group-hover/label:text-white transition-colors">
+                                                <Upload size={12} />
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* Stems */}
+                                <div className={`p-6 rounded-3xl border transition-all relative ${!isPremium ? 'opacity-50 grayscale bg-slate-200/50' : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10'}`}>
+                                    {!isPremium && (
+                                        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] rounded-3xl">
+                                            <Lock size={20} className="text-slate-400 mb-2" />
+                                            <Link href="/pricing" className="px-4 py-2 bg-purple-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-transform">Desbloquear Premium</Link>
+                                        </div>
+                                    )}
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                                <Layers size={14} className="text-purple-500" /> STEMS (Trackout)
+                                            </span>
+                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Pistas separadas en .ZIP o .RAR</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {(stemsFile || existingStems) && <CheckCircle2 size={16} className="text-emerald-500" />}
+                                        </div>
+                                    </div>
+                                    <div className="relative">
+                                        <input
+                                            type="file"
+                                            accept=".zip,.rar"
+                                            onChange={(e) => setStemsFile(validateFile(e.target.files?.[0] || null, ['zip', 'rar'], 'Stems', 500))}
+                                            className="hidden"
+                                            id="stems-file"
+                                            disabled={!isPremium}
+                                        />
+                                        <label htmlFor="stems-file" className={`flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all group/label overflow-hidden ${!isPremium ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-purple-500'}`}>
+                                            <span className="truncate max-w-[150px]">{stemsFile ? stemsFile.name : (existingStems ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
+                                            <div className="w-6 h-6 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500 group-hover/label:bg-purple-500 group-hover/label:text-white transition-colors">
+                                                <Upload size={12} />
+                                            </div>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Licencia Exclusiva Full Width */}
-                        <div className={`relative p-10 rounded-[2.5rem] border transition-all overflow-hidden ${!isPremium ? 'bg-background border-blue-500/20 shadow-xl shadow-blue-500/5' :
-                            isExclusive ? 'border-rose-500/50 bg-rose-500/5 shadow-xl shadow-rose-500/10' : 'bg-background border-border opacity-50'}`}>
-
-                            {!isPremium && (
-                                <div className="absolute inset-0 z-20 bg-background/60 backdrop-blur-[1px] flex items-center justify-center">
-                                    <Link href="/pricing" className="bg-blue-600 text-white px-8 py-4 rounded-2xl text-[12px] font-black uppercase tracking-widest border border-blue-500 shadow-2xl shadow-blue-600/30 flex items-center gap-3 hover:scale-105 transition-transform">
-                                        <Crown size={18} fill="currentColor" /> Desbloquear a Premium
-                                    </Link>
+                        {/* SECTION: LICENSE TIERS */}
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-2 mb-2">
+                                <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
+                                    <ShieldCheck size={16} />
                                 </div>
-                            )}
+                                <h4 className="text-sm font-black uppercase tracking-widest text-foreground">2. Configuración de Licencias</h4>
+                            </div>
 
-                            <div className={`flex flex-col md:flex-row md:items-center justify-between gap-8 ${!isPremium ? 'opacity-40 blur-[0.5px]' : ''}`}>
-                                <div className="flex-1 space-y-4">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500">
-                                            <Crown size={24} />
+                            <div className="grid gap-4">
+                                {[
+                                    { id: 'basic', label: 'Básica', color: 'blue', active: isBasicActive, setAction: setIsBasicActive, price: basicPrice, setPrice: setBasicPrice, desc: 'Uso comercial limitado (MP3)', disabled: false },
+                                    { id: 'pro', label: 'Pro', color: 'indigo', active: isProActive, setAction: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Mayores límites de distribución (MP3)', disabled: false },
+                                    { id: 'premium', label: 'Premium', color: 'emerald', active: isPremiumActive, setAction: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Calidad de estudio (WAV)', disabled: isFree },
+                                    { id: 'unlimited', label: 'Ilimitada', color: 'purple', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Uso sin límites (Stems)', disabled: !isPremium },
+                                    { id: 'exclusive', label: 'Exclusiva', color: 'rose', active: isExclusiveActive, setAction: setIsExclusiveActive, price: exclusivePrice, setPrice: setExclusivePrice, desc: 'Cesión total de derechos (Exclusividad)', disabled: !isPremium }
+                                ].map((lic) => (
+                                    <div key={lic.id} className={`p-6 rounded-[1.5rem] border-2 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden ${lic.disabled ? 'bg-slate-100 dark:bg-white/5 opacity-60 grayscale' : (lic.active ? `bg-white dark:bg-black border-${lic.color}-500/30 shadow-xl shadow-${lic.color}-500/5` : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 opacity-75')}`}>
+                                        <div className="flex gap-4 items-center">
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-${lic.color}-500/10 text-${lic.color}-500`}>
+                                                {lic.id === 'basic' ? <FileText size={20} /> :
+                                                    lic.id === 'pro' ? <Zap size={20} /> :
+                                                        lic.id === 'premium' ? <Crown size={20} /> :
+                                                            lic.id === 'unlimited' ? <Layers size={20} /> :
+                                                                <ShieldCheck size={20} />}
+                                            </div>
+                                            <div>
+                                                <h5 className="font-black uppercase tracking-tight text-foreground">{lic.label}</h5>
+                                                <p className="text-[10px] font-bold text-muted uppercase tracking-widest">{lic.desc}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 className="text-xl font-black text-foreground dark:text-white uppercase tracking-tighter">Licencia Exclusiva</h4>
-                                            <p className="text-[10px] font-black text-muted dark:text-slate-300 uppercase tracking-widest">al venderse este Beat con licencia exclusiva se va a deshabilitar su venta y sólo se podrá reproducir.</p>
-                                        </div>
-                                    </div>
 
-                                </div>
-
-                                <div className="flex flex-col md:items-end gap-4 min-w-[200px]">
-                                    <div className="flex items-center gap-4">
-                                        {isPremium && <Toggle active={isExclusive} onToggle={() => setIsExclusive(!isExclusive)} />}
-                                        <div className="flex flex-col items-end">
-                                            <div className={`flex items-center rounded-2xl px-4 py-3 border-2 transition-all ${!isPremium ? 'opacity-30 grayscale pointer-events-none bg-background' : (isExclusive ? 'bg-background border-rose-500/50 shadow-sm' : 'bg-background border-border opacity-50')}`}>
-                                                <span className={`text-lg font-black mr-2 ${isExclusive ? 'text-rose-500' : 'text-muted/30'}`}>$</span>
+                                        <div className="flex items-center gap-6">
+                                            <div className={`flex items-center gap-2 bg-slate-50 dark:bg-white/5 px-4 py-3 rounded-2xl border-2 transition-all ${lic.active ? 'border-accent shadow-sm' : 'border-slate-200 dark:border-white/10 opacity-50'}`}>
+                                                <span className="text-[11px] font-black text-muted">$</span>
                                                 <input
                                                     type="number"
-                                                    disabled={!isPremium || !isExclusive}
-                                                    value={exclusivePrice}
-                                                    onChange={(e) => setExclusivePrice(e.target.value)}
-                                                    className={`w-24 text-xl font-black outline-none bg-transparent ${isExclusive ? 'text-foreground dark:text-white' : 'text-muted'}`}
+                                                    value={lic.price}
+                                                    onChange={(e) => lic.setPrice(e.target.value)}
+                                                    disabled={lic.disabled || !lic.active}
+                                                    className="w-16 bg-transparent outline-none font-black text-xs text-foreground placeholder:text-muted"
+                                                    placeholder="0"
                                                 />
-                                                <span className="text-xs font-black text-muted ml-1">MXN</span>
+                                                <span className="text-[9px] font-black text-muted">MXN</span>
                                             </div>
-                                            <PricePreview price={exclusivePrice} />
+                                            <Toggle
+                                                active={lic.active}
+                                                onToggle={() => lic.setAction(!lic.active)}
+                                                disabled={lic.disabled}
+                                            />
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2 text-[10px] font-black text-rose-500/60 uppercase tracking-widest">
-                                        <ShieldCheck size={14} /> Transacción Protegida
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     </div>
