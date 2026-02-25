@@ -985,62 +985,86 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             </p>
                                         )}
 
-                                        {(isOwner || profile.enlaces_activos) && (
-                                            <div className="w-full pt-10 border-t border-slate-100 dark:border-white/5">
-                                                <div className="flex items-center gap-3 mb-8">
-                                                    <Zap size={14} className="text-accent" />
-                                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-white/40">Smart Link</h4>
-                                                </div>
-
-                                                {profile.nivel_suscripcion !== 'premium' ? (
-                                                    <div className="relative group overflow-hidden rounded-[2.5rem] border border-blue-500/10 dark:border-blue-400/10 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-600/5 dark:to-indigo-600/5 p-8 transition-all hover:shadow-2xl hover:shadow-blue-500/10">
-                                                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[50px] rounded-full -mr-16 -mt-16 group-hover:bg-blue-500/20 transition-all duration-700" />
-
-                                                        <div className="relative z-10 flex flex-col items-center text-center gap-6">
-                                                            <div className="w-16 h-16 bg-white dark:bg-slate-950 rounded-2xl flex items-center justify-center text-blue-500 shadow-xl border border-slate-100 dark:border-white/5">
-                                                                <Link2 size={24} />
-                                                            </div>
-                                                            <div>
-                                                                <h5 className="font-black text-slate-900 dark:text-white text-lg mb-2 tracking-tight">Multi-Link Profesional</h5>
-                                                                <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-relaxed">Conecta todas tus redes en una sola tarjeta inteligente</p>
-                                                            </div>
-
-                                                            {isOwner ? (
-                                                                <Link
-                                                                    href="/pricing"
-                                                                    className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-blue-500/25 hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-3"
-                                                                >
-                                                                    <Crown size={14} fill="currentColor" /> Desbloquear con Premium
-                                                                </Link>
-                                                            ) : (
-                                                                <div className="w-full py-4 bg-slate-200/50 dark:bg-white/5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 border border-slate-300/30 dark:border-white/5">
-                                                                    Exclusivo Premium
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <Link
-                                                        href={`/${profile.nombre_usuario}/links`}
-                                                        className="w-full h-24 rounded-[2.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-between px-10 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(255,255,255,0.05)] hover:scale-[1.02] active:scale-95 relative overflow-hidden group border border-white/5"
-                                                    >
-                                                        <div className="absolute inset-0 bg-gradient-to-r from-accent/0 via-accent/10 to-accent/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                                                        <div className="flex items-center gap-6">
-                                                            <div className="w-12 h-12 bg-white/10 dark:bg-slate-900/10 rounded-2xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
-                                                                <Zap size={24} fill="currentColor" />
-                                                            </div>
-                                                            <span className="font-black text-sm">Mi Smart Link</span>
-                                                        </div>
-                                                        <div className="w-10 h-10 rounded-full bg-white/5 dark:bg-slate-900/5 flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                                                            <ChevronRight size={20} />
-                                                        </div>
-                                                    </Link>
+                                        {/* Social Icons inside About Me Section (below bio) */}
+                                        {(profile.enlaces_sociales?.instagram || profile.enlaces_sociales?.youtube || profile.enlaces_sociales?.tiktok) && (
+                                            <div className="flex justify-center gap-6 mt-10">
+                                                {profile.enlaces_sociales.instagram && (
+                                                    <a href={profile.enlaces_sociales.instagram} target="_blank" rel="noopener noreferrer" className="p-4 bg-slate-50 dark:bg-white/5 rounded-full text-slate-400 hover:text-pink-500 hover:scale-110 transition-all border border-slate-100 dark:border-white/5 shadow-sm group/social">
+                                                        <Instagram size={22} />
+                                                    </a>
+                                                )}
+                                                {profile.enlaces_sociales.youtube && (
+                                                    <a href={profile.enlaces_sociales.youtube} target="_blank" rel="noopener noreferrer" className="p-4 bg-slate-50 dark:bg-white/5 rounded-full text-slate-400 hover:text-red-500 hover:scale-110 transition-all border border-slate-100 dark:border-white/5 shadow-sm group/social">
+                                                        <Youtube size={22} />
+                                                    </a>
+                                                )}
+                                                {profile.enlaces_sociales.tiktok && (
+                                                    <a href={profile.enlaces_sociales.tiktok} target="_blank" rel="noopener noreferrer" className="p-4 bg-slate-50 dark:bg-white/5 rounded-full text-slate-400 hover:text-foreground hover:scale-110 transition-all border border-slate-100 dark:border-white/5 shadow-sm group/social">
+                                                        <Music size={22} />
+                                                    </a>
                                                 )}
                                             </div>
                                         )}
                                     </div>
                                 )}
                             </div>
+
+                            {/* Smart Bio Card (Independent) */}
+                            {(isOwner || profile.enlaces_activos) && (
+                                <div className={`p-10 rounded-[3rem] border shadow-2xl transition-all duration-500 hover:scale-[1.02] 
+                                    ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
+                                        'bg-[#050508] border-white/5 shadow-black' :
+                                        'bg-white border-slate-100 shadow-slate-200/50'
+                                    }`}>
+                                    <div className="flex items-center gap-3 mb-8">
+                                        <Zap size={14} className="text-accent" />
+                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-white/40">Smart Bio</h4>
+                                    </div>
+
+                                    {profile.nivel_suscripcion !== 'premium' ? (
+                                        <div className="relative group overflow-hidden rounded-[2.5rem] border border-blue-500/10 dark:border-blue-400/10 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-600/5 dark:to-indigo-600/5 p-8 transition-all hover:scale-[1.01]">
+
+                                            <div className="relative z-10 flex flex-col items-center text-center gap-6">
+                                                <div className="w-16 h-16 bg-white dark:bg-slate-950 rounded-2xl flex items-center justify-center text-blue-500 shadow-xl border border-slate-100 dark:border-white/5">
+                                                    <Link2 size={24} />
+                                                </div>
+                                                <div>
+                                                    <h5 className="font-black text-slate-900 dark:text-white text-lg mb-2 tracking-tight">Multi-Link Profesional</h5>
+                                                    <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-relaxed">Conecta todas tus redes en una sola tarjeta inteligente</p>
+                                                </div>
+
+                                                {isOwner ? (
+                                                    <Link
+                                                        href="/pricing"
+                                                        className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-blue-500/25 hover:scale-105 hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-3"
+                                                    >
+                                                        <Crown size={14} fill="currentColor" /> Desbloquear con Premium
+                                                    </Link>
+                                                ) : (
+                                                    <div className="w-full py-4 bg-slate-200/50 dark:bg-white/5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 border border-slate-300/30 dark:border-white/5">
+                                                        Exclusivo Premium
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <Link
+                                            href={`/${profile.nombre_usuario}/links`}
+                                            className="w-full h-24 rounded-[2.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-between px-10 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(255,255,255,0.05)] hover:scale-[1.03] active:scale-95 relative overflow-hidden group border border-white/5"
+                                        >
+                                            <div className="flex items-center gap-6">
+                                                <div className="w-12 h-12 bg-white/10 dark:bg-slate-900/10 rounded-2xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
+                                                    <Zap size={24} fill="currentColor" />
+                                                </div>
+                                                <span className="font-black text-sm">Mi Smart Bio</span>
+                                            </div>
+                                            <div className="w-10 h-10 rounded-full bg-white/5 dark:bg-slate-900/5 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                                                <ChevronRight size={20} />
+                                            </div>
+                                        </Link>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         {/* Beats Feed */}
@@ -1109,7 +1133,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/30 dark:from-[#0a0a0f] dark:to-[#050508] rounded-[3rem] p-24 text-center border border-slate-100 dark:border-white/5 shadow-2xl relative overflow-hidden group">
+                                        <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/30 dark:from-[#0a0a0f] dark:to-[#050508] rounded-[3rem] p-24 text-center border border-slate-100 dark:border-white/5 shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-transform">
                                             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-[80px] rounded-full -mr-32 -mt-32 group-hover:bg-blue-500/10 transition-all duration-700" />
                                             <div className="relative z-10">
                                                 <div className="w-24 h-24 bg-white dark:bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-soft border border-slate-50 dark:border-white/5">
@@ -1137,11 +1161,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                     {/* Owner Upsell for Non-Premium (Services) */}
                                     {profile.nivel_suscripcion !== 'premium' ? (
-                                        <div className={`rounded-[3rem] p-12 text-center overflow-hidden relative group border transition-all duration-700 ${profile.tema_perfil !== 'light' ? 'bg-[#050508] border-white/5 text-white shadow-[0_40px_100px_-20px_rgba(37,99,235,0.15)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-indigo-500/10'}`}>
-                                            <div className="absolute top-0 right-0 p-48 bg-blue-600/10 blur-[150px] rounded-full group-hover:bg-blue-600/20 transition-all pointer-events-none" />
+                                        <div className={`rounded-[3rem] p-12 text-center overflow-hidden relative group border transition-all duration-700 hover:scale-[1.02] ${profile.tema_perfil !== 'light' ? 'bg-[#050508] border-white/5 text-white shadow-[0_40px_100px_-20px_rgba(37,99,235,0.15)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-indigo-500/10'}`}>
+                                            <div className="absolute top-0 right-0 p-48 bg-purple-600/10 blur-[150px] rounded-full group-hover:bg-purple-600/20 transition-all pointer-events-none" />
                                             <div className="relative z-10">
-                                                <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 backdrop-blur-md border ${profile.tema_perfil !== 'light' ? 'bg-white/5 border-white/10 shadow-[0_0_30px_rgba(37,99,235,0.1)]' : 'bg-indigo-50 border-indigo-100'}`}>
-                                                    <Briefcase size={36} className="text-accent" />
+                                                <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 backdrop-blur-md border ${profile.tema_perfil !== 'light' ? 'bg-white/5 border-white/10 shadow-[0_0_30px_rgba(168,85,247,0.1)]' : 'bg-indigo-50 border-indigo-100'}`}>
+                                                    <Briefcase size={36} className="text-purple-500" />
                                                 </div>
                                                 <h3 className="text-4xl font-black uppercase tracking-tighter mb-6">Servicios Profesionales</h3>
                                                 <p className={`max-w-xl mx-auto mb-10 text-sm font-medium leading-relaxed ${profile.tema_perfil !== 'light' ? 'text-slate-400' : 'text-slate-500'}`}>
@@ -1150,7 +1174,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                         : "Este usuario aún no ofrece servicios profesionales ya que no cuenta con una suscripción Premium activa. Los servicios se desbloquean al mejorar el plan."}
                                                 </p>
                                                 {isOwner ? (
-                                                    <Link href="/pricing" className="inline-flex items-center gap-3 px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all transform hover:scale-105 shadow-2xl shadow-accent/40 bg-accent text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900">
+                                                    <Link href="/pricing" className="inline-flex items-center gap-3 px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all transform hover:scale-105 shadow-2xl shadow-purple-500/40 bg-purple-600 text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900">
                                                         <Crown size={18} fill="currentColor" /> Mejorar a Premium
                                                     </Link>
                                                 ) : (
@@ -1164,14 +1188,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <div className="grid md:grid-cols-2 gap-4 md:gap-6">
                                             {services.length > 0 ? (
                                                 services.map(service => (
-                                                    <div key={service.id} className={`p-10 rounded-[2.5rem] border shadow-sm transition-all group relative overflow-hidden backdrop-blur-md 
+                                                    <div key={service.id} className={`p-10 rounded-[2.5rem] border shadow-sm transition-all hover:scale-[1.02] hover:shadow-xl group relative overflow-hidden backdrop-blur-md 
                                                         ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
-                                                            'bg-slate-900/60 border-white/5 hover:border-accent/40 shadow-2xl shadow-black/80 text-white' :
-                                                            'bg-white dark:bg-slate-900/60 border-slate-100 dark:border-white/5 hover:shadow-xl text-slate-900 dark:text-white'
+                                                            'bg-slate-900/60 border-white/5 text-white' :
+                                                            'bg-white dark:bg-slate-900/60 border-slate-100 dark:border-white/5 text-slate-900 dark:text-white'
                                                         }`}>
-                                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                                         <div className="flex justify-between items-start mb-6">
-                                                            <span className="bg-blue-500/20 text-blue-500 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500/10">
+                                                            <span className="bg-purple-500/20 text-purple-500 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-purple-500/10">
                                                                 {service.tipo_servicio === 'beat_custom' ? 'Beat a Medida' :
                                                                     service.tipo_servicio === 'mentor' ? 'Mentoría / Clase' :
                                                                         service.tipo_servicio === 'mixing' ? 'Mezcla y Masterización' :
@@ -1179,25 +1203,25 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                             </span>
                                                             <span className="text-2xl font-black text-slate-900 dark:text-white">${service.precio}</span>
                                                         </div>
-                                                        <h3 className="font-black text-xl mb-3 group-hover:text-blue-500 transition-colors text-slate-900 dark:text-white">{service.titulo}</h3>
+                                                        <h3 className="font-black text-xl mb-3 group-hover:text-purple-500 transition-colors text-slate-900 dark:text-white">{service.titulo}</h3>
                                                         <p className="text-xs mb-8 line-clamp-3 leading-relaxed font-medium text-slate-500 dark:text-slate-300">{service.descripcion}</p>
 
                                                         <div className={`flex items-center justify-between pt-6 border-t ${profile.tema_perfil === 'light' ? 'border-slate-100' : 'border-white/10'}`}>
                                                             <div className="flex items-center gap-2 text-slate-400 dark:text-slate-200 text-[10px] font-black uppercase tracking-widest">
-                                                                <Clock size={16} className="text-blue-500" />
+                                                                <Clock size={16} className="text-purple-500" />
                                                                 {service.tiempo_entrega_dias} Días hábiles
                                                             </div>
                                                             {isOwner ? (
                                                                 <Link
                                                                     href={`/studio/services?edit_service=${service.id}`}
-                                                                    className="bg-blue-600/10 text-blue-600 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-600/20 hover:bg-blue-600 hover:text-white transition-all shadow-xl shadow-blue-500/10 active:scale-95 flex items-center gap-2"
+                                                                    className="bg-purple-600/10 text-purple-600 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-purple-600/20 hover:bg-purple-600 hover:text-white transition-all shadow-xl shadow-purple-500/10 active:scale-95 flex items-center gap-2"
                                                                 >
                                                                     <Edit3 size={14} /> Editar
                                                                 </Link>
                                                             ) : (
                                                                 <button
                                                                     onClick={() => handleAddToCart(service, 'service')}
-                                                                    className="bg-blue-600 text-white px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest border border-blue-500/20 hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/10 active:scale-95"
+                                                                    className="bg-purple-600 text-white px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest border border-purple-500/20 hover:bg-purple-700 transition-all shadow-xl shadow-purple-500/10 active:scale-95"
                                                                 >
                                                                     Contratar
                                                                 </button>
@@ -1206,17 +1230,22 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     </div>
                                                 ))
                                             ) : (
-                                                <div className="col-span-full py-20 bg-white/5 rounded-[3rem] border border-white/5 text-center flex flex-col items-center justify-center">
-                                                    <Briefcase size={48} className="text-muted mb-6" />
-                                                    <h3 className="text-xl font-black uppercase tracking-tight text-foreground mb-6">Aún no se publican servicios</h3>
-                                                    {isOwner && (
-                                                        <Link
-                                                            href="/studio/services"
-                                                            className="px-8 py-4 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent/20"
-                                                        >
-                                                            Crea tu primer servicio
-                                                        </Link>
-                                                    )}
+                                                <div className="col-span-full py-24 bg-gradient-to-br from-purple-50/50 to-indigo-50/30 dark:from-[#0a0a0f] dark:to-[#050508] rounded-[3rem] border border-slate-100 dark:border-white/5 text-center flex flex-col items-center justify-center relative overflow-hidden group hover:scale-[1.02] transition-transform">
+                                                    <div className="relative z-10">
+                                                        <div className="w-24 h-24 bg-white dark:bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-soft border border-slate-50 dark:border-white/5">
+                                                            <Briefcase size={40} className="text-purple-500 opacity-60" />
+                                                        </div>
+                                                        <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white mb-3 tracking-tighter">Aún no hay servicios</h3>
+                                                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] max-w-[200px] mx-auto leading-relaxed mb-8">Este productor aún no ha publicado servicios profesionales</p>
+                                                        {isOwner && (
+                                                            <Link
+                                                                href="/studio/services"
+                                                                className="px-12 py-5 bg-purple-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-purple-600/20"
+                                                            >
+                                                                Crea tu primer servicio
+                                                            </Link>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
@@ -1339,20 +1368,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             <h3 className="text-2xl font-black uppercase tracking-tight mb-4 text-foreground text-center">
                                                 {isOwner ? "Sube tu primera playlist" : "Este productor aún no ha creado playlists"}
                                             </h3>
-
-                                            {isOwner && (
-                                                <div className="mt-10 flex justify-center w-full">
-                                                    <button
-                                                        onClick={() => {
-                                                            setEditingPlaylist(null);
-                                                            setIsPlaylistModalOpen(true);
-                                                        }}
-                                                        className="px-12 py-5 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent/20 mx-auto"
-                                                    >
-                                                        Crear mi primera Playlist
-                                                    </button>
-                                                </div>
-                                            )}
                                         </div>
                                     )}
 
@@ -1373,7 +1388,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                     {/* Owner Upsell for Non-Premium */}
                                     {profile.nivel_suscripcion !== 'premium' ? (
-                                        <div className={`rounded-[3rem] p-12 text-center overflow-hidden relative group border-2 transition-all duration-700 ${profile.tema_perfil !== 'light' ? 'bg-black border-white/5 text-white shadow-[0_40px_100px_-15px_rgba(245,158,11,0.15)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-amber-500/10'}`}>
+                                        <div className={`rounded-[3rem] p-12 text-center overflow-hidden relative group border transition-all duration-700 hover:scale-[1.02] ${profile.tema_perfil !== 'light' ? 'bg-black border-white/5 text-white shadow-[0_40px_100px_-15px_rgba(245,158,11,0.15)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-amber-500/10'}`}>
                                             <div className="absolute top-0 right-0 p-48 bg-amber-500/10 blur-[150px] rounded-full group-hover:bg-amber-500/20 transition-all pointer-events-none" />
                                             <div className="relative z-10">
                                                 <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 backdrop-blur-md border ${profile.tema_perfil !== 'light' ? 'bg-amber-400/5 border-amber-400/10 shadow-[0_0_30px_rgba(245,158,11,0.1)]' : 'bg-amber-50 border-amber-100'}`}>
@@ -1400,32 +1415,34 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <>
                                             {/* Logic for Visitors OR Premium Owner */}
                                             {soundKits.length === 0 ? (
-                                                <div className="empty-state-card bg-card text-center flex flex-col items-center justify-center">
-                                                    <div className="w-24 h-24 bg-amber-400/10 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 text-amber-400">
-                                                        <Package size={40} />
+                                                <div className="bg-gradient-to-br from-amber-50/50 to-orange-50/30 dark:from-[#0a0a0f] dark:to-[#050508] rounded-[3rem] p-24 text-center border border-slate-100 dark:border-white/5 shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-transform">
+                                                    <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-[80px] rounded-full -mr-32 -mt-32 group-hover:bg-amber-500/10 transition-all duration-700" />
+                                                    <div className="relative z-10">
+                                                        <div className="w-24 h-24 bg-white dark:bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-soft border border-slate-50 dark:border-white/5">
+                                                            <Package size={40} className="text-amber-400 opacity-60" />
+                                                        </div>
+                                                        <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-3">
+                                                            {isOwner ? "Sube tu primera librería" : "Aún no hay Sound Kits"}
+                                                        </h3>
+                                                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] max-w-[200px] mx-auto leading-relaxed mb-8">Este productor aún no ha publicado librerías de sonidos</p>
+                                                        {isOwner && (
+                                                            <Link href="/studio/services" className="bg-amber-400 text-slate-900 px-12 py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all inline-block shadow-xl shadow-amber-400/20 mx-auto">
+                                                                Subir mi primer Kit
+                                                            </Link>
+                                                        )}
                                                     </div>
-                                                    <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-3">
-                                                        {isOwner ? "Sube tu primera librería" : "Aún no hay Sound Kits disponibles"}
-                                                    </h3>
-                                                    {isOwner ? (
-                                                        <Link href="/studio/services" className="bg-amber-400 text-slate-900 px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all inline-block shadow-xl shadow-amber-400/20 mx-auto">
-                                                            Subir mi primer Kit
-                                                        </Link>
-                                                    ) : (
-                                                        <p className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Este productor no ha subido librerías aún</p>
-                                                    )}
                                                 </div>
                                             ) : (
                                                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                                     {soundKits.map(kit => (
-                                                        <div key={kit.id} className={`p-6 rounded-[2rem] border transition-all group backdrop-blur-md 
+                                                        <div key={kit.id} className={`p-6 rounded-[2rem] border transition-all hover:scale-[1.02] hover:shadow-xl group backdrop-blur-md 
                                                             ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
-                                                                'bg-slate-900/60 border-white/5 hover:border-amber-500/40 shadow-2xl shadow-black text-white' :
-                                                                'bg-white dark:bg-slate-900/60 border-slate-100 dark:border-white/5 hover:shadow-xl text-slate-900 dark:text-white'
+                                                                'bg-slate-900/60 border-white/5 text-white' :
+                                                                'bg-white dark:bg-slate-900/60 border-slate-100 dark:border-white/5 text-slate-900 dark:text-white'
                                                             }`}>
                                                             <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden relative">
                                                                 {kit.cover_url ? (
-                                                                    <img src={kit.cover_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={kit.title} />
+                                                                    <img src={kit.cover_url} className="w-full h-full object-cover transition-transform duration-500" alt={kit.title} />
                                                                 ) : (
                                                                     <div className="w-full h-full flex items-center justify-center bg-slate-50 text-slate-300">
                                                                         <Package size={48} />

@@ -176,9 +176,8 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                 {/* Primary CTA - The Beats Catalog */}
                 <Link
                     href={`/${username}`}
-                    className="group relative w-full h-24 bg-accent text-white rounded-[2.5rem] flex items-center px-8 mb-10 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_20px_40px_rgba(37,99,235,0.3)] overflow-hidden"
+                    className="group relative w-full h-24 bg-accent text-white rounded-[2.5rem] flex items-center px-8 mb-10 transition-all hover:scale-[1.03] active:scale-[0.97] shadow-[0_20px_40px_rgba(37,99,235,0.3)] overflow-hidden"
                 >
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                     <div className="flex-1">
                         <span className="block font-black text-lg uppercase tracking-tight">Ir al Catálogo de Beats</span>
                         <span className="block text-[10px] font-bold uppercase tracking-widest opacity-70">Escucha y Descarga en HD</span>

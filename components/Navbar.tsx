@@ -98,7 +98,7 @@ export default function Navbar() {
                             <div className="flex items-center gap-4">
                                 {user ? (
                                     <div className="flex items-center gap-6">
-                                        <Link href="/upload" className="bg-accent text-white px-5 py-3 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 dark:hover:bg-slate-800 transition-all shadow-lg shadow-accent/20 transform hover:-translate-y-0.5 min-h-[48px] flex items-center">
+                                        <Link href="/upload" className="bg-accent text-white px-5 py-3 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 dark:hover:bg-slate-800 transition-all shadow-lg shadow-accent/20 hover:scale-105 transform active:scale-95 min-h-[48px] flex items-center">
                                             Sube tu Beat
                                         </Link>
 
@@ -164,10 +164,10 @@ export default function Navbar() {
                                         </Link>
                                         <CurrencySwitcher />
                                         <ThemeToggle />
-                                        <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground border-2 border-foreground px-6 py-3 rounded-full hover:bg-accent-soft hover:text-accent hover:border-accent transition-all min-h-[48px] flex items-center">
+                                        <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground border-2 border-foreground px-6 py-3 rounded-full hover:bg-accent-soft hover:text-accent hover:border-accent hover:scale-105 transition-all min-h-[48px] flex items-center">
                                             Log In
                                         </Link>
-                                        <Link href="/signup" className="text-[10px] font-black uppercase tracking-[0.2em] text-white bg-accent border-2 border-accent px-6 py-3 rounded-full hover:bg-slate-900 dark:hover:bg-slate-800 hover:border-slate-900 dark:hover:border-slate-800 transition-all shadow-lg shadow-accent/25 min-h-[48px] flex items-center">
+                                        <Link href="/signup" className="text-[10px] font-black uppercase tracking-[0.2em] text-white bg-accent border-2 border-accent px-6 py-3 rounded-full hover:bg-slate-900 dark:hover:bg-slate-800 hover:border-slate-900 dark:hover:border-slate-800 hover:scale-105 transition-all shadow-lg shadow-accent/25 min-h-[48px] flex items-center">
                                             Sign Up
                                         </Link>
                                     </div>
