@@ -107,18 +107,21 @@ export default function SignupPage() {
             console.log('Registro exitoso para el ID:', authData.user.id);
             setSuccess(true);
         } catch (err: any) {
-            console.error('Detalles del error de registro:', err);
+            console.error('DETALLES COMPLETOS DEL ERROR DE REGISTRO:', JSON.stringify(err, null, 2));
 
             let userMessage = 'No pudimos crear tu cuenta. Inténtalo de nuevo.';
 
-            if (err.message?.includes('rate limit') || err.message?.includes('too many requests')) {
-                userMessage = '⚠️ Has hecho demasiados intentos. Por seguridad, espera unos minutos o intenta con otro correo.';
+            // Si hay un error de rate limit
+            if (err.message?.includes('rate limit') || err.message?.includes('too many requests') || err.status === 429) {
+                userMessage = '⚠️ Has hecho demasiados intentos. Por seguridad, Supabase ha bloqueado temporalmente el registro. Espera unos 15 minutos o intenta con una red/correo diferente.';
             } else if (err.message?.includes('already registered')) {
                 userMessage = 'Este correo ya tiene una cuenta asociada. Prueba iniciando sesión.';
             } else if (err.status === 422 || err.message?.includes('invalid format')) {
                 userMessage = 'Alguno de los datos tiene un formato incorrecto. Revisa los campos.';
-            } else if (err.message?.includes('User already registered')) {
-                userMessage = 'Este correo o usuario ya está en uso.';
+            } else if (err.message === 'Debes ser mayor de 18 años para registrarte en Tianguis Beats.') {
+                userMessage = err.message;
+            } else if (err.message?.includes('User already registered') || err.message?.includes('already been registered')) {
+                userMessage = 'Este correo ya está registrado. ¿Ya tienes cuenta? Intenta iniciar sesión.';
             } else {
                 userMessage = err.message || 'Error inesperado al registrar. Por favor intenta más tarde.';
             }
