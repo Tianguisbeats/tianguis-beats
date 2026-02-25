@@ -39,9 +39,9 @@ export default function SignupPage() {
         const checkUsername = async () => {
             setIsCheckingName(true);
             const { data } = await supabase
-                .from('profiles')
-                .select('username')
-                .eq('username', username)
+                .from('perfiles')
+                .select('nombre_usuario')
+                .eq('nombre_usuario', username)
                 .maybeSingle();
 
             setIsUsernameAvailable(!data);
@@ -78,7 +78,7 @@ export default function SignupPage() {
         }
 
         try {
-            console.log('Iniciando registro para:', email, username);
+            console.log('Intentando registro con:', { email, username, fullName, artisticName });
 
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email,
@@ -86,10 +86,10 @@ export default function SignupPage() {
                 options: {
                     emailRedirectTo: `${window.location.origin}/auth/confirm`,
                     data: {
-                        full_name: fullName,
-                        username: username,
-                        artistic_name: artisticName,
-                        birth_date: birthDate,
+                        nombre_completo: fullName,
+                        nombre_usuario: username,
+                        nombre_artistico: artisticName,
+                        fecha_nacimiento: birthDate,
                         role: 'artist'
                     }
                 }
@@ -101,25 +101,26 @@ export default function SignupPage() {
             }
 
             if (!authData.user) {
-                throw new Error('No se pudo crear el usuario en el sistema de autenticación.');
+                throw new Error('No se recibió información del usuario tras el registro.');
             }
 
-            console.log('Usuario creado exitosamente:', authData.user.id);
+            console.log('Registro exitoso para el ID:', authData.user.id);
             setSuccess(true);
         } catch (err: any) {
-            console.error('Error capturado en Signup:', err);
+            console.error('Detalles del error de registro:', err);
 
-            let userMessage = 'Ocurrió un error al crear tu cuenta. Inténtalo de nuevo.';
+            let userMessage = 'No pudimos crear tu cuenta. Inténtalo de nuevo.';
 
-            // Traducción de errores comunes de Supabase
-            if (err.message?.includes('email rate limit exceeded')) {
-                userMessage = 'Has intentado registrarte demasiadas veces. Por seguridad, espera unos minutos e intenta de nuevo.';
-            } else if (err.message?.includes('User already registered') || err.message?.includes('already been registered')) {
-                userMessage = 'Este correo ya está registrado. ¿Ya tienes cuenta? Intenta iniciar sesión.';
-            } else if (err.message?.includes('Password should be')) {
-                userMessage = 'La contraseña debe tener al menos 6 caracteres.';
-            } else if (err.message === 'Debes ser mayor de 18 años para registrarte en Tianguis Beats.') {
-                userMessage = err.message;
+            if (err.message?.includes('rate limit') || err.message?.includes('too many requests')) {
+                userMessage = '⚠️ Has hecho demasiados intentos. Por seguridad, espera unos minutos o intenta con otro correo.';
+            } else if (err.message?.includes('already registered')) {
+                userMessage = 'Este correo ya tiene una cuenta asociada. Prueba iniciando sesión.';
+            } else if (err.status === 422 || err.message?.includes('invalid format')) {
+                userMessage = 'Alguno de los datos tiene un formato incorrecto. Revisa los campos.';
+            } else if (err.message?.includes('User already registered')) {
+                userMessage = 'Este correo o usuario ya está en uso.';
+            } else {
+                userMessage = err.message || 'Error inesperado al registrar. Por favor intenta más tarde.';
             }
 
             setError(userMessage);
