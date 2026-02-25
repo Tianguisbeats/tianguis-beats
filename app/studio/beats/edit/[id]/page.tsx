@@ -230,35 +230,35 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
             // 1. Update Files
             if (coverFile) {
-                const coverPath = `${userData.id}/${sanitize(coverFile.name)}`;
+                const coverPath = `${userData.nombre_usuario}/${sanitize(coverFile.name)}`;
                 await supabase.storage.from('portadas_beats').upload(coverPath, coverFile, { upsert: true });
                 const { data: { publicUrl } } = supabase.storage.from('portadas_beats').getPublicUrl(coverPath);
                 portada_url = publicUrl;
             }
 
             if (previewFile) {
-                const previewPath = `${userData.id}/${sanitize(previewFile.name)}`;
+                const previewPath = `${userData.nombre_usuario}/${sanitize(previewFile.name)}`;
                 await supabase.storage.from('muestras_beats').upload(previewPath, previewFile, { upsert: true });
                 const { data: { publicUrl } } = supabase.storage.from('muestras_beats').getPublicUrl(previewPath);
                 archivo_muestra_url = publicUrl;
             }
 
             if (hqMp3File) {
-                const hqPath = `${userData.id}/${sanitize(hqMp3File.name)}`;
+                const hqPath = `${userData.nombre_usuario}/${sanitize(hqMp3File.name)}`;
                 await supabase.storage.from('beats_mp3').upload(hqPath, hqMp3File, { upsert: true });
                 const { data: { publicUrl } } = supabase.storage.from('beats_mp3').getPublicUrl(hqPath);
                 archivo_mp3_url = publicUrl;
             }
 
             if (wavFile && userData.nivel_suscripcion !== 'free') {
-                const wavPath = `${userData.id}/${sanitize(wavFile.name)}`;
+                const wavPath = `${userData.nombre_usuario}/${sanitize(wavFile.name)}`;
                 await supabase.storage.from('beats_wav').upload(wavPath, wavFile, { upsert: true });
                 const { data: { publicUrl } } = supabase.storage.from('beats_wav').getPublicUrl(wavPath);
                 archivo_wav_url = publicUrl;
             }
 
             if (stemsFile && userData.nivel_suscripcion === 'premium') {
-                const stemsPath = `${userData.id}/${sanitize(stemsFile.name)}`;
+                const stemsPath = `${userData.nombre_usuario}/${sanitize(stemsFile.name)}`;
                 await supabase.storage.from('beats_stems').upload(stemsPath, stemsFile, { upsert: true });
                 const { data: { publicUrl } } = supabase.storage.from('beats_stems').getPublicUrl(stemsPath);
                 archivo_stems_url = publicUrl;

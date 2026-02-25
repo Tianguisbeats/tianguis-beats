@@ -150,33 +150,33 @@ export default function UploadPage() {
             // 1. Subida de portada
             let portadabeat_url = null;
             if (coverFile) {
-                const coverPath = `${userId}/${sanitize(coverFile.name)}`;
+                const coverPath = `${username}/${sanitize(coverFile.name)}`;
                 await supabase.storage.from('portadas_beats').upload(coverPath, coverFile, { upsert: true });
                 const { data: { publicUrl } } = supabase.storage.from('portadas_beats').getPublicUrl(coverPath);
                 portadabeat_url = publicUrl;
             }
 
             // 2. Audio de prueba y Alta Calidad (Beats-muestras)
-            const previewPath = `${userId}/${sanitize(previewFile.name)}`;
+            const previewPath = `${username}/${sanitize(previewFile.name)}`;
             await supabase.storage.from('muestras_beats').upload(previewPath, previewFile, { upsert: true });
 
             // Beats-maestros divididos por formato
             // HQ MP3 (Max 50MB)
             let hqPath = null;
             if (hqMp3File) {
-                hqPath = `${userId}/${sanitize(hqMp3File.name)}`;
+                hqPath = `${username}/${sanitize(hqMp3File.name)}`;
                 await supabase.storage.from('beats_mp3').upload(hqPath, hqMp3File, { upsert: true });
             }
 
             let wavPath = null;
             if (wavFile && userData.nivel_suscripcion !== 'free') {
-                wavPath = `${userId}/${sanitize(wavFile.name)}`;
+                wavPath = `${username}/${sanitize(wavFile.name)}`;
                 await supabase.storage.from('beats_wav').upload(wavPath, wavFile, { upsert: true });
             }
 
             let stemsPath = null;
             if (stemsFile && userData.nivel_suscripcion === 'premium') {
-                stemsPath = `${userId}/${sanitize(stemsFile.name)}`;
+                stemsPath = `${username}/${sanitize(stemsFile.name)}`;
                 await supabase.storage.from('beats_stems').upload(stemsPath, stemsFile, { upsert: true });
             }
 

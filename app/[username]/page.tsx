@@ -514,7 +514,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         }
 
         const fileExt = file.name.split('.').pop();
-        const filePath = `${profile.id}/${type}.${fileExt}`;
+        const filePath = `${profile.nombre_usuario}/${type}.${fileExt}`;
         const bucket = type === 'avatar' ? 'fotos_perfil' : 'fotos_portada';
 
         // Use upsert to avoid duplicate errors and replace old files

@@ -69,13 +69,24 @@ export async function POST(req: Request) {
                 console.log('WARN: No client_reference_id. Searching by email:', customerEmail);
                 const { data: userData, error: userError } = await supabaseAdmin
                     .from('perfiles')
-                    .select('id')
+                    .select('id, nombre_usuario')
                     .eq('email', customerEmail)
                     .single();
 
                 if (userData && !userError) {
                     usuarioId = userData.id;
+                    (session.metadata as any).nombre_usuario = userData.nombre_usuario;
                     console.log('SUCCESS: Identified user by email:', usuarioId);
+                }
+            } else if (usuarioId) {
+                // Si tenemos el ID pero no el username en metadata, lo buscamos
+                const { data: userData } = await supabaseAdmin
+                    .from('perfiles')
+                    .select('nombre_usuario')
+                    .eq('id', usuarioId)
+                    .single();
+                if (userData) {
+                    (session.metadata as any).nombre_usuario = userData.nombre_usuario;
                 }
             }
 
@@ -166,7 +177,9 @@ export async function POST(req: Request) {
 
                         // Mapear nombre de archivo seguro
                         const safeFileName = `Licencia_${product.name.replace(/[^a-zA-Z0-9]/g, '_')}_${stripeId.slice(-8)}.pdf`;
-                        const uploadPath = `${usuarioId}/${safeFileName}`;
+                        const folderName = (session.metadata as any).nombre_usuario || usuarioId;
+                        const uploadPath = `${folderName}/${safeFileName}`;
+                        console.log('--- UPLOADING LICENSE ---', { bucket: 'licencias_generadas', path: uploadPath });
 
                         // Subir a Supabase Storage (licencias-generadas)
                         const { data: uploadData, error: uploadError } = await supabaseAdmin

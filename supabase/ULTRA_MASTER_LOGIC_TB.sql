@@ -198,13 +198,13 @@ BEGIN
     FOREACH b IN ARRAY public_buckets LOOP
         PERFORM public.limpiar_politicas_bucket(b);
         EXECUTE 'CREATE POLICY "Select_' || b || '" ON storage.objects FOR SELECT USING (bucket_id = ''' || b || ''')';
-        EXECUTE 'CREATE POLICY "All_' || b || '" ON storage.objects FOR ALL USING (bucket_id = ''' || b || ''' AND (auth.uid())::text = (storage.foldername(name))[1])';
+        EXECUTE 'CREATE POLICY "All_' || b || '" ON storage.objects FOR ALL USING (bucket_id = ''' || b || ''' AND (storage.foldername(name))[1] = (SELECT nombre_usuario FROM public.perfiles WHERE id = auth.uid()))';
     END LOOP;
 
     -- Configurar Buckets Privados
     FOREACH b IN ARRAY private_buckets LOOP
         PERFORM public.limpiar_politicas_bucket(b);
-        EXECUTE 'CREATE POLICY "All_' || b || '" ON storage.objects FOR ALL USING (bucket_id = ''' || b || ''' AND (auth.uid())::text = (storage.foldername(name))[1])';
+        EXECUTE 'CREATE POLICY "All_' || b || '" ON storage.objects FOR ALL USING (bucket_id = ''' || b || ''' AND (storage.foldername(name))[1] = (SELECT nombre_usuario FROM public.perfiles WHERE id = auth.uid()))';
     END LOOP;
 
     -- Casos Especiales
@@ -218,11 +218,11 @@ CREATE POLICY "All_admin_activos_plataforma" ON storage.objects FOR ALL USING (
     bucket_id = 'activos_plataforma' AND EXISTS (SELECT 1 FROM public.perfiles WHERE id = auth.uid() AND es_admin = true)
 );
 
+-- Archivos Proyectos: Organizados por Nombre de Usuario / Proyecto_ID
 CREATE POLICY "All_proyectos" ON storage.objects FOR ALL USING (
-    bucket_id = 'archivos_proyectos' AND EXISTS (
-        SELECT 1 FROM public.proyectos 
-        WHERE id::text = (storage.foldername(name))[1] 
-        AND (productor_id = auth.uid() OR comprador_id = auth.uid())
+    bucket_id = 'archivos_proyectos' AND (
+        -- El primer nivel es el nombre de usuario
+        (storage.foldername(name))[1] = (SELECT nombre_usuario FROM public.perfiles WHERE id = auth.uid())
     )
 );
 
