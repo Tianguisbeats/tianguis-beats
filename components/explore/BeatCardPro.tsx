@@ -137,10 +137,11 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
 
                     {/* Playing Animation Indicator */}
                     {isThisPlaying && (
-                        <div className="absolute top-5 right-5 z-10 flex items-center gap-[2px] h-4 bg-black/40 backdrop-blur-md px-2 py-1.5 rounded-lg border border-white/10">
-                            <div className="w-[3px] h-full bg-accent animate-[playing-bar_0.6s_ease-in-out_infinite_alternate]" />
-                            <div className="w-[3px] h-full bg-accent animate-[playing-bar_0.8s_ease-in-out_infinite_alternate_0.2s]" />
-                            <div className="w-[3px] h-full bg-accent animate-[playing-bar_0.5s_ease-in-out_infinite_alternate_0.1s]" />
+                        <div className="absolute top-5 right-5 z-20 flex items-center gap-[3px] h-5 bg-black/60 backdrop-blur-md px-2.5 py-2 rounded-xl border border-white/20 shadow-lg">
+                            <div className="w-[3px] h-3 bg-accent animate-wave-sm" />
+                            <div className="w-[3px] h-4 bg-accent animate-wave-lg" />
+                            <div className="w-[3px] h-3 bg-accent animate-wave-md" />
+                            <div className="w-[3px] h-1 bg-accent animate-pulse" />
                         </div>
                     )}
 
@@ -164,14 +165,14 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
 
             {/* Content Section */}
             <div className="px-3 md:px-4 pt-0 pb-4 flex flex-col flex-1 items-center text-center">
-                <Link href={`/beats/${beat.id}`} className={`block mt-1 mb-1 ${compact ? 'min-h-[24px]' : 'min-h-[32px]'} flex items-center justify-center w-full`}>
-                    <h3 className={`font-black text-foreground ${compact ? 'text-lg' : 'text-xl md:text-2xl'} tracking-tighter leading-none truncate hover:text-accent transition-colors lowercase font-heading w-full text-center`}>
+                <Link href={`/beats/${beat.id}`} className={`block mt-2 mb-2 ${compact ? 'min-h-[24px]' : 'min-h-[36px]'} flex items-center justify-center w-full`}>
+                    <h3 className={`font-black text-foreground ${compact ? 'text-lg' : 'text-xl md:text-2xl'} tracking-tighter leading-tight truncate hover:text-accent transition-colors lowercase font-heading w-full text-center`}>
                         {beat.titulo}
                     </h3>
                 </Link>
 
                 {/* Producer Row */}
-                <Link href={`/${beat.productor_nombre_usuario || '#'}`} className={`flex items-center gap-2 ${compact ? 'mb-1.5' : 'mb-3'} group/prod ${compact ? 'min-h-[24px]' : 'min-h-[32px]'} justify-center w-full`}>
+                <Link href={`/${beat.productor_nombre_usuario || '#'}`} className={`flex items-center gap-2 ${compact ? 'mb-2' : 'mb-4'} group/prod ${compact ? 'min-h-[24px]' : 'min-h-[32px]'} justify-center w-full`}>
                     <div className="relative shrink-0">
                         <div className={`${compact ? 'w-5 h-5' : 'w-6 h-6 md:w-8 md:h-8'} rounded-full overflow-hidden border-2 transition-transform group-hover/prod:scale-110 border-border group-hover/prod:border-accent`}>
                             <img
@@ -199,16 +200,19 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                 {/* Pills Section - Genre, BPM, Tone/Scale */}
                 <div className={`flex flex-wrap gap-2 ${compact ? 'mb-2' : 'mb-4'} justify-center w-full`}>
                     {beat.genero && (
-                        <span className={`text-[7px] font-black text-accent bg-accent/10 ${compact ? 'px-1.5' : 'px-3'} py-1.5 rounded-full border border-accent/20 uppercase tracking-widest leading-none flex items-center gap-1.5`}>
-                            🎧 {beat.genero}
+                        <span className={`text-[7px] font-black text-accent bg-accent/10 ${compact ? 'px-1.5' : 'px-3'} py-1.5 rounded-full border border-accent/20 uppercase tracking-widest leading-none flex items-center`}>
+                            {beat.genero}
                         </span>
                     )}
-                    <span className={`text-[7px] font-black text-accent bg-accent/10 ${compact ? 'px-1.5' : 'px-3'} py-1.5 rounded-full border border-accent/20 uppercase tracking-widest leading-none flex items-center gap-1.5`}>
-                        ⚡ {beat.bpm} BPM
+                    <span className={`text-[7px] font-black text-accent bg-accent/10 ${compact ? 'px-1.5' : 'px-3'} py-1.5 rounded-full border border-accent/20 uppercase tracking-widest leading-none flex items-center`}>
+                        {beat.bpm} BPM
                     </span>
                     {beat.tono_escala && (
-                        <span className={`text-[7px] font-black text-accent bg-accent/10 ${compact ? 'px-1.5' : 'px-3'} py-1.5 rounded-full border border-accent/20 uppercase tracking-widest leading-none flex items-center gap-1.5`}>
-                            🎹 {MUSICAL_KEYS.find(k => k.value === beat.tono_escala)?.label || beat.tono_escala}
+                        <span
+                            title="Tonalidad y Escala musical"
+                            className={`text-[7px] font-black text-accent bg-accent/10 ${compact ? 'px-1.5' : 'px-3'} py-1.5 rounded-full border border-accent/20 uppercase tracking-widest leading-none flex items-center cursor-help`}
+                        >
+                            {MUSICAL_KEYS.find(k => k.value === beat.tono_escala)?.label || beat.tono_escala}
                         </span>
                     )}
                 </div>
@@ -245,9 +249,10 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
 
                     <button
                         onClick={handleLike}
-                        className={`${compact ? 'w-7 h-7' : 'w-10 h-10'} rounded-xl flex items-center justify-center transition-all bg-card border border-border/50 shadow-sm active:scale-95 shrink-0 ${isLiked ? 'text-error border-error/20 bg-error/10' : 'text-muted hover:text-error hover:border-error/20'}`}
+                        className={`${compact ? 'w-8 h-8' : 'w-10 h-10'} rounded-xl flex items-center justify-center transition-all bg-card border border-border/50 shadow-sm active:scale-95 shrink-0 group/heart ${isLiked ? 'text-error border-error/50 bg-error/10' : 'text-muted hover:text-error hover:border-error/30 hover:scale-110'}`}
+                        title={isLiked ? "Quitar de favoritos" : "Añadir a favoritos"}
                     >
-                        <Heart size={compact ? 14 : 18} fill={isLiked ? "currentColor" : "none"} strokeWidth={isLiked ? 0 : 2} />
+                        <Heart size={compact ? 14 : 18} className={`transition-transform duration-300 ${isLiked ? 'scale-110 fill-error' : 'group-hover/heart:scale-110'}`} strokeWidth={isLiked ? 0 : 2} />
                     </button>
                 </div>
             </div>

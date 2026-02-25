@@ -142,42 +142,10 @@ export default function AdvancedFilterSidebar({
 
                     <div className="h-[1px] bg-border"></div>
 
-                    {/* Vibe / Sentiment Filter */}
+                    {/* Moods */}
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black text-muted uppercase tracking-widest">Sentimiento / Vibe</label>
-                            {filterState.vibe && (
-                                <button onClick={() => updateFilter('vibe', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
-                            )}
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                            {[
-                                { id: 'happy', label: 'Alegre', emoji: '😊' },
-                                { id: 'sad', label: 'Triste', emoji: '💔' },
-                                { id: 'dark', label: 'Oscuro', emoji: '🌑' },
-                                { id: 'aggressive', label: 'Pesado', emoji: '🔥' }
-                            ].map(v => (
-                                <button
-                                    key={v.id}
-                                    onClick={() => updateFilter('vibe', filterState.vibe === v.id ? '' : v.id)}
-                                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all ${filterState.vibe === v.id
-                                        ? 'bg-accent text-white border-accent shadow-lg shadow-accent/20'
-                                        : 'bg-background border-border text-muted hover:border-accent/30 hover:text-foreground'
-                                        }`}
-                                >
-                                    <span className="text-xl mb-1">{v.emoji}</span>
-                                    <span className="text-[9px] font-black uppercase tracking-widest">{v.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="h-[1px] bg-border"></div>
-
-                    {/* Moods (Legacy Tags) */}
-                    <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black text-muted uppercase tracking-widest text-[8px]">Mood Tags (Manual)</label>
+                            <label className="text-[10px] font-black text-muted uppercase tracking-widest text-[8px]">Mood Tags</label>
                             {filterState.mood && (
                                 <button onClick={() => updateFilter('mood', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
                             )}
@@ -223,11 +191,12 @@ export default function AdvancedFilterSidebar({
                         </div>
                     </div>
 
+                    <div className="h-[1px] bg-border"></div>
 
                     {/* Key & Scale (Unified) */}
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black text-muted uppercase tracking-widest">Tonalidad & Escala</label>
+                            <label title="Tonalidad y Escala musical" className="text-[10px] font-black text-muted uppercase tracking-widest cursor-help underline decoration-dotted decoration-muted/30">Tonalidad & Escala</label>
                             {filterState.tonoEscala && (
                                 <button onClick={() => updateFilter('tonoEscala', '')} className="text-[9px] font-bold text-error uppercase hover:underline min-h-[40px] px-2 flex items-center">Limpiar</button>
                             )}
