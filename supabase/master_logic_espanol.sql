@@ -11,7 +11,7 @@ BEGIN;
 -- 1. LIMPIEZA DE LÓGICA ANTIGUA (INGLÉS)
 -- ==============================================================================
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-DROP TRIGGER IF EXISTS trg_sync_founder_status ON public.profiles;
+DROP TRIGGER IF EXISTS trg_sync_founder_status ON public.perfiles;
 DROP TRIGGER IF EXISTS trg_sync_founder_status ON public.perfiles;
 DROP TRIGGER IF EXISTS trg_sincronizar_likes ON public.favoritos;
 
