@@ -153,11 +153,11 @@ CREATE TRIGGER on_auth_user_created
 -- ==============================================================================
 
 -- Función para asegurar que el bucket existe
-CREATE OR REPLACE FUNCTION public.crear_bucket_seguro(id TEXT, is_public BOOLEAN)
+CREATE OR REPLACE FUNCTION public.crear_bucket_seguro(p_bucket_id TEXT, is_public BOOLEAN)
 RETURNS void AS $$
 BEGIN
     INSERT INTO storage.buckets (id, name, public)
-    VALUES (id, id, is_public)
+    VALUES (p_bucket_id, p_bucket_id, is_public)
     ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
 END;
 $$ LANGUAGE plpgsql;
