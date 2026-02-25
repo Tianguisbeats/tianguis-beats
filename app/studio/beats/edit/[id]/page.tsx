@@ -180,7 +180,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     const handleMoodToggle = (mood: string) => {
         if (selectedMoods.includes(mood)) {
             setSelectedMoods(selectedMoods.filter(m => m !== mood));
-        } else {
+        } else if (selectedMoods.length < 3) {
             setSelectedMoods([...selectedMoods, mood]);
         }
     };
@@ -216,6 +216,27 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
         if (!hasChanges) {
             router.back();
+            return;
+        }
+
+        const missingFields = [];
+        if (!title) missingFields.push("Título");
+        if (!genre) missingFields.push("Género");
+        if (!bpm) missingFields.push("BPM");
+        if (!tonoEscala) missingFields.push("Tono/Escala");
+
+        if (missingFields.length > 0) {
+            setError(`Faltan campos obligatorios: ${missingFields.join(", ")}`);
+            return;
+        }
+
+        if (selectedMoods.length !== 3) {
+            setError("Mood Tags: Debes seleccionar exactamente 3 etiquetas para poder guardar.");
+            return;
+        }
+
+        if (beatTypes.length < 1) {
+            setError("Artistas de Referencia: Debes agregar al menos 1 artista de referencia.");
             return;
         }
 
@@ -519,7 +540,12 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                 </div>
                             </div>
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Mood Tags</label>
+                                <div className="flex items-center justify-between ml-1">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted">Mood Tags</label>
+                                    <span className={`text-[9px] font-bold uppercase tracking-widest ${selectedMoods.length === 3 ? 'text-green-500' : 'text-accent'}`}>
+                                        {selectedMoods.length}/3 Seleccionados (Forzoso 3)
+                                    </span>
+                                </div>
                                 <div className="flex flex-wrap gap-2">
                                     {MOODS.map(mood => (
                                         <button
@@ -527,7 +553,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                             type="button"
                                             onClick={() => handleMoodToggle(mood.label)}
                                             className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${selectedMoods.includes(mood.label)
-                                                ? 'bg-foreground text-background'
+                                                ? 'bg-foreground text-background shadow-lg shadow-black/10'
                                                 : 'bg-accent-soft text-muted hover:text-foreground'
                                                 }`}
                                         >
