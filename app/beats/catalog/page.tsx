@@ -185,7 +185,7 @@ function CatalogContent() {
 
                 switch (viewMode) {
                     case 'new':
-                        query = query.order("created_at", { ascending: false });
+                        query = query.order("fecha_creacion", { ascending: false });
                         break;
                     case 'trending':
                         // Priorizar plays de la semana para una sensación de "frescura"

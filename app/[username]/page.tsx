@@ -371,7 +371,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     .select('*')
                     .eq('productor_id', profileData.id)
                     .eq('es_activo', true)
-                    .order('created_at', { ascending: false });
+                    .order('fecha_creacion', { ascending: false });
 
                 setServices(servicesData || []);
 
@@ -381,7 +381,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     .select('*')
                     .eq('productor_id', profileData.id)
                     .eq('es_publico', true)
-                    .order('created_at', { ascending: false });
+                    .order('fecha_creacion', { ascending: false });
 
                 if (kitsData) {
                     const transformedKits = await Promise.all(kitsData.map(async (kit: any) => {

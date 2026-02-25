@@ -208,7 +208,8 @@ export default function UploadPage() {
                 precio_premium_mxn: parseInt(premiumPrice) || 0,
                 precio_ilimitado_mxn: parseInt(unlimitedPrice) || 0,
                 precio_exclusivo_mxn: isExclusiveActive ? parseInt(exclusivePrice) : null,
-                visibilidad_tier: userData.nivel_suscripcion === 'free' ? 0 : (userData.nivel_suscripcion === 'pro' ? 1 : 0)
+                visibilidad_tier: userData.nivel_suscripcion === 'free' ? 0 : (userData.nivel_suscripcion === 'pro' ? 1 : 0),
+                es_publico: true
             });
 
             if (dbError) throw dbError;

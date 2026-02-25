@@ -26,9 +26,9 @@ export default function StudioBeatsPage() {
 
         const { data, error } = await supabase
             .from('beats')
-            .select('id, productor_id, titulo, genero, bpm, precio_basico_mxn, portada_url, archivo_mp3_url, es_publico, conteo_reproducciones, conteo_ventas, conteo_likes, created_at')
+            .select('id, productor_id, titulo, genero, bpm, precio_basico_mxn, portada_url, archivo_mp3_url, es_publico, conteo_reproducciones, conteo_ventas, conteo_likes, fecha_creacion')
             .eq('productor_id', user.id)
-            .order('created_at', { ascending: false });
+            .order('fecha_creacion', { ascending: false });
 
         if (data) {
             const transformed = data.map((b: any) => {

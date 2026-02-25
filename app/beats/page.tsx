@@ -39,7 +39,7 @@ function HubContent() {
         const { data: trendData } = await supabase
           .from('beats')
           .select(`
-            id, titulo, precio_basico_mxn, bpm, genero, portada_url, archivo_mp3_url, archivo_muestra_url, nota_musical, escala_musical, vibras, created_at, conteo_reproducciones,
+            id, titulo, precio_basico_mxn, bpm, genero, portada_url, archivo_mp3_url, archivo_muestra_url, nota_musical, escala_musical, vibras, fecha_creacion, conteo_reproducciones,
             producer:productor_id ( nombre_artistico, nombre_usuario, esta_verificado, es_fundador, foto_perfil, nivel_suscripcion )
           `)
           .eq('es_publico', true)
@@ -50,7 +50,7 @@ function HubContent() {
 
         const { data: trendProd } = await supabase
           .from('perfiles')
-          .select('id, nombre_artistico, nombre_usuario, foto_perfil, nivel_suscripcion, esta_verificado, es_fundador, biografia, created_at')
+          .select('id, nombre_artistico, nombre_usuario, foto_perfil, nivel_suscripcion, esta_verificado, es_fundador, biografia, fecha_creacion')
           .order('nivel_suscripcion', { ascending: false })
           .limit(5);
 
