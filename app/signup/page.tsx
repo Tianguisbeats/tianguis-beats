@@ -181,7 +181,7 @@ export default function SignupPage() {
                             <div className="card-modern p-8 md:p-10">
                                 <form onSubmit={handleSignup} className="space-y-5">
                                     {error && (
-                                        <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-xs font-bold rounded-xl text-center">
+                                        <div className="p-4 bg-error/10 border border-error/20 text-error text-xs font-bold rounded-xl text-center">
                                             {error}
                                         </div>
                                     )}
@@ -206,21 +206,21 @@ export default function SignupPage() {
                                                     value={username}
                                                     onChange={handleUsernameChange}
                                                     placeholder="tu_username"
-                                                    className={`w-full bg-background border rounded-2xl px-5 py-3.5 outline-none transition-all font-bold text-foreground placeholder:text-muted/50 ${isUsernameAvailable === false ? 'border-red-400' : isUsernameAvailable === true ? 'border-green-400' : 'border-border focus:border-accent'}`}
+                                                    className={`w-full bg-background border rounded-2xl px-5 py-3.5 outline-none transition-all font-bold text-foreground placeholder:text-muted/50 ${isUsernameAvailable === false ? 'border-error/40' : isUsernameAvailable === true ? 'border-success/40' : 'border-border focus:border-accent'}`}
                                                     required
                                                 />
                                                 <div className="absolute right-4 top-1/2 -translate-y-1/2">
                                                     {isCheckingName ? (
                                                         <Loader2 size={16} className="animate-spin text-muted" />
                                                     ) : isUsernameAvailable === true ? (
-                                                        <Check size={16} className="text-green-500" />
+                                                        <Check size={16} className="text-success" />
                                                     ) : isUsernameAvailable === false ? (
-                                                        <AlertTriangle size={16} className="text-red-500" />
+                                                        <AlertTriangle size={16} className="text-error" />
                                                     ) : null}
                                                 </div>
                                             </div>
                                             {isUsernameAvailable === false && (
-                                                <p className="text-[9px] text-red-500 font-bold uppercase mt-1.5 ml-1">Usuario no disponible</p>
+                                                <p className="text-[9px] text-error font-black uppercase mt-1.5 ml-1">Usuario no disponible</p>
                                             )}
                                         </div>
 

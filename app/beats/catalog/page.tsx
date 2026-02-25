@@ -111,17 +111,15 @@ function CatalogContent() {
 
     const TabButton = ({ mode, label, icon: Icon }: { mode: string; label: string; icon: any }) => {
         const isActive = viewMode === mode;
-        const isCT = mode === 'corridos_tumbados';
-        const isMexa = mode === 'reggaeton_mexa';
         return (
             <button
                 onClick={() => setViewMode(mode as any)}
                 className={`snap-center flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-t-2xl font-black text-[9px] uppercase tracking-[0.2em] transition-all duration-300 whitespace-nowrap min-h-[48px] relative ${isActive
-                    ? `bg-background ${isCT ? 'text-green-500' : isMexa ? 'text-green-500' : 'text-accent'} border-x border-t border-border -mb-[1px] z-10`
+                    ? `bg-background text-accent border-x border-t border-border -mb-[1px] z-10`
                     : 'bg-card/50 text-muted hover:text-foreground border-transparent hover:bg-card'
                     }`}
             >
-                <Icon size={14} strokeWidth={isActive ? 3 : 2} className={isActive ? (isCT || isMexa ? 'text-green-500' : 'text-accent') : ''} />
+                <Icon size={14} strokeWidth={isActive ? 3 : 2} className={isActive ? 'text-accent' : ''} />
                 <span>{label}</span>
             </button>
         );

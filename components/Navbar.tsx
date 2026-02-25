@@ -130,7 +130,7 @@ export default function Navbar() {
                                                         <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain translate-y-[-1px]" />
                                                     )}
                                                     {profile?.es_fundador && (
-                                                        <Crown size={16} className="text-yellow-400 translate-y-[-1px]" fill="currentColor" />
+                                                        <Crown size={16} className="text-accent translate-y-[-1px]" fill="currentColor" />
                                                     )}
                                                 </div>
                                             </Link>
@@ -143,7 +143,7 @@ export default function Navbar() {
 
                                             <button
                                                 onClick={handleLogout}
-                                                className="w-12 h-12 flex items-center justify-center text-muted hover:text-red-500 transition-colors"
+                                                className="w-12 h-12 flex items-center justify-center text-muted hover:text-error transition-colors"
                                                 title="Salir"
                                             >
                                                 <LogOut size={20} />
@@ -162,7 +162,7 @@ export default function Navbar() {
                                         </Link>
                                         <CurrencySwitcher />
                                         <ThemeToggle />
-                                        <Link href="/login" className="px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest text-foreground bg-card border border-border hover:bg-accent-soft hover:text-accent hover:border-accent/20 hover:scale-[1.03] active:scale-[0.97] transition-all min-h-[48px] flex items-center shadow-sm">
+                                        <Link href="/login" className="px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest text-foreground bg-card border border-border hover:bg-accent-soft hover:text-accent hover:border-accent/20 hover:scale-[1.08] active:scale-[0.95] transition-all min-h-[48px] flex items-center shadow-sm">
                                             Log In
                                         </Link>
                                         <Link href="/signup" className="btn-standard px-6 py-3 min-h-[48px]">

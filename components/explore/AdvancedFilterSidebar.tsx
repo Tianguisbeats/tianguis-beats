@@ -83,9 +83,9 @@ export default function AdvancedFilterSidebar({
 
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black text-muted uppercase tracking-widest text-[#EF4444]">Beat Type (Artistas Ref.)</label>
+                            <label className="text-[10px] font-black text-muted uppercase tracking-widest text-accent">Beat Type (Artistas Ref.)</label>
                             {filterState.refArtist && (
-                                <button onClick={() => updateFilter('refArtist', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
+                                <button onClick={() => updateFilter('refArtist', '')} className="text-[9px] font-bold text-error uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
                             )}
                         </div>
                         <input
@@ -103,7 +103,7 @@ export default function AdvancedFilterSidebar({
                         <div className="flex items-center justify-between">
                             <label className="text-[10px] font-black text-muted uppercase tracking-widest">Género</label>
                             {filterState.genre !== 'Todos' && (
-                                <button onClick={() => { updateFilter('genre', 'Todos'); updateFilter('subgenre', ''); }} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
+                                <button onClick={() => { updateFilter('genre', 'Todos'); updateFilter('subgenre', ''); }} className="text-[9px] font-bold text-error uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
                             )}
                         </div>
                         <select
@@ -125,7 +125,7 @@ export default function AdvancedFilterSidebar({
                             <div className="flex items-center justify-between">
                                 <label className="text-[10px] font-black text-muted uppercase tracking-widest">Subgénero</label>
                                 {filterState.subgenre && (
-                                    <button onClick={() => updateFilter('subgenre', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
+                                    <button onClick={() => updateFilter('subgenre', '')} className="text-[9px] font-bold text-error uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
                                 )}
                             </div>
                             <select
@@ -170,7 +170,7 @@ export default function AdvancedFilterSidebar({
                         <div className="flex items-center justify-between">
                             <label className="text-[10px] font-black text-muted uppercase tracking-widest">BPM (Rango)</label>
                             {(filterState.bpmMin || filterState.bpmMax) && (
-                                <button onClick={() => { updateFilter('bpmMin', ''); updateFilter('bpmMax', ''); }} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
+                                <button onClick={() => { updateFilter('bpmMin', ''); updateFilter('bpmMax', ''); }} className="text-[9px] font-bold text-error uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
                             )}
                         </div>
                         <div className="flex items-center gap-2">
@@ -199,7 +199,7 @@ export default function AdvancedFilterSidebar({
                             <div className="flex items-center justify-between">
                                 <label className="text-[10px] font-black text-muted uppercase tracking-widest">Tonalidad (Key)</label>
                                 {filterState.key && (
-                                    <button onClick={() => updateFilter('key', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[40px] px-2 flex items-center">Limpiar</button>
+                                    <button onClick={() => updateFilter('key', '')} className="text-[9px] font-bold text-error uppercase hover:underline min-h-[40px] px-2 flex items-center">Limpiar</button>
                                 )}
                             </div>
                             <select
@@ -216,7 +216,7 @@ export default function AdvancedFilterSidebar({
                             <div className="flex items-center justify-between">
                                 <label className="text-[10px] font-black text-muted uppercase tracking-widest">Escala</label>
                                 {filterState.scale && (
-                                    <button onClick={() => updateFilter('scale', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[40px] px-2 flex items-center">Limpiar</button>
+                                    <button onClick={() => updateFilter('scale', '')} className="text-[9px] font-bold text-error uppercase hover:underline min-h-[40px] px-2 flex items-center">Limpiar</button>
                                 )}
                             </div>
                             <select

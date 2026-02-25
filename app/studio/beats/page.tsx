@@ -112,7 +112,7 @@ export default function StudioBeatsPage() {
 
                 {beats.length === 0 ? (
                     <div className="p-20 text-center bg-slate-50 dark:bg-white/5 rounded-[2.5rem] border border-slate-200 dark:border-white/5">
-                        <div className="w-24 h-24 bg-white dark:bg-[#020205] border border-slate-200 dark:border-border/50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-muted shadow-sm shadow-black/5 dark:shadow-white/5">
+                        <div className="w-24 h-24 bg-card dark:bg-card border border-border/50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-muted shadow-sm shadow-black/5 dark:shadow-white/5">
                             <AlertCircle size={48} strokeWidth={1.5} />
                         </div>
                         <h3 className="text-2xl font-black text-slate-900 dark:text-foreground uppercase tracking-tight mb-3">Tu galería está vacía</h3>
@@ -126,9 +126,9 @@ export default function StudioBeatsPage() {
                         {beats.filter(b => b.titulo.toLowerCase().includes(searchTerm.toLowerCase()) || (b.genero && b.genero.toLowerCase().includes(searchTerm.toLowerCase()))).map((beat) => (
                             <div
                                 key={beat.id}
-                                className="group bg-slate-50 dark:bg-[#08080a]/60 hover:bg-white dark:hover:bg-[#0c0c0f] border border-slate-200 dark:border-white/5 hover:border-accent/30 rounded-[2.5rem] p-6 transition-all duration-500 flex flex-col gap-6 shadow-sm hover:shadow-2xl dark:shadow-none dark:hover:shadow-black/40"
+                                className="group bg-card/60 hover:bg-card border border-border/50 hover:border-accent/30 rounded-[2.5rem] p-6 transition-all duration-500 flex flex-col gap-6 shadow-sm hover:shadow-2xl dark:shadow-none dark:hover:shadow-black/40"
                             >
-                                <div className="relative aspect-square rounded-[2rem] overflow-hidden bg-slate-100 dark:bg-[#020205] shadow-inner group-hover:shadow-2xl transition-all duration-500 border border-slate-300 dark:border-white/5">
+                                <div className="relative aspect-square rounded-[2rem] overflow-hidden bg-background shadow-inner group-hover:shadow-2xl transition-all duration-500 border border-border/50">
                                     {beat.portada_url ? (
                                         <img src={beat.portada_url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={beat.titulo} />
                                     ) : (

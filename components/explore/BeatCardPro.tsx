@@ -132,7 +132,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                     {/* Trending Badge */}
                     <div className={`absolute top-5 left-5 z-10 ${compact ? 'scale-75' : 'scale-90'} origin-top-left`}>
                         <span className={`bg-background/90 backdrop-blur-md text-foreground ${compact ? 'text-[8px]' : 'text-[10px]'} font-black px-4 py-2 rounded-2xl uppercase tracking-[0.1em] shadow-xl flex items-center gap-2 border border-border`}>
-                            <Flame size={compact ? 12 : 14} className="text-orange-500 fill-orange-500" /> TRENDING
+                            <Flame size={compact ? 12 : 14} className="text-accent fill-accent" /> TRENDING
                         </span>
                     </div>
 
@@ -148,7 +148,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                     {/* Play Button Overlay */}
                     <div className={`absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all flex items-center justify-center backdrop-blur-[1px] ${isThisPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                         {beat.esta_vendido ? (
-                            <div className="bg-red-500/90 text-white font-black px-4 py-2 rounded-xl text-xs uppercase tracking-widest shadow-2xl border border-white/20 rotate-[-12deg]">
+                            <div className="bg-error/90 text-white font-black px-4 py-2 rounded-xl text-xs uppercase tracking-widest shadow-2xl border border-white/20 rotate-[-12deg]">
                                 Vendido
                             </div>
                         ) : (
@@ -191,7 +191,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                                 <img src="/verified-badge.png" className={`${compact ? 'w-3 h-3' : 'w-3.5 h-3.5'} object-contain`} alt="Verificado" />
                             )}
                             {beat.productor_es_fundador && (
-                                <Crown size={compact ? 10 : 12} className="text-yellow-400 fill-yellow-400" />
+                                <Crown size={compact ? 10 : 12} className="text-accent fill-accent" />
                             )}
                         </div>
                     </div>
@@ -200,7 +200,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                 {/* Pills Section */}
                 <div className={`flex flex-wrap gap-1 ${compact ? 'mb-2' : 'mb-4'} justify-center w-full`}>
                     {beat.genero && (
-                        <span className={`text-[7px] font-black text-green-500 bg-green-500/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-green-500/20 uppercase tracking-widest leading-none`}>
+                        <span className={`text-[7px] font-black text-success bg-success/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-success/20 uppercase tracking-widest leading-none`}>
                             {beat.genero}
                         </span>
                     )}
@@ -225,7 +225,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                         {isOwner ? (
                             <div className={`w-full ${compact ? 'h-7' : 'h-9'} flex items-center justify-center gap-2 p-2 cursor-default select-none`}>
                                 <div className="flex items-center gap-2 text-foreground dark:text-white">
-                                    <Crown size={compact ? 12 : 14} className="text-yellow-400 fill-yellow-400" />
+                                    <Crown size={compact ? 12 : 14} className="text-accent fill-accent" />
                                     <span className={`font-black uppercase tracking-[0.4em] ${compact ? 'text-[8px]' : 'text-[9px]'} opacity-70`}>
                                         Es tu Beat
                                     </span>
@@ -240,7 +240,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                                     <span className={`font-black ${compact ? 'text-[7px]' : 'text-[8px] md:text-[9px]'} uppercase tracking-widest text-slate-400`}>No Disponible</span>
                                 ) : (
                                     <>
-                                        <DollarSign size={compact ? 12 : 14} className="text-emerald-500" />
+                                        <DollarSign size={compact ? 12 : 14} className="text-success" />
                                         <span className={`font-black ${compact ? 'text-[7px]' : 'text-[8px] md:text-[9px]'} uppercase tracking-[0.2em] text-foreground/80 group-hover/btn:text-accent transition-colors`}>
                                             {compact ? 'Ver Licencia' : `Ver Licencias`}
                                         </span>
@@ -252,7 +252,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
 
                     <button
                         onClick={handleLike}
-                        className={`${compact ? 'w-7 h-7' : 'w-10 h-10'} rounded-xl flex items-center justify-center transition-all bg-card border border-border/50 shadow-sm active:scale-95 shrink-0 ${isLiked ? 'text-red-500 border-red-500/20 bg-red-50/10' : 'text-muted hover:text-red-500 hover:border-red-500/20'}`}
+                        className={`${compact ? 'w-7 h-7' : 'w-10 h-10'} rounded-xl flex items-center justify-center transition-all bg-card border border-border/50 shadow-sm active:scale-95 shrink-0 ${isLiked ? 'text-error border-error/20 bg-error/10' : 'text-muted hover:text-error hover:border-error/20'}`}
                     >
                         <Heart size={compact ? 14 : 18} fill={isLiked ? "currentColor" : "none"} strokeWidth={isLiked ? 0 : 2} />
                     </button>

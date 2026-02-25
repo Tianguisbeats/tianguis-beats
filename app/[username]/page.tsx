@@ -26,21 +26,21 @@ import { useToast } from '@/context/ToastContext';
 
 // Social Media Icons Mapping
 const SOCIAL_ICONS: Record<string, any> = {
-    web: { icon: Globe, color: "hover:text-blue-500" },
-    instagram: { icon: Instagram, color: "hover:text-pink-500" },
-    youtube: { icon: Youtube, color: "hover:text-red-500" },
-    twitter: { icon: Twitter, color: "hover:text-blue-400" },
+    web: { icon: Globe, color: "hover:text-accent" },
+    instagram: { icon: Instagram, color: "hover:text-accent" },
+    youtube: { icon: Youtube, color: "hover:text-accent" },
+    twitter: { icon: Twitter, color: "hover:text-accent" },
     tiktok: {
         path: "M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77-1.52v-3.4a4.85 4.85 0 0 1-1-.1z",
-        color: "hover:text-black dark:hover:text-white"
+        color: "hover:text-accent"
     },
     spotify: {
         path: "M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2m0 2a8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8 8 8 0 0 0-8-8m3.93 11c-.3.06-.62 0-.85-.14-2.34-1.42-5.3-1.74-8.77-1.74-.29 0-.58.07-.82.2a.57.57 0 0 1-.78-.23c-.16-.28-.06-.63.22-.79 3.86.06 7.18.42 9.9 2a1 1 0 0 1 .4.15c.29.17.38.54.21.83-.11.19-.3.29-.51.29zM12 9.04c-3.15 0-5.83.33-8.08 1.05-.38.12-.58.53-.46.9.11.33.45.52.8.52.1 0 .21-.03.31-.06 2.02-.65 4.49-.95 7.43-.95 2.81 0 5.2.28 7.15.86.1.03.2.05.3.05.28 0 .55-.13.7-.37.21-.34.11-.78-.23-.99-2.22-.69-5.11-1.01-7.92-1.01zm-7.6 2.87c2.68-.8 6.09-1.12 9.06-1.12 2.62 0 5.64.26 8.27 1.05.47.14.73.65.59 1.12-.13.43-.53.7-1.02.7-.1 0-.21-.02-.3-.05-2.29-.68-4.99-.91-7.54-.91-2.6 0-5.63.29-8.04 1.01-.1.03-.2.04-.3.04-.4 0-.8-.25-.94-.64-.2-.47.05-1 .52-1.2z",
-        color: "hover:text-green-500"
+        color: "hover:text-accent"
     },
     applemusic: {
         icon: Music,
-        color: "hover:text-rose-500"
+        color: "hover:text-accent"
     },
     tidal: {
         path: "M12.01 2.24L9.77 4.48l2.24 2.24 2.24-2.24-2.24-2.24zM5.29 6.72L3.05 8.96l2.24 2.24 2.24-2.24-2.24-2.24zM12.01 11.2l-2.24 2.24 2.24 2.24 2.24-2.24-2.24-2.24zM18.73 6.72l-2.24 2.24 2.24 2.24 2.24-2.24-2.24-2.24z",
@@ -731,18 +731,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         {/* Avatar */}
                         <div className="relative group shrink-0">
                             {/* Glow Effect */}
-                            <div className={`absolute inset-0 rounded-full blur-2xl opacity-40 transition-all duration-700 ${profile.nivel_suscripcion === 'premium'
-                                ? 'bg-blue-600'
-                                : profile.nivel_suscripcion === 'pro'
-                                    ? 'bg-amber-500'
-                                    : 'bg-accent'
-                                }`} />
+                            <div className={`absolute inset-0 rounded-full blur-2xl opacity-40 transition-all duration-700 bg-accent`} />
 
-                            <div className={`w-48 h-48 md:w-56 md:h-56 rounded-full border-[6px] shadow-2xl overflow-hidden transition-all duration-700 bg-background relative z-10 ${profile.nivel_suscripcion === 'premium'
-                                ? 'border-blue-600 ring-4 ring-blue-600/20'
-                                : profile.nivel_suscripcion === 'pro'
-                                    ? 'border-amber-500 ring-4 ring-amber-500/20'
-                                    : 'border-white/10'
+                            <div className={`w-48 h-48 md:w-56 md:h-56 rounded-full border-[6px] shadow-2xl overflow-hidden transition-all duration-700 bg-background relative z-10 ${profile.nivel_suscripcion === 'premium' || profile.nivel_suscripcion === 'pro'
+                                ? 'border-accent ring-4 ring-accent/20'
+                                : 'border-white/10'
                                 }`}>
                                 {profile.foto_perfil ? (
                                     <img src={profile.foto_perfil} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Avatar" />
@@ -770,10 +763,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         </h1>
                                         <div className="flex items-center gap-2 translate-y-3 md:translate-y-6">
                                             {profile.esta_verificado && (
-                                                <img src="/verified-badge.png" alt="Verificado" className="w-6 h-6 md:w-8 md:h-8 object-contain hover:scale-110 transition-transform cursor-help shadow-blue-500/20 shadow-2xl" title="Verificado" />
+                                                <img src="/verified-badge.png" alt="Verificado" className="w-6 h-6 md:w-8 md:h-8 object-contain hover:scale-110 transition-transform cursor-help shadow-accent/20 shadow-2xl" title="Verificado" />
                                             )}
                                             {profile.es_fundador && (
-                                                <div className="flex items-center justify-center text-amber-500 hover:rotate-12 transition-transform cursor-help" title="Founder">
+                                                <div className="flex items-center justify-center text-accent hover:rotate-12 transition-transform cursor-help" title="Founder">
                                                     <Crown className="w-6 h-6 md:w-8 md:h-8" fill="currentColor" />
                                                 </div>
                                             )}
@@ -827,9 +820,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             {currentUserId !== profile?.id && (
                                                 <button
                                                     onClick={handleFollowToggle}
-                                                    className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center gap-3 shadow-xl active:scale-95 ${isFollowing ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 'bg-accent text-white shadow-accent/20 hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900'}`}
+                                                    className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center gap-3 shadow-xl active:scale-95 ${isFollowing ? 'bg-success text-white shadow-success/20' : 'bg-accent text-white shadow-accent/20 hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900'}`}
                                                 >
-                                                    {isFollowing ? <><UserCheck size={16} /> Siguiendo</> : <><UserPlus size={16} /> Seguir</>}
+                                                    {isFollowing ? <><Check size={16} /> Siguiendo</> : <><UserPlus size={16} /> Seguir</>}
                                                 </button>
                                             )}
                                         </>
@@ -845,9 +838,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             {/* Estadísticas Premium */}
                             <div className="grid grid-cols-3 gap-3">
                                 {[
-                                    { label: 'Seguidores', value: followersCount, icon: Users, color: 'text-blue-500', href: `/${username}/connections` },
+                                    { label: 'Seguidores', value: followersCount, icon: Users, color: 'text-accent', href: `/${username}/connections` },
                                     { label: 'Beats', value: beats.length, icon: Music, color: 'text-accent', href: `/${username}/beats` },
-                                    { label: 'Siguiendo', value: followingCount, icon: UserPlus, color: 'text-emerald-500', href: `/${username}/connections` }
+                                    { label: 'Siguiendo', value: followingCount, icon: UserPlus, color: 'text-accent', href: `/${username}/connections` }
                                 ].map((stat, i) => (
                                     <Link key={i} href={stat.href} className="bg-white dark:bg-slate-900/60 border border-slate-100 dark:border-white/5 rounded-[2rem] p-5 text-center shadow-soft dark:shadow-[0_20px_50px_rgba(8,112,184,0.08)] hover:shadow-xl hover:-translate-y-1 transition-all group">
                                         <stat.icon size={16} className={`${stat.color} mx-auto mb-2 opacity-60 group-hover:opacity-100 transition-opacity`} />
@@ -866,21 +859,21 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 <div className="space-y-8">
                                     <div className="flex items-center justify-between group">
                                         <span className="text-sm font-bold text-slate-400 dark:text-white/60">Suscripción</span>
-                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border transition-all ${profile.nivel_suscripcion === 'premium' ? 'bg-blue-600/10 dark:bg-blue-600 border-blue-400/30 dark:border-blue-400 text-blue-600 dark:text-white shadow-lg dark:shadow-blue-500/20' : profile.nivel_suscripcion === 'pro' ? 'bg-amber-400 border-amber-300 text-slate-900' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-white/60'}`}>
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border transition-all ${profile.nivel_suscripcion === 'premium' || profile.nivel_suscripcion === 'pro' ? 'bg-accent/10 dark:bg-accent border-accent/30 dark:border-accent text-accent dark:text-white shadow-lg dark:shadow-accent/20' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-white/60'}`}>
                                             {profile.nivel_suscripcion}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between group">
                                         <span className="text-sm font-bold text-slate-400 dark:text-white/60">Identidad</span>
-                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.esta_verificado ? 'bg-blue-600/10 border-blue-400/50 text-blue-500 shadow-lg shadow-blue-500/20' : 'bg-slate-500/10 dark:bg-white/5 border-slate-400/20 text-slate-400'}`}>
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.esta_verificado ? 'bg-accent/10 border-accent/50 text-accent shadow-lg shadow-accent/20' : 'bg-slate-500/10 dark:bg-white/5 border-slate-400/20 text-slate-400'}`}>
                                             {profile.esta_verificado ? (
-                                                <><img src="/verified-badge.png" className="w-4 h-4 object-contain shadow-blue-500/20 shadow-xl" alt="✓" /> Verificado</>
+                                                <><img src="/verified-badge.png" className="w-4 h-4 object-contain shadow-accent/20 shadow-xl" alt="✓" /> Verificado</>
                                             ) : 'Sin verificar'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between group">
                                         <span className="text-sm font-bold text-slate-400 dark:text-white/60">Rango</span>
-                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.es_fundador ? 'bg-amber-500/10 dark:bg-amber-400/20 border-amber-400/20 text-amber-600 dark:text-amber-400' : 'bg-slate-500/5 dark:bg-white/5 border-white/10 text-slate-400'}`}>
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.es_fundador ? 'bg-accent/10 dark:bg-accent/20 border-accent/20 text-accent dark:text-accent' : 'bg-slate-500/5 dark:bg-white/5 border-white/10 text-slate-400'}`}>
                                             {profile.es_fundador ? <><Crown size={12} fill="currentColor" /> Founder</> : 'Sin rango'}
                                         </span>
                                     </div>
@@ -989,17 +982,17 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         {(profile.enlaces_sociales?.instagram || profile.enlaces_sociales?.youtube || profile.enlaces_sociales?.tiktok) && (
                                             <div className="flex justify-center gap-6 mt-10">
                                                 {profile.enlaces_sociales.instagram && (
-                                                    <a href={profile.enlaces_sociales.instagram} target="_blank" rel="noopener noreferrer" className="p-4 bg-slate-50 dark:bg-white/5 rounded-full text-slate-400 hover:text-pink-500 hover:scale-110 transition-all border border-slate-100 dark:border-white/5 shadow-sm group/social">
+                                                    <a href={profile.enlaces_sociales.instagram} target="_blank" rel="noopener noreferrer" className="p-4 bg-slate-50 dark:bg-white/5 rounded-full text-slate-400 hover:text-accent hover:scale-110 transition-all border border-slate-100 dark:border-white/5 shadow-sm group/social">
                                                         <Instagram size={22} />
                                                     </a>
                                                 )}
                                                 {profile.enlaces_sociales.youtube && (
-                                                    <a href={profile.enlaces_sociales.youtube} target="_blank" rel="noopener noreferrer" className="p-4 bg-slate-50 dark:bg-white/5 rounded-full text-slate-400 hover:text-red-500 hover:scale-110 transition-all border border-slate-100 dark:border-white/5 shadow-sm group/social">
+                                                    <a href={profile.enlaces_sociales.youtube} target="_blank" rel="noopener noreferrer" className="p-4 bg-slate-50 dark:bg-white/5 rounded-full text-slate-400 hover:text-accent hover:scale-110 transition-all border border-slate-100 dark:border-white/5 shadow-sm group/social">
                                                         <Youtube size={22} />
                                                     </a>
                                                 )}
                                                 {profile.enlaces_sociales.tiktok && (
-                                                    <a href={profile.enlaces_sociales.tiktok} target="_blank" rel="noopener noreferrer" className="p-4 bg-slate-50 dark:bg-white/5 rounded-full text-slate-400 hover:text-foreground hover:scale-110 transition-all border border-slate-100 dark:border-white/5 shadow-sm group/social">
+                                                    <a href={profile.enlaces_sociales.tiktok} target="_blank" rel="noopener noreferrer" className="p-4 bg-slate-50 dark:bg-white/5 rounded-full text-slate-400 hover:text-accent hover:scale-110 transition-all border border-slate-100 dark:border-white/5 shadow-sm group/social">
                                                         <Music size={22} />
                                                     </a>
                                                 )}
@@ -1021,11 +1014,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-white/40">Acerca de mí</h4>
                                     </div>
 
-                                    {profile.nivel_suscripcion !== 'premium' ? (
-                                        <div className="relative group overflow-hidden rounded-[2.5rem] border border-blue-500/10 dark:border-blue-400/10 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-600/5 dark:to-indigo-600/5 p-8 transition-all hover:scale-[1.01]">
+                                    {profile.nivel_suscripcion !== 'premium' && profile.nivel_suscripcion !== 'pro' ? (
+                                        <div className="relative group overflow-hidden rounded-[2.5rem] border border-accent/10 bg-gradient-to-br from-accent/5 to-accent/10 dark:from-accent/5 dark:to-accent/10 p-8 transition-all hover:scale-[1.01]">
 
                                             <div className="relative z-10 flex flex-col items-center text-center gap-6">
-                                                <div className="w-16 h-16 bg-white dark:bg-slate-950 rounded-2xl flex items-center justify-center text-blue-500 shadow-xl border border-slate-100 dark:border-white/5">
+                                                <div className="w-16 h-16 bg-white dark:bg-slate-950 rounded-2xl flex items-center justify-center text-accent shadow-xl border border-slate-100 dark:border-white/5">
                                                     <Link2 size={24} />
                                                 </div>
                                                 <div>
@@ -1036,7 +1029,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 {isOwner ? (
                                                     <Link
                                                         href="/pricing"
-                                                        className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-blue-500/25 hover:scale-105 hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-3"
+                                                        className="w-full py-4 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-accent/25 hover:scale-105 transition-all active:scale-95 flex items-center justify-center gap-3"
                                                     >
                                                         <Crown size={14} fill="currentColor" /> Desbloquear con Premium
                                                     </Link>
@@ -1073,19 +1066,19 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className="flex items-center justify-between gap-4 border-b border-border mb-12 overflow-x-auto pb-px scrollbar-hide">
                                 <div className="flex gap-10">
                                     {[
-                                        { id: 'beats', label: 'Beats', icon: Music, color: 'bg-blue-500', shadow: 'shadow-blue-500/50' },
-                                        { id: 'playlists', label: 'Playlists', icon: LayoutGrid, color: 'bg-green-500', shadow: 'shadow-green-500/50' },
-                                        { id: 'services', label: 'Servicios', icon: Briefcase, color: 'bg-purple-500', shadow: 'shadow-purple-500/50' }
+                                        { id: 'beats', label: 'Beats', icon: Music },
+                                        { id: 'playlists', label: 'Playlists', icon: LayoutGrid },
+                                        { id: 'services', label: 'Servicios', icon: Briefcase }
                                     ].map((tab) => (
                                         <button
                                             key={tab.id}
                                             onClick={() => setActiveTab(tab.id as 'beats' | 'playlists' | 'services' | 'sound_kits')}
-                                            className={`relative py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === tab.id ? 'text-foreground' : 'text-muted hover:text-foreground'}`}
+                                            className={`relative py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === tab.id ? 'text-accent' : 'text-muted hover:text-foreground'}`}
                                         >
                                             <tab.icon size={16} />
                                             {tab.label}
                                             {activeTab === tab.id && (
-                                                <div className={`absolute bottom-0 left-0 right-0 h-1 ${tab.color} rounded-full animate-in fade-in zoom-in duration-300 shadow-[0_0_10px_rgba(0,0,0,0.1)] ${tab.shadow}`} />
+                                                <div className={`absolute bottom-0 left-0 right-0 h-1 bg-accent rounded-full animate-in fade-in zoom-in duration-300 shadow-lg shadow-accent/20`} />
                                             )}
                                         </button>
                                     ))}
@@ -1093,11 +1086,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     <button
                                         key="sound_kits"
                                         onClick={() => setActiveTab('sound_kits')}
-                                        className={`relative py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === 'sound_kits' ? 'text-amber-500' : 'text-muted hover:text-amber-400'}`}
+                                        className={`relative py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === 'sound_kits' ? 'text-accent' : 'text-muted hover:text-accent'}`}
                                     >
                                         <Package size={16} /> Sound Kits
                                         {activeTab === 'sound_kits' && (
-                                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-500 rounded-full animate-in fade-in zoom-in duration-300" />
+                                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-accent rounded-full animate-in fade-in zoom-in duration-300 shadow-lg shadow-accent/20" />
                                         )}
                                     </button>
                                 </div>
@@ -1164,8 +1157,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <div className={`rounded-[3rem] p-12 text-center overflow-hidden relative group border transition-all duration-700 hover:scale-[1.02] ${profile.tema_perfil !== 'light' ? 'bg-[#050508] border-white/5 text-white shadow-[0_40px_100px_-20px_rgba(37,99,235,0.15)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-indigo-500/10'}`}>
                                             <div className="absolute top-0 right-0 p-48 bg-purple-600/10 blur-[150px] rounded-full group-hover:bg-purple-600/20 transition-all pointer-events-none" />
                                             <div className="relative z-10">
-                                                <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 backdrop-blur-md border ${profile.tema_perfil !== 'light' ? 'bg-white/5 border-white/10 shadow-[0_0_30px_rgba(168,85,247,0.1)]' : 'bg-indigo-50 border-indigo-100'}`}>
-                                                    <Briefcase size={36} className="text-purple-500" />
+                                                <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 backdrop-blur-md border ${profile.tema_perfil !== 'light' ? 'bg-accent/5 border-accent/10 shadow-[0_0_30px_rgba(var(--accent-rgb),0.1)]' : 'bg-accent-soft border-accent/10'}`}>
+                                                    <Briefcase size={36} className="text-accent" />
                                                 </div>
                                                 <h3 className="text-4xl font-black uppercase tracking-tighter mb-6">Servicios Profesionales</h3>
                                                 <p className={`max-w-xl mx-auto mb-10 text-sm font-medium leading-relaxed ${profile.tema_perfil !== 'light' ? 'text-slate-400' : 'text-slate-500'}`}>
@@ -1174,7 +1167,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                         : "Este usuario aún no ofrece servicios profesionales ya que no cuenta con una suscripción Premium activa. Los servicios se desbloquean al mejorar el plan."}
                                                 </p>
                                                 {isOwner ? (
-                                                    <Link href="/pricing" className="inline-flex items-center gap-3 px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all transform hover:scale-105 shadow-2xl shadow-purple-500/40 bg-purple-600 text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900">
+                                                    <Link href="/pricing" className="inline-flex items-center gap-3 px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all transform hover:scale-105 shadow-2xl shadow-accent/40 bg-accent text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900">
                                                         <Crown size={18} fill="currentColor" /> Mejorar a Premium
                                                     </Link>
                                                 ) : (
@@ -1195,7 +1188,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                         }`}>
                                                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                                         <div className="flex justify-between items-start mb-6">
-                                                            <span className="bg-purple-500/20 text-purple-500 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-purple-500/10">
+                                                            <span className="bg-accent/20 text-accent px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-accent/10">
                                                                 {service.tipo_servicio === 'beat_custom' ? 'Beat a Medida' :
                                                                     service.tipo_servicio === 'mentor' ? 'Mentoría / Clase' :
                                                                         service.tipo_servicio === 'mixing' ? 'Mezcla y Masterización' :
@@ -1208,20 +1201,20 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                                                         <div className={`flex items-center justify-between pt-6 border-t ${profile.tema_perfil === 'light' ? 'border-slate-100' : 'border-white/10'}`}>
                                                             <div className="flex items-center gap-2 text-slate-400 dark:text-slate-200 text-[10px] font-black uppercase tracking-widest">
-                                                                <Clock size={16} className="text-purple-500" />
+                                                                <Clock size={16} className="text-accent" />
                                                                 {service.tiempo_entrega_dias} Días hábiles
                                                             </div>
                                                             {isOwner ? (
                                                                 <Link
                                                                     href={`/studio/services?edit_service=${service.id}`}
-                                                                    className="bg-purple-600/10 text-purple-600 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-purple-600/20 hover:bg-purple-600 hover:text-white transition-all shadow-xl shadow-purple-500/10 active:scale-95 flex items-center gap-2"
+                                                                    className="bg-accent/10 text-accent px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-accent/20 hover:bg-accent hover:text-white transition-all shadow-xl shadow-accent/10 active:scale-95 flex items-center gap-2"
                                                                 >
                                                                     <Edit3 size={14} /> Editar
                                                                 </Link>
                                                             ) : (
                                                                 <button
                                                                     onClick={() => handleAddToCart(service, 'service')}
-                                                                    className="bg-purple-600 text-white px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest border border-purple-500/20 hover:bg-purple-700 transition-all shadow-xl shadow-purple-500/10 active:scale-95"
+                                                                    className="bg-accent text-white px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest border border-accent/20 hover:bg-accent/90 transition-all shadow-xl shadow-accent/10 active:scale-95"
                                                                 >
                                                                     Contratar
                                                                 </button>
@@ -1233,14 +1226,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 <div className="col-span-full py-24 bg-gradient-to-br from-purple-50/50 to-indigo-50/30 dark:from-[#0a0a0f] dark:to-[#050508] rounded-[3rem] border border-slate-100 dark:border-white/5 text-center flex flex-col items-center justify-center relative overflow-hidden group hover:scale-[1.02] transition-transform">
                                                     <div className="relative z-10">
                                                         <div className="w-24 h-24 bg-white dark:bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-soft border border-slate-50 dark:border-white/5">
-                                                            <Briefcase size={40} className="text-purple-500 opacity-60" />
+                                                            <Briefcase size={40} className="text-accent opacity-60" />
                                                         </div>
                                                         <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white mb-3 tracking-tighter">Aún no hay servicios</h3>
                                                         <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] max-w-[200px] mx-auto leading-relaxed mb-8">Este productor aún no ha publicado servicios profesionales</p>
                                                         {isOwner && (
                                                             <Link
                                                                 href="/studio/services"
-                                                                className="px-12 py-5 bg-purple-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-purple-600/20"
+                                                                className="px-12 py-5 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent/20"
                                                             >
                                                                 Crea tu primer servicio
                                                             </Link>
@@ -1391,8 +1384,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <div className={`rounded-[3rem] p-12 text-center overflow-hidden relative group border transition-all duration-700 hover:scale-[1.02] ${profile.tema_perfil !== 'light' ? 'bg-black border-white/5 text-white shadow-[0_40px_100px_-15px_rgba(245,158,11,0.15)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-amber-500/10'}`}>
                                             <div className="absolute top-0 right-0 p-48 bg-amber-500/10 blur-[150px] rounded-full group-hover:bg-amber-500/20 transition-all pointer-events-none" />
                                             <div className="relative z-10">
-                                                <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 backdrop-blur-md border ${profile.tema_perfil !== 'light' ? 'bg-amber-400/5 border-amber-400/10 shadow-[0_0_30px_rgba(245,158,11,0.1)]' : 'bg-amber-50 border-amber-100'}`}>
-                                                    <Package size={36} className="text-amber-400" />
+                                                <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 backdrop-blur-md border ${profile.tema_perfil !== 'light' ? 'bg-accent/5 border-accent/10 shadow-[0_0_30px_rgba(var(--accent-rgb),0.1)]' : 'bg-accent-soft border-accent/10'}`}>
+                                                    <Package size={36} className="text-accent" />
                                                 </div>
                                                 <h3 className="text-4xl font-black uppercase tracking-tighter mb-6">Librerías de Sonido</h3>
                                                 <p className={`max-w-xl mx-auto mb-10 text-sm font-medium leading-relaxed ${profile.tema_perfil !== 'light' ? 'text-slate-400' : 'text-slate-500'}`}>
@@ -1401,7 +1394,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                         : "Este productor no cuenta con una suscripción Premium para vender Sound Kits. Las librerías de sonido exclusivas solo están disponibles para miembros Premium."}
                                                 </p>
                                                 {isOwner ? (
-                                                    <Link href="/pricing" className="inline-flex items-center gap-3 px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all transform hover:scale-105 shadow-2xl shadow-amber-500/30 bg-amber-400 text-slate-900 hover:bg-amber-300">
+                                                    <Link href="/pricing" className="inline-flex items-center gap-3 px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all transform hover:scale-105 shadow-2xl shadow-accent/30 bg-accent text-white hover:bg-slate-900">
                                                         <Zap size={18} fill="currentColor" /> Mejorar a Premium
                                                     </Link>
                                                 ) : (
@@ -1419,14 +1412,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-[80px] rounded-full -mr-32 -mt-32 group-hover:bg-amber-500/10 transition-all duration-700" />
                                                     <div className="relative z-10">
                                                         <div className="w-24 h-24 bg-white dark:bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-soft border border-slate-50 dark:border-white/5">
-                                                            <Package size={40} className="text-amber-400 opacity-60" />
+                                                            <Package size={40} className="text-accent opacity-60" />
                                                         </div>
                                                         <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-3">
                                                             {isOwner ? "Sube tu primera librería" : "Aún no hay Sound Kits"}
                                                         </h3>
                                                         <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] max-w-[200px] mx-auto leading-relaxed mb-8">Este productor aún no ha publicado librerías de sonidos</p>
                                                         {isOwner && (
-                                                            <Link href="/studio/services" className="bg-amber-400 text-slate-900 px-12 py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all inline-block shadow-xl shadow-amber-400/20 mx-auto">
+                                                            <Link href="/studio/services" className="bg-accent text-white px-12 py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all inline-block shadow-xl shadow-accent/20 mx-auto">
                                                                 Subir mi primer Kit
                                                             </Link>
                                                         )}
@@ -1459,7 +1452,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                         <span className="text-xl font-black text-slate-900 dark:text-white">${kit.price} MXN</span>
                                                                         <Link
                                                                             href={`/studio/services?edit_kit=${kit.id}`}
-                                                                            className="bg-amber-500/10 text-amber-500 px-6 py-2 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-500 hover:text-white transition-all flex items-center gap-2 shadow-sm border border-amber-500/20 active:scale-95"
+                                                                            className="bg-accent/10 text-accent px-6 py-2 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-accent hover:text-white transition-all flex items-center gap-2 shadow-sm border border-accent/20 active:scale-95"
                                                                         >
                                                                             <Edit3 size={12} /> Editar
                                                                         </Link>
@@ -1467,7 +1460,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                 ) : (
                                                                     <button
                                                                         onClick={() => handleAddToCart(kit, 'sound_kit')}
-                                                                        className="w-full bg-amber-400 text-slate-900 px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:bg-amber-300 group/btn"
+                                                                        className="w-full bg-accent text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-accent/20 hover:bg-accent/90 group/btn"
                                                                     >
                                                                         Comprar ${kit.price}
                                                                     </button>
@@ -1506,10 +1499,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                         <button
                             onClick={() => setShowFanCapture(false)}
-                            className="absolute top-0 right-0 p-6 z-50 text-muted hover:text-foreground transition-all flex items-center justify-center group"
+                            className="absolute top-0 right-0 p-6 z-50 text-muted hover:text-accent transition-all flex items-center justify-center group"
                             aria-label="Cerrar modal"
                         >
-                            <div className="w-10 h-10 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center group-hover:bg-slate-200 dark:group-hover:bg-white/10 transition-colors">
+                            <div className="w-10 h-10 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center group-hover:bg-accent/10 transition-colors">
                                 <Plus size={24} className="rotate-45" />
                             </div>
                         </button>
@@ -1530,7 +1523,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     className="w-full h-14 bg-slate-50 dark:bg-white/5 border-2 border-slate-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold outline-none focus:border-accent transition-all"
                                     required
                                 />
-                                <button className="w-full h-14 bg-accent text-white rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 active:scale-95">
+                                <button className="w-full h-14 bg-accent text-white rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] hover:scale-[1.05] active:scale-95 transition-all shadow-xl shadow-accent/20">
                                     Suscribirme Ahora
                                 </button>
                             </form>

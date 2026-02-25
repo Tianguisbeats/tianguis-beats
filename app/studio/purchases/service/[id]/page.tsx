@@ -262,7 +262,7 @@ export default function ServiceProjectPage() {
         <div className="space-y-8 pb-20">
             {/* Header / Nav */}
             <div className="flex items-center gap-4">
-                <Link href="/studio/purchases" className="w-10 h-10 bg-white/5 border border-border/50 rounded-xl flex items-center justify-center hover:bg-accent hover:text-white transition-all">
+                <Link href="/studio/purchases" className="w-10 h-10 bg-accent/5 border border-border rounded-xl flex items-center justify-center hover:bg-accent hover:text-white transition-all">
                     <ChevronLeft size={20} />
                 </Link>
                 <div>
@@ -272,7 +272,7 @@ export default function ServiceProjectPage() {
             </div>
 
             {/* Timeline */}
-            <div className="bg-white/40 dark:bg-white/5 backdrop-blur-3xl border border-border/40 rounded-[2.5rem] p-8 lg:p-10">
+            <div className="bg-card border border-border rounded-[2.5rem] p-8 lg:p-10">
                 <div className="flex items-center justify-between gap-2 overflow-x-auto pb-4 scrollbar-hide">
                     {timelineSteps.map((step, idx) => (
                         <React.Fragment key={step.key}>
@@ -299,16 +299,16 @@ export default function ServiceProjectPage() {
 
             <div className="grid lg:grid-cols-3 gap-8 h-full">
                 {/* Chat Column */}
-                <div className="lg:col-span-2 flex flex-col bg-white/40 dark:bg-white/5 backdrop-blur-3xl border border-border/40 rounded-[2.5rem] overflow-hidden h-[650px]">
+                <div className="lg:col-span-2 flex flex-col bg-card border border-border rounded-[2.5rem] overflow-hidden h-[650px]">
                     <div className="px-8 py-5 border-b border-border/30 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-blue-500/10 text-blue-500 rounded-full flex items-center justify-center">
+                            <div className="w-8 h-8 bg-info/10 text-info rounded-full flex items-center justify-center">
                                 <MessageSquare size={16} />
                             </div>
                             <span className="text-[10px] font-black uppercase tracking-widest">Chat del Proyecto</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                            <span className="w-2 h-2 bg-success rounded-full animate-pulse" />
                             <span className="text-[9px] font-black uppercase tracking-widest text-muted">Online</span>
                         </div>
                     </div>
@@ -316,7 +316,7 @@ export default function ServiceProjectPage() {
                     <div className="flex-1 overflow-y-auto p-8 space-y-6">
                         {messages.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
-                                <div className="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-2xl flex items-center justify-center mb-4">
+                                <div className="w-16 h-16 bg-accent/5 rounded-2xl flex items-center justify-center mb-4">
                                     <MessageSquare size={24} />
                                 </div>
                                 <p className="text-[10px] font-black uppercase tracking-widest">Inicia la conversación</p>
@@ -361,7 +361,7 @@ export default function ServiceProjectPage() {
                 {/* Sidebar Column */}
                 <div className="space-y-8">
                     {/* Action Panel */}
-                    <div className="bg-white/40 dark:bg-white/5 backdrop-blur-3xl border border-border/40 rounded-[2.5rem] p-8 shadow-xl shadow-black/5">
+                    <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-xl shadow-black/5">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="w-8 h-8 bg-accent/10 text-accent rounded-xl flex items-center justify-center">
                                 <Zap size={16} />
@@ -374,10 +374,10 @@ export default function ServiceProjectPage() {
                             <div className="space-y-3">
                                 <button
                                     onClick={() => updateStatus('in_production')}
-                                    className="w-full flex items-center justify-between p-4 rounded-2xl bg-background border border-border/50 hover:border-blue-500 hover:bg-blue-500/5 transition-all group"
+                                    className="w-full flex items-center justify-between p-4 rounded-2xl bg-background border border-border hover:border-accent hover:bg-accent/5 transition-all group"
                                 >
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted group-hover:text-blue-500">Iniciar Producción</span>
-                                    <ChevronRight size={14} className="text-muted group-hover:text-blue-500" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted group-hover:text-accent">Iniciar Producción</span>
+                                    <ChevronRight size={14} className="text-muted group-hover:text-accent" />
                                 </button>
                                 <div className="relative">
                                     <input
@@ -409,13 +409,13 @@ export default function ServiceProjectPage() {
                                     <div className="space-y-3">
                                         <button
                                             onClick={() => updateStatus('completed')}
-                                            className="w-full p-4 bg-emerald-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] transition-all shadow-lg shadow-emerald-500/20"
+                                            className="w-full p-4 bg-success text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-success/20"
                                         >
                                             Aceptar y Finalizar
                                         </button>
                                         <button
                                             onClick={() => updateStatus('review')}
-                                            className="w-full p-4 border border-red-500/50 text-red-500 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-500/5 transition-all"
+                                            className="w-full p-4 border border-error/50 text-error rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-error/5 transition-all"
                                         >
                                             Solicitar Revisión
                                         </button>
@@ -442,10 +442,10 @@ export default function ServiceProjectPage() {
                     </div>
 
                     {/* Files Section */}
-                    <div className="bg-white/40 dark:bg-white/5 backdrop-blur-3xl border border-border/40 rounded-[2.5rem] p-8 max-h-[400px] overflow-hidden flex flex-col">
+                    <div className="bg-card border border-border rounded-[2.5rem] p-8 max-h-[400px] overflow-hidden flex flex-col">
                         <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center">
+                                <div className="w-8 h-8 bg-warning/10 text-warning rounded-xl flex items-center justify-center">
                                     <FileArchive size={16} />
                                 </div>
                                 <span className="text-[10px] font-black uppercase tracking-widest">Zona de Archivos</span>
@@ -462,15 +462,15 @@ export default function ServiceProjectPage() {
                                         key={file.id}
                                         href={file.file_url}
                                         target="_blank"
-                                        className="flex items-center justify-between p-4 rounded-2xl bg-background border border-border/30 hover:border-accent/50 group transition-all"
+                                        className="flex items-center justify-between p-4 rounded-2xl bg-accent/5 border border-border hover:border-accent/50 group transition-all"
                                     >
                                         <div className="flex items-center gap-3 truncate">
-                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${file.file_type === 'final' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'}`}>
+                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${file.file_type === 'final' ? 'bg-success/10 text-success' : 'bg-info/10 text-info'}`}>
                                                 <FileText size={16} />
                                             </div>
                                             <div className="truncate">
                                                 <p className="text-[11px] font-black text-foreground truncate group-hover:text-accent transition-colors">{file.file_name}</p>
-                                                <p className={`text-[8px] font-black uppercase tracking-widest ${file.file_type === 'final' ? 'text-emerald-500' : 'text-blue-500'}`}>
+                                                <p className={`text-[8px] font-black uppercase tracking-widest ${file.file_type === 'final' ? 'text-success' : 'text-info'}`}>
                                                     {file.file_type === 'final' ? 'Entrega Final' : 'Referencia'}
                                                 </p>
                                             </div>
@@ -483,11 +483,11 @@ export default function ServiceProjectPage() {
                     </div>
 
                     {/* Info Card */}
-                    <div className="bg-gradient-to-br from-blue-600/10 to-transparent border border-blue-500/20 rounded-[2rem] p-6">
+                    <div className="bg-accent/5 border border-accent/20 rounded-[2rem] p-6">
                         <div className="flex items-start gap-4">
-                            <Shield className="text-blue-500 shrink-0" size={24} />
+                            <Shield className="text-accent shrink-0" size={24} />
                             <div>
-                                <h5 className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-1">Protección Tianguis</h5>
+                                <h5 className="text-[10px] font-black uppercase tracking-widest text-accent mb-1">Protección Tianguis</h5>
                                 <p className="text-[9px] text-muted font-bold leading-relaxed">
                                     El pago se liberará al productor 72h después de la entrega final si no hay solicitudes de revisión. Tu dinero está seguro.
                                 </p>

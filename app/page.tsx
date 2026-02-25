@@ -105,8 +105,8 @@ export default function Home() {
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card/50 backdrop-blur-sm mb-6 md:mb-8 animate-fade-in-up">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
             </span>
             <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-muted animate-pulse-slow">
               🇲🇽 La Tienda de Beats #1 en México
@@ -158,9 +158,9 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-center items-center gap-3 px-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <Link
               href={`/beats/catalog?view=corridos_tumbados`}
-              className="group relative inline-flex items-center justify-center gap-3 px-6 py-5 card-modern text-foreground rounded-[1.25rem] md:rounded-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-accent/20 min-h-[56px] w-full md:w-auto"
+              className="group relative inline-flex items-center justify-center gap-3 px-6 py-5 card-modern text-foreground rounded-[1.25rem] md:rounded-full overflow-hidden transition-all hover:scale-[1.05] active:scale-95 hover:shadow-2xl hover:shadow-accent/10 min-h-[56px] w-full md:w-auto"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <span className="relative z-10 font-black uppercase text-[10px] tracking-widest flex items-center gap-2 group-hover:text-accent transition-colors font-heading text-center">
                 🎺 Explorar Corridos Tumbados 🇲🇽
               </span>
@@ -168,10 +168,10 @@ export default function Home() {
 
             <Link
               href={`/beats/catalog?view=reggaeton_mexa`}
-              className="group relative inline-flex items-center justify-center gap-3 px-6 py-5 bg-card border border-border text-foreground rounded-[1.25rem] md:rounded-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-pink-500/20 min-h-[56px] w-full md:w-auto mt-2 md:mt-0"
+              className="group relative inline-flex items-center justify-center gap-3 px-6 py-5 bg-card border border-border text-foreground rounded-[1.25rem] md:rounded-full overflow-hidden transition-all hover:scale-[1.05] active:scale-95 hover:shadow-2xl hover:shadow-accent/10 min-h-[56px] w-full md:w-auto mt-2 md:mt-0"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 to-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <span className="relative z-10 font-black uppercase text-[10px] tracking-widest flex items-center gap-2 group-hover:text-pink-500 transition-colors font-heading text-center">
+              <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <span className="relative z-10 font-black uppercase text-[10px] tracking-widest flex items-center gap-2 group-hover:text-accent transition-colors font-heading text-center">
                 🍑 Explorar Reggaetón Mexa 🇲🇽
               </span>
             </Link>
@@ -216,14 +216,14 @@ export default function Home() {
             </div>
 
             {/* Característica 2 - Vista previa de Masterización Inteligente */}
-            <div className="card-modern bg-slate-900 border-none p-10 text-white shadow-2xl relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-accent rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:opacity-100 transition-opacity opacity-50"></div>
+            <div className="card-modern p-10 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-accent rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:opacity-30 transition-opacity opacity-10"></div>
               <div className="relative z-10">
-                <div className="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center mb-8 backdrop-blur-sm">
+                <div className="w-14 h-14 bg-accent/10 text-accent rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                   <Waves size={28} />
                 </div>
-                <h3 className="text-2xl font-black mb-4 tracking-tight font-heading text-white">Auto-Mastering Preview</h3>
-                <p className="text-slate-400 leading-relaxed font-medium font-body">
+                <h3 className="text-2xl font-black mb-4 tracking-tight font-heading text-foreground">Auto-Mastering Preview</h3>
+                <p className="text-muted leading-relaxed font-medium font-body">
                   Escucha cómo sonaría tu voz sobre el beat en tiempo real. Sube una demo y deja que nuestro motor la mezcle instantáneamente.
                 </p>
                 <div className="mt-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-accent">
@@ -285,7 +285,7 @@ export default function Home() {
                 </div>
                 <div className="p-8 relative">
                   <div className="flex items-center gap-1 mb-4">
-                    {[1, 2, 3, 4, 5].map(s => <Zap key={s} size={12} className="text-amber-500" fill="currentColor" />)}
+                    {[1, 2, 3, 4, 5].map(s => <Zap key={s} size={12} className="text-accent" fill="currentColor" />)}
                   </div>
                   <p className="text-foreground font-medium mb-6 italic leading-relaxed font-body">&quot;{producer.quote}&quot;</p>
                   <div>

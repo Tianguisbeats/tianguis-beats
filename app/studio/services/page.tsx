@@ -430,7 +430,7 @@ function ServicesManagerPage() {
                                         }} className="flex-1 h-12 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-foreground rounded-xl flex items-center justify-center hover:bg-slate-900 hover:text-white dark:hover:bg-white/10 dark:hover:border-accent/40 shadow-sm transition-all text-[10px] font-black uppercase tracking-widest gap-2">
                                             <Edit3 size={14} /> Editar
                                         </button>
-                                        <button onClick={() => handleDelete(service.id)} className="w-12 h-12 bg-white dark:bg-rose-500/5 border border-slate-200 dark:border-rose-500/10 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm">
+                                        <button onClick={() => handleDelete(service.id)} className="w-12 h-12 bg-white dark:bg-error/5 border border-slate-200 dark:border-error/10 text-error rounded-xl flex items-center justify-center hover:bg-error hover:text-white transition-all shadow-sm">
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
@@ -448,12 +448,12 @@ function ServicesManagerPage() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                     <div>
                         <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-foreground tracking-tighter uppercase flex items-center gap-4">
-                            Sound <span className="text-amber-500 underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Kits</span>
-                            <span className="bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500 text-[10px] px-4 py-1.5 rounded-full font-black uppercase tracking-widest border border-amber-200 dark:border-amber-500/10 shadow-sm md:shadow-lg dark:shadow-amber-500/5">Premium</span>
+                            Sound <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Kits</span>
+                            <span className="bg-accent/10 text-accent text-[10px] px-4 py-1.5 rounded-full font-black uppercase tracking-widest border border-accent/10 shadow-sm md:shadow-lg dark:shadow-accent/5">Premium</span>
                         </h2>
                         <div className="flex flex-col md:flex-row md:items-center gap-4 mt-6">
                             <p className="text-slate-500 dark:text-muted font-bold text-[10px] uppercase tracking-[0.3em] opacity-60">Monetiza tus librerías y bancos de sonidos</p>
-                            <div className="flex items-center gap-2 bg-amber-500/10 text-amber-500 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-amber-500/10 w-fit">
+                            <div className="flex items-center gap-2 bg-accent/10 text-accent px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-accent/10 w-fit">
                                 <Package size={12} />
                                 {soundKits.length} Sound Kits Subidos
                             </div>
@@ -467,7 +467,7 @@ function ServicesManagerPage() {
                             setKitErrors({});
                             setIsEditingKit(true);
                         }}
-                        className="bg-amber-500 text-white px-10 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-amber-400 hover:scale-105 transition-all shadow-xl shadow-amber-500/20 active:scale-95 flex items-center gap-3 w-fit"
+                        className="bg-accent text-white px-10 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-accent/20 active:scale-95 flex items-center gap-3 w-fit"
                     >
                         <Plus size={20} className="stroke-[3]" /> Nuevo Sound Kit
                     </button>
@@ -487,7 +487,7 @@ function ServicesManagerPage() {
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-[#020205] via-white/40 dark:via-[#020205]/40 to-transparent" />
                                 <div className="absolute top-6 left-6 flex items-center gap-2">
-                                    <div className="bg-amber-500/20 backdrop-blur-md border border-amber-500/20 text-amber-600 dark:text-amber-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm">
+                                    <div className="bg-accent/20 backdrop-blur-md border border-accent/20 text-accent px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm">
                                         Digital Kit
                                     </div>
                                     <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
@@ -503,14 +503,14 @@ function ServicesManagerPage() {
                             </div>
 
                             <div className="p-10 relative z-10">
-                                <h3 className="font-black text-2xl text-slate-900 dark:text-foreground mb-4 tracking-tight group-hover:text-amber-500 transition-colors">{kit.titulo}</h3>
+                                <h3 className="font-black text-2xl text-slate-900 dark:text-foreground mb-4 tracking-tight group-hover:text-accent transition-colors">{kit.titulo}</h3>
                                 <p className="text-slate-500 dark:text-muted text-[11px] font-bold uppercase tracking-widest leading-relaxed mb-10 line-clamp-2 opacity-60">
                                     {kit.descripcion}
                                 </p>
                                 <div className="flex flex-col items-center gap-6 pt-8 border-t border-slate-200 dark:border-white/5">
                                     <div className="flex flex-col items-center">
-                                        <span className="text-[9px] font-black text-amber-500 uppercase tracking-[0.3em] mb-1">Precio</span>
-                                        <span className="font-black text-xl text-slate-900 dark:text-foreground tracking-tighter group-hover:text-amber-500 transition-colors">${kit.precio}</span>
+                                        <span className="text-[9px] font-black text-accent uppercase tracking-[0.3em] mb-1">Precio</span>
+                                        <span className="font-black text-xl text-slate-900 dark:text-foreground tracking-tighter group-hover:text-accent transition-colors">${kit.precio}</span>
                                     </div>
                                     <div className="flex items-center justify-center gap-3 w-full">
                                         <button onClick={() => {
@@ -518,10 +518,10 @@ function ServicesManagerPage() {
                                             setInitialKit({ ...kit });
                                             setKitErrors({});
                                             setIsEditingKit(true);
-                                        }} className="flex-1 h-12 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-foreground rounded-xl flex items-center justify-center hover:bg-slate-900 hover:text-white dark:hover:bg-white/10 dark:hover:border-amber-500/40 shadow-sm transition-all text-[10px] font-black uppercase tracking-widest gap-2">
+                                        }} className="flex-1 h-12 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-foreground rounded-xl flex items-center justify-center hover:bg-slate-900 hover:text-white dark:hover:bg-white/10 dark:hover:border-accent/40 shadow-sm transition-all text-[10px] font-black uppercase tracking-widest gap-2">
                                             <Edit3 size={14} /> Editar
                                         </button>
-                                        <button onClick={() => handleDeleteKit(kit.id)} className="w-12 h-12 bg-white dark:bg-rose-500/5 border border-slate-200 dark:border-rose-500/10 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm">
+                                        <button onClick={() => handleDeleteKit(kit.id)} className="w-12 h-12 bg-white dark:bg-error/5 border border-slate-200 dark:border-error/10 text-error rounded-xl flex items-center justify-center hover:bg-error hover:text-white transition-all shadow-sm">
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
@@ -548,7 +548,7 @@ function ServicesManagerPage() {
 
                         <div className="mb-10">
                             <h2 className="text-3xl font-black uppercase tracking-tighter flex items-center gap-4 text-foreground mb-2">
-                                {currentKit?.id ? "Refinar" : "Arquitectura del"} <span className="text-amber-500">Sound Kit</span>
+                                {currentKit?.id ? "Refinar" : "Arquitectura del"} <span className="text-accent">Sound Kit</span>
                             </h2>
                             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted opacity-50">Configura tu producto digital de alta gama</p>
                         </div>
@@ -566,13 +566,13 @@ function ServicesManagerPage() {
                                                 if (e.target.value) setKitErrors(prev => ({ ...prev, titulo: '' }));
                                             }}
                                             placeholder="EJ. URBAN DRUMS VOL. 1"
-                                            className={`w-full bg-white/5 border-2 rounded-2xl px-6 py-4 font-black text-foreground text-sm focus:outline-none focus:border-amber-500 transition-all shadow-inner ${kitErrors.titulo ? 'border-red-500' : 'border-white/5'}`}
+                                            className={`w-full bg-white/5 border-2 rounded-2xl px-6 py-4 font-black text-foreground text-sm focus:outline-none focus:border-accent transition-all shadow-inner ${kitErrors.titulo ? 'border-error' : 'border-white/5'}`}
                                         />
                                     </div>
                                     <div>
                                         <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Valuación Comercial (MXN)</label>
                                         <div className="relative">
-                                            <DollarSign size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-amber-500" />
+                                            <DollarSign size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-accent" />
                                             <input
                                                 type="number"
                                                 required
@@ -582,7 +582,7 @@ function ServicesManagerPage() {
                                                     setCurrentKit({ ...currentKit, precio: Number(e.target.value) });
                                                     if (Number(e.target.value) > 0) setKitErrors(prev => ({ ...prev, precio: '' }));
                                                 }}
-                                                className={`w-full bg-white/5 border-2 rounded-2xl pl-12 pr-6 py-4 font-black text-foreground text-sm focus:outline-none focus:border-amber-500 transition-all shadow-inner tabular-nums ${kitErrors.precio ? 'border-red-500' : 'border-white/5'}`}
+                                                className={`w-full bg-white/5 border-2 rounded-2xl pl-12 pr-6 py-4 font-black text-foreground text-sm focus:outline-none focus:border-accent transition-all shadow-inner tabular-nums ${kitErrors.precio ? 'border-error' : 'border-white/5'}`}
                                             />
                                         </div>
                                     </div>
@@ -636,11 +636,11 @@ function ServicesManagerPage() {
                                         <div className="flex flex-col items-center">
                                             {kitFile ? (
                                                 <>
-                                                    <div className="w-16 h-16 bg-amber-500/20 rounded-2xl flex items-center justify-center text-amber-500 mb-4 animate-bounce-slow">
+                                                    <div className="w-16 h-16 bg-accent/20 rounded-2xl flex items-center justify-center text-accent mb-4 animate-bounce-slow">
                                                         <FileArchive size={32} />
                                                     </div>
-                                                    <p className="text-sm font-black text-amber-500 uppercase tracking-tight">{kitFile.name}</p>
-                                                    <p className="text-[9px] font-bold text-amber-500/60 uppercase tracking-widest mt-2">Listo para el despliegue</p>
+                                                    <p className="text-sm font-black text-accent uppercase tracking-tight">{kitFile.name}</p>
+                                                    <p className="text-[9px] font-bold text-accent/60 uppercase tracking-widest mt-2">Listo para el despliegue</p>
                                                 </>
                                             ) : (
                                                 <>
@@ -679,7 +679,7 @@ function ServicesManagerPage() {
                                 <button
                                     type="submit"
                                     disabled={kitSaving}
-                                    className="flex-[2] bg-amber-600 text-white py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] hover:bg-amber-500 transition-all shadow-xl shadow-amber-500/20 active:scale-95 disabled:opacity-50"
+                                    className="flex-[2] bg-accent text-white py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] hover:scale-[1.02] transition-all shadow-xl shadow-accent/20 active:scale-95 disabled:opacity-50"
                                 >
                                     {kitSaving ? "Sincronizando Bóveda..." : (currentKit?.id ? "Guardar Cambios Maestros" : "Activar e Iniciar Venta")}
                                 </button>

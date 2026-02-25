@@ -143,10 +143,10 @@ export default function MyPurchasesPage() {
 
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {
-            case 'completed': return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
-            case 'pending': return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
-            case 'in process': return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
-            default: return 'text-slate-400 bg-slate-400/10 border-slate-400/20';
+            case 'completed': return 'text-success bg-success/10 border-success/20';
+            case 'pending': return 'text-warning bg-warning/10 border-warning/20';
+            case 'in process': return 'text-info bg-info/10 border-info/20';
+            default: return 'text-muted bg-muted/10 border-muted/20';
         }
     };
 
@@ -155,7 +155,7 @@ export default function MyPurchasesPage() {
             case 'beat': return <Music size={18} />;
             case 'sound_kit': return <Cpu size={18} />;
             case 'service': return <Briefcase size={18} />;
-            case 'plan': return <Crown size={18} className="text-amber-500" />;
+            case 'plan': return <Crown size={18} className="text-accent" />;
             default: return <Package size={18} />;
         }
     };
@@ -231,8 +231,8 @@ export default function MyPurchasesPage() {
 
     if (loading) return (
         <div className="flex flex-col items-center justify-center py-20 animate-pulse">
-            <div className="w-16 h-16 bg-slate-200 dark:bg-white/5 rounded-3xl mb-4" />
-            <div className="h-4 w-32 bg-slate-200 dark:bg-white/5 rounded-full" />
+            <div className="w-16 h-16 bg-muted/10 rounded-3xl mb-4" />
+            <div className="h-4 w-32 bg-muted/10 rounded-full" />
         </div>
     );
 
@@ -242,10 +242,10 @@ export default function MyPurchasesPage() {
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                 <div>
                     <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-4">
-                        Mis <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Compras</span>
+                        Mis <span className="text-accent underline decoration-border underline-offset-8">Compras</span>
                     </h1>
                     <div className="flex flex-wrap items-center gap-4 text-muted">
-                        <div className="flex items-center gap-2 bg-blue-500/10 text-blue-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-500/10">
+                        <div className="flex items-center gap-2 bg-accent/10 text-accent px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-accent/10">
                             <Package size={12} /> Bóveda Segura
                         </div>
                         <span className="text-[10px] font-bold uppercase tracking-widest opacity-60 flex items-center gap-2">
@@ -264,20 +264,20 @@ export default function MyPurchasesPage() {
                     <p className="text-muted text-[11px] font-bold uppercase tracking-widest max-w-xs mx-auto mb-10 opacity-70">
                         Explora el catálogo y encuentra los mejores beats y servicios para tu música.
                     </p>
-                    <Link href="/beats" className="bg-foreground text-background dark:bg-white dark:text-slate-900 px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
+                    <Link href="/beats" className="bg-foreground text-background dark:bg-foreground dark:text-background px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
                         Ir al Catálogo
                     </Link>
                 </div>
             ) : (
                 <div className="space-y-8">
                     {orders.map((order) => (
-                        <div key={order.id} className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] rounded-[3rem] relative overflow-hidden transition-all duration-500 hover:border-accent/50 hover:shadow-2xl dark:hover:shadow-accent/10 group">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-accent opacity-20 group-hover:opacity-40 transition-opacity" />
+                        <div key={order.id} className="bg-card border border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] rounded-[3rem] relative overflow-hidden transition-all duration-500 hover:border-accent/50 hover:shadow-2xl dark:hover:shadow-accent/10 group">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent/20 to-accent opacity-20 group-hover:opacity-40 transition-opacity" />
 
                             {/* Order Header */}
-                            <div className="px-8 py-8 border-b border-slate-200 dark:border-white/10 flex flex-wrap lg:flex-nowrap items-center justify-between gap-6">
+                            <div className="px-8 py-8 border-b border-border flex flex-wrap lg:flex-nowrap items-center justify-between gap-6">
                                 <div className="flex items-center gap-6">
-                                    <div className="w-16 h-16 bg-blue-500/5 text-blue-500 rounded-3xl flex items-center justify-center border border-blue-500/10 group-hover:scale-105 transition-transform duration-500 shadow-xl shadow-blue-500/5">
+                                    <div className="w-16 h-16 bg-accent/5 text-accent rounded-3xl flex items-center justify-center border border-accent/10 group-hover:scale-105 transition-transform duration-500 shadow-xl shadow-accent/5">
                                         <Package size={24} />
                                     </div>
                                     <div>
@@ -314,13 +314,13 @@ export default function MyPurchasesPage() {
                             {/* Order Items */}
                             <div className="p-8 space-y-4">
                                 {order.items.map((item) => (
-                                    <div key={item.id} className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 rounded-[2rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6 transition-all group/item hover:border-accent/40 hover:shadow-md dark:hover:shadow-accent/5">
+                                    <div key={item.id} className="bg-accent/5 border border-border hover:bg-accent/10 rounded-[2rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6 transition-all group/item hover:border-accent/40 hover:shadow-md dark:hover:shadow-accent/5">
                                         <div className="flex flex-col md:flex-row items-center gap-6 w-full md:w-auto">
-                                            <div className="w-16 h-16 bg-white dark:bg-[#020205] border border-slate-300 dark:border-white/10 shadow-xl rounded-[1.25rem] flex items-center justify-center text-slate-400 dark:text-muted/50 group-hover/item:text-accent group-hover/item:scale-105 transition-all duration-500 shrink-0">
+                                            <div className="w-16 h-16 bg-card border border-border shadow-xl rounded-[1.25rem] flex items-center justify-center text-muted group-hover/item:text-accent group-hover/item:scale-105 transition-all duration-500 shrink-0">
                                                 {getItemIcon(item.product_type)}
                                             </div>
                                             <div className="text-center md:text-left min-w-0">
-                                                <h4 className="font-black text-lg text-slate-900 dark:text-foreground uppercase tracking-tight group-hover/item:text-accent transition-colors truncate max-w-[280px]">
+                                                <h4 className="font-black text-lg text-foreground uppercase tracking-tight group-hover/item:text-accent transition-colors truncate max-w-[280px]">
                                                     {item.name}
                                                 </h4>
                                                 <div className="flex items-center justify-center md:justify-start gap-2 mt-1">
@@ -345,28 +345,28 @@ export default function MyPurchasesPage() {
                                                     </Link>
                                                     <button
                                                         onClick={() => handleDownloadLicense(order, item)}
-                                                        className="flex-1 md:flex-none px-6 py-4 bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-white/10 hover:border-accent/40 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                                        className="flex-1 md:flex-none px-6 py-4 bg-accent-soft border border-border text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-accent/10 hover:border-accent/40 active:scale-95 transition-all flex items-center justify-center gap-2"
                                                     >
                                                         <FileText size={14} />
                                                         Contrato PDF
                                                     </button>
                                                 </>
                                             ) : item.product_type === 'plan' ? (
-                                                <span className="px-6 py-3.5 rounded-2xl flex items-center gap-2 font-black text-[10px] uppercase tracking-[0.3em] bg-amber-500/10 text-amber-600 dark:text-amber-500 border border-amber-500/20 self-start md:self-auto shadow-sm">
+                                                <span className="px-6 py-3.5 rounded-2xl flex items-center gap-2 font-black text-[10px] uppercase tracking-[0.3em] bg-success/10 text-success border border-success/20 self-start md:self-auto shadow-sm">
                                                     Plan Acreditado <CheckCircle2 size={16} />
                                                 </span>
                                             ) : (
                                                 <>
                                                     <button
                                                         onClick={() => handleDownloadFiles(item)}
-                                                        className="flex-1 md:flex-none px-8 py-4 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-accent hover:text-white hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/10 dark:shadow-white/5 flex items-center justify-center gap-2"
+                                                        className="flex-1 md:flex-none px-8 py-4 bg-foreground text-background dark:bg-foreground dark:text-background rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-accent hover:text-white hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/10 dark:shadow-accent/5 flex items-center justify-center gap-2"
                                                     >
                                                         <Download size={14} />
                                                         Descargar HQ
                                                     </button>
                                                     <button
                                                         onClick={() => handleDownloadLicense(order, item)}
-                                                        className="flex-1 md:flex-none px-6 py-4 bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-white/10 hover:border-accent/40 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                                        className="flex-1 md:flex-none px-6 py-4 bg-accent-soft border border-border text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-accent/10 hover:border-accent/40 active:scale-95 transition-all flex items-center justify-center gap-2"
                                                     >
                                                         <FileText size={14} />
                                                         Licencia PDF
@@ -386,19 +386,19 @@ export default function MyPurchasesPage() {
             {selectedOrder && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div
-                        className="absolute inset-0 bg-black/80 backdrop-blur-md animate-in fade-in duration-300"
+                        className="absolute inset-0 bg-background/80 backdrop-blur-md animate-in fade-in duration-300"
                         onClick={() => setSelectedOrder(null)}
                     />
-                    <div className="relative w-full max-w-2xl bg-slate-900 border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_0_100px_-20px_rgba(59,130,246,0.3)] animate-in zoom-in fade-in duration-300">
+                    <div className="relative w-full max-w-2xl bg-background border border-border rounded-[3rem] overflow-hidden shadow-[0_0_100px_-20px_rgba(37,99,235,0.3)] animate-in zoom-in fade-in duration-300">
                         {/* Modal Header */}
-                        <div className="p-8 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-accent/5 to-transparent">
+                        <div className="p-8 border-b border-border flex items-center justify-between bg-gradient-to-r from-accent/5 to-transparent">
                             <div>
-                                <h3 className="text-2xl font-black uppercase tracking-tighter text-white">Detalles de Compra</h3>
+                                <h3 className="text-2xl font-black uppercase tracking-tighter text-foreground">Detalles de Compra</h3>
                                 <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Orden #{selectedOrder.id}</p>
                             </div>
                             <button
                                 onClick={() => setSelectedOrder(null)}
-                                className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all"
+                                className="w-12 h-12 rounded-2xl bg-accent-soft border border-border flex items-center justify-center text-foreground hover:bg-accent/10 transition-all"
                             >
                                 <X size={24} />
                             </button>
@@ -408,21 +408,21 @@ export default function MyPurchasesPage() {
                         <div className="p-8 max-h-[70vh] overflow-y-auto space-y-8 scrollbar-hide">
                             {/* General Info Grid */}
                             <div className="grid grid-cols-2 gap-6">
-                                <div className="p-5 bg-white/5 border border-white/5 rounded-2xl">
+                                <div className="p-5 bg-card border border-border rounded-2xl">
                                     <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-2">Método de Pago</p>
-                                    <p className="text-sm font-black text-white uppercase tracking-tight">{selectedOrder.payment_method || 'Tarjeta de Crédito / Stripe'}</p>
+                                    <p className="text-sm font-black text-foreground uppercase tracking-tight">{selectedOrder.payment_method || 'Tarjeta de Crédito / Stripe'}</p>
                                 </div>
-                                <div className="p-5 bg-white/5 border border-white/5 rounded-2xl">
+                                <div className="p-5 bg-card border border-border rounded-2xl">
                                     <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-2">Fecha de Pago</p>
-                                    <p className="text-sm font-black text-white uppercase tracking-tight">{new Date(selectedOrder.created_at).toLocaleString()}</p>
+                                    <p className="text-sm font-black text-foreground uppercase tracking-tight">{new Date(selectedOrder.created_at).toLocaleString()}</p>
                                 </div>
-                                <div className="p-5 bg-white/5 border border-white/5 rounded-2xl">
+                                <div className="p-5 bg-card border border-border rounded-2xl">
                                     <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-2">Total Pagado</p>
                                     <p className="text-xl font-black text-accent tracking-tighter">${selectedOrder.total_amount} <span className="text-[10px] uppercase">{selectedOrder.currency}</span></p>
                                 </div>
-                                <div className="p-5 bg-white/5 border border-white/5 rounded-2xl">
+                                <div className="p-5 bg-card border border-border rounded-2xl">
                                     <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-2">Estado del Pedido</p>
-                                    <p className="text-sm font-black text-emerald-500 uppercase tracking-widest">{selectedOrder.status === 'completado' ? 'PAGO VERIFICADO' : selectedOrder.status.toUpperCase()}</p>
+                                    <p className="text-sm font-black text-success uppercase tracking-widest">{selectedOrder.status === 'completado' ? 'PAGO VERIFICADO' : selectedOrder.status.toUpperCase()}</p>
                                 </div>
                             </div>
 
@@ -434,20 +434,20 @@ export default function MyPurchasesPage() {
                                 </h4>
                                 <div className="space-y-3">
                                     {selectedOrder.items.map((item) => (
-                                        <div key={item.id} className="p-6 rounded-[2rem] bg-white/5 border border-white/5 flex items-center justify-between group hover:border-accent/30 transition-all">
+                                        <div key={item.id} className="p-6 rounded-[2rem] bg-card border border-border flex items-center justify-between group hover:border-accent/30 transition-all">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent">
                                                     {getItemIcon(item.product_type)}
                                                 </div>
                                                 <div>
-                                                    <h5 className="font-black text-sm text-white uppercase tracking-tight">{item.name}</h5>
+                                                    <h5 className="font-black text-sm text-foreground uppercase tracking-tight">{item.name}</h5>
                                                     <p className="text-[9px] font-bold text-muted uppercase tracking-widest">
                                                         {item.product_type === 'beat' ? `Licencia ${item.license_type}` : item.product_type === 'plan' ? `Suscripción ${item.metadata?.tier?.toUpperCase() || 'PRO'}` : 'Recurso Digital'}
                                                     </p>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-sm font-black text-white tracking-tighter">${item.price} <span className="text-[9px] text-muted">{selectedOrder.currency}</span></p>
+                                                <p className="text-sm font-black text-foreground tracking-tighter">${item.price} <span className="text-[9px] text-muted">{selectedOrder.currency}</span></p>
                                                 {item.product_type !== 'plan' && (
                                                     <button
                                                         onClick={() => handleDownloadFiles(item)}
@@ -463,9 +463,9 @@ export default function MyPurchasesPage() {
                             </div>
 
                             {/* Official References */}
-                            <div className="p-6 bg-slate-950/50 rounded-[2.5rem] border border-white/5">
+                            <div className="p-6 bg-card/50 rounded-[2.5rem] border border-border/10">
                                 <div className="flex items-center gap-4 text-muted/40">
-                                    <div className="w-px h-10 bg-white/10" />
+                                    <div className="w-px h-10 bg-border/20" />
                                     <p className="text-[10px] font-bold leading-relaxed uppercase tracking-wide">
                                         ID de Transacción: {selectedOrder.stripe_id || 'ID NO DISPONIBLE'}<br />
                                         Esta es una transacción digital segura procesada por Tianguis Beats.
@@ -475,10 +475,10 @@ export default function MyPurchasesPage() {
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="p-8 bg-black/20 flex justify-center">
+                        <div className="p-8 bg-background flex justify-center">
                             <button
                                 onClick={() => setSelectedOrder(null)}
-                                className="w-full py-5 bg-white text-black rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-xl active:scale-95"
+                                className="w-full py-5 bg-foreground text-background dark:bg-foreground dark:text-background rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-xl active:scale-95"
                             >
                                 Cerrar Ventana
                             </button>

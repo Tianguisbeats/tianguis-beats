@@ -16,6 +16,12 @@
   --accent-pro: var(--accent);
   --accent-premium: var(--accent);
 
+  /* Variables Semánticas (Política de 3 Colores) */
+  --success: var(--accent);
+  --warning: var(--accent);
+  --error: var(--accent);
+  --info: var(--accent);
+
   /* Efectos Modernos */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -33,6 +39,10 @@
   --muted: #94a3b8;
   --accent-soft: #0f172a;
   --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  --success: var(--accent);
+  --warning: var(--accent);
+  --error: var(--accent);
+  --info: var(--accent);
 }
 
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -47,6 +57,10 @@
   --color-card: var(--card);
   --color-border: var(--border);
   --color-muted: var(--muted);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
 
   --font-heading: var(--font-kanit), sans-serif;
   --font-body: var(--font-montserrat), sans-serif;

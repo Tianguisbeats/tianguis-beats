@@ -156,15 +156,15 @@ export default function LoginPage() {
 
                         <form onSubmit={handleLogin} className="space-y-6 pt-4">
                             {error && (
-                                <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-xs font-bold rounded-2xl text-center animate-in fade-in slide-in-from-top-2">
+                                <div className="p-4 bg-error/10 border border-error/20 text-error text-xs font-bold rounded-2xl text-center animate-in fade-in slide-in-from-top-2">
                                     {error}
                                 </div>
                             )}
 
                             {successMessage && (
-                                <div className="p-6 bg-green-50 border border-green-100 text-green-700 text-sm font-bold rounded-[2rem] text-center animate-in zoom-in">
+                                <div className="p-6 bg-success/10 border border-success/20 text-success text-sm font-bold rounded-[2rem] text-center animate-in zoom-in">
                                     <div className="flex justify-center mb-2">
-                                        <div className="bg-green-500 text-white rounded-full p-1">
+                                        <div className="bg-success text-white rounded-full p-1">
                                             <Check size={16} strokeWidth={3} />
                                         </div>
                                     </div>
@@ -271,7 +271,7 @@ export default function LoginPage() {
                                                 onClick={() => setMode('magic-link')}
                                                 className="flex items-center gap-3 text-muted hover:text-accent transition-colors text-xs font-bold"
                                             >
-                                                <Sparkles size={16} className="text-amber-500" />
+                                                <Sparkles size={16} className="text-accent" />
                                                 Iniciar sesión con enlace único
                                             </button>
                                         </div>

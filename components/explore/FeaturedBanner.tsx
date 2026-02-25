@@ -77,7 +77,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
     return (
         <div className="w-full mb-12 group relative">
             {/* Main Premium Container */}
-            <div className="relative w-full aspect-[21/9] md:aspect-[25/9] rounded-[4rem] overflow-hidden bg-slate-950 flex shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] border border-white/5">
+            <div className="relative w-full aspect-[21/9] md:aspect-[25/9] rounded-[4rem] overflow-hidden bg-background flex shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] border border-border/50">
 
                 {/* Dynamic Background */}
                 <div className="absolute inset-0 overflow-hidden">
@@ -86,8 +86,8 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                         className="w-full h-full object-cover opacity-30 blur-2xl scale-125 transition-all duration-1000 ease-in-out"
                         alt="Background Glow"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent"></div>
-                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent"></div>
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background to-transparent"></div>
                 </div>
 
                 {/* Glass Card Content */}
@@ -115,8 +115,8 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                             </div>
 
                             {/* Hit Badge Floating */}
-                            <div className="absolute -top-4 -right-4 bg-white text-slate-950 px-6 py-2 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-2xl flex items-center gap-2 border border-white/20 select-none">
-                                <Flame size={14} className="text-orange-500 fill-orange-500 animate-pulse" />
+                            <div className="absolute -top-4 -right-4 bg-background border border-border text-foreground px-6 py-2 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-2xl flex items-center gap-2 select-none">
+                                <Flame size={14} className="text-accent fill-accent animate-pulse" />
                                 {isBeat ? 'Hits de la semana' : 'Top Productor'}
                             </div>
                         </div>
@@ -128,7 +128,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                     {isBeat ? 'Trending Track' : 'Featured Producer'}
                                 </span>
                                 {prodInfo.esta_verificado && (
-                                    <CheckCircle2 size={16} className="text-blue-400" />
+                                    <CheckCircle2 size={16} className="text-info" />
                                 )}
                             </div>
 
@@ -136,10 +136,10 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                 {isBeat ? (data as Beat).titulo : prodInfo.nombre_artistico}
                             </h2>
 
-                            <div className="flex items-center gap-6 mb-10 text-slate-400">
+                            <div className="flex items-center gap-6 mb-10 text-muted">
                                 <Link href={`/${prodInfo.nombre_usuario}`} className="flex items-center gap-6 group/prod">
                                     <div className="relative">
-                                        <img src={prodInfo.foto_perfil || `https://ui-avatars.com/api/?name=${prodInfo.nombre_artistico}`} alt={prodInfo.nombre_artistico as string} className="w-20 h-20 md:w-28 md:h-28 rounded-3xl object-cover border-2 border-white/10 group-hover/prod:border-accent transition-all duration-500 shadow-2xl" />
+                                        <img src={prodInfo.foto_perfil || `https://ui-avatars.com/api/?name=${prodInfo.nombre_artistico}`} alt={prodInfo.nombre_artistico as string} className="w-20 h-20 md:w-28 md:h-28 rounded-3xl object-cover border-2 border-border group-hover/prod:border-accent transition-all duration-500 shadow-2xl" />
                                         {prodInfo.esta_verificado && (
                                             <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-background rounded-full flex items-center justify-center border-2 border-border shadow-lg">
                                                 <img src="/verified-badge.png" className="w-5 h-5 object-contain" alt="Verified" />
@@ -149,14 +149,14 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                     <div className="flex flex-col gap-1">
                                         <div className="flex items-center gap-2">
                                             <span className="text-xl md:text-2xl font-black uppercase tracking-widest group-hover/prod:text-accent transition-colors leading-none">{prodInfo.nombre_artistico}</span>
-                                            {prodInfo.es_fundador && <Crown size={22} className="text-amber-400 fill-amber-400 animate-pulse" />}
+                                            {prodInfo.es_fundador && <Crown size={22} className="text-accent fill-accent animate-pulse" />}
                                         </div>
-                                        <span className="text-xs font-bold text-muted-foreground tracking-[0.2em] uppercase opacity-60 group-hover/prod:opacity-100 transition-opacity">@{prodInfo.nombre_usuario}</span>
+                                        <span className="text-xs font-bold text-muted tracking-[0.2em] uppercase opacity-60 group-hover/prod:opacity-100 transition-opacity">@{prodInfo.nombre_usuario}</span>
                                     </div>
                                 </Link>
-                                <div className="h-4 w-[1px] bg-white/10"></div>
+                                <div className="h-4 w-[1px] bg-border/20"></div>
                                 <div className="flex items-center gap-2">
-                                    <Sparkles size={16} className="text-yellow-400" />
+                                    <Sparkles size={16} className="text-accent" />
                                     <span className="text-[10px] font-black uppercase tracking-widest">Billboard Top 10</span>
                                 </div>
                             </div>
