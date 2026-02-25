@@ -188,12 +188,12 @@ function CatalogContent() {
                         query = query.order("fecha_creacion", { ascending: false });
                         break;
                     case 'trending':
-                        // Priorizar plays de la semana para una sensación de "frescura"
-                        query = query.order("conteo_repro_semanal", { ascending: false, nullsFirst: false });
+                        // Priorizar plays
+                        query = query.order("conteo_reproducciones", { ascending: false, nullsFirst: false });
                         break;
                     case 'best_sellers':
-                        // Priorizar ventas de la semana
-                        query = query.order("conteo_ventas_semanal", { ascending: false, nullsFirst: false });
+                        // Priorizar ventas
+                        query = query.order("conteo_ventas", { ascending: false, nullsFirst: false });
                         break;
                     case 'hidden_gems':
                         // "Joyas": Free users con pocas reproducciones totales pero buen engagement
@@ -204,13 +204,13 @@ function CatalogContent() {
                         query = query.eq('productor_nivel_suscripcion', 'premium').order("conteo_reproducciones", { ascending: false });
                         break;
                     case 'corridos_tumbados':
-                        query = query.eq('genero', 'Corridos Tumbados 🇲🇽').order("created_at", { ascending: false });
+                        query = query.eq('genero', 'Corridos Tumbados 🇲🇽').order("fecha_creacion", { ascending: false });
                         break;
                     case 'reggaeton_mexa':
-                        query = query.eq('genero', 'Reggaetón Mexa 🇲🇽').order("created_at", { ascending: false });
+                        query = query.eq('genero', 'Reggaetón Mexa 🇲🇽').order("fecha_creacion", { ascending: false });
                         break;
                     default:
-                        query = query.order("created_at", { ascending: false });
+                        query = query.order("fecha_creacion", { ascending: false });
                         break;
                 }
 
@@ -229,7 +229,7 @@ function CatalogContent() {
                         const tierA = tierOrder[a.productor_nivel_suscripcion as any] ?? 3;
                         const tierB = tierOrder[b.productor_nivel_suscripcion as any] ?? 3;
                         if (tierA !== tierB) return tierA - tierB;
-                        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                        return new Date(b.fecha_creacion).getTime() - new Date(a.fecha_creacion).getTime();
                     });
                 }
 
