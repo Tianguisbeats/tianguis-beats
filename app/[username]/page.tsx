@@ -515,7 +515,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
         const fileExt = file.name.split('.').pop();
         const filePath = `${profile.id}/${type}.${fileExt}`;
-        const bucket = type === 'avatar' ? 'fotos-perfil' : 'fotos-portada';
+        const bucket = type === 'avatar' ? 'fotos_perfil' : 'fotos_portada';
 
         // Use upsert to avoid duplicate errors and replace old files
         const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file, {
