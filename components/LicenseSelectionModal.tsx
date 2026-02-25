@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { X, Music, Check, ShoppingCart, ShieldCheck, Zap, Layers, Crown, FileText } from 'lucide-react';
+import { X, Music, Check, ShoppingCart, ShieldCheck, Zap, Layers, Crown, FileText, Package } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Beat } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
@@ -25,27 +25,41 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
     const allLicenses = [
         {
             id: 'Básica',
-            name: 'Licencia Básica',
-            price: beat.precio_basico_mxn || 299,
+            name: 'Licencia Básica (Baja Calidad)',
+            price: beat.precio_basico_mxn || 199,
             features: [
-                'Archivo MP3 de alta calidad (320kbps)',
-                'Uso comercial limitado (5,000 streams)',
-                'Uso en videos de YouTube (Sin monetizar)',
-                'Perfecto para maquetas y demos'
+                'Archivo MP3 con Tag (Muestra)',
+                'Límite: 5,000 streams',
+                'Uso no comercial / Maquetas',
+                'Perfecto para grabar tu idea'
             ],
-            icon: <Music size={20} />,
+            icon: <FileText size={20} />,
             color: 'blue',
             isActive: beat.es_basica_activa !== false
         },
         {
-            id: 'Pro',
-            name: 'Licencia Pro',
-            price: beat.precio_pro_mxn || 499,
+            id: 'MP3',
+            name: 'Licencia MP3 (Estándar)',
+            price: beat.precio_mp3_mxn || 349,
             features: [
-                'Archivo MP3 Master HQ',
-                'Límites extendidos (10,000 streams)',
+                'Archivo MP3 High Quality Limpio',
+                'Límite: 25,000 streams',
                 'Distribución en tiendas digitales',
-                'Ideal para lanzamientos independientes'
+                'Lanzamientos independientes'
+            ],
+            icon: <Music size={20} />,
+            color: 'indigo',
+            isActive: beat.es_mp3_activa !== false
+        },
+        {
+            id: 'Pro',
+            name: 'Licencia Pro (MP3/HQ)',
+            price: beat.precio_pro_mxn || 599,
+            features: [
+                'Archivo WAV + MP3 Master',
+                'Límites extendidos (100k streams)',
+                'Derechos de radio y presentaciones',
+                'Calidad profesional'
             ],
             icon: <Zap size={20} />,
             color: 'indigo',
@@ -53,15 +67,15 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
         },
         {
             id: 'Premium',
-            name: 'Licencia Premium',
+            name: 'Licencia Premium (WAV)',
             price: beat.precio_premium_mxn || 999,
             features: [
-                'Archivos WAV + MP3 incluidos',
-                'Uso comercial extendido (50,000 streams)',
-                'Derechos de radio y presentaciones',
-                'Calidad de estudio profesional'
+                'WAV High Fidelity + MP3',
+                'Límite: 500,000 streams',
+                'Ideal para videoclips y radio',
+                'Sin tags de voz / Limpio'
             ],
-            icon: <FileText size={20} />,
+            icon: <Package size={20} />,
             color: 'emerald',
             isActive: beat.es_premium_activa !== false
         },
@@ -70,10 +84,10 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
             name: 'Licencia Ilimitada',
             price: beat.precio_ilimitado_mxn || 1999,
             features: [
-                'Pistas separadas (Audio Stems)',
-                'Streams y ventas ilimitadas',
-                'Control total sobre la mezcla final',
-                'Contrato de uso ilimitado'
+                'Archivos STEMS / Trackout',
+                'Uso comercial ILIMITADO',
+                'Control total de la mezcla',
+                'Uso en todo el mundo'
             ],
             icon: <Layers size={20} />,
             color: 'purple',
@@ -82,16 +96,30 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
         {
             id: 'Exclusiva',
             name: 'Licencia Exclusiva',
-            price: beat.precio_exclusivo_mxn || 5000,
+            price: beat.precio_exclusivo_mxn || 3500,
             features: [
-                'Propiedad total y exclusiva del beat',
-                'El beat se retira de la tienda tras compra',
-                'Uso comercial ilimitado en todo el mundo',
-                'Contrato de transferencia legal incluido'
+                'Propiedad TOTAL del beat',
+                'Eliminación del mercado',
+                'Derechos de autor transferidos',
+                'Máxima libertad creativa'
             ],
             icon: <Crown size={20} />,
             color: 'rose',
-            isActive: beat.es_exclusiva_activa !== false
+            isActive: beat.es_exclusiva_activa !== false && beat.esta_vendido
+        },
+        {
+            id: 'Sound Kit',
+            name: 'Sound Kit / Kit de Sonidos',
+            price: beat.precio_soundkit_mxn || 499,
+            features: [
+                'Kits de sonidos del beat',
+                'Royalty-Free / Sin regalías',
+                'Archivos WAV de alta calidad',
+                'Uso en tus propias producciones'
+            ],
+            icon: <Package size={20} />,
+            color: 'rose',
+            isActive: beat.es_soundkit_activa !== false
         }
     ];
 

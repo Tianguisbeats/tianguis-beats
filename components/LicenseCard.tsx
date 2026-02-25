@@ -2,7 +2,7 @@ import React from 'react';
 import { Check, ShoppingCart } from 'lucide-react';
 
 interface LicenseProps {
-    type: 'Básica' | 'Pro' | 'Premium' | 'Ilimitada' | 'Exclusiva';
+    type: 'Básica' | 'MP3' | 'Pro' | 'Premium' | 'Ilimitada' | 'Exclusiva' | 'Sound Kit';
     price: number;
     features: string[];
     active: boolean;

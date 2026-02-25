@@ -1,20 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  /* Design Tokens - Light Mode (High-Tech & Deep Shadows) */
-  --background: #f8fafc;
-  --foreground: #0f172a;
-
-  --card-bg: rgba(255, 255, 255, 0.7);
-  --card-border: rgba(15, 23, 42, 0.08);
-  --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
-
-  --accent: #2563eb;
-  --accent-soft: #eff6ff;
-  --accent-glow: rgba(37, 99, 235, 0.1);
-
-  --muted: #64748b;
+  /* Design Tokens - Light Mode (Professional whitespace & soft contrast) */
+  --background: #ffffff;
+  --foreground: #1e293b;
+  /* Slate-800: Negro/Gris profesional */
+  --card: #f8fafc;
   --border: #e2e8f0;
+  --accent: #3b82f6;
+  /* Azul Mau */
+  --muted: #64748b;
+
+  /* Glassmorphism & Effects */
+  --card-bg: rgba(248, 250, 252, 0.8);
+  --card-border: rgba(226, 232, 240, 0.5);
+  --card-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+  --card-hover-shadow: 0 20px 40px -15px rgba(59, 130, 246, 0.1);
 
   /* Font Aliases */
   --font-heading: var(--font-kanit), sans-serif;
@@ -22,21 +23,18 @@
 }
 
 [data-theme='dark'] {
-  /* Design Tokens - Dark Mode (Deep Space & Neon Glow) */
-  --background: #000000;
+  /* Design Tokens - Dark Mode (Deep Space & High Contrast) */
+  --background: #020617;
   --foreground: #f8fafc;
+  --card: #0f172a;
+  --border: #1e293b;
+  --accent: #3b82f6;
+  --muted: #94a3b8;
 
-  --card-bg: rgba(10, 12, 16, 0.6);
+  --card-bg: rgba(15, 23, 42, 0.6);
   --card-border: rgba(255, 255, 255, 0.05);
   --card-shadow: 0 0 20px -5px rgba(0, 0, 0, 0.5);
-  --card-glow-hover: 0 0 30px -10px rgba(37, 99, 235, 0.3);
-
-  --accent: #2563eb;
-  --accent-soft: #0f172a;
-  --accent-glow: rgba(37, 99, 235, 0.2);
-
-  --muted: #94a3b8;
-  --border: #1e293b;
+  --card-hover-shadow: 0 0 30px -10px rgba(59, 130, 246, 0.25);
 }
 
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -45,8 +43,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
-  --color-card: var(--card-bg);
+  --color-card: var(--card);
   --color-border: var(--border);
   --color-muted: var(--muted);
 
@@ -66,32 +63,6 @@ body {
   min-height: 100vh;
 }
 
-/* Background Atmosphere Blobs */
-.bg-glow-circle {
-  position: fixed;
-  top: -10%;
-  right: -5%;
-  width: 50vw;
-  height: 50vw;
-  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-  filter: blur(120px);
-  z-index: -1;
-  pointer-events: none;
-  animation: pulse-glow 10s infinite alternate;
-}
-
-@keyframes pulse-glow {
-  from {
-    opacity: 0.4;
-    transform: scale(1);
-  }
-
-  to {
-    opacity: 0.7;
-    transform: scale(1.1);
-  }
-}
-
 @layer base {
 
   h1,
@@ -104,11 +75,18 @@ body {
     @apply tracking-tighter;
   }
 
-  /* Global Button Refinement */
+  /* Global Interactive Elements: Zoom Hover */
+  a,
   button,
-  a.button,
-  [role="button"] {
+  [role="button"],
+  .tianguis-link {
     @apply transition-all duration-300 active:scale-95;
+  }
+
+  a:hover,
+  button:hover,
+  [role="button"]:hover {
+    @apply scale-[1.03];
   }
 }
 
@@ -124,31 +102,51 @@ body {
     border-radius: 2rem;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     overflow: hidden;
+    position: relative;
+  }
+
+  /* Decorative upper line */
+  .tianguis-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    opacity: 0.5;
+    transition: opacity 0.3s;
+  }
+
+  /* Corner Blob Ornament */
+  .tianguis-card::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 60px;
+    height: 60px;
+    background: var(--accent);
+    filter: blur(30px);
+    border-radius: full;
+    opacity: 0.1;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
   }
 
   .tianguis-card:hover {
     transform: scale(1.03) translateY(-4px);
     border-color: var(--accent);
-    box-shadow: var(--card-glow-hover, 0 20px 40px -15px rgba(0, 0, 0, 0.3));
+    box-shadow: var(--card-hover-shadow);
   }
 
-  .btn-standard {
-    background-color: var(--accent);
-    color: white;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 1rem 2rem;
-    border-radius: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
+  .tianguis-card:hover::before {
+    opacity: 1;
   }
 
-  .btn-standard:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.2);
+  .tianguis-card:hover::after {
+    opacity: 0.3;
+    transform: scale(1.5);
   }
 }
 

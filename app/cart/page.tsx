@@ -295,11 +295,12 @@ export default function CartPage() {
 
                                                 {(isBeat && (item.metadata?.license || item.metadata?.licenseType)) ? (
                                                     <span className={`px-3 py-1 text-[8px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${(item.metadata?.license === 'Básica' || item.metadata?.licenseType === 'Básica') ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
-                                                        (item.metadata?.license === 'Pro' || item.metadata?.licenseType === 'Pro') ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' :
-                                                            (item.metadata?.license === 'Premium' || item.metadata?.licenseType === 'Premium') ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
-                                                                (item.metadata?.license === 'Ilimitada' || item.metadata?.licenseType === 'Ilimitada') ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' :
-                                                                    (item.metadata?.license === 'Exclusiva' || item.metadata?.licenseType === 'Exclusiva') ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400' :
-                                                                        'bg-red-200/20 text-red-400'
+                                                        (item.metadata?.license === 'MP3' || item.metadata?.licenseType === 'MP3') ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400' :
+                                                            (item.metadata?.license === 'Pro' || item.metadata?.licenseType === 'Pro') ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' :
+                                                                (item.metadata?.license === 'Premium' || item.metadata?.licenseType === 'Premium') ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
+                                                                    (item.metadata?.license === 'Ilimitada' || item.metadata?.licenseType === 'Ilimitada') ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' :
+                                                                        (item.metadata?.license === 'Exclusiva' || item.metadata?.licenseType === 'Exclusiva' || item.metadata?.license === 'Sound Kit' || item.metadata?.licenseType === 'Sound Kit') ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400' :
+                                                                            'bg-red-200/20 text-red-400'
                                                         }`}>
                                                         {(item.metadata?.license as string) || (item.metadata?.licenseType as string)}
                                                     </span>

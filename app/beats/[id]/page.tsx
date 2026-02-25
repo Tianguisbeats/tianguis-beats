@@ -35,7 +35,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
     const [relatedBeats, setRelatedBeats] = useState<Beat[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedLicense, setSelectedLicense] = useState<'Básica' | 'Pro' | 'Premium' | 'Ilimitada' | 'Exclusiva' | null>(null);
+    const [selectedLicense, setSelectedLicense] = useState<'Básica' | 'MP3' | 'Pro' | 'Premium' | 'Ilimitada' | 'Exclusiva' | 'Sound Kit' | null>(null);
     const [isLiked, setIsLiked] = useState(false);
 
     const { currentBeat, isPlaying, playBeat } = usePlayer();
@@ -58,10 +58,12 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 return;
             }
             if (beat.es_basica_activa !== false) setSelectedLicense('Básica');
+            else if (beat.es_mp3_activa !== false) setSelectedLicense('MP3');
             else if (beat.es_pro_activa !== false) setSelectedLicense('Pro');
             else if (beat.es_premium_activa !== false) setSelectedLicense('Premium');
             else if (beat.es_ilimitada_activa !== false) setSelectedLicense('Ilimitada');
             else if (beat.es_exclusiva_activa !== false) setSelectedLicense('Exclusiva');
+            else if (beat.es_soundkit_activa !== false) setSelectedLicense('Sound Kit');
             else setSelectedLicense(null); // No licenses available
         }
     }, [beat]);
@@ -71,10 +73,12 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
         const priceMap = {
             'Básica': beat.precio_basico_mxn || 199,
+            'MP3': beat.precio_mp3_mxn || 349,
             'Pro': beat.precio_pro_mxn || 499,
             'Premium': beat.precio_premium_mxn || 999,
             'Ilimitada': beat.precio_ilimitado_mxn || 1999,
-            'Exclusiva': beat.precio_exclusivo_mxn || 3500
+            'Exclusiva': beat.precio_exclusivo_mxn || 3500,
+            'Sound Kit': beat.precio_soundkit_mxn || 499
         };
 
         const wasAdded = addItem({
@@ -102,7 +106,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 setLoading(true);
                 const { data, error: fetchError } = await supabase
                     .from('beats')
-                    .select('id, titulo, genero, bpm, precio_basico_mxn, precio_pro_mxn, precio_premium_mxn, precio_ilimitado_mxn, precio_exclusivo_mxn, es_basica_activa, es_pro_activa, es_premium_activa, es_ilimitada_activa, es_exclusiva_activa, esta_vendido, portada_url, archivo_mp3_url, archivo_muestra_url, nota_musical, escala_musical, vibras, descripcion, conteo_reproducciones, conteo_likes, fecha_creacion, tipos_beat, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
+                    .select('id, titulo, genero, bpm, precio_basico_mxn, precio_mp3_mxn, precio_pro_mxn, precio_premium_mxn, precio_ilimitado_mxn, precio_exclusivo_mxn, precio_soundkit_mxn, es_basica_activa, es_mp3_activa, es_pro_activa, es_premium_activa, es_ilimitada_activa, es_exclusiva_activa, es_soundkit_activa, esta_vendido, portada_url, archivo_mp3_url, archivo_muestra_url, tono_escala, vibras, descripcion, conteo_reproducciones, conteo_likes, fecha_creacion, tipos_beat, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
                     .eq('id', id)
                     .single();
 
@@ -449,9 +453,20 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                         <LicenseCard
                                             type="Básica"
                                             price={beat.precio_basico_mxn || 199}
-                                            features={['MP3 con Tag (Muestra)', 'Uso comercial limitado', 'Entrega instantánea']}
+                                            features={['MP3 con Tag (Muestra)', 'Límite: 5k streams', 'Uso no comercial']}
                                             selected={selectedLicense === 'Básica'}
                                             onSelect={() => setSelectedLicense('Básica')}
+                                            active={true}
+                                            isSold={beat.esta_vendido}
+                                        />
+                                    )}
+                                    {beat.es_mp3_activa !== false && (
+                                        <LicenseCard
+                                            type="MP3"
+                                            price={beat.precio_mp3_mxn || 349}
+                                            features={['MP3 High Quality', 'Límite: 25k streams', 'Distribución digital']}
+                                            selected={selectedLicense === 'MP3'}
+                                            onSelect={() => setSelectedLicense('MP3')}
                                             active={true}
                                             isSold={beat.esta_vendido}
                                         />
@@ -489,13 +504,24 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                             isSold={beat.esta_vendido}
                                         />
                                     )}
-                                    {beat.es_exclusiva_activa !== false && (
+                                    {beat.es_exclusiva_activa !== false && beat.esta_vendido && (
                                         <LicenseCard
                                             type="Exclusiva"
                                             price={beat.precio_exclusivo_mxn || 3500}
                                             features={['Propiedad Exclusiva', 'Eliminación del mercado', 'Cesión total de derechos']}
                                             selected={selectedLicense === 'Exclusiva'}
                                             onSelect={() => setSelectedLicense('Exclusiva')}
+                                            active={true}
+                                            isSold={beat.esta_vendido}
+                                        />
+                                    )}
+                                    {beat.es_soundkit_activa !== false && (
+                                        <LicenseCard
+                                            type="Sound Kit"
+                                            price={beat.precio_soundkit_mxn || 499}
+                                            features={['Sons del Instrumental', 'Royalty-Free', 'Archivos WAV']}
+                                            selected={selectedLicense === 'Sound Kit'}
+                                            onSelect={() => setSelectedLicense('Sound Kit')}
                                             active={true}
                                             isSold={beat.esta_vendido}
                                         />

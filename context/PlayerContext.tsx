@@ -98,18 +98,33 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
             setPlayCountTracked(null);
         }
 
-        // Resolver la URL si es una ruta relativa de Supabase Storage
-        // Priorizar archivo_muestra_url para ahorrar ancho de banda
-        let finalUrl = beat.archivo_muestra_url || beat.archivo_mp3_url || '';
+        // Resolve the URL: Try multiple sources in order of preference
+        let finalUrl = beat.archivo_muestra_url || beat.archivo_mp3_url || beat.archivo_wav_url || '';
 
-        if (finalUrl && !finalUrl.startsWith('http')) {
-            const encodedPath = finalUrl.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-            // Usar buckets unificados en español
-            const bucket = finalUrl === beat.archivo_muestra_url ? 'muestras_beats' : 'beats_mp3';
-            const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
-            finalUrl = publicUrl;
+        if (!finalUrl) {
+            console.error("No se encontró URL de audio para el beat:", beat.id);
+            return;
         }
 
+        if (!finalUrl.startsWith('http')) {
+            try {
+                // Determine bucket based on the file path or field
+                let bucket = 'muestras_beats';
+                if (finalUrl === beat.archivo_mp3_url) bucket = 'beats_mp3';
+                if (finalUrl === beat.archivo_wav_url) bucket = 'beats_wav';
+
+                const encodedPath = finalUrl.split('/').map((s: string) => encodeURIComponent(s)).join('/');
+                const { data } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
+
+                if (data?.publicUrl) {
+                    finalUrl = data.publicUrl;
+                }
+            } catch (storageErr) {
+                console.error("Error al resolver URL de Supabase:", storageErr);
+            }
+        }
+
+        console.log("Reproduciendo:", finalUrl);
         setCurrentBeat({ ...beat, archivo_mp3_url: finalUrl });
         audioRef.current.src = finalUrl;
 

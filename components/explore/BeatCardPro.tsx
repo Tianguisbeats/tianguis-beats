@@ -197,19 +197,18 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                 </Link>
 
                 {/* Pills Section - Genre, BPM, Tone/Scale */}
-                <div className={`flex flex-wrap gap-1 ${compact ? 'mb-2' : 'mb-4'} justify-center w-full`}>
+                <div className={`flex flex-wrap gap-2 ${compact ? 'mb-2' : 'mb-4'} justify-center w-full`}>
                     {beat.genero && (
-                        <span className={`text-[7px] font-black text-success bg-success/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-success/20 uppercase tracking-widest leading-none`}>
-                            {beat.genero}
+                        <span className={`text-[7px] font-black text-accent bg-accent/10 ${compact ? 'px-1.5' : 'px-3'} py-1.5 rounded-full border border-accent/20 uppercase tracking-widest leading-none flex items-center gap-1.5`}>
+                            🎧 {beat.genero}
                         </span>
                     )}
-                    <span className={`text-[7px] font-black text-muted bg-accent-soft ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-border uppercase tracking-widest leading-none`}>
-                        {beat.bpm} BPM
+                    <span className={`text-[7px] font-black text-accent bg-accent/10 ${compact ? 'px-1.5' : 'px-3'} py-1.5 rounded-full border border-accent/20 uppercase tracking-widest leading-none flex items-center gap-1.5`}>
+                        ⚡ {beat.bpm} BPM
                     </span>
                     {beat.tono_escala && (
-                        <span className={`text-[7px] font-black text-accent bg-accent/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-accent/20 uppercase tracking-widest leading-none flex items-center gap-1`}>
-                            <Music size={10} />
-                            {MUSICAL_KEYS.find(k => k.value === beat.tono_escala)?.label || beat.tono_escala}
+                        <span className={`text-[7px] font-black text-accent bg-accent/10 ${compact ? 'px-1.5' : 'px-3'} py-1.5 rounded-full border border-accent/20 uppercase tracking-widest leading-none flex items-center gap-1.5`}>
+                            🎹 {MUSICAL_KEYS.find(k => k.value === beat.tono_escala)?.label || beat.tono_escala}
                         </span>
                     )}
                 </div>

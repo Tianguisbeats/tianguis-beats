@@ -41,16 +41,20 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
     // License States
     const [isBasicActive, setIsBasicActive] = useState(true);
+    const [isMp3Active, setIsMp3Active] = useState(true);
     const [isProActive, setIsProActive] = useState(true);
     const [isPremiumActive, setIsPremiumActive] = useState(true);
     const [isUnlimitedActive, setIsUnlimitedActive] = useState(true);
     const [isExclusiveActive, setIsExclusiveActive] = useState(false);
+    const [isSoundKitActive, setIsSoundKitActive] = useState(false);
 
     const [basicPrice, setBasicPrice] = useState('199');
+    const [mp3Price, setMp3Price] = useState('349');
     const [proPrice, setProPrice] = useState('499');
     const [premiumPrice, setPremiumPrice] = useState('999');
     const [unlimitedPrice, setUnlimitedPrice] = useState('1999');
     const [exclusivePrice, setExclusivePrice] = useState('3500');
+    const [soundKitPrice, setSoundKitPrice] = useState('499');
 
     // Existing URLs
     const [existingPortada, setExistingPortada] = useState<string | null>(null);
@@ -127,16 +131,20 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             setBeatTypes(beat.tipos_beat || []);
 
             setBasicPrice(beat.precio_basico_mxn?.toString() || '199');
-            setProPrice(beat.precio_pro_mxn?.toString() || '499');
+            setMp3Price(beat.precio_mp3_mxn?.toString() || '349');
+            setProPrice(beat.precio_pro_mxn?.toString() || '599');
             setPremiumPrice(beat.precio_premium_mxn?.toString() || '999');
             setUnlimitedPrice(beat.precio_ilimitado_mxn?.toString() || '1999');
             setExclusivePrice(beat.precio_exclusivo_mxn?.toString() || '3500');
+            setSoundKitPrice(beat.precio_soundkit_mxn?.toString() || '499');
 
             setIsBasicActive(beat.es_basica_activa !== false);
+            setIsMp3Active(beat.es_mp3_activa !== false);
             setIsProActive(beat.es_pro_activa !== false);
             setIsPremiumActive(beat.es_premium_activa !== false);
             setIsUnlimitedActive(beat.es_ilimitada_activa !== false);
             setIsExclusiveActive(beat.es_exclusiva_activa || false);
+            setIsSoundKitActive(beat.es_soundkit_activa || false);
 
             setExistingPortada(beat.portada_url);
             setExistingMp3HQ(beat.archivo_mp3_url);
@@ -172,7 +180,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     const handleMoodToggle = (mood: string) => {
         if (selectedMoods.includes(mood)) {
             setSelectedMoods(selectedMoods.filter(m => m !== mood));
-        } else if (selectedMoods.length < 3) {
+        } else {
             setSelectedMoods([...selectedMoods, mood]);
         }
     };
@@ -280,16 +288,20 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                 archivo_stems_url,
 
                 es_basica_activa: isBasicActive,
+                es_mp3_activa: isMp3Active,
                 es_pro_activa: isProActive,
                 es_premium_activa: isPremiumActive,
                 es_ilimitada_activa: isUnlimitedActive,
                 es_exclusiva_activa: isExclusiveActive,
+                es_soundkit_activa: isSoundKitActive,
 
                 precio_basico_mxn: parseInt(basicPrice) || 0,
+                precio_mp3_mxn: parseInt(mp3Price) || 0,
                 precio_pro_mxn: parseInt(proPrice) || 0,
                 precio_premium_mxn: parseInt(premiumPrice) || 0,
                 precio_ilimitado_mxn: parseInt(unlimitedPrice) || 0,
                 precio_exclusivo_mxn: isExclusiveActive ? parseInt(exclusivePrice) : null,
+                precio_soundkit_mxn: parseInt(soundKitPrice) || 0,
             }).eq('id', id);
 
             if (dbError) throw dbError;
@@ -310,7 +322,8 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
         </div>
     );
 
-    const isFree = userData?.nivel_suscripcion === 'free';
+    const isFree = userData?.nivel_suscripcion === 'free' || !userData?.nivel_suscripcion;
+    const isPro = userData?.nivel_suscripcion === 'pro';
     const isPremium = userData?.nivel_suscripcion === 'premium';
 
     const Toggle = ({ active, onToggle, disabled = false }: { active: boolean, onToggle: () => void, disabled?: boolean }) => (
@@ -506,7 +519,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                 </div>
                             </div>
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Vibe (Elige 3 opciones)</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Mood Tags</label>
                                 <div className="flex flex-wrap gap-2">
                                     {MOODS.map(mood => (
                                         <button
@@ -699,11 +712,13 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
                             <div className="grid gap-4">
                                 {[
-                                    { id: 'basic', label: 'Básica', color: 'blue', active: isBasicActive, setAction: setIsBasicActive, price: basicPrice, setPrice: setBasicPrice, desc: 'Uso comercial limitado (MP3)', disabled: false },
-                                    { id: 'pro', label: 'Pro', color: 'indigo', active: isProActive, setAction: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Mayores límites de distribución (MP3)', disabled: false },
-                                    { id: 'premium', label: 'Premium', color: 'emerald', active: isPremiumActive, setAction: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Calidad de estudio (WAV)', disabled: isFree },
+                                    { id: 'basic', label: 'Básica', color: 'blue', active: isBasicActive, setAction: setIsBasicActive, price: basicPrice, setPrice: setBasicPrice, desc: 'Uso comercial limitado (MP3 con Tag)', disabled: false },
+                                    { id: 'mp3', label: 'MP3 HQ', color: 'indigo', active: isMp3Active, setAction: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'MP3 de alta calidad limpio', disabled: false },
+                                    { id: 'pro', label: 'Pro License', color: 'indigo', active: isProActive, setAction: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Mayores límites (MP3/WAV)', disabled: isFree },
+                                    { id: 'premium', label: 'Premium', color: 'emerald', active: isPremiumActive, setAction: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Calidad profesional (WAV)', disabled: !isPremium && !isPro },
                                     { id: 'unlimited', label: 'Ilimitada', color: 'purple', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Uso sin límites (Stems)', disabled: !isPremium },
-                                    { id: 'exclusive', label: 'Exclusiva', color: 'rose', active: isExclusiveActive, setAction: setIsExclusiveActive, price: exclusivePrice, setPrice: setExclusivePrice, desc: 'Cesión total de derechos (Exclusividad)', disabled: !isPremium }
+                                    { id: 'unlimited', label: 'Ilimitada', color: 'purple', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Uso sin límites (Stems)', disabled: !isPremium },
+                                    { id: 'soundkit', label: 'Sound Kit', color: 'rose', active: isSoundKitActive, setAction: setIsSoundKitActive, price: soundKitPrice, setPrice: setSoundKitPrice, desc: 'Licencia para Sound Kits', disabled: !isPremium }
                                 ].map((lic) => (
                                     <div key={lic.id} className={`p-6 rounded-[1.5rem] border-2 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden ${lic.disabled ? 'bg-slate-100 dark:bg-white/5 opacity-60 grayscale' : (lic.active ? `bg-white dark:bg-black border-${lic.color}-500/30 shadow-xl shadow-${lic.color}-500/5` : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 opacity-75')}`}>
                                         <div className="flex gap-4 items-center">

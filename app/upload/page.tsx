@@ -42,16 +42,20 @@ export default function UploadPage() {
 
     // Estados de licencias (5 Tiers)
     const [isBasicActive, setIsBasicActive] = useState(true);
+    const [isMp3Active, setIsMp3Active] = useState(true);
     const [isProActive, setIsProActive] = useState(true);
     const [isPremiumActive, setIsPremiumActive] = useState(true);
     const [isUnlimitedActive, setIsUnlimitedActive] = useState(true);
     const [isExclusiveActive, setIsExclusiveActive] = useState(false);
+    const [isSoundKitActive, setIsSoundKitActive] = useState(false);
 
     const [basicPrice, setBasicPrice] = useState('199');
-    const [proPrice, setProPrice] = useState('499');
+    const [mp3Price, setMp3Price] = useState('349');
+    const [proPrice, setProPrice] = useState('599');
     const [premiumPrice, setPremiumPrice] = useState('999');
     const [unlimitedPrice, setUnlimitedPrice] = useState('1999');
     const [exclusivePrice, setExclusivePrice] = useState('3500');
+    const [soundKitPrice, setSoundKitPrice] = useState('499');
 
     // Estado de archivos
     const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -131,8 +135,8 @@ export default function UploadPage() {
         // Sanitización de nombres de archivos
         const sanitize = (name: string) => name.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
 
-        if (selectedMoods.length !== 3) {
-            setError("Vibe: Debes elegir exactamente 3 opciones.");
+        if (selectedMoods.length === 0) {
+            setError("Mood: Debes elegir al menos una opción.");
             setLoading(false);
             return;
         }
@@ -196,16 +200,20 @@ export default function UploadPage() {
 
                 // Licencias activas (Sincronizado con Mis Contratos)
                 es_basica_activa: isBasicActive,
+                es_mp3_activa: isMp3Active,
                 es_pro_activa: isProActive,
                 es_premium_activa: isPremiumActive, // Premium = WAV
                 es_ilimitada_activa: isUnlimitedActive, // Unlimited = Stems
                 es_exclusiva_activa: isExclusiveActive,
+                es_soundkit_activa: isSoundKitActive,
 
                 precio_basico_mxn: parseInt(basicPrice) || 0,
+                precio_mp3_mxn: parseInt(mp3Price) || 0,
                 precio_pro_mxn: parseInt(proPrice) || 0,
                 precio_premium_mxn: parseInt(premiumPrice) || 0,
                 precio_ilimitado_mxn: parseInt(unlimitedPrice) || 0,
                 precio_exclusivo_mxn: isExclusiveActive ? parseInt(exclusivePrice) : null,
+                precio_soundkit_mxn: parseInt(soundKitPrice) || 0,
                 visibilidad_tier: userData.nivel_suscripcion === 'free' ? 0 : (userData.nivel_suscripcion === 'pro' ? 1 : 0),
                 es_publico: true
             });
@@ -463,7 +471,7 @@ export default function UploadPage() {
                                         </div>
                                     </div>
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Vibe (Elige 3 opciones)</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Mood Tags</label>
                                         <div className="flex flex-wrap gap-2">
                                             {MOODS.map(mood => (
                                                 <button
@@ -635,11 +643,13 @@ export default function UploadPage() {
 
                                     <div className="grid gap-4">
                                         {[
-                                            { id: 'basic', label: 'Básica', color: 'blue', active: isBasicActive, setAction: setIsBasicActive, price: basicPrice, setPrice: setBasicPrice, desc: 'Uso comercial limitado (MP3)', disabled: false },
-                                            { id: 'pro', label: 'Pro', color: 'indigo', active: isProActive, setAction: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Mayores límites de distribución (MP3)', disabled: false },
-                                            { id: 'premium', label: 'Premium', color: 'emerald', active: isPremiumActive, setAction: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Calidad de estudio (WAV)', disabled: isFree },
+                                            { id: 'basic', label: 'Básica', color: 'blue', active: isBasicActive, setAction: setIsBasicActive, price: basicPrice, setPrice: setBasicPrice, desc: 'Uso limitado (MP3 con Tag)', disabled: false },
+                                            { id: 'mp3', label: 'MP3 High Quality', color: 'indigo', active: isMp3Active, setAction: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'Descarga de MP3 limpio', disabled: false },
+                                            { id: 'pro', label: 'Pro License', color: 'indigo', active: isProActive, setAction: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Mayores límites (MP3/WAV)', disabled: isFree },
+                                            { id: 'premium', label: 'Premium (Studio)', color: 'emerald', active: isPremiumActive, setAction: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Calidad profesional (WAV)', disabled: !isPremium && !isPro },
                                             { id: 'unlimited', label: 'Ilimitada', color: 'purple', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Uso sin límites (Stems)', disabled: !isPremium },
-                                            { id: 'exclusive', label: 'Exclusiva', color: 'rose', active: isExclusiveActive, setAction: setIsExclusiveActive, price: exclusivePrice, setPrice: setExclusivePrice, desc: 'Cesión total de derechos (Exclusividad)', disabled: !isPremium }
+                                            { id: 'unlimited', label: 'Ilimitada', color: 'purple', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Uso sin límites (Stems)', disabled: !isPremium },
+                                            { id: 'soundkit', label: 'Sound Kit', color: 'rose', active: isSoundKitActive, setAction: setIsSoundKitActive, price: soundKitPrice, setPrice: setSoundKitPrice, desc: 'Licencia para Sound Kits', disabled: !isPremium }
                                         ].map((lic) => (
                                             <div key={lic.id} className={`p-6 rounded-[1.5rem] border-2 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden ${lic.disabled ? 'bg-slate-100 dark:bg-white/5 opacity-60 grayscale' : (lic.active ? `bg-white dark:bg-black border-${lic.color}-500/30 shadow-xl shadow-${lic.color}-500/5` : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 opacity-75')}`}>
                                                 <div className="flex items-center gap-5">

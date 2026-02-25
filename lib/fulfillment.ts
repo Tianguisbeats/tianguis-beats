@@ -46,21 +46,24 @@ async function getDownloadUrl(
  */
 export async function getBeatFulfillmentLinks(beat: { mp3_url?: string; wav_url?: string; stems_url?: string }, licenseType: string) {
     const links: { label: string, url: string }[] = [];
+    const type = licenseType.toLowerCase();
 
-    // Siempre incluimos el MP3 de alta calidad (si existe)
+    // Siempre incluimos el MP3 para todas las licencias
     if (beat.mp3_url) {
         const mp3Url = await getDownloadUrl('beats-mp3-alta-calidad', beat.mp3_url);
         if (mp3Url) links.push({ label: 'Archivo MP3 (Alta Calidad)', url: mp3Url });
     }
 
-    // WAV para Premium, Ilimitada y Exclusiva
-    if (['premium', 'unlimited', 'exclusive'].includes(licenseType) && beat.wav_url) {
+    // WAV para Pro, Premium, Ilimitada y Exclusiva
+    const allowsWav = ['pro', 'premium', 'ilimitada', 'unlimited', 'exclusiva', 'exclusive'].includes(type);
+    if (allowsWav && beat.wav_url) {
         const wavUrl = await getDownloadUrl('beats-wav', beat.wav_url);
         if (wavUrl) links.push({ label: 'Archivo WAV (Masterizado)', url: wavUrl });
     }
 
-    // STEMS para Ilimitada y Exclusiva
-    if (['unlimited', 'exclusive'].includes(licenseType) && beat.stems_url) {
+    // STEMS solo para Ilimitada y Exclusiva
+    const allowsStems = ['ilimitada', 'unlimited', 'exclusiva', 'exclusive'].includes(type);
+    if (allowsStems && beat.stems_url) {
         const stemsUrl = await getDownloadUrl('beats-stems', beat.stems_url);
         if (stemsUrl) links.push({ label: 'Trackouts / Stems (Pistas)', url: stemsUrl });
     }

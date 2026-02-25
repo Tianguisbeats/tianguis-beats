@@ -28,6 +28,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 
 import { ToastProvider } from "@/context/ToastContext";
 import { CurrencyProvider } from "@/context/CurrencyContext";
+import BackgroundAura from "@/components/ui/BackgroundAura";
 
 export default function RootLayout({
   children,
@@ -39,7 +40,7 @@ export default function RootLayout({
       <body
         className={`${kanit.variable} ${montserrat.variable} font-body antialiased`}
       >
-        <div className="bg-glow-circle" />
+        <BackgroundAura />
         <ThemeProvider>
           <CurrencyProvider>
             <ToastProvider>

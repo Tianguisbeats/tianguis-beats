@@ -98,10 +98,12 @@ export interface Beat {
 
     // Precios
     precio_basico_mxn?: number;
+    precio_mp3_mxn?: number | null;
     precio_pro_mxn?: number | null;
     precio_premium_mxn?: number | null;
     precio_ilimitado_mxn?: number | null;
     precio_exclusivo_mxn?: number | null;
+    precio_soundkit_mxn?: number | null;
 
     es_publico?: boolean;
     esta_vendido?: boolean;
@@ -121,10 +123,12 @@ export interface Beat {
 
     // Interruptores
     es_basica_activa?: boolean;
+    es_mp3_activa?: boolean;
     es_pro_activa?: boolean;
     es_premium_activa?: boolean;
     es_ilimitada_activa?: boolean;
     es_exclusiva_activa?: boolean;
+    es_soundkit_activa?: boolean;
 
     fecha_creacion: string;
 }

@@ -2,20 +2,28 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { FileText, Settings, ShieldCheck, FileKey, Crown, Zap, Package, AlignLeft, Info, Loader2 } from 'lucide-react';
+import { FileText, Settings, ShieldCheck, FileKey, Crown, Zap, Package, AlignLeft, Info, Loader2, Music } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
 
 // Define the License Types available
-export type ContractType = 'basica' | 'pro' | 'premium' | 'ilimitada' | 'exclusiva' | 'soundkit';
+export type ContractType = 'basica' | 'mp3' | 'pro' | 'premium' | 'ilimitada' | 'exclusiva' | 'soundkit';
 
 const CONTRACT_TYPES = [
     {
         id: 'basica' as ContractType,
-        name: 'Licencia Básica (MP3)',
+        name: 'Licencia Básica (Baja Calidad)',
         icon: <FileText size={24} />,
-        color: 'text-blue-500',
-        gradient: 'from-blue-500/20 to-blue-400/5',
-        glow: 'group-hover:shadow-blue-500/20'
+        color: 'text-blue-400',
+        gradient: 'from-blue-400/20 to-blue-300/5',
+        glow: 'group-hover:shadow-blue-400/20'
+    },
+    {
+        id: 'mp3' as ContractType,
+        name: 'Licencia MP3 (Estándar)',
+        icon: <Music size={24} />,
+        color: 'text-blue-600',
+        gradient: 'from-blue-600/20 to-blue-500/5',
+        glow: 'group-hover:shadow-blue-600/20'
     },
     {
         id: 'pro' as ContractType,
@@ -28,7 +36,7 @@ const CONTRACT_TYPES = [
     {
         id: 'premium' as ContractType,
         name: 'Licencia Premium (WAV)',
-        icon: <Crown size={24} />,
+        icon: <Package size={24} />,
         color: 'text-purple-500',
         gradient: 'from-purple-500/20 to-purple-400/5',
         glow: 'group-hover:shadow-purple-500/20'
@@ -138,7 +146,8 @@ export default function ContractsPage() {
     const getDefaultLegalText = (type: ContractType) => {
         // Textos por defecto si no ha configurado ninguno
         const defaults: Record<string, string> = {
-            basica: "LICENCIA BÁSICA: Este contrato otorga derechos no exclusivos de uso sobre el Beat para crear una (1) Nueva Canción. Límite de streams: 10,000.",
+            basica: "LICENCIA BÁSICA: Este contrato otorga derechos no exclusivos de uso sobre el Beat para crear una (1) Nueva Canción. Límite de streams: 5,000.",
+            mp3: "LICENCIA MP3: Derechos no exclusivos con descarga de archivo MP3 de alta calidad (320kbps). Límite de streams: 25,000.",
             pro: "LICENCIA PRO: Derechos no exclusivos con límites extendidos de distribución y streams. Límite de streams: 100,000.",
             premium: "LICENCIA PREMIUM: Derechos no exclusivos para distribución comercial en plataformas. Límite de streams: 500,000.",
             ilimitada: "LICENCIA ILIMITADA: Derechos no exclusivos para explotación comercial sin límite numérico de regalías.",
@@ -169,12 +178,12 @@ export default function ContractsPage() {
 
             if (error) {
                 if (error.code === '42P01') {
-                    throw new Error("La tabla de contratos no existe. Por favor ejecuta el archivo SQL en Supabase primero.");
+                    throw new Error("La tabla de licencias no existe. Por favor ejecuta el archivo SQL en Supabase primero.");
                 }
                 throw error;
             }
 
-            showToast("Contrato guardado exitosamente", "success");
+            showToast("Licencia guardada exitosamente", "success");
             await fetchTemplates(); // Recargar datos
             setActiveModal({ isOpen: false, type: null, mode: null });
 
@@ -196,7 +205,7 @@ export default function ContractsPage() {
             {/* Header */}
             <div>
                 <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-4">
-                    Tus <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Contratos</span>
+                    Tus <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Licencias</span>
                 </h1>
                 <p className="text-muted text-xs font-bold uppercase tracking-widest max-w-2xl">
                     Personaliza los términos legales y límites de cada licencia.
