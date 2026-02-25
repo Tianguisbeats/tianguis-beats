@@ -90,8 +90,7 @@ export interface Beat {
     genero?: string | null;
     subgenero?: string | null;
     bpm?: number | null;
-    nota_musical?: string | null;
-    escala_musical?: string | null;
+    tono_escala?: string | null;
     descripcion?: string | null;
     vibras?: string | null;
     tipos_beat?: string[];

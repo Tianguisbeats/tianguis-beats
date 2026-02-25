@@ -35,8 +35,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     const [genre, setGenre] = useState('');
     const [subgenre, setSubgenre] = useState('');
     const [bpm, setBpm] = useState('');
-    const [musicalKey, setMusicalKey] = useState('');
-    const [musicalScale, setMusicalScale] = useState('Menor');
+    const [tonoEscala, setTonoEscala] = useState('');
     const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
     const [beatTypes, setBeatTypes] = useState<string[]>([]);
 
@@ -118,8 +117,12 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             setGenre(beat.genero || '');
             setSubgenre(beat.subgenero || '');
             setBpm(beat.bpm?.toString() || '');
-            setMusicalKey(beat.nota_musical || '');
-            setMusicalScale(beat.escala_musical || 'Menor');
+            // Normalize Tono/Escala on load (Backward compatibility for labels)
+            const rawTono = beat.tono_escala || '';
+            const matchedKey = MUSICAL_KEYS.find(k => k.value === rawTono || k.label === rawTono);
+            const normalizedTono = matchedKey ? matchedKey.value : rawTono;
+
+            setTonoEscala(normalizedTono);
             setSelectedMoods(beat.vibras ? beat.vibras.split(', ') : []);
             setBeatTypes(beat.tipos_beat || []);
 
@@ -146,8 +149,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                 genero: beat.genero || '',
                 subgenero: beat.subgenero || '',
                 bpm: beat.bpm?.toString() || '',
-                nota_musical: beat.nota_musical || '',
-                escala_musical: beat.escala_musical || 'Menor',
+
                 vibras: beat.vibras ? beat.vibras.split(', ') : [],
                 tipos_beat: beat.tipos_beat || [],
                 precio_basico_mxn: beat.precio_basico_mxn?.toString() || '199',
@@ -181,8 +183,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
         genre !== initialData.genero ||
         subgenre !== initialData.subgenero ||
         bpm !== initialData.bpm ||
-        musicalKey !== initialData.nota_musical ||
-        musicalScale !== initialData.escala_musical ||
+        tonoEscala !== initialData.tono_escala ||
         JSON.stringify(selectedMoods.sort()) !== JSON.stringify(initialData.vibras.sort()) ||
         JSON.stringify(beatTypes.sort()) !== JSON.stringify(initialData.tipos_beat.sort()) ||
         basicPrice !== initialData.precio_basico_mxn ||
@@ -268,8 +269,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                 genero: genre,
                 subgenero: subgenre,
                 bpm: parseInt(bpm),
-                nota_musical: musicalKey,
-                escala_musical: musicalScale,
+                tono_escala: tonoEscala,
                 vibras: selectedMoods.join(', '),
                 tipos_beat: beatTypes,
                 artista_referencia: beatTypes.join(', '), // Sync for fuzzy search
@@ -425,28 +425,35 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                 </div>
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Tonalidad & Escala</label>
+                                        <div className="flex items-center justify-between ml-1">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted">Tono / Escala</label>
+                                            <div className="group relative">
+                                                <Info size={14} className="text-accent cursor-help opacity-70 hover:opacity-100 transition-opacity" />
+                                                <div className="absolute bottom-full right-0 mb-2 w-64 p-3 bg-card border border-border rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
+                                                    <p className="text-[9px] font-bold text-foreground leading-relaxed uppercase tracking-wider">
+                                                        <span className="text-accent">¿No sabes el tono?</span> Db y C# son la misma nota. Si usas Auto-Tune, ambos ajustes funcionarán igual para este beat.
+                                                    </p>
+                                                    <div className="absolute top-full right-4 w-2 h-2 bg-card border-r border-b border-border rotate-45 -translate-y-1"></div>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <select
-                                            value={musicalKey + (musicalScale === 'Menor' ? '_min' : '_maj')}
-                                            onChange={(e) => {
-                                                const val = e.target.value;
-                                                if (!val) {
-                                                    setMusicalKey('');
-                                                    setMusicalScale('');
-                                                    return;
-                                                }
-                                                const [note, suffix] = val.split('_');
-                                                const dbNote = note.replace('sharp', '#').replace('flat', 'b');
-                                                setMusicalKey(dbNote);
-                                                setMusicalScale(suffix === 'min' ? 'Menor' : 'Mayor');
-                                            }}
+                                            value={tonoEscala}
+                                            onChange={(e) => setTonoEscala(e.target.value)}
                                             className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all font-heading appearance-none"
                                             required
                                         >
-                                            <option value="">Seleccionar Tonalidad</option>
-                                            {MUSICAL_KEYS.map(k => (
-                                                <option key={k.value} value={k.value}>{k.label}</option>
-                                            ))}
+                                            <option value="">Seleccionar Tono / Escala</option>
+                                            <optgroup label="NOTAS NATURALES" className="bg-card text-accent font-black">
+                                                {MUSICAL_KEYS.filter(k => k.group === 'natural').map(k => (
+                                                    <option key={k.value} value={k.value} className="bg-card text-foreground">{k.label}</option>
+                                                ))}
+                                            </optgroup>
+                                            <optgroup label="SOLO PARA PROS (ALTERADAS)" className="bg-card text-accent font-black">
+                                                {MUSICAL_KEYS.filter(k => k.group === 'accidental').map(k => (
+                                                    <option key={k.value} value={k.value} className="bg-card text-foreground">{k.label}</option>
+                                                ))}
+                                            </optgroup>
                                         </select>
                                     </div>
                                 </div>

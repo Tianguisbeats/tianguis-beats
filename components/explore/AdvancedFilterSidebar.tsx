@@ -10,8 +10,8 @@ interface FilterState {
     subgenre: string;
     bpmMin: number | string;
     bpmMax: number | string;
-    key: string;
-    scale: string;
+    tonoEscala: string;
+    vibe: string;
     mood: string;
     refArtist: string;
     beatType: string;
@@ -142,10 +142,42 @@ export default function AdvancedFilterSidebar({
 
                     <div className="h-[1px] bg-border"></div>
 
-                    {/* Moods */}
+                    {/* Vibe / Sentiment Filter */}
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black text-muted uppercase tracking-widest">Vibe / Mood</label>
+                            <label className="text-[10px] font-black text-muted uppercase tracking-widest">Sentimiento / Vibe</label>
+                            {filterState.vibe && (
+                                <button onClick={() => updateFilter('vibe', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
+                            )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            {[
+                                { id: 'happy', label: 'Alegre', emoji: '😊' },
+                                { id: 'sad', label: 'Triste', emoji: '💔' },
+                                { id: 'dark', label: 'Oscuro', emoji: '🌑' },
+                                { id: 'aggressive', label: 'Pesado', emoji: '🔥' }
+                            ].map(v => (
+                                <button
+                                    key={v.id}
+                                    onClick={() => updateFilter('vibe', filterState.vibe === v.id ? '' : v.id)}
+                                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all ${filterState.vibe === v.id
+                                        ? 'bg-accent text-white border-accent shadow-lg shadow-accent/20'
+                                        : 'bg-background border-border text-muted hover:border-accent/30 hover:text-foreground'
+                                        }`}
+                                >
+                                    <span className="text-xl mb-1">{v.emoji}</span>
+                                    <span className="text-[9px] font-black uppercase tracking-widest">{v.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="h-[1px] bg-border"></div>
+
+                    {/* Moods (Legacy Tags) */}
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <label className="text-[10px] font-black text-muted uppercase tracking-widest text-[8px]">Mood Tags (Manual)</label>
                             {filterState.mood && (
                                 <button onClick={() => updateFilter('mood', '')} className="text-[9px] font-bold text-red-500 uppercase hover:underline min-h-[48px] px-2 flex items-center">Limpiar</button>
                             )}
@@ -155,7 +187,7 @@ export default function AdvancedFilterSidebar({
                             onChange={(e) => updateFilter('mood', e.target.value)}
                             className="w-full bg-background border border-border rounded-xl px-4 py-4 text-sm font-bold outline-none focus:border-accent transition-all appearance-none cursor-pointer text-foreground min-h-[56px]"
                         >
-                            <option value="" className="bg-card text-foreground">Cualquier Vibe</option>
+                            <option value="" className="bg-card text-foreground">Cualquier Mood</option>
                             {MOODS.map(m => (
                                 <option key={m.label} value={m.label} className="bg-card text-foreground">{m.emoji} {m.label}</option>
                             ))}
@@ -196,25 +228,28 @@ export default function AdvancedFilterSidebar({
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
                             <label className="text-[10px] font-black text-muted uppercase tracking-widest">Tonalidad & Escala</label>
-                            {filterState.key && (
-                                <button onClick={() => { updateFilter('key', ''); updateFilter('scale', ''); }} className="text-[9px] font-bold text-error uppercase hover:underline min-h-[40px] px-2 flex items-center">Limpiar</button>
+                            {filterState.tonoEscala && (
+                                <button onClick={() => updateFilter('tonoEscala', '')} className="text-[9px] font-bold text-error uppercase hover:underline min-h-[40px] px-2 flex items-center">Limpiar</button>
                             )}
                         </div>
                         <select
-                            value={filterState.key}
+                            value={filterState.tonoEscala || ''}
                             onChange={(e) => {
-                                const val = e.target.value;
-                                updateFilter('key', val);
-                                if (val.includes('_maj')) updateFilter('scale', 'Mayor');
-                                else if (val.includes('_min')) updateFilter('scale', 'Menor');
-                                else updateFilter('scale', '');
+                                updateFilter('tonoEscala', e.target.value);
                             }}
                             className="w-full bg-background border border-border text-foreground rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-accent appearance-none min-h-[48px]"
                         >
                             <option value="" className="bg-card">Cualquier Tonalidad</option>
-                            {MUSICAL_KEYS.map(k => (
-                                <option key={k.value} value={k.value} className="bg-card">{k.label}</option>
-                            ))}
+                            <optgroup label="NOTAS NATURALES" className="bg-card text-accent font-black">
+                                {MUSICAL_KEYS.filter(k => k.group === 'natural').map(k => (
+                                    <option key={k.value} value={k.value} className="bg-card text-foreground">{k.label}</option>
+                                ))}
+                            </optgroup>
+                            <optgroup label="SOLO PARA PROS (ALTERADAS)" className="bg-card text-accent font-black">
+                                {MUSICAL_KEYS.filter(k => k.group === 'accidental').map(k => (
+                                    <option key={k.value} value={k.value} className="bg-card text-foreground">{k.label}</option>
+                                ))}
+                            </optgroup>
                         </select>
                     </div>
                 </div>

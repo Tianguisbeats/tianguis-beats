@@ -8,7 +8,7 @@ import { Music, SlidersHorizontal, ArrowLeft, Clock, TrendingUp, Sparkles, Troph
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Beat } from "@/lib/types";
-import { GENRES } from "@/lib/constants";
+import { GENRES, MUSICAL_KEYS } from "@/lib/constants";
 import AdvancedFilterSidebar from "@/components/explore/AdvancedFilterSidebar";
 import BeatCardPro from "@/components/explore/BeatCardPro";
 
@@ -39,8 +39,8 @@ function CatalogContent() {
         subgenre: "",
         bpmMin: "" as number | string,
         bpmMax: "" as number | string,
-        key: "",
-        scale: "",
+        tonoEscala: "",
+        vibe: "",
         mood: "",
         refArtist: "",
         beatType: "",
@@ -55,8 +55,7 @@ function CatalogContent() {
         const q = searchParams.get('q');
         const g = searchParams.get('genre');
         const m = searchParams.get('mood');
-        const k = searchParams.get('key');
-        const s = searchParams.get('scale');
+        const k = searchParams.get('key') || searchParams.get('tonoEscala');
         const b = searchParams.get('bpm');
         const ra = searchParams.get('artist') || searchParams.get('refArtist');
         const bt = searchParams.get('beat_type') || searchParams.get('beatType');
@@ -68,8 +67,7 @@ function CatalogContent() {
             searchQuery: q || prev.searchQuery,
             genre: g || prev.genre,
             mood: m || prev.mood,
-            key: k || prev.key,
-            scale: s || prev.scale,
+            tonoEscala: k || prev.tonoEscala,
             refArtist: ra || prev.refArtist,
             beatType: bt || prev.beatType,
             bpmMin: b ? parseInt(b) : prev.bpmMin,
@@ -79,9 +77,12 @@ function CatalogContent() {
     }, [searchParams]);
 
     const transformBeat = async (b: any) => {
+        // Priorizar archivo_muestra_url para ahorrar ancho de banda
         const path = b.archivo_muestra_url || b.archivo_mp3_url || '';
         const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-        const bucket = path.includes('-hq-') ? 'beats_mp3' : 'muestras_beats';
+
+        // Usar buckets unificados en español
+        const bucket = path === b.archivo_muestra_url ? 'muestras_beats' : 'beats_mp3';
         const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
 
         let finalCoverUrl = b.portada_url;
@@ -144,27 +145,18 @@ function CatalogContent() {
                 if (filterState.mood) query = query.ilike('vibras', `%${filterState.mood}%`);
                 if (filterState.bpmMin) query = query.gte('bpm', filterState.bpmMin);
                 if (filterState.bpmMax) query = query.lte('bpm', filterState.bpmMax);
-                if (filterState.key) {
-                    const keyVal = filterState.key;
-                    if (keyVal.includes('_')) {
-                        const [note, scaleSuffix] = keyVal.split('_');
-                        const dbNote = note.replace('sharp', '#').replace('flat', 'b');
-                        query = query.eq('nota_musical', dbNote);
-
-                        const dbScale = scaleSuffix === 'maj' ? 'Mayor' : 'Menor';
-                        query = query.eq('escala_musical', dbScale);
+                if (filterState.tonoEscala) {
+                    const selectedKey = MUSICAL_KEYS.find(k => k.value === filterState.tonoEscala);
+                    if (selectedKey?.enharmonic) {
+                        query = query.in('tono_escala', [selectedKey.value, selectedKey.enharmonic]);
                     } else {
-                        query = query.eq('nota_musical', filterState.key);
+                        query = query.eq('tono_escala', filterState.tonoEscala);
                     }
                 }
 
-                if (filterState.scale && !filterState.key) {
-                    const scale = filterState.scale;
-                    if (scale === 'Mayor') {
-                        query = query.or(`escala_musical.eq.Mayor,nota_musical.ilike.%Maj%`);
-                    } else if (scale === 'Menor') {
-                        query = query.or(`escala_musical.eq.Menor,nota_musical.ilike.%min%,nota_musical.ilike.%m%`);
-                    }
+                if (filterState.vibe) {
+                    const keysForVibe = MUSICAL_KEYS.filter(k => k.vibe === filterState.vibe).map(k => k.value);
+                    query = query.in('tono_escala', keysForVibe);
                 }
 
                 if (filterState.searchQuery.trim()) {
@@ -173,7 +165,7 @@ function CatalogContent() {
                         const username = q.substring(1);
                         query = query.ilike('productor_nombre_usuario', `%${username}%`);
                     } else {
-                        query = query.or(`titulo.ilike.%${q}%,productor_nombre_artistico.ilike.%${q}%,productor_nombre_usuario.ilike.%${q}%,genero.ilike.%${q}%,vibras.ilike.%${q}%`);
+                        query = query.or(`titulo.ilike.%${q}%,productor_nombre_artistico.ilike.%${q}%,productor_nombre_usuario.ilike.%${q}%`);
                     }
                 }
 

@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { Beat } from '@/lib/types';
 import LicenseSelectionModal from './LicenseSelectionModal';
 import { useState } from 'react';
+import { MUSICAL_KEYS } from '@/lib/constants';
 
 interface BeatRowProps {
     beat: Beat;
@@ -47,7 +48,7 @@ export default function BeatRow({ beat }: BeatRowProps) {
     };
 
     return (
-        <div className="group bg-card rounded-[2rem] overflow-hidden border border-border shadow-sm hover:shadow-xl transition-all flex flex-row items-center p-3 sm:p-4 gap-3 sm:gap-6 relative">
+        <div className="tianguis-card flex flex-row items-center p-3 sm:p-4 gap-3 sm:gap-6 relative">
             {/* 1. Miniatura del arte (Touch Target Grande en Móvil) */}
             <div
                 onClick={handlePlay}
@@ -93,14 +94,9 @@ export default function BeatRow({ beat }: BeatRowProps) {
 
                 {/* Metadatos (Ocultos en ultra-móvil, visibles en desktop) */}
                 <div className="hidden sm:flex items-center gap-2 mt-2">
-                    {beat.nota_musical && (
+                    {beat.tono_escala && (
                         <span className="text-[9px] font-black text-accent bg-accent/10 px-3 py-1.5 rounded-xl uppercase tracking-widest">
-                            {beat.nota_musical}
-                        </span>
-                    )}
-                    {beat.escala_musical && (
-                        <span className="text-[9px] font-black text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10 px-3 py-1.5 rounded-xl uppercase tracking-widest">
-                            {beat.escala_musical}
+                            {MUSICAL_KEYS.find(k => k.value === beat.tono_escala)?.label || beat.tono_escala}
                         </span>
                     )}
                 </div>

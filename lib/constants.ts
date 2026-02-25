@@ -139,35 +139,38 @@ export const MOODS = [
 ];
 
 /**
- * Lista de tonalidades y escalas musicales.
- * @constant {Array<{label: string, value: string}>}
+ * Lista de tonalidades y escalas musicales con metadatos para búsqueda inteligente.
+ * value: El ID técnico guardado en DB.
+ * enharmonic: Valor equivalente (Db = C#).
+ * vibe: Categoría emocional (happy, sad, dark, aggressive).
+ * group: Clasificación para la UI (natural, accidental).
  */
 export const MUSICAL_KEYS = [
-    // TONALIDADES MAYORES (Major)
-    { label: "C Major", value: "C_maj" },
-    { label: "C# Major", value: "Csharp_maj" },
-    { label: "D Major", value: "D_maj" },
-    { label: "Eb Major", value: "Eb_maj" },
-    { label: "E Major", value: "E_maj" },
-    { label: "F Major", value: "F_maj" },
-    { label: "F# Major", value: "Fsharp_maj" },
-    { label: "G Major", value: "G_maj" },
-    { label: "Ab Major", value: "Ab_maj" },
-    { label: "A Major", value: "A_maj" },
-    { label: "Bb Major", value: "Bb_maj" },
-    { label: "B Major", value: "B_maj" },
+    // TONALIDADES MAYORES (Major) - Vibes: Happy / Bright
+    { label: "C Major", value: "C_maj", vibe: "happy", group: "natural" },
+    { label: "Db / C# Major", value: "Db_maj", enharmonic: "Csharp_maj", vibe: "happy", group: "accidental" },
+    { label: "D Major", value: "D_maj", vibe: "happy", group: "natural" },
+    { label: "Eb / D# Major", value: "Eb_maj", enharmonic: "Dsharp_maj", vibe: "happy", group: "accidental" },
+    { label: "E Major", value: "E_maj", vibe: "happy", group: "natural" },
+    { label: "F Major", value: "F_maj", vibe: "happy", group: "natural" },
+    { label: "Gb / F# Major", value: "Gb_maj", enharmonic: "Fsharp_maj", vibe: "happy", group: "accidental" },
+    { label: "G Major", value: "G_maj", vibe: "happy", group: "natural" },
+    { label: "Ab / G# Major", value: "Ab_maj", enharmonic: "Gsharp_maj", vibe: "happy", group: "accidental" },
+    { label: "A Major", value: "A_maj", vibe: "happy", group: "natural" },
+    { label: "Bb / A# Major", value: "Bb_maj", enharmonic: "Asharp_maj", vibe: "happy", group: "accidental" },
+    { label: "B Major", value: "B_maj", vibe: "happy", group: "natural" },
 
-    // TONALIDADES MENORES (Minor)
-    { label: "C Minor", value: "C_min" },
-    { label: "C# Minor", value: "Csharp_min" },
-    { label: "D Minor", value: "D_min" },
-    { label: "Eb Minor", value: "Eb_min" },
-    { label: "E Minor", value: "E_min" },
-    { label: "F Minor", value: "F_min" },
-    { label: "F# Minor", value: "Fsharp_min" },
-    { label: "G Minor", value: "G_min" },
-    { label: "Ab Minor", value: "Ab_min" },
-    { label: "A Minor", value: "A_min" },
-    { label: "Bb Minor", value: "Bb_min" },
-    { label: "B Minor", value: "B_min" }
+    // TONALIDADES MENORES (Minor) - Vibes: Sad / Dark / Aggressive
+    { label: "C Minor", value: "C_min", vibe: "sad", group: "natural" },
+    { label: "C# / Db Minor", value: "Csharp_min", enharmonic: "Db_min", vibe: "aggressive", group: "accidental" },
+    { label: "D Minor", value: "D_min", vibe: "sad", group: "natural" },
+    { label: "Eb / D# Minor", value: "Eb_min", enharmonic: "Dsharp_min", vibe: "aggressive", group: "accidental" },
+    { label: "E Minor", value: "E_min", vibe: "sad", group: "natural" },
+    { label: "F Minor", value: "F_min", vibe: "dark", group: "natural" },
+    { label: "F# / Gb Minor", value: "Fsharp_min", enharmonic: "Gb_min", vibe: "aggressive", group: "accidental" },
+    { label: "G Minor", value: "G_min", vibe: "sad", group: "natural" },
+    { label: "Ab / G# Minor", value: "Ab_min", enharmonic: "Gsharp_min", vibe: "dark", group: "accidental" },
+    { label: "A Minor", value: "A_min", vibe: "sad", group: "natural" },
+    { label: "Bb / A# Minor", value: "Bb_min", enharmonic: "Asharp_min", vibe: "aggressive", group: "accidental" },
+    { label: "B Minor", value: "B_min", vibe: "dark", group: "natural" }
 ];

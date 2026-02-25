@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import LicenseSelectionModal from '@/components/LicenseSelectionModal';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { MUSICAL_KEYS } from '@/lib/constants';
 
 interface BeatCardProProps {
     beat: Beat;
@@ -110,10 +111,8 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
         setIsLicenseModalOpen(true);
     };
 
-    const cardStyles = getGenreStyles();
-
     return (
-        <div className={`card-modern flex flex-col h-full ${compact ? 'max-w-[280px]' : ''} ${cardStyles}`}>
+        <div className={`tianguis-card flex flex-col h-full ${compact ? 'max-w-[280px]' : ''}`}>
             {/* Image Section */}
             <div className="relative aspect-square overflow-hidden p-2 pb-0">
                 <div className="w-full h-full rounded-[1.2rem] overflow-hidden relative shadow-inner group">
@@ -197,7 +196,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                     </div>
                 </Link>
 
-                {/* Pills Section */}
+                {/* Pills Section - Genre, BPM, Tone/Scale */}
                 <div className={`flex flex-wrap gap-1 ${compact ? 'mb-2' : 'mb-4'} justify-center w-full`}>
                     {beat.genero && (
                         <span className={`text-[7px] font-black text-success bg-success/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-success/20 uppercase tracking-widest leading-none`}>
@@ -207,12 +206,12 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                     <span className={`text-[7px] font-black text-muted bg-accent-soft ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-border uppercase tracking-widest leading-none`}>
                         {beat.bpm} BPM
                     </span>
-                    <span className={`text-[7px] font-black text-muted bg-accent-soft ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-border uppercase tracking-widest leading-none`}>
-                        {(beat.nota_musical || 'C').split(' ')[0].replace('m', '')}
-                    </span>
-                    <span className={`text-[7px] font-black text-accent bg-accent/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-accent/20 uppercase tracking-widest leading-none`}>
-                        {beat.escala_musical === 'Menor' ? 'minor' : 'Major'}
-                    </span>
+                    {beat.tono_escala && (
+                        <span className={`text-[7px] font-black text-accent bg-accent/10 ${compact ? 'px-1.5' : 'px-2'} py-1 rounded-2xl border border-accent/20 uppercase tracking-widest leading-none flex items-center gap-1`}>
+                            <Music size={10} />
+                            {MUSICAL_KEYS.find(k => k.value === beat.tono_escala)?.label || beat.tono_escala}
+                        </span>
+                    )}
                 </div>
 
                 <div className={`mt-auto ${compact ? 'pt-2' : 'pt-4'} border-t border-border flex items-center justify-between gap-2`}>

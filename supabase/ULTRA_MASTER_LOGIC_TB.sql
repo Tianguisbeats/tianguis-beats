@@ -275,6 +275,51 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- ==============================================================================
+-- 7. UNIFICACIÓN DE TONO/ESCALA (BEATS)
+-- ==============================================================================
+-- Eliminar vista dependiente
+DROP VIEW IF EXISTS public.beats_busqueda;
+
+-- Asegurar nueva columna
+ALTER TABLE IF EXISTS public.beats ADD COLUMN IF NOT EXISTS tono_escala TEXT;
+
+-- Migración de datos legados (si existen nota_musical y escala_musical)
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='beats' AND column_name='nota_musical') THEN
+        UPDATE public.beats 
+        SET tono_escala = CONCAT(nota_musical, ' ', escala_musical) 
+        WHERE nota_musical IS NOT NULL AND escala_musical IS NOT NULL AND tono_escala IS NULL;
+
+        UPDATE public.beats 
+        SET tono_escala = nota_musical 
+        WHERE nota_musical IS NOT NULL AND escala_musical IS NULL AND tono_escala IS NULL;
+        
+        -- Eliminar columnas obsoletas
+        ALTER TABLE public.beats DROP COLUMN IF EXISTS nota_musical;
+        ALTER TABLE public.beats DROP COLUMN IF EXISTS escala_musical;
+    END IF;
+END $$;
+
+-- Recrear Vista de Búsqueda Optimizada (Primero borrar para permitir cambio de alias)
+DROP VIEW IF EXISTS public.beats_busqueda CASCADE;
+
+CREATE VIEW public.beats_busqueda AS
+SELECT 
+    b.*,
+    p.nombre_artistico as productor_nombre_artistico,
+    p.nombre_usuario as productor_nombre_usuario,
+    p.esta_verificado as productor_esta_verificado,
+    p.es_fundador as productor_es_fundador,
+    p.nivel_suscripcion as productor_nivel_suscripcion,
+    p.foto_perfil as productor_foto_perfil
+FROM public.beats b
+JOIN public.perfiles p ON b.productor_id = p.id
+WHERE b.es_publico = true;
+
+GRANT SELECT ON public.beats_busqueda TO anon, authenticated;
+
 COMMIT;
 
 -- ==============================================================================

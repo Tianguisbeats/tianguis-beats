@@ -15,6 +15,7 @@ import { useCart } from '@/context/CartContext';
 import { Beat } from '@/lib/types';
 import { Crown, Youtube, Zap, Package, Tag, Layers, Activity, Calendar, Check } from 'lucide-react';
 import BeatCardPro from '@/components/explore/BeatCardPro';
+import { MUSICAL_KEYS } from '@/lib/constants';
 
 // Extend Beat interface to include detail columns
 interface BeatDetail extends Beat {
@@ -108,10 +109,12 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 if (fetchError) throw fetchError;
                 if (!data) throw new Error("Beat not found");
 
-                // Resolve high-quality preview
+                // Resolve high-quality preview (Prioritizing Samples)
                 const path = data.archivo_muestra_url || data.archivo_mp3_url || '';
                 const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-                const bucket = path.includes('-hq-') ? 'beats_mp3' : 'muestras_beats';
+
+                // Usar buckets unificados en español
+                const bucket = path === data.archivo_muestra_url ? 'muestras_beats' : 'beats_mp3';
                 const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
 
                 // Resolve Cover Art URL
@@ -328,8 +331,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 {[
                                     { label: 'Género', val: beat.genero, icon: Tag, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
                                     { label: 'Tempo', val: `${beat.bpm} BPM`, icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-                                    { label: 'Tonalidad', val: beat.nota_musical || 'C', icon: Music2, color: 'text-accent', bg: 'bg-accent/10' },
-                                    { label: 'Escala', val: beat.escala_musical || 'Mayor', icon: Layers, color: 'text-purple-500', bg: 'bg-purple-500/10' }
+                                    { label: 'Tono / Escala', val: MUSICAL_KEYS.find(k => k.value === beat.tono_escala)?.label || beat.tono_escala || 'N/A', icon: Music2, color: 'text-accent', bg: 'bg-accent/10' }
                                 ].map((stat, i) => (
                                     <div key={i} className="flex-1 min-w-[120px] p-4 rounded-3xl bg-card border border-border/50 shadow-sm flex flex-col items-center md:items-start gap-2">
                                         <span className={`p-2 rounded-xl ${stat.bg} ${stat.color}`}>

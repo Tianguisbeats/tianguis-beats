@@ -1,48 +1,42 @@
 @import "tailwindcss";
 
 :root {
-  /* Paleta Unificada de 3 Colores */
-  --background: #ffffff;
-  --foreground: #000000;
+  /* Design Tokens - Light Mode (High-Tech & Deep Shadows) */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --card-border: rgba(15, 23, 42, 0.08);
+  --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+
   --accent: #2563eb;
+  --accent-soft: #eff6ff;
+  --accent-glow: rgba(37, 99, 235, 0.1);
 
-  /* Colores de Apoyo (Derivados) */
-  --accent-soft: #f8fafc;
-  --card: #ffffff;
-  --border: #e2e8f0;
   --muted: #64748b;
+  --border: #e2e8f0;
 
-  /* Alias para compatibilidad (redirigidos al acento único) */
-  --accent-pro: var(--accent);
-  --accent-premium: var(--accent);
-
-  /* Variables Semánticas (Política de 3 Colores) */
-  --success: var(--accent);
-  --warning: var(--accent);
-  --error: var(--accent);
-  --info: var(--accent);
-
-  /* Efectos Modernos */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  /* Font Aliases */
+  --font-heading: var(--font-kanit), sans-serif;
+  --font-body: var(--font-montserrat), sans-serif;
 }
 
-/* Unificación de Temas (Misma paleta para ambos) */
 [data-theme='dark'] {
+  /* Design Tokens - Dark Mode (Deep Space & Neon Glow) */
   --background: #000000;
-  --foreground: #ffffff;
-  --card: #0a0c10;
-  --border: #1e293b;
-  --muted: #94a3b8;
+  --foreground: #f8fafc;
+
+  --card-bg: rgba(10, 12, 16, 0.6);
+  --card-border: rgba(255, 255, 255, 0.05);
+  --card-shadow: 0 0 20px -5px rgba(0, 0, 0, 0.5);
+  --card-glow-hover: 0 0 30px -10px rgba(37, 99, 235, 0.3);
+
+  --accent: #2563eb;
   --accent-soft: #0f172a;
-  --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  --success: var(--accent);
-  --warning: var(--accent);
-  --error: var(--accent);
-  --info: var(--accent);
+  --accent-glow: rgba(37, 99, 235, 0.2);
+
+  --muted: #94a3b8;
+  --border: #1e293b;
 }
 
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -51,29 +45,51 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-accent: var(--accent);
-  --color-accent-pro: var(--accent-pro);
-  --color-accent-premium: var(--accent-premium);
   --color-accent-soft: var(--accent-soft);
-  --color-card: var(--card);
+  --color-card: var(--card-bg);
   --color-border: var(--border);
   --color-muted: var(--muted);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-error: var(--error);
-  --color-info: var(--info);
 
-  --font-heading: var(--font-kanit), sans-serif;
-  --font-body: var(--font-montserrat), sans-serif;
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
 
-  --shadow-premium: var(--shadow-premium);
+  --shadow-premium: var(--card-shadow);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.5s ease;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Background Atmosphere Blobs */
+.bg-glow-circle {
+  position: fixed;
+  top: -10%;
+  right: -5%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+  filter: blur(120px);
+  z-index: -1;
+  pointer-events: none;
+  animation: pulse-glow 10s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  from {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
 }
 
 @layer base {
@@ -88,42 +104,55 @@ body {
     @apply tracking-tighter;
   }
 
-  /* ZOOM GLOBAL EN TODOS LOS BOTONES */
+  /* Global Button Refinement */
   button,
   a.button,
-  .btn-standard,
   [role="button"] {
-    @apply flex items-center justify-center transition-all duration-300 pointer-events-auto;
+    @apply transition-all duration-300 active:scale-95;
+  }
+}
+
+@layer components {
+
+  /* MASTER TIANGUIS CARD */
+  .tianguis-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    border-radius: 2rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
   }
 
-  button:hover,
-  a.button:hover,
-  .btn-standard:hover,
-  [role="button"]:hover {
-    @apply transform scale-[1.08] shadow-xl z-10;
-  }
-
-  button:active,
-  a.button:active,
-  .btn-standard:active,
-  [role="button"]:active {
-    @apply scale-[0.95] duration-75;
+  .tianguis-card:hover {
+    transform: scale(1.03) translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: var(--card-glow-hover, 0 20px 40px -15px rgba(0, 0, 0, 0.3));
   }
 
   .btn-standard {
-    @apply bg-accent text-white border-none rounded-2xl font-black uppercase tracking-widest px-6 py-3;
+    background-color: var(--accent);
+    color: white;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 1rem 2rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+
+  .btn-standard:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.2);
   }
 }
 
-/* Modern Card Style (Unified) */
-.card-modern {
-  @apply bg-card border border-border rounded-[2rem] p-6 transition-all duration-500 hover:shadow-premium hover:-translate-y-1 overflow-hidden relative;
-}
-
-[data-theme='dark'] .card-modern {
-  @apply shadow-2xl shadow-black/40;
-}
-
+/* Scrollbar Modernization */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -133,22 +162,48 @@ body {
   scrollbar-width: none;
 }
 
-/* Inyección de estilos de soporte para evitar errores de compilación */
-.border-pro,
-.border-premium {
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* Compatibility Aliases */
+.card-modern {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  border-radius: 2rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+.card-modern:hover {
+  transform: scale(1.03) translateY(-4px);
   border-color: var(--accent);
 }
 
-.text-pro,
-.text-premium {
-  color: var(--accent);
-}
-
-.bg-pro,
-.bg-premium {
-  background-color: var(--accent);
-}
-
 .empty-state-card {
-  @apply bg-card border border-border rounded-[2rem] transition-all duration-500 hover:shadow-premium hover:-translate-y-1 overflow-hidden relative p-20 text-center;
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 2rem;
+  padding: 5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }

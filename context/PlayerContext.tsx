@@ -99,11 +99,13 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Resolver la URL si es una ruta relativa de Supabase Storage
+        // Priorizar archivo_muestra_url para ahorrar ancho de banda
         let finalUrl = beat.archivo_muestra_url || beat.archivo_mp3_url || '';
 
         if (finalUrl && !finalUrl.startsWith('http')) {
             const encodedPath = finalUrl.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-            const bucket = finalUrl.includes('-hq-') ? 'beats-mp3-alta-calidad' : 'beats-muestras';
+            // Usar buckets unificados en español
+            const bucket = finalUrl === beat.archivo_muestra_url ? 'muestras_beats' : 'beats_mp3';
             const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
             finalUrl = publicUrl;
         }

@@ -39,6 +39,7 @@ export default function RootLayout({
       <body
         className={`${kanit.variable} ${montserrat.variable} font-body antialiased`}
       >
+        <div className="bg-glow-circle" />
         <ThemeProvider>
           <CurrencyProvider>
             <ToastProvider>

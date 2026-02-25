@@ -58,9 +58,12 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
 
                 if (beatsData) {
                     const transformedBeats = await Promise.all(beatsData.map(async (b: any) => {
+                        // Priorizar archivo_muestra_url
                         const path = b.archivo_muestra_url || b.archivo_mp3_url || '';
                         const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-                        const bucket = path.includes('-hq-') ? 'beats_mp3' : 'muestras_beats';
+
+                        // Usar buckets unificados en español
+                        const bucket = path === b.archivo_muestra_url ? 'muestras_beats' : 'beats_mp3';
                         const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
 
                         const finalCoverUrl = b.portada_url?.startsWith('http')

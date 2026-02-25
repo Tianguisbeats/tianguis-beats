@@ -14,6 +14,8 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { GENRES, MOODS } from '@/lib/constants';
+import { supabase } from '@/lib/supabase';
+import { useEffect } from 'react';
 
 /**
  * Página Principal (Home)
@@ -22,6 +24,46 @@ import { GENRES, MOODS } from '@/lib/constants';
  */
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+
+  // Live Search Logic (Debounced)
+  useEffect(() => {
+    if (!searchQuery.trim() || searchQuery.length < 2) {
+      setSearchResults([]);
+      setShowResults(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      setShowResults(true);
+      try {
+        const q = searchQuery.trim();
+        let query = supabase
+          .from('beats_busqueda')
+          .select('id, titulo, portada_url, productor_nombre_artistico, productor_nombre_usuario, productor_foto_perfil')
+          .eq('es_publico', true);
+
+        if (q.startsWith('@')) {
+          const username = q.substring(1);
+          query = query.ilike('productor_nombre_usuario', `%${username}%`);
+        } else {
+          query = query.or(`titulo.ilike.%${q}%,productor_nombre_artistico.ilike.%${q}%,productor_nombre_usuario.ilike.%${q}%`);
+        }
+
+        const { data } = await query.limit(6);
+        setSearchResults(data || []);
+      } catch (err) {
+        console.error("Search error:", err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const handleSmartSearch = (query: string) => {
     if (!query.trim()) {
@@ -76,10 +118,10 @@ export default function Home() {
       const finalKey = normalizedKey.charAt(0).toUpperCase() + normalizedKey.slice(1);
 
       if (detectedScale) {
-        params.set('key', `${finalKey}_${detectedScale}`);
+        params.set('tonoEscala', `${finalKey}_${detectedScale}`);
       } else {
         // Si no detecta escala, por defecto busca Major si el usuario solo puso la nota
-        params.set('key', `${finalKey}_maj`);
+        params.set('tonoEscala', `${finalKey}_maj`);
       }
     }
 
@@ -163,8 +205,58 @@ export default function Home() {
                       handleSmartSearch(searchQuery);
                     }
                   }}
+                  onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
                 />
               </div>
+
+              {/* Suggestions Overlay */}
+              {showResults && (searchQuery.length >= 2) && (
+                <div className="absolute top-full left-0 right-0 mt-3 p-2 bg-card border border-border rounded-[2rem] shadow-2xl z-50 animate-fade-in no-scrollbar overflow-hidden">
+                  <div className="p-3 border-b border-border/50 flex items-center justify-between">
+                    <span className="text-[9px] font-black text-muted uppercase tracking-widest ml-2">Sugerencias Rápidas</span>
+                    {isSearching && <div className="w-3 h-3 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>}
+                  </div>
+                  <div className="max-h-[350px] overflow-y-auto no-scrollbar">
+                    {searchResults.length > 0 ? (
+                      searchResults.map((result) => (
+                        <Link
+                          key={result.id}
+                          href={`/beats/${result.id}`}
+                          className="flex items-center gap-4 p-3 hover:bg-accent/10 rounded-2xl transition-all group"
+                        >
+                          <div className="w-12 h-12 rounded-xl overflow-hidden bg-background border border-border shrink-0">
+                            <img
+                              src={result.portada_url || "/logo.png"}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                              alt="Cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-black text-foreground truncate uppercase tracking-tight">{result.titulo}</h4>
+                            <div className="flex items-center gap-2">
+                              <img src={result.productor_foto_perfil || "/logo.png"} className="w-4 h-4 rounded-full border border-border shadow-sm" alt="P" />
+                              <p className="text-[10px] font-bold text-muted truncate uppercase tracking-widest">{result.productor_nombre_artistico}</p>
+                            </div>
+                          </div>
+                          <div className="text-accent opacity-0 group-hover:opacity-100 transition-opacity pr-2">
+                            <Zap size={14} fill="currentColor" />
+                          </div>
+                        </Link>
+                      ))
+                    ) : !isSearching ? (
+                      <div className="p-8 text-center">
+                        <p className="text-xs font-bold text-muted uppercase tracking-widest">No se encontraron resultados</p>
+                      </div>
+                    ) : null}
+                  </div>
+                  <button
+                    onClick={() => handleSmartSearch(searchQuery)}
+                    className="w-full p-4 mt-2 bg-accent/5 hover:bg-accent/10 text-accent text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all"
+                  >
+                    Ver todos los resultados para "{searchQuery}"
+                  </button>
+                </div>
+              )}
               <button
                 onClick={() => handleSmartSearch(searchQuery)}
                 className="btn-standard bg-accent text-white border-none px-8 py-4 md:py-3 min-h-[56px] mt-2 md:mt-0 shadow-lg hover:bg-accent/90"

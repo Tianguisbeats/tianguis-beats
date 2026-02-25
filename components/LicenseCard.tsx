@@ -17,12 +17,12 @@ export default function LicenseCard({ type, price, features, active, onSelect, s
     return (
         <div
             onClick={!isSold ? onSelect : undefined}
-            className={`relative p-8 rounded-[2.5rem] border-2 transition-all duration-500 group
+            className={`tianguis-card relative p-8 border-2
                 ${isSold
-                    ? 'bg-background border-dashed border-border opacity-60 cursor-not-allowed'
+                    ? 'bg-background border-dashed opacity-60 cursor-not-allowed'
                     : selected
-                        ? 'bg-foreground text-background border-foreground shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] scale-[1.02] cursor-pointer'
-                        : 'bg-card border-border/50 text-foreground hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer'
+                        ? 'bg-foreground text-background border-foreground shadow-xl scale-[1.02] cursor-pointer'
+                        : 'text-foreground hover:border-accent cursor-pointer'
                 }
             `}
         >
