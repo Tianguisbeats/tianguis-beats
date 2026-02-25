@@ -7,7 +7,7 @@ import {
     Share2, MoreHorizontal, Calendar, MapPin,
     Music, Play, Users, Crown, Settings, Camera,
     Edit3, CheckCircle2, Copy, Trash2, Layout, PlayCircle,
-    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save, ChevronUp, ChevronDown, List, Briefcase, Clock, DollarSign, Package, MessageSquare, Mail, ShoppingBag
+    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save, ChevronUp, ChevronDown, List, Briefcase, Clock, DollarSign, Package, MessageSquare, Mail, ShoppingBag, Link2
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -166,6 +166,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     const [editVerifyTiktok, setEditVerifyTiktok] = useState('');
     const [saving, setSaving] = useState(false);
     const [isAdjustingCover, setIsAdjustingCover] = useState(false);
+    const [showCoverMenu, setShowCoverMenu] = useState(false);
     const [tempOffset, setTempOffset] = useState(50);
     const [isReordering, setIsReordering] = useState(false);
     const [hasChangedOrder, setHasChangedOrder] = useState(false);
@@ -497,6 +498,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         }
     };
 
+    const handleDeleteCover = async () => {
+        if (!profile) return;
+        setSaving(true);
+        const { error } = await supabase.from('perfiles').update({ portada_perfil: null, ajuste_portada: 50 }).eq('id', profile.id);
+        if (!error) {
+            setProfile({ ...profile, portada_perfil: null, ajuste_portada: 50 });
+            showToast("Portada eliminada", "success");
+        }
+        setSaving(false);
+        setShowCoverMenu(false);
+    };
+
     const handleUploadMedia = async (type: 'avatar' | 'cover', e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || !profile) return;
@@ -631,17 +644,49 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-background via-background/40 to-transparent dark:hidden" />
 
                     {isOwner && !isAdjustingCover && (
-                        <div className="absolute top-6 right-6 flex gap-3 z-20">
-                            <button
-                                onClick={() => setIsAdjustingCover(true)}
-                                className="bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest backdrop-blur-md transition-all flex items-center gap-2 border border-white/10"
-                            >
-                                <Edit3 size={14} /> Posición
-                            </button>
-                            <label className="bg-blue-600 text-white px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer shadow-xl shadow-blue-600/20 transition-all flex items-center gap-2 hover:scale-105 active:scale-95 border border-blue-500">
-                                <Camera size={14} className="text-white" /> Portada
-                                <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUploadMedia('cover', e)} />
-                            </label>
+                        <div className="absolute top-6 right-6 flex gap-3 z-40">
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowCoverMenu(!showCoverMenu)}
+                                    className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest backdrop-blur-md transition-all flex items-center gap-3 border border-white/10 shadow-2xl"
+                                >
+                                    <Camera size={16} /> {profile.portada_perfil ? 'Gestionar Portada' : 'Subir Portada'}
+                                </button>
+
+                                {showCoverMenu && (
+                                    <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-[#0a0a0f] rounded-[2rem] shadow-3xl border border-slate-100 dark:border-white/10 p-3 flex flex-col gap-1 z-50 animate-in fade-in slide-in-from-top-4 duration-300">
+                                        <div className="px-5 py-3 mb-2 border-b border-slate-50 dark:border-white/5">
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Opciones de Portada</p>
+                                        </div>
+                                        <label className="flex items-center gap-3 px-5 py-4 hover:bg-slate-50 dark:hover:bg-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest cursor-pointer transition-colors text-foreground">
+                                            <Camera size={14} className="text-blue-500" />
+                                            {profile.portada_perfil ? 'Cambiar Imagen' : 'Subir Imagen'}
+                                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUploadMedia('cover', e)} />
+                                        </label>
+                                        {profile.portada_perfil && (
+                                            <>
+                                                <button
+                                                    onClick={() => {
+                                                        setIsAdjustingCover(true);
+                                                        setShowCoverMenu(false);
+                                                    }}
+                                                    className="flex items-center gap-3 px-5 py-4 hover:bg-slate-50 dark:hover:bg-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground transition-colors"
+                                                >
+                                                    <MoveVertical size={14} className="text-amber-500" />
+                                                    Mover Portada
+                                                </button>
+                                                <button
+                                                    onClick={handleDeleteCover}
+                                                    className="flex items-center gap-3 px-5 py-4 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-red-500 transition-colors"
+                                                >
+                                                    <Trash2 size={14} />
+                                                    Eliminar
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
 
@@ -745,7 +790,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     onChange={(e) => setEditCountry(e.target.value)}
                                                     className="bg-accent/5 rounded-lg px-2 py-1 text-accent outline-none border border-accent/20"
                                                 >
-                                                    <option value="">País</option>
+                                                    <option value="">Escribe tu país</option>
                                                     {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
                                                 </select>
                                                 {!COUNTRIES.includes(editCountry) && (
@@ -863,7 +908,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-white/10 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-slate-400/5 dark:bg-white/5 blur-[60px] rounded-full pointer-events-none" />
                                 <h3 className="text-[11px] font-black uppercase tracking-[0.3em] mb-10 text-slate-400 dark:text-white/40 flex items-center gap-3">
-                                    <ListMusic size={14} className="text-accent" /> Smart Bio
+                                    <ListMusic size={14} className="text-accent" /> Acerca de mí
                                 </h3>
 
                                 {isEditing ? (
@@ -871,10 +916,16 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <div>
                                             <textarea
                                                 value={editBio}
-                                                onChange={(e) => setEditBio(e.target.value)}
+                                                maxLength={500}
+                                                onChange={(e) => setEditBio(e.target.value.slice(0, 500))}
                                                 className="w-full h-40 bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] p-6 text-sm font-medium border-transparent focus:border-accent outline-none resize-none text-slate-900 dark:text-white shadow-inner"
                                                 placeholder="Tu historia comienza aquí..."
                                             />
+                                            <div className="flex justify-end mt-2 px-2">
+                                                <span className={`text-[9px] font-black uppercase tracking-widest ${editBio.length >= 500 ? 'text-red-500' : 'text-slate-400'}`}>
+                                                    {editBio.length}/500 Caracteres
+                                                </span>
+                                            </div>
                                         </div>
                                         {/* Redes sociales removidas de aquí según solicitud */}
                                         <div className="pt-6 border-t border-slate-100 dark:border-white/5 space-y-6">
@@ -927,47 +978,65 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center py-8 w-full">
-                                        {isOwner || profile.enlaces_activos ? (
-                                            <>
-                                                {isOwner && profile.nivel_suscripcion !== 'premium' ? (
-                                                    <Link
-                                                        href="/pricing"
-                                                        className="w-full max-w-md h-20 rounded-3xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-[0_20px_40px_rgba(37,99,235,0.25)] hover:scale-105 active:scale-95 border border-white/10 relative overflow-hidden group"
-                                                    >
-                                                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                                        {/* Bio Text (Optional/Reduced) */}
+                                        {profile.biografia && (
+                                            <p className="mb-10 text-xs font-medium text-center text-slate-500 dark:text-slate-400 max-w-lg mx-auto line-clamp-3 italic">
+                                                "{profile.biografia}"
+                                            </p>
+                                        )}
 
-                                                        {/* Premium Badge - Top Right */}
-                                                        <div className="absolute top-3 right-3 px-2 py-1 rounded-md text-[7px] font-black tracking-widest uppercase border transition-all duration-300
-                                                            bg-blue-500 text-white border-white/20 shadow-lg
-                                                            group-hover:bg-white group-hover:text-blue-600 group-hover:scale-110
-                                                            dark:bg-slate-950 dark:text-blue-400 dark:border-blue-500/30 dark:group-hover:bg-blue-600 dark:group-hover:text-white"
-                                                        >
-                                                            PREMIUM
+                                        {(isOwner || profile.enlaces_activos) && (
+                                            <div className="w-full pt-10 border-t border-slate-100 dark:border-white/5">
+                                                <div className="flex items-center gap-3 mb-8">
+                                                    <Zap size={14} className="text-accent" />
+                                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-white/40">Smart Link</h4>
+                                                </div>
+
+                                                {profile.nivel_suscripcion !== 'premium' ? (
+                                                    <div className="relative group overflow-hidden rounded-[2.5rem] border border-blue-500/10 dark:border-blue-400/10 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-600/5 dark:to-indigo-600/5 p-8 transition-all hover:shadow-2xl hover:shadow-blue-500/10">
+                                                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[50px] rounded-full -mr-16 -mt-16 group-hover:bg-blue-500/20 transition-all duration-700" />
+
+                                                        <div className="relative z-10 flex flex-col items-center text-center gap-6">
+                                                            <div className="w-16 h-16 bg-white dark:bg-slate-950 rounded-2xl flex items-center justify-center text-blue-500 shadow-xl border border-slate-100 dark:border-white/5">
+                                                                <Link2 size={24} />
+                                                            </div>
+                                                            <div>
+                                                                <h5 className="font-black text-slate-900 dark:text-white text-lg mb-2 tracking-tight">Multi-Link Profesional</h5>
+                                                                <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-relaxed">Conecta todas tus redes en una sola tarjeta inteligente</p>
+                                                            </div>
+
+                                                            {isOwner ? (
+                                                                <Link
+                                                                    href="/pricing"
+                                                                    className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-blue-500/25 hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-3"
+                                                                >
+                                                                    <Crown size={14} fill="currentColor" /> Desbloquear con Premium
+                                                                </Link>
+                                                            ) : (
+                                                                <div className="w-full py-4 bg-slate-200/50 dark:bg-white/5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 border border-slate-300/30 dark:border-white/5">
+                                                                    Exclusivo Premium
+                                                                </div>
+                                                            )}
                                                         </div>
-
-                                                        Desbloquear Smart Bio
-                                                    </Link>
+                                                    </div>
                                                 ) : (
                                                     <Link
                                                         href={`/${profile.nombre_usuario}/links`}
-                                                        className="w-full max-w-sm h-20 rounded-[2.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(255,255,255,0.05)] hover:scale-105 active:scale-95 relative overflow-hidden group border border-white/5"
+                                                        className="w-full h-24 rounded-[2.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-between px-10 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(255,255,255,0.05)] hover:scale-[1.02] active:scale-95 relative overflow-hidden group border border-white/5"
                                                     >
-                                                        <div className="absolute inset-0 bg-gradient-to-r from-accent/0 via-accent/20 to-accent/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                                                        <div className="w-11 h-11 bg-accent/20 dark:bg-slate-900/10 rounded-2xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
-                                                            <Zap size={22} fill="currentColor" />
+                                                        <div className="absolute inset-0 bg-gradient-to-r from-accent/0 via-accent/10 to-accent/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                                                        <div className="flex items-center gap-6">
+                                                            <div className="w-12 h-12 bg-white/10 dark:bg-slate-900/10 rounded-2xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
+                                                                <Zap size={24} fill="currentColor" />
+                                                            </div>
+                                                            <span className="font-black text-sm">Mi Smart Link</span>
                                                         </div>
-                                                        <span className="font-black">Ver Smart Bio</span>
-                                                        <ChevronRight size={18} className="opacity-40 group-hover:translate-x-1 transition-transform ml-1" />
+                                                        <div className="w-10 h-10 rounded-full bg-white/5 dark:bg-slate-900/5 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                                                            <ChevronRight size={20} />
+                                                        </div>
                                                     </Link>
                                                 )}
-                                            </>
-                                        ) : null}
-
-                                        {/* Bio Text (Optional/Reduced) */}
-                                        {profile.biografia && (
-                                            <p className="mt-8 text-xs font-medium text-center text-slate-500 dark:text-slate-400 max-w-lg mx-auto line-clamp-3 italic">
-                                                "{profile.biografia}"
-                                            </p>
+                                            </div>
                                         )}
                                     </div>
                                 )}
@@ -980,19 +1049,19 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className="flex items-center justify-between gap-4 border-b border-border mb-12 overflow-x-auto pb-px scrollbar-hide">
                                 <div className="flex gap-10">
                                     {[
-                                        { id: 'beats', label: 'Beats', icon: Music },
-                                        { id: 'playlists', label: 'Playlists', icon: LayoutGrid },
-                                        { id: 'services', label: 'Servicios', icon: Briefcase }
+                                        { id: 'beats', label: 'Beats', icon: Music, color: 'bg-blue-500', shadow: 'shadow-blue-500/50' },
+                                        { id: 'playlists', label: 'Playlists', icon: LayoutGrid, color: 'bg-green-500', shadow: 'shadow-green-500/50' },
+                                        { id: 'services', label: 'Servicios', icon: Briefcase, color: 'bg-purple-500', shadow: 'shadow-purple-500/50' }
                                     ].map((tab) => (
                                         <button
                                             key={tab.id}
                                             onClick={() => setActiveTab(tab.id as 'beats' | 'playlists' | 'services' | 'sound_kits')}
-                                            className={`relative py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === tab.id ? 'text-foreground dark:text-blue-50 dark:drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'text-muted hover:text-foreground dark:hover:text-white'}`}
+                                            className={`relative py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === tab.id ? 'text-foreground' : 'text-muted hover:text-foreground'}`}
                                         >
                                             <tab.icon size={16} />
                                             {tab.label}
                                             {activeTab === tab.id && (
-                                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-accent rounded-full animate-in fade-in zoom-in duration-300" />
+                                                <div className={`absolute bottom-0 left-0 right-0 h-1 ${tab.color} rounded-full animate-in fade-in zoom-in duration-300 shadow-[0_0_10px_rgba(0,0,0,0.1)] ${tab.shadow}`} />
                                             )}
                                         </button>
                                     ))}
@@ -1040,10 +1109,15 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="bg-[#020205] rounded-[3rem] p-24 text-center border border-white/5 shadow-2xl">
-                                            <Music size={48} className="text-slate-800 mx-auto mb-6" />
-                                            <h3 className="text-xl font-black uppercase text-white mb-2">Sin beats todavía</h3>
-                                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Este productor aún no ha publicado sus obras</p>
+                                        <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/30 dark:from-[#0a0a0f] dark:to-[#050508] rounded-[3rem] p-24 text-center border border-slate-100 dark:border-white/5 shadow-2xl relative overflow-hidden group">
+                                            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-[80px] rounded-full -mr-32 -mt-32 group-hover:bg-blue-500/10 transition-all duration-700" />
+                                            <div className="relative z-10">
+                                                <div className="w-24 h-24 bg-white dark:bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-soft border border-slate-50 dark:border-white/5">
+                                                    <Music size={40} className="text-blue-500 opacity-60" />
+                                                </div>
+                                                <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white mb-3 tracking-tighter">Sin beats todavía</h3>
+                                                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] max-w-[200px] mx-auto leading-relaxed">Este productor aún no ha publicado sus obras maestras</p>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -1257,13 +1331,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
                                             )}
                                             <div className="relative inline-block mb-10">
-                                                <div className={`absolute inset-0 blur-[60px] rounded-full scale-[2.5] ${profile.tema_perfil !== 'light' ? 'bg-blue-500/10' : 'bg-indigo-500/5'}`} />
+                                                <div className={`absolute inset-0 blur-[60px] rounded-full scale-[2.5] ${profile.tema_perfil !== 'light' ? 'bg-green-500/10' : 'bg-green-500/5'}`} />
                                                 <div className={`relative w-32 h-32 rounded-[3.5rem] flex items-center justify-center mx-auto border shadow-inner ${profile.tema_perfil !== 'light' ? 'bg-[#0a0a0f] border-white/10' : 'bg-white border-slate-200'}`}>
-                                                    <ListMusic size={48} className="text-accent opacity-50" />
+                                                    <ListMusic size={48} className="text-green-500 opacity-60" />
                                                 </div>
                                             </div>
                                             <h3 className="text-2xl font-black uppercase tracking-tight mb-4 text-foreground text-center">
-                                                {isOwner ? "Sube tu primera playlist" : "Este productor aún no ha creado playlist"}
+                                                {isOwner ? "Sube tu primera playlist" : "Este productor aún no ha creado playlists"}
                                             </h3>
 
                                             {isOwner && (
