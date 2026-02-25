@@ -56,6 +56,17 @@ export default function LoginPage() {
             }
             // Modo Magic Link
             else if (mode === 'magic-link') {
+                // Verificar si el correo existe antes de enviar
+                const { data: profile } = await supabase
+                    .from('perfiles')
+                    .select('id')
+                    .eq('email', loginEmail)
+                    .maybeSingle();
+
+                if (!profile) {
+                    throw new Error('Este correo no está registrado en Tianguis Beats.');
+                }
+
                 const { error: otpError } = await supabase.auth.signInWithOtp({
                     email: loginEmail,
                     options: {
@@ -67,6 +78,17 @@ export default function LoginPage() {
             }
             // Modo Olvidé Contraseña
             else if (mode === 'forgot-password') {
+                // Verificar si el correo existe antes de enviar
+                const { data: profile } = await supabase
+                    .from('perfiles')
+                    .select('id')
+                    .eq('email', loginEmail)
+                    .maybeSingle();
+
+                if (!profile) {
+                    throw new Error('Este correo no está registrado en Tianguis Beats.');
+                }
+
                 const { error: resetError } = await supabase.auth.resetPasswordForEmail(loginEmail, {
                     redirectTo: `${window.location.origin}/auth/reset-password`,
                 });
