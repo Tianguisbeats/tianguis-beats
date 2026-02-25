@@ -212,13 +212,17 @@ BEGIN
     PERFORM public.limpiar_politicas_bucket('archivos_proyectos');
 END $$;
 
--- Crear políticas especiales fuera del loop
+-- Crear políticas especiales fuera del loop (CON LIMPIEZA)
+DROP POLICY IF EXISTS "Select_activos_plataforma" ON storage.objects;
 CREATE POLICY "Select_activos_plataforma" ON storage.objects FOR SELECT USING (bucket_id = 'activos_plataforma');
+
+DROP POLICY IF EXISTS "All_admin_activos_plataforma" ON storage.objects;
 CREATE POLICY "All_admin_activos_plataforma" ON storage.objects FOR ALL USING (
     bucket_id = 'activos_plataforma' AND EXISTS (SELECT 1 FROM public.perfiles WHERE id = auth.uid() AND es_admin = true)
 );
 
 -- Archivos Proyectos: Organizados por Nombre de Usuario / Proyecto_ID
+DROP POLICY IF EXISTS "All_proyectos" ON storage.objects;
 CREATE POLICY "All_proyectos" ON storage.objects FOR ALL USING (
     bucket_id = 'archivos_proyectos' AND (
         -- El primer nivel es el nombre de usuario
