@@ -24,6 +24,18 @@ BEGIN
   
   -- 2. CAMBIO DE NIVEL (UPDATE)
   ELSIF (TG_OP = 'UPDATE' AND NEW.nivel_suscripcion IS DISTINCT FROM OLD.nivel_suscripcion) THEN
+     -- Lógica de RECORRIDO (Sliding Window)
+     -- Si el usuario baja de un plan pago, recorremos los números de los que vienen después
+     IF OLD.nivel_suscripcion = 'pro' THEN
+        UPDATE public.perfiles 
+        SET user_num_pro = user_num_pro - 1 
+        WHERE user_num_pro > OLD.user_num_pro;
+     ELSIF OLD.nivel_suscripcion = 'premium' THEN
+        UPDATE public.perfiles 
+        SET user_num_prem = user_num_prem - 1 
+        WHERE user_num_prem > OLD.user_num_prem;
+     END IF;
+
      IF NEW.nivel_suscripcion = 'free' THEN
         -- Si baja a free, pierde sus números de escalera de planes pagos
         SELECT COALESCE(MAX(user_num_free), 0) + 1 INTO NEW.user_num_free FROM public.perfiles;
@@ -35,14 +47,12 @@ BEGIN
            SELECT COALESCE(MAX(user_num_pro), 0) + 1 INTO NEW.user_num_pro FROM public.perfiles;
         END IF;
         NEW.user_num_free := NULL;
-        -- Mantenemos user_num_prem si ya lo tenía (para no perder el estatus de fundador si baja de premium a pro)
      ELSIF NEW.nivel_suscripcion = 'premium' THEN
         -- Si sube a premium y NO tenía número de premium antes, se le asigna uno nuevo
         IF NEW.user_num_prem IS NULL THEN
            SELECT COALESCE(MAX(user_num_prem), 0) + 1 INTO NEW.user_num_prem FROM public.perfiles;
         END IF;
         NEW.user_num_free := NULL;
-        -- Mantenemos user_num_pro si ya lo tenía
      END IF;
   END IF;
 
