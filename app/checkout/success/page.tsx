@@ -168,23 +168,55 @@ export default function SuccessPage() {
 
                         {purchasedItems.length > 0 && purchasedItems.every(i => i.tipo_producto === 'plan') && (
                             <div className="mt-12 flex flex-col items-center gap-6">
-                                <div className="p-8 bg-blue-500/5 border border-blue-500/20 rounded-3xl max-w-md">
-                                    <h4 className="text-sm font-black uppercase tracking-widest text-blue-400 mb-4">Beneficios ahora activos:</h4>
-                                    <ul className="text-left space-y-3">
-                                        <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
-                                            <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
-                                            Subidas Ilimitadas de Beats
-                                        </li>
-                                        <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
-                                            <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
-                                            Venta de Servicios y Sound Kits
-                                        </li>
-                                        <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
-                                            <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
-                                            Insignia de Suscriptor Premium
-                                        </li>
-                                    </ul>
-                                </div>
+                                {purchasedItems.some(i => i.tipo_producto === 'plan' && i.metadatos?.tier === 'premium') ? (
+                                    <div className="p-8 bg-blue-500/5 border border-blue-500/20 rounded-3xl max-w-md">
+                                        <h4 className="text-sm font-black uppercase tracking-widest text-blue-400 mb-4">Beneficios Premium activos:</h4>
+                                        <ul className="text-left space-y-3">
+                                            <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
+                                                <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
+                                                Verificación Instantánea
+                                            </li>
+                                            <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
+                                                <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
+                                                Subidas Ilimitadas de Beats
+                                            </li>
+                                            <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
+                                                <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
+                                                Promoción Destacada en Inicio
+                                            </li>
+                                            <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
+                                                <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
+                                                Insignia de Fundador / Premium
+                                            </li>
+                                            <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
+                                                <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
+                                                Soporte Prioritario 24/7
+                                            </li>
+                                        </ul>
+                                    </div>
+                                ) : (
+                                    <div className="p-8 bg-blue-500/5 border border-blue-500/20 rounded-3xl max-w-md">
+                                        <h4 className="text-sm font-black uppercase tracking-widest text-blue-400 mb-4">Beneficios Pro activos:</h4>
+                                        <ul className="text-left space-y-3">
+                                            <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
+                                                <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
+                                                Subidas Ilimitadas de Beats
+                                            </li>
+                                            <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
+                                                <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
+                                                Venta de Servicios y Sound Kits
+                                            </li>
+                                            <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
+                                                <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
+                                                Insignia de Suscriptor Pro
+                                            </li>
+                                            <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
+                                                <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
+                                                100% de Ganancias
+                                            </li>
+                                        </ul>
+                                    </div>
+                                )}
                                 <Link
                                     href="/studio"
                                     className="px-10 py-5 bg-blue-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-blue-600 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shadow-2xl shadow-blue-500/20"
