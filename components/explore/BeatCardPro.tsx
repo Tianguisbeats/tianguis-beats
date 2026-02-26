@@ -249,10 +249,10 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
 
                     <button
                         onClick={handleLike}
-                        className={`${compact ? 'w-8 h-8' : 'w-10 h-10'} rounded-xl flex items-center justify-center transition-all bg-card border border-border/50 shadow-sm active:scale-95 shrink-0 group/heart ${isLiked ? 'text-error border-error/50 bg-error/10' : 'text-muted hover:text-error hover:border-error/30 hover:scale-110'}`}
+                        className={`${compact ? 'w-8 h-8' : 'w-10 h-10'} rounded-xl flex items-center justify-center transition-all bg-card border shadow-sm active:scale-95 shrink-0 group/heart ${isLiked ? 'text-red-500 border-red-500/50 bg-red-500/10' : 'text-red-500 border-red-500/50 hover:bg-red-500/5 hover:scale-110'}`}
                         title={isLiked ? "Quitar de favoritos" : "Añadir a favoritos"}
                     >
-                        <Heart size={compact ? 14 : 18} className={`transition-transform duration-300 ${isLiked ? 'scale-110 fill-error' : 'group-hover/heart:scale-110'}`} strokeWidth={isLiked ? 0 : 2} />
+                        <Heart size={compact ? 14 : 18} className={`transition-transform duration-300 ${isLiked ? 'scale-110 fill-red-500' : 'group-hover/heart:scale-110'}`} />
                     </button>
                 </div>
             </div>

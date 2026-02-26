@@ -11,23 +11,23 @@ export type ContractType = 'basica' | 'mp3' | 'pro' | 'premium' | 'ilimitada' | 
 const CONTRACT_TYPES = [
     {
         id: 'basica' as ContractType,
-        name: 'Licencia Básica (Baja Calidad)',
+        name: 'Licencia Gratis',
         icon: <FileText size={24} />,
-        color: 'text-blue-400',
-        gradient: 'from-blue-400/20 to-blue-300/5',
-        glow: 'group-hover:shadow-blue-400/20'
+        color: 'text-slate-400',
+        gradient: 'from-slate-400/20 to-slate-300/5',
+        glow: 'group-hover:shadow-slate-400/20'
     },
     {
         id: 'mp3' as ContractType,
-        name: 'Licencia MP3 (Estándar)',
+        name: 'Licencia Básica (MP3 HQ)',
         icon: <Music size={24} />,
-        color: 'text-blue-600',
-        gradient: 'from-blue-600/20 to-blue-500/5',
-        glow: 'group-hover:shadow-blue-600/20'
+        color: 'text-blue-500',
+        gradient: 'from-blue-500/20 to-blue-400/5',
+        glow: 'group-hover:shadow-blue-500/20'
     },
     {
         id: 'pro' as ContractType,
-        name: 'Licencia Pro (MP3/HQ)',
+        name: 'Licencia Pro (Límites Mayores)',
         icon: <Zap size={24} />,
         color: 'text-indigo-500',
         gradient: 'from-indigo-500/20 to-indigo-400/5',
@@ -35,7 +35,7 @@ const CONTRACT_TYPES = [
     },
     {
         id: 'premium' as ContractType,
-        name: 'Licencia Premium (WAV)',
+        name: 'Licencia Premium (Estudio WAV)',
         icon: <Package size={24} />,
         color: 'text-purple-500',
         gradient: 'from-purple-500/20 to-purple-400/5',
@@ -43,7 +43,7 @@ const CONTRACT_TYPES = [
     },
     {
         id: 'ilimitada' as ContractType,
-        name: 'Ilimitada (STEMS)',
+        name: 'Ilimitada (Archivos Totales)',
         icon: <Crown size={24} />,
         color: 'text-amber-500',
         gradient: 'from-amber-500/20 to-amber-400/5',
@@ -56,14 +56,6 @@ const CONTRACT_TYPES = [
         color: 'text-emerald-500',
         gradient: 'from-emerald-500/20 to-emerald-400/5',
         glow: 'group-hover:shadow-emerald-500/20'
-    },
-    {
-        id: 'soundkit' as ContractType,
-        name: 'Sound Kits (Royalty-Free)',
-        icon: <Package size={24} />,
-        color: 'text-rose-500',
-        gradient: 'from-rose-500/20 to-rose-400/5',
-        glow: 'group-hover:shadow-rose-500/20'
     }
 ];
 
@@ -146,13 +138,12 @@ export default function ContractsPage() {
     const getDefaultLegalText = (type: ContractType) => {
         // Textos por defecto si no ha configurado ninguno
         const defaults: Record<string, string> = {
-            basica: "LICENCIA BÁSICA: Este contrato otorga derechos no exclusivos de uso sobre el Beat para crear una (1) Nueva Canción. Límite de streams: 5,000.",
-            mp3: "LICENCIA MP3: Derechos no exclusivos con descarga de archivo MP3 de alta calidad (320kbps). Límite de streams: 25,000.",
-            pro: "LICENCIA PRO: Derechos no exclusivos con límites extendidos de distribución y streams. Límite de streams: 100,000.",
-            premium: "LICENCIA PREMIUM: Derechos no exclusivos para distribución comercial en plataformas. Límite de streams: 500,000.",
-            ilimitada: "LICENCIA ILIMITADA: Derechos no exclusivos para explotación comercial sin límite numérico de regalías.",
-            exclusiva: "COMPRA EXCLUSIVA: Cesión total y permanente de la posesión y explotación del instrumental (Master).",
-            soundkit: "LICENCIA ROYALTY-FREE: Todos los audios pueden ser usados libremente en construcciones de Beats, sin regalías."
+            basica: "LICENCIA GRATIS: Este contrato otorga derechos no exclusivos de uso sobre el Beat para fines promocionales. Descarga MP3 con etiqueta de voz (Tag).",
+            mp3: "LICENCIA BÁSICA: Derechos no exclusivos con descarga de archivo MP3 de alta calidad (High Quality limpio). Limite estándar de distribución.",
+            pro: "LICENCIA PRO: Derechos no exclusivos con limites extendidos de distribución y reproducciones. Descarga MP3 / WAV.",
+            premium: "LICENCIA PREMIUM: Derechos no exclusivos con calidad de estudio profesional (WAV). Altos lÍmites de explotación.",
+            ilimitada: "LICENCIA ILIMITADA: Derechos no exclusivos con acceso a todos los archivos y sin limites comerciales.",
+            exclusiva: "COMPRA EXCLUSIVA: Cesión de derechos exclusivos sobre el instrumental."
         };
         return defaults[type] || '';
     };

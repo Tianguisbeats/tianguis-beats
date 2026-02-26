@@ -98,7 +98,7 @@ export default function Navbar() {
                             <div className="flex items-center gap-4">
                                 {user ? (
                                     <div className="flex items-center gap-4">
-                                        <Link href="/upload" className="btn-standard px-5 py-2.5 min-h-[42px] text-[10px] font-black uppercase tracking-[0.2em] hover:text-accent transition-all flex items-center justify-center">
+                                        <Link href="/upload" className="px-5 py-2.5 min-h-[42px] text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-accent transition-all flex items-center justify-center">
                                             Sube tu Beat
                                         </Link>
 

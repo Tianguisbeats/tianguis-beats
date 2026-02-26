@@ -136,7 +136,6 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             setPremiumPrice(beat.precio_premium_mxn?.toString() || '999');
             setUnlimitedPrice(beat.precio_ilimitado_mxn?.toString() || '1999');
             setExclusivePrice(beat.precio_exclusivo_mxn?.toString() || '3500');
-            setSoundKitPrice(beat.precio_soundkit_mxn?.toString() || '499');
 
             setIsBasicActive(beat.es_basica_activa !== false);
             setIsMp3Active(beat.es_mp3_activa !== false);
@@ -736,84 +735,78 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                 <h4 className="text-sm font-black uppercase tracking-widest text-foreground">2. Configuración de Licencias</h4>
                             </div>
 
-                            <div className="grid gap-4">
-                                {[
-                                    { id: 'basic', label: 'Básica', color: 'blue', active: isBasicActive, setAction: setIsBasicActive, price: basicPrice, setPrice: setBasicPrice, desc: 'Uso comercial limitado (MP3 con Tag)', disabled: false },
-                                    { id: 'mp3', label: 'MP3 HQ', color: 'indigo', active: isMp3Active, setAction: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'MP3 de alta calidad limpio', disabled: false },
-                                    { id: 'pro', label: 'Pro License', color: 'indigo', active: isProActive, setAction: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Mayores límites (MP3/WAV)', disabled: isFree },
-                                    { id: 'premium', label: 'Premium', color: 'emerald', active: isPremiumActive, setAction: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Calidad profesional (WAV)', disabled: !isPremium && !isPro },
-                                    { id: 'unlimited', label: 'Ilimitada', color: 'purple', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Uso sin límites (Stems)', disabled: !isPremium },
-                                    { id: 'unlimited', label: 'Ilimitada', color: 'purple', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Uso sin límites (Stems)', disabled: !isPremium },
-                                    { id: 'soundkit', label: 'Sound Kit', color: 'rose', active: isSoundKitActive, setAction: setIsSoundKitActive, price: soundKitPrice, setPrice: setSoundKitPrice, desc: 'Licencia para Sound Kits', disabled: !isPremium }
-                                ].map((lic) => (
-                                    <div key={lic.id} className={`p-6 rounded-[1.5rem] border-2 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden ${lic.disabled ? 'bg-slate-100 dark:bg-white/5 opacity-60 grayscale' : (lic.active ? `bg-white dark:bg-black border-${lic.color}-500/30 shadow-xl shadow-${lic.color}-500/5` : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 opacity-75')}`}>
-                                        <div className="flex gap-4 items-center">
-                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-${lic.color}-500/10 text-${lic.color}-500`}>
-                                                {lic.id === 'basic' ? <FileText size={20} /> :
-                                                    lic.id === 'pro' ? <Zap size={20} /> :
-                                                        lic.id === 'premium' ? <Crown size={20} /> :
-                                                            lic.id === 'unlimited' ? <Layers size={20} /> :
-                                                                <ShieldCheck size={20} />}
-                                            </div>
-                                            <div>
-                                                <h5 className="font-black uppercase tracking-tight text-foreground">{lic.label}</h5>
-                                                <p className="text-[10px] font-bold text-muted uppercase tracking-widest">{lic.desc}</p>
-                                            </div>
-                                        </div>
+                            {[
+                                { id: 'basic', label: 'Licencia Gratis', color: 'slate', active: isBasicActive, setAction: setIsBasicActive, price: '0', setPrice: setBasicPrice, desc: 'Uso limitado (MP3 con Tag)', disabled: false, lockPrice: true },
+                                { id: 'mp3', label: 'Licencia Básica', color: 'blue', active: isMp3Active, setAction: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'Descarga MP3 High Quality', disabled: false },
+                                { id: 'pro', label: 'Licencia Pro', color: 'indigo', active: isProActive, setAction: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Mayores límites (MP3/WAV)', disabled: isFree },
+                                { id: 'premium', label: 'Licencia Premium', color: 'emerald', active: isPremiumActive, setAction: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Calidad de estudio (WAV)', disabled: !isPremium && !isPro },
+                                    { id: 'unlimited', label: 'Licencia Ilimitada', color: 'amber', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Todos los archivos y stems', disabled: !isPremium } 
 
-                                        <div className="flex items-center gap-6">
-                                            <div className={`flex items-center gap-2 bg-slate-50 dark:bg-white/5 px-4 py-3 rounded-2xl border-2 transition-all ${lic.active ? 'border-accent shadow-sm' : 'border-slate-200 dark:border-white/10 opacity-50'}`}>
-                                                <span className="text-[11px] font-black text-muted">$</span>
-                                                <input
-                                                    type="number"
-                                                    value={lic.price}
-                                                    onChange={(e) => lic.setPrice(e.target.value)}
-                                                    disabled={lic.disabled || !lic.active}
-                                                    className="w-16 bg-transparent outline-none font-black text-xs text-foreground placeholder:text-muted"
-                                                    placeholder="0"
-                                                />
-                                                <span className="text-[9px] font-black text-muted">MXN</span>
-                                            </div>
-                                            <Toggle
-                                                active={lic.active}
-                                                onToggle={() => lic.setAction(!lic.active)}
-                                                disabled={lic.disabled}
-                                            />
-                                        </div>
+                                ].map((lic: any) => (
+
+                                                lic.id === 'premium' ? <Crown size={20} /> :
+                                                    lic.id === 'unlimited' ? <Layers size={20} /> :
+                                                        <ShieldCheck size={20} />}
                                     </div>
-                                ))}
+                                    <div>
+                                        <h5 className="font-black uppercase tracking-tight text-foreground">{lic.label}</h5>
+                                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest">{lic.desc}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-6">
+                                    <div className={`flex items-center gap-2 bg-slate-50 dark:bg-white/5 px-4 py-3 rounded-2xl border-2 transition-all ${lic.active ? 'border-accent shadow-sm' : 'border-slate-200 dark:border-white/10 opacity-50'}`}>
+                                        <span className="text-[11px] font-black text-muted">$</span>
+                                        <input
+                                            type="number"
+                                            value={lic.price}
+                                            onChange={(e) => lic.setPrice(e.target.value)}
+                                            disabled={lic.disabled || !lic.active}
+                                            className="w-16 bg-transparent outline-none font-black text-xs text-foreground placeholder:text-muted"
+                                            placeholder="0"
+                                        />
+                                        <span className="text-[9px] font-black text-muted">MXN</span>
+                                    </div>
+                                    <Toggle
+                                        active={lic.active}
+                                        onToggle={() => lic.setAction(!lic.active)}
+                                        disabled={lic.disabled}
+                                    />
+                                </div>
                             </div>
+                                ))}
                         </div>
                     </div>
-
-                    <button
-                        type="submit"
-                        disabled={saving}
-                        onClick={!hasChanges ? (e) => { e.preventDefault(); router.back(); } : undefined}
-                        className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 border-t border-white/10 ${hasChanges
-                            ? 'bg-accent text-white hover:bg-accent/90 shadow-accent/20'
-                            : 'bg-muted/10 text-muted hover:bg-muted/20 shadow-none'
-                            }`}
-                    >
-                        {saving ? (
-                            <>
-                                <Loader2 className="animate-spin" size={20} />
-                                Guardando...
-                            </>
-                        ) : hasChanges ? (
-                            <>
-                                <Save size={18} />
-                                Guardar Cambios
-                            </>
-                        ) : (
-                            <>
-                                <X size={18} />
-                                Cancelar
-                            </>
-                        )}
-                    </button>
-                </form>
             </div>
-        </div>
+
+            <button
+                type="submit"
+                disabled={saving}
+                onClick={!hasChanges ? (e) => { e.preventDefault(); router.back(); } : undefined}
+                className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 border-t border-white/10 ${hasChanges
+                    ? 'bg-accent text-white hover:bg-accent/90 shadow-accent/20'
+                    : 'bg-muted/10 text-muted hover:bg-muted/20 shadow-none'
+                    }`}
+            >
+                {saving ? (
+                    <>
+                        <Loader2 className="animate-spin" size={20} />
+                        Guardando...
+                    </>
+                ) : hasChanges ? (
+                    <>
+                        <Save size={18} />
+                        Guardar Cambios
+                    </>
+                ) : (
+                    <>
+                        <X size={18} />
+                        Cancelar
+                    </>
+                )}
+            </button>
+        </form>
+            </div >
+        </div >
     );
 }

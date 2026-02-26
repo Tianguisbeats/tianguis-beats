@@ -293,7 +293,7 @@ export default function UploadPage() {
                     <div className="mb-10 pl-2 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
                         <div>
                             <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-foreground mb-1 flex items-center gap-3">
-                                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Publicar</span>
+                                <span className="bg-gradient-to-r from-[#3b82f6] to-indigo-600 bg-clip-text text-transparent">Publicar</span>
                                 <span className="text-foreground">Beat</span>
                                 <Zap className="text-amber-400 fill-amber-400 w-6 h-6 md:w-8 md:h-8" />
                             </h1>
@@ -676,14 +676,12 @@ export default function UploadPage() {
 
                                     <div className="grid gap-4">
                                         {[
-                                            { id: 'basic', label: 'Básica', color: 'blue', active: isBasicActive, setAction: setIsBasicActive, price: basicPrice, setPrice: setBasicPrice, desc: 'Uso limitado (MP3 con Tag)', disabled: false },
-                                            { id: 'mp3', label: 'MP3 High Quality', color: 'indigo', active: isMp3Active, setAction: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'Descarga de MP3 limpio', disabled: false },
-                                            { id: 'pro', label: 'Pro License', color: 'indigo', active: isProActive, setAction: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Mayores límites (MP3/WAV)', disabled: isFree },
-                                            { id: 'premium', label: 'Premium (Studio)', color: 'emerald', active: isPremiumActive, setAction: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Calidad profesional (WAV)', disabled: !isPremium && !isPro },
-                                            { id: 'unlimited', label: 'Ilimitada', color: 'purple', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Uso sin límites (Stems)', disabled: !isPremium },
-                                            { id: 'unlimited', label: 'Ilimitada', color: 'purple', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Uso sin límites (Stems)', disabled: !isPremium },
-                                            { id: 'soundkit', label: 'Sound Kit', color: 'rose', active: isSoundKitActive, setAction: setIsSoundKitActive, price: soundKitPrice, setPrice: setSoundKitPrice, desc: 'Licencia para Sound Kits', disabled: !isPremium }
-                                        ].map((lic) => (
+                                            { id: 'basic', label: 'Licencia Gratis', color: 'slate', active: isBasicActive, setAction: setIsBasicActive, price: '0', setPrice: setBasicPrice, desc: 'Uso limitado (MP3 con Tag)', disabled: false, lockPrice: true },
+                                            { id: 'mp3', label: 'Licencia Básica', color: 'blue', active: isMp3Active, setAction: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'Descarga MP3 High Quality', disabled: false },
+                                            { id: 'pro', label: 'Licencia Pro', color: 'indigo', active: isProActive, setAction: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Mayores límites (MP3/WAV)', disabled: isFree },
+                                            { id: 'premium', label: 'Licencia Premium', color: 'emerald', active: isPremiumActive, setAction: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Calidad de estudio (WAV)', disabled: !isPremium && !isPro },
+                                            { id: 'unlimited', label: 'Licencia Ilimitada', color: 'amber', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Todos los archivos y stems', disabled: !isPremium },
+                                        ].map((lic: any) => (
                                             <div key={lic.id} className={`p-6 rounded-[1.5rem] border-2 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden ${lic.disabled ? 'bg-slate-100 dark:bg-white/5 opacity-60 grayscale' : (lic.active ? `bg-white dark:bg-black border-${lic.color}-500/30 shadow-xl shadow-${lic.color}-500/5` : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 opacity-75')}`}>
                                                 <div className="flex items-center gap-5">
                                                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${lic.active ? `bg-${lic.color}-500 text-white shadow-lg shadow-${lic.color}-500/20` : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
@@ -705,9 +703,9 @@ export default function UploadPage() {
                                                             <span className={`text-[11px] font-black ${lic.active ? 'text-foreground' : 'text-muted'}`}>$</span>
                                                             <input
                                                                 type="number"
-                                                                value={lic.price}
-                                                                onChange={(e) => lic.setPrice(e.target.value)}
-                                                                disabled={lic.disabled || !lic.active}
+                                                                value={lic.lockPrice ? '0' : lic.price}
+                                                                onChange={(e) => !lic.lockPrice && lic.setPrice(e.target.value)}
+                                                                disabled={lic.disabled || !lic.active || lic.lockPrice}
                                                                 className="w-16 bg-transparent outline-none font-black text-xs text-foreground"
                                                             />
                                                             <span className="text-[8px] font-black text-muted uppercase">MXN</span>
