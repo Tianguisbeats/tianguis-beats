@@ -50,21 +50,21 @@ export async function getBeatFulfillmentLinks(beat: { mp3_url?: string; wav_url?
 
     // Siempre incluimos el MP3 para todas las licencias
     if (beat.mp3_url) {
-        const mp3Url = await getDownloadUrl('beats-mp3-alta-calidad', beat.mp3_url);
+        const mp3Url = await getDownloadUrl('beats_mp3' as any, beat.mp3_url);
         if (mp3Url) links.push({ label: 'Archivo MP3 (Alta Calidad)', url: mp3Url });
     }
 
     // WAV para Pro, Premium, Ilimitada y Exclusiva
     const allowsWav = ['pro', 'premium', 'ilimitada', 'unlimited', 'exclusiva', 'exclusive'].includes(type);
     if (allowsWav && beat.wav_url) {
-        const wavUrl = await getDownloadUrl('beats-wav', beat.wav_url);
+        const wavUrl = await getDownloadUrl('beats_wav' as any, beat.wav_url);
         if (wavUrl) links.push({ label: 'Archivo WAV (Masterizado)', url: wavUrl });
     }
 
     // STEMS solo para Ilimitada y Exclusiva
     const allowsStems = ['ilimitada', 'unlimited', 'exclusiva', 'exclusive'].includes(type);
     if (allowsStems && beat.stems_url) {
-        const stemsUrl = await getDownloadUrl('beats-stems', beat.stems_url);
+        const stemsUrl = await getDownloadUrl('beats_stems' as any, beat.stems_url);
         if (stemsUrl) links.push({ label: 'Trackouts / Stems (Pistas)', url: stemsUrl });
     }
 
@@ -77,7 +77,7 @@ export async function getBeatFulfillmentLinks(beat: { mp3_url?: string; wav_url?
 export async function getSoundKitFulfillmentLink(kit: { title?: string; file_url?: string }) {
     if (!kit.file_url) return null;
 
-    const url = await getDownloadUrl('sound-kits', kit.file_url);
+    const url = await getDownloadUrl('archivos_kits_sonido' as any, kit.file_url);
     if (url) {
         return { label: `Descargar ${kit.title}`, url };
     }

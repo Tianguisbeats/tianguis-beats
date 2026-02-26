@@ -155,39 +155,56 @@ export default function SuccessPage() {
                         </div>
                         <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tighter mb-4 leading-none">
                             {purchasedItems.length > 0 && purchasedItems.every(i => i.tipo_producto === 'plan')
-                                ? <>¡Bienvenido al <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Nivel {purchasedItems[0].nombre.split(' ')[1] || 'Premium'}!</span></>
+                                ? <>¡Suscripción <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Activada!</span></>
                                 : <>¡Gracias por <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">tu compra!</span></>
                             }
                         </h1>
                         <p className="text-white/60 text-lg font-medium max-w-lg mx-auto leading-relaxed">
                             {purchasedItems.length > 0 && purchasedItems.every(i => i.tipo_producto === 'plan')
-                                ? "Tu suscripción ha sido activada. Ya puedes disfrutar de todos los beneficios premium en tu perfil y Studio."
-                                : "Tus archivos están listos para descargar. También puedes descargar estos archivos y licencias en el panel de Mis Compras en Tianguis Studio."
+                                ? "Tu plan ya está activo y todos los beneficios han sido vinculados a tu cuenta. ¡Bienvenido a la experiencia completa de Tianguis Beats!"
+                                : "Tus archivos están listos para descargar. También puedes acceder a ellos en cualquier momento desde tu panel de Mis Compras."
                             }
                         </p>
 
                         {purchasedItems.length > 0 && purchasedItems.every(i => i.tipo_producto === 'plan') && (
-                            <div className="mt-8 flex justify-center">
+                            <div className="mt-12 flex flex-col items-center gap-6">
+                                <div className="p-8 bg-blue-500/5 border border-blue-500/20 rounded-3xl max-w-md">
+                                    <h4 className="text-sm font-black uppercase tracking-widest text-blue-400 mb-4">Beneficios ahora activos:</h4>
+                                    <ul className="text-left space-y-3">
+                                        <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
+                                            <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
+                                            Subidas Ilimitadas de Beats
+                                        </li>
+                                        <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
+                                            <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
+                                            Venta de Servicios y Sound Kits
+                                        </li>
+                                        <li className="flex items-center gap-3 text-sm text-white/80 font-bold uppercase tracking-tight">
+                                            <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
+                                            Insignia de Suscriptor Premium
+                                        </li>
+                                    </ul>
+                                </div>
                                 <Link
                                     href="/studio"
-                                    className="px-8 py-4 bg-blue-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shadow-xl shadow-blue-500/20"
+                                    className="px-10 py-5 bg-blue-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-blue-600 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shadow-2xl shadow-blue-500/20"
                                 >
                                     Ir a mi Studio
-                                    <ArrowRight size={16} />
+                                    <ArrowRight size={18} />
                                 </Link>
                             </div>
                         )}
                     </div>
 
-                    {/* Downloads Section */}
-                    {!(purchasedItems.length > 0 && purchasedItems.every(i => i.tipo_producto === 'plan')) && (
+                    {/* Downloads Section - Only show if there's at least one non-plan item */}
+                    {purchasedItems.length > 0 && purchasedItems.some(i => i.tipo_producto !== 'plan') && (
                         <div className="space-y-6">
                             <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-8 pl-4 flex items-center gap-3">
                                 <Download size={14} className="text-blue-500" />
                                 Tus Archivos en Alta Calidad
                             </h2>
 
-                            {purchasedItems.length > 0 ? purchasedItems.map((item, idx) => (
+                            {purchasedItems.filter(i => i.tipo_producto !== 'plan').map((item, idx) => (
                                 <div key={idx} className="group bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 hover:bg-white/10 hover:border-white/20 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.3)] transition-all duration-500">
                                     <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                                         <div className="flex items-center gap-6">
@@ -233,11 +250,7 @@ export default function SuccessPage() {
                                         </div>
                                     </div>
                                 </div>
-                            )) : (
-                                <div className="p-12 bg-white/5 border border-white/10 rounded-[2.5rem] text-center">
-                                    <p className="text-white/40 font-bold text-sm">No se pudieron cargar los detalles de tu compra. Por favor, revisa tu perfil.</p>
-                                </div>
-                            )}
+                            ))}
                         </div>
                     )}
 
