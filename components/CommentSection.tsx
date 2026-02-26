@@ -4,9 +4,9 @@ import { Send, User, Trash2, Crown, MessageCircle } from 'lucide-react';
 
 interface Comment {
     id: string;
-    content: string;
-    created_at: string;
-    user_id: string;
+    contenido: string;
+    fecha_creacion: string;
+    usuario_id: string;
     user: {
         nombre_usuario: string;
         nombre_artistico: string;
@@ -31,13 +31,13 @@ export default function CommentSection({ beatId }: { beatId: string }) {
 
             // Fetch comments with user profile (username, artistic_name, avatar, badges, tier)
             const { data, error } = await supabase
-                .from('comments')
+                .from('comentarios')
                 .select(`
                     id,
-                    content,
-                    created_at,
-                    user_id,
-                    user:user_id (
+                    contenido,
+                    fecha_creacion,
+                    usuario_id,
+                    user:usuario_id (
                         nombre_usuario,
                         nombre_artistico,
                         foto_perfil,
@@ -47,7 +47,7 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                     )
                 `)
                 .eq('beat_id', beatId)
-                .order('created_at', { ascending: false });
+                .order('fecha_creacion', { ascending: false });
 
             if (data) {
                 const formatted = data.map((c: any) => ({
@@ -62,16 +62,19 @@ export default function CommentSection({ beatId }: { beatId: string }) {
 
         // Subscribe to real-time changes
         const channel = supabase
-            .channel('public:comments')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments', filter: `beat_id=eq.${beatId}` }, (payload) => {
+            .channel('public:comentarios')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comentarios', filter: `beat_id=eq.${beatId}` }, (payload) => {
                 const fetchNewComment = async () => {
                     const { data } = await supabase
-                        .from('comments')
-                        .select(`id, content, created_at, user_id, user:user_id (nombre_usuario, nombre_artistico, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)`)
+                        .from('comentarios')
+                        .select(`id, contenido, fecha_creacion, usuario_id, user:usuario_id (nombre_usuario, nombre_artistico, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)`)
                         .eq('id', (payload.new as any).id)
                         .single();
                     if (data) {
-                        setComments(prev => [{ ...data, user: (data as any).user || { nombre_usuario: 'Usuario', nombre_artistico: 'Usuario', foto_perfil: null } } as Comment, ...prev]);
+                        setComments(prev => {
+                            if (prev.some(c => c.id === data.id)) return prev;
+                            return [{ ...data, user: (data as any).user || { nombre_usuario: 'Usuario', nombre_artistico: 'Usuario', foto_perfil: null } } as Comment, ...prev];
+                        });
                     }
                 };
                 fetchNewComment();
@@ -93,17 +96,17 @@ export default function CommentSection({ beatId }: { beatId: string }) {
         }
 
         setIsLoading(true);
-        const { data, error } = await supabase.from('comments').insert({
-            content: commentText.trim(),
+        const { data, error } = await supabase.from('comentarios').insert({
+            contenido: commentText.trim(),
             beat_id: beatId,
-            user_id: user.id
-        }).select(`id, content, created_at, user_id, user:user_id (nombre_usuario, nombre_artistico, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)`).single();
+            usuario_id: user.id
+        }).select(`id, contenido, fecha_creacion, usuario_id, user:usuario_id (nombre_usuario, nombre_artistico, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)`).single();
 
         if (error) {
             console.error('Error posting comment:', error);
         } else if (data) {
             setCommentText('');
-            // Optimistic update: Add if not already there (real-time might also add it)
+            // Optimistic update
             setComments(prev => {
                 if (prev.some(c => c.id === data.id)) return prev;
                 return [{ ...data, user: (data as any).user || { nombre_usuario: 'Usuario', nombre_artistico: 'Usuario', foto_perfil: null } } as Comment, ...prev];
@@ -113,7 +116,7 @@ export default function CommentSection({ beatId }: { beatId: string }) {
     };
 
     const handleDelete = async (commentId: string) => {
-        const { error } = await supabase.from('comments').delete().eq('id', commentId);
+        const { error } = await supabase.from('comentarios').delete().eq('id', commentId);
         if (!error) {
             setComments(prev => prev.filter(c => c.id !== commentId));
         }
@@ -192,12 +195,12 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                                         )}
                                     </div>
                                     <span className="text-[9px] font-black text-muted uppercase tracking-widest shrink-0">
-                                        {new Date(comment.created_at).toLocaleDateString()}
+                                        {new Date(comment.fecha_creacion).toLocaleDateString()}
                                     </span>
                                 </div>
-                                <p className="text-muted text-sm leading-relaxed break-words font-medium">{comment.content}</p>
+                                <p className="text-muted text-sm leading-relaxed break-words font-medium">{comment.contenido}</p>
                             </div>
-                            {currentUser === comment.user_id && (
+                            {currentUser === comment.usuario_id && (
                                 <button
                                     onClick={() => {
                                         if (confirm('¿Eliminar comentario?')) {

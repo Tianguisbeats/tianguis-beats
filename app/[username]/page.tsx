@@ -603,7 +603,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 profile.tema_perfil === 'gold' ? 'bg-[#1a1610] text-amber-50 font-serif selection:bg-amber-400 selection:text-black' :
                     'bg-background text-foreground selection:bg-accent selection:text-white'
             }`} style={{
-                '--accent': profile.color_acento || '#2563eb'
+                '--accent': profile.color_acento || '#3b82f6'
             } as React.CSSProperties}>
 
             <Navbar />
@@ -659,7 +659,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Opciones de Portada</p>
                                         </div>
                                         <label className="flex items-center gap-3 px-5 py-4 hover:bg-slate-50 dark:hover:bg-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest cursor-pointer transition-colors text-foreground">
-                                            <Camera size={14} className="text-blue-500" />
+                                            <Camera size={14} className="text-accent" />
                                             {profile.portada_perfil ? 'Cambiar Imagen' : 'Subir Imagen'}
                                             <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUploadMedia('cover', e)} />
                                         </label>
@@ -1127,10 +1127,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         </div>
                                     ) : (
                                         <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/30 dark:from-[#0a0a0f] dark:to-[#050508] rounded-[3rem] p-24 text-center border border-slate-100 dark:border-white/5 shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-transform">
-                                            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-[80px] rounded-full -mr-32 -mt-32 group-hover:bg-blue-500/10 transition-all duration-700" />
+                                            <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[80px] rounded-full -mr-32 -mt-32 group-hover:bg-accent/10 transition-all duration-700" />
                                             <div className="relative z-10">
                                                 <div className="w-24 h-24 bg-white dark:bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-soft border border-slate-50 dark:border-white/5">
-                                                    <Music size={40} className="text-blue-500 opacity-60" />
+                                                    <Music size={40} className="text-accent opacity-60" />
                                                 </div>
                                                 <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white mb-3 tracking-tighter">Sin beats todavía</h3>
                                                 <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] max-w-[200px] mx-auto leading-relaxed">Este productor aún no ha publicado sus obras maestras</p>
@@ -1188,7 +1188,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                         }`}>
                                                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                                         <div className="flex justify-between items-start mb-6">
-                                                            <span className="bg-accent/20 text-accent px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-accent/10">
+                                                            <span className="bg-accent/10 text-accent px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-accent/20">
                                                                 {service.tipo_servicio === 'beat_custom' ? 'Beat a Medida' :
                                                                     service.tipo_servicio === 'mentor' ? 'Mentoría / Clase' :
                                                                         service.tipo_servicio === 'mixing' ? 'Mezcla y Masterización' :
@@ -1258,7 +1258,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     setEditingPlaylist(null);
                                                     setIsPlaylistModalOpen(true);
                                                 }}
-                                                className="px-8 py-4 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-3 shadow-sm hover:shadow-xl hover:shadow-blue-600/10 active:scale-95"
+                                                className="px-8 py-4 bg-accent/5 dark:bg-accent/10 text-accent dark:text-accent border border-accent/10 dark:border-accent/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-accent hover:text-white transition-all flex items-center gap-3 shadow-sm hover:shadow-xl hover:shadow-accent/10 active:scale-95"
                                             >
                                                 <Plus size={18} /> Nueva Playlist
                                             </button>
@@ -1276,7 +1276,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     {isReordering && (
                                         <div className="mt-8 p-6 bg-blue-50/50 dark:bg-blue-900/20 rounded-[2rem] border border-blue-100 dark:border-blue-500/20 animate-in fade-in slide-in-from-top-4">
                                             <div className="flex items-center justify-between mb-6">
-                                                <h3 className="text-[10px] font-black uppercase tracking-widest text-blue-600">Cambiar orden de aparición</h3>
+                                                <h3 className="text-[10px] font-black uppercase tracking-widest text-accent">Cambiar orden de aparición</h3>
                                                 <button
                                                     onClick={() => {
                                                         setIsReordering(false);
@@ -1350,12 +1350,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     ) : (
                                         <div className="empty-state-card mt-12 bg-card text-center flex flex-col items-center justify-center">
                                             {profile.tema_perfil !== 'light' && (
-                                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+                                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
                                             )}
                                             <div className="relative inline-block mb-10">
-                                                <div className={`absolute inset-0 blur-[60px] rounded-full scale-[2.5] ${profile.tema_perfil !== 'light' ? 'bg-green-500/10' : 'bg-green-500/5'}`} />
+                                                <div className={`absolute inset-0 blur-[60px] rounded-full scale-[2.5] ${profile.tema_perfil !== 'light' ? 'bg-accent/10' : 'bg-accent/5'}`} />
                                                 <div className={`relative w-32 h-32 rounded-[3.5rem] flex items-center justify-center mx-auto border shadow-inner ${profile.tema_perfil !== 'light' ? 'bg-[#0a0a0f] border-white/10' : 'bg-white border-slate-200'}`}>
-                                                    <ListMusic size={48} className="text-green-500 opacity-60" />
+                                                    <ListMusic size={48} className="text-accent opacity-60" />
                                                 </div>
                                             </div>
                                             <h3 className="text-2xl font-black uppercase tracking-tight mb-4 text-foreground text-center">

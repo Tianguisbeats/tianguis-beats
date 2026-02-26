@@ -187,11 +187,9 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                             <p className={`${compact ? 'text-[10px]' : 'text-xs md:text-sm'} font-black uppercase text-muted tracking-tight truncate group-hover/prod:text-accent transition-colors`}>
                                 {beat.productor_nombre_artistico}
                             </p>
-                            {beat.productor_esta_verificado && (
-                                <img src="/verified-badge.png" className={`${compact ? 'w-3 h-3' : 'w-3.5 h-3.5'} object-contain`} alt="Verificado" />
-                            )}
+                            <img src="/verified-badge.png" className={`${compact ? 'w-3 h-3' : 'w-3.5 h-3.5 md:w-4 md:h-4'} object-contain brightness-110`} alt="Verificado" />
                             {beat.productor_es_fundador && (
-                                <Crown size={compact ? 10 : 12} className="text-accent fill-accent" />
+                                <Crown size={compact ? 10 : 12} className="text-amber-500 fill-amber-500" />
                             )}
                         </div>
                     </div>
@@ -249,10 +247,10 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
 
                     <button
                         onClick={handleLike}
-                        className={`${compact ? 'w-8 h-8' : 'w-10 h-10'} rounded-xl flex items-center justify-center transition-all bg-card border shadow-sm active:scale-95 shrink-0 group/heart ${isLiked ? 'text-red-500 border-red-500/50 bg-red-500/10' : 'text-red-500 border-red-500/50 hover:bg-red-500/5 hover:scale-110'}`}
+                        className={`${compact ? 'w-8 h-8' : 'w-10 h-10'} rounded-xl flex items-center justify-center transition-all bg-card border shadow-sm active:scale-95 shrink-0 group/heart ${isLiked ? 'text-red-500 border-red-500/50 bg-red-50' : 'text-red-500 border-red-500/50 hover:bg-red-500/5 hover:scale-110'}`}
                         title={isLiked ? "Quitar de favoritos" : "Añadir a favoritos"}
                     >
-                        <Heart size={compact ? 14 : 18} className={`transition-transform duration-300 ${isLiked ? 'scale-110 fill-red-500' : 'group-hover/heart:scale-110'}`} />
+                        <Heart size={compact ? 14 : 18} className={`transition-transform duration-300 ${isLiked ? 'scale-110 fill-red-500/80' : 'group-hover/heart:scale-110'}`} />
                     </button>
                 </div>
             </div>
