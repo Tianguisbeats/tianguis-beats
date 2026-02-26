@@ -259,26 +259,10 @@ export async function POST(req: Request) {
                         expiryDate.setMonth(baseDate.getMonth() + 1);
                     }
 
-                    // 2. Determinar si califica para ser Fundador (Primeros 100 en comprar plan)
-                    let shouldBeFounder = profileData?.es_fundador || false;
-
-                    if (!shouldBeFounder) {
-                        const { count, error: countError } = await supabaseAdmin
-                            .from('perfiles')
-                            .select('id', { count: 'exact', head: true })
-                            .eq('es_fundador', true);
-
-                        if (!countError && (count || 0) < 100) {
-                            shouldBeFounder = true;
-                            console.log('CONGRATS: User is one of the first 100 founders!', { count });
-                        }
-                    }
-
                     // Actualizar el perfil del usuario
                     const updates: any = {
                         fecha_termino_suscripcion: expiryDate.toISOString(),
                         stripe_suscripcion_id: subscriptionId || `one_time_${stripeId}`,
-                        es_fundador: shouldBeFounder
                     };
 
                     // Si es secuencial, NO cambiamos el tier actual todavía, guardamos el objetivo
