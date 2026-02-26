@@ -267,13 +267,22 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 ? supabase.storage.from('portadas_beats').getPublicUrl(b.portada_url).data.publicUrl
                                 : null;
 
+                        // Resolve Producer Photo URL if it's a storage path
+                        let finalProductorFoto = profileData.foto_perfil;
+                        if (finalProductorFoto && !finalProductorFoto.startsWith('http')) {
+                            const { data: { publicUrl: pUrl } } = supabase.storage
+                                .from('fotos_perfil')
+                                .getPublicUrl(finalProductorFoto);
+                            finalProductorFoto = pUrl;
+                        }
+
                         return {
                             ...b,
                             archivo_mp3_url: publicUrl,
                             portada_url: finalCoverUrl,
                             productor_nombre_artistico: profileData.nombre_artistico,
                             productor_nombre_usuario: profileData.nombre_usuario,
-                            productor_foto_perfil: profileData.foto_perfil,
+                            productor_foto_perfil: finalProductorFoto,
                             productor_esta_verificado: profileData.esta_verificado,
                             productor_es_fundador: profileData.es_fundador,
                             productor_nivel_suscripcion: profileData.nivel_suscripcion

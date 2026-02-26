@@ -91,10 +91,17 @@ function CatalogContent() {
             finalCoverUrl = cpUrl;
         }
 
+        let finalProducerAvatar = b.productor_foto_perfil;
+        if (finalProducerAvatar && !finalProducerAvatar.startsWith('http')) {
+            const { data: { publicUrl: paUrl } } = supabase.storage.from('fotos_perfil').getPublicUrl(finalProducerAvatar);
+            finalProducerAvatar = paUrl;
+        }
+
         return {
             ...b,
             portada_url: finalCoverUrl,
             archivo_mp3_url: publicUrl,
+            productor_foto_perfil: finalProducerAvatar
         };
     };
 

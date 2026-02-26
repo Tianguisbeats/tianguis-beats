@@ -132,9 +132,21 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 const rawData = data as any;
                 const producerObj = Array.isArray(rawData.productor) ? rawData.productor[0] : rawData.productor;
 
+                // Resolve Producer avatar if it's a storage path
+                let finalProductorFoto = producerObj?.foto_perfil;
+                if (finalProductorFoto && !finalProductorFoto.startsWith('http')) {
+                    const { data: { publicUrl: paUrl } } = supabase.storage.from('fotos_perfil').getPublicUrl(finalProductorFoto);
+                    finalProductorFoto = paUrl;
+                }
+
                 const beatData = {
                     ...data,
-                    producer: producerObj,
+                    productor_nombre_artistico: producerObj?.nombre_artistico,
+                    productor_nombre_usuario: producerObj?.nombre_usuario,
+                    productor_foto_perfil: finalProductorFoto,
+                    productor_esta_verificado: producerObj?.esta_verificado,
+                    productor_es_fundador: producerObj?.es_fundador,
+                    productor_nivel_suscripcion: producerObj?.nivel_suscripcion,
                     archivo_mp3_url: publicUrl,
                     portada_url: finalCoverUrl
                 } as any;

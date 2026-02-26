@@ -50,9 +50,19 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                 .order('fecha_creacion', { ascending: false });
 
             if (data) {
-                const formatted = data.map((c: any) => ({
-                    ...c,
-                    user: c.user || { nombre_usuario: 'Usuario', nombre_artistico: 'Usuario', foto_perfil: null }
+                const formatted = await Promise.all(data.map(async (c: any) => {
+                    let finalFoto = c.user?.foto_perfil;
+                    if (finalFoto && !finalFoto.startsWith('http')) {
+                        const { data: { publicUrl } } = supabase.storage.from('fotos_perfil').getPublicUrl(finalFoto);
+                        finalFoto = publicUrl;
+                    }
+                    return {
+                        ...c,
+                        user: {
+                            ...(c.user || { nombre_usuario: 'Usuario', nombre_artistico: 'Usuario' }),
+                            foto_perfil: finalFoto
+                        }
+                    };
                 }));
                 setComments(formatted);
             }
