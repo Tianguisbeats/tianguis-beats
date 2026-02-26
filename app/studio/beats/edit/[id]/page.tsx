@@ -363,7 +363,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
         const eur = (amount * EXCHANGE_RATES.EUR).toFixed(2);
         return (
             <div className="flex gap-2 mt-1.5 px-2">
-                <span className="text-[9px] font-black text-blue-500/70 uppercase">≈ ${usd} USD</span>
+                <span className="text-[9px] font-black text-accent/70 uppercase">≈ ${usd} USD</span>
                 <span className="text-[9px] font-black text-purple-500/70 uppercase">≈ €{eur} EUR</span>
             </div>
         );
@@ -378,7 +378,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                     </Link>
                     <div>
                         <h1 className="text-2xl font-black uppercase tracking-tighter text-foreground flex items-center gap-2">
-                            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Editar</span>
+                            <span className="bg-gradient-to-r from-[#3b82f6] to-indigo-600 bg-clip-text text-transparent">Editar</span>
                             <span>Beat</span>
                         </h1>
                     </div>
@@ -581,7 +581,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                         {/* SECTION: FILE UPLOADS */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-2 mb-2">
-                                <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600">
+                                <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent">
                                     <Upload size={16} />
                                 </div>
                                 <h4 className="text-sm font-black uppercase tracking-widest text-foreground">1. Gestión de Archivos</h4>
@@ -599,7 +599,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                         </div>
                                         <div className="flex items-center gap-2">
                                             {(previewFile || existingPreview) && <CheckCircle2 size={16} className="text-emerald-500" />}
-                                            <span className="text-[9px] font-black text-blue-500/50 uppercase">Obligatorio</span>
+                                            <span className="text-[9px] font-black text-accent/50 uppercase">Obligatorio</span>
                                         </div>
                                     </div>
                                     <div className="relative">
@@ -610,9 +610,9 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                             className="hidden"
                                             id="preview-file"
                                         />
-                                        <label htmlFor="preview-file" className="flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-blue-500 transition-all group/label overflow-hidden">
+                                        <label htmlFor="preview-file" className="flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-accent transition-all group/label overflow-hidden">
                                             <span className="truncate max-w-[150px]">{previewFile ? previewFile.name : (existingPreview ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
-                                            <div className="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover/label:bg-blue-500 group-hover/label:text-white transition-colors">
+                                            <div className="w-6 h-6 rounded-lg bg-accent/10 flex items-center justify-center text-accent group-hover/label:bg-accent group-hover/label:text-white transition-colors">
                                                 <Upload size={12} />
                                             </div>
                                         </label>
@@ -740,73 +740,74 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                 { id: 'mp3', label: 'Licencia Básica', color: 'blue', active: isMp3Active, setAction: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'Descarga MP3 High Quality', disabled: false },
                                 { id: 'pro', label: 'Licencia Pro', color: 'indigo', active: isProActive, setAction: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Mayores límites (MP3/WAV)', disabled: isFree },
                                 { id: 'premium', label: 'Licencia Premium', color: 'emerald', active: isPremiumActive, setAction: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Calidad de estudio (WAV)', disabled: !isPremium && !isPro },
-                                    { id: 'unlimited', label: 'Licencia Ilimitada', color: 'amber', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Todos los archivos y stems', disabled: !isPremium } 
+                                { id: 'unlimited', label: 'Licencia Ilimitada', color: 'amber', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Todos los archivos y stems', disabled: !isPremium }
 
-                                ].map((lic: any) => (
-
-                                                lic.id === 'premium' ? <Crown size={20} /> :
-                                                    lic.id === 'unlimited' ? <Layers size={20} /> :
-                                                        <ShieldCheck size={20} />}
+                            ].map((lic: any) => (
+                                <div key={lic.id} className={`p-6 rounded-[1.5rem] border-2 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden ${lic.disabled ? 'bg-slate-100 dark:bg-white/5 opacity-60 grayscale' : (lic.active ? `bg-white dark:bg-black border-${lic.color}-500/30 shadow-xl shadow-${lic.color}-500/5` : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 opacity-75')}`}>
+                                    <div className="flex items-center gap-5">
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${lic.active ? `bg-${lic.color}-500 text-white shadow-lg shadow-${lic.color}-500/20` : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
+                                            {lic.id === 'premium' ? <Crown size={20} /> :
+                                                lic.id === 'unlimited' ? <Layers size={20} /> :
+                                                    <ShieldCheck size={20} />}
+                                        </div>
+                                        <div>
+                                            <h5 className="font-black uppercase tracking-tight text-foreground">{lic.label}</h5>
+                                            <p className="text-[10px] font-bold text-muted uppercase tracking-widest">{lic.desc}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h5 className="font-black uppercase tracking-tight text-foreground">{lic.label}</h5>
-                                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest">{lic.desc}</p>
-                                    </div>
-                                </div>
 
-                                <div className="flex items-center gap-6">
-                                    <div className={`flex items-center gap-2 bg-slate-50 dark:bg-white/5 px-4 py-3 rounded-2xl border-2 transition-all ${lic.active ? 'border-accent shadow-sm' : 'border-slate-200 dark:border-white/10 opacity-50'}`}>
-                                        <span className="text-[11px] font-black text-muted">$</span>
-                                        <input
-                                            type="number"
-                                            value={lic.price}
-                                            onChange={(e) => lic.setPrice(e.target.value)}
-                                            disabled={lic.disabled || !lic.active}
-                                            className="w-16 bg-transparent outline-none font-black text-xs text-foreground placeholder:text-muted"
-                                            placeholder="0"
+                                    <div className="flex items-center gap-6">
+                                        <div className={`flex items-center gap-2 bg-slate-50 dark:bg-white/5 px-4 py-3 rounded-2xl border-2 transition-all ${lic.active ? 'border-accent shadow-sm' : 'border-slate-200 dark:border-white/10 opacity-50'}`}>
+                                            <span className="text-[11px] font-black text-muted">$</span>
+                                            <input
+                                                type="number"
+                                                value={lic.price}
+                                                onChange={(e) => lic.setPrice(e.target.value)}
+                                                disabled={lic.disabled || !lic.active}
+                                                className="w-16 bg-transparent outline-none font-black text-xs text-foreground placeholder:text-muted"
+                                                placeholder="0"
+                                            />
+                                            <span className="text-[9px] font-black text-muted">MXN</span>
+                                        </div>
+                                        <Toggle
+                                            active={lic.active}
+                                            onToggle={() => lic.setAction(!lic.active)}
+                                            disabled={lic.disabled}
                                         />
-                                        <span className="text-[9px] font-black text-muted">MXN</span>
                                     </div>
-                                    <Toggle
-                                        active={lic.active}
-                                        onToggle={() => lic.setAction(!lic.active)}
-                                        disabled={lic.disabled}
-                                    />
                                 </div>
-                            </div>
-                                ))}
+                            ))}
                         </div>
                     </div>
-            </div>
 
-            <button
-                type="submit"
-                disabled={saving}
-                onClick={!hasChanges ? (e) => { e.preventDefault(); router.back(); } : undefined}
-                className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 border-t border-white/10 ${hasChanges
-                    ? 'bg-accent text-white hover:bg-accent/90 shadow-accent/20'
-                    : 'bg-muted/10 text-muted hover:bg-muted/20 shadow-none'
-                    }`}
-            >
-                {saving ? (
-                    <>
-                        <Loader2 className="animate-spin" size={20} />
-                        Guardando...
-                    </>
-                ) : hasChanges ? (
-                    <>
-                        <Save size={18} />
-                        Guardar Cambios
-                    </>
-                ) : (
-                    <>
-                        <X size={18} />
-                        Cancelar
-                    </>
-                )}
-            </button>
-        </form>
-            </div >
-        </div >
+                    <button
+                        type="submit"
+                        disabled={saving}
+                        onClick={!hasChanges ? (e) => { e.preventDefault(); router.back(); } : undefined}
+                        className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 border-t border-white/10 ${hasChanges
+                            ? 'bg-accent text-white hover:bg-accent/90 shadow-accent/20'
+                            : 'bg-muted/10 text-muted hover:bg-muted/20 shadow-none'
+                            }`}
+                    >
+                        {saving ? (
+                            <>
+                                <Loader2 className="animate-spin" size={20} />
+                                Guardando...
+                            </>
+                        ) : hasChanges ? (
+                            <>
+                                <Save size={18} />
+                                Guardar Cambios
+                            </>
+                        ) : (
+                            <>
+                                <X size={18} />
+                                Cancelar
+                            </>
+                        )}
+                    </button>
+                </form>
+            </div>
+        </div>
     );
 }
