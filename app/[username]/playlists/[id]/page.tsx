@@ -43,15 +43,21 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                 setProfile(profileData);
                 if (user?.id === profileData.id) setIsOwner(true);
 
-                const { data: playlistRows } = await supabase
+                const { data: listData } = await supabase
                     .from('listas_reproduccion')
-                    .select('*, beats(*)')
-                    .eq('playlist_id', playlistId)
-                    .order('indice_orden_beat', { ascending: true });
+                    .select('*')
+                    .eq('id', playlistId)
+                    .single();
 
-                if (playlistRows && playlistRows.length > 0) {
-                    const firstRow = playlistRows[0];
-                    const playlistBeats = playlistRows.map((pb: any) => pb.beats).filter(Boolean);
+                if (listData) {
+                    const { data: itemsData } = await supabase
+                        .from('listas_reproduccion_items')
+                        .select('indice_orden, beats(*)')
+                        .eq('playlist_id', playlistId)
+                        .order('indice_orden', { ascending: true });
+
+                    const firstRow = listData;
+                    const playlistBeats = itemsData ? itemsData.map((pb: any) => pb.beats).filter(Boolean) : [];
 
                     const transformedBeats = await Promise.all(playlistBeats.map(async (b: any) => {
                         const path = b.archivo_muestra_url || b.archivo_mp3_url || '';
@@ -71,7 +77,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                         };
                     }));
 
-                    setPlaylist({ id: firstRow.playlist_id, name: firstRow.nombre, description: firstRow.descripcion, beats: transformedBeats });
+                    setPlaylist({ id: firstRow.id, name: firstRow.nombre, description: firstRow.descripcion, beats: transformedBeats });
                     setBeatsInPlaylist(transformedBeats);
 
                     if (user?.id === profileData.id) {

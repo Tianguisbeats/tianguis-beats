@@ -90,7 +90,29 @@ function HubContent() {
           .order('conteo_reproducciones', { ascending: false, nullsFirst: false })
           .limit(10);
 
-        if (trendData) setTrendingBeats(trendData as any);
+        if (trendData) {
+          const transformedBeats = trendData.map((b: any) => {
+            const path = b.archivo_muestra_url || b.archivo_mp3_url || '';
+            const bucket = path.includes('-hq-') ? 'beats_mp3' : 'muestras_beats';
+            let publicAudioUrl = '';
+            if (path) {
+              publicAudioUrl = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+            }
+            let publicCoverUrl = b.portada_url;
+            if (b.portada_url && !b.portada_url.startsWith('http')) {
+              publicCoverUrl = supabase.storage.from('portadas_beats').getPublicUrl(b.portada_url).data.publicUrl;
+            }
+
+            return {
+              ...b,
+              archivo_mp3_url: publicAudioUrl || path,
+              portada_url: publicCoverUrl,
+              productor_nombre_artistico: b.producer?.nombre_artistico || '',
+              productor_foto_perfil: b.producer?.foto_perfil || '',
+            }
+          });
+          setTrendingBeats(transformedBeats);
+        }
 
         const { data: trendProd } = await supabase
           .from('perfiles')

@@ -734,25 +734,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             )}
                         </div>
 
-                        {/* Columna Derecha: Botón de Acción (Edición/Seguir) AHORA EXTRAÍDO AQUÍ, MOSTRÁNDOSE A LA DERECHA ABSOLUTA */}
-                        <div className="hidden md:flex shrink-0 items-end justify-end ml-auto mt-4 md:mt-0">
-                            {isOwner ? (
-                                <button
-                                    onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}
-                                    className={`h-12 sm:h-14 px-8 sm:px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${isEditing ? 'bg-foreground dark:bg-white text-background dark:text-slate-900 border-2 border-accent' : 'bg-card text-foreground border border-border hover:shadow-2xl hover:-translate-y-1 hover:border-accent/50'}`}
-                                >
-                                    {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Editar Perfil</>}
-                                </button>
-                            ) : currentUserId ? (
-                                <button
-                                    onClick={handleFollowToggle}
-                                    className={`h-12 sm:h-14 px-8 sm:px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${isFollowing ? 'bg-foreground/5 text-foreground border border-border hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30' : 'bg-foreground text-background hover:-translate-y-1 hover:shadow-2xl'}`}
-                                >
-                                    {isFollowing ? <><UserMinus size={16} /> Dejar de seguir</> : <><UserPlus size={16} /> Seguir</>}
-                                </button>
-                            ) : null}
-                        </div>
-
                         {/* Info Header */}
                         <div className="flex-1 w-full relative">
                             {/* Contenedor Flex Principal: Todo el Header */}
@@ -858,6 +839,25 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             </div>
                                         )}
                                     </div>
+                                </div>
+
+                                {/* Columna Derecha: Botón de Acción Desktop AHORA AL FINAL DE LA FILA */}
+                                <div className="hidden md:flex shrink-0 items-start justify-end ml-auto mt-4 md:mt-24">
+                                    {isOwner ? (
+                                        <button
+                                            onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}
+                                            className={`h-12 sm:h-14 px-8 sm:px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${isEditing ? 'bg-foreground dark:bg-white text-background dark:text-slate-900 border-2 border-accent' : 'bg-card text-foreground border border-border hover:shadow-2xl hover:-translate-y-1 hover:border-accent/50'}`}
+                                        >
+                                            {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Editar Perfil</>}
+                                        </button>
+                                    ) : currentUserId ? (
+                                        <button
+                                            onClick={handleFollowToggle}
+                                            className={`h-12 sm:h-14 px-8 sm:px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${isFollowing ? 'bg-foreground/5 text-foreground border border-border hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30' : 'bg-foreground text-background hover:-translate-y-1 hover:shadow-2xl'}`}
+                                        >
+                                            {isFollowing ? <><UserMinus size={16} /> Dejar de seguir</> : <><UserPlus size={16} /> Seguir</>}
+                                        </button>
+                                    ) : null}
                                 </div>
 
                                 {/* Acciones en Móvil (Ocultas en Desktop ya que se movieron arriba a la derecha) */}
