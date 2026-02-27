@@ -54,7 +54,6 @@ export default function PricingPage() {
         {
             tier: 'free',
             name: 'Free',
-            tagline: 'Para empezar tu camino.',
             price: { monthly: 0, yearly: 0 },
             icon: <Zap size={28} />,
             color: 'slate',
@@ -71,7 +70,6 @@ export default function PricingPage() {
         {
             tier: 'pro',
             name: 'Pro',
-            tagline: 'Para productores serios.',
             price: { monthly: 149, yearly: 111 },
             icon: <Star size={28} fill="currentColor" />,
             color: 'amber',
@@ -90,7 +88,6 @@ export default function PricingPage() {
         {
             tier: 'premium',
             name: 'Premium',
-            tagline: 'La experiencia completa.',
             price: { monthly: 349, yearly: 261 },
             icon: <Crown size={28} fill="currentColor" />,
             color: 'blue',
@@ -357,9 +354,9 @@ export default function PricingPage() {
                                         </div>
                                     )}
 
-                                    {/* Current plan indicator */}
+                                    {/* Current plan indicator – positioned below the 'Más Popular' badge */}
                                     {isCurrentPlan && session && (
-                                        <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${isPro ? 'bg-amber-500/20 text-amber-400' : isPremium ? 'bg-[#00f2ff]/20 text-[#00f2ff]' : 'bg-white/10 text-slate-400'}`}>
+                                        <div className={`absolute top-12 right-4 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${isPro ? 'bg-amber-500/20 text-amber-400' : isPremium ? 'bg-[#00f2ff]/20 text-[#00f2ff]' : 'bg-white/10 text-slate-400'}`}>
                                             Tu plan actual
                                         </div>
                                     )}
@@ -371,10 +368,9 @@ export default function PricingPage() {
                                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${isFree ? 'bg-slate-200/10 text-slate-400' : isPro ? 'bg-amber-500/15 text-amber-400' : 'bg-[#00f2ff]/10 text-[#00f2ff]'}`}>
                                                 {plan.icon}
                                             </div>
-                                            <h3 className={`text-2xl font-black uppercase tracking-tighter mb-1 ${isFree ? 'text-slate-400' : isPro ? 'text-amber-400' : 'text-[#00f2ff]'}`}>
+                                            <h3 className={`text-2xl font-black uppercase tracking-tighter ${isFree ? 'text-slate-400' : isPro ? 'text-amber-400' : 'text-[#00f2ff]'}`}>
                                                 {plan.name}
                                             </h3>
-                                            <p className="text-muted text-[11px] font-bold uppercase tracking-widest opacity-70">{plan.tagline}</p>
                                         </div>
 
                                         {/* Price */}
@@ -441,6 +437,15 @@ export default function PricingPage() {
                                                 Vence el {new Date(terminaSuscripcion).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             </p>
                                         )}
+
+                                        {/* Saber más */}
+                                        <Link
+                                            href={`/pricing/${plan.tier}`}
+                                            className={`block mt-4 text-center text-[9px] font-black uppercase tracking-widest transition-colors ${isFree ? 'text-slate-400/50 hover:text-slate-400' : isPro ? 'text-amber-500/40 hover:text-amber-400' : 'text-[#00f2ff]/40 hover:text-[#00f2ff]'
+                                                }`}
+                                        >
+                                            Saber más sobre este plan →
+                                        </Link>
                                     </div>
                                 </div>
                             );

@@ -2,60 +2,92 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { FileText, Settings, ShieldCheck, FileKey, Crown, Zap, Package, AlignLeft, Info, Loader2, Music } from 'lucide-react';
+import {
+    FileText, Settings, ShieldCheck, FileKey, Crown, Zap,
+    Package, AlignLeft, Info, Loader2, Music, Check, X
+} from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
 
-// Define the License Types available
 export type ContractType = 'basica' | 'mp3' | 'pro' | 'premium' | 'ilimitada' | 'exclusiva' | 'soundkit';
 
 const CONTRACT_TYPES = [
     {
         id: 'basica' as ContractType,
         name: 'Licencia Gratis',
-        icon: <FileText size={24} />,
+        tier: 'FREE',
+        description: 'Uso personal / promocional con tag de voz.',
+        icon: <FileText size={26} />,
         color: 'text-slate-400',
-        gradient: 'from-slate-400/20 to-slate-300/5',
-        glow: 'group-hover:shadow-slate-400/20'
+        iconBg: 'bg-slate-400/10',
+        borderColor: 'border-slate-400/20',
+        glowColor: 'shadow-slate-400/10',
+        accentLine: 'via-slate-400',
+        badgeBg: 'bg-slate-400/10 text-slate-400',
     },
     {
         id: 'mp3' as ContractType,
-        name: 'Licencia Básica (MP3 HQ)',
-        icon: <Music size={24} />,
-        color: 'text-blue-500',
-        gradient: 'from-blue-500/20 to-blue-400/5',
-        glow: 'group-hover:shadow-blue-500/20'
+        name: 'Licencia Básica',
+        tier: 'MP3 HQ',
+        description: 'MP3 de alta calidad sin tag. Distribución estándar.',
+        icon: <Music size={26} />,
+        color: 'text-blue-400',
+        iconBg: 'bg-blue-500/10',
+        borderColor: 'border-blue-500/20',
+        glowColor: 'shadow-blue-500/10',
+        accentLine: 'via-blue-500',
+        badgeBg: 'bg-blue-500/10 text-blue-400',
     },
     {
         id: 'pro' as ContractType,
-        name: 'Licencia Pro (Límites Mayores)',
-        icon: <Zap size={24} />,
-        color: 'text-indigo-500',
-        gradient: 'from-indigo-500/20 to-indigo-400/5',
-        glow: 'group-hover:shadow-indigo-500/20'
+        name: 'Licencia Pro',
+        tier: 'PRO',
+        description: 'MP3 + WAV con límites de distribución extendidos.',
+        icon: <Zap size={26} />,
+        color: 'text-indigo-400',
+        iconBg: 'bg-indigo-500/10',
+        borderColor: 'border-indigo-500/20',
+        glowColor: 'shadow-indigo-500/10',
+        accentLine: 'via-indigo-500',
+        badgeBg: 'bg-indigo-500/10 text-indigo-400',
     },
     {
         id: 'premium' as ContractType,
-        name: 'Licencia Premium (Estudio WAV)',
-        icon: <Package size={24} />,
-        color: 'text-purple-500',
-        gradient: 'from-purple-500/20 to-purple-400/5',
-        glow: 'group-hover:shadow-purple-500/20'
+        name: 'Licencia Premium',
+        tier: 'ESTUDIO WAV',
+        description: 'WAV de calidad estudio. Altos límites de explotación.',
+        icon: <Package size={26} />,
+        color: 'text-purple-400',
+        iconBg: 'bg-purple-500/10',
+        borderColor: 'border-purple-500/20',
+        glowColor: 'shadow-purple-500/10',
+        accentLine: 'via-purple-500',
+        badgeBg: 'bg-purple-500/10 text-purple-400',
     },
     {
         id: 'ilimitada' as ContractType,
-        name: 'Ilimitada (Archivos Totales)',
-        icon: <Crown size={24} />,
-        color: 'text-amber-500',
-        gradient: 'from-amber-500/20 to-amber-400/5',
-        glow: 'group-hover:shadow-amber-500/20'
+        name: 'Licencia Ilimitada',
+        tier: 'TODOS LOS ARCHIVOS',
+        description: 'Todos los formatos. Sin límites comerciales.',
+        icon: <Crown size={26} />,
+        color: 'text-amber-400',
+        iconBg: 'bg-amber-500/10',
+        borderColor: 'border-amber-500/20',
+        glowColor: 'shadow-amber-500/10',
+        accentLine: 'via-amber-500',
+        badgeBg: 'bg-amber-500/10 text-amber-400',
     },
     {
         id: 'exclusiva' as ContractType,
         name: 'Compra Exclusiva',
-        icon: <ShieldCheck size={24} />,
-        color: 'text-emerald-500',
-        gradient: 'from-emerald-500/20 to-emerald-400/5',
-        glow: 'group-hover:shadow-emerald-500/20'
+        tier: 'EXCLUSIVA',
+        description: 'Cesión completa de derechos exclusivos sobre el beat.',
+        icon: <ShieldCheck size={26} />,
+        color: 'text-emerald-400',
+        iconBg: 'bg-emerald-500/10',
+        borderColor: 'border-emerald-500/20',
+        glowColor: 'shadow-emerald-500/10',
+        accentLine: 'via-emerald-500',
+        badgeBg: 'bg-emerald-500/10 text-emerald-400',
     }
 ];
 
@@ -69,55 +101,32 @@ export default function ContractsPage() {
         mode: 'easy' | 'expert' | null;
     }>({ isOpen: false, type: null, mode: null });
 
-    // Formularios Temporales
     const [easyFormData, setEasyFormData] = useState({
         streams_limite: '10000',
         copias_limite: '2000',
         videos_limite: '1',
         radio_limite: '2'
     });
-    const [expertFormData, setExpertFormData] = useState({
-        texto_legal: ''
-    });
+    const [expertFormData, setExpertFormData] = useState({ texto_legal: '' });
     const [includeProClauses, setIncludeProClauses] = useState(true);
 
-    useEffect(() => {
-        fetchTemplates();
-    }, []);
+    useEffect(() => { fetchTemplates(); }, []);
 
     const fetchTemplates = async () => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
-
-            const { data, error } = await supabase
-                .from('licencias')
-                .select('*')
-                .eq('productor_id', user.id);
-
-            if (error) {
-                // If the table doesn't exist yet, we catch it silently for now 
-                // leaving templates empty until the SQL migration is run
-                console.warn('Licencias table might not exist yet:', error.message);
-                setLoading(false);
-                return;
-            }
-
+            const { data, error } = await supabase.from('licencias').select('*').eq('productor_id', user.id);
+            if (error) { console.warn('Licencias table:', error.message); setLoading(false); return; }
             const mapped: Record<string, any> = {};
-            data?.forEach(t => {
-                mapped[t.tipo] = t;
-            });
+            data?.forEach(t => { mapped[t.tipo] = t; });
             setTemplates(mapped);
-        } catch (error) {
-            console.error("Error fetching templates:", error);
-        } finally {
-            setLoading(false);
-        }
+        } catch (error) { console.error(error); }
+        finally { setLoading(false); }
     };
 
     const openModal = (type: ContractType, mode: 'easy' | 'expert') => {
         const existing = templates[type];
-
         if (mode === 'easy') {
             setEasyFormData({
                 streams_limite: existing?.streams_limite || '10000',
@@ -126,22 +135,18 @@ export default function ContractsPage() {
                 radio_limite: existing?.radio_limite || '2'
             });
         } else {
-            setExpertFormData({
-                texto_legal: existing?.texto_legal || getDefaultLegalText(type)
-            });
+            setExpertFormData({ texto_legal: existing?.texto_legal || getDefaultLegalText(type) });
         }
         setIncludeProClauses(existing?.incluir_clausulas_pro ?? true);
-
         setActiveModal({ isOpen: true, type, mode });
     };
 
     const getDefaultLegalText = (type: ContractType) => {
-        // Textos por defecto si no ha configurado ninguno
         const defaults: Record<string, string> = {
             basica: "LICENCIA GRATIS: Este contrato otorga derechos no exclusivos de uso sobre el Beat para fines promocionales. Descarga MP3 con etiqueta de voz (Tag).",
             mp3: "LICENCIA BÁSICA: Derechos no exclusivos con descarga de archivo MP3 de alta calidad (High Quality limpio). Limite estándar de distribución.",
             pro: "LICENCIA PRO: Derechos no exclusivos con limites extendidos de distribución y reproducciones. Descarga MP3 / WAV.",
-            premium: "LICENCIA PREMIUM: Derechos no exclusivos con calidad de estudio profesional (WAV). Altos lÍmites de explotación.",
+            premium: "LICENCIA PREMIUM: Derechos no exclusivos con calidad de estudio profesional (WAV). Altos límites de explotación.",
             ilimitada: "LICENCIA ILIMITADA: Derechos no exclusivos con acceso a todos los archivos y sin limites comerciales.",
             exclusiva: "COMPRA EXCLUSIVA: Cesión de derechos exclusivos sobre el instrumental."
         };
@@ -150,11 +155,9 @@ export default function ContractsPage() {
 
     const handleSaveTemplate = async () => {
         if (!activeModal.type) return;
-
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("No autenticado");
-
             const payload = {
                 productor_id: user.id,
                 tipo: activeModal.type,
@@ -162,98 +165,119 @@ export default function ContractsPage() {
                 incluir_clausulas_pro: includeProClauses,
                 ...(activeModal.mode === 'easy' ? easyFormData : { texto_legal: expertFormData.texto_legal })
             };
-
-            const { error } = await supabase
-                .from('licencias')
-                .upsert(payload, { onConflict: 'productor_id, tipo' });
-
+            const { error } = await supabase.from('licencias').upsert(payload, { onConflict: 'productor_id, tipo' });
             if (error) {
-                if (error.code === '42P01') {
-                    throw new Error("La tabla de licencias no existe. Por favor ejecuta el archivo SQL en Supabase primero.");
-                }
+                if (error.code === '42P01') throw new Error("La tabla de licencias no existe. Ejecuta el SQL en Supabase primero.");
                 throw error;
             }
-
             showToast("Licencia guardada exitosamente", "success");
-            await fetchTemplates(); // Recargar datos
+            await fetchTemplates();
             setActiveModal({ isOpen: false, type: null, mode: null });
-
         } catch (error: any) {
-            console.error("Error saving template:", error);
             showToast(`Error: ${error.message}`, "error");
         }
     };
 
-
     if (loading) return (
-        <div className="flex justify-center py-20 animate-pulse">
-            <Loader2 className="animate-spin text-accent" size={32} />
+        <div className="flex flex-col items-center justify-center py-24 animate-pulse">
+            <div className="w-16 h-16 bg-slate-200 dark:bg-white/5 rounded-[2rem] mb-6 flex items-center justify-center">
+                <Loader2 className="animate-spin text-accent/20" size={32} />
+            </div>
+            <div className="h-4 w-32 bg-slate-200 dark:bg-white/5 rounded-full" />
         </div>
     );
 
+    const activeContract = CONTRACT_TYPES.find(t => t.id === activeModal.type);
+
     return (
-        <div className="space-y-12 pb-20">
+        <div className="space-y-16 pb-20">
             {/* Header */}
-            <div>
-                <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-4">
-                    Tus <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Licencias</span>
-                </h1>
-                <p className="text-muted text-xs font-bold uppercase tracking-widest max-w-2xl">
-                    Personaliza los términos legales y límites de cada licencia.
-                </p>
+            <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Sistema de Licenciamiento v2.0</span>
+                </div>
+                <div className="space-y-2">
+                    <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground leading-[1] flex flex-col">
+                        Tus
+                        <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Licencias.</span>
+                    </h1>
+                    <p className="text-slate-500 dark:text-muted text-[11px] font-bold uppercase tracking-[0.4em] opacity-60 ml-1">
+                        Personaliza los términos legales y límites de cada tipo
+                    </p>
+                </div>
             </div>
 
-            {/* Grid de Licencias */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
+            {/* Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {CONTRACT_TYPES.map((contract) => {
                     const isConfigured = !!templates[contract.id];
                     const isCustom = templates[contract.id]?.usar_texto_personalizado;
 
                     return (
-                        <div key={contract.id} className={`relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3rem] p-10 shadow-sm hover:shadow-2xl transition-all duration-500 group overflow-hidden ${contract.glow}`}>
-                            {/* Background Glow Ornament */}
-                            <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br ${contract.gradient} blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
+                        <div
+                            key={contract.id}
+                            className={`group relative bg-white dark:bg-[#020205] border rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl ${contract.borderColor} shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] ${contract.glowColor}`}
+                        >
+                            {/* Top accent line */}
+                            <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent ${contract.accentLine} to-transparent opacity-60 group-hover:opacity-100 transition-opacity`} />
 
-                            <div className="relative z-10">
-                                <div className="flex items-center gap-5 mb-10">
-                                    <div className={`w-16 h-16 rounded-3xl flex items-center justify-center bg-gradient-to-br ${contract.gradient} ${contract.color} shadow-inner`}>
+                            {/* Ambient glow on hover */}
+                            <div className={`absolute -top-24 -right-24 w-48 h-48 rounded-full ${contract.iconBg} blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
+
+                            <div className="relative z-10 p-8 flex flex-col h-full">
+                                {/* Icon + Tier badge */}
+                                <div className="flex items-start justify-between mb-6">
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${contract.iconBg} ${contract.color} group-hover:scale-110 transition-transform duration-500`}>
                                         {contract.icon}
                                     </div>
-                                    <div className="flex-1">
-                                        <h3 className="font-black text-xl text-foreground uppercase tracking-tighter leading-tight italic">
-                                            {contract.name}
-                                        </h3>
-                                        <div className="flex items-center gap-2 mt-2">
-                                            <div className={`w-2.5 h-2.5 rounded-full ${isConfigured ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-slate-300 dark:bg-white/20'}`} />
-                                            <span className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">
-                                                {isConfigured ? (isCustom ? 'PRO: TEXTO LIBRE' : 'PRO: PARÁMETROS') : 'CONFIGURACIÓN BASE'}
-                                            </span>
-                                        </div>
-                                    </div>
+                                    <span className={`px-3 py-1 rounded-xl text-[8px] font-black uppercase tracking-widest border ${contract.borderColor} ${contract.badgeBg}`}>
+                                        {contract.tier}
+                                    </span>
                                 </div>
 
-                                <div className="space-y-4 mt-4">
+                                {/* Name & description */}
+                                <div className="mb-6">
+                                    <h3 className={`font-black text-xl uppercase tracking-tighter leading-tight mb-2 ${contract.color}`}>
+                                        {contract.name}
+                                    </h3>
+                                    <p className="text-slate-500 dark:text-muted text-[11px] font-bold uppercase tracking-widest leading-relaxed opacity-60">
+                                        {contract.description}
+                                    </p>
+                                </div>
+
+                                {/* Status indicator */}
+                                <div className="flex items-center gap-2 mb-8">
+                                    <div className={`w-2 h-2 rounded-full ${isConfigured ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-300 dark:bg-white/20'}`} />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.25em] text-muted">
+                                        {isConfigured ? (isCustom ? 'Contrato personalizado' : 'Parámetros configurados') : 'Sin configurar · Usa plantilla base'}
+                                    </span>
+                                </div>
+
+                                {/* Action buttons */}
+                                <div className="space-y-3 mt-auto">
                                     <button
                                         onClick={() => openModal(contract.id, 'easy')}
-                                        className="w-full py-5 px-6 bg-slate-50 hover:bg-white dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground rounded-[1.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-between group/btn"
+                                        className={`w-full py-4 px-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-between border ${contract.borderColor} bg-slate-50 dark:bg-white/5 text-slate-700 dark:text-foreground hover:bg-white dark:hover:bg-white/10 active:scale-95 shadow-sm`}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <Settings size={16} className="text-muted group-hover/btn:rotate-90 transition-transform duration-500" />
+                                            <Settings size={14} className={`${contract.color} group-[&]:rotate-90 transition-transform`} />
                                             Modo Parámetros
                                         </div>
-                                        <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-white/10 flex items-center justify-center group-hover/btn:bg-accent group-hover/btn:text-white transition-colors">
-                                            <Zap size={10} />
+                                        <div className={`w-5 h-5 rounded-full ${contract.iconBg} ${contract.color} flex items-center justify-center`}>
+                                            <Zap size={9} fill="currentColor" />
                                         </div>
                                     </button>
 
                                     <button
                                         onClick={() => openModal(contract.id, 'expert')}
-                                        className="w-full py-5 px-6 bg-[#0a0a0b] hover:bg-accent text-white rounded-[1.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl hover:shadow-accent/40 flex items-center justify-between group/btn"
+                                        className={`w-full py-4 px-5 bg-slate-900 dark:bg-white/5 text-white dark:text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-between hover:${contract.iconBg} active:scale-95 shadow-xl border border-transparent hover:${contract.borderColor}`}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <AlignLeft size={16} /> Redactar Contrato
+                                            <AlignLeft size={14} />
+                                            Redactar Contrato
                                         </div>
-                                        <ShieldCheck size={18} className="opacity-40 group-hover/btn:opacity-100 transition-opacity" />
+                                        <ShieldCheck size={16} className={`opacity-40 group-hover:opacity-100 ${contract.color} transition-opacity`} />
                                     </button>
                                 </div>
                             </div>
@@ -262,137 +286,119 @@ export default function ContractsPage() {
                 })}
             </div>
 
-            {/* Modal Compartido */}
-            {activeModal.isOpen && activeModal.type && (
+            {/* Modal */}
+            {activeModal.isOpen && activeModal.type && activeContract && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-md animate-in fade-in" onClick={() => setActiveModal({ isOpen: false, type: null, mode: null })} />
 
-                    <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
-                        {/* Header Modal */}
-                        <div className="p-10 border-b border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/5 backdrop-blur-xl">
-                            <div className="flex items-center gap-3 text-accent mb-3">
-                                <div className="p-2 bg-accent/10 rounded-lg">
-                                    {activeModal.mode === 'easy' ? <Settings size={22} /> : <FileKey size={22} />}
+                    <div className="relative w-full max-w-2xl bg-white dark:bg-[#0c0c0e] border border-slate-200 dark:border-white/5 rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+                        {/* Modal top line */}
+                        <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent ${activeContract.accentLine} to-transparent`} />
+
+                        {/* Modal Header */}
+                        <div className="p-10 border-b border-slate-200 dark:border-white/10">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${activeContract.badgeBg} border ${activeContract.borderColor}`}>
+                                    {activeModal.mode === 'easy' ? <Settings size={12} /> : <FileKey size={12} />}
+                                    {activeModal.mode === 'easy' ? 'Modo Parámetros' : 'Modo Experto'}
                                 </div>
-                                <span className="font-black text-[11px] uppercase tracking-[0.4em] italic">
-                                    {activeModal.mode === 'easy' ? 'Módulo de Parámetros' : 'Redacción de Autor'}
-                                </span>
+                                <button
+                                    onClick={() => setActiveModal({ isOpen: false, type: null, mode: null })}
+                                    className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
+                                >
+                                    <X size={18} />
+                                </button>
                             </div>
-                            <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground">
-                                {CONTRACT_TYPES.find(t => t.id === activeModal.type)?.name}
+                            <h2 className={`text-3xl font-black uppercase tracking-tighter ${activeContract.color}`}>
+                                {activeContract.name}
                             </h2>
+                            <p className="text-muted text-[11px] font-bold uppercase tracking-widest mt-1 opacity-60">{activeContract.description}</p>
                         </div>
 
-                        {/* Content Modal */}
-                        <div className="p-8">
+                        {/* Modal Content */}
+                        <div className="p-8 overflow-y-auto max-h-[60vh]">
                             {activeModal.mode === 'easy' ? (
                                 <div className="grid md:grid-cols-2 gap-6">
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">Streams de Audio (Max)</label>
-                                        <input
-                                            type="text"
-                                            value={easyFormData.streams_limite}
-                                            onChange={(e) => setEasyFormData({ ...easyFormData, streams_limite: e.target.value })}
-                                            className="w-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 font-bold text-sm text-foreground focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all outline-none shadow-inner"
-                                            placeholder="Ej: 500,000 / Ilimitado"
-                                        />
-                                    </div>
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">Distribución / Ventas</label>
-                                        <input
-                                            type="text"
-                                            value={easyFormData.copias_limite}
-                                            onChange={(e) => setEasyFormData({ ...easyFormData, copias_limite: e.target.value })}
-                                            className="w-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 font-bold text-sm text-foreground focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all outline-none shadow-inner"
-                                            placeholder="Ej: 5,000 copias"
-                                        />
-                                    </div>
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">Videos Musicales</label>
-                                        <input
-                                            type="text"
-                                            value={easyFormData.videos_limite}
-                                            onChange={(e) => setEasyFormData({ ...easyFormData, videos_limite: e.target.value })}
-                                            className="w-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 font-bold text-sm text-foreground focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all outline-none shadow-inner"
-                                            placeholder="Ej: 1 Video Monetizado"
-                                        />
-                                    </div>
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">Estaciones de Radio</label>
-                                        <input
-                                            type="text"
-                                            value={easyFormData.radio_limite}
-                                            onChange={(e) => setEasyFormData({ ...easyFormData, radio_limite: e.target.value })}
-                                            className="w-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 font-bold text-sm text-foreground focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all outline-none shadow-inner"
-                                            placeholder="Ej: 2 Estaciones FM"
-                                        />
-                                    </div>
-                                    <div className="col-span-full mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl flex gap-3 text-blue-600 dark:text-blue-400">
+                                    {[
+                                        { label: 'Streams de Audio (Max)', key: 'streams_limite', placeholder: 'Ej: 500,000 / Ilimitado' },
+                                        { label: 'Distribución / Ventas', key: 'copias_limite', placeholder: 'Ej: 5,000 copias' },
+                                        { label: 'Videos Musicales', key: 'videos_limite', placeholder: 'Ej: 1 Video Monetizado' },
+                                        { label: 'Estaciones de Radio', key: 'radio_limite', placeholder: 'Ej: 2 Estaciones FM' },
+                                    ].map(field => (
+                                        <div key={field.key} className="space-y-3">
+                                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">{field.label}</label>
+                                            <input
+                                                type="text"
+                                                value={(easyFormData as any)[field.key]}
+                                                onChange={(e) => setEasyFormData({ ...easyFormData, [field.key]: e.target.value })}
+                                                className={`w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 font-bold text-sm text-foreground focus:outline-none focus:border-current transition-all shadow-inner ${activeContract.color}`}
+                                                placeholder={field.placeholder}
+                                            />
+                                        </div>
+                                    ))}
+                                    <div className="col-span-full p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex gap-3 text-blue-500">
                                         <Info size={16} className="shrink-0 mt-0.5" />
                                         <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed">
-                                            Modo Fácil: Insertaremos estos límites automáticamente en la plantilla base profesional de Tianguis Beats.
+                                            Estos límites se insertarán automáticamente en la plantilla profesional de Tianguis Beats.
                                         </p>
                                     </div>
 
-                                    {/* Toggle Cláusulas Pro */}
-                                    <div className="col-span-full mt-2 pt-6 border-t border-slate-200 dark:border-white/10">
+                                    <div className="col-span-full pt-6 border-t border-slate-200 dark:border-white/10">
                                         <div
-                                            className={`flex items-center justify-between p-6 rounded-3xl group cursor-pointer transition-all duration-500 border ${includeProClauses ? 'bg-emerald-500/10 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.1)]' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10'}`}
+                                            className={`flex items-center justify-between p-6 rounded-3xl cursor-pointer transition-all duration-500 border ${includeProClauses ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10'}`}
                                             onClick={() => setIncludeProClauses(!includeProClauses)}
                                         >
-                                            <div className="flex gap-5 items-center">
-                                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-700 shadow-lg ${includeProClauses ? 'bg-emerald-500 text-white scale-110 rotate-[10deg]' : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
-                                                    <ShieldCheck size={28} />
+                                            <div className="flex gap-4 items-center">
+                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${includeProClauses ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
+                                                    <ShieldCheck size={22} />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-sm font-black uppercase tracking-tight text-foreground">¿Activar Protección Pro de Tianguis?</h4>
-                                                    <p className="text-[10px] font-bold text-muted uppercase tracking-widest mt-1">Inyectar las 5 Cláusulas de Oro y Sello de Seguridad Real.</p>
+                                                    <h4 className="text-sm font-black uppercase tracking-tight text-foreground">¿Activar Protección Pro?</h4>
+                                                    <p className="text-[10px] font-bold text-muted uppercase tracking-widest mt-1">Inyectar las 5 Cláusulas de Oro de Tianguis.</p>
                                                 </div>
                                             </div>
-                                            <div className={`w-14 h-7 rounded-full relative transition-all duration-500 ${includeProClauses ? 'bg-emerald-500' : 'bg-slate-400 dark:bg-slate-700'}`}>
-                                                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-500 shadow-md ${includeProClauses ? 'left-8' : 'left-1'}`} />
+                                            <div className={`w-12 h-6 rounded-full relative transition-all duration-500 ${includeProClauses ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'}`}>
+                                                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-500 shadow-md ${includeProClauses ? 'left-7' : 'left-1'}`} />
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="space-y-6">
-                                    <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-600 dark:text-rose-400">
+                                    <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-500">
                                         <p className="text-[10px] font-black uppercase tracking-widest leading-relaxed">
-                                            ⚠️ DISCLAIMER LEGAL: Al modificar este texto, sobrescribes la plantilla oficial de Tianguis Beats. Asumes la total y absoluta responsabilidad de los términos estipulados entre tú y el comprador.
+                                            ⚠️ Al modificar este texto asumes responsabilidad total de los términos entre tú y el comprador.
                                         </p>
                                     </div>
                                     <div className="space-y-2">
-                                        <div className="flex justify-between items-center mb-1">
+                                        <div className="flex justify-between items-center mb-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-muted">Contrato Principal</label>
-                                            <span className="text-[9px] font-bold text-accent uppercase tracking-widest">Variables soportadas: {'{ARTISTA}'}, {'{BEAT}'}</span>
+                                            <span className="text-[9px] font-bold text-accent uppercase tracking-widest">Variables: {'{ARTISTA}'}, {'{BEAT}'}</span>
                                         </div>
                                         <textarea
                                             rows={10}
                                             value={expertFormData.texto_legal}
                                             onChange={(e) => setExpertFormData({ texto_legal: e.target.value })}
-                                            className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-xl p-5 font-mono text-xs text-foreground focus:border-accent outline-none resize-y leading-relaxed"
-                                            placeholder="Escribe todo el texto de tu contrato de licenciamiento aquí..."
+                                            className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl p-5 font-mono text-xs text-foreground focus:border-accent outline-none resize-y leading-relaxed"
+                                            placeholder="Escribe aquí el texto completo de tu contrato de licenciamiento..."
                                         />
                                     </div>
-
-                                    {/* Toggle Cláusulas Pro en Modo Experto */}
-                                    <div className="mt-4 pt-6 border-t border-slate-200 dark:border-white/10">
+                                    <div className="pt-4 border-t border-slate-200 dark:border-white/10">
                                         <div
-                                            className={`flex items-center justify-between p-6 rounded-3xl group cursor-pointer transition-all duration-500 border ${includeProClauses ? 'bg-emerald-500/10 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.1)]' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10'}`}
+                                            className={`flex items-center justify-between p-6 rounded-3xl cursor-pointer transition-all duration-500 border ${includeProClauses ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10'}`}
                                             onClick={() => setIncludeProClauses(!includeProClauses)}
                                         >
-                                            <div className="flex gap-5 items-center">
-                                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-700 shadow-lg ${includeProClauses ? 'bg-emerald-500 text-white scale-110 rotate-[10deg]' : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
-                                                    <ShieldCheck size={28} />
+                                            <div className="flex gap-4 items-center">
+                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${includeProClauses ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
+                                                    <ShieldCheck size={22} />
                                                 </div>
                                                 <div>
                                                     <h4 className="text-sm font-black uppercase tracking-tight text-foreground">Inyectar Adéndum Pro</h4>
-                                                    <p className="text-[10px] font-bold text-muted uppercase tracking-widest mt-1">Añadiremos las 5 Cláusulas de Oro al final de tu texto.</p>
+                                                    <p className="text-[10px] font-bold text-muted uppercase tracking-widest mt-1">Añadir las 5 Cláusulas de Oro al final de tu texto.</p>
                                                 </div>
                                             </div>
-                                            <div className={`w-14 h-7 rounded-full relative transition-all duration-500 ${includeProClauses ? 'bg-emerald-500' : 'bg-slate-400 dark:bg-slate-700'}`}>
-                                                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-500 shadow-md ${includeProClauses ? 'left-8' : 'left-1'}`} />
+                                            <div className={`w-12 h-6 rounded-full relative transition-all duration-500 ${includeProClauses ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'}`}>
+                                                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-500 shadow-md ${includeProClauses ? 'left-7' : 'left-1'}`} />
                                             </div>
                                         </div>
                                     </div>
@@ -400,7 +406,7 @@ export default function ContractsPage() {
                             )}
                         </div>
 
-                        {/* Footer Actions */}
+                        {/* Modal Footer */}
                         <div className="p-6 border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/20 flex gap-4 justify-end">
                             <button
                                 onClick={() => setActiveModal({ isOpen: false, type: null, mode: null })}
@@ -410,15 +416,15 @@ export default function ContractsPage() {
                             </button>
                             <button
                                 onClick={handleSaveTemplate}
-                                className="px-8 py-3 bg-foreground text-background dark:bg-white dark:text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl"
+                                className={`px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl ${activeContract.iconBg} ${activeContract.color} border ${activeContract.borderColor}`}
                             >
+                                <Check size={14} className="inline mr-2" />
                                 Guardar Contrato
                             </button>
                         </div>
                     </div>
                 </div>
             )}
-
         </div>
     );
 }
