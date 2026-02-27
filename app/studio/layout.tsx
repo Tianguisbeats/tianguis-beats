@@ -46,13 +46,13 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         <div className="min-h-screen bg-slate-50 dark:bg-[#020205] font-sans text-foreground transition-all duration-500">
             <Navbar />
 
-            <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 pt-32 pb-20 flex flex-col lg:flex-row gap-12">
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 pt-12 pb-20 flex flex-col lg:flex-row gap-12">
                 {/* Sidebar Navigation */}
                 <aside className="w-full lg:w-72 shrink-0">
-                    <div className="sticky top-32 space-y-10">
+                    <div className="sticky top-12 space-y-10">
                         <div className="px-4">
-                            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-muted/60 mb-2">Plataforma</h2>
-                            <h1 className="text-2xl font-black uppercase tracking-tighter text-foreground">Tianguis <span className="text-accent">Studio</span></h1>
+                            <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-muted/60 mb-2">Plataforma</h2>
+                            <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground">Tianguis <span className="text-accent">Studio</span></h1>
                         </div>
 
                         <nav className="space-y-1">

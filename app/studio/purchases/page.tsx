@@ -90,7 +90,7 @@ export default function MyPurchasesPage() {
             const groupedOrders: Record<string, any> = {};
 
             (txData || []).forEach(tx => {
-                const pagoId = tx.id_pago_stripe || tx.id; // Group key, prioritizing id_pago_stripe
+                const pagoId = tx.pago_id || tx.id; // Group key, prioritizing pago_id
                 if (!groupedOrders[pagoId]) {
                     groupedOrders[pagoId] = {
                         id: pagoId,
@@ -99,7 +99,7 @@ export default function MyPurchasesPage() {
                         currency: tx.moneda || 'MXN',
                         status: tx.estado_pago,
                         payment_method: tx.metodo_pago,
-                        stripe_id: tx.id_pago_stripe,
+                        stripe_id: tx.pago_id,
                         items: []
                     };
                 }

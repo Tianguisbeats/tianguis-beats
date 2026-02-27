@@ -109,7 +109,7 @@ export async function POST(req: Request) {
                     cycle: metadata.cycle
                 });
 
-                const vendedorId = metadata.productor_id || metadata.productor_id || metadata.producerId || null;
+                const vendedorId = metadata.productor_id || metadata.producer_id || metadata.seller_id || metadata.producerId || null;
                 const itemId = metadata.type === 'plan' ? 'price_plan_fake' : (metadata.productId || product.id);
 
                 let pdfUrl = null;
@@ -208,7 +208,7 @@ export async function POST(req: Request) {
                 const { error: txError } = await supabaseAdmin
                     .from('transacciones')
                     .insert({
-                        id_pago_stripe: stripeId,
+                        pago_id: stripeId,
                         comprador_id: usuarioId,
                         vendedor_id: vendedorId,
                         producto_id: itemId,
@@ -298,6 +298,22 @@ export async function POST(req: Request) {
                         id_productor: vendedorId,
                         monto_ganancia: gananciaNeta > 0 ? gananciaNeta : 0
                     });
+
+                    // 2. Incrementar contador de ventas del producto específico
+                    const tableMap: Record<string, string> = {
+                        'beat': 'beats',
+                        'soundkit': 'kits_sonido',
+                        'sound_kit': 'kits_sonido',
+                        'service': 'servicios'
+                    };
+                    const targetTable = tableMap[metadata.type];
+                    if (targetTable && itemId) {
+                        console.log(`--- UPDATING SALES COUNT: ${targetTable} / ${itemId} ---`);
+                        await supabaseAdmin.rpc('incrementar_conteo_ventas', {
+                            tabla_target: targetTable,
+                            id_item: itemId
+                        });
+                    }
                 }
             }
 
