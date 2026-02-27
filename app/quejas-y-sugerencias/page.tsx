@@ -13,6 +13,10 @@ export default function QuejasSugerenciasPage() {
     const [lastType, setLastType] = useState<'queja' | 'sugerencia'>('queja');
     const [user, setUser] = useState<any>(null);
     const [checkingAuth, setCheckingAuth] = useState(true);
+
+    // Controlled Form State
+    const [nombre, setNombre] = useState('');
+    const [email, setEmail] = useState('');
     const { showToast } = useToast();
 
     useEffect(() => {
@@ -21,6 +25,8 @@ export default function QuejasSugerenciasPage() {
             if (user) {
                 const { data: profile } = await supabase.from('perfiles').select('nombre_usuario, email').eq('id', user.id).single();
                 setUser({ ...user, profile });
+                setNombre(profile?.nombre_usuario || user?.user_metadata?.artistic_name || user?.user_metadata?.username || '');
+                setEmail(profile?.email || user?.email || '');
             }
             setCheckingAuth(false);
         };
@@ -52,9 +58,11 @@ export default function QuejasSugerenciasPage() {
 
         const formData = new FormData(form);
         const tipo = formData.get('tipo') as string;
-        const nombre = (formData.get('nombre') as string) || user?.profile?.nombre_usuario || '';
-        const email = (formData.get('email') as string) || user?.profile?.email || '';
         const mensaje = formData.get('mensaje') as string;
+
+        // Usamos los estados controlados directamente para evitar problemas de shadowing o campos vacíos
+        const finalNombre = nombre || user?.profile?.nombre_usuario || 'Usuario Anónimo';
+        const finalEmail = email || user?.profile?.email || 'anonimo@tianguisbeats.com';
 
         try {
             const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -62,7 +70,7 @@ export default function QuejasSugerenciasPage() {
             // 1. Upload Evidences if any
             const evidenceUrls: string[] = ['', '', ''];
             // Usamos el nombre limpio para la carpeta
-            const folderName = nombre.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const folderName = finalNombre.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
             for (let i = 0; i < evidences.length; i++) {
                 const file = evidences[i];
@@ -79,8 +87,8 @@ export default function QuejasSugerenciasPage() {
             // 2. Insert with correct column names (usuario_id, correo, descripcion_problema)
             const { error } = await supabase.from('quejas_y_sugerencias').insert([{
                 tipo_mensaje: tipo,
-                nombre_usuario: nombre,
-                correo: email,
+                nombre_usuario: finalNombre,
+                correo: finalEmail,
                 descripcion_problema: mensaje,
                 usuario_id: authUser?.id || null,
                 estado: 'pendiente',
@@ -95,6 +103,10 @@ export default function QuejasSugerenciasPage() {
             setStatus('success');
             setEvidences([]); // Limpiar evidencias exitosamente
             setUploadingEvidences(false);
+            if (!user) {
+                setNombre('');
+                setEmail('');
+            }
             form.reset();
         } catch (error: any) {
             console.error("Error submitting feedback:", error);
@@ -214,7 +226,8 @@ export default function QuejasSugerenciasPage() {
                                         name="nombre"
                                         required
                                         readOnly={!!user}
-                                        defaultValue={user?.profile?.nombre_usuario || user?.user_metadata?.artistic_name || user?.user_metadata?.username || ''}
+                                        value={nombre}
+                                        onChange={(e) => setNombre(e.target.value)}
                                         className={`w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl p-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-colors placeholder:text-muted/40 uppercase tracking-widest text-xs ${user ? 'opacity-60 cursor-not-allowed' : ''}`}
                                         placeholder="EJ. PRODUCTOR X"
                                     />
@@ -226,7 +239,8 @@ export default function QuejasSugerenciasPage() {
                                         name="email"
                                         required
                                         readOnly={!!user}
-                                        defaultValue={user?.profile?.email || user?.email || ''}
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                         className={`w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl p-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-colors placeholder:text-muted/40 uppercase tracking-widest text-xs ${user ? 'opacity-60 cursor-not-allowed' : ''}`}
                                         placeholder="EJ. TU@CORREO.COM"
                                     />

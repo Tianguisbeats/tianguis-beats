@@ -3,9 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
-    Loader2, ShieldCheck, XCircle, CheckCircle, ExternalLink, User,
-    Users, Ticket, DollarSign, TrendingUp, Search, Crown,
-    Save, Trash2, Edit2, AlertCircle, Music, MessageSquare, FileKey
+    Users, DollarSign, Music, CheckCircle, Clock, Trash2,
+    ChevronRight, Search, Loader2, ArrowUpRight, ArrowDownRight,
+    TrendingUp, Calendar, Layout, Mail, ShieldCheck, UserPlus,
+    ExternalLink, Filter, MoreVertical, X, AlertTriangle, AlertCircle,
+    Ticket, MessageSquare, XCircle, Edit2, Save, Crown, User, FileKey
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
@@ -141,8 +143,8 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
     if (loading) return <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-accent" /></div>;
 
     const cards = [
-        { id: 'income', label: 'Ingresos Totales', value: `$${stats.totalSales.toLocaleString()}`, sub: 'Ventas Globales Históricas', icon: <DollarSign className="text-emerald-500" />, gradient: 'hover:shadow-emerald-500/10' },
-        { id: 'monthly', label: 'Ingresos Mensuales', value: `$${stats.monthlyRevenue.toLocaleString()}`, sub: 'Corte al día de hoy', icon: <TrendingUp className="text-indigo-500" />, gradient: 'hover:shadow-indigo-500/10' },
+        { id: 'income', label: 'Ingresos Totales', value: `$${stats.totalSales.toLocaleString()} `, sub: 'Ventas Globales Históricas', icon: <DollarSign className="text-emerald-500" />, gradient: 'hover:shadow-emerald-500/10' },
+        { id: 'monthly', label: 'Ingresos Mensuales', value: `$${stats.monthlyRevenue.toLocaleString()} `, sub: 'Corte al día de hoy', icon: <TrendingUp className="text-indigo-500" />, gradient: 'hover:shadow-indigo-500/10' },
         { id: 'users', label: 'Usuarios', value: stats.totalUsers.toLocaleString(), sub: 'Productores registrados', icon: <Users className="text-blue-500" />, gradient: 'hover:shadow-blue-500/10' },
         { id: 'beats', label: 'Total Beats', value: stats.totalBeats.toLocaleString(), sub: 'En catálogo global', icon: <Music className="text-purple-500" />, gradient: 'hover:shadow-purple-500/10' },
         { id: 'verifications', label: 'Verificaciones', value: stats.pendingVerifications, sub: 'Solicitudes por revisar', icon: <img src="/verified-badge.png" alt="Verified" className="w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]" />, gradient: 'hover:shadow-blue-500/10' },
@@ -156,7 +158,7 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
                 <button
                     key={i}
                     onClick={() => onViewChange(card.id as View)}
-                    className={`bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3.5rem] p-12 shadow-lg dark:shadow-none transition-all duration-500 group hover:scale-[1.02] hover:border-accent/40 ${card.gradient} flex flex-col items-center text-center relative overflow-hidden`}
+                    className={`bg - white dark: bg - [#020205] border border - slate - 200 dark: border - white / 10 rounded - [3.5rem] p - 12 shadow - lg dark: shadow - none transition - all duration - 500 group hover: scale - [1.02] hover: border - accent / 40 ${card.gradient} flex flex - col items - center text - center relative overflow - hidden`}
                 >
                     {/* Background Glow */}
                     <div className="absolute -top-10 -right-10 w-32 h-32 bg-accent/5 blur-[50px] rounded-full pointer-events-none group-hover:bg-accent/10 transition-colors" />
@@ -207,14 +209,14 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
         try {
             const { data, error } = await supabase
                 .from('solicitudes_verificacion')
-                .select(`*, perfiles:user_id (nombre_usuario, foto_perfil, correo, fecha_creacion)`)
+                .select(`*, perfiles: user_id(nombre_usuario, foto_perfil, correo, fecha_creacion)`)
                 .eq('estado', 'pendiente')
                 .order('fecha_creacion', { ascending: false });
 
             if (error) {
                 const { data: retryData } = await supabase
                     .from('solicitudes_verificacion')
-                    .select(`*, perfiles:user_id (nombre_usuario, foto_perfil, correo, fecha_creacion)`)
+                    .select(`*, perfiles: user_id(nombre_usuario, foto_perfil, correo, fecha_creacion)`)
                     .eq('estado', 'pendiente');
                 setRequests(retryData || []);
             } else {
@@ -224,9 +226,12 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
         setLoading(false);
     };
 
-    const handleDecision = async (requestId: string, userId: string, status: 'approved' | 'rejected') => {
-        const confirmMsg = status === 'approved' ? "¿Aprobar verificación?" : "¿Rechazar solicitud?";
-        if (!window.confirm(confirmMsg)) return;
+    const [confirmAction, setConfirmAction] = useState<{ requestId: string; userId: string; status: 'approved' | 'rejected' } | null>(null);
+
+    const handleDecision = async () => {
+        if (!confirmAction) return;
+        const { requestId, userId, status } = confirmAction;
+        setConfirmAction(null); // Cerrar modal
 
         try {
             // 1. Actualizar el estado de la solicitud
@@ -243,9 +248,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                     .from('perfiles')
                     .update({
                         esta_verificado: true,
-                        // El usuario ha pedido que se habilite algo de True para que se habilite la imagen PNG
-                        // Probablemente se refiere a un check o simplemente 'esta_verificado' es suficiente para la lógica de UI
-                        notificaciones_newsletter: true // Ejemplo de habilitar algo extra si es necesario
+                        notificaciones_newsletter: true
                     })
                     .eq('id', userId);
 
@@ -268,12 +271,46 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                 <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
                     ← Volver al Dashboard
                 </button>
-                <div className={`flex items-center justify-center px-4 py-2 rounded-xl border transition-colors ${requests.length > 0 ? 'bg-amber-500/10 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
-                    <span className={`text-[10px] font-black uppercase tracking-widest leading-none ${requests.length > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                <div className={`flex items - center justify - center px - 4 py - 2 rounded - xl border transition - colors ${requests.length > 0 ? 'bg-amber-500/10 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-emerald-500/10 border-emerald-500/20'} `}>
+                    <span className={`text - [10px] font - black uppercase tracking - widest leading - none ${requests.length > 0 ? 'text-amber-500' : 'text-emerald-500'} `}>
                         {requests.length} {requests.length === 1 ? 'Pendiente' : 'Pendientes'}
                     </span>
                 </div>
             </header>
+
+            {/* Confirmation Modal */}
+            {confirmAction && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setConfirmAction(null)} />
+                    <div className="relative bg-white dark:bg-[#0a0a0c] border border-border w-full max-w-md rounded-[3rem] p-10 text-center animate-in zoom-in duration-300 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+                        <div className={`w - 16 h - 16 rounded - 3xl flex items - center justify - center mx - auto mb - 6 ${confirmAction.status === 'approved' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'} `}>
+                            {confirmAction.status === 'approved' ? <CheckCircle size={32} /> : <AlertTriangle size={32} />}
+                        </div>
+                        <h3 className="text-2xl font-black uppercase tracking-tighter mb-4">
+                            {confirmAction.status === 'approved' ? '¿Aprobar Verificación?' : '¿Rechazar Solicitud?'}
+                        </h3>
+                        <p className="text-muted text-xs font-bold uppercase tracking-widest leading-relaxed mb-8">
+                            {confirmAction.status === 'approved'
+                                ? 'Esta acción otorgará la insignia oficial de verificado al productor.'
+                                : 'La solicitud será marcada como rechazada y el usuario no recibirá su insignia.'}
+                        </p>
+                        <div className="grid grid-cols-2 gap-4">
+                            <button
+                                onClick={() => setConfirmAction(null)}
+                                className="py-4 bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-slate-200 dark:hover:bg-white/10 transition-all font-bold"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleDecision}
+                                className={`py - 4 text - [10px] font - black uppercase tracking - widest rounded - 2xl text - white shadow - xl transition - all scale - 100 hover: scale - 105 active: scale - 95 ${confirmAction.status === 'approved' ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-rose-500 shadow-rose-500/20'} `}
+                            >
+                                {confirmAction.status === 'approved' ? 'Sí, Aprobar' : 'Sí, Rechazar'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {requests.length === 0 ? (
                 <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] rounded-[2rem] p-12 text-center">
@@ -289,20 +326,20 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                             {/* User Info Section - Photo above, text below */}
                             <div className="lg:w-1/4 w-full flex flex-col items-center lg:items-start">
                                 <Link
-                                    href={`/${req.nombre_usuario}`}
+                                    href={`/ ${req.nombre_usuario} `}
                                     target="_blank"
                                     className="group/user mb-6 flex flex-col items-center lg:items-start gap-4 hover:opacity-80 transition-opacity"
                                 >
                                     <div className="w-20 h-20 rounded-2xl overflow-hidden bg-accent-soft shadow-lg border-2 border-border/50 group-hover/user:border-accent transition-colors">
                                         <img src={req.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.nombre_usuario}`} alt="Avatar" className="w-full h-full object-cover" />
-                                    </div>
+                                    </div >
                                     <div className="min-w-0 text-center lg:text-left">
                                         <h3 className="font-black text-xl text-foreground tracking-tighter truncate">{req.nombre_usuario}</h3>
                                         <div className="inline-flex px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full">
                                             <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">@{req.nombre_usuario}</p>
                                         </div>
                                     </div>
-                                </Link>
+                                </Link >
                                 <div className="space-y-2 w-full">
                                     <DetailBox label="Nombre Real" value={req.nombre_completo} />
                                     <DetailBox label="Correo" value={req.correo} />
@@ -313,10 +350,10 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                                         </p>
                                     </div>
                                 </div>
-                            </div>
+                            </div >
 
                             {/* Content Sections - Layout Horizontal */}
-                            <div className="flex-1 w-full space-y-4">
+                            < div className="flex-1 w-full space-y-4" >
                                 <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-border flex flex-col gap-1">
                                     <p className="text-[9px] font-black uppercase text-muted tracking-[0.2em] mb-1">Red Social a Verificar</p>
                                     <p className="text-sm font-black text-foreground break-all">{req.url_red_social}</p>
@@ -349,28 +386,28 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                                         "{req.motivacion}"
                                     </p>
                                 </div>
-                            </div>
-                        </div>
+                            </div >
+                        </div >
 
                         {/* Action Buttons - Centered Position */}
-                        <div className="flex justify-center items-center gap-6 mt-4 border-t border-border pt-8">
+                        < div className="flex flex-wrap justify-center gap-4 mt-4 border-t border-border pt-8" >
                             <button
-                                onClick={() => handleDecision(req.id, req.user_id, 'rejected')}
-                                className="px-10 py-3 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg hover:shadow-red-500/10"
+                                onClick={() => setConfirmAction({ requestId: req.id, userId: req.user_id, status: 'rejected' })}
+                                className="px-10 py-4 bg-slate-100 dark:bg-white/5 text-[11px] font-black uppercase tracking-widest text-muted hover:bg-rose-500/10 hover:text-rose-500 rounded-2xl transition-all border border-transparent hover:border-rose-500/20"
                             >
                                 Rechazar Solicitud
                             </button>
                             <button
-                                onClick={() => handleDecision(req.id, req.user_id, 'approved')}
-                                className="px-14 py-3 bg-emerald-500 text-white hover:bg-emerald-600 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all"
+                                onClick={() => setConfirmAction({ requestId: req.id, userId: req.user_id, status: 'approved' })}
+                                className="px-12 py-4 bg-blue-600 text-[11px] font-black uppercase tracking-widest text-white rounded-2xl shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all"
                             >
                                 Aprobar Verificación
                             </button>
-                        </div>
-                    </div>
+                        </div >
+                    </div >
                 ))
             )}
-        </div>
+        </div >
     );
 }
 
@@ -999,8 +1036,8 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
                         <div
                             key={item.id}
                             className={`bg-white dark:bg-[#020205] border rounded-[2.5rem] p-8 space-y-6 flex flex-col shadow-lg transition-all duration-500 overflow-hidden relative ${isPending
-                                    ? 'border-amber-500/40 ring-1 ring-amber-500/10 shadow-amber-500/5'
-                                    : 'border-slate-200 dark:border-white/10 opacity-80'
+                                ? 'border-amber-500/40 ring-1 ring-amber-500/10 shadow-amber-500/5'
+                                : 'border-slate-200 dark:border-white/10 opacity-80'
                                 } hover:border-accent/30`}
                         >
                             {isPending && (
