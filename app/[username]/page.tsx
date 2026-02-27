@@ -742,11 +742,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             {/* Glow Effect */}
                             <div className={`absolute inset-0 rounded-full blur-2xl opacity-40 transition-all duration-700 bg-accent`} />
 
-                            <div className={`w-48 h-48 md:w-56 md:h-56 rounded-full border-[6px] shadow-2xl overflow-hidden transition-all duration-700 bg-background relative z-10 ${profile.es_fundador
-                                ? 'border-amber-500 ring-4 ring-amber-500/20 shadow-amber-500/30'
-                                : profile.nivel_suscripcion === 'premium' || profile.nivel_suscripcion === 'pro'
-                                    ? 'border-accent ring-4 ring-accent/20'
-                                    : 'border-white/10'
+                            <div className={`w-48 h-48 md:w-56 md:h-56 rounded-full border-[6px] shadow-2xl overflow-hidden transition-all duration-700 bg-background relative z-10 ${profile.nivel_suscripcion === 'premium'
+                                ? 'border-[#00f2ff] ring-4 ring-[#00f2ff]/20 shadow-[#00f2ff]/30' // Azul Premium Eléctrico
+                                : profile.es_fundador
+                                    ? 'border-amber-500 ring-4 ring-amber-500/20 shadow-amber-500/30'
+                                    : profile.nivel_suscripcion === 'pro'
+                                        ? 'border-accent ring-4 ring-accent/20'
+                                        : 'border-white/10'
                                 }`}>
                                 {profile.foto_perfil ? (
                                     <img src={profile.foto_perfil} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Avatar" />

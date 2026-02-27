@@ -326,9 +326,13 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 </h1>
 
                                 <Link href={`/${beat.productor_nombre_usuario || ''}`} className="inline-flex items-center gap-4 group">
-                                    <div className={`p-1 rounded-2xl border-2 transition-all group-hover:scale-110 ${beat.productor_nivel_suscripcion === 'premium' ? 'border-blue-600' :
-                                        beat.productor_nivel_suscripcion === 'pro' ? 'border-amber-500' :
-                                            'border-border'
+                                    <div className={`p-1 rounded-2xl border-2 transition-all group-hover:scale-110 ${beat.productor_nivel_suscripcion === 'premium'
+                                        ? 'border-[#00f2ff] shadow-sm shadow-[#00f2ff]/30'
+                                        : beat.productor_es_fundador
+                                            ? 'border-amber-500 shadow-sm shadow-amber-500/20'
+                                            : beat.productor_nivel_suscripcion === 'pro'
+                                                ? 'border-accent shadow-sm shadow-accent/20'
+                                                : 'border-border'
                                         }`}>
                                         <img src={beat.productor_foto_perfil || "/logo.png"} className="w-12 h-12 rounded-xl object-cover" alt="Prod" />
                                     </div>

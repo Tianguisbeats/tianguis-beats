@@ -225,6 +225,21 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
     };
 
     const [confirmAction, setConfirmAction] = useState<{ requestId: string; userId: string; status: 'approved' | 'rejected' } | null>(null);
+    const [selectedHistoryReq, setSelectedHistoryReq] = useState<any>(null); // NEW
+
+    const handleDeleteHistoryReq = async (id: string) => {
+        if (!confirm('¿Estás seguro de que deseas eliminar permanentemente esta solicitud de verificación del historial? Esta acción no se puede deshacer.')) return;
+        try {
+            const { error } = await supabase.from('solicitudes_verificacion').delete().eq('id', id);
+            if (error) throw error;
+            setRequests(requests.filter(r => r.id !== id));
+            setSelectedHistoryReq(null);
+            showToast("Solicitud eliminada correctamente", "success");
+        } catch (err) {
+            console.error(err);
+            showToast("Error al eliminar la solicitud", "error");
+        }
+    };
 
     const handleDecision = async () => {
         if (!confirmAction) return;
@@ -422,6 +437,55 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                 ))
             )}
 
+            {/* History Detail Modal */}
+            {selectedHistoryReq && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setSelectedHistoryReq(null)} />
+                    <div className="relative bg-white dark:bg-[#0a0a0c] border border-border w-full max-w-2xl rounded-[3rem] p-10 max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in duration-300">
+                        <header className="flex justify-between items-start mb-8 border-b border-border/50 pb-6">
+                            <div className="flex items-center gap-4">
+                                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-accent-soft shrink-0 border border-border/50">
+                                    <img src={selectedHistoryReq.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${selectedHistoryReq.nombre_usuario}`} className="w-full h-full object-cover" />
+                                </div>
+                                <div className="min-w-0">
+                                    <h3 className="text-xl font-black uppercase tracking-tighter text-foreground truncate">@{selectedHistoryReq.nombre_usuario}</h3>
+                                    <div className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mt-1 ${selectedHistoryReq.estado === 'aprobado' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                                        {selectedHistoryReq.estado}
+                                    </div>
+                                </div>
+                            </div>
+                            <button onClick={() => setSelectedHistoryReq(null)} className="p-3 bg-slate-100 dark:bg-white/5 rounded-2xl hover:text-white hover:bg-slate-800 transition-all text-muted">
+                                <XCircle size={20} />
+                            </button>
+                        </header>
+
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <DetailBox label="Nombre Real" value={selectedHistoryReq.nombre_completo} />
+                                <DetailBox label="Correo" value={selectedHistoryReq.perfiles?.correo || selectedHistoryReq.correo} />
+                            </div>
+                            <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-border">
+                                <p className="text-[9px] font-black uppercase text-muted tracking-[0.2em] mb-1">Red Social a Verificar</p>
+                                <p className="text-sm font-black text-foreground break-all">{selectedHistoryReq.url_red_social}</p>
+                            </div>
+                            <div className="flex flex-wrap gap-4">
+                                <ImageDocPreview label="Frente" path={selectedHistoryReq.url_doc_frontal} />
+                                {selectedHistoryReq.url_doc_trasero && <ImageDocPreview label="Vuelta" path={selectedHistoryReq.url_doc_trasero} />}
+                            </div>
+                        </div>
+
+                        <div className="mt-8 flex gap-4 pt-6 border-t border-border/50">
+                            <button
+                                onClick={() => handleDeleteHistoryReq(selectedHistoryReq.id)}
+                                className="flex-1 py-4 bg-rose-500/10 hover:bg-rose-500 text-[10px] font-black uppercase tracking-widest rounded-3xl text-rose-500 hover:text-white transition-all duration-300 shadow-sm flex items-center justify-center gap-2"
+                            >
+                                <Trash2 size={16} /> Eliminar Verificación Definitivamente
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Historial de Verificaciones Compacto */}
             {requests.filter(r => r.estado !== 'pendiente').length > 0 && (
                 <div className="mt-20 pt-20 border-t border-slate-200 dark:border-white/10">
@@ -437,32 +501,26 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {requests.filter(r => r.estado !== 'pendiente').map(req => (
-                            <div key={req.id} className="group/hist relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-3xl p-6 shadow-sm hover:border-accent/20 transition-all flex flex-col gap-4">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 border border-border/50">
-                                            <img src={req.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.nombre_usuario}`} className="w-full h-full object-cover" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-black uppercase tracking-tight">@{req.nombre_usuario}</p>
-                                            <p className="text-[9px] font-medium text-muted">{new Date(req.fecha_creacion).toLocaleDateString()}</p>
-                                        </div>
+                            <div key={req.id} className="group/hist relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-6 shadow-sm flex flex-col gap-6 hover:border-accent/30 transition-all duration-500">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-[1.2rem] overflow-hidden bg-slate-100 dark:bg-black border border-border/50 shrink-0 shadow-inner">
+                                        <img src={req.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.nombre_usuario}`} className="w-full h-full object-cover" />
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => handleRevert(req.id)}
-                                            className="p-2 bg-slate-100 dark:bg-white/5 rounded-lg text-muted hover:text-accent hover:bg-accent/10 transition-all opacity-0 group-hover/hist:opacity-100"
-                                            title="Regresar a Pendiente"
-                                        >
-                                            <Clock size={12} />
-                                        </button>
-                                        <div className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${req.estado === 'aprobado' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
-                                            {req.estado === 'aprobado' ? 'APROBADO' : 'RECHAZADO'}
-                                        </div>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-black uppercase tracking-tight text-foreground truncate">@{req.nombre_usuario}</p>
+                                        <p className="text-[9px] font-bold text-muted uppercase tracking-widest leading-none mt-1">{new Date(req.fecha_creacion).toLocaleDateString()}</p>
                                     </div>
                                 </div>
-                                <div className="text-[10px] font-medium text-muted italic line-clamp-2">
-                                    "{req.motivacion}"
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => setSelectedHistoryReq(req)}
+                                        className="flex-1 py-3 bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase tracking-widest text-slate-700 dark:text-foreground rounded-2xl hover:bg-slate-200 dark:hover:bg-white/10 transition-all text-center font-bold"
+                                    >
+                                        Ver Detalles
+                                    </button>
+                                    <div className={`flex-1 flex items-center justify-center py-3 text-center rounded-2xl text-[10px] font-black uppercase tracking-widest ${req.estado === 'aprobado' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                                        {req.estado}
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -1054,11 +1112,34 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
         try {
             const { data, error } = await supabase
                 .from('quejas_y_sugerencias')
-                .select(`*, perfiles:usuario_id (nombre_artistico, nombre_usuario, foto_perfil)`)
+                .select('*')
                 .order('fecha_creacion', { ascending: false });
 
-            if (error) throw error;
-            setFeedbacks(data || []);
+            if (error) {
+                throw error;
+            } else if (data) {
+                // Hacemos el mapeo manualmente ya que la base de datos no tiene una llave foránea explícita
+                const userIds = [...new Set(data.map(d => d.usuario_id).filter(Boolean))];
+                let profilesMap: Record<string, any> = {};
+
+                if (userIds.length > 0) {
+                    const { data: profiles } = await supabase
+                        .from('perfiles')
+                        .select('id, nombre_artistico, nombre_usuario, foto_perfil')
+                        .in('id', userIds);
+
+                    if (profiles) {
+                        profiles.forEach(p => { profilesMap[p.id] = p; });
+                    }
+                }
+
+                const mergedFeedbacks = data.map(item => ({
+                    ...item,
+                    perfiles: item.usuario_id ? (profilesMap[item.usuario_id] || null) : null
+                }));
+
+                setFeedbacks(mergedFeedbacks);
+            }
         } catch (err) { console.error(err); }
         setLoading(false);
     };

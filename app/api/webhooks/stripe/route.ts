@@ -249,10 +249,12 @@ export async function POST(req: Request) {
                     const isSameTier = profileData?.nivel_suscripcion === tier;
 
                     let baseDate = new Date();
-                    // Si ya tiene una suscripción activa del mismo tier, o si es secuencial, sumamos desde el vencimiento
-                    if (currentExpiry && currentExpiry > new Date() && (isSameTier || isSequential)) {
+                    // Si ya tiene una suscripción activa del mismo tier, sumamos desde el vencimiento
+                    if (currentExpiry && currentExpiry > new Date() && isSameTier) {
                         baseDate = currentExpiry;
-                        console.log('SUMMING TIME: Starting from existing exterior', baseDate.toISOString());
+                        console.log('SUMMING TIME: Starting from existing expiry (Same Tier)', baseDate.toISOString());
+                    } else if (currentExpiry && currentExpiry > new Date() && !isSameTier) {
+                        console.log('UPGRADE/DOWNGRADE: Starting from TODAY (Tier change)', baseDate.toISOString());
                     }
 
                     let expiryDate = new Date(baseDate);

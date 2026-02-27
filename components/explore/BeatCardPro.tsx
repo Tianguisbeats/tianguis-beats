@@ -174,7 +174,14 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                 {/* Producer Row */}
                 <Link href={`/${beat.productor_nombre_usuario || '#'}`} className={`flex items-center gap-2 ${compact ? 'mb-2' : 'mb-4'} group/prod ${compact ? 'min-h-[24px]' : 'min-h-[32px]'} justify-center w-full`}>
                     <div className="relative shrink-0">
-                        <div className={`${compact ? 'w-5 h-5' : 'w-6 h-6 md:w-8 md:h-8'} rounded-full overflow-hidden border-2 transition-transform group-hover/prod:scale-110 ${beat.productor_es_fundador ? 'border-amber-500 shadow-sm shadow-amber-500/20' : 'border-border group-hover:prod:border-accent'}`}>
+                        <div className={`${compact ? 'w-5 h-5' : 'w-6 h-6 md:w-8 md:h-8'} rounded-full overflow-hidden border-2 transition-transform group-hover/prod:scale-110 ${beat.productor_nivel_suscripcion === 'premium'
+                            ? 'border-[#00f2ff] shadow-sm shadow-[#00f2ff]/20'
+                            : beat.productor_es_fundador
+                                ? 'border-amber-500 shadow-sm shadow-amber-500/20'
+                                : beat.productor_nivel_suscripcion === 'pro'
+                                    ? 'border-accent shadow-sm shadow-accent/20'
+                                    : 'border-border group-hover:prod:border-accent'
+                            }`}>
                             <img
                                 src={beat.productor_foto_perfil || `https://ui-avatars.com/api/?name=${beat.productor_nombre_artistico}&background=random`}
                                 className="w-full h-full object-cover rounded-full"
