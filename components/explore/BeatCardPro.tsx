@@ -11,13 +11,14 @@
 
 import { Beat } from '@/lib/types';
 import Link from 'next/link';
-import { Play, Pause, Music, Crown, Heart, DollarSign } from 'lucide-react';
+import { Play, Pause, Music, Crown, Heart, DollarSign, ListMusic, Plus } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import { useState, useEffect } from 'react';
 import LicenseSelectionModal from '@/components/LicenseSelectionModal';
+import AddToPlaylistModal from '@/components/AddToPlaylistModal';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { MUSICAL_KEYS } from '@/lib/constants';
@@ -37,6 +38,7 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
 
     /* ── Estado local: like y modal de licencias ── */
     const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
+    const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
 
     /* ── Helpers de estado ── */
@@ -240,22 +242,39 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                     </div>
 
                     {/* Botón de like / favorito — target táctil mínimo 44px */}
-                    <button onClick={handleLike}
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all border shadow-sm active:scale-90 shrink-0 group/heart touch-manipulation ${isLiked
-                            ? 'text-red-500 border-red-500/50 bg-red-50 dark:bg-red-500/10'
-                            : 'text-red-400 border-border hover:border-red-500/50 hover:bg-red-500/5'
-                            }`}
-                        title={isLiked ? "Quitar de favoritos" : "Añadir a favoritos"}>
-                        <Heart size={16} className={`transition-all duration-300 ${isLiked ? 'fill-red-500 scale-110' : 'group-hover/heart:scale-110'}`} />
-                    </button>
+                    <div className="flex gap-2 shrink-0">
+                        {/* Añadir a Playlist: SOLO PARA EL DUEÑO */}
+                        {isOwner && (
+                            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsPlaylistModalOpen(true); }}
+                                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-border bg-card hover:border-accent/40 hover:bg-accent/5 text-muted hover:text-accent shadow-sm active:scale-90"
+                                title="Gestionar en mis playlists">
+                                <Plus size={16} />
+                            </button>
+                        )}
+
+                        <button onClick={handleLike}
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all border shadow-sm active:scale-90 shrink-0 group/heart touch-manipulation ${isLiked
+                                ? 'text-red-500 border-red-500/50 bg-red-50 dark:bg-red-500/10'
+                                : 'text-red-400 border-border hover:border-red-500/50 hover:bg-red-500/5'
+                                }`}
+                            title={isLiked ? "Quitar de favoritos" : "Añadir a favoritos"}>
+                            <Heart size={16} className={`transition-all duration-300 ${isLiked ? 'fill-red-500 scale-110' : 'group-hover/heart:scale-110'}`} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* ── Modal de selección de licencia ── */}
+            {/* ── Modales ── */}
             <LicenseSelectionModal
                 beat={beat}
                 isOpen={isLicenseModalOpen}
                 onClose={() => setIsLicenseModalOpen(false)}
+            />
+
+            <AddToPlaylistModal
+                isOpen={isPlaylistModalOpen}
+                beatId={beat.id}
+                onClose={() => setIsPlaylistModalOpen(false)}
             />
         </div>
     );

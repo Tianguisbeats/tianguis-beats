@@ -279,8 +279,8 @@ export default function UploadPage() {
                     {/* Header */}
                     <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div>
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border mb-4 shadow-xl" style={{ background: '#0f172a', borderColor: `${planColor}50` }}>
-                                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: planColor }} />
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border mb-4 shadow-xl" style={{ background: '#3b82f6', borderColor: '#ffffff20' }}>
+                                <Crown size={12} className="text-white fill-white" />
                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Plan {planLabel} Activo</span>
                             </div>
                             <h1 className="text-5xl font-black uppercase tracking-tighter leading-[1] mb-2">
@@ -343,7 +343,7 @@ export default function UploadPage() {
                                     <div className="space-y-2">
                                         <label className="text-[9px] font-black uppercase tracking-[0.25em] text-muted">Título del Beat *</label>
                                         <input type="text" value={title} onChange={e => setTitle(e.target.value)} required placeholder="Ej: Dark Summer Remix"
-                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-bold outline-none focus:border-accent/50 focus:bg-white/8 transition-all text-foreground placeholder:text-muted/40" />
+                                            className="w-full bg-foreground/5 border border-border rounded-2xl px-4 py-4 text-sm font-bold outline-none focus:border-accent/50 focus:bg-foreground/[0.08] transition-all text-foreground placeholder:text-muted/40" />
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-4">
@@ -369,7 +369,7 @@ export default function UploadPage() {
                                         <div className="space-y-2">
                                             <label className="text-[9px] font-black uppercase tracking-[0.25em] text-muted">BPM *</label>
                                             <input type="number" value={bpm} onChange={e => setBpm(e.target.value)} required placeholder="140"
-                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-sm font-bold outline-none focus:border-accent/50 transition-all text-foreground placeholder:text-muted/40" />
+                                                className="w-full bg-foreground/5 border border-border rounded-2xl px-4 py-4 text-sm font-bold outline-none focus:border-accent/50 focus:bg-foreground/[0.08] transition-all text-foreground placeholder:text-muted/40" />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[9px] font-black uppercase tracking-[0.25em] text-muted">Tono / Escala *</label>

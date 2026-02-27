@@ -50,7 +50,11 @@ export default function PlaylistManagerModal({
                 // UPDATE existing playlist
                 const { error: upErr } = await supabase
                     .from('listas_reproduccion')
-                    .update({ nombre: name.trim(), es_publica: isPublic })
+                    .update({
+                        nombre: name.trim(),
+                        es_publica: isPublic,
+                        es_privada: !isPublic
+                    })
                     .eq('id', existingPlaylist.id);
                 if (upErr) throw upErr;
             } else {
@@ -61,6 +65,7 @@ export default function PlaylistManagerModal({
                         usuario_id: producerId,
                         nombre: name.trim(),
                         es_publica: isPublic,
+                        es_privada: !isPublic
                     });
                 if (insErr) throw insErr;
             }

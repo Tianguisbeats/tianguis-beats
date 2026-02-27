@@ -735,74 +735,102 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                         {/* Info Header */}
                         <div className="flex-1 w-full">
-                            <div className="flex flex-col items-center md:items-start justify-center gap-6 w-full text-center md:text-left">
+                            <div className="flex flex-col items-center md:items-start justify-center gap-6 w-full text-center md:text-left md:pl-8">
                                 <div className="space-y-6 w-full max-w-4xl mx-auto md:mx-0">
                                     {/* Nombre artístico: compacto en móvil */}
-                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
                                         <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-tighter leading-[0.85] text-foreground drop-shadow-sm">
 
                                             {profile.nombre_artistico || profile.nombre_usuario}
                                         </h1>
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-3">
                                             {profile.esta_verificado && (
-                                                <img src="/verified-badge.png" alt="Verificado" className="w-8 h-8 object-contain hover:scale-110 transition-transform cursor-help shadow-accent/20 shadow-2xl" title="Verificado" />
+                                                <img src="/verified-badge.png" alt="Verificado" className="w-8 h-8 md:w-10 md:h-10 object-contain hover:scale-110 transition-transform cursor-help shadow-accent/20 shadow-2xl" title="Verificado" />
                                             )}
                                             {profile.es_fundador && (
                                                 <div className="flex items-center justify-center text-amber-500 hover:rotate-12 transition-transform cursor-help" title="Founder">
-                                                    <Crown className="w-8 h-8" fill="currentColor" />
+                                                    <Crown className="w-8 h-8 md:w-10 md:h-10" fill="currentColor" />
                                                 </div>
                                             )}
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-[11px] font-black uppercase tracking-[0.2em] text-muted">
+                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-5 text-[11px] font-black uppercase tracking-[0.2em] text-muted">
                                         <span className="text-accent underline decoration-2 underline-offset-4">@{profile.nombre_usuario}</span>
-                                        <span className="opacity-30">•</span>
+                                        <span className="opacity-20">|</span>
                                         {isEditing ? (
                                             <div className="flex items-center gap-2">
+                                                <MapPin size={12} className="text-accent" />
                                                 <select
                                                     value={editCountry}
                                                     onChange={(e) => setEditCountry(e.target.value)}
                                                     className="bg-accent/5 rounded-lg px-2 py-1 text-accent outline-none border border-accent/20 transition-all focus:border-accent"
                                                 >
-                                                    <option value="">Escribe tu país</option>
+                                                    <option value="">Tu país</option>
                                                     {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
                                                 </select>
-                                                {!COUNTRIES.includes(editCountry) && (
-                                                    <input
-                                                        type="text"
-                                                        value={editCountry}
-                                                        onChange={(e) => setEditCountry(e.target.value)}
-                                                        placeholder="Otro..."
-                                                        className="bg-accent/5 rounded-lg px-3 py-1 text-accent outline-none border border-accent/20 w-24 focus:border-accent transition-all"
-                                                    />
-                                                )}
                                             </div>
                                         ) : (
                                             <span className="flex items-center gap-1.5"><MapPin size={12} className="text-accent" /> {profile.pais || (isOwner ? "Agrega tu país" : "México")}</span>
                                         )}
-                                        <span className="opacity-30">•</span>
+                                        <span className="opacity-20">|</span>
                                         <span className="flex items-center gap-1.5"><Calendar size={12} /> {profile.fecha_creacion ? new Date(profile.fecha_creacion).getFullYear() : '2025'}</span>
+
+                                        {/* SOCIAL ICONS ALONGSIDE YEAR */}
+                                        <div className="flex items-center gap-4 ml-2 pl-4 border-l border-border/40">
+                                            {SOCIAL_KEYS.map(key => {
+                                                const val = profile.enlaces_sociales?.[key as keyof typeof profile.enlaces_sociales];
+                                                if (!val) return null;
+                                                const SocialIcon = SOCIAL_ICONS[key].icon;
+                                                return (
+                                                    <a key={key} href={val} target="_blank" rel="noopener noreferrer" className={`transition-all hover:scale-125 ${SOCIAL_ICONS[key].color}`}>
+                                                        {SocialIcon ? <SocialIcon size={14} /> : (
+                                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <path d={SOCIAL_ICONS[key].path} />
+                                                            </svg>
+                                                        )}
+                                                    </a>
+                                                );
+                                            })}
+                                        </div>
                                     </div>
 
                                     {/* BIO ALIGNED (ABOVE BUTTONS) */}
                                     {!isEditing && profile.biografia && (
-                                        <div className="max-w-2xl md:ml-0 md:mr-auto py-4">
-                                            <p className="text-sm md:text-base font-medium text-muted leading-relaxed text-center md:text-left italic opacity-80 decoration-accent/10">
+                                        <div className="max-w-3xl md:ml-0 md:mr-auto py-2">
+                                            <p className="text-sm md:text-base font-medium text-muted leading-relaxed text-center md:text-left italic opacity-80">
                                                 &ldquo;{profile.biografia}&rdquo;
                                             </p>
                                         </div>
                                     )}
                                     {isEditing && (
-                                        <div className="max-w-2xl md:ml-0 md:mr-auto py-2">
-                                            <textarea
-                                                value={editBio}
-                                                maxLength={160}
-                                                onChange={(e) => setEditBio(e.target.value)}
-                                                className="w-full bg-foreground/5 border border-border focus:border-accent rounded-2xl p-4 text-sm font-medium outline-none resize-none text-center md:text-left"
-                                                placeholder="Tu biografía corta y poderosa..."
-                                            />
-                                            <p className="text-[8px] font-black text-muted uppercase mt-1 text-right">{editBio.length}/160</p>
+                                        <div className="max-w-2xl md:ml-0 md:mr-auto space-y-4">
+                                            <div>
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-muted mb-2 block">Tu descripción</label>
+                                                <textarea
+                                                    value={editBio}
+                                                    maxLength={160}
+                                                    onChange={(e) => setEditBio(e.target.value)}
+                                                    className="w-full bg-foreground/5 border border-border focus:border-accent rounded-2xl p-4 text-sm font-medium outline-none resize-none text-center md:text-left"
+                                                    placeholder="Tu biografía corta y poderosa..."
+                                                />
+                                                <p className="text-[8px] font-black text-muted uppercase mt-1 text-right">{editBio.length}/160</p>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                {['instagram', 'youtube', 'tiktok'].map(key => (
+                                                    <div key={key} className="space-y-1.5">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-muted block capitalize">{key}</label>
+                                                        <input
+                                                            type="text"
+                                                            value={editSocials[key] || ''}
+                                                            onChange={(e) => setEditSocials({ ...editSocials, [key]: e.target.value })}
+                                                            placeholder={`URL de ${key}`}
+                                                            className="w-full bg-foreground/5 border border-border focus:border-accent rounded-xl px-3 py-2 text-xs font-bold outline-none"
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     )}
                                 </div>

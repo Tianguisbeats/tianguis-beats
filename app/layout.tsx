@@ -51,7 +51,6 @@ export default function RootLayout({
                   </div>
                   <MobileBottomNav />
                   <AudioPlayer />
-                  <AIChatBot />
                 </PlayerProvider>
               </CartProvider>
             </ToastProvider>
