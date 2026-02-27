@@ -145,6 +145,7 @@ export default function VerificationPage() {
                     user_id: user.id,
                     nombre_completo: form.realName,
                     nombre_usuario: form.artisticName, // que ahora es nombre_usuario
+                    correo: profile.correo, // Enviamos el correo del perfil
                     url_red_social: form.portfolioUrl,
                     motivacion: form.motivation,
                     url_documento: uploadData.path,

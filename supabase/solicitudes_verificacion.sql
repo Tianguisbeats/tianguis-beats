@@ -1,18 +1,19 @@
 -- ==============================================================================
--- 🛡️ TIANGUIS BEATS - INFRAESTRUCTURA DE SOLICITUDES DE VERIFICACIÓN (FINAL)
+-- 🛡️ TIANGUIS BEATS - INFRAESTRUCTURA DE SOLICITUDES DE VERIFICACIÓN (FINAL V2)
 -- ==============================================================================
 
 BEGIN;
 
--- 1. Eliminar tabla si existe para recrear con nombres de columnas solicitados
+-- 1. Eliminar tabla si existe para recrear con campo de correo
 DROP TABLE IF EXISTS public.solicitudes_verificacion CASCADE;
 
 -- 2. Crear tabla de solicitudes corregida
 CREATE TABLE public.solicitudes_verificacion (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES public.perfiles(id) ON DELETE CASCADE,
-    nombre_completo TEXT NOT NULL, -- Mapeado de perfiles.nombre_completo
-    nombre_usuario TEXT NOT NULL,  -- Mapeado de perfiles.nombre_usuario
+    nombre_completo TEXT NOT NULL,
+    nombre_usuario TEXT NOT NULL,
+    correo TEXT NOT NULL, -- Nuevo campo para notificaciones
     url_red_social TEXT NOT NULL,
     motivacion TEXT,
     url_documento TEXT NOT NULL,
@@ -49,6 +50,6 @@ FOR EACH ROW
 EXECUTE FUNCTION public.handle_updated_at();
 
 -- 6. Comentarios
-COMMENT ON TABLE public.solicitudes_verificacion IS 'Almacena las solicitudes formales de verificación de productores.';
+COMMENT ON TABLE public.solicitudes_verificacion IS 'Almacena las solicitudes formales de verificación incluyendo el correo de contacto.';
 
 COMMIT;
