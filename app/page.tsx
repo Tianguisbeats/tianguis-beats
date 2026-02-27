@@ -93,22 +93,26 @@ export default function Home() {
   }, [searchQuery]);
 
   return (
+    /* ── Contenedor principal de la página de inicio ── */
     <div className="min-h-screen bg-background text-foreground font-sans overflow-x-hidden transition-colors duration-300 selection:bg-accent selection:text-white">
       <Navbar />
 
-      {/* BG glows — subtle in light, stronger in dark */}
+      {/* ── Glows de fondo decorativos (no interactivos) ── */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-blue-600/[0.04] dark:bg-blue-600/[0.06] blur-[160px] rounded-full" />
         <div className="absolute bottom-[-15%] right-[-10%] w-[55%] h-[55%] bg-purple-700/[0.04] dark:bg-purple-700/[0.06] blur-[150px] rounded-full" />
         <div className="absolute top-[35%] right-[5%] w-[35%] h-[35%] bg-amber-500/[0.03] dark:bg-amber-500/[0.04] blur-[130px] rounded-full" />
       </div>
 
-      <main>
+      {/* pb-24 en móvil: reserva espacio para MobileBottomNav + AudioPlayer */}
+      <main className="pb-24 md:pb-0">
+
         {/* ══ HERO ══ */}
         <section className="relative pt-28 pb-20 px-4 overflow-hidden">
           <div className="max-w-5xl mx-auto text-center relative z-10">
 
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card backdrop-blur-sm mb-8 shadow-sm">
+            {/* ── Sección Hero: llamada a la acción principal ── */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card backdrop-blur-sm mb-6 shadow-sm">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
@@ -116,14 +120,16 @@ export default function Home() {
               <span className="text-[9px] font-black uppercase tracking-[0.25em] text-muted">🇲🇽 La Tienda de Beats #1 en México</span>
             </div>
 
-            <h1 className="text-[3rem] leading-[1] md:text-8xl lg:text-[9rem] font-black tracking-tighter mb-6 px-2 select-none text-foreground">
+            {/* Título principal — más pequeño en móvil para no desbordar */}
+            <h1 className="text-[2.5rem] leading-[1] sm:text-5xl md:text-8xl lg:text-[9rem] font-black tracking-tighter mb-5 px-2 select-none text-foreground">
               La Casa de los<br />
               <span className="text-accent">Corridos Tumbados.</span>
             </h1>
 
-            <p className="text-muted text-sm md:text-lg font-medium max-w-2xl mx-auto mb-10 leading-relaxed px-4">
+            <p className="text-muted text-sm md:text-lg font-medium max-w-2xl mx-auto mb-8 leading-relaxed px-4">
               Beats, Sound Kits y servicios profesionales. Sin distracciones, sin anuncios. Al grano.
             </p>
+
 
             {/* Smart Search */}
             <div className="max-w-2xl mx-auto relative mb-10 px-4">
@@ -196,9 +202,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Stats strip */}
-        <div className="border-t border-b border-border bg-card py-10 px-4">
-          <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-12 md:gap-20">
+        {/* ── Tira de estadísticas de la plataforma ── */}
+        <div className="border-t border-b border-border bg-card py-8 md:py-10 px-4">
+          <div className="max-w-4xl mx-auto grid grid-cols-4 gap-4 md:gap-20">
             {[
               { value: '10K+', label: 'Beats', icon: <Music size={16} /> },
               { value: '2K+', label: 'Productores', icon: <Users size={16} /> },
@@ -207,6 +213,7 @@ export default function Home() {
             ].map(s => <StatCard key={s.label} {...s} />)}
           </div>
         </div>
+
 
 
         {/* ══ FEATURES ══ */}
@@ -239,24 +246,24 @@ export default function Home() {
           </div>
         </div>
 
-        {/* CTA */}
-        <section className="py-32 px-4 text-center relative overflow-hidden">
+        {/* ── Sección CTA final: registrarse o explorar ── */}
+        <section className="py-20 md:py-32 px-4 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/[0.04] to-transparent pointer-events-none" />
           <div className="max-w-4xl mx-auto relative">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full mb-8 shadow-sm">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full mb-6 shadow-sm">
               <Star size={12} className="text-amber-400 fill-amber-400" />
               <span className="text-[9px] font-black text-muted uppercase tracking-widest">Únete a miles de productores</span>
             </div>
-            <h2 className="text-6xl md:text-9xl font-black text-foreground tracking-tighter mb-10 leading-[0.85]">
+            <h2 className="text-5xl md:text-9xl font-black text-foreground tracking-tighter mb-8 leading-[0.85]">
               ¿Listo para<br /><span className="text-accent italic">romperla?</span>
             </h2>
-            <div className="flex flex-col md:flex-row justify-center items-center gap-4">
-              <Link href="/beats" className="group relative overflow-hidden bg-accent text-white px-10 py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:scale-[1.03] active:scale-95 transition-all shadow-2xl shadow-accent/20 flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-3 px-4">
+              <Link href="/beats" className="group relative overflow-hidden bg-accent text-white w-full sm:w-auto px-10 py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:scale-[1.03] active:scale-95 transition-all shadow-2xl shadow-accent/20 flex items-center gap-3 justify-center">
                 <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                 <Music size={18} className="relative z-10" />
                 <span className="relative z-10">Explorar Beats</span>
               </Link>
-              <Link href="/pricing" className="group inline-flex items-center gap-2 px-10 py-5 bg-card border border-border rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] text-muted hover:text-foreground hover:border-foreground/20 hover:shadow-lg transition-all">
+              <Link href="/pricing" className="group inline-flex items-center gap-2 w-full sm:w-auto px-10 py-5 bg-card border border-border rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] text-muted hover:text-foreground hover:border-foreground/20 hover:shadow-lg transition-all justify-center">
                 <Crown size={16} className="text-amber-400" />
                 Ver Planes
               </Link>

@@ -36,17 +36,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${kanit.variable} ${montserrat.variable} font-body antialiased`}
-      >
+    /* ── Raíz de la aplicación ── */
+    <html lang="es">
+      <body className={`${kanit.variable} ${montserrat.variable} font-body antialiased`}>
         <BackgroundAura />
         <ThemeProvider>
           <CurrencyProvider>
             <ToastProvider>
               <CartProvider>
                 <PlayerProvider>
-                  {children}
+                  {/* pb-24 en móvil = espacio para MobileBottomNav (62px) + AudioPlayer (aprox. 64px) */}
+                  <div className="pb-0 md:pb-0">
+                    {children}
+                  </div>
                   <MobileBottomNav />
                   <AudioPlayer />
                   <AIChatBot />
@@ -59,3 +61,4 @@ export default function RootLayout({
     </html>
   );
 }
+
