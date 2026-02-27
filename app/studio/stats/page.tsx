@@ -4,10 +4,12 @@ import React, { useEffect, useState } from 'react';
 import {
     BarChart, Activity, Heart, Play, DollarSign,
     Users, TrendingUp, Award, Zap, ArrowUpRight,
-    Search, Filter, Download, Star, Music2
+    Search, Filter, Download, Star, Music2,
+    ShieldCheck, Crown, Sparkles
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
+import Link from 'next/link';
 
 type StatData = {
     totalPlays: number;
@@ -17,6 +19,9 @@ type StatData = {
     followerCount: number;
     topBeat: any;
     beatsList: any[];
+    userTier: string;
+    expiryDate: Date | null;
+    startDate: Date | null;
 };
 
 export default function StudioStatsPage() {
@@ -27,7 +32,10 @@ export default function StudioStatsPage() {
         totalRevenue: 0,
         followerCount: 0,
         topBeat: null,
-        beatsList: []
+        beatsList: [],
+        userTier: 'free',
+        expiryDate: null,
+        startDate: null
     });
     const [loading, setLoading] = useState(true);
 
@@ -39,6 +47,13 @@ export default function StudioStatsPage() {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
+
+            // Fetch Perfil para Plan
+            const { data: profile } = await supabase
+                .from('perfiles')
+                .select('nivel_suscripcion, fecha_termino_suscripcion, fecha_inicio_suscripcion')
+                .eq('id', user.id)
+                .single();
 
             // 1. Fetch Beats & Top Performing
             const { data: beats } = await supabase
@@ -72,7 +87,10 @@ export default function StudioStatsPage() {
                     totalRevenue,
                     followerCount: followers || 0,
                     topBeat: beats[0] || null,
-                    beatsList: beats.slice(0, 5)
+                    beatsList: beats.slice(0, 5),
+                    userTier: profile?.nivel_suscripcion || 'free',
+                    expiryDate: profile?.fecha_termino_suscripcion ? new Date(profile?.fecha_termino_suscripcion) : null,
+                    startDate: profile?.fecha_inicio_suscripcion ? new Date(profile?.fecha_inicio_suscripcion) : null
                 });
             }
         } catch (err) {
@@ -89,6 +107,23 @@ export default function StudioStatsPage() {
     const formatNumber = (val: number) => {
         return new Intl.NumberFormat('es-MX').format(val);
     };
+
+    const getSubscriptionProgress = () => {
+        if (!stats.expiryDate || stats.userTier === 'free') return { percent: 0, daysLeft: 0, total: 30 };
+        const now = new Date();
+        const expiry = stats.expiryDate;
+        const remainingMs = expiry.getTime() - now.getTime();
+        const daysLeft = Math.ceil(remainingMs / (1000 * 60 * 60 * 24));
+        const total = stats.userTier === 'premium' && daysLeft > 60 ? 365 : 30; // Approximation for visualization
+        const percent = Math.max(0, Math.min(100, (daysLeft / total) * 100));
+        return { percent, daysLeft: Math.max(0, daysLeft), total };
+    };
+
+    const progress = getSubscriptionProgress();
+    const isPremium = stats.userTier === 'premium';
+    const planColor = isPremium ? 'bg-[#00f2ff]' : 'bg-amber-500';
+    const planTextColor = isPremium ? 'text-[#00f2ff]' : 'text-amber-500';
+    const planIconColor = isPremium ? 'text-[#00f2ff] bg-[#00f2ff]/10' : 'text-amber-500 bg-amber-500/10';
 
     if (loading) return (
         <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
@@ -126,69 +161,127 @@ export default function StudioStatsPage() {
             </div>
 
             {/* Main KPI Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Revenue Card - Elite Look */}
-                <div className="group relative bg-[#020205] dark:bg-[#020205] bg-white border border-white/5 dark:border-white/5 border-slate-200 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-emerald-500/30 shadow-xl dark:shadow-none">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                {/* 1. Ingresos Card */}
+                <div className="group relative bg-[#020205] bg-white border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-emerald-500/30 shadow-xl dark:shadow-none flex flex-col items-center text-center">
+                    <div className="absolute top-0 right-[-10%] w-[120%] h-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent blur-sm" />
                     <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[50px] -mr-16 -mt-16 pointer-events-none group-hover:bg-emerald-500/10 transition-colors" />
-                    <div className="relative z-10">
-                        <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 mb-6 group-hover:scale-110 transition-transform">
+                    <div className="relative z-10 flex flex-col items-center w-full">
+                        <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 mb-4 group-hover:scale-110 transition-transform">
                             <DollarSign size={24} />
                         </div>
-                        <p className="text-[10px] font-black text-muted dark:text-muted text-slate-500 uppercase tracking-[0.3em] mb-2">Ingresos Totales</p>
-                        <h3 className="text-3xl font-black tracking-tighter text-emerald-500 dark:text-emerald-500">
+                        <h3 className="text-3xl font-black tracking-tighter text-emerald-500 mb-1">
                             {formatCurrency(stats.totalRevenue)}
                         </h3>
-                        <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-emerald-500/60 uppercase tracking-widest">
-                            <TrendingUp size={12} /> +12% vs mes anterior
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4">Ingresos Totales</p>
+                        <div className="mt-auto px-4 py-1.5 bg-emerald-500/10 text-emerald-500 rounded-full text-[9px] font-bold uppercase tracking-widest flex items-center gap-1">
+                            <TrendingUp size={10} /> +12% vs mes anterior
                         </div>
                     </div>
                 </div>
 
-                {/* Plays KPI */}
-                <div className="group relative bg-[#020205] dark:bg-[#020205] bg-white border border-white/5 dark:border-white/5 border-slate-200 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-blue-500/30 shadow-xl dark:shadow-none">
+                {/* 2. Fees Saved (NUEVA) */}
+                <div className="group relative bg-[#020205] bg-white border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-emerald-500/30 shadow-xl dark:shadow-none flex flex-col items-center text-center">
+                    <div className="absolute top-0 right-[-10%] w-[120%] h-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent blur-sm" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[50px] -mr-16 -mt-16 pointer-events-none group-hover:bg-emerald-500/10 transition-colors" />
+                    <div className="relative z-10 flex flex-col items-center w-full">
+                        <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 mb-4 group-hover:scale-110 transition-transform">
+                            <ShieldCheck size={24} />
+                        </div>
+                        <h3 className="text-3xl font-black tracking-tighter text-emerald-500 mb-1">
+                            {formatCurrency(stats.totalRevenue * 0.15)}
+                        </h3>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4">Ahorro en Comisiones</p>
+                        <p className="mt-auto text-[9px] font-bold text-slate-400 dark:text-muted uppercase tracking-widest">
+                            Gracias a tu plan {stats.userTier !== 'free' ? stats.userTier.toUpperCase() : 'Premium'}
+                        </p>
+                    </div>
+                </div>
+
+                {/* 3. Subscription Progress (NUEVA) */}
+                <div className={`group relative bg-[#020205] bg-white border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-white/20 shadow-xl dark:shadow-none flex flex-col items-center text-center`}>
+                    <div className={`absolute top-0 right-[-10%] w-[120%] h-1 bg-gradient-to-r from-transparent via-${isPremium ? '[#00f2ff]' : 'amber-500'}/60 to-transparent blur-sm`} />
+                    <div className={`absolute top-0 right-0 w-32 h-32 ${planColor} opacity-5 blur-[50px] -mr-16 -mt-16 pointer-events-none`} />
+                    <div className="relative z-10 flex flex-col items-center w-full">
+                        <div className={`w-12 h-12 ${planIconColor} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                            {isPremium ? <Crown size={24} /> : <Star size={24} />}
+                        </div>
+
+                        {stats.userTier !== 'free' ? (
+                            <>
+                                <h3 className={`text-3xl font-black tracking-tighter ${planTextColor} mb-1 flex items-end gap-1`}>
+                                    {progress.daysLeft} <span className="text-sm font-bold uppercase tracking-widest opacity-60 mb-1.5">días</span>
+                                </h3>
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4">Restantes del {isPremium ? 'Premium' : 'Pro'}</p>
+
+                                <div className="w-full bg-slate-200 dark:bg-white/10 rounded-full h-1.5 mb-2 mt-auto">
+                                    <div className={`${planColor} h-1.5 rounded-full transition-all`} style={{ width: `${progress.percent}%` }}></div>
+                                </div>
+                                <p className="text-[9px] font-bold text-slate-400 dark:text-muted uppercase tracking-widest">
+                                    Vence el {stats.expiryDate?.toLocaleDateString()}
+                                </p>
+                            </>
+                        ) : (
+                            <div className="flex flex-col items-center mt-2">
+                                <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest mb-4">Disfruta 0% Comisión</p>
+                                <Link href="/pricing" className="px-6 py-2 bg-gradient-to-r from-accent to-purple-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all w-full flex items-center justify-center gap-2">
+                                    <Sparkles size={14} /> Hazte PRO
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* 4. Plays Card */}
+                <div className="group relative bg-[#020205] bg-white border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-blue-500/30 shadow-xl dark:shadow-none flex flex-col items-center text-center">
+                    <div className="absolute top-0 right-[-10%] w-[120%] h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent blur-sm" />
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-[50px] -mr-16 -mt-16 pointer-events-none" />
-                    <div className="relative z-10">
-                        <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mb-6 group-hover:scale-110 transition-transform">
+                    <div className="relative z-10 flex flex-col items-center w-full">
+                        <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform">
                             <Play size={24} fill="currentColor" />
                         </div>
-                        <p className="text-[10px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] mb-2">Reproducciones</p>
-                        <h3 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-foreground">
+                        <h3 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-foreground mb-1">
                             {formatNumber(stats.totalPlays)}
                         </h3>
-                        <p className="mt-4 text-[10px] font-bold text-slate-400 dark:text-muted uppercase tracking-widest opacity-60">Alcance global</p>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4">Reproducciones</p>
+                        <p className="mt-auto text-[9px] font-bold text-slate-400 dark:text-muted uppercase tracking-widest">Alcance Global</p>
                     </div>
                 </div>
 
-                {/* Conversion Rate */}
-                <div className="group relative bg-[#020205] dark:bg-[#020205] bg-white border border-white/5 dark:border-white/5 border-slate-200 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-purple-500/30 shadow-xl dark:shadow-none">
+                {/* 5. Conversion Rate */}
+                <div className="group relative bg-[#020205] bg-white border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-purple-500/30 shadow-xl dark:shadow-none flex flex-col items-center text-center">
+                    <div className="absolute top-0 right-[-10%] w-[120%] h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent blur-sm" />
                     <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[50px] -mr-16 -mt-16 pointer-events-none" />
-                    <div className="relative z-10">
-                        <div className="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-500 mb-6 group-hover:scale-110 transition-transform">
+                    <div className="relative z-10 flex flex-col items-center w-full">
+                        <div className="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-500 mb-4 group-hover:scale-110 transition-transform">
                             <Zap size={24} />
                         </div>
-                        <p className="text-[10px] font-black text-muted dark:text-muted text-slate-500 uppercase tracking-[0.3em] mb-2">Tasa de Conversión</p>
-                        <h3 className="text-3xl font-black tracking-tighter text-foreground dark:text-foreground text-slate-900">
+                        <h3 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-foreground mb-1">
                             {stats.totalPlays > 0 ? ((stats.totalSales / stats.totalPlays) * 100).toFixed(2) : '0'}%
                         </h3>
-                        <p className="mt-4 text-[10px] font-bold text-muted dark:text-muted text-slate-400 uppercase tracking-widest opacity-60">Eficiencia de venta</p>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4">Tasa de Conversión</p>
+                        <p className="mt-auto text-[9px] font-bold text-slate-400 dark:text-muted uppercase tracking-widest">Eficiencia de Venta</p>
                     </div>
                 </div>
 
-                {/* Followers KPI */}
-                <div className="group relative bg-[#020205] dark:bg-[#020205] bg-white border border-white/5 dark:border-white/5 border-slate-200 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-accent/30 shadow-xl dark:shadow-none">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-[50px] -mr-16 -mt-16 pointer-events-none" />
-                    <div className="relative z-10">
-                        <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center text-accent mb-6 group-hover:scale-110 transition-transform">
+                {/* 6. Followers Card */}
+                <div className="group relative bg-[#020205] bg-white border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:border-purple-400/30 shadow-xl dark:shadow-none flex flex-col items-center text-center">
+                    <div className="absolute top-0 right-[-10%] w-[120%] h-1 bg-gradient-to-r from-transparent via-purple-400/50 to-transparent blur-sm" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-400/5 blur-[50px] -mr-16 -mt-16 pointer-events-none" />
+                    <div className="relative z-10 flex flex-col items-center w-full">
+                        <div className="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-400 mb-4 group-hover:scale-110 transition-transform">
                             <Users size={24} />
                         </div>
-                        <p className="text-[10px] font-black text-muted dark:text-muted text-slate-500 uppercase tracking-[0.3em] mb-2">Seguidores</p>
-                        <h3 className="text-3xl font-black tracking-tighter text-foreground dark:text-foreground text-slate-900">
+                        <h3 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-foreground mb-1">
                             {formatNumber(stats.followerCount)}
                         </h3>
-                        <p className="mt-4 text-[10px] font-bold text-muted dark:text-muted text-slate-400 uppercase tracking-widest opacity-60">Comunidad Leal</p>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4">Seguidores</p>
+                        <p className="mt-auto text-[9px] font-bold text-slate-400 dark:text-muted uppercase tracking-widest">Comunidad Leal</p>
                     </div>
                 </div>
             </div>
+
 
             <div className="space-y-8">
                 <div className="grid lg:grid-cols-3 gap-8">

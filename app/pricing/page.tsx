@@ -156,17 +156,17 @@ export default function PricingPage() {
             });
             setShowDowngradeModal(true);
         } else if (isUpgrade && currentTier !== 'free') {
-            // Upgrade Secuencial (Pro a Premium)
+            // Upgrade con Prorrateo Automático (Pro a Premium)
             setSelectedPlan({
                 ...plan,
-                type: 'upgrade_sequential',
+                type: 'upgrade',
                 messages: [
-                    `Para no desperdiciar tus días pagados, primero terminará tu plan ${currentTier.toUpperCase()}.`,
-                    `Hoy compras tu ${plan.name} que se SUMARÁ a tu tiempo actual.`,
-                    `Podrás usar ${plan.name} totalmente cuando termine tu periodo actual.`,
-                    `Nueva fecha estimada de vencimiento: ${new Date(new Date(terminaSuscripcion || Date.now()).getTime() + (billingCycle === 'yearly' ? 365 : 30) * 86400000).toLocaleDateString()}`
+                    `¡Tu plan ${plan.name} se activará INMEDIATAMENTE!`,
+                    `Tus días restantes de ${currentTier.toUpperCase()} se convertirán matemáticamente a días Premium.`,
+                    `Aprovechas el 100% del valor de tu plan anterior, convertido en tiempo extra.`,
+                    `El nuevo periodo (mes/año) + tus días abonados comenzarán hoy mismo.`
                 ],
-                disclaimer: "Importante: El cambio de nivel se activará al finalizar tu suscripción pro actual para evitar pérdida de valor."
+                disclaimer: "Justo y Transparente: Cambias hoy y no pierdes ni un centavo de lo que ya habías pagado."
             });
             setShowDowngradeModal(true);
         } else {

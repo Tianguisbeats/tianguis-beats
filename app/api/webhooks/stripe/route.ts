@@ -251,22 +251,42 @@ export async function POST(req: Request) {
                         .single();
 
                     const currentExpiry = profileData?.fecha_termino_suscripcion ? new Date(profileData.fecha_termino_suscripcion) : null;
-                    const isSameTier = profileData?.nivel_suscripcion === tier;
+                    const currentTier = profileData?.nivel_suscripcion || 'free';
+                    const isSameTier = currentTier === tier;
 
                     let baseDate = new Date();
-                    // Si ya tiene una suscripción activa del mismo tier, sumamos desde el vencimiento
-                    if (currentExpiry && currentExpiry > new Date() && isSameTier) {
-                        baseDate = currentExpiry;
-                        console.log('SUMMING TIME: Starting from existing expiry (Same Tier)', baseDate.toISOString());
-                    } else if (currentExpiry && currentExpiry > new Date() && !isSameTier) {
-                        console.log('UPGRADE/DOWNGRADE: Starting from TODAY (Tier change)', baseDate.toISOString());
+                    let extraDaysFromProration = 0;
+
+                    // Si ya tiene una suscripción activa
+                    if (currentExpiry && currentExpiry > new Date()) {
+                        if (isSameTier) {
+                            baseDate = currentExpiry;
+                            console.log('SUMMING TIME: Starting from existing expiry (Same Tier)', baseDate.toISOString());
+                        } else if (currentTier === 'pro' && tier === 'premium') {
+                            // --- LÓGICA DE PRORRATEO: Pro -> Premium ---
+                            // Pro = $149/mes, Premium = $349/mes. Relación de valor: 149 / 349 = ~0.427
+                            // Cada día restante de Pro equivale a ~0.427 días de Premium
+                            const remainingProMs = currentExpiry.getTime() - new Date().getTime();
+                            const remainingProDays = remainingProMs / (1000 * 60 * 60 * 24);
+                            extraDaysFromProration = Math.floor(remainingProDays * 0.4269);
+
+                            console.log(`PRORATION APPLIED: Converting ${Math.round(remainingProDays)} Pro days into ${extraDaysFromProration} Premium days.`);
+                        } else {
+                            console.log('DOWNGRADE or FREE->TIER: Starting from TODAY (Tier change)', baseDate.toISOString());
+                        }
                     }
 
                     let expiryDate = new Date(baseDate);
+                    // Sumar el tiempo comprado hoy
                     if (cycle === 'yearly') {
                         expiryDate.setFullYear(baseDate.getFullYear() + 1);
                     } else {
                         expiryDate.setMonth(baseDate.getMonth() + 1);
+                    }
+
+                    // Sumar el tiempo prorrateado (si aplica)
+                    if (extraDaysFromProration > 0) {
+                        expiryDate.setDate(expiryDate.getDate() + extraDaysFromProration);
                     }
 
                     // Actualizar el perfil del usuario
