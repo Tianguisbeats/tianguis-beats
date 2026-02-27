@@ -43,12 +43,38 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
     }, []);
 
     return (
+        /* ── Contenedor principal del Tianguis Studio ── */
         <div className="min-h-screen bg-background font-sans text-foreground transition-all duration-500">
             <Navbar />
 
-            <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 pt-12 pb-20 flex flex-col lg:flex-row gap-12">
-                {/* Sidebar Navigation */}
-                <aside className="w-full lg:w-72 shrink-0">
+            {/* ── Navegación horizontal en móvil (lg:hidden) ──
+                En mobile, la barra lateral no cabe — se convierte en un scroll
+                horizontal de pastillas debajo del navbar. */}
+            <div className="lg:hidden sticky top-16 z-40 bg-background/95 backdrop-blur-xl border-b border-border shadow-sm">
+                <div className="overflow-x-auto no-scrollbar">
+                    <div className="flex gap-1.5 py-3 px-4 min-w-max">
+                        {navItems.map((item) => {
+                            const isActive = pathname === item.href;
+                            return (
+                                <Link key={item.href} href={item.href}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-2xl transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap ${isActive
+                                            ? 'bg-foreground text-background shadow-lg'
+                                            : 'bg-card text-muted border border-border hover:text-foreground'
+                                        }`}>
+                                    {item.icon}
+                                    {item.name}
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Layout de escritorio: sidebar + contenido principal ── */}
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 pt-6 lg:pt-12 pb-24 lg:pb-20 flex flex-col lg:flex-row gap-8 lg:gap-12">
+
+                {/* Sidebar vertical — solo en escritorio */}
+                <aside className="hidden lg:block w-72 shrink-0">
                     <div className="sticky top-12 space-y-10">
                         <div className="px-4">
                             <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-muted/60 mb-2">Plataforma</h2>
@@ -77,10 +103,8 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                         </nav>
 
                         <div className="px-6 pt-6 border-t border-border/50">
-                            <Link
-                                href="/"
-                                className="flex items-center gap-4 py-4 text-muted hover:text-foreground transition-all font-black text-[11px] uppercase tracking-[0.2em] group"
-                            >
+                            <Link href="/"
+                                className="flex items-center gap-4 py-4 text-muted hover:text-foreground transition-all font-black text-[11px] uppercase tracking-[0.2em] group">
                                 <div className="w-8 h-8 rounded-xl bg-card flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all">
                                     <Home size={16} />
                                 </div>
@@ -88,7 +112,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                             </Link>
                         </div>
 
-                        {/* Producer Tier Quick Status */}
+                        {/* ── Tarjeta de estado de membresia y verificación ── */}
                         <div className={`p-6 rounded-[2rem] relative overflow-hidden group transition-all duration-500 ${profile?.nivel_suscripcion === 'premium' ? 'bg-gradient-to-br from-blue-600 to-indigo-900 text-white shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)]' :
                             profile?.nivel_suscripcion === 'pro' ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-900 shadow-[0_20px_50px_-10px_rgba(245,158,11,0.2)]' :
                                 'bg-gradient-to-br from-slate-100 to-slate-200 dark:from-white/5 dark:to-white/10 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/5 shadow-sm'
@@ -140,9 +164,9 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                     </div>
                 </aside>
 
-                {/* Main Experience Area */}
+                {/* ── Área principal de contenido del Studio ── */}
                 <main className="flex-1 min-h-[70vh]">
-                    <div className="bg-white dark:bg-[#050508]/40 dark:backdrop-blur-3xl rounded-[2.5rem] p-8 lg:p-12 border border-border/40 dark:border-white/5 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.05)] h-full relative overflow-hidden">
+                    <div className="bg-white dark:bg-[#050508]/40 dark:backdrop-blur-3xl rounded-[2.5rem] p-5 md:p-8 lg:p-12 border border-border/40 dark:border-white/5 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.05)] h-full relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-96 h-96 bg-accent/5 blur-[120px] rounded-full pointer-events-none" />
                         <div className="relative z-10">
                             {children}
@@ -153,3 +177,4 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         </div>
     );
 }
+

@@ -67,28 +67,31 @@ export default function StudioBeatsPage() {
     );
 
     return (
-        <div className="space-y-12">
-            {/* Header */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+        /* ── Inventario de beats del productor en el Studio ── */
+        <div className="space-y-8 pb-24 md:pb-0">
+            {/* ── Encabezado: contador de beats activos y botón de subir ── */}
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                 <div>
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full mb-4">
                         <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">{beats.length} Beats activos</span>
                     </div>
-                    <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground mb-2 leading-[1]">
-                        Inventario de<br /><span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Beats.</span>
+                    <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground mb-2 leading-[1]">
+                        Inventario de<br /><span className="text-accent underline decoration-white/10 underline-offset-8">Beats.</span>
                     </h1>
                     <p className="text-[10px] font-black text-muted uppercase tracking-widest opacity-50 ml-1">Sincronizado con el Catálogo</p>
                 </div>
+                {/* Botón para subir un nuevo beat — full-width en móvil */}
                 <Link
                     href="/upload"
-                    className="group relative overflow-hidden bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-7 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl flex items-center gap-2.5"
+                    className="group relative overflow-hidden bg-foreground text-background w-full md:w-auto px-7 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl flex items-center gap-2.5 justify-center"
                 >
                     <div className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                     <Plus size={16} className="relative z-10 group-hover:text-white transition-colors" />
                     <span className="relative z-10 group-hover:text-white transition-colors">Subir Nuevo Beat</span>
                 </Link>
             </div>
+
 
             {/* Table container */}
             <div className="bg-card border border-border rounded-[3rem] p-8 md:p-10 relative overflow-hidden">

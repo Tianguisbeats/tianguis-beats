@@ -109,20 +109,23 @@ function HubContent() {
   }, []);
 
   return (
+    /* ── Contenedor principal de la página de explorar ── */
     <div className="min-h-screen bg-background text-foreground font-sans flex flex-col transition-colors duration-300 selection:bg-accent selection:text-white">
       <Navbar />
 
-      {/* BG glows */}
+      {/* ── Glows de fondo decorativos ── */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         <div className="absolute top-[-10%] left-[-5%] w-[50%] h-[50%] bg-accent/[0.04] dark:bg-accent/[0.06] blur-[150px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-5%] w-[45%] h-[45%] bg-purple-600/[0.03] dark:bg-purple-600/[0.06] blur-[150px] rounded-full" />
       </div>
 
-      <main className="flex-1 pt-8 pb-32">
+      {/* pb-24 en móvil reserva espacio para bottom nav + reproductor de audio */}
+      <main className="flex-1 pt-8 pb-24 md:pb-16">
         <div className="max-w-[1700px] mx-auto px-4 sm:px-10">
 
-          {/* ── HEADER ── */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          {/* ── Encabezado de la seçción con título y estadísticas ── */}
+
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-card border border-border rounded-full mb-4 shadow-sm">
                 <span className="relative flex h-2 w-2">
@@ -131,18 +134,21 @@ function HubContent() {
                 </span>
                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted">En vivo · Tianguis</span>
               </div>
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-foreground uppercase tracking-tighter leading-[0.9] mb-3">
+              {/* Título más compacto en móvil */}
+              <h1 className="text-4xl md:text-7xl lg:text-8xl font-black text-foreground uppercase tracking-tighter leading-[0.9] mb-2">
                 Explora el<br />
                 <span className="text-accent">Tianguis.</span>
               </h1>
               <p className="text-muted text-[10px] font-black uppercase tracking-widest">Todo lo que necesitas para triunfar está aquí.</p>
             </div>
-            <div className="flex flex-wrap gap-3">
+            {/* Pastillas de estadísticas — ocultas en móvil */}
+            <div className="hidden sm:flex flex-wrap gap-3">
               <MiniStatPill icon={<Music size={14} />} value="10K+" label="Beats" />
               <MiniStatPill icon={<Users size={14} />} value="2K+" label="Productores" />
               <MiniStatPill icon={<Headphones size={14} />} value="50K+" label="Plays" />
             </div>
           </div>
+
 
           {/* ── FEATURED BANNER ── */}
           <div className="mb-16">
@@ -172,25 +178,28 @@ function HubContent() {
             )}
           </div>
 
-          {/* ── QUICK ACTIONS strip ── */}
-          <div className="flex flex-wrap gap-3 mb-16 pb-6 border-b border-border">
-            {[
-              { label: "🎺 Corridos Tumbados", href: "/beats/catalog?genre=Corridos+Tumbados+🇲🇽" },
-              { label: "🍑 Reggaetón Mexa", href: "/beats/catalog?genre=Reggaetón+Mexa+🇲🇽" },
-              { label: "🔥 Trap Latino", href: "/beats/catalog?genre=Trap+Latino" },
-              { label: "💎 R&B / Soul", href: "/beats/catalog?genre=R%26B+%2F+Soul" },
-              { label: "🎹 Boom Bap", href: "/beats/catalog?genre=Boom+Bap" },
-            ].map(a => (
-              <Link key={a.href} href={a.href}
-                className="group inline-flex items-center gap-2 px-5 py-2.5 bg-card border border-border rounded-full text-[10px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:border-foreground/20 hover:shadow-md transition-all">
-                {a.label} <ArrowRight size={10} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+          {/* ── Acciones rápidas por género — scroll horizontal en móvil ── */}
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex gap-2.5 mb-14 pb-4 border-b border-border min-w-max sm:min-w-0 sm:flex-wrap">
+              {[
+                { label: "🎺 Corridos Tumbados", href: "/beats/catalog?genre=Corridos+Tumbados+🇲🇽" },
+                { label: "🍑 Reggaetón Mexa", href: "/beats/catalog?genre=Reggaetón+Mexa+🇲🇽" },
+                { label: "🔥 Trap Latino", href: "/beats/catalog?genre=Trap+Latino" },
+                { label: "💎 R&B / Soul", href: "/beats/catalog?genre=R%26B+%2F+Soul" },
+                { label: "🎹 Boom Bap", href: "/beats/catalog?genre=Boom+Bap" },
+              ].map(a => (
+                <Link key={a.href} href={a.href}
+                  className="group inline-flex items-center gap-2 px-5 py-2.5 bg-card border border-border rounded-full text-[10px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:border-foreground/20 transition-all whitespace-nowrap">
+                  {a.label}
+                </Link>
+              ))}
+              <Link href="/beats/catalog"
+                className="group inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all whitespace-nowrap">
+                <Zap size={12} fill="white" /> Ver Todo
               </Link>
-            ))}
-            <Link href="/beats/catalog"
-              className="group inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-[1.03] hover:shadow-lg hover:shadow-accent/20 transition-all ml-auto">
-              <Zap size={12} fill="white" /> Ver Todo
-            </Link>
+            </div>
           </div>
+
 
           {/* ── CATEGORY CARDS ── */}
           <div className="mb-16">
@@ -207,27 +216,29 @@ function HubContent() {
             </div>
           </div>
 
-          {/* ── CTA BAND ── */}
-          <div className="relative overflow-hidden rounded-[3rem] border border-border bg-card px-10 py-12 text-center">
+          {/* ── Banda CTA: subir beat o ver planes ── */}
+          <div className="relative overflow-hidden rounded-[2.5rem] border border-border bg-card px-6 md:px-10 py-10 md:py-12 text-center">
             <div className="absolute inset-0 bg-gradient-to-r from-accent/[0.05] via-transparent to-purple-600/[0.05] pointer-events-none" />
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
-            <h3 className="text-3xl md:text-5xl font-black text-foreground uppercase tracking-tighter mb-4 relative">
+            <h3 className="text-2xl md:text-5xl font-black text-foreground uppercase tracking-tighter mb-3 relative">
               ¿Listo para crear? <span className="text-accent">Publica hoy.</span>
             </h3>
             <p className="text-muted text-[10px] font-black uppercase tracking-widest mb-6">Empieza gratis · Sin tarjeta de crédito</p>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+            {/* Botones apilados en móvil, fila en sm+ */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 px-2">
               <Link href="/upload"
-                className="group relative overflow-hidden bg-accent text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:scale-[1.03] active:scale-95 transition-all shadow-xl shadow-accent/20 flex items-center gap-3">
+                className="group relative overflow-hidden bg-accent text-white w-full sm:w-auto px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:scale-[1.03] active:scale-95 transition-all shadow-xl shadow-accent/20 flex items-center gap-3 justify-center">
                 <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                 <Music size={16} className="relative z-10" />
                 <span className="relative z-10">Subir Beat</span>
               </Link>
               <Link href="/pricing"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-background border border-border rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-muted hover:text-foreground hover:border-foreground/20 hover:shadow-md transition-all">
+                className="inline-flex items-center gap-2 w-full sm:w-auto px-8 py-4 bg-background border border-border rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-muted hover:text-foreground hover:border-foreground/20 hover:shadow-md transition-all justify-center">
                 Ver Planes <ArrowRight size={14} />
               </Link>
             </div>
           </div>
+
 
         </div>
       </main>

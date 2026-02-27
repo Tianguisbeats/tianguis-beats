@@ -247,7 +247,9 @@ function CatalogContent() {
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-accent selection:text-white flex flex-col transition-colors duration-300">
             <Navbar />
-            <main className="flex-1 pb-20 relative">
+            {/* pb-24 en móvil: reserva espacio para MobileBottomNav + AudioPlayer */}
+            <main className="flex-1 pb-24 md:pb-20 relative">
+
 
                 {/* ── Premium Hero Header ── */}
                 <div className="border-b border-border bg-card relative overflow-hidden">

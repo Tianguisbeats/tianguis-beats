@@ -163,7 +163,9 @@ function ProducersContent() {
                 <div className="absolute bottom-[-10%] right-[-5%] w-[45%] h-[45%] bg-accent/[0.03] dark:bg-accent/[0.05] blur-[140px] rounded-full" />
             </div>
 
-            <main className="flex-1 pb-40">
+            {/* pb-24 en móvil: espacio para MobileBottomNav + AudioPlayer */}
+            <main className="flex-1 pb-24 md:pb-16">
+
 
                 {/* ── HERO HEADER ── */}
                 <section className="relative pt-16 pb-16 px-6 lg:px-10 overflow-hidden">
