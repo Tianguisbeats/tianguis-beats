@@ -158,7 +158,7 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
                 <button
                     key={i}
                     onClick={() => onViewChange(card.id as View)}
-                    className={`bg - white dark: bg - [#020205] border border - slate - 200 dark: border - white / 10 rounded - [3.5rem] p - 12 shadow - lg dark: shadow - none transition - all duration - 500 group hover: scale - [1.02] hover: border - accent / 40 ${card.gradient} flex flex - col items - center text - center relative overflow - hidden`}
+                    className={`bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3.5rem] p-12 shadow-lg dark:shadow-none transition-all duration-500 group hover:scale-[1.02] hover:border-accent/40 ${card.gradient} flex flex-col items-center text-center relative overflow-hidden`}
                 >
                     {/* Background Glow */}
                     <div className="absolute -top-10 -right-10 w-32 h-32 bg-accent/5 blur-[50px] rounded-full pointer-events-none group-hover:bg-accent/10 transition-colors" />
@@ -271,8 +271,8 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                 <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
                     ← Volver al Dashboard
                 </button>
-                <div className={`flex items - center justify - center px - 4 py - 2 rounded - xl border transition - colors ${requests.length > 0 ? 'bg-amber-500/10 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-emerald-500/10 border-emerald-500/20'} `}>
-                    <span className={`text - [10px] font - black uppercase tracking - widest leading - none ${requests.length > 0 ? 'text-amber-500' : 'text-emerald-500'} `}>
+                <div className={`flex items-center justify-center px-4 py-2 rounded-xl border transition-colors ${requests.length > 0 ? 'bg-amber-500/10 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-emerald-500/10 border-emerald-500/20'} `}>
+                    <span className={`text-[10px] font-black uppercase tracking-widest leading-none ${requests.length > 0 ? 'text-amber-500' : 'text-emerald-500'} `}>
                         {requests.length} {requests.length === 1 ? 'Pendiente' : 'Pendientes'}
                     </span>
                 </div>
@@ -283,7 +283,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                 <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setConfirmAction(null)} />
                     <div className="relative bg-white dark:bg-[#0a0a0c] border border-border w-full max-w-md rounded-[3rem] p-10 text-center animate-in zoom-in duration-300 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
-                        <div className={`w - 16 h - 16 rounded - 3xl flex items - center justify - center mx - auto mb - 6 ${confirmAction.status === 'approved' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'} `}>
+                        <div className={`w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 ${confirmAction.status === 'approved' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'} `}>
                             {confirmAction.status === 'approved' ? <CheckCircle size={32} /> : <AlertTriangle size={32} />}
                         </div>
                         <h3 className="text-2xl font-black uppercase tracking-tighter mb-4">
@@ -303,7 +303,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                             </button>
                             <button
                                 onClick={handleDecision}
-                                className={`py - 4 text - [10px] font - black uppercase tracking - widest rounded - 2xl text - white shadow - xl transition - all scale - 100 hover: scale - 105 active: scale - 95 ${confirmAction.status === 'approved' ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-rose-500 shadow-rose-500/20'} `}
+                                className={`py-4 text-[10px] font-black uppercase tracking-widest rounded-2xl text-white shadow-xl transition-all scale-100 hover:scale-105 active:scale-95 ${confirmAction.status === 'approved' ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-rose-500 shadow-rose-500/20'} `}
                             >
                                 {confirmAction.status === 'approved' ? 'Sí, Aprobar' : 'Sí, Rechazar'}
                             </button>

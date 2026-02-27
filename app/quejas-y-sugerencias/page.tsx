@@ -23,9 +23,10 @@ export default function QuejasSugerenciasPage() {
         const checkUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                const { data: profile } = await supabase.from('perfiles').select('nombre_usuario, email').eq('id', user.id).single();
+                const { data: profile } = await supabase.from('perfiles').select('nombre_usuario, nombre_artistico, email').eq('id', user.id).single();
                 setUser({ ...user, profile });
-                setNombre(profile?.nombre_usuario || user?.user_metadata?.artistic_name || user?.user_metadata?.username || '');
+                const displayName = profile?.nombre_usuario || profile?.nombre_artistico || user?.user_metadata?.username || user?.user_metadata?.artistic_name || '';
+                setNombre(displayName);
                 setEmail(profile?.email || user?.email || '');
             }
             setCheckingAuth(false);
@@ -84,11 +85,11 @@ export default function QuejasSugerenciasPage() {
                 evidenceUrls[i] = data.path;
             }
 
-            // 2. Insert with correct column names (usuario_id, correo, descripcion_problema)
+            // 2. Insert with correct column names (usuario_id, email, descripcion_problema)
             const { error } = await supabase.from('quejas_y_sugerencias').insert([{
                 tipo_mensaje: tipo,
                 nombre_usuario: finalNombre,
-                correo: finalEmail,
+                email: finalEmail,
                 descripcion_problema: mensaje,
                 usuario_id: authUser?.id || null,
                 estado: 'pendiente',
