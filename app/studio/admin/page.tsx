@@ -1056,7 +1056,7 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
                                         </span>
                                     </div>
                                     <h3 className="font-black text-xl text-foreground">De: {item.perfiles ? item.perfiles.nombre_artistico || item.perfiles.nombre_usuario : item.nombre_usuario}</h3>
-                                    <p className="text-xs text-muted font-bold tracking-widest uppercase">{item.email} {item.perfiles && `(Usuario Registrado)`}</p>
+                                    <p className="text-xs text-muted font-bold tracking-widest uppercase">{item.correo} {item.perfiles && `(Usuario Registrado)`}</p>
                                 </div>
 
                                 <select

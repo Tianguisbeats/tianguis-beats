@@ -85,11 +85,11 @@ export default function QuejasSugerenciasPage() {
                 evidenceUrls[i] = data.path;
             }
 
-            // 2. Insert with correct column names (usuario_id, email, descripcion_problema)
+            // 2. Insert with correct column names (usuario_id, correo, descripcion_problema)
             const { error } = await supabase.from('quejas_y_sugerencias').insert([{
                 tipo_mensaje: tipo,
                 nombre_usuario: finalNombre,
-                email: finalEmail,
+                correo: finalEmail,
                 descripcion_problema: mensaje,
                 usuario_id: authUser?.id || null,
                 estado: 'pendiente',
@@ -221,7 +221,7 @@ export default function QuejasSugerenciasPage() {
 
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2">Nombre de Usuario</label>
+                                    <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2">Usuario</label>
                                     <input
                                         type="text"
                                         name="nombre"
