@@ -11,6 +11,7 @@ import {
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
 import Switch from '@/components/ui/Switch';
+import LoadingTianguis from '@/components/LoadingTianguis';
 
 // Tipos reflejando el nuevo esquema DB de Cupones
 type Coupon = {
@@ -125,14 +126,7 @@ export default function CouponsPage() {
         }
     };
 
-    if (loading) return (
-        <div className="flex flex-col items-center justify-center py-24 animate-pulse">
-            <div className="w-16 h-16 bg-slate-200 dark:bg-white/5 rounded-[2rem] mb-6 flex items-center justify-center">
-                <Loader2 className="animate-spin text-accent/20" size={32} />
-            </div>
-            <div className="h-4 w-32 bg-slate-200 dark:bg-white/5 rounded-full" />
-        </div>
-    );
+    if (loading) return <LoadingTianguis />;
 
     if (userTier === 'free') {
         return (

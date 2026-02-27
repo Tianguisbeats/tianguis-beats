@@ -12,6 +12,7 @@ import BeatCardPro from '@/components/explore/BeatCardPro';
 import { Beat, Profile } from '@/lib/types';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
+import LoadingTianguis from '@/components/LoadingTianguis';
 
 export default function ProducerBeatsPage({ params }: { params: Promise<{ username: string }> }) {
     const resolvedParams = use(params);
@@ -83,11 +84,7 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
         return matchSearch && matchGenre;
     });
 
-    if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-            <Loader2 className="animate-spin text-accent" size={32} />
-        </div>
-    );
+    if (loading) return <LoadingTianguis />;
     if (!profile) return null;
 
     const tierColor = profile.nivel_suscripcion === 'premium' ? '#00f2ff'

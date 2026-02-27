@@ -6,6 +6,7 @@ import { Edit, Trash2, Play, AlertCircle, Heart, Music, TrendingUp, Plus, Search
 import Link from 'next/link';
 import Switch from '@/components/ui/Switch';
 import { useToast } from '@/context/ToastContext';
+import LoadingTianguis from '@/components/LoadingTianguis';
 
 export default function StudioBeatsPage() {
     const { showToast } = useToast();
@@ -54,12 +55,7 @@ export default function StudioBeatsPage() {
 
     const formatNumber = (n: number) => new Intl.NumberFormat('es-MX').format(n || 0);
 
-    if (loading) return (
-        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
-            <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted animate-pulse">Cargando inventario...</p>
-        </div>
-    );
+    if (loading) return <LoadingTianguis />;
 
     const filtered = beats.filter(b =>
         b.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
+import LoadingTianguis from '@/components/LoadingTianguis';
 
 export default function StudioBillingPage() {
     const [profile, setProfile] = useState<any>(null);
@@ -97,11 +98,7 @@ export default function StudioBillingPage() {
     const renewalDays = getRenewalDays();
 
     if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="animate-spin text-accent" size={32} />
-            </div>
-        );
+        return <LoadingTianguis />;
     }
 
     return (

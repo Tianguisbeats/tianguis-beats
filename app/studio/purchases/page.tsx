@@ -33,6 +33,7 @@ import { useToast } from '@/context/ToastContext';
 import { downloadLicensePDF } from '@/lib/pdfGenerator';
 import { LicenseType } from '@/lib/licenses';
 import { getBeatFulfillmentLinks, getSoundKitFulfillmentLink } from '@/lib/fulfillment';
+import LoadingTianguis from '@/components/LoadingTianguis';
 
 type OrderItem = {
     id: string;
@@ -262,12 +263,7 @@ export default function MyPurchasesPage() {
         }
     };
 
-    if (loading) return (
-        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
-            <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted animate-pulse">Cargando tu bóveda...</p>
-        </div>
-    );
+    if (loading) return <LoadingTianguis />;
 
     return (
         <div className="space-y-12">

@@ -4,9 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
     FileText, Settings, ShieldCheck, FileKey, Crown, Zap,
-    Package, AlignLeft, Info, Loader2, Music, Check, X
+    Package, AlignLeft, Info, Music, Check, X
 } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
+import LoadingTianguis from '@/components/LoadingTianguis';
 
 export type ContractType = 'basica' | 'mp3' | 'pro' | 'premium' | 'ilimitada' | 'exclusiva' | 'soundkit';
 
@@ -178,14 +179,7 @@ export default function ContractsPage() {
         }
     };
 
-    if (loading) return (
-        <div className="flex flex-col items-center justify-center py-24 animate-pulse">
-            <div className="w-16 h-16 bg-slate-200 dark:bg-white/5 rounded-[2rem] mb-6 flex items-center justify-center">
-                <Loader2 className="animate-spin text-accent/20" size={32} />
-            </div>
-            <div className="h-4 w-32 bg-slate-200 dark:bg-white/5 rounded-full" />
-        </div>
-    );
+    if (loading) return <LoadingTianguis />;
 
     const activeContract = CONTRACT_TYPES.find(t => t.id === activeModal.type);
 

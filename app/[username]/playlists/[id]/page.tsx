@@ -12,6 +12,8 @@ import BeatCardPro from '@/components/explore/BeatCardPro';
 import PlaylistManagerModal from '@/components/PlaylistManagerModal';
 import { Beat, Profile } from '@/lib/types';
 import Link from 'next/link';
+import { useToast } from '@/context/ToastContext';
+import LoadingTianguis from '@/components/LoadingTianguis';
 import { useRouter } from 'next/navigation';
 
 export default function PlaylistPage({ params }: { params: Promise<{ username: string, id: string }> }) {
@@ -95,11 +97,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
         setTimeout(() => setCopied(false), 2000);
     };
 
-    if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-            <Loader2 className="animate-spin text-accent" size={32} />
-        </div>
-    );
+    if (loading) return <LoadingTianguis />;
 
     if (!profile || !playlist) return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 text-center">

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
+import LoadingTianguis from '@/components/LoadingTianguis';
 
 export default function StudioSalesPage() {
     const [sales, setSales] = useState<any[]>([]);
@@ -150,12 +151,7 @@ export default function StudioSalesPage() {
         }
     };
 
-    if (loading) return (
-        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
-            <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted animate-pulse">Sincronizando Tesorería...</p>
-        </div>
-    );
+    if (loading) return <LoadingTianguis />;
 
     return (
         <div className="space-y-12">

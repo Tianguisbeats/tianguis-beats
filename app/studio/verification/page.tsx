@@ -6,6 +6,7 @@ import { ShieldCheck, CheckCircle2, XCircle, ChevronRight, Upload, AlertTriangle
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/context/ToastContext';
+import LoadingTianguis from '@/components/LoadingTianguis';
 
 export default function VerificationPage() {
     const router = useRouter();
@@ -193,12 +194,7 @@ export default function VerificationPage() {
         }
     };
 
-    if (loading) return (
-        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
-            <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted animate-pulse">Verificando Requisitos...</p>
-        </div>
-    );
+    if (loading) return <LoadingTianguis />;
 
     const allChecksPassed = Object.values(checks).every(Boolean);
 

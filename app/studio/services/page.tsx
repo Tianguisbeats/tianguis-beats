@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import Switch from '@/components/ui/Switch';
+import LoadingTianguis from '@/components/LoadingTianguis';
 
 // Tipos
 type Service = {
@@ -33,7 +34,7 @@ type SoundKit = {
 
 export default function ServicesManagerPageWrapper() {
     return (
-        <Suspense fallback={<div className="flex justify-center p-12"><Loader2 className="animate-spin" /></div>}>
+        <Suspense fallback={<LoadingTianguis />}>
             <ServicesManagerPage />
         </Suspense>
     );
@@ -309,7 +310,7 @@ function ServicesManagerPage() {
         else fetchData();
     };
 
-    if (loading) return <div className="flex justify-center p-12 text-muted"><Loader2 className="animate-spin" /></div>;
+    if (loading) return <LoadingTianguis />;
 
     if (userTier !== 'premium') {
         return (

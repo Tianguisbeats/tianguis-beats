@@ -129,7 +129,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, beatId }: AddToPla
                             <ListMusic size={20} />
                         </div>
                         <div>
-                            <h2 className="text-base font-black uppercase tracking-tighter text-foreground">Mis Colecciones</h2>
+                            <h2 className="text-base font-black uppercase tracking-tighter text-foreground">Mis Playlists</h2>
                             <p className="text-[9px] font-bold text-muted uppercase tracking-widest mt-0.5">Gestiona este beat en tus playlists</p>
                         </div>
                     </div>

@@ -5,6 +5,7 @@ import { Crown, Video, Loader2, Check, MessageSquare, Mail, ShieldCheck, Zap, Cl
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import Switch from '@/components/ui/Switch';
+import LoadingTianguis from '@/components/LoadingTianguis';
 
 export default function PremiumHubPage() {
     const [loading, setLoading] = useState(true);
@@ -74,7 +75,7 @@ export default function PremiumHubPage() {
         }
     }, [preferences]);
 
-    if (loading) return <div className="flex justify-center p-12 text-muted"><Loader2 className="animate-spin" /></div>;
+    if (loading) return <LoadingTianguis />;
 
     if (userTier !== 'premium') {
         return (

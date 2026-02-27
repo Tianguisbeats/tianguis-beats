@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { Profile } from '@/lib/types';
+import LoadingTianguis from '@/components/LoadingTianguis';
 
 const SOCIAL_META: Record<string, { label: string; hex: string; gradient: string; icon?: any; svgPath?: string }> = {
     spotify: {
@@ -46,7 +47,7 @@ function TierBadge({ tier }: { tier: string }) {
     );
 }
 
-export default function SmartLinkBioPage({ params }: { params: Promise<{ username: string }> }) {
+export default function ProducerLinksPage({ params }: { params: Promise<{ username: string }> }) {
     const resolvedParams = use(params);
     const username = resolvedParams.username;
     const [profile, setProfile] = useState<Profile | null>(null);
@@ -71,12 +72,7 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
         checkOwner();
     }, [profile]);
 
-    if (loading) return (
-        <div className="min-h-screen bg-background flex items-center justify-center">
-            <div className="animate-spin w-10 h-10 rounded-full border-2 border-accent/20 border-t-accent" />
-        </div>
-    );
-
+    if (loading) return <LoadingTianguis />;
     if (!profile) return (
         <div className="min-h-screen bg-background flex flex-col items-center justify-center text-foreground p-6">
             <h1 className="text-4xl font-black uppercase tracking-tighter mb-4">Perfil no encontrado</h1>

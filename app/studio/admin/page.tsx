@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
+import LoadingTianguis from '@/components/LoadingTianguis';
 
 type View = 'dashboard' | 'verifications' | 'users' | 'coupons' | 'feedback' | 'income' | 'beats';
 
@@ -45,11 +46,7 @@ export default function AdminDashboard() {
         checkAdmin();
     }, []);
 
-    if (loading) return (
-        <div className="flex items-center justify-center min-h-[50vh]">
-            <Loader2 className="animate-spin text-accent" size={32} />
-        </div>
-    );
+    if (loading) return <LoadingTianguis />;
 
     if (!isAdmin) return (
         <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
@@ -140,7 +137,7 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
         fetchStats();
     }, []);
 
-    if (loading) return <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-accent" /></div>;
+    if (loading) return <LoadingTianguis />;
 
     const cards = [
         { id: 'income', label: 'Ingresos Totales', value: `$${stats.totalSales.toLocaleString()}`, sub: 'Ventas Globales Históricas', icon: <DollarSign className="text-emerald-500" />, gradient: 'hover:shadow-emerald-500/10' },
@@ -292,7 +289,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
         }
     };
 
-    if (loading) return <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-accent" /></div>;
+    if (loading) return <LoadingTianguis />;
 
     return (
         <div className="space-y-6">

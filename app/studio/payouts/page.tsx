@@ -8,6 +8,7 @@ import {
     TrendingUp, Loader2
 } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
+import LoadingTianguis from '@/components/LoadingTianguis';
 
 type PayoutRequest = {
     id: string;
@@ -69,12 +70,7 @@ export default function PayoutsPage() {
         rechazado: { color: 'text-rose-500', bg: 'bg-rose-500/10', border: 'border-rose-500/20', label: 'Rechazado' },
     };
 
-    if (loading) return (
-        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
-            <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted animate-pulse">Cargando Tesorería...</p>
-        </div>
-    );
+    if (loading) return <LoadingTianguis />;
 
     return (
         <div className="space-y-12">

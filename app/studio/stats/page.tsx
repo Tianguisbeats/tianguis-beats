@@ -10,6 +10,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
 import Link from 'next/link';
+import LoadingTianguis from '@/components/LoadingTianguis';
 
 type StatData = {
     totalPlays: number;
@@ -114,12 +115,7 @@ export default function StudioStatsPage() {
     const planBg = isPremium ? 'bg-[#00f2ff]/10' : 'bg-amber-500/10';
     const planBorder = isPremium ? 'border-[#00f2ff]/20' : 'border-amber-500/20';
 
-    if (loading) return (
-        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
-            <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted animate-pulse">Sincronizando Dashboard...</p>
-        </div>
-    );
+    if (loading) return <LoadingTianguis />;
 
     // ── KPI Card component helper
     const KpiCard = ({ color, icon, value, label, sub }: any) => (
