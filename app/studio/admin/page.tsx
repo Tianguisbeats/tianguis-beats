@@ -157,12 +157,13 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
                 <button
                     key={i}
                     onClick={() => onViewChange(card.id as View)}
-                    className={`bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3.5rem] p-12 shadow-lg dark:shadow-none transition-all duration-500 group hover:scale-[1.02] hover:border-accent/40 ${card.gradient} flex flex-col items-center text-center relative overflow-hidden`}
+                    className={`bg-card border border-border rounded-[3.5rem] p-12 transition-all duration-500 group hover:scale-[1.02] hover:border-accent/40 hover:shadow-2xl hover:shadow-accent/5 ${card.gradient} flex flex-col items-center text-center relative overflow-hidden`}
                 >
-                    {/* Background Glow */}
+                    {/* Top glow line */}
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     <div className="absolute -top-10 -right-10 w-32 h-32 bg-accent/5 blur-[50px] rounded-full pointer-events-none group-hover:bg-accent/10 transition-colors" />
 
-                    <div className="w-20 h-20 rounded-[2rem] bg-slate-50 dark:bg-white/5 flex items-center justify-center transition-all group-hover:rotate-[5deg] group-hover:scale-110 duration-500 text-foreground mb-8 shadow-inner border border-border/50">
+                    <div className="w-20 h-20 rounded-[2rem] bg-foreground/5 flex items-center justify-center transition-all group-hover:rotate-[5deg] group-hover:scale-110 duration-500 text-foreground mb-8 border border-border">
                         {card.id === 'verifications' ? (
                             card.icon
                         ) : (
@@ -178,13 +179,12 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
                         <p className="text-muted text-[11px] font-black uppercase tracking-[0.3em] leading-tight">
                             {card.label}
                         </p>
-                        <p className="text-[10px] text-muted/40 font-bold uppercase tracking-widest">
+                        <p className="text-[10px] text-muted/50 font-bold uppercase tracking-widest">
                             {card.sub}
                         </p>
                     </div>
 
-                    {/* Action Arrow */}
-                    <div className="mt-8 w-10 h-10 rounded-full border border-slate-100 dark:border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                    <div className="mt-8 w-10 h-10 rounded-full border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
                         <ExternalLink size={14} className="text-accent" />
                     </div>
                 </button>
@@ -311,7 +311,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
             {confirmAction && (
                 <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setConfirmAction(null)} />
-                    <div className="relative bg-white dark:bg-[#0a0a0c] border border-border w-full max-w-md rounded-[3rem] p-10 text-center animate-in zoom-in duration-300 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+                    <div className="relative bg-card border border-border w-full max-w-md rounded-[3rem] p-10 text-center animate-in zoom-in duration-300 shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
                         <div className={`w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 ${confirmAction.status === 'approved' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'} `}>
                             {confirmAction.status === 'approved' ? <CheckCircle size={32} /> : <AlertTriangle size={32} />}
                         </div>
@@ -326,7 +326,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                         <div className="grid grid-cols-2 gap-4">
                             <button
                                 onClick={() => setConfirmAction(null)}
-                                className="py-4 bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-slate-200 dark:hover:bg-white/10 transition-all font-bold"
+                                className="py-4 bg-foreground/5 border border-border text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-foreground/10 transition-all font-bold text-foreground"
                             >
                                 Cancelar
                             </button>
@@ -342,14 +342,14 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
             )}
 
             {requests.filter(r => r.estado === 'pendiente').length === 0 ? (
-                <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] rounded-[2rem] p-12 text-center">
+                <div className="bg-card border border-border rounded-[2rem] p-12 text-center">
                     <CheckCircle size={48} className="mx-auto text-emerald-500 mb-4" />
                     <h3 className="text-xl font-bold text-foreground">¡Sin pendientes!</h3>
                     <p className="text-muted text-sm mt-2">No hay solicitudes de verificación para revisar.</p>
                 </div>
             ) : (
                 requests.filter(r => r.estado === 'pendiente').map((req) => (
-                    <div key={req.id} className="relative bg-white dark:bg-[#020205] border-t-4 border-t-blue-600 border-x border-b border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 flex flex-col gap-8 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,112,243,0.05)] hover:border-blue-500/30 transition-all duration-500">
+                    <div key={req.id} className="relative bg-card border-t-4 border-t-blue-600 border-x border-b border-border rounded-[2.5rem] p-8 flex flex-col gap-8 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-500">
 
                         <div className="flex flex-col lg:flex-row gap-8 items-start">
                             {/* User Info Section - Photo above, text below */}
@@ -372,7 +372,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                                 <div className="space-y-2 w-full">
                                     <DetailBox label="Nombre Real" value={req.nombre_completo} />
                                     <DetailBox label="Correo" value={req.perfiles?.correo || req.correo} />
-                                    <div className="p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50">
+                                    <div className="p-3 bg-foreground/5 rounded-2xl border border-border">
                                         <p className="text-[8px] font-black uppercase text-muted tracking-widest mb-1">Registro</p>
                                         <p className="text-[10px] font-bold text-foreground">
                                             {req.perfiles?.fecha_creacion ? new Date(req.perfiles.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) : '---'}
@@ -383,13 +383,13 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
 
                             {/* Content Sections - Layout Horizontal */}
                             < div className="flex-1 w-full space-y-4" >
-                                <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-border flex flex-col gap-1">
+                                <div className="p-6 bg-foreground/5 rounded-3xl border border-border flex flex-col gap-1">
                                     <p className="text-[9px] font-black uppercase text-muted tracking-[0.2em] mb-1">Red Social a Verificar</p>
                                     <p className="text-sm font-black text-foreground break-all">{req.url_red_social}</p>
                                 </div>
 
                                 {/* Identificaciones Horizontal */}
-                                <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-border flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                <div className="p-6 bg-foreground/5 rounded-3xl border border-border flex flex-col md:flex-row md:items-center justify-between gap-6">
                                     <div>
                                         <p className="text-[9px] font-black uppercase text-muted tracking-[0.2em] mb-1">Documentos de Identidad</p>
                                         <p className="text-[10px] font-bold text-muted/60 uppercase">Doble Cara (Frente / Vuelta)</p>
@@ -409,7 +409,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                                 </div>
 
                                 {/* Motivación Horizontal */}
-                                <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-border flex flex-col gap-3">
+                                <div className="p-6 bg-foreground/5 rounded-3xl border border-border flex flex-col gap-3">
                                     <p className="text-[9px] font-black uppercase text-muted tracking-[0.2em]">Motivación del Artista</p>
                                     <p className="text-sm text-foreground font-medium italic opacity-80 leading-relaxed">
                                         "{req.motivacion}"
@@ -441,7 +441,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
             {selectedHistoryReq && (
                 <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setSelectedHistoryReq(null)} />
-                    <div className="relative bg-white dark:bg-[#0a0a0c] border border-border w-full max-w-2xl rounded-[3rem] p-10 max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in duration-300">
+                    <div className="relative bg-card border border-border w-full max-w-2xl rounded-[3rem] p-10 max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in duration-300">
                         <header className="flex justify-between items-start mb-8 border-b border-border/50 pb-6">
                             <div className="flex items-center gap-4">
                                 <div className="w-16 h-16 rounded-2xl overflow-hidden bg-accent-soft shrink-0 border border-border/50">
@@ -454,7 +454,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                                     </div>
                                 </div>
                             </div>
-                            <button onClick={() => setSelectedHistoryReq(null)} className="p-3 bg-slate-100 dark:bg-white/5 rounded-2xl hover:text-white hover:bg-slate-800 transition-all text-muted">
+                            <button onClick={() => setSelectedHistoryReq(null)} className="p-3 bg-foreground/5 border border-border rounded-2xl hover:bg-accent hover:text-white hover:border-accent transition-all text-muted">
                                 <XCircle size={20} />
                             </button>
                         </header>
@@ -488,9 +488,9 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
 
             {/* Historial de Verificaciones Compacto */}
             {requests.filter(r => r.estado !== 'pendiente').length > 0 && (
-                <div className="mt-20 pt-20 border-t border-slate-200 dark:border-white/10">
+                <div className="mt-20 pt-20 border-t border-border">
                     <div className="flex items-center gap-4 mb-10">
-                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-muted">
+                        <div className="w-10 h-10 rounded-xl bg-foreground/5 border border-border flex items-center justify-center text-muted">
                             <Clock size={20} />
                         </div>
                         <div>
@@ -501,9 +501,9 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {requests.filter(r => r.estado !== 'pendiente').map(req => (
-                            <div key={req.id} className="group/hist relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-6 shadow-sm flex flex-col gap-6 hover:border-accent/30 transition-all duration-500">
+                            <div key={req.id} className="group/hist relative bg-card border border-border rounded-[2.5rem] p-6 flex flex-col gap-6 hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5 transition-all duration-500">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-[1.2rem] overflow-hidden bg-slate-100 dark:bg-black border border-border/50 shrink-0 shadow-inner">
+                                    <div className="w-12 h-12 rounded-[1.2rem] overflow-hidden bg-foreground/5 border border-border shrink-0">
                                         <img src={req.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.nombre_usuario}`} className="w-full h-full object-cover" />
                                     </div>
                                     <div className="min-w-0">
@@ -514,7 +514,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                                 <div className="flex gap-3">
                                     <button
                                         onClick={() => setSelectedHistoryReq(req)}
-                                        className="flex-1 py-3 bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase tracking-widest text-slate-700 dark:text-foreground rounded-2xl hover:bg-slate-200 dark:hover:bg-white/10 transition-all text-center font-bold"
+                                        className="flex-1 py-3 bg-foreground/5 border border-border text-[10px] font-black uppercase tracking-widest text-foreground rounded-2xl hover:bg-foreground/10 hover:border-accent/20 transition-all text-center"
                                     >
                                         Ver Detalles
                                     </button>
@@ -558,7 +558,7 @@ function ImageDocPreview({ label, path }: { label: string, path: string }) {
 
 function DetailBox({ label, value }: { label: string, value: string }) {
     return (
-        <div className="p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50 text-left">
+        <div className="p-3 bg-foreground/5 rounded-2xl border border-border text-left">
             <p className="text-[8px] font-black uppercase text-muted tracking-widest mb-1">{label}</p>
             <p className="text-[10px] font-bold text-foreground truncate">{value || '---'}</p>
         </div>
@@ -630,7 +630,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
                 <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
                     ← Volver al Dashboard
                 </button>
-                <div className="px-4 py-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-border">
+                <div className="px-4 py-2 bg-foreground/5 border border-border rounded-xl">
                     <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Gestión de Usuarios</span>
                 </div>
             </header>
@@ -639,13 +639,13 @@ function UserManager({ onBack }: { onBack: () => void }) {
                 <input
                     type="text"
                     placeholder="Buscar por nombre, @ o email..."
-                    className="w-full pl-12 pr-6 py-4 bg-white dark:bg-white/5 border border-border rounded-2xl font-bold text-sm outline-none focus:border-accent transition-all"
+                    className="w-full pl-12 pr-6 py-4 bg-foreground/5 border border-border rounded-2xl font-bold text-sm outline-none focus:border-accent transition-all text-foreground"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                 />
             </div>
 
-            <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)]">
+            <div className="bg-card border border-border rounded-[2.5rem] overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -662,10 +662,10 @@ function UserManager({ onBack }: { onBack: () => void }) {
                             ) : filteredUsers.length === 0 ? (
                                 <tr><td colSpan={4} className="py-20 text-center text-muted text-xs font-bold uppercase tracking-widest">No se encontraron usuarios</td></tr>
                             ) : filteredUsers.map(user => (
-                                <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+                                <tr key={user.id} className="hover:bg-foreground/[0.03] transition-colors group">
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-xl overflow-hidden bg-accent-soft shrink-0 border border-border/50">
+                                            <div className="w-9 h-9 rounded-xl overflow-hidden bg-foreground/5 shrink-0 border border-border">
                                                 <img src={user.foto_perfil || `https://ui-avatars.com/api/?name=${user.nombre_usuario}`} alt="" className="w-full h-full object-cover" />
                                             </div>
                                             <div className="min-w-0">
@@ -693,7 +693,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                     <td className="px-8 py-5 text-right">
                                         <button
                                             onClick={() => setSelectedUser(user)}
-                                            className="px-4 py-2 bg-slate-100 dark:bg-white/5 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-accent hover:text-white transition-all shadow-sm"
+                                            className="px-4 py-2 bg-foreground/5 border border-border text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-accent hover:text-white hover:border-accent transition-all"
                                         >
                                             Gestionar
                                         </button>
@@ -709,10 +709,10 @@ function UserManager({ onBack }: { onBack: () => void }) {
             {selectedUser && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedUser(null)} />
-                    <div className="relative bg-white dark:bg-[#0a0a0c] border border-border w-full max-w-2xl rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in duration-300">
+                    <div className="relative bg-card border border-border w-full max-w-2xl rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in duration-300">
                         <header className="p-8 border-b border-border flex items-center justify-between">
                             <div className="flex items-center gap-6">
-                                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-accent-soft">
+                                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-foreground/5 border border-border">
                                     <img src={selectedUser.foto_perfil || `https://ui-avatars.com/api/?name=${selectedUser.nombre_usuario}`} alt="" className="w-full h-full object-cover" />
                                 </div>
                                 <div>
@@ -725,7 +725,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                     <p className="text-xs text-muted font-bold uppercase tracking-widest">@{selectedUser.nombre_usuario}</p>
                                 </div>
                             </div>
-                            <button onClick={() => setSelectedUser(null)} className="p-3 bg-slate-100 dark:bg-white/5 rounded-2xl hover:bg-accent hover:text-white transition-all">
+                            <button onClick={() => setSelectedUser(null)} className="p-3 bg-foreground/5 border border-border rounded-2xl hover:bg-accent hover:text-white hover:border-accent transition-all text-muted">
                                 <XCircle size={20} />
                             </button>
                         </header>
@@ -738,7 +738,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                 <DetailItem label="Fecha de Registro" value={selectedUser.fecha_creacion ? new Date(selectedUser.fecha_creacion).toLocaleDateString() : 'Desconocida'} />
 
                                 {/* New Editable Dates */}
-                                <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50">
+                                <div className="p-4 bg-foreground/5 rounded-2xl border border-border">
                                     <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">Inicio Suscripción</p>
                                     <input
                                         type="date"
@@ -767,7 +767,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                 <DetailItem label="Estado de Verificación" value={selectedUser.esta_verificado ? 'VERIFICADO' : 'NORMAL'} />
 
                                 {/* End Date */}
-                                <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50">
+                                <div className="p-4 bg-foreground/5 rounded-2xl border border-border">
                                     <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">Fin Suscripción</p>
                                     <input
                                         type="date"
@@ -786,10 +786,10 @@ function UserManager({ onBack }: { onBack: () => void }) {
                             </div>
                         </div>
 
-                        <footer className="p-8 bg-slate-50 dark:bg-white/5 flex gap-4">
+                        <footer className="p-8 bg-foreground/[0.03] border-t border-border flex gap-4">
                             <button
                                 onClick={() => toggleAdmin(selectedUser.id, selectedUser.is_admin)}
-                                className={`flex-1 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${selectedUser.is_admin ? 'bg-red-500 text-white' : 'bg-accent text-white'
+                                className={`flex-1 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${selectedUser.is_admin ? 'bg-rose-500 text-white shadow-rose-500/20 shadow-lg' : 'bg-accent text-white shadow-accent/20 shadow-lg'
                                     }`}
                             >
                                 {selectedUser.is_admin ? 'Quitar Admin' : 'Hacer Admin'}
@@ -797,7 +797,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
                             <Link
                                 href={`/${selectedUser.nombre_usuario}`}
                                 target="_blank"
-                                className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest text-center"
+                                className="flex-1 py-4 bg-foreground/5 border border-border hover:border-accent/30 text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest text-center transition-all"
                             >
                                 Ver Perfil Público
                             </Link>
@@ -811,9 +811,9 @@ function UserManager({ onBack }: { onBack: () => void }) {
 
 function DetailItem({ label, value, copyable }: { label: string, value: any, copyable?: boolean }) {
     return (
-        <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50">
+        <div className="p-4 bg-foreground/5 rounded-2xl border border-border">
             <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">{label}</p>
-            <div className={`text-sm font-bold ${copyable ? 'font-mono text-[10px] break-all' : 'text-foreground'}`}>
+            <div className={`text-sm font-bold ${copyable ? 'font-mono text-[10px] break-all text-accent' : 'text-foreground'}`}>
                 {value || '---'}
             </div>
         </div>
@@ -914,7 +914,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                     <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Control de Cupones</span>
                 </div>
             </header>
-            <div className="bg-white/5 dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3rem] p-10 md:p-14 shadow-2xl relative overflow-hidden backdrop-blur-xl">
+            <div className="bg-card border border-border rounded-[3rem] p-10 md:p-14 relative overflow-hidden group hover:border-accent/20 transition-all duration-500">
                 {/* Decoración Glassmorphism */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[80px] rounded-full pointer-events-none" />
 
@@ -923,10 +923,10 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                         <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Control Maestro</span>
                     </div>
-                    <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground leading-[0.9] flex items-center gap-4">
+                    <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground leading-[0.9] flex items-center gap-4">
                         {editingId ? 'Refinar Cupón' : 'Nuevo Cupón'}
                     </h2>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500/80 dark:text-muted/60 mt-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted/70 mt-2">
                         Exclusivo para descuentos en planes de suscripción.
                     </p>
                 </div>
@@ -940,7 +940,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                                 value={newCoupon.codigo}
                                 onChange={e => setNewCoupon({ ...newCoupon, codigo: e.target.value.toUpperCase() })}
                                 placeholder="EJ. BLACKFRIDAY"
-                                className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-3 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all uppercase tracking-widest placeholder:text-muted/30 font-mono shadow-sm"
+                                className="w-full bg-foreground/5 border border-border rounded-2xl px-4 py-3 font-black text-foreground text-sm outline-none focus:border-accent transition-all uppercase tracking-widest placeholder:text-muted/30 font-mono"
                             />
                         </div>
                         <div className="space-y-2">
@@ -953,7 +953,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                                     required
                                     value={newCoupon.porcentaje_descuento || ''}
                                     onChange={e => setNewCoupon({ ...newCoupon, porcentaje_descuento: parseInt(e.target.value) })}
-                                    className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl pl-10 pr-4 py-3 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all tabular-nums font-mono shadow-sm"
+                                    className="w-full bg-foreground/5 border border-border rounded-2xl pl-10 pr-4 py-3 font-black text-foreground text-sm outline-none focus:border-accent transition-all tabular-nums font-mono"
                                 />
                                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-accent/60 font-black text-sm">%</div>
                             </div>
@@ -963,7 +963,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                             <select
                                 value={newCoupon.nivel_objetivo}
                                 onChange={e => setNewCoupon({ ...newCoupon, nivel_objetivo: e.target.value })}
-                                className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-3 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all uppercase tracking-widest shadow-sm appearance-none cursor-pointer"
+                                className="w-full bg-foreground/5 border border-border rounded-2xl px-4 py-3 font-black text-foreground text-sm outline-none focus:border-accent transition-all uppercase tracking-widest appearance-none cursor-pointer"
                             >
                                 <option value="todos">Todos los Planes</option>
                                 <option value="free">Solo Free</option>
@@ -979,7 +979,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                                 type="datetime-local"
                                 value={newCoupon.fecha_expiracion}
                                 onChange={e => setNewCoupon({ ...newCoupon, fecha_expiracion: e.target.value })}
-                                className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-3 font-bold text-slate-900 dark:text-foreground text-xs outline-none focus:border-accent transition-all shadow-sm"
+                                className="w-full bg-foreground/5 border border-border rounded-2xl px-4 py-3 font-bold text-foreground text-xs outline-none focus:border-accent transition-all"
                             />
                         </div>
                     </div>
@@ -996,7 +996,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                             <button
                                 type="button"
                                 onClick={() => { setEditingId(null); setNewCoupon({ codigo: '', porcentaje_descuento: 20, fecha_expiracion: '', nivel_objetivo: 'todos', es_activo: true }); }}
-                                className="w-14 h-14 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-white rounded-2xl flex items-center justify-center hover:bg-rose-50 dark:hover:bg-rose-500 hover:text-rose-500 dark:hover:text-white transition-all shadow-sm active:scale-95"
+                                className="w-14 h-14 bg-foreground/5 border border-border text-muted rounded-2xl flex items-center justify-center hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/30 transition-all active:scale-95"
                             >
                                 <XCircle size={20} />
                             </button>
@@ -1018,16 +1018,16 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                         if (cp.nivel_objetivo === 'premium') tierConfig = { bg: 'bg-amber-500/10', text: 'text-amber-500', label: 'PREMIUM' };
 
                         return (
-                            <div key={cp.id} className={`group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 transition-all duration-700 hover:border-accent/40 hover:shadow-2xl dark:hover:shadow-[0_0_40px_rgba(var(--accent-rgb),0.1)] hover:-translate-y-1 overflow-hidden shadow-lg dark:shadow-none ${(!cp.es_activo || isExpired) && 'opacity-60 grayscale'}`}>
+                            <div key={cp.id} className={`group relative bg-card border border-border rounded-[2.5rem] p-8 transition-all duration-500 hover:border-accent/40 hover:shadow-2xl hover:shadow-accent/5 hover:-translate-y-1 overflow-hidden ${(!cp.es_activo || isExpired) && 'opacity-60 grayscale'}`}>
                                 {/* Ticket pattern */}
                                 <div className="absolute top-[88px] left-8 right-8 h-px border-t-2 border-dashed border-slate-200 dark:border-white/10 z-10" />
 
                                 <div className="flex justify-between items-start mb-12 relative z-10">
                                     <div className="space-y-1">
-                                        <h3 className="font-black text-4xl text-slate-900 dark:text-foreground tracking-[-0.05em] uppercase font-mono leading-none">{cp.codigo}</h3>
+                                        <h3 className="font-black text-4xl text-foreground tracking-[-0.05em] uppercase font-mono leading-none">{cp.codigo}</h3>
                                         <div className="flex items-center gap-2 mt-2">
                                             <span className={`w-1.5 h-1.5 rounded-full ${cp.es_activo ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`} />
-                                            <p className="text-[9px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] opacity-80 dark:opacity-60">
+                                            <p className="text-[9px] font-black text-muted uppercase tracking-[0.3em]">
                                                 EXP: {cp.fecha_expiracion ? new Date(cp.fecha_expiracion).toLocaleDateString() : '∞'}
                                             </p>
                                         </div>
@@ -1043,15 +1043,15 @@ function CouponManager({ onBack }: { onBack: () => void }) {
 
                                 {/* Target info */}
                                 <div className="grid grid-cols-2 gap-4 mb-10 relative z-10">
-                                    <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 border border-slate-200 dark:border-white/10">
-                                        <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] mb-2">Aplica a</p>
+                                    <div className="bg-foreground/5 rounded-2xl p-4 border border-border">
+                                        <p className="text-[8px] font-black text-muted uppercase tracking-[0.3em] mb-2">Aplica a</p>
                                         <div className="flex items-center gap-2 text-slate-900 dark:text-foreground">
                                             <TrendingUp size={14} className="text-accent" />
                                             <span className="text-[10px] font-black uppercase tracking-widest">SUSCRIPCIONES</span>
                                         </div>
                                     </div>
-                                    <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 border border-slate-200 dark:border-white/10">
-                                        <p className="text-[8px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] mb-2">Usos Realizados</p>
+                                    <div className="bg-foreground/5 rounded-2xl p-4 border border-border">
+                                        <p className="text-[8px] font-black text-muted uppercase tracking-[0.3em] mb-2">Usos Realizados</p>
                                         <div className="flex items-center justify-between text-slate-900 dark:text-foreground">
                                             <span className="text-lg font-black tabular-nums leading-none">0</span>
                                             <span className="text-[10px] font-bold text-muted/60">∞ max</span>
@@ -1078,10 +1078,10 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                                             </div>
                                         ) : (
                                             <>
-                                                <button onClick={() => { setEditingId(cp.id); setNewCoupon({ codigo: cp.codigo, porcentaje_descuento: cp.porcentaje_descuento, fecha_expiracion: cp.fecha_expiracion || '', nivel_objetivo: cp.nivel_objetivo || 'todos', es_activo: cp.es_activo }); document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-100 text-slate-700 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 hover:bg-slate-200 transition-all text-[11px] font-black uppercase tracking-widest active:scale-95 shadow-sm">
+                                                <button onClick={() => { setEditingId(cp.id); setNewCoupon({ codigo: cp.codigo, porcentaje_descuento: cp.porcentaje_descuento, fecha_expiracion: cp.fecha_expiracion || '', nivel_objetivo: cp.nivel_objetivo || 'todos', es_activo: cp.es_activo }); document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-foreground/5 border border-border text-foreground hover:bg-foreground/10 hover:border-accent/20 transition-all text-[11px] font-black uppercase tracking-widest active:scale-95">
                                                     <Edit2 size={14} /> Editar
                                                 </button>
-                                                <button onClick={() => setConfirmDeleteId(cp.id)} className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 dark:bg-rose-500/10 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center justify-center flex-shrink-0 active:scale-95 shadow-sm">
+                                                <button onClick={() => setConfirmDeleteId(cp.id)} className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:bg-rose-500/20 transition-all flex items-center justify-center flex-shrink-0 active:scale-95">
                                                     <Trash2 size={18} />
                                                 </button>
                                             </>
@@ -1169,7 +1169,7 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
                 </div>
             </header>
             {feedbacks.filter(f => (f.estado || 'pendiente') === 'pendiente').length === 0 ? (
-                <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] rounded-[2.5rem] p-12 text-center">
+                <div className="bg-card border border-border rounded-[2.5rem] p-12 text-center">
                     <CheckCircle size={48} className="mx-auto text-emerald-500 mb-4" />
                     <h3 className="text-xl font-black uppercase text-foreground">Buzón vacío</h3>
                     <p className="text-muted text-[10px] uppercase font-bold tracking-widest mt-2">No hay quejas o sugerencias en este momento.</p>
@@ -1180,9 +1180,9 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
                     return (
                         <div
                             key={item.id}
-                            className={`bg-white dark:bg-[#020205] border rounded-[2.5rem] p-8 space-y-6 flex flex-col shadow-lg transition-all duration-500 overflow-hidden relative ${isPending
-                                ? 'border-amber-500/40 ring-1 ring-amber-500/10 shadow-amber-500/5'
-                                : 'border-slate-200 dark:border-white/10 opacity-80'
+                            className={`bg-card border rounded-[2.5rem] p-8 space-y-6 flex flex-col transition-all duration-500 overflow-hidden relative ${isPending
+                                ? 'border-amber-500/40 ring-1 ring-amber-500/10'
+                                : 'border-border opacity-80'
                                 } hover:border-accent/30`}
                         >
                             {isPending && (
@@ -1215,7 +1215,7 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
                                 </select>
                             </div>
 
-                            <div className="p-6 bg-slate-50 dark:bg-black/20 rounded-2xl border border-border">
+                            <div className="p-6 bg-foreground/5 rounded-2xl border border-border">
                                 <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-3">Mensaje</p>
                                 <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{item.descripcion_problema}</p>
                             </div>
@@ -1249,9 +1249,9 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
 
             {/* Historial de Feedback Compacto */}
             {feedbacks.filter(f => (f.estado || 'pendiente') !== 'pendiente').length > 0 && (
-                <div className="mt-20 pt-20 border-t border-slate-200 dark:border-white/10">
+                <div className="mt-20 pt-20 border-t border-border">
                     <div className="flex items-center gap-4 mb-10">
-                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-muted">
+                        <div className="w-10 h-10 rounded-xl bg-foreground/5 border border-border flex items-center justify-center text-muted">
                             <Clock size={20} />
                         </div>
                         <div>
@@ -1260,10 +1260,10 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-sm">
+                    <div className="bg-card border border-border rounded-[2.5rem] overflow-hidden">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-border bg-slate-50 dark:bg-white/5">
+                                <tr className="border-b border-border bg-foreground/[0.03]">
                                     <th className="px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Fecha</th>
                                     <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Usuario</th>
                                     <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Tipo</th>
@@ -1272,7 +1272,7 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
                             </thead>
                             <tbody className="divide-y divide-border">
                                 {feedbacks.filter(f => (f.estado || 'pendiente') !== 'pendiente').map(item => (
-                                    <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                    <tr key={item.id} className="hover:bg-foreground/[0.03] transition-colors">
                                         <td className="px-8 py-4 text-[10px] font-bold text-muted">
                                             {new Date(item.fecha_creacion).toLocaleDateString()}
                                         </td>
@@ -1328,7 +1328,7 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
                 </div>
 
                 <div className="flex gap-4">
-                    <div className="px-8 py-5 bg-white dark:bg-[#020205] border border-border rounded-[2rem] text-center shadow-lg">
+                    <div className="px-8 py-5 bg-card border border-border rounded-[2rem] text-center hover:border-accent/30 transition-all">
                         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted mb-1">Este Mes</p>
                         <p className="text-2xl font-black text-accent tabular-nums">${transactions.filter(tx => {
                             const date = new Date(tx.fecha_creacion);
@@ -1336,18 +1336,18 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
                             return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
                         }).reduce((acc, tx) => acc + (tx.precio || 0), 0).toLocaleString()}</p>
                     </div>
-                    <div className="px-8 py-5 bg-white dark:bg-[#020205] border border-border rounded-[2rem] text-center shadow-lg">
+                    <div className="px-8 py-5 bg-card border border-border rounded-[2rem] text-center hover:border-accent/30 transition-all">
                         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted mb-1">Total Histórico</p>
                         <p className="text-2xl font-black text-foreground tabular-nums">${transactions.reduce((acc, tx) => acc + (tx.precio || 0), 0).toLocaleString()}</p>
                     </div>
                 </div>
             </header>
 
-            <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-lg">
+            <div className="bg-card border border-border rounded-[2.5rem] overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="border-b border-border bg-slate-50 dark:bg-white/5">
+                            <tr className="border-b border-border bg-foreground/[0.03]">
                                 <th className="px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Fecha</th>
                                 <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Comprador</th>
                                 <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Producto</th>
@@ -1360,7 +1360,7 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
                             ) : transactions.length === 0 ? (
                                 <tr><td colSpan={4} className="py-20 text-center text-muted text-xs font-bold uppercase tracking-widest">No hay transacciones registradas</td></tr>
                             ) : transactions.map(tx => (
-                                <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                <tr key={tx.id} className="hover:bg-foreground/[0.03] transition-colors">
                                     <td className="px-8 py-5 text-[10px] font-bold text-muted">
                                         {new Date(tx.fecha_creacion).toLocaleDateString()}
                                     </td>
@@ -1413,11 +1413,11 @@ function BeatsManager({ onBack }: { onBack: () => void }) {
                 </div>
             </header>
 
-            <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-lg">
+            <div className="bg-card border border-border rounded-[2.5rem] overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="border-b border-border bg-slate-50 dark:bg-white/5">
+                            <tr className="border-b border-border bg-foreground/[0.03]">
                                 <th className="px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Fecha</th>
                                 <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Productor</th>
                                 <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Beat</th>
@@ -1430,7 +1430,7 @@ function BeatsManager({ onBack }: { onBack: () => void }) {
                             ) : beats.length === 0 ? (
                                 <tr><td colSpan={4} className="py-20 text-center text-muted text-xs font-bold uppercase tracking-widest">No hay beats registrados</td></tr>
                             ) : beats.map(beat => (
-                                <tr key={beat.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                <tr key={beat.id} className="hover:bg-foreground/[0.03] transition-colors">
                                     <td className="px-8 py-5 text-[10px] font-bold text-muted">
                                         {new Date(beat.created_at).toLocaleDateString()}
                                     </td>
@@ -1443,7 +1443,7 @@ function BeatsManager({ onBack }: { onBack: () => void }) {
                                         <p className="text-[9px] text-muted uppercase tracking-widest">{beat.genero} • {beat.bpm} BPM</p>
                                     </td>
                                     <td className="px-8 py-5 text-right">
-                                        <Link href={`/beat/${beat.id}`} target="_blank" className="p-2 bg-slate-100 dark:bg-white/5 rounded-lg hover:bg-accent hover:text-white transition-all inline-block">
+                                        <Link href={`/beat/${beat.id}`} target="_blank" className="p-2 bg-foreground/5 border border-border rounded-lg hover:bg-accent hover:text-white hover:border-accent transition-all inline-block">
                                             <ExternalLink size={14} />
                                         </Link>
                                     </td>
