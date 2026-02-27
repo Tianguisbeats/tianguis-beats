@@ -363,9 +363,9 @@ function ServicesManagerPage() {
                         setServiceErrors({});
                         setIsEditing(true);
                     }}
-                    className="bg-accent text-white px-10 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-accent/20 active:scale-95 flex items-center gap-3 w-fit"
+                    className="bg-accent text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95 flex items-center gap-2 w-fit h-fit"
                 >
-                    <Plus size={20} className="stroke-[3]" /> Crear Servicio
+                    <Plus size={16} className="stroke-[3]" /> Crear Servicio
                 </button>
             </div>
 
@@ -476,9 +476,9 @@ function ServicesManagerPage() {
                             setKitErrors({});
                             setIsEditingKit(true);
                         }}
-                        className="bg-accent text-white px-10 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-accent/20 active:scale-95 flex items-center gap-3 w-fit"
+                        className="bg-orange-500 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95 flex items-center gap-2 w-fit h-fit"
                     >
-                        <Plus size={20} className="stroke-[3]" /> Nuevo Sound Kit
+                        <Plus size={16} className="stroke-[3]" /> Sube tu Sound Kit
                     </button>
                 </div>
 
@@ -554,16 +554,16 @@ function ServicesManagerPage() {
             {/* Modals with Elite UI */}
             {isEditingKit && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in transition-all">
-                    <div className="bg-background rounded-[2.5rem] p-8 md:p-12 max-w-3xl w-full shadow-[0_0_80px_rgba(0,0,0,0.5)] overflow-y-auto border border-border max-h-[90vh] relative">
-                        <button onClick={() => { setIsEditingKit(false); setCurrentKit(null); setKitFile(null); setKitCoverFile(null); setKitErrors({}); }} className="absolute top-8 right-8 w-12 h-12 rounded-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 flex items-center justify-center text-muted hover:text-white hover:bg-rose-500 hover:border-rose-500 transition-all z-10 group">
-                            <X size={20} className="group-hover:rotate-90 transition-transform duration-300" />
+                    <div className="bg-background rounded-[2rem] p-6 md:p-10 max-w-xl w-full shadow-[0_0_80px_rgba(0,0,0,0.5)] overflow-y-auto border border-border max-h-[90vh] relative">
+                        <button onClick={() => { setIsEditingKit(false); setCurrentKit(null); setKitFile(null); setKitCoverFile(null); setKitErrors({}); }} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 flex items-center justify-center text-muted hover:text-white hover:bg-rose-500 hover:border-rose-500 transition-all z-10 group">
+                            <X size={18} className="group-hover:rotate-90 transition-transform duration-300" />
                         </button>
 
-                        <div className="mb-10 text-center md:text-left">
-                            <h2 className="text-4xl font-black tracking-tight flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-slate-900 dark:text-foreground mb-3">
-                                {currentKit?.id ? "Afinando el" : "Crear"} <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">Sound Kit</span>
+                        <div className="mb-8 text-center md:text-left">
+                            <h2 className="text-3xl font-black tracking-tight flex flex-col md:flex-row md:items-center gap-2 text-slate-900 dark:text-foreground mb-2">
+                                {currentKit?.id ? "Afinando el" : "Sube tu"} <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">Sound Kit</span>
                             </h2>
-                            <p className="text-sm font-medium text-muted">Configura tu producto digital. Los ingenieros confían en tu talento.</p>
+                            <p className="text-xs font-medium text-muted">Añade samples y bancos de sonidos en formato ZIP/RAR.</p>
                         </div>
 
                         <form onSubmit={handleSaveKit} className="space-y-8">
@@ -603,7 +603,7 @@ function ServicesManagerPage() {
                                                     setCurrentKit({ ...currentKit, precio: Number(e.target.value) });
                                                     if (Number(e.target.value) > 0) setKitErrors(prev => ({ ...prev, precio: '' }));
                                                 }}
-                                                className={`w-full bg-foreground/5 dark:bg-white/5 border ${kitErrors.precio ? 'border-red-500' : 'border-transparent focus:border-orange-500/50'} rounded-2xl pl-16 pr-5 py-4 font-black text-slate-900 dark:text-white tracking-tight focus:outline-none focus:ring-4 focus:ring-orange-500/10 transition-all tabular-nums text-lg`}
+                                                className={`w-full bg-foreground/5 dark:bg-white/5 border ${kitErrors.precio ? 'border-red-500' : 'border-transparent focus:border-orange-500/50'} rounded-2xl pl-14 pr-5 py-4 font-black text-slate-900 dark:text-white tracking-tight focus:outline-none focus:ring-4 focus:ring-orange-500/10 transition-all tabular-nums text-lg`}
                                             />
                                         </div>
                                     </div>
@@ -648,14 +648,14 @@ function ServicesManagerPage() {
                                 </div>
                             </div>
 
-                            <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/5 border border-orange-500/20 rounded-2xl p-6 flex flex-col md:flex-row items-center md:items-start gap-4">
-                                <div className="p-3 bg-orange-500/20 text-orange-500 rounded-xl shrink-0 shadow-inner">
-                                    <Layers size={24} strokeWidth={2.5} />
+                            <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/5 border border-orange-500/20 rounded-2xl p-4 flex flex-col md:flex-row items-center md:items-start gap-3">
+                                <div className="p-2.5 bg-orange-500/20 text-orange-500 rounded-xl shrink-0 shadow-inner">
+                                    <Layers size={20} strokeWidth={2.5} />
                                 </div>
                                 <div className="text-center md:text-left">
-                                    <h4 className="text-orange-500 font-black text-sm uppercase tracking-wide mb-1">Tu Kit estará protegido bajo la "Licencia Sound Kit"</h4>
-                                    <p className="text-slate-700 dark:text-muted/90 text-xs font-medium leading-relaxed">
-                                        Al ofrecer este paquete, los compradores obtienen el derecho **no exclusivo** de usar los sonidos en sus pistas musicales. La distribución, sublicencia o reventa individual del contenido base está legalmente prohibida por nuestros términos.
+                                    <h4 className="text-orange-500 font-black text-xs uppercase tracking-wide mb-1">Licencia Sound Kit</h4>
+                                    <p className="text-slate-700 dark:text-muted/90 text-[10px] font-medium leading-relaxed">
+                                        Otorgas a los compradores el derecho **no exclusivo** de usar los sonidos. La reventa individual del contenido está prohibida.
                                     </p>
                                 </div>
                             </div>
@@ -733,11 +733,11 @@ function ServicesManagerPage() {
                                 <button
                                     type="submit"
                                     disabled={kitSaving}
-                                    className="flex-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 rounded-xl font-black uppercase tracking-wider hover:bg-orange-500 dark:hover:bg-orange-500 hover:text-white transition-all shadow-xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-slate-900 dark:disabled:hover:bg-white"
+                                    className="flex-1 bg-orange-500 text-white py-4 rounded-xl font-black uppercase tracking-wider hover:bg-orange-600 transition-all shadow-xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
                                 >
                                     {kitSaving ? (
                                         <span className="flex items-center justify-center gap-2">
-                                            <Loader2 size={18} className="animate-spin" /> Procesando Librería...
+                                            <Loader2 size={16} className="animate-spin" /> Subiendo...
                                         </span>
                                     ) : (currentKit?.id ? "Guardar Cambios" : "Publicar Sound Kit")}
                                 </button>
@@ -748,26 +748,28 @@ function ServicesManagerPage() {
             )}
 
             {isEditing && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in transition-all">
-                    <div className="bg-[#0a0a0c] rounded-[3.5rem] p-10 max-w-2xl w-full shadow-2xl overflow-hidden border border-white/5 relative">
-                        <button onClick={() => { setIsEditing(false); setCurrentService(null); setInitialService(null); setServiceErrors({}); }} className="absolute top-8 right-8 w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-muted hover:text-white hover:bg-rose-500 hover:border-rose-500 transition-all z-10">
-                            <X size={24} />
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in transition-all">
+                    <div className="bg-background rounded-[2rem] p-6 md:p-10 max-w-xl w-full shadow-[0_0_80px_rgba(0,0,0,0.5)] overflow-y-auto border border-border max-h-[90vh] relative">
+                        <button onClick={() => { setIsEditing(false); setCurrentService(null); setInitialService(null); setServiceErrors({}); }} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 flex items-center justify-center text-muted hover:text-white hover:bg-rose-500 hover:border-rose-500 transition-all z-10 group">
+                            <X size={18} className="group-hover:rotate-90 transition-transform duration-300" />
                         </button>
 
-                        <div className="mb-10">
-                            <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground mb-2 leading-none">
-                                {currentService?.id ? "Refinar" : "Crear"} <span className="text-accent underline decoration-white/10 underline-offset-4">Servicio</span>
+                        <div className="mb-8 text-center md:text-left">
+                            <h2 className="text-3xl font-black tracking-tight flex flex-col md:flex-row md:items-center gap-2 text-slate-900 dark:text-foreground mb-2">
+                                {currentService?.id ? "Afinando el" : "Crear"} <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-blue-500">Servicio</span>
                             </h2>
-                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted opacity-50">Configura tu oferta profesional elite</p>
+                            <p className="text-xs font-medium text-muted">Acepta pedidos de mezcla, masterización o beats a medida.</p>
                         </div>
 
-                        <form onSubmit={handleSave} className="space-y-8">
-                            <div className="grid md:grid-cols-2 gap-8">
-                                <div className="space-y-6">
+                        <form onSubmit={handleSave} className="space-y-6">
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
                                     <div>
-                                        <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Especialidad</label>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-foreground/80">Especialidad</label>
+                                        </div>
                                         <select
-                                            className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 font-black text-foreground text-xs focus:outline-none focus:border-accent appearance-none shadow-inner"
+                                            className={`w-full bg-foreground/5 dark:bg-white/5 border border-transparent focus:border-accent/50 rounded-2xl px-5 py-4 font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all appearance-none`}
                                             value={currentService?.tipo_servicio || 'mixing_mastering'}
                                             onChange={e => setCurrentService({ ...currentService, tipo_servicio: e.target.value })}
                                         >
@@ -780,9 +782,52 @@ function ServicesManagerPage() {
                                     </div>
 
                                     <div>
-                                        <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Valor Comercial (MXN)</label>
-                                        <div className="relative">
-                                            <DollarSign size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-accent" />
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-foreground/80">Plazo (Días)</label>
+                                        </div>
+                                        <div className="relative group">
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-accent/10 rounded-xl flex items-center justify-center text-accent group-focus-within:bg-accent group-focus-within:text-white transition-colors">
+                                                <Clock size={16} strokeWidth={3} />
+                                            </div>
+                                            <input
+                                                type="number"
+                                                required
+                                                min="1"
+                                                value={currentService?.tiempo_entrega_dias || ''}
+                                                onChange={e => setCurrentService({ ...currentService, tiempo_entrega_dias: Number(e.target.value) })}
+                                                className={`w-full bg-foreground/5 dark:bg-white/5 border border-transparent focus:border-accent/50 rounded-2xl pl-14 pr-5 py-4 font-black text-slate-900 dark:text-white tracking-tight focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all tabular-nums`}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-foreground/80">Título</label>
+                                            {serviceErrors.titulo && <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest">{serviceErrors.titulo}</span>}
+                                        </div>
+                                        <input
+                                            required
+                                            value={currentService?.titulo || ''}
+                                            onChange={e => {
+                                                setCurrentService({ ...currentService, titulo: e.target.value });
+                                                if (e.target.value) setServiceErrors(prev => ({ ...prev, titulo: '' }));
+                                            }}
+                                            placeholder="Ej. Beat Exclusivo a Medida"
+                                            className={`w-full bg-foreground/5 dark:bg-white/5 border ${serviceErrors.titulo ? 'border-red-500' : 'border-transparent focus:border-accent/50'} rounded-2xl px-5 py-4 font-bold text-slate-900 dark:text-white placeholder:text-muted/50 focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all`}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-foreground/80">Inversión (MXN)</label>
+                                            {serviceErrors.precio && <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest">{serviceErrors.precio}</span>}
+                                        </div>
+                                        <div className="relative group">
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-accent/10 rounded-xl flex items-center justify-center text-accent group-focus-within:bg-accent group-focus-within:text-white transition-colors">
+                                                <DollarSign size={16} strokeWidth={3} />
+                                            </div>
                                             <input
                                                 type="number"
                                                 required
@@ -792,37 +837,7 @@ function ServicesManagerPage() {
                                                     setCurrentService({ ...currentService, precio: Number(e.target.value) });
                                                     if (Number(e.target.value) > 0) setServiceErrors(prev => ({ ...prev, precio: '' }));
                                                 }}
-                                                className={`w-full bg-white/5 border-2 rounded-2xl pl-12 pr-6 py-4 font-black text-foreground text-sm focus:outline-none focus:border-accent transition-all shadow-inner tabular-nums ${serviceErrors.precio ? 'border-red-500' : 'border-white/5'}`}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-6">
-                                    <div>
-                                        <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Título del Servicio</label>
-                                        <input
-                                            required
-                                            value={currentService?.titulo || ''}
-                                            onChange={e => {
-                                                setCurrentService({ ...currentService, titulo: e.target.value });
-                                                if (e.target.value) setServiceErrors(prev => ({ ...prev, titulo: '' }));
-                                            }}
-                                            placeholder="EJ. MEZCLA DE VOCES PRO"
-                                            className={`w-full bg-white/5 border-2 rounded-2xl px-6 py-4 font-black text-foreground text-sm focus:outline-none focus:border-accent transition-all shadow-inner ${serviceErrors.titulo ? 'border-red-500' : 'border-white/5'}`}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Plazo de Entrega (Días)</label>
-                                        <div className="relative">
-                                            <Clock size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-accent" />
-                                            <input
-                                                type="number"
-                                                required
-                                                min="1"
-                                                value={currentService?.tiempo_entrega_dias || ''}
-                                                onChange={e => setCurrentService({ ...currentService, tiempo_entrega_dias: Number(e.target.value) })}
-                                                className="w-full bg-white/5 border-2 border-white/5 rounded-2xl pl-12 pr-6 py-4 font-black text-foreground text-sm focus:outline-none focus:border-accent transition-all shadow-inner"
+                                                className={`w-full bg-foreground/5 dark:bg-white/5 border ${serviceErrors.precio ? 'border-red-500' : 'border-transparent focus:border-accent/50'} rounded-2xl pl-14 pr-5 py-4 font-black text-slate-900 dark:text-white tracking-tight focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all tabular-nums text-lg`}
                                             />
                                         </div>
                                     </div>
@@ -830,33 +845,40 @@ function ServicesManagerPage() {
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Descripción del Servicio</label>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-foreground/80">Descripción del Servicio</label>
+                                    {serviceErrors.descripcion && <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest">{serviceErrors.descripcion}</span>}
+                                </div>
                                 <textarea
-                                    rows={4}
+                                    rows={3}
                                     value={currentService?.descripcion || ''}
                                     onChange={e => {
                                         setCurrentService({ ...currentService, descripcion: e.target.value });
                                         if (e.target.value) setServiceErrors(prev => ({ ...prev, descripcion: '' }));
                                     }}
-                                    placeholder="DETALLA EXACTAMENTE QUÉ RECIBIRÁ TU CLIENTE..."
-                                    className={`w-full bg-white/5 border-2 rounded-[2rem] px-8 py-6 font-bold text-foreground text-[11px] focus:outline-none focus:border-accent resize-none transition-all shadow-inner ${serviceErrors.descripcion ? 'border-red-500' : 'border-white/10'}`}
+                                    placeholder="Detalla exactamente qué recibirá tu cliente en este servicio..."
+                                    className={`w-full bg-foreground/5 dark:bg-white/5 border ${serviceErrors.descripcion ? 'border-red-500' : 'border-transparent focus:border-accent/50'} rounded-2xl px-5 py-4 font-medium text-slate-900 dark:text-white placeholder:text-muted/50 focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all resize-none shadow-sm`}
                                 />
                             </div>
 
-                            <div className="flex gap-4 pt-10 border-t border-white/5">
+                            <div className="flex gap-4 pt-6 border-t border-border">
                                 <button
                                     type="button"
                                     onClick={() => { setIsEditing(false); setCurrentService(null); setInitialService(null); setServiceErrors({}); }}
-                                    className="flex-1 py-5 rounded-2xl font-black text-muted uppercase tracking-[0.3em] text-[10px] hover:bg-white/5 transition-all"
+                                    className="px-6 py-4 rounded-xl font-bold text-muted hover:bg-foreground/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-foreground transition-all"
                                 >
-                                    Descartar
+                                    Cancelar
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={saving}
-                                    className="flex-[2] bg-foreground text-background dark:bg-white dark:text-slate-900 py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] hover:bg-accent hover:text-white transition-all shadow-xl active:scale-95 disabled:opacity-50"
+                                    className="flex-1 bg-accent text-white py-4 rounded-xl font-black uppercase tracking-wider hover:bg-accent/90 transition-all shadow-xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
                                 >
-                                    {saving ? "Guardando..." : (currentService?.id ? "Guardar Cambios Maestros" : "Activar Servicio")}
+                                    {saving ? (
+                                        <span className="flex items-center justify-center gap-2">
+                                            <Loader2 size={16} className="animate-spin" /> Guardando...
+                                        </span>
+                                    ) : (currentService?.id ? "Guardar Cambios" : "Activar Servicio")}
                                 </button>
                             </div>
                         </form>
