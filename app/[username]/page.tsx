@@ -7,7 +7,7 @@ import {
     Share2, MoreHorizontal, Calendar, MapPin,
     Music, Play, Users, Crown, Settings, Camera,
     Edit3, CheckCircle2, Copy, Trash2, Layout, PlayCircle,
-    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save, ChevronUp, ChevronDown, List, Briefcase, Clock, DollarSign, Package, MessageSquare, Mail, ShoppingBag, Link2
+    BarChart2, ShieldCheck, Globe, Zap, Loader2, UserPlus, UserCheck, LayoutGrid, ListMusic, Plus, MoveVertical, Save, ChevronUp, ChevronDown, List, Briefcase, Clock, DollarSign, Package, MessageSquare, Mail, ShoppingBag, Link2, UserMinus
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -348,11 +348,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                 if (kitsData) {
                     const transformedKits = await Promise.all(kitsData.map(async (kit: any) => {
-                        let coverUrl = null;
-                        if (kit.cover_url) {
-                            coverUrl = kit.cover_url;
-                        }
-                        return { ...kit, cover_url: coverUrl };
+                        let finalCoverUrl = kit.url_portada?.startsWith('http')
+                            ? kit.url_portada
+                            : kit.url_portada
+                                ? supabase.storage.from('portadas_kits_sonido').getPublicUrl(kit.url_portada).data.publicUrl
+                                : null;
+                        return { ...kit, cover_url: finalCoverUrl };
                     }));
                     setSoundKits(transformedKits);
                 } else {
@@ -733,10 +734,29 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             )}
                         </div>
 
+                        {/* Columna Derecha: Botón de Acción (Edición/Seguir) AHORA EXTRAÍDO AQUÍ, MOSTRÁNDOSE A LA DERECHA ABSOLUTA */}
+                        <div className="hidden md:flex shrink-0 items-end justify-end ml-auto mt-4 md:mt-0">
+                            {isOwner ? (
+                                <button
+                                    onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}
+                                    className={`h-12 sm:h-14 px-8 sm:px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${isEditing ? 'bg-foreground dark:bg-white text-background dark:text-slate-900 border-2 border-accent' : 'bg-card text-foreground border border-border hover:shadow-2xl hover:-translate-y-1 hover:border-accent/50'}`}
+                                >
+                                    {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Editar Perfil</>}
+                                </button>
+                            ) : currentUserId ? (
+                                <button
+                                    onClick={handleFollowToggle}
+                                    className={`h-12 sm:h-14 px-8 sm:px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${isFollowing ? 'bg-foreground/5 text-foreground border border-border hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30' : 'bg-foreground text-background hover:-translate-y-1 hover:shadow-2xl'}`}
+                                >
+                                    {isFollowing ? <><UserMinus size={16} /> Dejar de seguir</> : <><UserPlus size={16} /> Seguir</>}
+                                </button>
+                            ) : null}
+                        </div>
+
                         {/* Info Header */}
                         <div className="flex-1 w-full relative">
                             {/* Contenedor Flex Principal: Todo el Header */}
-                            <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6 w-full">
+                            <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6 w-full mt-4 md:mt-0">
 
                                 {/* Columna Izquierda: Nombre, Detalles y Bio (Desplazado hacia abajo y a la derecha en desktop) */}
                                 <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4 md:mt-24 md:pl-8">
@@ -840,27 +860,23 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                 </div>
 
-                                {/* Columna Derecha: Botón de Acción (Edición/Seguir) */}
-                                <div className="shrink-0 flex items-center justify-center md:justify-end w-full md:w-auto md:mt-16 md:pr-4">
+                                {/* Acciones en Móvil (Ocultas en Desktop ya que se movieron arriba a la derecha) */}
+                                <div className="flex md:hidden shrink-0 items-center justify-center w-full mt-6">
                                     {isOwner ? (
                                         <button
                                             onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}
-                                            className={`h-12 sm:h-14 px-8 sm:px-10 w-full sm:w-auto rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${isEditing ? 'bg-foreground dark:bg-white text-background dark:text-slate-900 border-2 border-accent' : 'bg-white dark:bg-white/10 text-foreground dark:text-white border border-slate-100 dark:border-white/20 hover:shadow-2xl hover:-translate-y-1 backdrop-blur-md dark:hover:bg-white dark:hover:text-slate-900'}`}
+                                            className={`h-12 sm:h-14 px-8 sm:px-10 w-full sm:w-auto rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${isEditing ? 'bg-foreground dark:bg-white text-background dark:text-slate-900 border-2 border-accent' : 'bg-card text-foreground border border-border hover:shadow-2xl hover:-translate-y-1 hover:border-accent/50'}`}
                                         >
                                             {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Editar Perfil</>}
                                         </button>
-                                    ) : (
-                                        <>
-                                            {currentUserId !== profile?.id && (
-                                                <button
-                                                    onClick={handleFollowToggle}
-                                                    className={`h-12 sm:h-14 px-8 sm:px-10 w-full sm:w-auto rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-xl active:scale-95 ${isFollowing ? 'bg-success text-white shadow-success/20' : 'bg-accent text-white shadow-accent/20 hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900'}`}
-                                                >
-                                                    {isFollowing ? <><Check size={16} /> Siguiendo</> : <><UserPlus size={16} /> Seguir</>}
-                                                </button>
-                                            )}
-                                        </>
-                                    )}
+                                    ) : currentUserId ? (
+                                        <button
+                                            onClick={handleFollowToggle}
+                                            className={`h-12 sm:h-14 px-8 sm:px-10 w-full sm:w-auto rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${isFollowing ? 'bg-foreground/5 text-foreground border border-border hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30' : 'bg-foreground text-background hover:-translate-y-1 hover:shadow-2xl'}`}
+                                        >
+                                            {isFollowing ? <><UserMinus size={16} /> Dejar de seguir</> : <><UserPlus size={16} /> Seguir</>}
+                                        </button>
+                                    ) : null}
                                 </div>
                             </div>
                         </div>
@@ -1066,18 +1082,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     <div key={service.id} className="group bg-card border border-border rounded-[2.5rem] p-8 hover:border-accent/30 hover:shadow-2xl hover:shadow-accent/5 transition-all relative overflow-hidden flex flex-col h-full">
                                                         <div className="relative z-10">
                                                             <div className="flex items-center justify-between mb-8">
-                                                                <div className="px-5 py-2 bg-foreground/5 rounded-full text-[9px] font-black uppercase tracking-widest text-muted border border-border">
-                                                                    {service.category || 'Servicio'}
+                                                                <div className="px-5 py-2 bg-foreground/5 rounded-full text-[9px] font-black uppercase tracking-widest text-muted border border-border line-clamp-1 text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
+                                                                    {service.tipo_servicio === 'mixing_mastering' ? 'Mezcla y Master' : service.tipo_servicio === 'custom_beat' ? 'Beat Personalizado' : service.tipo_servicio || 'Servicio'}
                                                                 </div>
                                                                 <div className="text-2xl font-black text-foreground tracking-tighter">
-                                                                    ${service.price} <span className="text-[10px] text-muted uppercase tracking-widest ml-1">MXN</span>
+                                                                    ${service.precio} <span className="text-[10px] text-muted uppercase tracking-widest ml-1">MXN</span>
                                                                 </div>
                                                             </div>
                                                             <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-4 leading-tight group-hover:text-accent transition-colors">
-                                                                {service.title}
+                                                                {service.titulo}
                                                             </h3>
                                                             <p className="text-sm font-medium text-muted mb-8 line-clamp-3 leading-relaxed">
-                                                                {service.description}
+                                                                {service.descripcion}
                                                             </p>
                                                         </div>
                                                         <div className="mt-auto flex items-center justify-between gap-4 pt-6 border-t border-border/50">
@@ -1290,13 +1306,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                 )}
                                                             </div>
                                                             <div className="flex justify-between items-start mb-2">
-                                                                <h3 className="font-bold text-lg mb-1 group-hover:text-accent transition-colors line-clamp-1 text-foreground">{kit.title}</h3>
+                                                                <h3 className="font-bold text-lg mb-1 group-hover:text-accent transition-colors line-clamp-1 text-foreground">{kit.titulo}</h3>
                                                             </div>
-                                                            <p className="text-xs mb-4 line-clamp-2 text-muted">{kit.description}</p>
+                                                            <p className="text-xs mb-4 line-clamp-2 text-muted">{kit.descripcion}</p>
                                                             <div className={`flex items-center justify-between pt-4 border-t ${profile.tema_perfil === 'light' ? 'border-slate-50' : 'border-white/10'}`}>
                                                                 {isOwner ? (
                                                                     <>
-                                                                        <span className="text-lg font-black text-foreground">${kit.price} MXN</span>
+                                                                        <span className="text-lg font-black text-foreground">${kit.precio} MXN</span>
                                                                         <Link
                                                                             href={`/studio/services?edit_kit=${kit.id}`}
                                                                             className="bg-foreground/5 text-foreground px-4 py-2 rounded-xl font-black uppercase tracking-widest text-[9px] hover:bg-foreground hover:text-background transition-all flex items-center gap-2 border border-border active:scale-95"
@@ -1309,7 +1325,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                         onClick={() => handleAddToCart(kit, 'sound_kit')}
                                                                         className="w-full bg-accent text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-accent/20 active:scale-95"
                                                                     >
-                                                                        Comprar ${kit.price}
+                                                                        Comprar ${kit.precio}
                                                                     </button>
                                                                 )}
                                                             </div>

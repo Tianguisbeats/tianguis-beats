@@ -12,6 +12,10 @@ CREATE TABLE IF NOT EXISTS public.listas_reproduccion_items (
 -- Enable RLS
 ALTER TABLE public.listas_reproduccion_items ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist to avoid 42710 error
+DROP POLICY IF EXISTS "Users can view public playlist items" ON public.listas_reproduccion_items;
+DROP POLICY IF EXISTS "Users can manage items of their own playlists" ON public.listas_reproduccion_items;
+
 -- Policies for listas_reproduccion_items
 -- View items: Users can view items if the parent playlist is public or if they own it
 CREATE POLICY "Users can view public playlist items" 

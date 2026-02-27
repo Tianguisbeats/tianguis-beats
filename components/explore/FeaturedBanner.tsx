@@ -120,11 +120,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                 )}
                             </div>
 
-                            {/* Floating badge */}
-                            <div className="absolute -top-3 -right-3 bg-background border border-border px-4 py-1.5 rounded-xl font-black uppercase text-[9px] tracking-widest shadow-xl flex items-center gap-2">
-                                <Flame size={12} className="text-accent fill-accent animate-pulse" />
-                                {isBeat ? 'Hit de la Semana' : 'Productor Destacado'}
-                            </div>
+                            {/* Floating badge removed based on user request */}
 
                             {/* Index dots */}
                             <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
@@ -141,10 +137,9 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                         {/* Info */}
                         <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left mt-6 lg:mt-0">
                             {/* Tag */}
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-accent/10 border border-accent/20 rounded-full mb-5">
-                                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-accent">
-                                    {isBeat ? `Trending Beat` : `Top Productor`}
-                                </span>
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-accent/10 border border-accent/20 rounded-full mb-5 text-[9px] font-black uppercase tracking-[0.3em] text-accent">
+                                {isBeat ? `De la Semana` : `Productor de la Semana`}
+                                <Flame size={12} className="text-accent fill-accent animate-pulse" />
                             </div>
 
                             {/* Title */}
@@ -185,9 +180,9 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                             {!isBeat && (
                                 <div className="flex items-center gap-4 mb-8 self-center lg:self-start">
                                     {currentItem.esta_verificado && (
-                                        <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-                                            <ShieldCheck size={14} className="text-blue-400" />
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-blue-400">Verificado</span>
+                                        <div className="flex items-center gap-2 px-3 py-1.5 bg-foreground/5 border border-border rounded-xl">
+                                            <img src="/verified-badge.png" className="w-4 h-4 object-contain" alt="✓" />
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-foreground">Verificado</span>
                                         </div>
                                     )}
                                     {currentItem.es_fundador && (
@@ -228,6 +223,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                             onClick={() => {
                                                 const beatToPlay = items[currentIndex];
                                                 if (beatToPlay.type === 'beat') {
+                                                    console.log("PLAYING BEAT FROM BANNER", beatToPlay);
                                                     playBeat(beatToPlay as any);
                                                 }
                                             }}
