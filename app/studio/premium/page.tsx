@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Crown, Video, Loader2, Check, MessageSquare, Mail, ShieldCheck, Zap, Clock, ChevronRight, ExternalLink } from 'lucide-react';
+import { Crown, Video, Loader2, Check, MessageSquare, Mail, ShieldCheck, Zap, Clock, ChevronRight, ExternalLink, ArrowUpRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import Switch from '@/components/ui/Switch';
@@ -78,20 +78,30 @@ export default function PremiumHubPage() {
 
     if (userTier !== 'premium') {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 bg-slate-50 dark:bg-card/10 rounded-[4rem] border-2 border-dashed border-slate-200 dark:border-border/50">
-                <div className="bg-blue-600/10 p-8 rounded-[2.5rem] mb-8 text-blue-600 shadow-2xl shadow-blue-600/10 animate-bounce-slow">
-                    <Crown size={64} strokeWidth={1.5} />
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 bg-slate-50 dark:bg-card/10 rounded-[4rem] border-2 border-dashed border-slate-200 dark:border-border/50 relative overflow-hidden">
+                {/* Dot grid ambient */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+
+                <div className="bg-blue-600/10 p-8 rounded-[2.5rem] mb-8 text-blue-600 dark:text-[#00f2ff] shadow-2xl shadow-blue-600/10 animate-bounce-slow relative z-10">
+                    <Crown size={64} strokeWidth={1} />
                 </div>
-                <h1 className="text-4xl font-black text-slate-900 dark:text-foreground uppercase tracking-tighter mb-4">Hub de Beneficios <span className="text-accent">Premium</span></h1>
-                <p className="text-slate-600 dark:text-muted max-w-md mb-10 font-medium leading-relaxed">
-                    Eleva tu perfil al siguiente nivel con video destacado y herramientas de marketing exclusivas.
+
+                <h1 className="text-4xl font-black text-slate-900 dark:text-foreground uppercase tracking-tighter mb-4 relative z-10">
+                    Hub de Beneficios <span className="text-accent">Premium</span>
+                </h1>
+                <p className="text-slate-600 dark:text-muted max-w-md mb-12 font-medium leading-relaxed uppercase text-[10px] tracking-widest relative z-10">
+                    Video destacado, Smart Link Bio, captura de fans y verificación élite. Exclusivo para miembros
+                    <span className="text-slate-900 dark:text-foreground font-black mx-1">Premium</span>.
                 </p>
-                <Link href="/pricing" className="bg-accent text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-xl shadow-accent/20">
-                    <Zap size={16} fill="currentColor" className="inline mr-2" /> Mejorar a Premium
+                <Link href="/pricing" className="group relative overflow-hidden bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] transition-all shadow-xl active:scale-95 flex items-center gap-3 relative z-10">
+                    <div className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                    <span className="relative z-10 group-hover:text-white transition-colors">Mejorar a Premium</span>
+                    <ArrowUpRight size={16} className="relative z-10 group-hover:text-white transition-colors" />
                 </Link>
             </div>
         );
     }
+
 
     return (
         <div className="max-w-5xl space-y-16 pb-20">

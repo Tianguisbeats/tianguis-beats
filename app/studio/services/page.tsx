@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Plus, Edit3, Trash2, Briefcase, DollarSign, Clock, AlertCircle, Check, X, Loader2, Package, Upload, FileArchive } from 'lucide-react';
+import { Plus, Edit3, Trash2, Briefcase, DollarSign, Clock, AlertCircle, Check, X, Loader2, Package, Upload, FileArchive, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
@@ -313,17 +313,25 @@ function ServicesManagerPage() {
 
     if (userTier !== 'premium') {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
-                <div className="bg-accent/10 p-6 rounded-full mb-6 text-accent shadow-xl shadow-accent/20">
-                    <Briefcase size={48} />
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 bg-slate-50 dark:bg-card/10 rounded-[4rem] border-2 border-dashed border-slate-200 dark:border-border/50">
+                {/* Dot grid ambient */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none rounded-[4rem]" style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+
+                <div className="bg-accent/10 p-8 rounded-[2.5rem] mb-8 text-accent shadow-2xl shadow-accent/20 animate-bounce-slow relative z-10">
+                    <Briefcase size={64} strokeWidth={1} />
                 </div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-foreground mb-4">Venta de Servicios Exclusiva</h1>
-                <p className="text-slate-600 dark:text-muted max-w-md mb-8">
-                    La venta de servicios (Mezcla, Master, Mentorías, etc.) y Sound Kits es una característica exclusiva para miembros
-                    <span className="text-accent font-bold"> Premium</span>.
+
+                <h1 className="text-4xl font-black text-slate-900 dark:text-foreground uppercase tracking-tighter mb-4 relative z-10">
+                    Branding <span className="text-accent">Profesional</span>
+                </h1>
+                <p className="text-slate-600 dark:text-muted max-w-md mb-12 font-medium leading-relaxed uppercase text-[10px] tracking-widest relative z-10">
+                    Vende servicios de Mezcla, Masterización, Mentoría y Sound Kits. Exclusivo para miembros
+                    <span className="text-slate-900 dark:text-foreground font-black mx-1">Premium</span>.
                 </p>
-                <Link href="/pricing" className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 transition-all shadow-xl">
-                    Mejorar a Premium
+                <Link href="/pricing" className="group relative overflow-hidden bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] transition-all shadow-xl active:scale-95 flex items-center gap-3 relative z-10">
+                    <div className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                    <span className="relative z-10 group-hover:text-white transition-colors">Mejorar a Premium</span>
+                    <ArrowUpRight size={16} className="relative z-10 group-hover:text-white transition-colors" />
                 </Link>
             </div>
         );
