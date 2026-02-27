@@ -248,7 +248,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                     .from('perfiles')
                     .update({
                         esta_verificado: true,
-                        notificaciones_newsletter: true
+                        boletin_activo: true
                     })
                     .eq('id', userId);
 
@@ -1019,8 +1019,10 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
                 <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
                     ← Volver al Dashboard
                 </button>
-                <div className="px-4 py-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-border">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Buzón de Sugerencias</span>
+                <div className={`flex items-center justify-center px-4 py-2 rounded-xl border transition-colors ${feedbacks.filter(f => (f.estado || 'pendiente') === 'pendiente').length > 0 ? 'bg-amber-500/10 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-emerald-500/10 border-emerald-500/20'} `}>
+                    <span className={`text-[10px] font-black uppercase tracking-widest leading-none ${feedbacks.filter(f => (f.estado || 'pendiente') === 'pendiente').length > 0 ? 'text-amber-500' : 'text-emerald-500'} `}>
+                        {feedbacks.filter(f => (f.estado || 'pendiente') === 'pendiente').length} {feedbacks.filter(f => (f.estado || 'pendiente') === 'pendiente').length === 1 ? 'Pendiente' : 'Pendientes'}
+                    </span>
                 </div>
             </header>
             {feedbacks.length === 0 ? (
