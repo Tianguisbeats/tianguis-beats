@@ -234,7 +234,7 @@ function ServicesManagerPage() {
 
             // Handle File Upload (ZIP/RAR)
             if (kitFile) {
-                const fileName = `${user.id}/${Date.now()}-${kitFile.name}`;
+                const fileName = `${username}/${Date.now()}-${kitFile.name}`;
                 const { data, error: uploadError } = await supabase.storage
                     .from('archivos_kits_sonido')
                     .upload(fileName, kitFile);
@@ -248,7 +248,7 @@ function ServicesManagerPage() {
             let coverUrl = currentKit.url_portada || null;
             if (kitCoverFile) {
                 const fileExt = kitCoverFile.name.split('.').pop();
-                const coverName = `${user.id}/${Date.now()}-cover.${fileExt}`;
+                const coverName = `${username}/${Date.now()}-cover.${fileExt}`;
                 const { data, error: coverError } = await supabase.storage
                     .from('portadas_kits_sonido')
                     .upload(coverName, kitCoverFile);
@@ -553,24 +553,27 @@ function ServicesManagerPage() {
 
             {/* Modals with Elite UI */}
             {isEditingKit && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in transition-all">
-                    <div className="bg-[#0a0a0c] rounded-[3.5rem] p-10 max-w-2xl w-full shadow-2xl overflow-y-auto border border-white/5 max-h-[90vh] relative">
-                        <button onClick={() => { setIsEditingKit(false); setCurrentKit(null); setKitFile(null); setKitCoverFile(null); setKitErrors({}); }} className="absolute top-8 right-8 w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-muted hover:text-white hover:bg-rose-500 hover:border-rose-500 transition-all z-10">
-                            <X size={24} />
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in transition-all">
+                    <div className="bg-background rounded-[2.5rem] p-8 md:p-12 max-w-3xl w-full shadow-[0_0_80px_rgba(0,0,0,0.5)] overflow-y-auto border border-border max-h-[90vh] relative">
+                        <button onClick={() => { setIsEditingKit(false); setCurrentKit(null); setKitFile(null); setKitCoverFile(null); setKitErrors({}); }} className="absolute top-8 right-8 w-12 h-12 rounded-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 flex items-center justify-center text-muted hover:text-white hover:bg-rose-500 hover:border-rose-500 transition-all z-10 group">
+                            <X size={20} className="group-hover:rotate-90 transition-transform duration-300" />
                         </button>
 
-                        <div className="mb-10">
-                            <h2 className="text-3xl font-black uppercase tracking-tighter flex items-center gap-4 text-foreground mb-2">
-                                {currentKit?.id ? "Refinar" : "Arquitectura del"} <span className="text-accent">Sound Kit</span>
+                        <div className="mb-10 text-center md:text-left">
+                            <h2 className="text-4xl font-black tracking-tight flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-slate-900 dark:text-foreground mb-3">
+                                {currentKit?.id ? "Afinando el" : "Crear"} <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">Sound Kit</span>
                             </h2>
-                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted opacity-50">Configura tu producto digital de alta gama</p>
+                            <p className="text-sm font-medium text-muted">Configura tu producto digital. Los ingenieros confían en tu talento.</p>
                         </div>
 
                         <form onSubmit={handleSaveKit} className="space-y-8">
                             <div className="grid md:grid-cols-2 gap-8">
                                 <div className="space-y-6">
                                     <div>
-                                        <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Identificador Público</label>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-foreground/80">Título del Kit</label>
+                                            {kitErrors.titulo && <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest">{kitErrors.titulo}</span>}
+                                        </div>
                                         <input
                                             required
                                             value={currentKit?.titulo || ''}
@@ -578,14 +581,19 @@ function ServicesManagerPage() {
                                                 setCurrentKit({ ...currentKit, titulo: e.target.value });
                                                 if (e.target.value) setKitErrors(prev => ({ ...prev, titulo: '' }));
                                             }}
-                                            placeholder="EJ. URBAN DRUMS VOL. 1"
-                                            className={`w-full bg-white/5 border-2 rounded-2xl px-6 py-4 font-black text-foreground text-sm focus:outline-none focus:border-accent transition-all shadow-inner ${kitErrors.titulo ? 'border-error' : 'border-white/5'}`}
+                                            placeholder="Ej. Urban Drums Vol. 1"
+                                            className={`w-full bg-foreground/5 dark:bg-white/5 border ${kitErrors.titulo ? 'border-red-500' : 'border-transparent focus:border-orange-500/50'} rounded-2xl px-5 py-4 font-bold text-slate-900 dark:text-white placeholder:text-muted/50 focus:outline-none focus:ring-4 focus:ring-orange-500/10 transition-all`}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Valuación Comercial (MXN)</label>
-                                        <div className="relative">
-                                            <DollarSign size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-accent" />
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-foreground/80">Valor Comercial (MXN)</label>
+                                            {kitErrors.precio && <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest">{kitErrors.precio}</span>}
+                                        </div>
+                                        <div className="relative group">
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-500 group-focus-within:bg-orange-500 group-focus-within:text-white transition-colors">
+                                                <DollarSign size={16} strokeWidth={3} />
+                                            </div>
                                             <input
                                                 type="number"
                                                 required
@@ -595,57 +603,70 @@ function ServicesManagerPage() {
                                                     setCurrentKit({ ...currentKit, precio: Number(e.target.value) });
                                                     if (Number(e.target.value) > 0) setKitErrors(prev => ({ ...prev, precio: '' }));
                                                 }}
-                                                className={`w-full bg-white/5 border-2 rounded-2xl pl-12 pr-6 py-4 font-black text-foreground text-sm focus:outline-none focus:border-accent transition-all shadow-inner tabular-nums ${kitErrors.precio ? 'border-error' : 'border-white/5'}`}
+                                                className={`w-full bg-foreground/5 dark:bg-white/5 border ${kitErrors.precio ? 'border-red-500' : 'border-transparent focus:border-orange-500/50'} rounded-2xl pl-16 pr-5 py-4 font-black text-slate-900 dark:text-white tracking-tight focus:outline-none focus:ring-4 focus:ring-orange-500/10 transition-all tabular-nums text-lg`}
                                             />
                                         </div>
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Diseño de Portada</label>
-                                    <div className="relative group aspect-square">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <label className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-foreground/80">Portada del Kit</label>
+                                        {kitErrors.cover && <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest">{kitErrors.cover}</span>}
+                                    </div>
+                                    <div className={`relative group aspect-[4/3] rounded-2xl overflow-hidden border-2 border-dashed transition-all cursor-pointer ${kitErrors.cover ? 'border-red-500 bg-red-500/5' : (kitCoverFile || currentKit?.url_portada ? 'border-transparent' : 'border-border hover:border-orange-500/40 hover:bg-orange-500/5')}`}>
                                         <input
                                             type="file"
-                                            accept=".jpg,.jpeg,.png"
+                                            accept=".jpg,.jpeg,.png,.webp"
                                             required={!currentKit?.url_portada}
                                             onChange={(e) => {
                                                 const file = e.target.files?.[0];
-                                                if (file) setKitCoverFile(file);
+                                                if (file) {
+                                                    setKitCoverFile(file);
+                                                    setKitErrors(prev => ({ ...prev, cover: '' }));
+                                                }
                                             }}
                                             className="hidden"
                                             id="kit-cover"
                                         />
-                                        <label htmlFor="kit-cover" className={`flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-[2rem] cursor-pointer hover:bg-white/5 transition-all w-full h-full overflow-hidden relative ${kitErrors.cover ? 'border-red-500 bg-red-500/5' : (kitCoverFile || currentKit?.url_portada ? 'border-amber-500/40 bg-amber-500/5' : 'border-white/10')}`}>
+                                        <label htmlFor="kit-cover" className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-6 text-center cursor-pointer">
                                             {kitCoverFile ? (
-                                                <img src={URL.createObjectURL(kitCoverFile)} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                                <img src={URL.createObjectURL(kitCoverFile)} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Cover preview" />
                                             ) : currentKit?.url_portada ? (
-                                                <img src={currentKit.url_portada} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                                <img src={currentKit.url_portada} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Saved cover" />
                                             ) : (
-                                                <div className="flex flex-col items-center gap-3 z-10">
-                                                    <Upload size={32} className={kitErrors.cover ? 'text-red-500' : 'text-muted/40'} />
-                                                    <span className={`text-[9px] font-black uppercase tracking-widest ${kitErrors.cover ? 'text-red-500' : 'text-muted/40'}`}>Sincronizar Arte</span>
-                                                </div>
+                                                <>
+                                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-colors ${kitErrors.cover ? 'bg-red-500/10 text-red-500' : 'bg-foreground/5 dark:bg-white/5 text-muted group-hover:bg-orange-500/10 group-hover:text-orange-500'}`}>
+                                                        <span className="hidden"></span>
+                                                        <Upload size={24} />
+                                                    </div>
+                                                    <span className={`text-xs font-black uppercase tracking-wider transition-colors ${kitErrors.cover ? 'text-red-500' : 'text-slate-900 dark:text-foreground group-hover:text-orange-500'}`}>Subir Artwork</span>
+                                                    <span className="text-[10px] font-medium text-muted mt-2">Formatos válidos: JPG, PNG, WEBP</span>
+                                                </>
                                             )}
                                         </label>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="bg-orange-500/10 border border-orange-500/20 rounded-[2rem] p-6 flex items-start gap-4">
-                                <div className="p-3 bg-orange-500/20 text-orange-400 rounded-xl shrink-0">
-                                    <Layers size={24} />
+                            <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/5 border border-orange-500/20 rounded-2xl p-6 flex flex-col md:flex-row items-center md:items-start gap-4">
+                                <div className="p-3 bg-orange-500/20 text-orange-500 rounded-xl shrink-0 shadow-inner">
+                                    <Layers size={24} strokeWidth={2.5} />
                                 </div>
-                                <div>
-                                    <h4 className="text-orange-400 font-black text-sm uppercase tracking-widest mb-1">Licencia Sound Kit</h4>
-                                    <p className="text-orange-400/80 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
-                                        Al vender este Sound Kit, otorgas a los compradores una licencia no exclusiva para usar los audios en sus propias obras musicales. Queda estrictamente prohibida su re-venta individual o redistribución como librería.
+                                <div className="text-center md:text-left">
+                                    <h4 className="text-orange-500 font-black text-sm uppercase tracking-wide mb-1">Tu Kit estará protegido bajo la "Licencia Sound Kit"</h4>
+                                    <p className="text-slate-700 dark:text-muted/90 text-xs font-medium leading-relaxed">
+                                        Al ofrecer este paquete, los compradores obtienen el derecho **no exclusivo** de usar los sonidos en sus pistas musicales. La distribución, sublicencia o reventa individual del contenido base está legalmente prohibida por nuestros términos.
                                     </p>
                                 </div>
                             </div>
 
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Archivo de la Bóveda (.zip / .rar)</label>
-                                    <div className={`relative border-2 border-dashed rounded-[2rem] p-10 transition-all text-center group ${kitErrors.file ? 'border-red-500 bg-red-500/5' : (kitFile ? 'border-amber-500 bg-amber-500/5' : 'border-white/10 hover:border-amber-500/40 hover:bg-white/5')}`}>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <label className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-foreground/80">Archivo .ZIP / .RAR de la librería</label>
+                                        {kitErrors.file && <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest">{kitErrors.file}</span>}
+                                    </div>
+                                    <div className={`relative border-2 border-dashed rounded-2xl p-8 transition-all text-center group ${kitErrors.file ? 'border-red-500 bg-red-500/5' : (kitFile ? 'border-orange-500 bg-orange-500/5' : 'border-border hover:border-orange-500/40 hover:bg-orange-500/5')}`}>
                                         <input
                                             type="file"
                                             accept=".zip,.rar"
@@ -654,24 +675,29 @@ function ServicesManagerPage() {
                                                 if (file) {
                                                     if (file.size > 2 * 1024 * 1024 * 1024) { alert("Límite de 2GB excedido"); e.target.value = ''; return; }
                                                     setKitFile(file);
+                                                    setKitErrors(prev => ({ ...prev, file: '' }));
                                                 }
                                             }}
-                                            className="absolute inset-0 opacity-0 cursor-pointer"
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                         />
                                         <div className="flex flex-col items-center">
                                             {kitFile ? (
                                                 <>
-                                                    <div className="w-16 h-16 bg-accent/20 rounded-2xl flex items-center justify-center text-accent mb-4 animate-bounce-slow">
+                                                    <div className="w-16 h-16 bg-orange-500 text-white rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-orange-500/20">
                                                         <FileArchive size={32} />
                                                     </div>
-                                                    <p className="text-sm font-black text-accent uppercase tracking-tight">{kitFile.name}</p>
-                                                    <p className="text-[9px] font-bold text-accent/60 uppercase tracking-widest mt-2">Listo para el despliegue</p>
+                                                    <p className="text-sm font-black text-slate-900 dark:text-foreground">{kitFile.name}</p>
+                                                    <p className="text-xs font-medium text-orange-500 mt-1">Listo para subirse</p>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Upload className={kitErrors.file ? 'text-red-500' : 'text-muted/20 group-hover:text-amber-500 transition-colors'} size={40} strokeWidth={1.5} />
-                                                    <p className={`text-[10px] font-black uppercase tracking-widest mt-6 ${kitErrors.file ? 'text-red-500' : 'text-muted'}`}>{kitErrors.file ? "Archivo Requerido" : (currentKit?.url_archivo ? "Click para actualizar archivo" : "Transferencia de datos digital")}</p>
-                                                    <p className="text-[9px] font-bold text-muted/40 uppercase tracking-widest mt-2">Maximum throughput: 2GB per upload</p>
+                                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-colors ${kitErrors.file ? 'bg-red-500/10 text-red-500' : 'bg-foreground/5 dark:bg-white/5 text-muted group-hover:bg-orange-500/10 group-hover:text-orange-500'}`}>
+                                                        <FileArchive size={32} />
+                                                    </div>
+                                                    <p className={`text-sm font-black uppercase tracking-wider transition-colors ${kitErrors.file ? 'text-red-500' : 'text-slate-900 dark:text-foreground group-hover:text-orange-500'}`}>
+                                                        {currentKit?.url_archivo ? "Click para actualizar .ZIP" : "Anclar banco de sonidos"}
+                                                    </p>
+                                                    <p className="text-xs font-medium text-muted mt-2">Soporte máximo: 2GB por lanzamiento</p>
                                                 </>
                                             )}
                                         </div>
@@ -679,7 +705,10 @@ function ServicesManagerPage() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Detalles Técnicos & Contenido</label>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <label className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-foreground/80">Descripción del contenido</label>
+                                        {kitErrors.descripcion && <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest">{kitErrors.descripcion}</span>}
+                                    </div>
                                     <textarea
                                         rows={4}
                                         value={currentKit?.descripcion || ''}
@@ -687,26 +716,30 @@ function ServicesManagerPage() {
                                             setCurrentKit({ ...currentKit, descripcion: e.target.value });
                                             if (e.target.value) setKitErrors(prev => ({ ...prev, descripcion: '' }));
                                         }}
-                                        placeholder="EJ. INCLUYE +50 DRUM SAMPLES, PRESETS DE SERUM Y LOOPS EXCLUSIVOS."
-                                        className={`w-full bg-white/5 border-2 rounded-[2rem] px-8 py-6 font-bold text-foreground text-[11px] focus:outline-none focus:border-amber-500 resize-none transition-all shadow-inner ${kitErrors.descripcion ? 'border-red-500' : 'border-white/5'}`}
+                                        placeholder="Enumera lo que incluye: 50 kicks, 30 snares, 20 hi-hats..."
+                                        className={`w-full bg-foreground/5 dark:bg-white/5 border ${kitErrors.descripcion ? 'border-red-500' : 'border-transparent focus:border-orange-500/50'} rounded-2xl px-5 py-4 font-medium text-slate-900 dark:text-white placeholder:text-muted/50 focus:outline-none focus:ring-4 focus:ring-orange-500/10 transition-all resize-none shadow-sm`}
                                     />
                                 </div>
                             </div>
 
-                            <div className="flex gap-4 pt-10 border-t border-white/5">
+                            <div className="flex gap-4 pt-6 border-t border-border">
                                 <button
                                     type="button"
                                     onClick={() => { setIsEditingKit(false); setCurrentKit(null); setKitFile(null); setKitCoverFile(null); setKitErrors({}); }}
-                                    className="flex-1 py-5 rounded-2xl font-black text-muted uppercase tracking-[0.3em] text-[10px] hover:bg-white/5 transition-all"
+                                    className="px-6 py-4 rounded-xl font-bold text-muted hover:bg-foreground/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-foreground transition-all"
                                 >
-                                    Descartar
+                                    Cancelar
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={kitSaving}
-                                    className="flex-[2] bg-accent text-white py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] hover:scale-[1.02] transition-all shadow-xl shadow-accent/20 active:scale-95 disabled:opacity-50"
+                                    className="flex-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 rounded-xl font-black uppercase tracking-wider hover:bg-orange-500 dark:hover:bg-orange-500 hover:text-white transition-all shadow-xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-slate-900 dark:disabled:hover:bg-white"
                                 >
-                                    {kitSaving ? "Sincronizando Bóveda..." : (currentKit?.id ? "Guardar Cambios Maestros" : "Activar e Iniciar Venta")}
+                                    {kitSaving ? (
+                                        <span className="flex items-center justify-center gap-2">
+                                            <Loader2 size={18} className="animate-spin" /> Procesando Librería...
+                                        </span>
+                                    ) : (currentKit?.id ? "Guardar Cambios" : "Publicar Sound Kit")}
                                 </button>
                             </div>
                         </form>
