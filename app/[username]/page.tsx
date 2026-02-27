@@ -618,7 +618,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             <main className="flex-1 pb-40">
                 {/* 1. Portada Refinada */}
                 <div
-                    className={`relative h-[40vh] md:h-[50vh] bg-slate-100 group overflow-hidden ${isAdjustingCover ? 'cursor-ns-resize ring-4 ring-accent ring-inset z-50' : ''}`}
+                    className={`relative h-[40vh] md:h-[50vh] bg-foreground/5 group overflow-hidden ${isAdjustingCover ? 'cursor-ns-resize ring-4 ring-accent ring-inset z-50' : ''}`}
                     onMouseDown={(e) => {
                         if (!isAdjustingCover) return;
                         (e.currentTarget as any)._isDragging = true;
@@ -643,7 +643,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             alt="Cover"
                         />
                     ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-slate-200 via-slate-100 to-white" />
+                        <div className="w-full h-full bg-gradient-to-br from-foreground/[0.06] via-foreground/[0.03] to-background" />
                     )}
 
                     {/* Overlay Gradiente para legibilidad */}
@@ -751,13 +751,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 {profile.foto_perfil ? (
                                     <img src={profile.foto_perfil} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Avatar" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-300">
+                                    <div className="w-full h-full flex items-center justify-center bg-foreground/5 text-muted">
                                         <Users size={64} />
                                     </div>
                                 )}
                             </div>
                             {isOwner && (
-                                <label className="absolute -bottom-2 -right-2 w-12 h-12 bg-white text-slate-900 rounded-full flex items-center justify-center cursor-pointer hover:bg-accent hover:text-white transition-all border-4 border-background shadow-xl hover:scale-110 active:scale-95 z-20">
+                                <label className="absolute -bottom-2 -right-2 w-12 h-12 bg-card border border-border text-foreground rounded-full flex items-center justify-center cursor-pointer hover:bg-accent hover:text-white hover:border-accent transition-all border-4 border-background shadow-xl hover:scale-110 active:scale-95 z-20">
                                     <Camera size={20} />
                                     <input type="file" className="hidden" accept="image/*" onChange={(e) => handleUploadMedia('avatar', e)} />
                                 </label>
@@ -853,38 +853,40 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     { label: 'Beats', value: beats.length, icon: Music, color: 'text-accent', href: `/${username}/beats` },
                                     { label: 'Siguiendo', value: followingCount, icon: UserPlus, color: 'text-accent', href: `/${username}/connections` }
                                 ].map((stat, i) => (
-                                    <Link key={i} href={stat.href} className="bg-white dark:bg-slate-900/60 border border-slate-100 dark:border-white/5 rounded-[2rem] p-5 text-center shadow-soft dark:shadow-[0_20px_50px_rgba(8,112,184,0.08)] hover:shadow-xl hover:-translate-y-1 transition-all group">
-                                        <stat.icon size={16} className={`${stat.color} mx-auto mb-2 opacity-60 group-hover:opacity-100 transition-opacity`} />
-                                        <span className="block text-2xl font-black tracking-tighter text-slate-900 dark:text-white">{stat.value}</span>
-                                        <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{stat.label}</span>
+                                    <Link key={i} href={stat.href} className="bg-card border border-border rounded-[2rem] p-5 text-center hover:border-accent/30 hover:shadow-xl hover:shadow-accent/5 hover:-translate-y-1 transition-all group relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <stat.icon size={16} className={`${stat.color} mx-auto mb-2 opacity-50 group-hover:opacity-100 transition-opacity`} />
+                                        <span className="block text-2xl font-black tracking-tighter text-foreground">{stat.value}</span>
+                                        <span className="text-[9px] font-black text-muted uppercase tracking-widest">{stat.label}</span>
                                     </Link>
                                 ))}
                             </div>
 
                             {/* Estatus Tianguis Premium */}
-                            <div className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-white/10 rounded-[3rem] p-10 text-slate-900 dark:text-white relative overflow-hidden shadow-2xl">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 blur-[60px] rounded-full pointer-events-none" />
-                                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] mb-10 text-slate-400 dark:text-white/40 flex items-center gap-3">
+                            <div className="bg-card border border-border rounded-[3rem] p-10 relative overflow-hidden group hover:border-accent/20 transition-all duration-500">
+                                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-[60px] rounded-full pointer-events-none" />
+                                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] mb-10 text-muted flex items-center gap-3">
                                     <ShieldCheck size={14} className="text-accent" /> Estatus Tianguis
                                 </h3>
                                 <div className="space-y-8">
-                                    <div className="flex items-center justify-between group">
-                                        <span className="text-sm font-bold text-slate-400 dark:text-white/60">Suscripción</span>
-                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border transition-all ${profile.nivel_suscripcion === 'premium' || profile.nivel_suscripcion === 'pro' ? 'bg-accent/10 dark:bg-accent border-accent/30 dark:border-accent text-accent dark:text-white shadow-lg dark:shadow-accent/20' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-white/60'}`}>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-bold text-muted">Suscripción</span>
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border transition-all ${profile.nivel_suscripcion === 'premium' || profile.nivel_suscripcion === 'pro' ? 'bg-accent/10 border-accent/30 text-accent shadow-lg shadow-accent/10' : 'bg-foreground/5 border-border text-muted'}`}>
                                             {profile.nivel_suscripcion}
                                         </span>
                                     </div>
-                                    <div className="flex items-center justify-between group">
-                                        <span className="text-sm font-bold text-slate-400 dark:text-white/60">Identidad</span>
-                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.esta_verificado ? 'bg-accent/10 border-accent/50 text-accent shadow-lg shadow-accent/20' : 'bg-slate-500/10 dark:bg-white/5 border-slate-400/20 text-slate-400'}`}>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-bold text-muted">Identidad</span>
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.esta_verificado ? 'bg-accent/10 border-accent/50 text-accent shadow-lg shadow-accent/10' : 'bg-foreground/5 border-border text-muted'}`}>
                                             {profile.esta_verificado ? (
-                                                <><img src="/verified-badge.png" className="w-4 h-4 object-contain shadow-accent/20 shadow-xl" alt="✓" /> Verificado</>
+                                                <><img src="/verified-badge.png" className="w-4 h-4 object-contain" alt="✓" /> Verificado</>
                                             ) : 'Sin verificar'}
                                         </span>
                                     </div>
-                                    <div className="flex items-center justify-between group">
-                                        <span className="text-sm font-bold text-slate-400 dark:text-white/60">Rango</span>
-                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.es_fundador ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400' : 'bg-slate-500/5 dark:bg-white/5 border-white/10 text-slate-400'}`}>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-bold text-muted">Rango</span>
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.es_fundador ? 'bg-amber-500/10 border-amber-500/30 text-amber-500' : 'bg-foreground/5 border-border text-muted'}`}>
                                             {profile.es_fundador ? <><Crown size={12} fill="currentColor" /> Founder</> : 'Sin rango'}
                                         </span>
                                     </div>
@@ -895,7 +897,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             {profile.nivel_suscripcion === 'premium' && profile.video_destacado_url && getYouTubeEmbedUrl(profile.video_destacado_url) && (
                                 <div className="space-y-4">
                                     <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted ml-2">Video Destacado</h3>
-                                    <div className="rounded-[3rem] overflow-hidden border border-slate-100 shadow-2xl aspect-video bg-slate-900 group relative">
+                                    <div className="rounded-[3rem] overflow-hidden border border-border shadow-2xl aspect-video bg-foreground/5 group relative">
                                         <iframe
                                             width="100%" height="100%"
                                             src={getYouTubeEmbedUrl(profile.video_destacado_url)}
@@ -922,7 +924,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 value={editBio}
                                                 maxLength={500}
                                                 onChange={(e) => setEditBio(e.target.value.slice(0, 500))}
-                                                className="w-full h-40 bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] p-6 text-sm font-medium border-transparent focus:border-accent outline-none resize-none text-slate-900 dark:text-white shadow-inner"
+                                                className="w-full h-40 bg-foreground/5 border border-border focus:border-accent rounded-[2rem] p-6 text-sm font-medium outline-none resize-none text-foreground transition-all"
                                                 placeholder="Tu historia comienza aquí..."
                                             />
                                             <div className="flex justify-end mt-2 px-2">
@@ -943,7 +945,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     <input
                                                         value={editVerifyInstagram}
                                                         onChange={(e) => setEditVerifyInstagram(e.target.value)}
-                                                        className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 text-[10px] font-bold border-transparent focus:border-accent dark:text-white outline-none transition-all"
+                                                        className="w-full bg-foreground/5 border border-border focus:border-accent rounded-xl px-4 py-3 text-[10px] font-bold text-foreground outline-none transition-all"
                                                         placeholder="https://instagram.com/tu_perfil"
                                                     />
                                                 </div>
@@ -952,7 +954,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     <input
                                                         value={editVerifyYoutube}
                                                         onChange={(e) => setEditVerifyYoutube(e.target.value)}
-                                                        className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 text-[10px] font-bold border-transparent focus:border-accent dark:text-white outline-none transition-all"
+                                                        className="w-full bg-foreground/5 border border-border focus:border-accent rounded-xl px-4 py-3 text-[10px] font-bold text-foreground outline-none transition-all"
                                                         placeholder="https://youtube.com/@tu_canal"
                                                     />
                                                 </div>
@@ -961,7 +963,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     <input
                                                         value={editVerifyTiktok}
                                                         onChange={(e) => setEditVerifyTiktok(e.target.value)}
-                                                        className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 text-[10px] font-bold border-transparent focus:border-accent dark:text-white outline-none transition-all"
+                                                        className="w-full bg-foreground/5 border border-border focus:border-accent rounded-xl px-4 py-3 text-[10px] font-bold text-foreground outline-none transition-all"
                                                         placeholder="https://tiktok.com/@tu_perfil"
                                                     />
                                                 </div>
@@ -974,7 +976,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 <input
                                                     value={editVideoUrl}
                                                     onChange={(e) => setEditVideoUrl(e.target.value)}
-                                                    className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 text-[10px] font-bold border-transparent focus:border-accent dark:text-white outline-none transition-all"
+                                                    className="w-full bg-foreground/5 border border-border focus:border-accent rounded-xl px-4 py-3 text-[10px] font-bold text-foreground outline-none transition-all"
                                                     placeholder="URL de Video..."
                                                 />
                                             </div>
@@ -984,27 +986,27 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     <div className="flex flex-col items-center justify-center py-8 w-full">
                                         {/* Bio Text (Optional/Reduced) */}
                                         {profile.biografia && (
-                                            <p className="mb-10 text-xs font-medium text-center text-slate-500 dark:text-slate-400 max-w-lg mx-auto line-clamp-3 italic">
-                                                "{profile.biografia}"
+                                            <p className="mb-10 text-xs font-medium text-center text-muted max-w-lg mx-auto line-clamp-3 italic leading-relaxed">
+                                                &ldquo;{profile.biografia}&rdquo;
                                             </p>
                                         )}
 
                                         {/* Social Icons inside About Me Section (below bio) */}
                                         {(profile.enlaces_sociales?.instagram || profile.enlaces_sociales?.youtube || profile.enlaces_sociales?.tiktok) && (
-                                            <div className="flex justify-center gap-6 mt-10">
+                                            <div className="flex justify-center gap-4 mt-10">
                                                 {profile.enlaces_sociales.instagram && (
-                                                    <a href={profile.enlaces_sociales.instagram} target="_blank" rel="noopener noreferrer" className="p-4 bg-slate-50 dark:bg-white/5 rounded-full text-slate-400 hover:text-accent hover:scale-110 transition-all border border-slate-100 dark:border-white/5 shadow-sm group/social">
-                                                        <Instagram size={22} />
+                                                    <a href={profile.enlaces_sociales.instagram} target="_blank" rel="noopener noreferrer" className="p-4 bg-foreground/5 border border-border rounded-full text-muted hover:text-accent hover:border-accent/30 hover:scale-110 transition-all">
+                                                        <Instagram size={20} />
                                                     </a>
                                                 )}
                                                 {profile.enlaces_sociales.youtube && (
-                                                    <a href={profile.enlaces_sociales.youtube} target="_blank" rel="noopener noreferrer" className="p-4 bg-slate-50 dark:bg-white/5 rounded-full text-slate-400 hover:text-accent hover:scale-110 transition-all border border-slate-100 dark:border-white/5 shadow-sm group/social">
-                                                        <Youtube size={22} />
+                                                    <a href={profile.enlaces_sociales.youtube} target="_blank" rel="noopener noreferrer" className="p-4 bg-foreground/5 border border-border rounded-full text-muted hover:text-accent hover:border-accent/30 hover:scale-110 transition-all">
+                                                        <Youtube size={20} />
                                                     </a>
                                                 )}
                                                 {profile.enlaces_sociales.tiktok && (
-                                                    <a href={profile.enlaces_sociales.tiktok} target="_blank" rel="noopener noreferrer" className="p-4 bg-slate-50 dark:bg-white/5 rounded-full text-slate-400 hover:text-accent hover:scale-110 transition-all border border-slate-100 dark:border-white/5 shadow-sm group/social">
-                                                        <Music size={22} />
+                                                    <a href={profile.enlaces_sociales.tiktok} target="_blank" rel="noopener noreferrer" className="p-4 bg-foreground/5 border border-border rounded-full text-muted hover:text-accent hover:border-accent/30 hover:scale-110 transition-all">
+                                                        <Music size={20} />
                                                     </a>
                                                 )}
                                             </div>
@@ -1015,14 +1017,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                             {/* Acerca de mí Card (Independent) */}
                             {(isOwner || profile.enlaces_activos) && (
-                                <div className={`p-10 rounded-[3rem] border shadow-2xl transition-all duration-500 hover:scale-[1.02] 
-                                    ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
-                                        'bg-[#050508] border-white/5 shadow-black' :
-                                        'bg-white border-slate-100 shadow-slate-200/50'
-                                    }`}>
+                                <div className="p-10 rounded-[3rem] border border-border bg-card transition-all duration-500 hover:border-accent/20 hover:scale-[1.01] relative overflow-hidden group">
+                                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                     <div className="flex items-center gap-3 mb-8">
                                         <Zap size={14} className="text-accent" />
-                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-white/40">Acerca de mí</h4>
+                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-muted">Acerca de mí</h4>
                                     </div>
 
                                     {profile.nivel_suscripcion !== 'premium' && profile.nivel_suscripcion !== 'pro' ? (
@@ -1033,8 +1032,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                     <Link2 size={24} />
                                                 </div>
                                                 <div>
-                                                    <h5 className="font-black text-slate-900 dark:text-white text-lg mb-2 tracking-tight">Multi-Link Profesional</h5>
-                                                    <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-relaxed">Conecta todas tus redes en una sola tarjeta inteligente</p>
+                                                    <h5 className="font-black text-foreground text-lg mb-2 tracking-tight">Multi-Link Profesional</h5>
+                                                    <p className="text-[10px] font-bold text-muted uppercase tracking-widest leading-relaxed">Conecta todas tus redes en una sola tarjeta inteligente</p>
                                                 </div>
 
                                                 {isOwner ? (
@@ -1045,7 +1044,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                         <Crown size={14} fill="currentColor" /> Desbloquear con Premium
                                                     </Link>
                                                 ) : (
-                                                    <div className="w-full py-4 bg-slate-200/50 dark:bg-white/5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 border border-slate-300/30 dark:border-white/5">
+                                                    <div className="w-full py-4 bg-foreground/5 border border-border rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-muted text-center">
                                                         Exclusivo Premium
                                                     </div>
                                                 )}
@@ -1137,14 +1136,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/30 dark:from-[#0a0a0f] dark:to-[#050508] rounded-[3rem] p-24 text-center border border-slate-100 dark:border-white/5 shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-transform">
-                                            <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[80px] rounded-full -mr-32 -mt-32 group-hover:bg-accent/10 transition-all duration-700" />
+                                        <div className="bg-card rounded-[3rem] p-24 text-center border border-dashed border-border relative overflow-hidden group hover:border-accent/20 transition-all">
+                                            <div className="absolute top-0 right-0 w-64 h-64 bg-accent/[0.04] blur-[80px] rounded-full -mr-32 -mt-32 group-hover:bg-accent/[0.06] transition-all duration-700" />
                                             <div className="relative z-10">
-                                                <div className="w-24 h-24 bg-white dark:bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-soft border border-slate-50 dark:border-white/5">
-                                                    <Music size={40} className="text-accent opacity-60" />
+                                                <div className="w-24 h-24 bg-foreground/5 border border-border rounded-[2.5rem] flex items-center justify-center mx-auto mb-8">
+                                                    <Music size={40} className="text-accent opacity-50" />
                                                 </div>
-                                                <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white mb-3 tracking-tighter">Sin beats todavía</h3>
-                                                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] max-w-[200px] mx-auto leading-relaxed">Este productor aún no ha publicado sus obras maestras</p>
+                                                <h3 className="text-2xl font-black uppercase text-foreground mb-3 tracking-tighter">Sin beats todavía</h3>
+                                                <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em] max-w-[200px] mx-auto leading-relaxed">Este productor aún no ha publicado sus obras maestras</p>
                                             </div>
                                         </div>
                                     )}
@@ -1154,12 +1153,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             {activeTab === 'services' && (
                                 <div className="animate-in fade-in slide-in-from-bottom-2">
                                     <div className="flex items-center gap-3 mb-8">
-                                        <div className="w-10 h-10 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                                        <div className="w-10 h-10 bg-accent/10 rounded-2xl flex items-center justify-center text-accent">
                                             <Briefcase size={20} />
                                         </div>
                                         <div>
-                                            <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900 dark:text-white drop-shadow-sm">Servicios Profesionales</h2>
-                                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Contrata talento experto para tu próximo hit</p>
+                                            <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground">Servicios Profesionales</h2>
+                                            <p className="text-[10px] font-bold text-muted uppercase tracking-widest mt-1">Contrata talento experto para tu próximo hit</p>
                                         </div>
                                     </div>
 
