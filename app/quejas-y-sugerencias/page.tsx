@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Send, AlertCircle, MessageSquare, CheckCircle2 } from 'lucide-react';
+import { Send, AlertCircle, MessageSquare, CheckCircle2, Upload } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/context/ToastContext';
 import Link from 'next/link';
@@ -27,10 +27,22 @@ export default function QuejasSugerenciasPage() {
         checkUser();
     }, []);
 
+    // Form State for Evidences
+    const [evidences, setEvidences] = useState<File[]>([]);
+    const [uploadingEvidences, setUploadingEvidences] = useState(false);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const filesArray = Array.from(e.target.files).slice(0, 3);
+            setEvidences(filesArray);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const form = e.currentTarget; // Guardar referencia antes del async
+        const form = e.currentTarget;
         setStatus('loading');
+        setUploadingEvidences(true);
 
         const formData = new FormData(form);
         const tipo = formData.get('tipo') as string;
@@ -39,15 +51,33 @@ export default function QuejasSugerenciasPage() {
         const mensaje = formData.get('mensaje') as string;
 
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user: authUser } } = await supabase.auth.getUser();
 
+            // 1. Upload Evidences if any
+            const evidenceUrls: string[] = ['', '', ''];
+            for (let i = 0; i < evidences.length; i++) {
+                const file = evidences[i];
+                const ext = file.name.split('.').pop();
+                const fileName = `${authUser?.id || 'anon'}/evidencia_${Date.now()}_${i}.${ext}`;
+                const { data, error: uploadError } = await supabase.storage
+                    .from('evidencias_quejas')
+                    .upload(fileName, file);
+
+                if (uploadError) throw uploadError;
+                evidenceUrls[i] = data.path;
+            }
+
+            // 2. Insert with correct column names (usuario_id, correo, descripcion_problema)
             const { error } = await supabase.from('quejas_y_sugerencias').insert([{
                 tipo_mensaje: tipo,
                 nombre_usuario: nombre,
-                email,
-                mensaje: mensaje, // Mapeado correctamente a la columna 'mensaje'
-                user_id: user?.id || null,
-                estado: 'pendiente'
+                correo: email,
+                descripcion_problema: mensaje,
+                usuario_id: authUser?.id || null,
+                estado: 'pendiente',
+                evidencia_1: evidenceUrls[0],
+                evidencia_2: evidenceUrls[1],
+                evidencia_3: evidenceUrls[2]
             }]);
 
             if (error) throw error;
@@ -196,6 +226,44 @@ export default function QuejasSugerenciasPage() {
                                     className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl p-6 font-bold text-slate-900 dark:text-foreground outline-none focus:border-accent transition-colors placeholder:text-muted/40 resize-none text-sm leading-relaxed"
                                     placeholder="Cuéntanos a detalle el problema que encontraste o la idea que tienes para mejorar la plataforma..."
                                 ></textarea>
+                            </div>
+
+                            {/* Evidence Upload Section */}
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2">Evidencias (Opcional - Máx 3)</label>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <label className="group cursor-pointer relative aspect-video bg-slate-50 dark:bg-black/40 border-2 border-dashed border-slate-200 dark:border-white/10 rounded-2xl flex flex-col items-center justify-center hover:border-accent/50 transition-all overflow-hidden">
+                                        <input
+                                            type="file"
+                                            multiple
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                            className="sr-only"
+                                        />
+                                        <Upload className="text-muted group-hover:text-accent transition-colors mb-2" size={24} />
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-muted group-hover:text-accent">
+                                            {evidences.length > 0 ? `${evidences.length} Archivos` : 'Agregar Fotos'}
+                                        </span>
+                                        {evidences.length > 0 && (
+                                            <div className="absolute inset-0 bg-accent/5 flex items-center justify-center">
+                                                <div className="flex -space-x-3">
+                                                    {evidences.map((_, i) => (
+                                                        <div key={i} className="w-8 h-8 rounded-full bg-accent border-2 border-background flex items-center justify-center text-[10px] font-bold text-white shadow-lg">
+                                                            {i + 1}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </label>
+                                    <div className="sm:col-span-2 flex flex-col justify-center gap-2">
+                                        <p className="text-[9px] font-bold text-muted uppercase tracking-widest leading-relaxed">
+                                            • Puedes subir capturas de pantalla del problema.<br />
+                                            • Formatos aceptados: PNG, JPG, JPEG.<br />
+                                            • Máximo 3 imágenes por reporte.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="pt-4">

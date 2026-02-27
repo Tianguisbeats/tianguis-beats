@@ -952,17 +952,15 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
 
     const fetchFeedbacks = async () => {
         setLoading(true);
-        // Hacemos un join con profiles para obtener info del usuario productor
-        const { data, error } = await supabase
-            .from('quejas_y_sugerencias')
-            .select(`*, perfiles:user_id (nombre_artistico, nombre_usuario, email)`)
-            .order('fecha_creacion', { ascending: false });
+        try {
+            const { data, error } = await supabase
+                .from('quejas_y_sugerencias')
+                .select(`*, perfiles:usuario_id (nombre_artistico, nombre_usuario, email)`)
+                .order('fecha_creacion', { ascending: false });
 
-        if (error) {
-            console.error(error);
-        } else {
+            if (error) throw error;
             setFeedbacks(data || []);
-        }
+        } catch (err) { console.error(err); }
         setLoading(false);
     };
 
@@ -1024,8 +1022,31 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
 
                         <div className="p-6 bg-slate-50 dark:bg-black/20 rounded-2xl border border-border">
                             <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-3">Mensaje</p>
-                            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{item.mensaje}</p>
+                            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{item.descripcion_problema}</p>
                         </div>
+
+                        {/* Evidencias Layout */}
+                        {(item.evidencia_1 || item.evidencia_2 || item.evidencia_3) && (
+                            <div className="space-y-4">
+                                <p className="text-[10px] font-black uppercase text-muted tracking-widest px-2">Evidencias Adjuntas</p>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                    {[item.evidencia_1, item.evidencia_2, item.evidencia_3].map((path, idx) => {
+                                        if (!path) return null;
+                                        const publicUrl = supabase.storage.from('evidencias_quejas').getPublicUrl(path).data.publicUrl;
+                                        return (
+                                            <div key={idx} className="group/img relative aspect-square bg-slate-50 dark:bg-white/5 rounded-3xl overflow-hidden border border-border shadow-md hover:border-accent/40 transition-all duration-500">
+                                                <img src={publicUrl} alt={`Evidencia ${idx + 1}`} className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-700" title="Ver evidencia completa" />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="p-3 bg-white text-black rounded-full hover:scale-110 transition-transform shadow-2xl">
+                                                        <ExternalLink size={18} />
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ))
             )}
