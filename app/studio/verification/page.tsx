@@ -63,7 +63,7 @@ export default function VerificationPage() {
             setForm(prev => ({
                 ...prev,
                 realName: profile.nombre_completo || '',
-                artisticName: profile.nombre_artistico || ''
+                artisticName: profile.nombre_usuario || '' // Ahora mapeado a nombre_usuario
             }));
         }
 
@@ -84,12 +84,12 @@ export default function VerificationPage() {
 
         setStats({ beatCount, playCount, saleCount: saleCount || 0 });
 
-        // 4. Check existing request
+        // 4. Check existing request (using correct table name)
         const { data: existingRequest } = await supabase
-            .from('verification_requests')
-            .select('status')
+            .from('solicitudes_verificacion')
+            .select('estado')
             .eq('user_id', user.id)
-            .maybeSingle(); // Use maybeSingle to avoid error if not found
+            .maybeSingle();
 
         if (profile?.is_verified) {
             setStatus('verified');
@@ -129,22 +129,22 @@ export default function VerificationPage() {
             if (!form.idDocument) throw new Error("Debes subir una identificación oficial.");
             if (!profile?.nombre_usuario) throw new Error("No se pudo obtener el nombre de usuario.");
 
-            // 1. Upload ID
+            // 1. Upload ID to correct bucket
             const fileExt = form.idDocument.name.split('.').pop();
             const fileName = `${profile.nombre_usuario}/verificacion_${Date.now()}.${fileExt}`;
             const { error: uploadError, data: uploadData } = await supabase.storage
-                .from('verification-docs')
+                .from('documentos_verificacion')
                 .upload(fileName, form.idDocument);
 
             if (uploadError) throw uploadError;
 
-            // 2. Insert into solicitudes_verificacion
+            // 2. Insert into solicitudes_verificacion with correct columns
             const { error: insertError } = await supabase
                 .from('solicitudes_verificacion')
                 .insert({
                     user_id: user.id,
-                    nombre_real: form.realName,
-                    nombre_artistico: form.artisticName,
+                    nombre_completo: form.realName,
+                    nombre_usuario: form.artisticName, // que ahora es nombre_usuario
                     url_red_social: form.portfolioUrl,
                     motivacion: form.motivation,
                     url_documento: uploadData.path,
@@ -359,11 +359,11 @@ export default function VerificationPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted">Nombre Artístico</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted">Usuario</label>
                                 <input
                                     type="text"
                                     required
-                                    className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all min-h-[44px]"
+                                    className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all min-h-[44px] opacity-70"
                                     placeholder="Tu aka"
                                     value={form.artisticName}
                                     readOnly
