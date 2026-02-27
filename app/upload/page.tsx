@@ -234,7 +234,7 @@ export default function UploadPage() {
     };
 
     if (!userData) return (
-        <div className="min-h-screen bg-[#020205] flex items-center justify-center">
+        <div className="min-h-screen bg-background flex items-center justify-center">
             <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
         </div>
     );
@@ -256,14 +256,14 @@ export default function UploadPage() {
     const sections = ['Identidad del Beat', 'Archivos de Audio', 'Licencias & Precios'];
 
     return (
-        <div className="min-h-screen bg-[#020205] text-foreground font-sans flex flex-col">
+        <div className="min-h-screen bg-background text-foreground font-sans flex flex-col">
             <Navbar />
             {/* BG glows */}
             <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-                <div className="absolute top-[-15%] left-[-10%] w-[50%] h-[50%] bg-blue-600/5 blur-[140px] rounded-full" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] bg-purple-600/5 blur-[140px] rounded-full" />
-                <div className="absolute top-[30%] right-[10%] w-[30%] h-[30%] bg-amber-500/4 blur-[120px] rounded-full" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accent/3 via-transparent to-transparent" />
+                <div className="absolute top-[-15%] left-[-10%] w-[50%] h-[50%] bg-blue-600/[0.04] dark:bg-blue-600/[0.07] blur-[140px] rounded-full" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] bg-purple-600/[0.04] dark:bg-purple-600/[0.07] blur-[140px] rounded-full" />
+                <div className="absolute top-[30%] right-[10%] w-[30%] h-[30%] bg-amber-500/[0.03] dark:bg-amber-500/[0.05] blur-[120px] rounded-full" />
+                <div className="absolute inset-0 bg-gradient-to-b from-accent/[0.02] via-transparent to-transparent" />
             </div>
 
             <main className="flex-1 pb-24 pt-6">
@@ -272,7 +272,7 @@ export default function UploadPage() {
                     {/* Header */}
                     <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div>
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border mb-4" style={{ background: `${planColor}10`, borderColor: `${planColor}30` }}>
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border mb-4" style={{ background: `${planColor}10`, borderColor: `${planColor}30` }}>
                                 <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: planColor }} />
                                 <span className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: planColor }}>Plan {planLabel} · Activo</span>
                             </div>
@@ -288,7 +288,7 @@ export default function UploadPage() {
                             <div className="bg-white/[0.03] border border-white/10 rounded-[2rem] px-6 py-5 text-center min-w-[180px]">
                                 <p className="text-[9px] font-black text-muted uppercase tracking-[0.2em] mb-3">Límite Plan Gratis</p>
                                 <div className="flex items-center gap-3 justify-center">
-                                    <div className="h-1.5 w-24 bg-white/10 rounded-full overflow-hidden">
+                                    <div className="h-1.5 w-24 bg-foreground/10 rounded-full overflow-hidden">
                                         <div className="h-full bg-gradient-to-r from-accent to-blue-500 transition-all" style={{ width: `${(beatCount / 5) * 100}%` }} />
                                     </div>
                                     <span className="text-lg font-black text-foreground">{beatCount}/5</span>
@@ -331,7 +331,7 @@ export default function UploadPage() {
                     <form onSubmit={handleSubmit} className="space-y-8">
 
                         {/* ─── SECTION 1: Identidad del Beat ─── */}
-                        <div className={`bg-white/[0.03] border border-white/8 rounded-[2.5rem] p-8 relative overflow-hidden transition-all ${activeSection !== 0 ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+                        <div className={`bg-card border border-border rounded-[2.5rem] p-8 relative overflow-hidden transition-all ${activeSection !== 0 ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
                             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
                             <div className="flex items-center gap-3 mb-8">
                                 <div className="w-10 h-10 bg-accent/10 rounded-2xl flex items-center justify-center text-accent">
@@ -361,7 +361,7 @@ export default function UploadPage() {
                                         <div className="space-y-2">
                                             <label className="text-[9px] font-black uppercase tracking-[0.25em] text-muted">Género *</label>
                                             <select value={genre} onChange={e => { setGenre(e.target.value); setSubgenre(''); }} required
-                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:border-accent/50 transition-all appearance-none text-foreground">
+                                                className="w-full bg-foreground/5 border border-border rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:border-accent/50 transition-all appearance-none text-foreground">
                                                 <option value="">Seleccionar</option>
                                                 {GENRES.map(g => <option key={g} value={g} className="bg-[#020205]">{g}</option>)}
                                             </select>
@@ -369,7 +369,7 @@ export default function UploadPage() {
                                         <div className="space-y-2">
                                             <label className="text-[9px] font-black uppercase tracking-[0.25em] text-muted">Subgénero</label>
                                             <select value={subgenre} onChange={e => setSubgenre(e.target.value)} disabled={!genre || !SUBGENRES[genre]}
-                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:border-accent/50 transition-all appearance-none disabled:opacity-40 text-foreground">
+                                                className="w-full bg-foreground/5 border border-border rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:border-accent/50 transition-all appearance-none disabled:opacity-40 text-foreground">
                                                 <option value="">{genre ? 'Ninguno' : 'Primero selecciona género'}</option>
                                                 {genre && SUBGENRES[genre]?.map(sg => <option key={sg} value={sg} className="bg-[#020205]">{sg}</option>)}
                                             </select>
@@ -385,7 +385,7 @@ export default function UploadPage() {
                                         <div className="space-y-2">
                                             <label className="text-[9px] font-black uppercase tracking-[0.25em] text-muted">Tono / Escala *</label>
                                             <select value={tonoEscala} onChange={e => setTonoEscala(e.target.value)} required
-                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:border-accent/50 transition-all appearance-none text-foreground">
+                                                className="w-full bg-foreground/5 border border-border rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:border-accent/50 transition-all appearance-none text-foreground">
                                                 <option value="">Seleccionar</option>
                                                 <optgroup label="NATURALES" className="bg-[#020205] text-accent">
                                                     {MUSICAL_KEYS.filter(k => k.group === 'natural').map(k => <option key={k.value} value={k.value} className="bg-[#020205]">{k.label}</option>)}
@@ -414,10 +414,10 @@ export default function UploadPage() {
                                                 if (f && !['image/jpeg', 'image/png', 'image/jpg'].includes(f.type)) { setError("Artwork: Solo JPG/PNG"); e.target.value = ''; return; }
                                                 setCoverFile(f);
                                             }} className="hidden" id="cover" />
-                                        <label htmlFor="cover" className="flex items-center gap-4 p-4 bg-white/5 border-2 border-dashed border-white/10 rounded-2xl cursor-pointer hover:bg-white/8 hover:border-accent/30 transition-all h-[120px] overflow-hidden">
+                                        <label htmlFor="cover" className="flex items-center gap-4 p-4 bg-foreground/5 border-2 border-dashed border-border rounded-2xl cursor-pointer hover:bg-foreground/8 hover:border-accent/30 transition-all h-[120px] overflow-hidden">
                                             {coverFile ? (
                                                 <div className="flex items-center gap-4 w-full">
-                                                    <div className="w-20 h-20 rounded-2xl overflow-hidden border border-white/10 shrink-0 shadow-xl">
+                                                    <div className="w-20 h-20 rounded-2xl overflow-hidden border border-border shrink-0 shadow-xl">
                                                         <img src={URL.createObjectURL(coverFile)} className="w-full h-full object-cover" alt="Preview" />
                                                     </div>
                                                     <div>
@@ -459,7 +459,7 @@ export default function UploadPage() {
                         </div>
 
                         {/* ─── SECTION 2: Archivos de Audio ─── */}
-                        <div className={`bg-white/[0.03] border border-white/8 rounded-[2.5rem] p-8 relative overflow-hidden transition-all ${activeSection !== 1 ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+                        <div className={`bg-card border border-border rounded-[2.5rem] p-8 relative overflow-hidden transition-all ${activeSection !== 1 ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
                             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent" />
                             <div className="flex items-center gap-3 mb-8">
                                 <div className="w-10 h-10 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400">
@@ -501,7 +501,7 @@ export default function UploadPage() {
                         </div>
 
                         {/* ─── SECTION 3: Licencias & Precios ─── */}
-                        <div className={`bg-white/[0.03] border border-white/8 rounded-[2.5rem] p-8 relative overflow-hidden transition-all ${activeSection !== 2 ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+                        <div className={`bg-card border border-border rounded-[2.5rem] p-8 relative overflow-hidden transition-all ${activeSection !== 2 ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
                             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="w-10 h-10 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-400">
@@ -542,7 +542,7 @@ export default function UploadPage() {
                                     const meta = LICENSE_META[lic.key];
                                     return (
                                         <div key={lic.key} className={`relative rounded-[1.75rem] border transition-all duration-300 overflow-hidden ${lic.locked ? 'opacity-50 grayscale' : lic.active ? '' : 'opacity-60'}`}
-                                            style={{ borderColor: !lic.locked && lic.active ? `${meta.hex}30` : '#ffffff10', background: !lic.locked && lic.active ? `${meta.hex}08` : 'rgba(255,255,255,0.02)' }}>
+                                            style={{ borderColor: !lic.locked && lic.active ? `${meta.hex}30` : 'var(--border)', background: !lic.locked && lic.active ? `${meta.hex}08` : 'var(--card)' }}>
                                             {!lic.locked && lic.active && (
                                                 <div className="absolute top-0 left-0 right-0 h-px"
                                                     style={{ backgroundImage: `linear-gradient(to right, transparent, ${meta.hex}50, transparent)` }} />
@@ -580,7 +580,7 @@ export default function UploadPage() {
 
                                                 <div className="flex items-center gap-4">
                                                     <div className="flex flex-col items-end">
-                                                        <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all ${lic.active ? 'border-white/20 bg-white/5' : 'border-white/5 bg-transparent opacity-40'}`}>
+                                                        <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all ${lic.active ? 'border-border bg-foreground/5' : 'border-border/50 bg-transparent opacity-40'}`}>
                                                             <span className="text-[11px] font-black text-muted">$</span>
                                                             <input type="number" value={lic.lockPrice ? '0' : lic.price}
                                                                 onChange={e => !lic.lockPrice && lic.setPrice(e.target.value)}
@@ -600,7 +600,7 @@ export default function UploadPage() {
                         </div>
 
                         {/* Submit */}
-                        <div className="relative overflow-hidden bg-white/[0.03] border border-white/8 rounded-[2.5rem] p-8">
+                        <div className="relative overflow-hidden bg-card border border-border rounded-[2.5rem] p-8">
                             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
                             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                                 <div>
