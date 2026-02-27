@@ -225,10 +225,13 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                 <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
                     ← Volver al Dashboard
                 </button>
-                <div className="px-4 py-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-border">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground">{requests.length} Pendientes</span>
+                <div className={`px-4 py-2 rounded-xl border transition-colors ${requests.length > 0 ? 'bg-amber-500/10 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${requests.length > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                        {requests.length} {requests.length === 1 ? 'Pendiente' : 'Pendientes'}
+                    </span>
                 </div>
             </header>
+
             {requests.length === 0 ? (
                 <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] rounded-[2rem] p-12 text-center">
                     <CheckCircle size={48} className="mx-auto text-emerald-500 mb-4" />
@@ -237,90 +240,120 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                 </div>
             ) : (
                 requests.map((req) => (
-                    <div key={req.id} className="bg-white dark:bg-[#020205] border-t-4 border-t-blue-600 border-x border-b border-slate-200 dark:border-white/10 rounded-[2.5rem] p-10 flex flex-col lg:flex-row gap-10 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,112,243,0.05)] hover:scale-[1.01] transition-all duration-500 overflow-hidden">
-                        <div className="lg:w-1/4 flex flex-col items-center lg:items-start text-center lg:text-left">
-                            <div className="flex flex-col items-center lg:items-start gap-4 mb-6">
-                                <div className="w-20 h-20 rounded-3xl overflow-hidden bg-accent-soft shadow-xl border-2 border-white/10">
-                                    <img src={req.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.nombre_usuario}`} alt="Avatar" className="w-full h-full object-cover" />
+                    <div key={req.id} className="relative bg-white dark:bg-[#020205] border-t-4 border-t-blue-600 border-x border-b border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 flex flex-col gap-8 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,112,243,0.05)] hover:border-blue-500/30 transition-all duration-500">
+
+                        <div className="flex flex-col lg:flex-row gap-8 items-start">
+                            {/* User Info Section */}
+                            <div className="lg:w-1/4 w-full">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="w-16 h-16 rounded-2xl overflow-hidden bg-accent-soft shadow-lg">
+                                        <img src={req.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.nombre_usuario}`} alt="Avatar" className="w-full h-full object-cover" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <h3 className="font-black text-xl text-foreground tracking-tighter truncate">{req.nombre_usuario}</h3>
+                                        <div className="inline-flex px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">@{req.nombre_usuario}</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="min-w-0">
-                                    <h3 className="font-black text-2xl text-foreground tracking-tighter mb-1 truncate">{req.nombre_usuario}</h3>
-                                    <div className="inline-flex px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">@{req.nombre_usuario}</p>
+                                <div className="space-y-2">
+                                    <DetailBox label="Nombre Real" value={req.nombre_completo} />
+                                    <DetailBox label="Correo" value={req.correo} />
+                                    <div className="p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50">
+                                        <p className="text-[8px] font-black uppercase text-muted tracking-widest mb-1">Registro</p>
+                                        <p className="text-[10px] font-bold text-foreground">
+                                            {req.perfiles?.fecha_creacion ? new Date(req.perfiles.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) : '---'}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
-                            <div className="space-y-3 w-full">
-                                <DetailBox label="Nombre Completo" value={req.nombre_completo} />
-                                <DetailBox label="Correo" value={req.correo} />
-                                <div className="p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50">
-                                    <p className="text-[8px] font-black uppercase text-muted tracking-widest mb-1">Registro</p>
-                                    <p className="text-[10px] font-bold text-foreground">
-                                        {req.perfiles?.fecha_creacion ? new Date(req.perfiles.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) : '---'}
+
+                            {/* Content Sections - Layout Horizontal */}
+                            <div className="flex-1 w-full space-y-4">
+                                {/* Red Social Horizontal */}
+                                <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-border flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div>
+                                        <p className="text-[9px] font-black uppercase text-muted tracking-[0.2em] mb-1">Red Social a Verificar</p>
+                                        <p className="text-sm font-black text-foreground truncate max-w-md">{req.url_red_social}</p>
+                                    </div>
+                                    <a href={req.url_red_social} target="_blank" className="shrink-0 px-4 py-2 bg-blue-500/10 text-blue-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all flex items-center gap-2">
+                                        Visitar Perfil <ExternalLink size={12} />
+                                    </a>
+                                </div>
+
+                                {/* Identificaciones Horizontal */}
+                                <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-border flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                    <div>
+                                        <p className="text-[9px] font-black uppercase text-muted tracking-[0.2em] mb-1">Documentos de Identidad</p>
+                                        <p className="text-[10px] font-bold text-muted/60 uppercase">Doble Cara (Frente / Vuelta)</p>
+                                    </div>
+                                    <div className="flex gap-4">
+                                        <ImageDocPreview
+                                            label="Frente"
+                                            path={req.url_doc_frontal}
+                                        />
+                                        {req.url_doc_trasero && (
+                                            <ImageDocPreview
+                                                label="Vuelta"
+                                                path={req.url_doc_trasero}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Motivación Horizontal */}
+                                <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-border flex flex-col gap-3">
+                                    <p className="text-[9px] font-black uppercase text-muted tracking-[0.2em]">Motivación del Artista</p>
+                                    <p className="text-sm text-foreground font-medium italic opacity-80 leading-relaxed">
+                                        "{req.motivacion}"
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex-1 space-y-6">
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <div className="p-5 bg-slate-50 dark:bg-black/20 rounded-3xl border border-border shadow-inner">
-                                    <p className="text-[10px] font-black uppercase text-muted tracking-[0.2em] mb-3">Red Social Confirmada</p>
-                                    <a href={req.url_red_social} target="_blank" className="text-sm font-black text-blue-500 hover:text-blue-600 transition-colors flex items-center gap-2 truncate">
-                                        {req.url_red_social} <ExternalLink size={14} />
-                                    </a>
-                                </div>
-                                <div className="p-5 bg-slate-50 dark:bg-black/20 rounded-3xl border border-border shadow-inner">
-                                    <p className="text-[10px] font-black uppercase text-muted tracking-[0.2em] mb-3">Identificaciones (Frente / Vuelta)</p>
-                                    <div className="flex gap-4">
-                                        {/* Previsualización Frontal */}
-                                        <div className="group/img relative w-20 h-14 rounded-xl overflow-hidden cursor-pointer border-2 border-border/50 hover:border-blue-500 transition-all">
-                                            <img
-                                                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/documentos_verificacion/${req.url_doc_frontal}`}
-                                                className="w-full h-full object-cover grayscale group-hover/img:grayscale-0 transition-all"
-                                                alt="Front"
-                                            />
-                                            <a
-                                                href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/documentos_verificacion/${req.url_doc_frontal}`}
-                                                target="_blank"
-                                                className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity"
-                                            >
-                                                <ExternalLink size={14} className="text-white" />
-                                            </a>
-                                        </div>
-                                        {/* Previsualización Trasera */}
-                                        {req.url_doc_trasero && (
-                                            <div className="group/img relative w-20 h-14 rounded-xl overflow-hidden cursor-pointer border-2 border-border/50 hover:border-blue-500 transition-all">
-                                                <img
-                                                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/documentos_verificacion/${req.url_doc_trasero}`}
-                                                    className="w-full h-full object-cover grayscale group-hover/img:grayscale-0 transition-all"
-                                                    alt="Back"
-                                                />
-                                                <a
-                                                    href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/documentos_verificacion/${req.url_doc_trasero}`}
-                                                    target="_blank"
-                                                    className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity"
-                                                >
-                                                    <ExternalLink size={14} className="text-white" />
-                                                </a>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="p-6 bg-slate-50 dark:bg-black/20 rounded-[2.5rem] border border-border shadow-inner">
-                                <p className="text-[10px] font-black uppercase text-muted tracking-[0.2em] mb-3">Motivación del Artista</p>
-                                <p className="text-sm text-foreground font-medium leading-relaxed italic opacity-80">"{req.motivacion}"</p>
-                            </div>
-                        </div>
-
-                        <div className="lg:w-56 flex flex-col gap-4 justify-center">
-                            <button onClick={() => handleDecision(req.id, req.user_id, 'approved')} className="w-full py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all">Aprobar</button>
-                            <button onClick={() => handleDecision(req.id, req.user_id, 'rejected')} className="w-full py-5 bg-red-500 hover:bg-red-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-red-500/20 hover:scale-105 active:scale-95 transition-all">Rechazar</button>
+                        {/* Action Buttons - Corner Position */}
+                        <div className="flex justify-end gap-3 mt-4 border-t border-border pt-6">
+                            <button
+                                onClick={() => handleDecision(req.id, req.user_id, 'rejected')}
+                                className="px-6 py-2.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all"
+                            >
+                                Rechazar
+                            </button>
+                            <button
+                                onClick={() => handleDecision(req.id, req.user_id, 'approved')}
+                                className="px-8 py-2.5 bg-emerald-500 text-white hover:bg-emerald-600 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all"
+                            >
+                                Aprobar
+                            </button>
                         </div>
                     </div>
                 ))
             )}
+        </div>
+    );
+}
+
+function ImageDocPreview({ label, path }: { label: string, path: string }) {
+    // 🛡️ SOLUCIÓN 404: Asegurar la URL correcta del bucket público
+    const publicUrl = supabase.storage.from('documentos_verificacion').getPublicUrl(path).data.publicUrl;
+
+    return (
+        <div className="group/img relative w-24 h-16 rounded-xl overflow-hidden border-2 border-border/50 hover:border-blue-500 transition-all shadow-sm">
+            <img
+                src={publicUrl}
+                className="w-full h-full object-cover grayscale group-hover/img:grayscale-0 transition-all"
+                alt={label}
+            />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center transition-opacity">
+                <a
+                    href={publicUrl}
+                    target="_blank"
+                    className="p-1.5 bg-white text-black rounded-lg hover:scale-110 transition-transform"
+                >
+                    <ExternalLink size={14} />
+                </a>
+                <span className="text-[8px] font-black text-white uppercase mt-1 tracking-tighter">{label}</span>
+            </div>
         </div>
     );
 }
