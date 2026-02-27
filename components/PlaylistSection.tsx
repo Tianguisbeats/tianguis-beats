@@ -1,71 +1,94 @@
 "use client";
 
 import React from 'react';
-import { ListMusic, ChevronRight, Play } from 'lucide-react';
-import BeatCardPro from './explore/BeatCardPro';
-import { Beat } from '@/lib/types';
+import { ListMusic, ChevronRight, Edit3, Lock, Globe, Music } from 'lucide-react';
 import Link from 'next/link';
 
 interface Playlist {
     id: string;
     name: string;
     description?: string;
-    beats: Beat[];
+    es_publica?: boolean;
+    fecha_creacion?: string;
+    beats: any[];
 }
 
 interface PlaylistSectionProps {
     playlists: Playlist[];
     isOwner: boolean;
+    username: string;
     onEdit?: (playlistId: string) => void;
 }
 
-export default function PlaylistSection({ playlists, isOwner, onEdit }: PlaylistSectionProps) {
+export default function PlaylistSection({ playlists, isOwner, username, onEdit }: PlaylistSectionProps) {
     if (playlists.length === 0) return null;
 
     return (
-        <div className="space-y-16">
-            {playlists.map((playlist) => (
-                <div key={playlist.id} className="relative">
-                    <div className="flex items-center justify-between mb-8">
-                        <div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <ListMusic size={16} className="text-accent" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted">Colección</span>
-                            </div>
-                            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-foreground leading-none">
-                                {playlist.name}
-                            </h2>
-                            {playlist.description && (
-                                <p className="text-muted text-xs font-bold uppercase tracking-widest mt-3">
-                                    {playlist.description}
-                                </p>
-                            )}
-                        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {playlists.map((playlist, idx) => (
+                <div key={playlist.id} className="group relative bg-card border border-border rounded-[2rem] overflow-hidden hover:border-foreground/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl animate-in fade-in slide-in-from-bottom-2 fill-mode-both" style={{ animationDelay: `${idx * 60}ms` }}>
 
-                        <div className="flex items-center gap-3">
-                            {isOwner && (
-                                <button
-                                    onClick={() => onEdit?.(playlist.id)}
-                                    className="px-6 py-2.5 bg-background border border-border rounded-full text-[10px] font-black uppercase tracking-widest text-muted hover:bg-foreground hover:text-background transition-all shadow-sm"
-                                >
-                                    Editar Playlist
-                                </button>
+                    {/* Cover art mosaic */}
+                    <div className="relative h-36 bg-gradient-to-br from-accent/10 via-foreground/5 to-foreground/10 overflow-hidden">
+                        {playlist.beats.length > 0 ? (
+                            <div className="grid grid-cols-2 h-full gap-0.5">
+                                {[0, 1, 2, 3].map(i => (
+                                    <div key={i} className="overflow-hidden bg-foreground/5">
+                                        {playlist.beats[i]?.portada_url
+                                            ? <img src={playlist.beats[i].portada_url} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt="" />
+                                            : <div className="w-full h-full flex items-center justify-center text-muted/20"><Music size={20} strokeWidth={1} /></div>
+                                        }
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                                <ListMusic size={40} className="text-foreground/20" strokeWidth={1} />
+                            </div>
+                        )}
+
+                        {/* Gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-card/90 to-transparent" />
+
+                        {/* Visibility badge */}
+                        <div className="absolute top-3 right-3">
+                            {playlist.es_publica === false ? (
+                                <span className="flex items-center gap-1 px-2.5 py-1 bg-background/80 backdrop-blur-sm border border-border rounded-full text-[8px] font-black uppercase tracking-widest text-muted">
+                                    <Lock size={9} /> Privada
+                                </span>
+                            ) : (
+                                <span className="flex items-center gap-1 px-2.5 py-1 bg-background/80 backdrop-blur-sm border border-border rounded-full text-[8px] font-black uppercase tracking-widest text-accent">
+                                    <Globe size={9} /> Pública
+                                </span>
                             )}
-                            <Link
-                                href={`/${playlist.beats[0]?.productor_nombre_usuario || 'beats'}/playlists/${playlist.id}`}
-                                className="px-6 py-2.5 bg-accent/10 border border-accent/20 rounded-full text-[10px] font-black uppercase tracking-widest text-accent hover:bg-accent hover:text-white transition-all shadow-sm flex items-center gap-2"
-                            >
-                                Ver playlist <ChevronRight size={12} />
-                            </Link>
                         </div>
                     </div>
 
-                    <div className="flex gap-6 overflow-x-auto pb-8 no-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
-                        {playlist.beats.map((beat) => (
-                            <div key={beat.id} className="w-[300px] shrink-0">
-                                <BeatCardPro beat={beat} />
+                    {/* Content */}
+                    <div className="p-5">
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                            <div className="min-w-0">
+                                <h3 className="font-black text-sm uppercase tracking-tight text-foreground truncate leading-tight">
+                                    {playlist.name}
+                                </h3>
+                                <p className="text-[9px] font-bold text-muted uppercase tracking-widest mt-1">
+                                    {playlist.beats.length > 0 ? `${playlist.beats.length} beats` : 'Colección vacía'}
+                                </p>
                             </div>
-                        ))}
+                        </div>
+
+                        <div className="flex items-center gap-2 mt-4">
+                            <Link href={`/${username}/playlists/${playlist.id}`}
+                                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-foreground/5 hover:bg-accent hover:text-white border border-border hover:border-accent rounded-xl text-[9px] font-black uppercase tracking-widest text-muted transition-all">
+                                Ver Playlist <ChevronRight size={11} />
+                            </Link>
+                            {isOwner && (
+                                <button onClick={() => onEdit?.(playlist.id)}
+                                    className="p-2.5 bg-foreground/5 hover:bg-foreground hover:text-background border border-border rounded-xl text-muted transition-all">
+                                    <Edit3 size={13} />
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             ))}

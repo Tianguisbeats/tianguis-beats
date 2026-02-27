@@ -291,72 +291,21 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     setBeats(transformedBeats);
                 }
 
-                // 3. Get Playlists
+                // 3. Get Playlists (new schema: id, usuario_id, nombre, es_publica, fecha_creacion)
                 const { data: playlistsRaw } = await supabase
                     .from('listas_reproduccion')
-                    .select('*, beats(*)')
-                    .eq('productor_id', profileData.id)
+                    .select('id, nombre, es_publica, fecha_creacion')
+                    .eq('usuario_id', profileData.id)
                     .eq('es_publica', true)
-                    .order('indice_orden_playlist', { ascending: true })
-                    .order('indice_orden_beat', { ascending: true });
+                    .order('fecha_creacion', { ascending: true });
 
                 if (playlistsRaw) {
-                    // Agrupar por playlist_id
-                    const grouped = playlistsRaw.reduce((acc: any, item: any) => {
-                        if (!acc[item.playlist_id]) {
-                            acc[item.playlist_id] = {
-                                id: item.playlist_id,
-                                playlist_id: item.playlist_id,
-                                name: item.nombre,
-                                description: item.descripcion,
-                                indice_orden_playlist: item.indice_orden_playlist,
-                                beats: []
-                            };
-                        }
-                        if (item.beats) {
-                            acc[item.playlist_id].beats.push(item.beats);
-                        }
-                        return acc;
-                    }, {});
-
-                    const formattedPlaylists = await Promise.all(Object.values(grouped).map(async (pl: any) => {
-                        // Transform URLs for playlist beats (reusing logic)
-                        const transformedPLBeats = await Promise.all(pl.beats.map(async (b: any) => {
-                            const path = b.archivo_muestra_url || b.archivo_mp3_url || '';
-                            let publicUrl = '';
-
-                            if (path.startsWith('http')) {
-                                publicUrl = path;
-                            } else {
-                                const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
-                                const bucket = path.includes('-hq-') ? 'beats_mp3' : 'muestras_beats';
-                                const { data } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
-                                publicUrl = data.publicUrl;
-                            }
-
-                            const finalCoverUrl = b.portada_url?.startsWith('http')
-                                ? b.portada_url
-                                : b.portada_url
-                                    ? supabase.storage.from('portadas_beats').getPublicUrl(b.portada_url).data.publicUrl
-                                    : null;
-
-                            return {
-                                ...b,
-                                archivo_mp3_url: publicUrl,
-                                portada_url: finalCoverUrl,
-                                productor_nombre_artistico: profileData.nombre_artistico,
-                                productor_nombre_usuario: profileData.nombre_usuario,
-                                productor_foto_perfil: profileData.foto_perfil,
-                                productor_esta_verificado: profileData.esta_verificado,
-                                productor_es_fundador: profileData.es_fundador,
-                                productor_nivel_suscripcion: profileData.nivel_suscripcion
-                            };
-                        }));
-
-                        return {
-                            ...pl,
-                            beats: transformedPLBeats
-                        };
+                    const formattedPlaylists = playlistsRaw.map((pl: any) => ({
+                        id: pl.id,
+                        name: pl.nombre,
+                        es_publica: pl.es_publica,
+                        fecha_creacion: pl.fecha_creacion,
+                        beats: [] // Beat associations managed separately
                     }));
                     setPlaylists(formattedPlaylists as any);
                 }
@@ -1108,43 +1057,47 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
 
                             {activeTab === 'beats' && (
-                                <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2">
-                                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                                        <div className="space-y-2">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center text-accent">
-                                                    <Music size={24} />
-                                                </div>
-                                                <h2 className="text-4xl font-black uppercase tracking-tighter text-foreground">Recién Horneados🔥</h2>
+                                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
+                                    {/* Section header */}
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="relative flex h-2 w-2">
+                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
+                                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
+                                                </span>
+                                                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-accent">Catálogo</span>
                                             </div>
-                                            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.3em] ml-1">Descubre lo último que ha salido del estudio</p>
+                                            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground leading-none">
+                                                Recién<br />Horneados 🔥
+                                            </h2>
+                                            <p className="text-[9px] font-bold text-muted uppercase tracking-[0.3em] mt-2">
+                                                {beats.length} beats · Más recientes primero
+                                            </p>
                                         </div>
-                                        <Link
-                                            href={`/${username}/beats`}
-                                            className="h-14 px-8 bg-foreground/5 dark:bg-white/5 hover:bg-foreground/10 dark:hover:bg-white/10 border border-foreground/5 dark:border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-foreground dark:text-white transition-all flex items-center gap-3 active:scale-95 group"
-                                        >
-                                            Ver Catálogo Completo <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                                        <Link href={`/${username}/beats`}
+                                            className="group inline-flex items-center gap-2 px-6 py-3 bg-card border border-border rounded-2xl text-[9px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:border-foreground/20 transition-all">
+                                            Ver Catálogo Completo <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                         </Link>
                                     </div>
 
                                     {beats.length > 0 ? (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-16">
-                                            {beats.slice(0, 6).map((beat) => (
-                                                <div key={beat.id} className="group relative">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                                            {beats.slice(0, 10).map((beat, idx) => (
+                                                <div key={beat.id} className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both" style={{ animationDelay: `${idx * 40}ms` }}>
                                                     <BeatCardPro beat={beat} />
                                                 </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="bg-card rounded-[3rem] p-24 text-center border border-dashed border-border relative overflow-hidden group hover:border-accent/20 transition-all">
-                                            <div className="absolute top-0 right-0 w-64 h-64 bg-accent/[0.04] blur-[80px] rounded-full -mr-32 -mt-32 group-hover:bg-accent/[0.06] transition-all duration-700" />
-                                            <div className="relative z-10">
-                                                <div className="w-24 h-24 bg-foreground/5 border border-border rounded-[2.5rem] flex items-center justify-center mx-auto mb-8">
-                                                    <Music size={40} className="text-accent opacity-50" />
-                                                </div>
-                                                <h3 className="text-2xl font-black uppercase text-foreground mb-3 tracking-tighter">Sin beats todavía</h3>
-                                                <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em] max-w-[200px] mx-auto leading-relaxed">Este productor aún no ha publicado sus obras maestras</p>
+                                        <div className="py-32 text-center bg-foreground/[0.02] border-2 border-dashed border-border rounded-[3rem]">
+                                            <div className="w-20 h-20 bg-foreground/5 border border-border rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-muted">
+                                                <Music size={32} strokeWidth={1.5} />
                                             </div>
+                                            <h3 className="text-2xl font-black uppercase tracking-tight text-foreground mb-2">Sin beats todavía</h3>
+                                            <p className="text-[9px] font-bold text-muted uppercase tracking-[0.2em] max-w-[220px] mx-auto leading-relaxed">
+                                                Este productor aún no ha publicado sus obras maestras
+                                            </p>
                                         </div>
                                     )}
                                 </div>
@@ -1152,36 +1105,34 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                             {activeTab === 'services' && (
                                 <div className="animate-in fade-in slide-in-from-bottom-2">
-                                    <div className="flex items-center gap-3 mb-8">
-                                        <div className="w-10 h-10 bg-accent/10 rounded-2xl flex items-center justify-center text-accent">
-                                            <Briefcase size={20} />
+                                    <div className="pb-6 border-b border-border mb-8">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted">Oferta</span>
                                         </div>
-                                        <div>
-                                            <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground">Servicios Profesionales</h2>
-                                            <p className="text-[10px] font-bold text-muted uppercase tracking-widest mt-1">Contrata talento experto para tu próximo hit</p>
-                                        </div>
+                                        <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground leading-none">Servicios<br />Profesionales</h2>
+                                        <p className="text-[9px] font-bold text-muted uppercase tracking-[0.3em] mt-2">Contrata talento experto para tu próximo hit</p>
                                     </div>
 
                                     {/* Owner Upsell for Non-Premium (Services) */}
                                     {profile.nivel_suscripcion !== 'premium' ? (
-                                        <div className={`rounded-[3rem] p-12 text-center overflow-hidden relative group border transition-all duration-700 hover:scale-[1.02] ${profile.tema_perfil !== 'light' ? 'bg-[#050508] border-white/5 text-white shadow-[0_40px_100px_-20px_rgba(37,99,235,0.15)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-indigo-500/10'}`}>
-                                            <div className="absolute top-0 right-0 p-48 bg-purple-600/10 blur-[150px] rounded-full group-hover:bg-purple-600/20 transition-all pointer-events-none" />
+                                        <div className="rounded-[3rem] p-12 text-center overflow-hidden relative group border border-border bg-card transition-all duration-700 hover:scale-[1.01]">
+                                            <div className="absolute top-0 right-0 p-48 bg-purple-600/5 blur-[150px] rounded-full group-hover:bg-purple-600/10 transition-all pointer-events-none" />
                                             <div className="relative z-10">
-                                                <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 backdrop-blur-md border ${profile.tema_perfil !== 'light' ? 'bg-accent/5 border-accent/10 shadow-[0_0_30px_rgba(var(--accent-rgb),0.1)]' : 'bg-accent-soft border-accent/10'}`}>
-                                                    <Briefcase size={36} className="text-accent" />
+                                                <div className="w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 bg-accent/10 border border-accent/20">
+                                                    <Briefcase size={32} className="text-accent" />
                                                 </div>
-                                                <h3 className="text-4xl font-black uppercase tracking-tighter mb-6">Servicios Profesionales</h3>
-                                                <p className={`max-w-xl mx-auto mb-10 text-sm font-medium leading-relaxed ${profile.tema_perfil !== 'light' ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                <h3 className="text-3xl font-black uppercase tracking-tighter mb-4 text-foreground">Servicios Profesionales</h3>
+                                                <p className="max-w-lg mx-auto mb-8 text-sm font-medium leading-relaxed text-muted">
                                                     {isOwner
-                                                        ? "Ofrece servicios de Mezcla, Masterización, Composición o Clases. Los usuarios Premium pueden listar sus servicios y ser contactados directamente. ¡Desbloquea esta función ahora!"
-                                                        : "Este usuario aún no ofrece servicios profesionales ya que no cuenta con una suscripción Premium activa. Los servicios se desbloquean al mejorar el plan."}
+                                                        ? "Ofrece servicios de Mezcla, Masterización, Composición o Clases. Disponible para cuentas Premium."
+                                                        : "Este usuario aún no ofrece servicios profesionales. Los servicios se desbloquean al mejorar el plan."}
                                                 </p>
                                                 {isOwner ? (
-                                                    <Link href="/pricing" className="inline-flex items-center gap-3 px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all transform hover:scale-105 shadow-2xl shadow-accent/40 bg-accent text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900">
-                                                        <Crown size={18} fill="currentColor" /> Mejorar a Premium
+                                                    <Link href="/pricing" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] bg-accent text-white hover:opacity-90 transition-all shadow-lg shadow-accent/20 active:scale-95">
+                                                        <Crown size={14} fill="currentColor" /> Mejorar a Premium
                                                     </Link>
                                                 ) : (
-                                                    <div className="py-3 px-8 bg-slate-100 dark:bg-white/5 rounded-full inline-block text-[10px] font-black uppercase tracking-widest opacity-40 border border-white/5">
+                                                    <div className="py-2.5 px-6 bg-foreground/5 border border-border rounded-full inline-block text-[9px] font-black uppercase tracking-widest text-muted">
                                                         Servicios no disponibles
                                                     </div>
                                                 )}
@@ -1312,10 +1263,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                     [newPlaylists[idx], newPlaylists[idx - 1]] = [newPlaylists[idx - 1], newPlaylists[idx]];
                                                                     setPlaylists(newPlaylists);
                                                                     setHasChangedOrder(true);
-                                                                    // Persist order
-                                                                    await Promise.all(newPlaylists.map((p, i) =>
-                                                                        supabase.from('listas_reproduccion').update({ indice_orden_playlist: i }).eq('playlist_id', p.playlist_id || p.id)
-                                                                    ));
                                                                 }}
                                                                 className="p-2 hover:bg-slate-50 text-slate-400 rounded-lg disabled:opacity-20"
                                                             >
@@ -1328,10 +1275,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                     [newPlaylists[idx], newPlaylists[idx + 1]] = [newPlaylists[idx + 1], newPlaylists[idx]];
                                                                     setPlaylists(newPlaylists);
                                                                     setHasChangedOrder(true);
-                                                                    // Persist order
-                                                                    await Promise.all(newPlaylists.map((p, i) =>
-                                                                        supabase.from('listas_reproduccion').update({ indice_orden_playlist: i }).eq('playlist_id', p.playlist_id || p.id)
-                                                                    ));
                                                                 }}
                                                                 className="p-2 hover:bg-slate-50 text-slate-400 rounded-lg disabled:opacity-20"
                                                             >
@@ -1350,6 +1293,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             <PlaylistSection
                                                 playlists={playlists}
                                                 isOwner={isOwner}
+                                                username={username}
                                                 onEdit={(id) => {
                                                     const pl = playlists.find(p => p.id === id);
                                                     setEditingPlaylist(pl);
@@ -1379,37 +1323,35 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                             {activeTab === 'sound_kits' && (
                                 <div className="animate-in fade-in slide-in-from-bottom-2">
-                                    <div className="flex items-center gap-3 mb-8">
-                                        <div className="w-10 h-10 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600">
-                                            <Package size={20} />
+                                    <div className="pb-6 border-b border-border mb-8">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted">Librería</span>
                                         </div>
-                                        <div>
-                                            <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900 dark:text-white drop-shadow-md">Sound Kits</h2>
-                                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Librerías de sonidos oficiales y presets</p>
-                                        </div>
+                                        <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground leading-none">Sound<br />Kits</h2>
+                                        <p className="text-[9px] font-bold text-muted uppercase tracking-[0.3em] mt-2">Librerías de sonidos oficiales y presets</p>
                                     </div>
 
                                     {/* Owner Upsell for Non-Premium */}
                                     {profile.nivel_suscripcion !== 'premium' ? (
-                                        <div className={`rounded-[3rem] p-12 text-center overflow-hidden relative group border transition-all duration-700 hover:scale-[1.02] ${profile.tema_perfil !== 'light' ? 'bg-black border-white/5 text-white shadow-[0_40px_100px_-15px_rgba(245,158,11,0.15)]' : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-amber-500/10'}`}>
-                                            <div className="absolute top-0 right-0 p-48 bg-amber-500/10 blur-[150px] rounded-full group-hover:bg-amber-500/20 transition-all pointer-events-none" />
+                                        <div className="rounded-[3rem] p-12 text-center overflow-hidden relative group border border-border bg-card transition-all duration-700 hover:scale-[1.01]">
+                                            <div className="absolute top-0 right-0 p-48 bg-amber-500/5 blur-[150px] rounded-full group-hover:bg-amber-500/10 transition-all pointer-events-none" />
                                             <div className="relative z-10">
-                                                <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 backdrop-blur-md border ${profile.tema_perfil !== 'light' ? 'bg-accent/5 border-accent/10 shadow-[0_0_30px_rgba(var(--accent-rgb),0.1)]' : 'bg-accent-soft border-accent/10'}`}>
-                                                    <Package size={36} className="text-accent" />
+                                                <div className="w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 bg-amber-500/10 border border-amber-500/20">
+                                                    <Package size={32} className="text-amber-500" />
                                                 </div>
-                                                <h3 className="text-4xl font-black uppercase tracking-tighter mb-6">Librerías de Sonido</h3>
-                                                <p className={`max-w-xl mx-auto mb-10 text-sm font-medium leading-relaxed ${profile.tema_perfil !== 'light' ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                <h3 className="text-3xl font-black uppercase tracking-tighter mb-4 text-foreground">Librerías de Sonido</h3>
+                                                <p className="max-w-lg mx-auto mb-8 text-sm font-medium leading-relaxed text-muted">
                                                     {isOwner
-                                                        ? "Vende tus propios Sample Packs, Drum Kits y Presets directamente desde tu perfil. Mejora tu cuenta para desbloquear esta sección y comenzar a generar ingresos pasivos."
-                                                        : "Este productor no cuenta con una suscripción Premium para vender Sound Kits. Las librerías de sonido exclusivas solo están disponibles para miembros Premium."}
+                                                        ? "Vende tus Sample Packs, Drum Kits y Presets directamente desde tu perfil. Disponible para cuentas Premium."
+                                                        : "Este productor no cuenta con Premium para vender Sound Kits."}
                                                 </p>
                                                 {isOwner ? (
-                                                    <Link href="/pricing" className="inline-flex items-center gap-3 px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all transform hover:scale-105 shadow-2xl shadow-accent/30 bg-accent text-white hover:bg-slate-900">
-                                                        <Zap size={18} fill="currentColor" /> Mejorar a Premium
+                                                    <Link href="/pricing" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] bg-amber-500 text-white hover:opacity-90 transition-all shadow-lg shadow-amber-500/20 active:scale-95">
+                                                        <Zap size={14} fill="currentColor" /> Mejorar a Premium
                                                     </Link>
                                                 ) : (
-                                                    <div className="py-3 px-8 bg-slate-100 dark:bg-white/5 rounded-full inline-block text-[10px] font-black uppercase tracking-widest opacity-40 border border-white/5">
-                                                        Sección no disponible
+                                                    <div className="py-2.5 px-6 bg-foreground/5 border border-border rounded-full inline-block text-[9px] font-black uppercase tracking-widest text-muted">
+                                                        Sound Kits no disponibles
                                                     </div>
                                                 )}
                                             </div>
@@ -1486,8 +1428,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             )}
 
                         </div>
-                    </div>
-                </div>
+                    </div >
+                </div >
 
                 {isOwner && profile && (
                     <PlaylistManagerModal
@@ -1498,52 +1440,55 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         allBeats={beats}
                         onSuccess={fetchAll}
                     />
-                )}
-            </main>
+                )
+                }
+            </main >
 
             {/* Fan Capture Popup */}
-            {showFanCapture && profile?.boletin_activo && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-500">
-                    <div className="bg-white dark:bg-[#08080a] w-full max-w-lg rounded-[2.5rem] p-10 relative overflow-hidden shadow-2xl border border-white/5">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 blur-[80px] -mr-32 -mt-32 pointer-events-none" />
+            {
+                showFanCapture && profile?.boletin_activo && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-500">
+                        <div className="bg-white dark:bg-[#08080a] w-full max-w-lg rounded-[2.5rem] p-10 relative overflow-hidden shadow-2xl border border-white/5">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 blur-[80px] -mr-32 -mt-32 pointer-events-none" />
 
-                        <button
-                            onClick={() => setShowFanCapture(false)}
-                            className="absolute top-0 right-0 p-6 z-50 text-muted hover:text-accent transition-all flex items-center justify-center group"
-                            aria-label="Cerrar modal"
-                        >
-                            <div className="w-10 h-10 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center group-hover:bg-accent/10 transition-colors">
-                                <Plus size={24} className="rotate-45" />
+                            <button
+                                onClick={() => setShowFanCapture(false)}
+                                className="absolute top-0 right-0 p-6 z-50 text-muted hover:text-accent transition-all flex items-center justify-center group"
+                                aria-label="Cerrar modal"
+                            >
+                                <div className="w-10 h-10 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center group-hover:bg-accent/10 transition-colors">
+                                    <Plus size={24} className="rotate-45" />
+                                </div>
+                            </button>
+
+                            <div className="relative z-10 text-center">
+                                <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-6 text-accent">
+                                    <Mail size={32} />
+                                </div>
+                                <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground mb-4">Únete al <span className="text-accent">Círculo Exclusivo</span></h2>
+                                <p className="text-sm text-muted font-medium mb-8 leading-relaxed">
+                                    Suscríbete para recibir beats exclusivos, cupones de descuento y noticias directas de <span className="text-foreground font-bold">{profile.nombre_artistico}</span>.
+                                </p>
+
+                                <form className="space-y-4">
+                                    <input
+                                        type="email"
+                                        placeholder="tu@email.com"
+                                        className="w-full h-14 bg-slate-50 dark:bg-white/5 border-2 border-slate-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold outline-none focus:border-accent transition-all"
+                                        required
+                                    />
+                                    <button className="w-full h-14 bg-accent text-white rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] hover:scale-[1.05] active:scale-95 transition-all shadow-xl shadow-accent/20">
+                                        Suscribirme Ahora
+                                    </button>
+                                </form>
+                                <p className="mt-6 text-[9px] font-bold text-muted uppercase tracking-widest opacity-40">Zero spam. Solo promociones.</p>
                             </div>
-                        </button>
-
-                        <div className="relative z-10 text-center">
-                            <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-6 text-accent">
-                                <Mail size={32} />
-                            </div>
-                            <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground mb-4">Únete al <span className="text-accent">Círculo Exclusivo</span></h2>
-                            <p className="text-sm text-muted font-medium mb-8 leading-relaxed">
-                                Suscríbete para recibir beats exclusivos, cupones de descuento y noticias directas de <span className="text-foreground font-bold">{profile.nombre_artistico}</span>.
-                            </p>
-
-                            <form className="space-y-4">
-                                <input
-                                    type="email"
-                                    placeholder="tu@email.com"
-                                    className="w-full h-14 bg-slate-50 dark:bg-white/5 border-2 border-slate-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold outline-none focus:border-accent transition-all"
-                                    required
-                                />
-                                <button className="w-full h-14 bg-accent text-white rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] hover:scale-[1.05] active:scale-95 transition-all shadow-xl shadow-accent/20">
-                                    Suscribirme Ahora
-                                </button>
-                            </form>
-                            <p className="mt-6 text-[9px] font-bold text-muted uppercase tracking-widest opacity-40">Zero spam. Solo promociones.</p>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             <Footer />
-        </div>
+        </div >
     );
 }

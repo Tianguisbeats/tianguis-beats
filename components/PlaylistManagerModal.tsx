@@ -1,16 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, ListMusic, Check, Loader2, Music, ChevronUp, ChevronDown } from 'lucide-react';
+import { X, Plus, Trash2, ListMusic, Loader2, Globe, Lock, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { Beat } from '@/lib/types';
 
 interface PlaylistManagerModalProps {
     isOpen: boolean;
     onClose: () => void;
-    producerId: string;
+    producerId: string; // This is now the user's auth ID (usuario_id in the new table)
     existingPlaylist?: any;
-    allBeats: Beat[];
+    allBeats?: any[]; // Kept for compatibility but not used in new schema
     onSuccess: () => void;
 }
 
@@ -19,318 +18,210 @@ export default function PlaylistManagerModal({
     onClose,
     producerId,
     existingPlaylist,
-    allBeats,
     onSuccess
 }: PlaylistManagerModalProps) {
     const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [selectedBeatIds, setSelectedBeatIds] = useState<string[]>([]);
+    const [isPublic, setIsPublic] = useState(true);
     const [saving, setSaving] = useState(false);
-
-    const [hasChanges, setHasChanges] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (existingPlaylist) {
-            setName(existingPlaylist.name || '');
-            setDescription(existingPlaylist.description || '');
-            setSelectedBeatIds(existingPlaylist.beats.map((b: any) => b.id));
-        } else {
-            setName('');
-            setDescription('');
-            setSelectedBeatIds([]);
+        if (isOpen) {
+            if (existingPlaylist) {
+                setName(existingPlaylist.name || existingPlaylist.nombre || '');
+                setIsPublic(existingPlaylist.es_publica ?? true);
+            } else {
+                setName('');
+                setIsPublic(true);
+            }
+            setError(null);
+            setConfirmDelete(false);
         }
-        setHasChanges(false);
     }, [existingPlaylist, isOpen]);
 
-    // Comprobar cambios
-    useEffect(() => {
-        if (!existingPlaylist) {
-            setHasChanges(!!name.trim() || selectedBeatIds.length > 0);
-            return;
-        }
-
-        const currentIds = [...selectedBeatIds].sort().join(',');
-        const originalIds = existingPlaylist.beats.map((b: any) => b.id).sort().join(',');
-
-        const isNameChanged = name !== (existingPlaylist.name || '');
-        const isDescChanged = description !== (existingPlaylist.description || '');
-        const isBeatsChanged = currentIds !== originalIds;
-
-        setHasChanges(isNameChanged || isDescChanged || isBeatsChanged);
-    }, [name, description, selectedBeatIds, existingPlaylist]);
-
-    const handleToggleBeat = (beatId: string) => {
-        setSelectedBeatIds(prev =>
-            prev.includes(beatId)
-                ? prev.filter(id => id !== beatId)
-                : [...prev, beatId]
-        );
-    };
-
-    const moveBeat = (index: number, direction: 'up' | 'down') => {
-        const newOrder = [...selectedBeatIds];
-        const newIndex = direction === 'up' ? index - 1 : index + 1;
-        if (newIndex < 0 || newIndex >= newOrder.length) return;
-
-        const temp = newOrder[index];
-        newOrder[index] = newOrder[newIndex];
-        newOrder[newIndex] = temp;
-        setSelectedBeatIds(newOrder);
-    };
-
     const handleSave = async () => {
-        if (!name.trim()) return alert("La playlist necesita un nombre");
-
+        if (!name.trim()) { setError('La playlist necesita un nombre.'); return; }
         setSaving(true);
+        setError(null);
         try {
-            let playlistId = existingPlaylist?.id || existingPlaylist?.playlist_id;
-
-            if (!playlistId) {
-                // Generar un nuevo UUID para la playlist si no existe
-                playlistId = crypto.randomUUID();
-            }
-
-            // Eliminar registros previos de esta playlist para reconstruirla (denormalización)
-            await supabase
-                .from('listas_reproduccion')
-                .delete()
-                .eq('playlist_id', playlistId);
-
-            if (selectedBeatIds.length > 0) {
-                // Insertar un registro por cada beat
-                const { error: plError } = await supabase
+            if (existingPlaylist?.id) {
+                // UPDATE existing playlist
+                const { error: upErr } = await supabase
                     .from('listas_reproduccion')
-                    .insert(selectedBeatIds.map((bid, index) => ({
-                        playlist_id: playlistId,
-                        productor_id: producerId,
-                        nombre: name,
-                        descripcion: description,
-                        es_publica: true,
-                        beat_id: bid,
-                        indice_orden_beat: index,
-                        indice_orden_playlist: existingPlaylist?.indice_orden_playlist || 0
-                    })));
-                if (plError) throw plError;
+                    .update({ nombre: name.trim(), es_publica: isPublic })
+                    .eq('id', existingPlaylist.id);
+                if (upErr) throw upErr;
             } else {
-                // Insertar un registro vacío (sin beats) para preservar la playlist
-                const { error: plError } = await supabase
+                // CREATE new playlist — only use the columns that exist in the new table
+                const { error: insErr } = await supabase
                     .from('listas_reproduccion')
                     .insert({
-                        playlist_id: playlistId,
-                        productor_id: producerId,
-                        nombre: name,
-                        descripcion: description,
-                        es_publica: true,
-                        beat_id: null,
-                        indice_orden_beat: 0,
-                        indice_orden_playlist: existingPlaylist?.indice_orden_playlist || 0
+                        usuario_id: producerId,
+                        nombre: name.trim(),
+                        es_publica: isPublic,
                     });
-                if (plError) throw plError;
+                if (insErr) throw insErr;
             }
-
             onSuccess();
             onClose();
         } catch (err: any) {
-            console.error("Error saving playlist:", err);
-            alert("Error: " + err.message);
+            console.error('Error saving playlist:', err);
+            setError(err.message || 'Error al guardar la playlist.');
         } finally {
             setSaving(false);
         }
     };
 
     const handleDelete = async () => {
-        if (!window.confirm("¿Seguro que quieres eliminar esta playlist?")) return;
-        setSaving(true);
+        if (!existingPlaylist?.id) return;
+        setDeleting(true);
+        setError(null);
         try {
-            const playlistId = existingPlaylist?.id || existingPlaylist?.playlist_id;
             const { error } = await supabase
                 .from('listas_reproduccion')
                 .delete()
-                .eq('playlist_id', playlistId);
+                .eq('id', existingPlaylist.id);
             if (error) throw error;
             onSuccess();
             onClose();
         } catch (err: any) {
-            alert("Error: " + err.message);
+            setError(err.message || 'Error al eliminar la playlist.');
         } finally {
-            setSaving(false);
+            setDeleting(false);
         }
     };
 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
             <div className="absolute inset-0 bg-background/80 backdrop-blur-md" onClick={onClose} />
 
-            <div className="relative bg-card w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden border border-border flex flex-col max-h-[90vh]">
-                {/* Encabezado */}
-                <div className="p-8 bg-accent-soft text-foreground border-b border-border flex items-center justify-between">
+            <div className="relative bg-card w-full sm:max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl border border-border border-b-0 sm:border-b flex flex-col overflow-hidden">
+
+                {/* Pill handle (mobile) */}
+                <div className="flex justify-center pt-3 pb-1 sm:hidden">
+                    <div className="w-12 h-1.5 bg-foreground/15 rounded-full" />
+                </div>
+
+                {/* Header */}
+                <div className="p-6 sm:p-8 flex items-center justify-between border-b border-border">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20 text-white">
-                            <ListMusic size={24} />
+                        <div className="w-11 h-11 bg-accent/10 border border-accent/20 rounded-2xl flex items-center justify-center text-accent">
+                            <ListMusic size={20} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-black uppercase tracking-tighter">
+                            <h2 className="text-base font-black uppercase tracking-tighter text-foreground">
                                 {existingPlaylist ? 'Editar Playlist' : 'Nueva Playlist'}
                             </h2>
-                            <p className="text-[10px] font-bold text-muted uppercase tracking-widest mt-1">Mueve u organiza la playlist</p>
+                            <p className="text-[9px] font-bold text-muted uppercase tracking-widest mt-0.5">
+                                {existingPlaylist ? 'Actualiza los datos de tu colección' : 'Crea una nueva colección de beats'}
+                            </p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-foreground/10 rounded-full transition-colors text-muted hover:text-foreground">
-                        <X size={20} />
+                    <button onClick={onClose} className="p-2 hover:bg-foreground/10 rounded-xl transition-colors text-muted hover:text-foreground">
+                        <X size={18} />
                     </button>
                 </div>
 
-                {/* Cuerpo */}
-                <div className="flex-1 overflow-y-auto p-8 space-y-8 no-scrollbar">
-                    {/* Información básica */}
-                    <div className="space-y-4">
-                        <div>
-                            <label className="text-[10px] font-black uppercase text-muted mb-2 block tracking-widest">Nombre de la Playlist</label>
-                            <input
-                                type="text"
-                                placeholder="Eje: Mis Favoritas, Trap 2024..."
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                className="w-full bg-background border border-border rounded-2xl px-6 py-4 text-sm font-bold placeholder:text-muted/50 text-foreground focus:outline-none focus:ring-4 focus:ring-accent/20 focus:border-accent transition-all"
-                            />
-                        </div>
-                        <div>
-                            <label className="text-[10px] font-black uppercase text-muted mb-2 block tracking-widest">Descripción (Opcional)</label>
-                            <textarea
-                                placeholder="Escribe algo sobre esta colección..."
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                className="w-full bg-background border border-border rounded-2xl px-6 py-4 text-sm font-medium placeholder:text-muted/50 text-foreground focus:outline-none focus:ring-4 focus:ring-accent/20 focus:border-accent transition-all h-24 resize-none"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Orden de la Playlist */}
-                    {selectedBeatIds.length > 0 && (
-                        <div>
-                            <label className="text-[10px] font-black uppercase text-muted mb-4 block tracking-widest">Orden de la Playlist (Mueve para organizar)</label>
-                            <div className="space-y-2 mb-8">
-                                {selectedBeatIds.map((id, index) => {
-                                    const beat = allBeats.find(b => b.id === id);
-                                    if (!beat) return null;
-                                    return (
-                                        <div key={id} className="flex items-center gap-3 bg-card border border-border p-2 rounded-2xl shadow-sm">
-                                            <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
-                                                <img src={beat.portada_url || ''} className="w-full h-full object-cover" alt="" />
-                                            </div>
-                                            <span className="flex-1 text-[10px] font-black uppercase truncate text-foreground">{beat.titulo}</span>
-                                            <div className="flex gap-1">
-                                                <button
-                                                    onClick={() => moveBeat(index, 'up')}
-                                                    disabled={index === 0}
-                                                    className="p-1.5 hover:bg-accent-soft rounded-lg text-muted hover:text-foreground disabled:opacity-20"
-                                                >
-                                                    <ChevronUp size={14} />
-                                                </button>
-                                                <button
-                                                    onClick={() => moveBeat(index, 'down')}
-                                                    disabled={index === selectedBeatIds.length - 1}
-                                                    className="p-1.5 hover:bg-accent-soft rounded-lg text-muted hover:text-foreground disabled:opacity-20"
-                                                >
-                                                    <ChevronDown size={14} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                            <hr className="border-border mb-8" />
+                {/* Body */}
+                <div className="p-6 sm:p-8 space-y-5">
+                    {/* Error */}
+                    {error && (
+                        <div className="flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400">
+                            <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                            <p className="text-[11px] font-bold">{error}</p>
                         </div>
                     )}
 
-                    {/* Selección de Beats */}
+                    {/* Name input */}
                     <div>
-                        <label className="text-[10px] font-black uppercase text-muted mb-4 block tracking-widest flex items-center justify-between">
-                            Seleccionar Beats
-                            <span className="text-accent">{selectedBeatIds.length} seleccionados</span>
+                        <label className="text-[9px] font-black uppercase tracking-widest text-muted mb-2 block">
+                            Nombre de la Playlist <span className="text-accent">*</span>
                         </label>
-                        <div className="grid grid-cols-1 gap-2">
-                            {allBeats.map(beat => (
-                                <button
-                                    key={beat.id}
-                                    onClick={() => handleToggleBeat(beat.id)}
-                                    className={`flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${selectedBeatIds.includes(beat.id)
-                                        ? 'bg-accent/10 border-accent/30 shadow-sm'
-                                        : 'bg-background border-border hover:bg-card hover:border-accent/20'
-                                        }`}
-                                >
-                                    <div className="w-10 h-10 bg-background rounded-lg border border-border overflow-hidden shrink-0 flex items-center justify-center">
-                                        {beat.portada_url ? (
-                                            <img src={beat.portada_url} className="w-full h-full object-cover" alt="Cover" />
-                                        ) : (
-                                            <Music size={16} className="text-muted/50" />
-                                        )}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className={`text-xs font-black uppercase truncate ${selectedBeatIds.includes(beat.id) ? 'text-accent' : 'text-foreground'}`}>{beat.titulo}</p>
-                                        <p className="text-[9px] font-bold text-muted uppercase tracking-widest">{beat.genero} • {beat.bpm} BPM</p>
-                                    </div>
-                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${selectedBeatIds.includes(beat.id) ? 'bg-accent text-white' : 'bg-muted/20 text-muted'
-                                        }`}>
-                                        <Check size={14} />
-                                    </div>
-                                </button>
-                            ))}
+                        <input
+                            type="text"
+                            placeholder="Ej: Trap 2025, Mis Favoritas..."
+                            value={name}
+                            onChange={e => { setName(e.target.value); setError(null); }}
+                            maxLength={60}
+                            className="w-full bg-background border border-border rounded-2xl px-5 py-3.5 text-sm font-medium text-foreground placeholder:text-muted/50 focus:outline-none focus:border-accent/50 focus:ring-2 focus:ring-accent/10 transition-all"
+                        />
+                        <div className="flex justify-end mt-1">
+                            <span className="text-[9px] text-muted font-bold">{name.length}/60</span>
                         </div>
                     </div>
+
+                    {/* Visibility toggle */}
+                    <div>
+                        <label className="text-[9px] font-black uppercase tracking-widest text-muted mb-3 block">Visibilidad</label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <button onClick={() => setIsPublic(true)}
+                                className={`flex items-center gap-3 p-4 rounded-2xl border transition-all ${isPublic ? 'bg-accent/10 border-accent/30 text-accent' : 'bg-background border-border text-muted hover:border-foreground/20'}`}>
+                                <Globe size={16} />
+                                <div className="text-left">
+                                    <p className="text-[10px] font-black uppercase tracking-widest">Pública</p>
+                                    <p className="text-[8px] font-bold opacity-60">Visible para todos</p>
+                                </div>
+                            </button>
+                            <button onClick={() => setIsPublic(false)}
+                                className={`flex items-center gap-3 p-4 rounded-2xl border transition-all ${!isPublic ? 'bg-foreground/5 border-foreground/20 text-foreground' : 'bg-background border-border text-muted hover:border-foreground/20'}`}>
+                                <Lock size={16} />
+                                <div className="text-left">
+                                    <p className="text-[10px] font-black uppercase tracking-widest">Privada</p>
+                                    <p className="text-[8px] font-bold opacity-60">Solo tú puedes verla</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Info note */}
+                    <p className="text-[9px] text-muted font-bold uppercase tracking-widest opacity-60 leading-relaxed">
+                        💡 Los beats se agregan a la playlist desde tu catálogo de beats
+                    </p>
                 </div>
 
-                {/* Pie de página */}
-                <div className="p-8 bg-card border-t border-border flex items-center gap-4">
-                    <button
-                        onClick={onClose}
-                        className="px-6 py-4 bg-background text-muted border border-border rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-accent-soft hover:text-foreground transition-all hidden sm:block"
-                    >
-                        Cancelar
-                    </button>
-                    {!hasChanges && existingPlaylist ? (
-                        <button
-                            onClick={onClose}
-                            className="flex-1 bg-accent-soft text-muted py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-muted/20 hover:text-foreground transition-all flex items-center justify-center gap-3"
-                        >
-                            <X size={18} />
+                {/* Footer */}
+                <div className="p-6 sm:p-8 pt-0 space-y-3">
+                    {/* Delete confirm */}
+                    {confirmDelete && existingPlaylist && (
+                        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-center">
+                            <p className="text-[11px] font-black text-red-400 uppercase tracking-widest mb-3">¿Eliminar definitivamente?</p>
+                            <div className="flex gap-3">
+                                <button onClick={() => setConfirmDelete(false)}
+                                    className="flex-1 py-2.5 bg-background border border-border rounded-xl text-[9px] font-black uppercase tracking-widest text-muted hover:text-foreground transition-all">
+                                    Cancelar
+                                </button>
+                                <button onClick={handleDelete} disabled={deleting}
+                                    className="flex-1 py-2.5 bg-red-500 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-red-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                                    {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex gap-3">
+                        {existingPlaylist && !confirmDelete && (
+                            <button onClick={() => setConfirmDelete(true)}
+                                className="p-3.5 bg-red-500/10 text-red-500 border border-red-500/20 rounded-2xl hover:bg-red-500 hover:text-white transition-all">
+                                <Trash2 size={16} />
+                            </button>
+                        )}
+                        <button onClick={onClose}
+                            className="px-5 py-3.5 bg-background border border-border rounded-2xl text-[9px] font-black uppercase tracking-widest text-muted hover:text-foreground transition-all">
                             Cancelar
                         </button>
-                    ) : (
-                        <button
-                            onClick={handleSave}
-                            disabled={saving || !name.trim()}
-                            className="flex-1 btn-standard py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 disabled:opacity-50"
-                        >
-                            {saving ? (
-                                <Loader2 className="animate-spin" size={18} />
-                            ) : (
-                                <>
-                                    <Plus size={18} />
-                                    {existingPlaylist ? 'Actualizar Playlist' : 'Crear Playlist'}
-                                </>
-                            )}
+                        <button onClick={handleSave} disabled={saving || !name.trim()}
+                            className="flex-1 py-3.5 bg-accent text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:opacity-90 transition-all disabled:opacity-40 flex items-center justify-center gap-2 shadow-lg shadow-accent/20 active:scale-95">
+                            {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+                            {existingPlaylist ? 'Guardar Cambios' : 'Crear Playlist'}
                         </button>
-                    )}
-                    {existingPlaylist && (
-                        <button
-                            onClick={handleDelete}
-                            disabled={saving}
-                            className="p-4 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl transition-all border border-red-500/20"
-                            title="Eliminar Playlist definitivamente"
-                        >
-                            <Trash2 size={20} />
-                        </button>
-                    )}
+                    </div>
                 </div>
             </div>
-
-            <style jsx global>{`
-                .no-scrollbar::-webkit-scrollbar { display: none; }
-                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-            `}</style>
         </div>
     );
 }
