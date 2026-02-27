@@ -112,18 +112,18 @@ export async function POST(req: Request) {
                 const vendedorId = metadata.productor_id || metadata.producer_id || metadata.seller_id || metadata.producerId || null;
                 const itemId = metadata.type === 'plan' ? 'price_plan_fake' : (metadata.productId || product.id);
 
+                console.log(`--- PROCESSING ITEM: ${product.name} (Type: ${metadata.type}) ---`);
+
                 let pdfUrl = null;
 
                 // --- GENERACIÓN DE CONTRATO PDF AVANZADO ---
-                if (metadata.type === 'beat' || metadata.type === 'soundkit') {
-                    console.log('--- GENERATING ADVANCED PDF CONTRACT ---');
-                    try {
+                try {
+                    if (metadata.type === 'beat' || metadata.type === 'soundkit') {
+                        console.log('--- STARTING PDF GENERATION ---');
                         const sellerId = metadata.producerId || metadata.productor_id || metadata.seller_id;
                         let templateOverrides = {};
 
-                        // Intentar obtener plantilla personalizada del productor
                         if (sellerId) {
-                            // Normalizar el tipo de licencia para la base de datos (Básica -> basica)
                             const normalizedType = (metadata.licenseType || 'basica')
                                 .toLowerCase()
                                 .normalize("NFD")
@@ -168,20 +168,15 @@ export async function POST(req: Request) {
                             buyerName: session.customer_details?.name || 'Cliente Verificado',
                             buyerEmail: customerEmail || '',
                             isCustomText: false,
-                            incluir_clausulas_pro: true, // Por defecto si no hay plantilla
+                            incluir_clausulas_pro: true,
                             ...templateOverrides
                         };
 
-                        // Renderizar PDF a Buffer
                         const pdfBuffer = await renderContractToBuffer(contractData);
-
-                        // Mapear nombre de archivo seguro
                         const safeFileName = `Licencia_${product.name.replace(/[^a-zA-Z0-9]/g, '_')}_${stripeId.slice(-8)}.pdf`;
                         const folderName = (session.metadata as any).nombre_usuario || usuarioId;
                         const uploadPath = `${folderName}/${safeFileName}`;
-                        console.log('--- UPLOADING LICENSE ---', { bucket: 'licencias_generadas', path: uploadPath });
 
-                        // Subir a Supabase Storage (licencias-generadas)
                         const { data: uploadData, error: uploadError } = await supabaseAdmin
                             .storage
                             .from('licencias_generadas')
@@ -190,22 +185,26 @@ export async function POST(req: Request) {
                                 upsert: true
                             });
 
-                        if (uploadError) {
-                            console.error('ERROR uploading PDF to Storage:', uploadError);
-                        } else {
-                            // Obtener URL Pública
+                        if (!uploadError) {
                             const { data: publicUrlData } = supabaseAdmin.storage.from('licencias_generadas').getPublicUrl(uploadPath);
                             pdfUrl = publicUrlData.publicUrl;
-                            console.log('PDF Contract successfully generated and stored:', pdfUrl);
+                        } else {
+                            console.error('PDF Upload Error (Non-blocking):', uploadError);
                         }
-
-                    } catch (pdfErr) {
-                        console.error('ERROR generating PDF in Webhook:', pdfErr);
                     }
+                } catch (pdfErr) {
+                    console.error('CRITICAL PDF ERROR (Non-blocking):', pdfErr);
                 }
 
                 // Insertar en la tabla unificada 'transacciones'
-                const { error: txError } = await supabaseAdmin
+                console.log('--- INSERTING TO DB ---', {
+                    pago_id: stripeId,
+                    comprador_id: usuarioId,
+                    vendedor_id: vendedorId,
+                    producto_id: itemId
+                });
+
+                const { data: insertedTx, error: txError } = await supabaseAdmin
                     .from('transacciones')
                     .insert({
                         pago_id: stripeId,
@@ -219,12 +218,16 @@ export async function POST(req: Request) {
                         estado_pago: 'completado',
                         metodo_pago: 'stripe',
                         tipo_licencia: metadata.type === 'plan' ? metadata.tier : (metadata.licenseType || 'basica'),
-                        metadatos: { ...metadata, contract_pdf_url: pdfUrl }, // Guardar la URL aquí
+                        metadatos: { ...metadata, contract_pdf_url: pdfUrl },
                         cupon_id: cuponId || null
-                    });
+                    })
+                    .select()
+                    .single();
 
                 if (txError) {
-                    console.error('ERROR: Creating transaccion:', txError);
+                    console.error('DB INSERTION FAILED:', txError);
+                } else {
+                    console.log('DB INSERTION SUCCESS:', insertedTx.id);
                 }
 
                 // --- LÓGICA DE SUSCRIPCIONES (PLANES) ---
