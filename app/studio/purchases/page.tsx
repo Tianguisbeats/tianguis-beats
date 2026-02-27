@@ -53,6 +53,7 @@ type Order = {
     items: OrderItem[];
     payment_method?: string;
     stripe_id?: string;
+    orden_pedido?: string;
 };
 
 export default function MyPurchasesPage() {
@@ -92,10 +93,14 @@ export default function MyPurchasesPage() {
             const groupedOrders: Record<string, any> = {};
 
             (txData || []).forEach(tx => {
-                const pagoId = tx.pago_id || tx.id; // Group key, prioritizing pago_id
-                if (!groupedOrders[pagoId]) {
-                    groupedOrders[pagoId] = {
-                        id: pagoId,
+                // Prioritize orden_pedido, then pago_id, then tx.id
+                const orderKey = tx.orden_pedido || tx.pago_id || tx.id;
+
+                if (!groupedOrders[orderKey]) {
+                    groupedOrders[orderKey] = {
+                        id: orderKey,
+                        pago_id: tx.pago_id,
+                        orden_pedido: tx.orden_pedido,
                         created_at: tx.fecha_creacion,
                         total_amount: 0,
                         currency: tx.moneda || 'MXN',
@@ -106,9 +111,9 @@ export default function MyPurchasesPage() {
                     };
                 }
 
-                groupedOrders[pagoId].total_amount += Number(tx.precio_total);
+                groupedOrders[orderKey].total_amount += Number(tx.precio_total);
 
-                groupedOrders[pagoId].items.push({
+                groupedOrders[orderKey].items.push({
                     id: tx.id,
                     product_type: tx.tipo_producto,
                     name: tx.nombre_producto,
@@ -140,6 +145,7 @@ export default function MyPurchasesPage() {
             // Ensure chronological order
             formattedOrders.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
+            // Add orden_pedido to Search
             setOrders(formattedOrders as Order[]);
         } catch (err) {
             console.error("Error fetching orders:", err);
@@ -154,6 +160,7 @@ export default function MyPurchasesPage() {
         return orders.filter(order => {
             const matchesSearch =
                 order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (order.orden_pedido && order.orden_pedido.toLowerCase().includes(searchTerm.toLowerCase())) ||
                 order.items.some(item =>
                     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     item.product_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -349,8 +356,10 @@ export default function MyPurchasesPage() {
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest mb-1">
-                                            <span className="text-muted">Compra:</span>
-                                            <span className="text-foreground">#{order.id.slice(0, 8).toUpperCase()}</span>
+                                            <span className="text-muted">Pedido:</span>
+                                            <span className="text-foreground">
+                                                {order.orden_pedido || `#${order.id.slice(0, 8).toUpperCase()}`}
+                                            </span>
                                         </div>
                                         <div className="flex items-center gap-3 text-[10px] text-muted font-bold uppercase tracking-widest">
                                             <span>{new Date(order.created_at).toLocaleDateString()}</span>
@@ -461,7 +470,9 @@ export default function MyPurchasesPage() {
                         <div className="p-8 border-b border-border flex items-center justify-between bg-gradient-to-r from-accent/5 to-transparent">
                             <div>
                                 <h3 className="text-2xl font-black uppercase tracking-tighter text-foreground">Detalles de Compra</h3>
-                                <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Orden #{selectedOrder.id}</p>
+                                <p className="text-[10px] font-bold text-muted uppercase tracking-widest">
+                                    Orden {selectedOrder.orden_pedido || `#${selectedOrder.id.slice(0, 8).toUpperCase()}`}
+                                </p>
                             </div>
                             <button
                                 onClick={() => setSelectedOrder(null)}

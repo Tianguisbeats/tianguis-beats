@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { renderContractToBuffer, ContractData } from '@/lib/pdfCustomRenderer';
+import { generateFriendlyOrderId } from '@/lib/order-utils';
 
 // Inicialización perezosa para evitar errores en Build si faltan variables de entorno
 const getStripe = () => {
@@ -53,6 +54,10 @@ export async function POST(req: Request) {
         const subscriptionId = session.subscription as string;
         const cuponId = session.metadata?.couponId;
         const customerEmail = session.customer_details?.email;
+
+        // --- GENERACIÓN DE ID DE PEDIDO AMIGABLE ---
+        const ordenPedido = generateFriendlyOrderId(lineItems.data, session.payment_intent as string || session.id);
+        console.log('--- GENERATED FRIENDLY ORDER ID ---', ordenPedido);
 
         console.log('--- WEBHOOK DEBUG: SESSION ---', {
             usuarioId,
