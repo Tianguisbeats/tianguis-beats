@@ -91,7 +91,7 @@ export default function VerificationPage() {
             .eq('user_id', user.id)
             .maybeSingle();
 
-        if (profile?.is_verified) {
+        if (profile?.esta_verificado) {
             setStatus('verified');
         } else if (existingRequest) {
             setStatus(existingRequest.estado as any); // 'pendiente' | 'rechazado'

@@ -107,7 +107,7 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
                 supabase.from('transacciones').select('precio'),
                 supabase.from('perfiles').select('id', { count: 'exact', head: true }),
                 supabase.from('beats').select('id', { count: 'exact', head: true }),
-                supabase.from('verification_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+                supabase.from('solicitudes_verificacion').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente'),
                 supabase.from('quejas_y_sugerencias').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente')
             ]);
 
@@ -176,16 +176,16 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
         setLoading(true);
         try {
             const { data, error } = await supabase
-                .from('verification_requests')
-                .select(`*, perfiles:user_id (nombre_usuario, foto_perfil, email)`)
-                .eq('status', 'pending')
-                .order('created_at', { ascending: false });
+                .from('solicitudes_verificacion')
+                .select(`*, perfiles:user_id (nombre_usuario, foto_perfil, correo)`)
+                .eq('estado', 'pendiente')
+                .order('fecha_creacion', { ascending: false });
 
             if (error) {
                 const { data: retryData } = await supabase
-                    .from('verification_requests')
-                    .select(`*, perfiles:user_id (nombre_usuario, foto_perfil, email)`)
-                    .eq('status', 'pending');
+                    .from('solicitudes_verificacion')
+                    .select(`*, perfiles:user_id (nombre_usuario, foto_perfil, correo)`)
+                    .eq('estado', 'pendiente');
                 setRequests(retryData || []);
             } else {
                 setRequests(data || []);
@@ -200,8 +200,8 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
 
         try {
             const { error: reqError } = await supabase
-                .from('verification_requests')
-                .update({ status })
+                .from('solicitudes_verificacion')
+                .update({ estado: status === 'approved' ? 'aprobado' : 'rechazado' })
                 .eq('id', requestId);
 
             if (reqError) throw reqError;
@@ -241,31 +241,35 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                         <div className="lg:w-1/4">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-12 h-12 rounded-full overflow-hidden bg-accent-soft">
-                                    <img src={req.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.artistic_name}`} alt="Avatar" className="w-full h-full object-cover" />
+                                    <img src={req.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.nombre_usuario}`} alt="Avatar" className="w-full h-full object-cover" />
                                 </div>
-                                <div>
-                                    <h3 className="font-black text-lg text-foreground">{req.artistic_name}</h3>
-                                    <p className="text-xs text-muted">@{req.perfiles?.nombre_usuario}</p>
+                                <div className="min-w-0">
+                                    <h3 className="font-black text-lg text-foreground truncate">{req.nombre_usuario}</h3>
+                                    <p className="text-xs text-muted">@{req.nombre_usuario}</p>
                                 </div>
                             </div>
                             <div className="space-y-1 text-[10px] font-bold uppercase tracking-widest text-muted/60">
-                                <p>Email: {req.perfiles?.email}</p>
-                                <p>Nombre: {req.real_name}</p>
-                                <p>ID: {req.user_id}</p>
+                                <p className="truncate">Email: {req.correo}</p>
+                                <p className="truncate">Nombre: {req.nombre_completo}</p>
+                                <p className="text-[8px] opacity-40">ID: {req.user_id}</p>
                             </div>
                         </div>
 
                         <div className="flex-1 space-y-4">
                             <div className="grid md:grid-cols-2 gap-4">
                                 <div className="p-4 bg-slate-50 dark:bg-black/20 rounded-2xl border border-border">
-                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-2">Portafolio</p>
-                                    <a href={req.portfolio_url} target="_blank" className="text-sm font-bold text-blue-500 hover:underline flex items-center gap-2">
-                                        {req.portfolio_url} <ExternalLink size={12} />
+                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-2">Red Social</p>
+                                    <a href={req.url_red_social} target="_blank" className="text-sm font-bold text-blue-500 hover:underline flex items-center gap-2 truncate">
+                                        {req.url_red_social} <ExternalLink size={12} />
                                     </a>
                                 </div>
                                 <div className="p-4 bg-slate-50 dark:bg-black/20 rounded-2xl border border-border">
                                     <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-2">Identificación</p>
-                                    <a href={req.id_document_url} target="_blank" className="text-sm font-bold text-accent hover:underline flex items-center gap-2">
+                                    <a
+                                        href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/documentos_verificacion/${req.url_documento}`}
+                                        target="_blank"
+                                        className="text-sm font-bold text-accent hover:underline flex items-center gap-2"
+                                    >
                                         Ver Documento <ExternalLink size={12} />
                                     </a>
                                 </div>
