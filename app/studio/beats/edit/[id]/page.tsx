@@ -667,19 +667,19 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
                     <div className="space-y-4">
                         {[
-                            { id: 'free', label: 'Descarga Gratuita', active: isBasicActive, set: setIsBasicActive, price: '0', setPrice: setBasicPrice, desc: 'Uso no comercial con TAG de voz', color: 'slate', lock: true },
-                            { id: 'mp3', label: 'Licencia Básica (MP3)', active: isMp3Active, set: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'Uso comercial limitado · MP3 HQ', color: 'blue' },
-                            { id: 'pro', label: 'Licencia Pro (MP3+WAV)', active: isProActive, set: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Uso comercial profesional · MP3 + WAV', color: 'indigo', disabled: isFree },
-                            { id: 'premium', label: 'Licencia Premium (+STEMS)', active: isPremiumActive, set: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Máximo control · Incluye STEMS (Trackout)', color: 'emerald', disabled: !isPremium && !isPro },
-                            { id: 'unlimited', label: 'Licencia Ilimitada', active: isUnlimitedActive, set: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Sin límites de distribución ni streaming', color: 'amber', disabled: !isPremium }
+                            { id: 'free', label: 'Licencia Gratis', active: isBasicActive, set: setIsBasicActive, price: '0', setPrice: setBasicPrice, desc: 'Uso no comercial con TAG de voz', color: 'slate', lock: true },
+                            { id: 'mp3', label: 'Licencia Básica', active: isMp3Active, set: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'Uso comercial limitado · MP3 HQ', color: 'emerald' },
+                            { id: 'pro', label: 'Licencia Pro', active: isProActive, set: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Uso comercial profesional · MP3 + WAV', color: 'amber', disabled: isFree },
+                            { id: 'premium', label: 'Licencia Premium', active: isPremiumActive, set: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Máximo control · Incluye STEMS (Trackout)', color: 'blue', disabled: !isPremium && !isPro },
+                            { id: 'unlimited', label: 'Licencia Ilimitada', active: isUnlimitedActive, set: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Sin límites de distribución ni streaming', color: 'pink', disabled: !isPremium }
                         ].map((lic) => (
                             <div key={lic.id} className={`group p-6 rounded-[2rem] border-2 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden
                                 ${lic.disabled ? 'opacity-30 grayscale cursor-not-allowed bg-white/[0.02] border-white/5' :
-                                    lic.active ? 'bg-[#111116] border-accent/30' : 'bg-white/[0.02] border-white/5 opacity-70 hover:opacity-100'}`} style={lic.active && !lic.disabled ? { borderColor: lic.color === 'slate' ? '#64748b40' : lic.color === 'blue' ? '#3b82f640' : lic.color === 'indigo' ? '#6366f140' : lic.color === 'emerald' ? '#10b98140' : '#f59e0b40' } : {}}>
+                                    lic.active ? 'bg-[#111116] border-accent/30' : 'bg-white/[0.02] border-white/5 opacity-70 hover:opacity-100'}`} style={lic.active && !lic.disabled ? { borderColor: lic.color === 'slate' ? '#64748b40' : lic.color === 'emerald' ? '#10b98140' : lic.color === 'amber' ? '#f59e0b40' : lic.color === 'blue' ? '#3b82f640' : '#ec489940' } : {}}>
 
                                 <div className="flex items-center gap-5">
                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${lic.active ? 'text-white shadow-2xl' : 'bg-white/5 text-muted'}`}
-                                        style={lic.active ? { background: lic.color === 'slate' ? '#64748b' : lic.color === 'blue' ? '#3b82f6' : lic.color === 'indigo' ? '#6366f1' : lic.color === 'emerald' ? '#10b981' : '#f59e0b' } : {}}>
+                                        style={lic.active ? { background: lic.color === 'slate' ? '#64748b' : lic.color === 'emerald' ? '#10b981' : lic.color === 'amber' ? '#f59e0b' : lic.color === 'blue' ? '#3b82f6' : '#ec4899' } : {}}>
                                         {lic.id === 'premium' ? <Crown size={24} /> : lic.id === 'unlimited' ? <Layers size={24} /> : <ShieldCheck size={24} />}
                                     </div>
                                     <div>

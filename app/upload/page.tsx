@@ -18,12 +18,12 @@ import { EXCHANGE_RATES } from '@/context/CurrencyContext';
 
 // License tier definitions (synced with Studio licencias)
 const LICENSE_META: Record<string, { label: string; color: string; hex: string; icon: React.ReactNode; planReq: string | null; desc: string }> = {
-    basic: { label: 'Gratis', color: 'slate', hex: '#64748b', icon: <Music size={20} />, planReq: null, desc: 'MP3 con tag · Demo personal' },
-    mp3: { label: 'Básica', color: 'blue', hex: '#3b82f6', icon: <FileText size={20} />, planReq: null, desc: 'MP3 HQ · Hasta 10k streams' },
-    pro: { label: 'Pro', color: 'indigo', hex: '#6366f1', icon: <Zap size={20} />, planReq: 'pro', desc: 'MP3/WAV · Distribución libre' },
-    premium: { label: 'Premium', color: 'emerald', hex: '#10b981', icon: <ShieldCheck size={20} />, planReq: 'pro', desc: 'WAV · 100k streams' },
-    unlimited: { label: 'Ilimitada', color: 'amber', hex: '#f59e0b', icon: <Layers size={20} />, planReq: 'premium', desc: 'STEMS + WAV · Sin límites' },
-    exclusiva: { label: 'Exclusiva', color: 'rose', hex: '#f43f5e', icon: <ShieldCheck size={20} />, planReq: 'premium', desc: 'Cesión total · Derechos exclusivos' },
+    basic: { label: 'Licencia Gratis', color: 'slate', hex: '#64748b', icon: <Music size={20} />, planReq: null, desc: 'MP3 con tag · Demo personal' },
+    mp3: { label: 'Licencia Básica', color: 'emerald', hex: '#10b981', icon: <FileText size={20} />, planReq: null, desc: 'MP3 HQ · Hasta 10k streams' },
+    pro: { label: 'Licencia Pro', color: 'amber', hex: '#f59e0b', icon: <Zap size={20} />, planReq: 'pro', desc: 'MP3/WAV · Distribución libre' },
+    premium: { label: 'Licencia Premium', color: 'blue', hex: '#3b82f6', icon: <ShieldCheck size={20} />, planReq: 'pro', desc: 'WAV · 100k streams' },
+    unlimited: { label: 'Licencia Ilimitada', color: 'pink', hex: '#ec4899', icon: <Layers size={20} />, planReq: 'premium', desc: 'STEMS + WAV · Sin límites' },
+    exclusiva: { label: 'Licencia Exclusiva', color: 'rose', hex: '#f43f5e', icon: <ShieldCheck size={20} />, planReq: 'premium', desc: 'Cesión total · Derechos exclusivos' },
 };
 
 
@@ -540,7 +540,7 @@ export default function UploadPage() {
                                                     </div>
                                                     <div>
                                                         <div className="flex items-center gap-2 mb-0.5">
-                                                            <h5 className="text-sm font-black uppercase tracking-tighter text-foreground">Licencia {meta.label}</h5>
+                                                            <h5 className="text-sm font-black uppercase tracking-tighter text-foreground">{meta.label}</h5>
                                                             {meta.planReq && (
                                                                 <span className="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border"
                                                                     style={{ color: meta.hex, borderColor: `${meta.hex}30`, background: `${meta.hex}10` }}>
