@@ -105,7 +105,7 @@ export default function VerificationPage() {
             profileComplete: !!(profile?.foto_perfil && profile?.portada_perfil && profile?.biografia && profile?.nombre_artistico),
             activityMin: beatCount >= 5,
             socialsLinked: !!(profile?.verificacion_instagram || profile?.verificacion_youtube || profile?.verificacion_tiktok),
-            performance: playCount >= 100 || (saleCount || 0) >= 1
+            performance: playCount >= 100 && (saleCount || 0) >= 1
         });
 
         setLoading(false);
@@ -129,32 +129,29 @@ export default function VerificationPage() {
             if (!form.idDocument) throw new Error("Debes subir una identificación oficial.");
             if (!profile?.username) throw new Error("No se pudo obtener el nombre de usuario.");
 
-            // 1. Upload ID (using username in path)
+            // 1. Upload ID
             const fileExt = form.idDocument.name.split('.').pop();
-            const fileName = `${profile.nombre_usuario}/${Date.now()}_verification.${fileExt}`;
+            const fileName = `${profile.nombre_usuario}/verificacion_${Date.now()}.${fileExt}`;
             const { error: uploadError, data: uploadData } = await supabase.storage
                 .from('verification-docs')
                 .upload(fileName, form.idDocument);
 
             if (uploadError) throw uploadError;
 
-            // 2. Insert Request
+            // 2. Insert into solicitudes_verificacion
             const { error: insertError } = await supabase
-                .from('verification_requests')
+                .from('solicitudes_verificacion')
                 .insert({
                     user_id: user.id,
-                    real_name: form.realName,
-                    artistic_name: form.artisticName,
-                    portfolio_url: form.portfolioUrl,
-                    motivation: form.motivation,
-                    id_document_url: uploadData.path,
-                    status: 'pending'
+                    nombre_real: form.realName,
+                    nombre_artistico: form.artisticName,
+                    url_red_social: form.portfolioUrl,
+                    motivacion: form.motivation,
+                    url_documento: uploadData.path,
+                    estado: 'pendiente'
                 });
 
             if (insertError) throw insertError;
-
-            // 3. Update Verification Status in Profile (Optimistic / Cache)
-            await supabase.from('perfiles').update({ estado_verificacion: 'pending' }).eq('id', user.id);
 
             setStatus('pending');
             showToast("Solicitud enviada con éxito.", "success");
@@ -281,14 +278,14 @@ export default function VerificationPage() {
                             </div>
                         </div>
 
-                        {/* Beats */}
+                        {/* Reproducciones */}
                         <div className={`p-5 rounded-[2rem] border transition-all flex items-center gap-4 ${checks.activityMin ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800' : 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800'}`}>
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${checks.activityMin ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-400' : 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400'}`}>
                                 {checks.activityMin ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
                             </div>
                             <div className="flex-1">
-                                <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Actividad ({stats.beatCount}/5)</h3>
-                                <p className="text-[10px] text-muted leading-tight">Mínimo 5 beats en tu catálogo.</p>
+                                <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Contenido Mínimo ({stats.beatCount}/5)</h3>
+                                <p className="text-[10px] text-muted leading-tight">Al menos 5 beats publicados.</p>
                             </div>
                             {!checks.activityMin && (
                                 <Link href="/upload" className="px-4 py-2 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 shadow-sm">
@@ -319,8 +316,8 @@ export default function VerificationPage() {
                                 {checks.performance ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
                             </div>
                             <div className="flex-1">
-                                <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Validación</h3>
-                                <p className="text-[10px] text-muted leading-tight">100 plays O al menos 1 venta.</p>
+                                <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Comunidad</h3>
+                                <p className="text-[10px] text-muted leading-tight">100 Reproducciones Y al menos 1 venta.</p>
                             </div>
                             {!checks.performance && (
                                 <Link href="/studio/stats" className="px-4 py-2 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 shadow-sm">
@@ -349,14 +346,14 @@ export default function VerificationPage() {
                     </h3>
 
                     <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-border shadow-xl">
-                        <div className="grid grid-cols-2 gap-6 items-start">
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-muted">Nombre Real</label>
                                 <input
                                     type="text"
                                     required
                                     className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all min-h-[44px]"
-                                    placeholder="Como en tu INE/ID"
+                                    placeholder="Nombre completo"
                                     value={form.realName}
                                     onChange={e => setForm({ ...form, realName: e.target.value })}
                                 />
@@ -369,25 +366,33 @@ export default function VerificationPage() {
                                     className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all min-h-[44px]"
                                     placeholder="Tu aka"
                                     value={form.artisticName}
-                                    onChange={e => setForm({ ...form, artisticName: e.target.value })}
+                                    readOnly
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-muted">Enlace a Portafolio / Red Principal</label>
+                            <div className="flex items-center gap-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted">Coloca una red social</label>
+                                <div className="group relative">
+                                    <AlertTriangle size={14} className="text-accent cursor-help" />
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-foreground text-background text-[9px] font-black uppercase tracking-widest rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 text-center shadow-2xl">
+                                        El soporte técnico de Tianguis Beats verificará este enlace para validar tu identidad artística.
+                                    </div>
+                                </div>
+                            </div>
                             <input
                                 type="url"
                                 required
                                 className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all"
-                                placeholder="https://instagram.com/..."
+                                placeholder="Link de Instagram, YT o TikTok"
                                 value={form.portfolioUrl}
                                 onChange={e => setForm({ ...form, portfolioUrl: e.target.value })}
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-muted">Identificación Oficial (INE/Passport)</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest text-muted">Identificación Oficial</label>
                             <div className="relative">
                                 <input
                                     type="file"
@@ -401,7 +406,7 @@ export default function VerificationPage() {
                                     <span className="text-xs font-bold text-foreground">
                                         {form.idDocument ? form.idDocument.name : "Click para subir archivo"}
                                     </span>
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-muted mt-1">JPG, PNG o PDF (Max 5MB)</span>
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-muted mt-1">JPG, PNG o PDF</span>
                                 </div>
                             </div>
                         </div>
@@ -411,7 +416,7 @@ export default function VerificationPage() {
                             <textarea
                                 required
                                 className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all h-24 resize-none"
-                                placeholder="Cuéntanos brevemente..."
+                                placeholder="Cuéntanos sobre tu trayectoria..."
                                 value={form.motivation}
                                 onChange={e => setForm({ ...form, motivation: e.target.value })}
                             />
@@ -420,7 +425,7 @@ export default function VerificationPage() {
                         <button
                             type="submit"
                             disabled={submitting}
-                            className="w-full py-4 bg-foreground text-background rounded-xl font-black uppercase tracking-widest text-xs hover:bg-accent hover:text-white transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full py-4 bg-[#0070f3] text-white rounded-xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {submitting ? 'Enviando...' : 'Enviar Solicitud'}
                         </button>
