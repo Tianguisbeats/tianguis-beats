@@ -21,15 +21,29 @@ export default function QuejasSugerenciasPage() {
 
     useEffect(() => {
         const checkUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                const { data: profile } = await supabase.from('perfiles').select('nombre_usuario, nombre_artistico').eq('id', user.id).single();
-                setUser({ ...user, profile });
-                const displayName = profile?.nombre_usuario || profile?.nombre_artistico || user?.user_metadata?.username || user?.user_metadata?.artistic_name || '';
-                setNombre(displayName);
-                setEmail(user?.email || '');
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    const { data: profile, error: profileError } = await supabase
+                        .from('perfiles')
+                        .select('nombre_usuario, nombre_artistico')
+                        .eq('id', user.id)
+                        .single();
+
+                    if (profileError) {
+                        console.error("Error loading profile:", profileError);
+                    }
+
+                    setUser({ ...user, profile });
+                    const displayName = profile?.nombre_usuario || profile?.nombre_artistico || user?.user_metadata?.username || user?.user_metadata?.artistic_name || '';
+                    setNombre(displayName);
+                    setEmail(user?.email || '');
+                }
+            } catch (err) {
+                console.error("Auth check failed:", err);
+            } finally {
+                setCheckingAuth(false);
             }
-            setCheckingAuth(false);
         };
         checkUser();
     }, []);
@@ -61,9 +75,9 @@ export default function QuejasSugerenciasPage() {
         const tipo = formData.get('tipo') as string;
         const mensaje = formData.get('mensaje') as string;
 
-        // Usamos los estados controlados directamente para asegurar que se capture el nombre real
-        const finalNombre = nombre || user?.profile?.nombre_usuario || user?.nombre_usuario || user?.email?.split('@')[0] || 'Usuario';
-        const finalEmail = email || user?.profile?.email || 'anonimo@tianguisbeats.com';
+        // Aseguramos que finalNombre tenga el valor más preciso disponible
+        const finalNombre = nombre || user?.profile?.nombre_usuario || user?.user_metadata?.username || user?.id || 'Usuario Desconocido';
+        const finalEmail = email || user?.email || 'anonimo@tianguisbeats.com';
 
         try {
             const { data: { user: authUser } } = await supabase.auth.getUser();
