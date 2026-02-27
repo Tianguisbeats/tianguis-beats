@@ -291,13 +291,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     setBeats(transformedBeats);
                 }
 
-                // 3. Get Playlists (new schema: id, usuario_id, nombre, es_publica, fecha_creacion)
-                const { data: playlistsRaw } = await supabase
+                // 3. Get Playlists (owner sees private ones too)
+                let plQuery = supabase
                     .from('listas_reproduccion')
                     .select('id, nombre, es_publica, fecha_creacion')
                     .eq('usuario_id', profileData.id)
-                    .eq('es_publica', true)
                     .order('fecha_creacion', { ascending: true });
+
+                if (currentUserId !== profileData.id) {
+                    plQuery = plQuery.eq('es_publica', true);
+                }
+
+                const { data: playlistsRaw } = await plQuery;
 
                 if (playlistsRaw) {
                     const formattedPlaylists = playlistsRaw.map((pl: any) => ({
@@ -730,8 +735,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                         {/* Info Header */}
                         <div className="flex-1 w-full">
-                            <div className="flex flex-col items-center justify-center gap-6 w-full text-center">
-                                <div className="space-y-6 w-full max-w-4xl mx-auto">
+                            <div className="flex flex-col items-center md:items-start justify-center gap-6 w-full text-center md:text-left">
+                                <div className="space-y-6 w-full max-w-4xl mx-auto md:mx-0">
                                     {/* Nombre artístico: compacto en móvil */}
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
                                         <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-tighter leading-[0.85] text-foreground drop-shadow-sm">
@@ -750,7 +755,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] font-black uppercase tracking-[0.2em] text-muted">
+                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-[11px] font-black uppercase tracking-[0.2em] text-muted">
                                         <span className="text-accent underline decoration-2 underline-offset-4">@{profile.nombre_usuario}</span>
                                         <span className="opacity-30">•</span>
                                         {isEditing ? (
@@ -780,21 +785,21 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <span className="flex items-center gap-1.5"><Calendar size={12} /> {profile.fecha_creacion ? new Date(profile.fecha_creacion).getFullYear() : '2025'}</span>
                                     </div>
 
-                                    {/* BIO CENTERED (ABOVE BUTTONS) */}
+                                    {/* BIO ALIGNED (ABOVE BUTTONS) */}
                                     {!isEditing && profile.biografia && (
-                                        <div className="max-w-2xl mx-auto py-4">
-                                            <p className="text-sm md:text-base font-medium text-muted leading-relaxed text-center italic opacity-80 decoration-accent/10">
+                                        <div className="max-w-2xl md:ml-0 md:mr-auto py-4">
+                                            <p className="text-sm md:text-base font-medium text-muted leading-relaxed text-center md:text-left italic opacity-80 decoration-accent/10">
                                                 &ldquo;{profile.biografia}&rdquo;
                                             </p>
                                         </div>
                                     )}
                                     {isEditing && (
-                                        <div className="max-w-2xl mx-auto py-2">
+                                        <div className="max-w-2xl md:ml-0 md:mr-auto py-2">
                                             <textarea
                                                 value={editBio}
                                                 maxLength={160}
                                                 onChange={(e) => setEditBio(e.target.value)}
-                                                className="w-full bg-foreground/5 border border-border focus:border-accent rounded-2xl p-4 text-sm font-medium outline-none resize-none text-center"
+                                                className="w-full bg-foreground/5 border border-border focus:border-accent rounded-2xl p-4 text-sm font-medium outline-none resize-none text-center md:text-left"
                                                 placeholder="Tu biografía corta y poderosa..."
                                             />
                                             <p className="text-[8px] font-black text-muted uppercase mt-1 text-right">{editBio.length}/160</p>
@@ -803,7 +808,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 </div>
 
                                 {/* ── Botones de acción (Editar / Seguir): full-width en móvil ── */}
-                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 w-full sm:w-auto">
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-start gap-3 w-full sm:w-auto">
 
 
 
