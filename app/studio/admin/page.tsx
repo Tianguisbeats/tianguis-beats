@@ -71,7 +71,7 @@ export default function AdminDashboard() {
                         Control <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Maestro</span>
                     </h1>
                     <p className="text-muted text-[11px] font-black uppercase tracking-[0.3em] opacity-60">
-                        Tianguis Beats Infrastructure Management
+                        Gestión de Infraestructura Tianguis Beats
                     </p>
                 </div>
             </header>
@@ -134,7 +134,7 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
         { id: 'beats', label: 'Total Beats', value: stats.totalBeats, sub: 'En catálogo global', icon: <Music className="text-purple-500" />, gradient: 'hover:shadow-purple-500/10' },
         { id: 'verifications', label: 'Verificaciones', value: stats.pendingVerifications, sub: 'Solicitudes por revisar', icon: <ShieldCheck className="text-amber-500" />, gradient: 'hover:shadow-amber-500/10' },
         { id: 'coupons', label: 'Cupones', value: 'PRO', sub: 'Gestión de descuentos', icon: <Ticket className="text-emerald-500" />, gradient: 'hover:shadow-emerald-500/10' },
-        { id: 'feedback', label: 'Quejas Pendientes', value: stats.pendingFeedback, sub: 'Ideas y reportes sin leer', icon: <MessageSquare className="text-rose-500" />, gradient: 'hover:shadow-rose-500/10' }
+        { id: 'feedback', label: 'Reportes Pendientes', value: stats.pendingFeedback, sub: 'Ideas y reportes sin leer', icon: <MessageSquare className="text-rose-500" />, gradient: 'hover:shadow-rose-500/10' }
     ];
 
     return (
@@ -213,7 +213,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
             setRequests(requests.filter(r => r.id !== requestId));
             showToast(`Solicitud ${status === 'approved' ? 'aprobada' : 'rechazada'}`, "success");
         } catch (error: any) {
-            showToast(error.message, "error");
+            showToast("Hubo un problema al procesar la decisión. Inténtalo de nuevo.", "error");
         }
     };
 
@@ -524,7 +524,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
 
                         <div className="p-8 grid md:grid-cols-2 gap-8 max-h-[60vh] overflow-y-auto">
                             <div className="space-y-6">
-                                <DetailItem label="Email" value={selectedUser.email} />
+                                <DetailItem label="Correo" value={selectedUser.email} />
                                 <DetailItem label="Nombre Completo" value={selectedUser.nombre_completo} />
                                 <DetailItem label="ID de Usuario" value={selectedUser.id} copyable />
                                 <DetailItem label="Fecha de Registro" value={selectedUser.fecha_creacion ? new Date(selectedUser.fecha_creacion).toLocaleDateString() : 'Desconocida'} />
@@ -719,7 +719,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                         {editingId ? 'Refinar Cupón' : 'Nuevo Cupón'}
                     </h2>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500/80 dark:text-muted/60 mt-2">
-                        Exclusivo para descuentos en planes de Suscripción.
+                        Exclusivo para descuentos en planes de suscripción.
                     </p>
                 </div>
 
@@ -827,7 +827,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                                     <div className={`px-5 py-3 ${tierConfig.bg} border border-${tierConfig.text.replace('text-', '')}/20 rounded-2xl flex flex-col items-center gap-1 shadow-inner relative overflow-hidden group-hover:scale-105 transition-transform`}>
                                         <div className={`absolute top-0 right-0 w-16 h-16 bg-white/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity`} />
                                         <span className={`text-[9px] font-black uppercase tracking-widest ${tierConfig.text}`}>{tierConfig.label}</span>
-                                        <span className="text-xl font-black text-slate-900 dark:text-foreground tabular-nums tracking-tighter loading-none">
+                                        <span className="text-xl font-black text-slate-900 dark:text-foreground tabular-nums tracking-tighter leading-none">
                                             -{cp.porcentaje_descuento}<span className="text-xs text-muted">%</span>
                                         </span>
                                     </div>
@@ -950,7 +950,7 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
                             <div>
                                 <div className="flex items-center gap-3 mb-2">
                                     <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${item.tipo_mensaje === 'queja' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
-                                        {item.tipo_mensaje}
+                                        {item.tipo_mensaje === 'queja' ? 'QUEJA' : 'SUGERENCIA'}
                                     </span>
                                     <span className="text-[10px] font-bold text-muted uppercase tracking-widest">
                                         {new Date(item.fecha_creacion).toLocaleDateString()}
@@ -1033,7 +1033,7 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
                                     </td>
                                     <td className="px-6 py-5">
                                         <p className="font-black text-xs">@{tx.perfiles?.nombre_usuario || 'Desconocido'}</p>
-                                        <p className="text-[9px] text-muted uppercase tracking-widest">{tx.perfiles?.email}</p>
+                                        <p className="text-[9px] text-muted uppercase tracking-widest">{tx.perfiles?.correo || tx.perfiles?.email}</p>
                                     </td>
                                     <td className="px-6 py-5">
                                         <p className="font-bold text-xs capitalize">{tx.tipo_item || 'Beat'}</p>

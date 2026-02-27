@@ -181,7 +181,11 @@ export default function VerificationPage() {
 
         } catch (error: any) {
             console.error(error);
-            showToast(error.message || "Error al enviar solicitud", "error");
+            let userMessage = "Error al enviar la solicitud";
+            if (error.message?.includes("Bucket not found")) userMessage = "Error: El almacén de documentos no está configurado.";
+            if (error.message?.includes("row-level security policy")) userMessage = "Error de permisos: No tienes autorización para esta acción.";
+
+            showToast(userMessage, "error");
         } finally {
             setSubmitting(false);
         }
@@ -468,7 +472,7 @@ export default function VerificationPage() {
                             disabled={submitting}
                             className="w-full py-4 bg-[#0070f3] text-white rounded-xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {submitting ? 'Enviando...' : 'Enviar Solicitud'}
+                            {submitting ? 'Procesando...' : 'Enviar Solicitud'}
                         </button>
                     </form>
                 </div>
