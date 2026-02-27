@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronRight, ChevronLeft, Users, Play, Pause, Flame, Sparkles, Crown, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Play, Pause, Flame, Crown, CheckCircle2, Music2, Users, ChevronLeft, ChevronRight, ShieldCheck } from "lucide-react";
 import { Beat } from "@/lib/types";
 import { usePlayer } from "@/context/PlayerContext";
 
@@ -14,213 +14,298 @@ interface FeaturedBannerProps {
 }
 
 export default function FeaturedBanner({ trendingBeats, trendingProducers }: FeaturedBannerProps) {
-    const [currentIndex, setCurrentIndex] = useState(0);
+    const [tab, setTab] = useState<'beats' | 'producers'>('beats');
+    const [beatIndex, setBeatIndex] = useState(0);
+    const [producerIndex, setProducerIndex] = useState(0);
+    const [animating, setAnimating] = useState(false);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const { playBeat, currentBeat, isPlaying } = usePlayer();
 
-    // Combinar hasta 10 hits (priorizando beats luego productores)
-    const hits = [
-        ...trendingBeats.slice(0, 6).map(b => ({ type: 'beat', data: b })),
-        ...trendingProducers.slice(0, 4).map(p => ({ type: 'producer', data: p }))
-    ].slice(0, 10);
+    const beats = trendingBeats.slice(0, 5);
+    const producers = trendingProducers.slice(0, 5);
 
-    const activeHit = hits?.[currentIndex];
-    const isBeat = activeHit?.type === 'beat';
-    const data = activeHit?.data;
-    const isThisPlaying = isBeat && (data as Beat)?.id === currentBeat?.id && isPlaying;
+    const currentIndex = tab === 'beats' ? beatIndex : producerIndex;
+    const setCurrentIndex = tab === 'beats' ? setBeatIndex : setProducerIndex;
+    const items = tab === 'beats' ? beats : producers;
 
-    useEffect(() => {
-        const timer = setInterval(() => {
-            if (hits.length > 0) {
-                setCurrentIndex((prev) => (prev + 1) % hits.length);
-            }
-        }, 8000);
-        return () => clearInterval(timer);
-    }, [hits.length]);
-
-    if (!activeHit) return null;
-
-    const nextHit = () => setCurrentIndex((prev) => (prev + 1) % hits.length);
-    const prevHit = () => setCurrentIndex((prev) => (prev - 1 + hits.length) % hits.length);
-
-    // Helper para obtener info del productor de forma segura
-    const getProducerInfo = (): {
-        nombre_artistico: string;
-        nombre_usuario: string;
-        foto_perfil: string;
-        esta_verificado: boolean;
-        es_fundador: boolean;
-    } => {
-        if (isBeat) {
-            const beat = data as Beat;
-            const producerObj = (beat as any).productor as Record<string, unknown>;
-            return {
-                nombre_artistico: (producerObj?.nombre_artistico as string) || beat.productor_nombre_artistico || "Productor",
-                nombre_usuario: (producerObj?.nombre_usuario as string) || beat.productor_nombre_usuario || "anonymous",
-                foto_perfil: (producerObj?.foto_perfil as string) || beat.productor_foto_perfil || "",
-                esta_verificado: !!(producerObj?.esta_verificado || beat.productor_esta_verificado),
-                es_fundador: !!(producerObj?.es_fundador || beat.productor_es_fundador)
-            };
-        } else {
-            const profile = data as Record<string, unknown>;
-            return {
-                nombre_artistico: (profile.nombre_artistico as string) || (profile.nombre_usuario as string),
-                nombre_usuario: profile.nombre_usuario as string,
-                foto_perfil: (profile.foto_perfil as string) || "",
-                esta_verificado: !!profile.esta_verificado,
-                es_fundador: !!profile.es_fundador
-            };
-        }
+    const navigate = (dir: 1 | -1) => {
+        setAnimating(true);
+        setTimeout(() => {
+            setCurrentIndex((prev) => (prev + dir + items.length) % items.length);
+            setAnimating(false);
+        }, 200);
     };
 
-    const prodInfo = getProducerInfo();
+    useEffect(() => {
+        intervalRef.current = setInterval(() => {
+            setAnimating(true);
+            setTimeout(() => {
+                if (tab === 'beats') setBeatIndex(p => (p + 1) % Math.max(1, beats.length));
+                else setProducerIndex(p => (p + 1) % Math.max(1, producers.length));
+                setAnimating(false);
+            }, 200);
+        }, 7000);
+        return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    }, [tab, beats.length, producers.length]);
+
+    if (beats.length === 0 && producers.length === 0) return null;
+
+    const beat = beats[beatIndex] as Beat | undefined;
+    const producer = producers[producerIndex];
+    const beatProducer = beat ? ((beat as any).producer || (beat as any).productor) : null;
+
+    const isBeatPlaying = beat && currentBeat?.id === beat.id && isPlaying;
 
     return (
-        <div className="w-full mb-12 group relative">
-            {/* Main Premium Container */}
-            <div className="relative w-full aspect-[21/9] md:aspect-[25/9] rounded-[4rem] overflow-hidden bg-background flex shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] border border-border/50">
+        <section className="py-16 px-4">
+            <div className="max-w-[1700px] mx-auto">
 
-                {/* Dynamic Background */}
-                <div className="absolute inset-0 overflow-hidden">
-                    <img
-                        src={(isBeat ? (data as Beat).portada_url : (data as Record<string, unknown>).foto_perfil as string) || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop"}
-                        className="w-full h-full object-cover opacity-30 blur-2xl scale-125 transition-all duration-1000 ease-in-out"
-                        alt="Background Glow"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent"></div>
-                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background to-transparent"></div>
+                {/* Section Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+                    <div>
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
+                            </span>
+                            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-accent">En vivo · Esta semana</span>
+                        </div>
+                        <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground leading-none">
+                            Lo Mejor<br />
+                            <span className="text-accent">del Tianguis.</span>
+                        </h2>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex items-center gap-1 p-1.5 bg-card border border-border rounded-2xl self-start sm:self-auto">
+                        <button
+                            onClick={() => { setTab('beats'); setBeatIndex(0); }}
+                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${tab === 'beats' ? 'bg-accent text-white shadow-lg shadow-accent/30' : 'text-muted hover:text-foreground'}`}
+                        >
+                            <Music2 size={14} />
+                            Hits · {beats.length}
+                        </button>
+                        <button
+                            onClick={() => { setTab('producers'); setProducerIndex(0); }}
+                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${tab === 'producers' ? 'bg-accent text-white shadow-lg shadow-accent/30' : 'text-muted hover:text-foreground'}`}
+                        >
+                            <Users size={14} />
+                            Productores · {producers.length}
+                        </button>
+                    </div>
                 </div>
 
-                {/* Glass Card Content */}
-                <div className="relative z-10 w-full h-full flex items-center px-10 md:px-24">
-                    <div className="flex flex-col md:flex-row items-center gap-10 md:gap-20 w-full animate-in fade-in slide-in-from-bottom-5 duration-1000">
+                {/* Main Card */}
+                <div className="relative rounded-[3rem] overflow-hidden border border-border bg-card shadow-2xl"
+                    style={{ minHeight: '420px' }}>
+
+                    {/* Blurred background */}
+                    <div className="absolute inset-0 overflow-hidden">
+                        <img
+                            src={
+                                tab === 'beats'
+                                    ? (beat?.portada_url || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop")
+                                    : ((producer?.foto_perfil as string) || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop")
+                            }
+                            className="w-full h-full object-cover opacity-20 blur-3xl scale-125 transition-all duration-1000"
+                            alt=""
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-r from-card via-card/90 to-card/60" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-transparent to-transparent" />
+                    </div>
+
+                    {/* Content */}
+                    <div className={`relative z-10 flex flex-col lg:flex-row items-center gap-10 p-10 md:p-16 transition-all duration-200 ${animating ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'}`}>
 
                         {/* Artwork */}
-                        <div className="relative shrink-0 perspective-1000 group/art">
-                            <div className="w-48 h-48 md:w-80 md:h-80 rounded-[3rem] overflow-hidden rotate-3 group-hover/art:rotate-0 transition-transform duration-700 shadow-2xl border border-white/10 relative">
+                        <div className="relative shrink-0 group/art">
+                            <div className="w-52 h-52 md:w-72 md:h-72 rounded-[2.5rem] overflow-hidden border border-border shadow-2xl transition-transform duration-700 group-hover/art:scale-105 group-hover/art:rotate-1">
                                 <img
-                                    src={(isBeat ? (data as Beat).portada_url : (data as Record<string, unknown>).foto_perfil as string) || `https://ui-avatars.com/api/?name=${prodInfo.nombre_artistico}&background=random`}
+                                    src={
+                                        tab === 'beats'
+                                            ? (beat?.portada_url || "/logo.png")
+                                            : ((producer?.foto_perfil as string) || "/logo.png")
+                                    }
                                     className="w-full h-full object-cover"
                                     alt="Artwork"
                                 />
-                                {isThisPlaying && (
+                                {tab === 'beats' && isBeatPlaying && (
                                     <div className="absolute inset-0 bg-accent/20 backdrop-blur-sm flex items-center justify-center">
                                         <div className="flex gap-1.5 h-12 items-end">
-                                            <div className="w-1.5 bg-white animate-[music-bar_1s_ease-in-out_infinite]"></div>
-                                            <div className="w-1.5 bg-white animate-[music-bar_1.2s_ease-in-out_infinite]"></div>
-                                            <div className="w-1.5 bg-white animate-[music-bar_0.8s_ease-in-out_infinite]"></div>
-                                            <div className="w-1.5 bg-white animate-[music-bar_1.4s_ease-in-out_infinite]"></div>
+                                            {[1, 1.2, 0.8, 1.4].map((d, i) => (
+                                                <div key={i} className="w-1.5 bg-white rounded-full animate-bounce" style={{ animationDuration: `${d}s`, height: '40%', animationIterationCount: 'infinite' }} />
+                                            ))}
                                         </div>
                                     </div>
                                 )}
                             </div>
 
-                            {/* Hit Badge Floating */}
-                            <div className="absolute -top-4 -right-4 bg-background border border-border text-foreground px-6 py-2 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-2xl flex items-center gap-2 select-none">
-                                <Flame size={14} className="text-accent fill-accent animate-pulse" />
-                                {isBeat ? 'Hits de la semana' : 'Top Productor'}
+                            {/* Floating badge */}
+                            <div className="absolute -top-3 -right-3 bg-background border border-border px-4 py-1.5 rounded-xl font-black uppercase text-[9px] tracking-widest shadow-xl flex items-center gap-2">
+                                <Flame size={12} className="text-accent fill-accent animate-pulse" />
+                                {tab === 'beats' ? 'Hit de la Semana' : 'Productor Destacado'}
+                            </div>
+
+                            {/* Index dots */}
+                            <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+                                {items.map((_, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => { setAnimating(true); setTimeout(() => { setCurrentIndex(i); setAnimating(false); }, 200); }}
+                                        className={`rounded-full transition-all duration-300 ${i === currentIndex ? 'w-6 h-1.5 bg-accent' : 'w-1.5 h-1.5 bg-foreground/20 hover:bg-foreground/40'}`}
+                                    />
+                                ))}
                             </div>
                         </div>
 
                         {/* Info */}
-                        <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
-                            <div className="flex items-center gap-4 mb-6 opacity-0 animate-[fade-in_1s_ease-in-out_forwards_0.5s]">
-                                <span className="bg-accent/10 border border-accent/20 text-accent text-[9px] font-black uppercase tracking-[0.4em] px-4 py-1.5 rounded-full">
-                                    {isBeat ? 'Trending Track' : 'Featured Producer'}
+                        <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left mt-6 lg:mt-0">
+                            {/* Tag */}
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-accent/10 border border-accent/20 rounded-full mb-5">
+                                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-accent">
+                                    {tab === 'beats' ? `#${beatIndex + 1} Trending Track` : `#${producerIndex + 1} Top Productor`}
                                 </span>
-                                {prodInfo.esta_verificado && (
-                                    <CheckCircle2 size={16} className="text-info" />
-                                )}
                             </div>
 
-                            <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter mb-4 font-heading leading-none group-hover:tracking-tight transition-all duration-700">
-                                {isBeat ? (data as Beat).titulo : prodInfo.nombre_artistico}
-                            </h2>
+                            {/* Title */}
+                            <h3 className="text-4xl md:text-6xl font-black text-foreground uppercase tracking-tighter leading-none mb-5">
+                                {tab === 'beats'
+                                    ? beat?.titulo
+                                    : ((producer?.nombre_artistico as string) || (producer?.nombre_usuario as string))}
+                            </h3>
 
-                            <div className="flex items-center gap-6 mb-10 text-muted">
-                                <Link href={`/${prodInfo.nombre_usuario}`} className="flex items-center gap-6 group/prod">
+                            {/* Producer info */}
+                            {tab === 'beats' && beatProducer && (
+                                <Link href={`/${beatProducer.nombre_usuario || '#'}`}
+                                    className="flex items-center gap-4 mb-8 group/prod self-center lg:self-start">
                                     <div className="relative">
-                                        <img src={prodInfo.foto_perfil || `https://ui-avatars.com/api/?name=${prodInfo.nombre_artistico}`} alt={prodInfo.nombre_artistico as string} className="w-20 h-20 md:w-28 md:h-28 rounded-3xl object-cover border-2 border-border group-hover/prod:border-accent transition-all duration-500 shadow-2xl" />
-                                        {prodInfo.esta_verificado && (
-                                            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-background rounded-full flex items-center justify-center border-2 border-border shadow-lg">
-                                                <img src="/verified-badge.png" className="w-5 h-5 object-contain" alt="Verified" />
+                                        <img src={beatProducer.foto_perfil || "/logo.png"} alt=""
+                                            className="w-12 h-12 rounded-2xl object-cover border border-border group-hover/prod:border-accent transition-colors" />
+                                        {beatProducer.esta_verificado && (
+                                            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-background rounded-full flex items-center justify-center border border-border">
+                                                <img src="/verified-badge.png" className="w-3 h-3" alt="✓" />
                                             </div>
                                         )}
                                     </div>
-                                    <div className="flex flex-col gap-1">
+                                    <div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xl md:text-2xl font-black uppercase tracking-widest group-hover/prod:text-accent transition-colors leading-none">{prodInfo.nombre_artistico}</span>
-                                            {prodInfo.es_fundador && <Crown size={22} className="text-amber-500 fill-amber-500 animate-pulse" />}
+                                            <span className="font-black text-foreground uppercase text-sm tracking-wider group-hover/prod:text-accent transition-colors">
+                                                {beatProducer.nombre_artistico || beatProducer.nombre_usuario}
+                                            </span>
+                                            {beatProducer.es_fundador && <Crown size={14} className="text-amber-500 fill-amber-500" />}
                                         </div>
-                                        <span className="text-xs font-bold text-muted tracking-[0.2em] uppercase opacity-60 group-hover/prod:opacity-100 transition-opacity">@{prodInfo.nombre_usuario}</span>
+                                        <span className="text-[9px] font-bold text-muted uppercase tracking-widest opacity-60">
+                                            @{beatProducer.nombre_usuario}
+                                        </span>
                                     </div>
                                 </Link>
-                                <div className="h-4 w-[1px] bg-border/20"></div>
-                                <div className="flex items-center gap-2">
-                                    <Sparkles size={16} className="text-accent" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest">Billboard Top 10</span>
-                                </div>
-                            </div>
+                            )}
 
-                            <div className="flex items-center gap-4">
-                                {isBeat ? (
+                            {/* Producer bio */}
+                            {tab === 'producers' && (
+                                <div className="flex items-center gap-4 mb-8 self-center lg:self-start">
+                                    {(producer?.esta_verificado as boolean) && (
+                                        <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                                            <ShieldCheck size={14} className="text-blue-400" />
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-blue-400">Verificado</span>
+                                        </div>
+                                    )}
+                                    {(producer?.es_fundador as boolean) && (
+                                        <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                                            <Crown size={14} className="text-amber-500 fill-amber-500" />
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-amber-400">Fundador</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Beat Stats */}
+                            {tab === 'beats' && beat && (
+                                <div className="flex items-center gap-6 mb-8 text-muted self-center lg:self-start">
+                                    {beat.genero && (
+                                        <div className="px-3 py-1 bg-foreground/5 border border-border rounded-xl text-[9px] font-black uppercase tracking-widest">
+                                            {beat.genero}
+                                        </div>
+                                    )}
+                                    {beat.bpm && (
+                                        <div className="text-[9px] font-bold uppercase tracking-widest">
+                                            <span className="text-accent font-black">{beat.bpm}</span> BPM
+                                        </div>
+                                    )}
+                                    {(beat as any).conteo_reproducciones > 0 && (
+                                        <div className="text-[9px] font-bold uppercase tracking-widest">
+                                            <span className="text-foreground font-black">{((beat as any).conteo_reproducciones || 0).toLocaleString('es-MX')}</span> plays
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Actions */}
+                            <div className="flex items-center gap-4 self-center lg:self-start">
+                                {tab === 'beats' && beat ? (
                                     <>
                                         <button
-                                            onClick={() => playBeat(data as Beat)}
-                                            className={`h-12 w-12 md:h-14 md:w-14 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-xl active:scale-95 ${isThisPlaying ? 'bg-white text-accent' : 'bg-accent text-white hover:scale-110'}`}
+                                            onClick={() => playBeat(beat)}
+                                            className={`h-14 w-14 rounded-2xl flex items-center justify-center transition-all shadow-xl active:scale-95 ${isBeatPlaying ? 'bg-white text-accent' : 'bg-accent text-white hover:scale-110 shadow-accent/30'}`}
                                         >
-                                            {isThisPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
+                                            {isBeatPlaying ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" className="ml-1" />}
                                         </button>
-                                        <Link
-                                            href={`/beats/${(data as Beat).id}`}
-                                            className="px-6 h-12 md:h-14 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white flex items-center gap-3 group/btn transition-all active:scale-95"
-                                        >
+                                        <Link href={`/beats/${beat.id}`}
+                                            className="inline-flex items-center gap-3 px-6 h-14 bg-foreground/5 border border-border hover:bg-foreground/10 hover:border-accent/30 rounded-2xl text-foreground transition-all group/btn">
                                             <span className="text-[9px] font-black uppercase tracking-widest">Ver Detalles</span>
                                             <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                                         </Link>
                                     </>
-                                ) : (
-                                    <Link
-                                        href={`/${prodInfo.nombre_usuario}`}
-                                        className="px-8 h-14 bg-accent text-white rounded-2xl flex items-center gap-3 group/btn transition-all shadow-lg shadow-accent/40 active:scale-95"
-                                    >
+                                ) : tab === 'producers' && producer ? (
+                                    <Link href={`/${producer.nombre_usuario as string}`}
+                                        className="inline-flex items-center gap-3 px-8 h-14 bg-accent text-white rounded-2xl transition-all shadow-xl shadow-accent/20 hover:scale-[1.02] active:scale-95 group/btn">
                                         <span className="text-[9px] font-black uppercase tracking-widest">Ver Perfil</span>
-                                        <Users size={16} className="group-hover/btn:rotate-12 transition-transform" />
+                                        <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
                                     </Link>
-                                )}
+                                ) : null}
                             </div>
                         </div>
+
+                        {/* Right: thumbnail strip */}
+                        <div className="hidden xl:flex flex-col gap-3 shrink-0">
+                            {items.slice(0, 5).map((item: any, i) => {
+                                const isActive = i === currentIndex;
+                                const img = tab === 'beats' ? item.portada_url : item.foto_perfil;
+                                const name = tab === 'beats' ? item.titulo : (item.nombre_artistico || item.nombre_usuario);
+                                return (
+                                    <button
+                                        key={i}
+                                        onClick={() => { setAnimating(true); setTimeout(() => { setCurrentIndex(i); setAnimating(false); }, 200); }}
+                                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-all duration-300 text-left w-52 ${isActive ? 'bg-accent/10 border-accent/30' : 'bg-foreground/5 border-border hover:bg-foreground/10'}`}
+                                    >
+                                        <div className={`w-10 h-10 rounded-xl overflow-hidden shrink-0 border transition-colors ${isActive ? 'border-accent/40' : 'border-border'}`}>
+                                            <img src={img || "/logo.png"} alt="" className="w-full h-full object-cover" />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className={`text-[9px] font-black uppercase tracking-widest truncate transition-colors ${isActive ? 'text-accent' : 'text-foreground'}`}>
+                                                {name}
+                                            </p>
+                                            {tab === 'beats' && item.genero && (
+                                                <p className="text-[8px] font-bold text-muted uppercase tracking-widest truncate opacity-60 mt-0.5">{item.genero}</p>
+                                            )}
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Nav Arrows */}
+                    <div className="absolute right-8 bottom-8 flex items-center gap-2 z-20">
+                        <button onClick={() => navigate(-1)} className="w-11 h-11 rounded-2xl bg-foreground/5 border border-border flex items-center justify-center text-foreground hover:bg-foreground/10 hover:border-accent/30 transition-all active:scale-90">
+                            <ChevronLeft size={18} />
+                        </button>
+                        <button onClick={() => navigate(1)} className="w-11 h-11 rounded-2xl bg-foreground/5 border border-border flex items-center justify-center text-foreground hover:bg-foreground/10 hover:border-accent/30 transition-all active:scale-90">
+                            <ChevronRight size={18} />
+                        </button>
                     </div>
                 </div>
-
-                {/* Overlaid UI Controls */}
-                <div className="absolute right-12 bottom-12 flex items-center gap-4 z-20">
-                    <button onClick={prevHit} className="w-12 h-12 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all backdrop-blur-md active:scale-90">
-                        <ChevronLeft size={20} />
-                    </button>
-                    <button onClick={nextHit} className="w-12 h-12 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all backdrop-blur-md active:scale-90">
-                        <ChevronRight size={20} />
-                    </button>
-                </div>
-
-                {/* Horizontal Indicators - Centered Bottom */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
-                    {hits.map((_, i) => (
-                        <div
-                            key={i}
-                            onClick={() => setCurrentIndex(i)}
-                            className={`h-1 transition-all duration-500 rounded-full cursor-pointer ${i === currentIndex ? 'w-10 bg-accent' : 'w-4 bg-white/10 hover:bg-white/30'}`}
-                        />
-                    ))}
-                </div>
             </div>
-
-            {/* Custom Animations Inline to ensure they work */}
-            <style jsx>{`
-                @keyframes music-bar {
-                    0%, 100% { height: 10%; }
-                    50% { height: 100%; }
-                }
-            `}</style>
-        </div>
+        </section>
     );
 }

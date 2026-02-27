@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   Search, Zap, ShieldCheck, Cpu, Music, Waves, ArrowRight, Star,
   TrendingUp, Users, Crown
@@ -48,27 +47,6 @@ function StatCard({ value, label, icon }: { value: string; label: string; icon: 
   );
 }
 
-function ExploreCard({ href, img, label, sub, accent }: { href: string; img: string; label: string; sub: string; accent: string }) {
-  return (
-    <Link href={href} className="group relative rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-foreground/20 transition-all duration-700 shadow-2xl dark:shadow-none aspect-[3/4]">
-      <Image src={img} alt={label} fill className="object-cover transition-transform duration-1000 group-hover:scale-110 opacity-50 group-hover:opacity-70" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-      <div className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-all duration-500"
-        style={{ backgroundImage: `linear-gradient(to right, transparent, ${accent}, transparent)` }} />
-      <div className="absolute inset-0 flex flex-col items-center justify-end p-10 text-center">
-        <div className="mb-3 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-          <span className="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border border-white/20 text-white/60 opacity-0 group-hover:opacity-100 transition-all duration-500"
-            style={{ background: `${accent}18` }}>{sub}</span>
-        </div>
-        <h3 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter italic">{label}</h3>
-        <div className="flex items-center gap-2 mt-3 opacity-0 group-hover:opacity-100 translate-y-3 group-hover:translate-y-0 transition-all duration-500">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: accent }}>Explorar</span>
-          <ArrowRight size={12} style={{ color: accent }} />
-        </div>
-      </div>
-    </Link>
-  );
-}
 
 function FeatureCard({ icon, hex, title, desc, badge }: { icon: React.ReactNode; hex: string; title: string; desc: string; badge?: string }) {
   return (
@@ -250,48 +228,22 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ══ TRENDING ══ */}
-        <section className="py-16 px-4">
-          <div className="max-w-[1700px] mx-auto">
-            <div className="flex items-center gap-3 mb-8 px-2">
-              <div className="w-8 h-8 bg-accent/10 rounded-xl flex items-center justify-center text-accent">
-                <TrendingUp size={16} />
-              </div>
-              <div>
-                <h2 className="text-2xl font-black uppercase tracking-tighter text-foreground">Trending Ahora</h2>
-                <p className="text-[9px] font-bold text-muted uppercase tracking-widest">Los beats más escuchados</p>
-              </div>
-              <Link href="/beats/catalog" className="ml-auto flex items-center gap-2 text-[9px] font-black text-accent uppercase tracking-widest hover:underline">
-                Ver todo <ArrowRight size={12} />
-              </Link>
-            </div>
-            {!bannerLoading ? (
-              <FeaturedBanner trendingBeats={trendingBeats} trendingProducers={trendingProducers} featuredMoods={[]} />
-            ) : (
+
+        {/* ══ HIT DE LA SEMANA / PRODUCTOR DESTACADO ══ */}
+        {bannerLoading ? (
+          <div className="py-16 px-4">
+            <div className="max-w-[1700px] mx-auto">
               <div className="w-full h-[420px] bg-card rounded-[3rem] border border-border flex items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
                   <div className="w-10 h-10 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
-                  <p className="text-[9px] font-black text-muted uppercase tracking-widest">Cargando tendencias...</p>
+                  <p className="text-[9px] font-black text-muted uppercase tracking-widest">Cargando...</p>
                 </div>
               </div>
-            )}
-          </div>
-        </section>
-
-        {/* ══ EXPLORE CARDS ══ */}
-        <section className="py-16 px-4">
-          <div className="max-w-[1700px] mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-5xl md:text-7xl font-black text-foreground uppercase tracking-tighter mb-3">Explora el Tianguis</h2>
-              <p className="text-muted text-[10px] font-black uppercase tracking-widest">Todo lo que necesitas para triunfar está aquí.</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <ExploreCard href="/beats/catalog" img="/images/explore/zaytoven.jpg" label="Beats" sub="Catálogo Completo" accent="#00f2ff" />
-              <ExploreCard href="/sound-kits" img="/images/explore/junior_h_singer.jpg" label="Sound Kits" sub="Packs & Samples" accent="#f59e0b" />
-              <ExploreCard href="/productores" img="/images/explore/drumma_boy_producer.jpg" label="Productores" sub="Encuentra tu favorito" accent="#a855f7" />
             </div>
           </div>
-        </section>
+        ) : (
+          <FeaturedBanner trendingBeats={trendingBeats} trendingProducers={trendingProducers} featuredMoods={[]} />
+        )}
 
         {/* ══ FEATURES ══ */}
         <section className="py-20 px-4">

@@ -23,7 +23,9 @@ const LICENSE_META: Record<string, { label: string; color: string; hex: string; 
     pro: { label: 'Pro', color: 'indigo', hex: '#6366f1', icon: <Zap size={20} />, planReq: 'pro', desc: 'MP3/WAV · Distribución libre' },
     premium: { label: 'Premium', color: 'emerald', hex: '#10b981', icon: <ShieldCheck size={20} />, planReq: 'pro', desc: 'WAV · 100k streams' },
     unlimited: { label: 'Ilimitada', color: 'amber', hex: '#f59e0b', icon: <Layers size={20} />, planReq: 'premium', desc: 'STEMS + WAV · Sin límites' },
+    exclusiva: { label: 'Exclusiva', color: 'rose', hex: '#f43f5e', icon: <ShieldCheck size={20} />, planReq: 'premium', desc: 'Cesión total · Derechos exclusivos' },
 };
+
 
 function FileUploadZone({ id, label, sublabel, color, hex, icon, file, existingFile, disabled, disabledLabel, accept, onChange }: any) {
     const [isDragging, setIsDragging] = useState(false);
@@ -99,11 +101,13 @@ export default function UploadPage() {
     const [isProActive, setIsProActive] = useState(true);
     const [isPremiumActive, setIsPremiumActive] = useState(true);
     const [isUnlimitedActive, setIsUnlimitedActive] = useState(true);
+    const [isExclusivaActive, setIsExclusivaActive] = useState(true);
     const [basicPrice, setBasicPrice] = useState('0');
     const [mp3Price, setMp3Price] = useState('349');
     const [proPrice, setProPrice] = useState('599');
     const [premiumPrice, setPremiumPrice] = useState('999');
     const [unlimitedPrice, setUnlimitedPrice] = useState('1999');
+    const [exclusivaPrice, setExclusivaPrice] = useState('9999');
 
     // Files
     const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -144,6 +148,7 @@ export default function UploadPage() {
                 const pro = find('pro'); if (pro?.precio) setProPrice(pro.precio.toString());
                 const premium = find('premium'); if (premium?.precio) setPremiumPrice(premium.precio.toString());
                 const unlimited = find('unlimited'); if (unlimited?.precio) setUnlimitedPrice(unlimited.precio.toString());
+                const exclusiva = find('exclusiva'); if (exclusiva?.precio) setExclusivaPrice(exclusiva.precio.toString());
             }
         };
         init();
@@ -206,12 +211,13 @@ export default function UploadPage() {
                 archivo_wav_url: wavPath, archivo_stems_url: stemsPath,
                 es_basica_activa: isBasicActive, es_mp3_activa: isMp3Active,
                 es_pro_activa: isProActive, es_premium_activa: isPremiumActive,
-                es_ilimitada_activa: isUnlimitedActive,
+                es_ilimitada_activa: isUnlimitedActive, es_exclusiva_activa: isExclusivaActive,
                 precio_basico_mxn: 0,
                 precio_mp3_mxn: parseInt(mp3Price) || 0,
                 precio_pro_mxn: parseInt(proPrice) || 0,
                 precio_premium_mxn: parseInt(premiumPrice) || 0,
                 precio_ilimitado_mxn: parseInt(unlimitedPrice) || 0,
+                precio_exclusiva_mxn: parseInt(exclusivaPrice) || 0,
                 es_publico: true
             });
             if (dbError) throw dbError;
@@ -251,6 +257,7 @@ export default function UploadPage() {
         { key: 'pro', active: isProActive, setActive: setIsProActive, price: proPrice, setPrice: setProPrice, locked: isFree },
         { key: 'premium', active: isPremiumActive, setActive: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, locked: isFree },
         { key: 'unlimited', active: isUnlimitedActive, setActive: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, locked: !isPremium },
+        { key: 'exclusiva', active: isExclusivaActive, setActive: setIsExclusivaActive, price: exclusivaPrice, setPrice: setExclusivaPrice, locked: !isPremium },
     ];
 
     const sections = ['Identidad del Beat', 'Archivos de Audio', 'Licencias & Precios'];
