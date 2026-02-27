@@ -85,8 +85,8 @@ export default function PayoutsPage() {
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-500">Portal Seguro · Stripe</span>
                     </div>
-                    <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground mb-2 leading-[1]">
-                        Mis<br /><span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Ganancias.</span>
+                    <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-2 leading-[1]">
+                        Mis<br /><span className="text-accent underline decoration-border underline-offset-8">Ganancias.</span>
                     </h1>
                     <p className="text-[10px] font-black text-muted uppercase tracking-widest opacity-50 ml-1 mt-1">Gestiona tus saldos y retiros</p>
                 </div>
@@ -129,7 +129,7 @@ export default function PayoutsPage() {
                 </div>
 
                 {/* Pending */}
-                <div className="group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 rounded-[3rem] p-10 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl shadow-lg dark:shadow-none">
+                <div className="group relative bg-card border border-border rounded-[3rem] p-10 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl">
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
                     <div className="absolute -top-16 -right-16 w-56 h-56 bg-amber-500/5 rounded-full blur-3xl" />
                     <div className="relative z-10">
@@ -171,21 +171,21 @@ export default function PayoutsPage() {
                     <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted">Historial de Retiros</h2>
                 </div>
 
-                <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 rounded-[2.5rem] overflow-hidden shadow-xl dark:shadow-none relative">
+                <div className="bg-card border border-border rounded-[2.5rem] overflow-hidden relative">
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
                     {history.length === 0 ? (
                         <div className="p-20 text-center flex flex-col items-center gap-4">
-                            <div className="w-16 h-16 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-[1.5rem] flex items-center justify-center text-muted">
+                            <div className="w-16 h-16 bg-foreground/5 border border-border rounded-[1.5rem] flex items-center justify-center text-muted">
                                 <Wallet size={28} strokeWidth={1.5} />
                             </div>
                             <p className="text-[10px] font-black uppercase tracking-widest text-muted opacity-40">No hay solicitudes de retiro todavía</p>
                         </div>
                     ) : (
-                        <div className="divide-y divide-slate-100 dark:divide-white/5">
+                        <div className="divide-y divide-border">
                             {history.map((item) => {
                                 const s = statusConfig[item.estado] || statusConfig.pendiente;
                                 return (
-                                    <div key={item.id} className="group p-6 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-all">
+                                    <div key={item.id} className="group p-6 flex items-center justify-between hover:bg-foreground/[0.03] transition-all">
                                         <div className="flex items-center gap-4">
                                             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${s.bg} ${s.color}`}>
                                                 <ArrowDownLeft size={20} />

@@ -255,8 +255,8 @@ export default function VerificationPage() {
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                     <span className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-400">Proceso de verificación</span>
                 </div>
-                <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground mb-2 leading-[1]">
-                    Solicitud de<br /><span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Verificación.</span>
+                <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-2 leading-[1]">
+                    Solicitud de<br /><span className="text-accent underline decoration-border underline-offset-8">Verificación.</span>
                 </h1>
                 <p className="text-[10px] font-black text-muted uppercase tracking-widest opacity-50 ml-1 mt-2">
                     Completa los requisitos para obtener la insignia oficial de autenticidad.
@@ -377,7 +377,7 @@ export default function VerificationPage() {
                     </div>
 
                     {!allChecksPassed && (
-                        <div className="mt-8 p-6 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-3xl flex items-start gap-4">
+                        <div className="mt-8 p-6 bg-foreground/5 border border-border rounded-3xl flex items-start gap-4">
                             <Lock className="text-muted shrink-0 mt-1" size={20} />
                             <div>
                                 <h4 className="font-black text-muted uppercase text-[10px] tracking-widest mb-1">Formulario Bloqueado</h4>
@@ -394,7 +394,7 @@ export default function VerificationPage() {
                         Solicitud Oficial
                     </h3>
 
-                    <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-border shadow-xl">
+                    <form onSubmit={handleSubmit} className="space-y-6 bg-card p-8 rounded-[2.5rem] border border-border shadow-xl">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-muted">Nombre Real</label>

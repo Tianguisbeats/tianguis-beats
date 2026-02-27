@@ -123,7 +123,7 @@ export default function StudioStatsPage() {
 
     // ── KPI Card component helper
     const KpiCard = ({ color, icon, value, label, sub }: any) => (
-        <div className={`group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:border-opacity-50 flex flex-col items-center text-center shadow-lg dark:shadow-none`}
+        <div className={`group relative bg-card border border-border rounded-[2.5rem] p-8 overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:border-opacity-50 flex flex-col items-center text-center`}
             style={{ '--hc': color } as any}>
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent to-transparent"
                 style={{ backgroundImage: `linear-gradient(to right, transparent, ${color}60, transparent)` }} />
@@ -135,7 +135,7 @@ export default function StudioStatsPage() {
                     {icon}
                 </div>
                 <h3 className="text-3xl font-black tracking-tighter mb-1" style={{ color }}>{value}</h3>
-                <p className="text-[10px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] mb-4">{label}</p>
+                <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mb-4">{label}</p>
                 {sub && <div className="mt-auto text-[9px] font-bold text-muted uppercase tracking-widest opacity-70">{sub}</div>}
             </div>
         </div>
@@ -183,7 +183,7 @@ export default function StudioStatsPage() {
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-500">Datos en Vivo</span>
                     </div>
-                    <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground mb-2 leading-[1]">
+                    <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-2 leading-[1]">
                         Analítica<br /><span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Elite.</span>
                     </h1>
                     <p className="text-muted text-[10px] font-black uppercase tracking-widest opacity-50 ml-1">
@@ -191,7 +191,7 @@ export default function StudioStatsPage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button onClick={handleDownloadCSV} className="group relative overflow-hidden bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 active:scale-95 text-slate-700 dark:text-foreground hover:border-accent/30">
+                    <button onClick={handleDownloadCSV} className="group relative overflow-hidden bg-card border border-border px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 active:scale-95 text-foreground hover:border-accent/30">
                         <Download size={14} /> Reporte CSV
                     </button>
                     <button onClick={() => setShowOptimizeModal(true)} className="group relative overflow-hidden bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl flex items-center gap-2">
@@ -208,7 +208,7 @@ export default function StudioStatsPage() {
                 <KpiCard color="#10b981" icon={<ShieldCheck size={22} />} value={formatCurrency(stats.totalRevenue * 0.15)} label="Ahorro en Comisiones" sub={`Gracias a tu plan ${stats.userTier !== 'free' ? stats.userTier.toUpperCase() : 'Pro/Premium'}`} />
 
                 {/* Subscription progress card */}
-                <div className={`group relative bg-white dark:bg-[#020205] border rounded-[2.5rem] p-8 overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl flex flex-col items-center text-center shadow-lg dark:shadow-none ${planBorder} dark:border-opacity-40`}>
+                <div className={`group relative bg-card border rounded-[2.5rem] p-8 overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl flex flex-col items-center text-center ${planBorder}`}>
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent to-transparent"
                         style={{ backgroundImage: `linear-gradient(to right, transparent, ${planColor}60, transparent)` }} />
                     <div className="relative z-10 flex flex-col items-center w-full">
@@ -220,10 +220,10 @@ export default function StudioStatsPage() {
                                 <h3 className={`text-3xl font-black tracking-tighter mb-1 flex items-end gap-1 ${planTailwind}`}>
                                     {progress.daysLeft} <span className="text-sm font-bold uppercase tracking-widest opacity-60 mb-1">días</span>
                                 </h3>
-                                <p className="text-[10px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.3em] mb-4">
+                                <p className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mb-4">
                                     Restantes del {isPremium ? 'Premium' : 'Pro'}
                                 </p>
-                                <div className="w-full bg-slate-200 dark:bg-white/10 rounded-full h-1 mb-2 mt-auto">
+                                <div className="w-full bg-foreground/10 rounded-full h-1 mb-2 mt-auto">
                                     <div className="h-1 rounded-full transition-all" style={{ width: `${progress.percent}%`, background: planColor }} />
                                 </div>
                                 <p className="text-[9px] font-bold text-muted uppercase tracking-widest">
@@ -249,7 +249,7 @@ export default function StudioStatsPage() {
             {/* Bottom section: Top Beats + Insights */}
             <div className="grid lg:grid-cols-3 gap-8">
                 {/* Top Beats */}
-                <div className="lg:col-span-2 bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-none rounded-[3rem] p-10 relative overflow-hidden">
+                <div className="lg:col-span-2 bg-card border border-border rounded-[3rem] p-10 relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
                     <div className="flex items-center justify-between mb-8">
                         <div>
@@ -273,7 +273,7 @@ export default function StudioStatsPage() {
                                 const maxPlays = stats.beatsList[0]?.conteo_reproducciones || 1;
                                 const pct = Math.round(((beat.conteo_reproducciones || 0) / maxPlays) * 100);
                                 return (
-                                    <div key={beat.id} className="group relative flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 hover:bg-white dark:hover:bg-white/10 hover:border-accent/20 transition-all overflow-hidden">
+                                    <div key={beat.id} className="group relative flex items-center gap-4 p-4 rounded-2xl bg-foreground/5 border border-border hover:bg-foreground/[0.08] hover:border-accent/20 transition-all overflow-hidden">
                                         <div className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-accent to-purple-600 transition-all duration-700" style={{ width: `${pct}%` }} />
                                         <div className="w-10 h-10 rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 shrink-0 relative">
                                             <Image src={beat.portada_url || '/placeholder.jpg'} fill className="object-cover" alt={beat.titulo} />
@@ -297,10 +297,10 @@ export default function StudioStatsPage() {
                 </div>
 
                 {/* Business Tips */}
-                <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 rounded-[3rem] p-8 relative overflow-hidden flex flex-col shadow-xl dark:shadow-none">
+                <div className="bg-card border border-border rounded-[3rem] p-8 relative overflow-hidden flex flex-col">
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
                     <div className="mb-6">
-                        <h3 className="text-xl font-black uppercase tracking-tighter mb-1 text-slate-900 dark:text-foreground">
+                        <h3 className="text-xl font-black uppercase tracking-tighter mb-1 text-foreground">
                             Consejos de <span className="text-accent">Negocio</span>
                         </h3>
                         <p className="text-[9px] font-bold text-muted uppercase tracking-widest opacity-50">Basados en tus datos</p>
