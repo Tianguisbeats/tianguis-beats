@@ -73,7 +73,14 @@ export default function MyPurchasesPage() {
             // Fetch transactions natively from the new single schema
             const { data: txData, error: txError } = await supabase
                 .from('transacciones')
-                .select('*')
+                .select(`
+                    *,
+                    vendedor:perfiles!vendedor_id (
+                        nombre_artistico,
+                        nombre_usuario,
+                        foto_perfil
+                    )
+                `)
                 .eq('comprador_id', user.id)
                 .order('fecha_creacion', { ascending: false });
 
@@ -83,7 +90,7 @@ export default function MyPurchasesPage() {
             const groupedOrders: Record<string, any> = {};
 
             (txData || []).forEach(tx => {
-                const pagoId = tx.id_pago_stripe || tx.id; // Group key
+                const pagoId = tx.id_pago_stripe || tx.id; // Group key, prioritizing id_pago_stripe
                 if (!groupedOrders[pagoId]) {
                     groupedOrders[pagoId] = {
                         id: pagoId,

@@ -194,7 +194,7 @@ function ServicesManagerPage() {
     const handleDelete = async (id: string) => {
         if (!confirm("¿Estás seguro de eliminar este servicio?")) return;
 
-        const { error } = await supabase.from('services').delete().eq('id', id);
+        const { error } = await supabase.from('servicios').delete().eq('id', id);
         if (error) {
             alert("Error al eliminar");
         } else {
@@ -304,7 +304,7 @@ function ServicesManagerPage() {
 
     const handleDeleteKit = async (id: string) => {
         if (!confirm("¿Estás seguro de eliminar este Sound Kit?")) return;
-        const { error } = await supabase.from('sound_kits').delete().eq('id', id);
+        const { error } = await supabase.from('kits_sonido').delete().eq('id', id);
         if (error) alert("Error al eliminar");
         else fetchData();
     };
