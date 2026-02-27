@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Plus, Edit3, Trash2, Briefcase, DollarSign, Clock, AlertCircle, Check, X, Loader2, Package, Upload, FileArchive, ArrowUpRight } from 'lucide-react';
+import { Plus, Edit3, Trash2, Briefcase, DollarSign, Clock, AlertCircle, Check, X, Loader2, Package, Upload, FileArchive, ArrowUpRight, Layers } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
@@ -521,6 +521,10 @@ function ServicesManagerPage() {
                                         <span className="text-[9px] font-black text-accent uppercase tracking-[0.3em] mb-1">Precio</span>
                                         <span className="font-black text-xl text-slate-900 dark:text-foreground tracking-tighter group-hover:text-accent transition-colors">${kit.precio}</span>
                                     </div>
+                                    <div className="w-full bg-orange-500/10 border border-orange-500/20 rounded-xl p-3 flex items-center justify-center gap-2">
+                                        <Layers size={14} className="text-orange-400" />
+                                        <span className="text-[9px] font-black text-orange-400 uppercase tracking-widest">Incluye Licencia Sound Kit</span>
+                                    </div>
                                     <div className="flex items-center justify-center gap-3 w-full">
                                         <button onClick={() => {
                                             setCurrentKit({ ...kit });
@@ -623,6 +627,18 @@ function ServicesManagerPage() {
                                             )}
                                         </label>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-orange-500/10 border border-orange-500/20 rounded-[2rem] p-6 flex items-start gap-4">
+                                <div className="p-3 bg-orange-500/20 text-orange-400 rounded-xl shrink-0">
+                                    <Layers size={24} />
+                                </div>
+                                <div>
+                                    <h4 className="text-orange-400 font-black text-sm uppercase tracking-widest mb-1">Licencia Sound Kit</h4>
+                                    <p className="text-orange-400/80 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
+                                        Al vender este Sound Kit, otorgas a los compradores una licencia no exclusiva para usar los audios en sus propias obras musicales. Queda estrictamente prohibida su re-venta individual o redistribución como librería.
+                                    </p>
                                 </div>
                             </div>
 
