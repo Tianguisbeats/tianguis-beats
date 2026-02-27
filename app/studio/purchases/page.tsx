@@ -59,6 +59,8 @@ export default function MyPurchasesPage() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filterType, setFilterType] = useState("all");
     const { showToast } = useToast();
 
     useEffect(() => {
@@ -147,6 +149,23 @@ export default function MyPurchasesPage() {
             setLoading(false);
         }
     };
+
+    const filteredOrders = React.useMemo(() => {
+        return orders.filter(order => {
+            const matchesSearch =
+                order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.items.some(item =>
+                    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    item.product_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    (item.license_type && item.license_type.toLowerCase().includes(searchTerm.toLowerCase()))
+                );
+
+            const matchesFilter = filterType === "all" ||
+                order.items.some(item => item.product_type === filterType);
+
+            return matchesSearch && matchesFilter;
+        });
+    }, [orders, searchTerm, filterType]);
 
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {
@@ -262,22 +281,63 @@ export default function MyPurchasesPage() {
                 </div>
             </div>
 
-            {orders.length === 0 ? (
+            {/* Search & Filters */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="relative w-full lg:max-w-md">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted opacity-80" size={16} />
+                    <input
+                        type="text"
+                        placeholder="Buscar por beat, licencia o ID..."
+                        className="w-full bg-accent/5 border border-border rounded-2xl py-4 pl-12 pr-4 text-[11px] font-bold text-foreground uppercase tracking-widest focus:outline-none focus:border-accent/40 transition-all placeholder:text-muted"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 text-[10px] font-black text-muted uppercase tracking-widest px-2">
+                        <Filter size={14} /> Filtrar:
+                    </div>
+                    <select
+                        className="bg-accent/5 border border-border rounded-2xl py-4 px-6 text-[10px] font-bold text-foreground uppercase tracking-widest focus:outline-none focus:border-accent/40 transition-all appearance-none cursor-pointer min-w-[180px]"
+                        value={filterType}
+                        onChange={(e) => setFilterType(e.target.value)}
+                    >
+                        <option value="all">Ver Todo</option>
+                        <option value="beat">Beats</option>
+                        <option value="sound_kit">Sound Kits</option>
+                        <option value="service">Servicios</option>
+                        <option value="plan">Suscripciones</option>
+                    </select>
+                </div>
+            </div>
+
+            {filteredOrders.length === 0 ? (
                 <div className="py-24 text-center bg-white/50 dark:bg-white/5 rounded-[3.5rem] border-2 border-dashed border-border/50">
                     <div className="w-20 h-20 bg-card rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 text-muted shadow-inner opacity-40">
-                        <Search size={32} />
+                        <ShoppingBag size={32} />
                     </div>
-                    <h3 className="text-xl font-black text-foreground uppercase tracking-tight mb-2">No has realizado compras aún</h3>
+                    <h3 className="text-xl font-black text-foreground uppercase tracking-tight mb-2">
+                        {searchTerm || filterType !== 'all' ? 'No hay resultados para tu búsqueda' : 'No has realizado compras aún'}
+                    </h3>
                     <p className="text-muted text-[11px] font-bold uppercase tracking-widest max-w-xs mx-auto mb-10 opacity-70">
-                        Explora el catálogo y encuentra los mejores beats y servicios para tu música.
+                        {searchTerm || filterType !== 'all' ? 'Intenta con otros términos o limpia los filtros.' : 'Explora el catálogo y encuentra los mejores beats y servicios para tu música.'}
                     </p>
-                    <Link href="/beats" className="bg-foreground text-background dark:bg-foreground dark:text-background px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
-                        Ir al Catálogo
-                    </Link>
+                    {(searchTerm || filterType !== 'all') ? (
+                        <button
+                            onClick={() => { setSearchTerm(""); setFilterType("all"); }}
+                            className="bg-accent text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
+                        >
+                            Limpiar Filtros
+                        </button>
+                    ) : (
+                        <Link href="/beats" className="bg-foreground text-background dark:bg-foreground dark:text-background px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
+                            Ir al Catálogo
+                        </Link>
+                    )}
                 </div>
             ) : (
                 <div className="space-y-8">
-                    {orders.map((order) => (
+                    {filteredOrders.map((order) => (
                         <div key={order.id} className="bg-card border border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] rounded-[3rem] relative overflow-hidden transition-all duration-500 hover:border-accent/50 hover:shadow-2xl dark:hover:shadow-accent/10 group">
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent/20 to-accent opacity-20 group-hover:opacity-40 transition-opacity" />
 
