@@ -165,7 +165,7 @@ export default function Navbar() {
                                         <Link href="/login" className="px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest text-foreground bg-card border border-border hover:bg-accent-soft hover:text-accent hover:border-accent/20 hover:scale-[1.08] active:scale-[0.95] transition-all min-h-[48px] flex items-center shadow-sm">
                                             Log In
                                         </Link>
-                                        <Link href="/signup" className="btn-standard px-6 py-3 min-h-[48px]">
+                                        <Link href="/signup" className="btn-standard px-6 py-3 min-h-[48px] bg-accent text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl shadow-accent/20 hover:bg-blue-600 hover:scale-[1.08] active:scale-[0.95] transition-all flex items-center">
                                             Sign Up
                                         </Link>
                                     </div>

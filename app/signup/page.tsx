@@ -53,6 +53,8 @@ export default function SignupPage() {
     }, [username]);
 
     const handleSignup = async (e: React.FormEvent) => {
+        e.preventDefault();
+
         const missingFields = [];
         if (!fullName) missingFields.push('Nombre Completo');
         if (!username) missingFields.push('Username');
@@ -62,14 +64,12 @@ export default function SignupPage() {
         if (!password) missingFields.push('Contraseña');
 
         if (missingFields.length > 0) {
-            setError(`Faltan datos obligatorios: ${missingFields.join(', ')}`);
-            setLoading(false);
+            setError(`⚠️ Faltan datos obligatorios: ${missingFields.join(', ')}`);
             return;
         }
 
         if (isUsernameAvailable === false) {
             setError('⚠️ Ese usuario ya está registrado, busca otro.');
-            setLoading(false);
             return;
         }
 
@@ -86,7 +86,7 @@ export default function SignupPage() {
         }
 
         if (age < 18) {
-            setError('Debes ser mayor de 18 años para registrarte en Tianguis Beats.');
+            setError('⚠️ Debes ser mayor de 18 años para registrarte en Tianguis Beats.');
             setLoading(false);
             return;
         }
@@ -103,25 +103,17 @@ export default function SignupPage() {
                         nombre_completo: fullName,
                         nombre_usuario: username,
                         nombre_artistico: artisticName,
-                        fecha_nacimiento: birthDate,
-                        role: 'artist'
+                        fecha_nacimiento: birthDate
                     }
                 }
             });
 
-            if (authError) {
-                console.error('Error de Supabase Auth:', authError);
-                throw authError;
-            }
+            if (authError) throw authError;
 
             if (!authData.user) {
                 throw new Error('No se recibió información del usuario tras el registro.');
             }
 
-            console.log('Registro exitoso para el ID:', authData.user.id);
-
-            // Si Supabase devuelve una sesión (sucede si la verificación de correo está desactivada)
-            // redirigimos directamente al estudio.
             if (authData.session) {
                 window.location.href = '/studio';
                 return;
@@ -129,23 +121,11 @@ export default function SignupPage() {
 
             setSuccess(true);
         } catch (err: any) {
-            console.error('DETALLES COMPLETOS DEL ERROR DE REGISTRO:', JSON.stringify(err, null, 2));
+            console.error('DETALLES DEL ERROR:', err);
+            let userMessage = `⚠️ ${err.message || 'Error inesperado al registrar.'}`;
 
-            let userMessage = 'No pudimos crear tu cuenta. Inténtalo de nuevo.';
-
-            // Si hay un error de rate limit
-            if (err.message?.includes('rate limit') || err.message?.includes('too many requests') || err.status === 429) {
-                userMessage = '⚠️ Has hecho demasiados intentos. Por seguridad, Supabase ha bloqueado temporalmente el registro. Espera unos 15 minutos o intenta con una red/correo diferente.';
-            } else if (err.message?.includes('already registered')) {
-                userMessage = '⚠️ Ese usuario (o correo) ya está registrado, busca otro o intenta iniciar sesión.';
-            } else if (err.status === 422 || err.message?.includes('invalid format')) {
-                userMessage = '⚠️ Alguno de los datos tiene un formato incorrecto. Revisa los campos.';
-            } else if (err.message === 'Debes ser mayor de 18 años para registrarte en Tianguis Beats.') {
-                userMessage = `⚠️ ${err.message}`;
-            } else if (err.message?.includes('User already registered') || err.message?.includes('already been registered')) {
-                userMessage = '⚠️ Ese usuario ya está registrado, busca otro o intenta iniciar sesión.';
-            } else {
-                userMessage = `⚠️ ${err.message || 'Error inesperado al registrar. Por favor intenta más tarde.'}`;
+            if (err.message?.includes('already registered') || err.message?.includes('already been registered')) {
+                userMessage = '⚠️ Ese usuario o correo ya está registrado. Intenta iniciar sesión.';
             }
 
             setError(userMessage);
@@ -195,7 +175,7 @@ export default function SignupPage() {
                             <div className="card-modern p-8 md:p-10">
                                 <form onSubmit={handleSignup} className="space-y-5">
                                     {error && (
-                                        <div className="p-4 bg-error/10 border border-error/20 text-error text-xs font-bold rounded-xl text-center">
+                                        <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold rounded-2xl text-center animate-in fade-in slide-in-from-top-2 duration-300">
                                             {error}
                                         </div>
                                     )}
