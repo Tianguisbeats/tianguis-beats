@@ -19,11 +19,17 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Debes iniciar sesión para realizar una compra" }, { status: 400 });
         }
 
-        // 1. Preparar line_items para Stripe
+        // 1. Preparar y Validar line_items para Stripe
         const line_items = items.map((item: any) => {
             // Limpiar el nombre para que sea Premium (Ej: "Girl" en vez de "girl [MP3]")
             const cleanName = item.name.split('[')[0].trim();
             const licenseInfo = item.metadata?.license || item.metadata?.licenseType || '';
+            const producerId = item.metadata?.productor_id || item.metadata?.producer_id || item.metadata?.seller_id || item.metadata?.producerId;
+
+            if ((item.type === 'beat' || item.type === 'service' || item.type === 'sound_kit') && !producerId) {
+                console.error(`ERROR METADATA VACÍA: El item ${item.name} no tiene ID de productor asignado.`);
+                throw new Error("Se detectaron metadatos corruptos en tu carrito de una versión anterior de la página. Por favor, VE A TU CARRITO, PRESIONA EL BOTÓN DE ELIMINAR O VACIAR CARRITO, e intenta realizar la compra de nuevo.");
+            }
 
             // Determinar etiqueta de tipo y icono para planes
             let typeLabel = item.type === 'plan' ? 'Suscripción' : (item.type === 'beat' ? 'Licencia de Beat' : 'Producto');

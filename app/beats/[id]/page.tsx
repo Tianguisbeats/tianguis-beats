@@ -106,7 +106,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 setLoading(true);
                 const { data, error: fetchError } = await supabase
                     .from('beats')
-                    .select('id, titulo, genero, bpm, precio_basico_mxn, precio_mp3_mxn, precio_pro_mxn, precio_premium_mxn, precio_ilimitado_mxn, precio_exclusivo_mxn, precio_soundkit_mxn, es_basica_activa, es_mp3_activa, es_pro_activa, es_premium_activa, es_ilimitada_activa, es_exclusiva_activa, es_soundkit_activa, esta_vendido, portada_url, archivo_mp3_url, archivo_muestra_url, tono_escala, vibras, descripcion, conteo_reproducciones, conteo_likes, fecha_creacion, tipos_beat, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
+                    .select('id, productor_id, titulo, genero, bpm, precio_basico_mxn, precio_mp3_mxn, precio_pro_mxn, precio_premium_mxn, precio_ilimitado_mxn, precio_exclusivo_mxn, precio_soundkit_mxn, es_basica_activa, es_mp3_activa, es_pro_activa, es_premium_activa, es_ilimitada_activa, es_exclusiva_activa, es_soundkit_activa, esta_vendido, portada_url, archivo_mp3_url, archivo_muestra_url, tono_escala, vibras, descripcion, conteo_reproducciones, conteo_likes, fecha_creacion, tipos_beat, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
                     .eq('id', id)
                     .single();
 

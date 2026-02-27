@@ -39,7 +39,7 @@ function HubContent() {
         const { data: trendData } = await supabase
           .from('beats')
           .select(`
-            id, titulo, precio_basico_mxn, bpm, genero, portada_url, archivo_mp3_url, archivo_muestra_url, tono_escala, vibras, fecha_creacion, conteo_reproducciones,
+            id, productor_id, titulo, precio_basico_mxn, bpm, genero, portada_url, archivo_mp3_url, archivo_muestra_url, tono_escala, vibras, fecha_creacion, conteo_reproducciones,
             producer:productor_id ( nombre_artistico, nombre_usuario, esta_verificado, es_fundador, foto_perfil, nivel_suscripcion )
           `)
           .eq('es_publico', true)
