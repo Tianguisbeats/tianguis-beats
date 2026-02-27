@@ -61,10 +61,13 @@ export default function QuejasSugerenciasPage() {
 
             // 1. Upload Evidences if any
             const evidenceUrls: string[] = ['', '', ''];
+            // Usamos el nombre limpio para la carpeta
+            const folderName = nombre.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
             for (let i = 0; i < evidences.length; i++) {
                 const file = evidences[i];
                 const ext = file.name.split('.').pop();
-                const fileName = `${authUser?.id || 'anon'}/evidencia_${Date.now()}_${i}.${ext}`;
+                const fileName = `${folderName}/evidencia_${Date.now()}_${i}.${ext}`;
                 const { data, error: uploadError } = await supabase.storage
                     .from('evidencias_quejas')
                     .upload(fileName, file);

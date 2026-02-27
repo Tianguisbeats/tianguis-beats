@@ -993,62 +993,76 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
                     <p className="text-muted text-[10px] uppercase font-bold tracking-widest mt-2">No hay quejas o sugerencias en este momento.</p>
                 </div>
             ) : (
-                feedbacks.map((item) => (
-                    <div key={item.id} className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 space-y-6 flex flex-col shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] transition-all hover:border-accent/30">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                            <div>
-                                <div className="flex items-center gap-3 mb-2">
-                                    <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${item.tipo_mensaje === 'queja' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
-                                        {item.tipo_mensaje === 'queja' ? 'QUEJA' : 'SUGERENCIA'}
-                                    </span>
-                                    <span className="text-[10px] font-bold text-muted uppercase tracking-widest">
-                                        {new Date(item.fecha_creacion).toLocaleDateString()}
-                                    </span>
+                feedbacks.map((item) => {
+                    const isPending = (item.estado || 'pendiente') === 'pendiente';
+                    return (
+                        <div
+                            key={item.id}
+                            className={`bg-white dark:bg-[#020205] border rounded-[2.5rem] p-8 space-y-6 flex flex-col shadow-lg transition-all duration-500 overflow-hidden relative ${isPending
+                                    ? 'border-amber-500/40 ring-1 ring-amber-500/10 shadow-amber-500/5'
+                                    : 'border-slate-200 dark:border-white/10 opacity-80'
+                                } hover:border-accent/30`}
+                        >
+                            {isPending && (
+                                <div className="absolute top-0 right-0 px-4 py-1 bg-amber-500 text-[8px] font-black text-white rounded-bl-xl uppercase tracking-widest animate-pulse">
+                                    Por revisar
                                 </div>
-                                <h3 className="font-black text-xl text-foreground">De: {item.perfiles ? item.perfiles.nombre_artistico || item.perfiles.nombre_usuario : item.nombre_usuario}</h3>
-                                <p className="text-xs text-muted font-bold tracking-widest uppercase">{item.email} {item.perfiles && `(Usuario Registrado)`}</p>
+                            )}
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <div>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${item.tipo_mensaje === 'queja' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
+                                            {item.tipo_mensaje === 'queja' ? 'QUEJA' : 'SUGERENCIA'}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-muted uppercase tracking-widest">
+                                            {new Date(item.fecha_creacion).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <h3 className="font-black text-xl text-foreground">De: {item.perfiles ? item.perfiles.nombre_artistico || item.perfiles.nombre_usuario : item.nombre_usuario}</h3>
+                                    <p className="text-xs text-muted font-bold tracking-widest uppercase">{item.email} {item.perfiles && `(Usuario Registrado)`}</p>
+                                </div>
+
+                                <select
+                                    value={item.estado || 'pendiente'}
+                                    onChange={(e) => handleUpdateStatus(item.id, e.target.value)}
+                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none border transition-colors cursor-pointer ${item.estado === 'pendiente' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : item.estado === 'leido' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'}`}
+                                >
+                                    <option value="pendiente">Pendiente</option>
+                                    <option value="leido">Leído</option>
+                                    <option value="resuelto">Resuelto</option>
+                                </select>
                             </div>
 
-                            <select
-                                value={item.estado || 'pendiente'}
-                                onChange={(e) => handleUpdateStatus(item.id, e.target.value)}
-                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none border transition-colors cursor-pointer ${item.estado === 'pendiente' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : item.estado === 'leido' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'}`}
-                            >
-                                <option value="pendiente">Pendiente</option>
-                                <option value="leido">Leído</option>
-                                <option value="resuelto">Resuelto</option>
-                            </select>
-                        </div>
+                            <div className="p-6 bg-slate-50 dark:bg-black/20 rounded-2xl border border-border">
+                                <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-3">Mensaje</p>
+                                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{item.descripcion_problema}</p>
+                            </div>
 
-                        <div className="p-6 bg-slate-50 dark:bg-black/20 rounded-2xl border border-border">
-                            <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-3">Mensaje</p>
-                            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{item.descripcion_problema}</p>
-                        </div>
-
-                        {/* Evidencias Layout */}
-                        {(item.evidencia_1 || item.evidencia_2 || item.evidencia_3) && (
-                            <div className="space-y-4">
-                                <p className="text-[10px] font-black uppercase text-muted tracking-widest px-2">Evidencias Adjuntas</p>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                                    {[item.evidencia_1, item.evidencia_2, item.evidencia_3].map((path, idx) => {
-                                        if (!path) return null;
-                                        const publicUrl = supabase.storage.from('evidencias_quejas').getPublicUrl(path).data.publicUrl;
-                                        return (
-                                            <div key={idx} className="group/img relative aspect-square bg-slate-50 dark:bg-white/5 rounded-3xl overflow-hidden border border-border shadow-md hover:border-accent/40 transition-all duration-500">
-                                                <img src={publicUrl} alt={`Evidencia ${idx + 1}`} className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-700" title="Ver evidencia completa" />
-                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
-                                                    <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="p-3 bg-white text-black rounded-full hover:scale-110 transition-transform shadow-2xl">
-                                                        <ExternalLink size={18} />
-                                                    </a>
+                            {/* Evidencias Layout */}
+                            {(item.evidencia_1 || item.evidencia_2 || item.evidencia_3) && (
+                                <div className="space-y-4">
+                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest px-2">Evidencias Adjuntas</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                        {[item.evidencia_1, item.evidencia_2, item.evidencia_3].map((path, idx) => {
+                                            if (!path) return null;
+                                            const publicUrl = supabase.storage.from('evidencias_quejas').getPublicUrl(path).data.publicUrl;
+                                            return (
+                                                <div key={idx} className="group/img relative aspect-square bg-slate-50 dark:bg-white/5 rounded-3xl overflow-hidden border border-border shadow-md hover:border-accent/40 transition-all duration-500">
+                                                    <img src={publicUrl} alt={`Evidencia ${idx + 1}`} className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-700" title="Ver evidencia completa" />
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="p-3 bg-white text-black rounded-full hover:scale-110 transition-transform shadow-2xl">
+                                                            <ExternalLink size={18} />
+                                                        </a>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        );
-                                    })}
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
-                ))
+                            )}
+                        </div>
+                    )
+                })
             )}
         </div>
     );
