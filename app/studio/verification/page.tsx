@@ -131,7 +131,9 @@ export default function VerificationPage() {
         setSubmitting(true);
 
         try {
-            if (!form.idDocumentFront) throw new Error("Debes subir al menos el frente de tu identificación.");
+            if (!form.idDocumentFront || !form.idDocumentBack) {
+                throw new Error("Es obligatorio subir ambos lados de tu identificación (Frente y Vuelta).");
+            }
             if (!profile?.nombre_usuario) throw new Error("No se pudo obtener el nombre de usuario.");
 
             let url_doc_frontal = '';
@@ -442,6 +444,7 @@ export default function VerificationPage() {
                                 <div className="relative">
                                     <input
                                         type="file"
+                                        required
                                         accept="image/*"
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                         onChange={(e) => handleFileChange(e, 'back')}

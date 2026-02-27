@@ -143,8 +143,7 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
     if (loading) return <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-accent" /></div>;
 
     const cards = [
-        { id: 'income', label: 'Ingresos Totales', value: `$${stats.totalSales.toLocaleString()} `, sub: 'Ventas Globales Históricas', icon: <DollarSign className="text-emerald-500" />, gradient: 'hover:shadow-emerald-500/10' },
-        { id: 'monthly', label: 'Ingresos Mensuales', value: `$${stats.monthlyRevenue.toLocaleString()} `, sub: 'Corte al día de hoy', icon: <TrendingUp className="text-indigo-500" />, gradient: 'hover:shadow-indigo-500/10' },
+        { id: 'income', label: 'Ingresos Totales', value: `$${stats.totalSales.toLocaleString()}`, sub: 'Ventas Globales Históricas', icon: <DollarSign className="text-emerald-500" />, gradient: 'hover:shadow-emerald-500/10' },
         { id: 'users', label: 'Usuarios', value: stats.totalUsers.toLocaleString(), sub: 'Productores registrados', icon: <Users className="text-blue-500" />, gradient: 'hover:shadow-blue-500/10' },
         { id: 'beats', label: 'Total Beats', value: stats.totalBeats.toLocaleString(), sub: 'En catálogo global', icon: <Music className="text-purple-500" />, gradient: 'hover:shadow-purple-500/10' },
         { id: 'verifications', label: 'Verificaciones', value: stats.pendingVerifications, sub: 'Solicitudes por revisar', icon: <img src="/verified-badge.png" alt="Verified" className="w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]" />, gradient: 'hover:shadow-blue-500/10' },
@@ -254,11 +253,27 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                 if (profileError) throw profileError;
             }
 
-            setRequests(requests.filter(r => r.id !== requestId));
+            setRequests(requests.map(r => r.id === requestId ? { ...r, estado: status === 'approved' ? 'aprobado' : 'rechazado' } : r));
             showToast(`Solicitud ${status === 'approved' ? 'Aprobada ✅' : 'Rechazada ❌'} correctamente`, "success");
         } catch (error: any) {
             console.error(error);
             showToast("Error al procesar la decisión. Verifica los permisos de la base de datos.", "error");
+        }
+    };
+
+    const handleRevert = async (requestId: string) => {
+        try {
+            const { error } = await supabase
+                .from('solicitudes_verificacion')
+                .update({ estado: 'pendiente' })
+                .eq('id', requestId);
+
+            if (error) throw error;
+
+            setRequests(requests.map(r => r.id === requestId ? { ...r, estado: 'pendiente' } : r));
+            showToast("Solicitud devuelta a Pendientes", "success");
+        } catch (err) {
+            showToast("Error al revertir", "error");
         }
     };
 
@@ -422,7 +437,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {requests.filter(r => r.estado !== 'pendiente').map(req => (
-                            <div key={req.id} className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-3xl p-6 shadow-sm hover:border-accent/20 transition-all flex flex-col gap-4">
+                            <div key={req.id} className="group/hist relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-3xl p-6 shadow-sm hover:border-accent/20 transition-all flex flex-col gap-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 border border-border/50">
@@ -433,8 +448,17 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                                             <p className="text-[9px] font-medium text-muted">{new Date(req.fecha_creacion).toLocaleDateString()}</p>
                                         </div>
                                     </div>
-                                    <div className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${req.estado === 'aprobado' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
-                                        {req.estado === 'aprobado' ? 'APROBADO' : 'RECHAZADO'}
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => handleRevert(req.id)}
+                                            className="p-2 bg-slate-100 dark:bg-white/5 rounded-lg text-muted hover:text-accent hover:bg-accent/10 transition-all opacity-0 group-hover/hist:opacity-100"
+                                            title="Regresar a Pendiente"
+                                        >
+                                            <Clock size={12} />
+                                        </button>
+                                        <div className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${req.estado === 'aprobado' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                                            {req.estado === 'aprobado' ? 'APROBADO' : 'RECHAZADO'}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="text-[10px] font-medium text-muted italic line-clamp-2">
@@ -1030,7 +1054,7 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
         try {
             const { data, error } = await supabase
                 .from('quejas_y_sugerencias')
-                .select(`*, perfiles:user_id (nombre_artistico, nombre_usuario, email)`)
+                .select(`*, perfiles:usuario_id (nombre_artistico, nombre_usuario, foto_perfil)`)
                 .order('fecha_creacion', { ascending: false });
 
             if (error) throw error;

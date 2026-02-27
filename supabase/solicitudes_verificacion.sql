@@ -17,7 +17,7 @@ CREATE TABLE public.solicitudes_verificacion (
     url_red_social TEXT NOT NULL,
     motivacion TEXT,
     url_doc_frontal TEXT NOT NULL, -- Identificación frente
-    url_doc_trasero TEXT,          -- Identificación vuelta (opcional)
+    url_doc_trasero TEXT NOT NULL, -- Identificación vuelta (obligatorio)
     estado TEXT NOT NULL DEFAULT 'pendiente', -- 'pendiente', 'aprobado', 'rechazado'
     mensaje_feedback TEXT,
     fecha_creacion TIMESTAMPTZ DEFAULT now(),
