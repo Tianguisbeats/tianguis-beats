@@ -94,7 +94,7 @@ export default function VerificationPage() {
         if (profile?.is_verified) {
             setStatus('verified');
         } else if (existingRequest) {
-            setStatus(existingRequest.status as any); // 'pending' | 'rejected'
+            setStatus(existingRequest.estado as any); // 'pendiente' | 'rechazado'
         } else {
             setStatus('none');
         }
