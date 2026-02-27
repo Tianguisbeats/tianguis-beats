@@ -2,15 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Edit, Trash2, Play, AlertCircle } from 'lucide-react';
+import { Edit, Trash2, Play, AlertCircle, Heart, Music, TrendingUp, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
 import Switch from '@/components/ui/Switch';
 import { useToast } from '@/context/ToastContext';
-
-/**
- * StudioBeatsPage: Interfaz de gestión para productores.
- * Permite ver, eliminar y navegar a la edición de beats propios.
- */
 
 export default function StudioBeatsPage() {
     const { showToast } = useToast();
@@ -18,13 +13,11 @@ export default function StudioBeatsPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
 
-
-
     const fetchBeats = async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data, error } = await supabase
+        const { data } = await supabase
             .from('beats')
             .select('id, productor_id, titulo, genero, bpm, precio_basico_mxn, portada_url, archivo_mp3_url, es_publico, conteo_reproducciones, conteo_ventas, conteo_likes, fecha_creacion')
             .eq('productor_id', user.id)
@@ -34,8 +27,8 @@ export default function StudioBeatsPage() {
             const transformed = data.map((b: any) => {
                 let finalCoverUrl = b.portada_url;
                 if (finalCoverUrl && !finalCoverUrl.startsWith('http')) {
-                    const { data: { publicUrl: cpUrl } } = supabase.storage.from('portadas_beats').getPublicUrl(finalCoverUrl);
-                    finalCoverUrl = cpUrl;
+                    const { data: { publicUrl } } = supabase.storage.from('portadas_beats').getPublicUrl(finalCoverUrl);
+                    finalCoverUrl = publicUrl;
                 } else if (!finalCoverUrl) {
                     finalCoverUrl = null;
                 }
@@ -46,13 +39,10 @@ export default function StudioBeatsPage() {
         setLoading(false);
     };
 
-    useEffect(() => {
-        fetchBeats();
-    }, []);
+    useEffect(() => { fetchBeats(); }, []);
 
     const handleDelete = async (id: string) => {
-        if (!confirm('¿Estás seguro de borrar este beat? Esta acción no se puede deshacer.')) return;
-
+        if (!confirm('¿Borrar este beat? Esta acción es permanente.')) return;
         const { error } = await supabase.from('beats').delete().eq('id', id);
         if (!error) {
             setBeats(prev => prev.filter(b => b.id !== id));
@@ -62,109 +52,130 @@ export default function StudioBeatsPage() {
         }
     };
 
-    if (loading) return <div className="p-8 text-center text-muted font-bold">Cargando tu inventario...</div>;
+    const formatNumber = (n: number) => new Intl.NumberFormat('es-MX').format(n || 0);
+
+    if (loading) return (
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+            <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted animate-pulse">Cargando inventario...</p>
+        </div>
+    );
+
+    const filtered = beats.filter(b =>
+        b.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (b.genero && b.genero.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
 
     return (
         <div className="space-y-12">
-            {/* Header Section */}
+            {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                 <div>
-                    <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-4">
-                        Inventario de <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Beats</span>
-                    </h1>
-                    <div className="flex flex-wrap items-center gap-4 text-muted">
-                        <div className="flex items-center gap-2 bg-accent/10 text-accent px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-accent/10">
-                            <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                            {beats.length} Activos
-                        </div>
-                        <span className="text-[10px] font-bold uppercase tracking-widest opacity-60 flex items-center gap-2">
-                            Sincronizado con el Catálogo del tianguis
-                        </span>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full mb-4">
+                        <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">{beats.length} Beats activos</span>
                     </div>
+                    <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground mb-2 leading-[1]">
+                        Inventario de<br /><span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Beats.</span>
+                    </h1>
+                    <p className="text-[10px] font-black text-muted uppercase tracking-widest opacity-50 ml-1">Sincronizado con el Catálogo</p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <Link
-                        href="/upload"
-                        className="bg-accent text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:scale-105 transition-all shadow-xl shadow-accent/20 active:scale-95 flex items-center gap-2"
-                    >
-                        Subir Nuevo Beat <Play size={14} className="fill-current" />
-                    </Link>
-                </div>
+                <Link
+                    href="/upload"
+                    className="group relative overflow-hidden bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-7 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl flex items-center gap-2.5"
+                >
+                    <div className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                    <Plus size={16} className="relative z-10 group-hover:text-white transition-colors" />
+                    <span className="relative z-10 group-hover:text-white transition-colors">Subir Nuevo Beat</span>
+                </Link>
             </div>
 
-            <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-none rounded-[3rem] p-8 md:p-10 relative overflow-hidden transition-all">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent to-blue-600 opacity-20" />
+            {/* Table container */}
+            <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-none rounded-[3rem] p-8 md:p-10 relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
 
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-                    <div className="relative w-full group">
-                        <input
-                            type="text"
-                            placeholder="Buscar beat por nombre o género..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-4 font-bold text-[11px] text-slate-700 dark:text-white uppercase tracking-widest focus:outline-none focus:border-accent/40 transition-all placeholder:text-slate-400 dark:placeholder:text-muted shadow-inner"
-                        />
-                        <div className="absolute right-6 top-1/2 -translate-y-1/2 text-muted opacity-40">
-                            <Play size={14} className="rotate-90" />
-                        </div>
-                    </div>
+                {/* Search */}
+                <div className="relative mb-8 max-w-md">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted opacity-50" size={16} />
+                    <input
+                        type="text"
+                        placeholder="Buscar por nombre o género..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-5 py-3.5 text-[11px] font-bold text-slate-700 dark:text-foreground uppercase tracking-widest focus:outline-none focus:border-accent/40 transition-all placeholder:text-muted/50 shadow-inner"
+                    />
                 </div>
 
-                {beats.length === 0 ? (
-                    <div className="p-20 text-center bg-slate-50 dark:bg-white/5 rounded-[2.5rem] border border-slate-200 dark:border-white/5">
-                        <div className="w-24 h-24 bg-card dark:bg-card border border-border/50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-muted shadow-sm shadow-black/5 dark:shadow-white/5">
-                            <AlertCircle size={48} strokeWidth={1.5} />
+                {filtered.length === 0 ? (
+                    <div className="p-20 text-center bg-slate-50 dark:bg-white/5 rounded-[2.5rem] border-2 border-dashed border-slate-200 dark:border-white/10">
+                        <div className="w-20 h-20 bg-white dark:bg-card border border-slate-200 dark:border-border/50 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-muted shadow-sm">
+                            <AlertCircle size={36} strokeWidth={1.5} />
                         </div>
-                        <h3 className="text-2xl font-black text-slate-900 dark:text-foreground uppercase tracking-tight mb-3">Tu galería está vacía</h3>
-                        <p className="text-muted text-[11px] font-bold uppercase tracking-widest mb-10 max-w-sm mx-auto opacity-70">Es momento de compartir tu talento con el mundo. Tus beats aparecerán aquí una vez que los subas.</p>
-                        <Link href="/upload" className="bg-accent text-white px-8 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl inline-block">
+                        <h3 className="text-xl font-black text-slate-900 dark:text-foreground uppercase tracking-tight mb-3">Tu galería está vacía</h3>
+                        <p className="text-muted text-[11px] font-bold uppercase tracking-widest mb-8 max-w-sm mx-auto opacity-60">Tus beats aparecerán aquí una vez que los subas.</p>
+                        <Link href="/upload" className="bg-accent text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl inline-block">
                             Comenzar Ahora
                         </Link>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {beats.filter(b => b.titulo.toLowerCase().includes(searchTerm.toLowerCase()) || (b.genero && b.genero.toLowerCase().includes(searchTerm.toLowerCase()))).map((beat) => (
+                        {filtered.map((beat) => (
                             <div
                                 key={beat.id}
-                                className="group bg-card/60 hover:bg-card border border-border/50 hover:border-accent/30 rounded-[2.5rem] p-6 transition-all duration-500 flex flex-col gap-6 shadow-sm hover:shadow-2xl dark:shadow-none dark:hover:shadow-black/40"
+                                className="group relative bg-slate-50 dark:bg-white/[0.03] hover:bg-white dark:hover:bg-white/[0.06] border border-slate-200 dark:border-white/5 hover:border-accent/20 rounded-[2.5rem] p-5 transition-all duration-500 flex flex-col gap-5 shadow-sm hover:shadow-2xl dark:hover:shadow-black/30 overflow-hidden"
                             >
-                                <div className="relative aspect-square rounded-[2rem] overflow-hidden bg-background shadow-inner group-hover:shadow-2xl transition-all duration-500 border border-border/50">
+                                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/0 to-transparent group-hover:via-accent/30 transition-all" />
+
+                                {/* Cover */}
+                                <div className="relative aspect-square rounded-[2rem] overflow-hidden bg-slate-200 dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-inner">
                                     {beat.portada_url ? (
                                         <img src={beat.portada_url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={beat.titulo} />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-slate-400 dark:text-muted font-black text-[10px] uppercase tracking-[0.3em]">
+                                        <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-muted font-black text-4xl uppercase tracking-tighter">
                                             {beat.titulo.charAt(0)}
                                         </div>
                                     )}
-                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-[2px]">
-                                        <Play size={32} className="text-white fill-current drop-shadow-lg" />
+                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-[2px]">
+                                        <Play size={36} className="text-white fill-current drop-shadow-lg" />
+                                    </div>
+                                    {/* Genre + BPM badge */}
+                                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                                        {beat.genero && <span className="bg-black/60 backdrop-blur-sm text-white text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg">{beat.genero}</span>}
+                                        {beat.bpm && <span className="bg-black/60 backdrop-blur-sm text-white text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg">{beat.bpm} BPM</span>}
                                     </div>
                                 </div>
 
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="font-black text-slate-900 dark:text-foreground text-xl tracking-tight truncate mb-4">{beat.titulo}</h4>
-                                    <div className="flex items-center justify-between px-2">
-                                        <div className="flex flex-col">
-                                            <span className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-muted mb-1">Visibilidad</span>
+                                {/* Info */}
+                                <div className="flex-1">
+                                    <h4 className="font-black text-slate-900 dark:text-foreground text-lg tracking-tight truncate mb-3 group-hover:text-accent transition-colors">{beat.titulo}</h4>
+
+                                    {/* Mini stats */}
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <span className="flex items-center gap-1.5 text-[10px] font-bold text-muted uppercase tracking-widest">
+                                            <Play size={10} className="text-blue-500" fill="currentColor" /> {formatNumber(beat.conteo_reproducciones)}
+                                        </span>
+                                        <span className="flex items-center gap-1.5 text-[10px] font-bold text-muted uppercase tracking-widest">
+                                            <Heart size={10} className="text-rose-500" fill="currentColor" /> {formatNumber(beat.conteo_likes)}
+                                        </span>
+                                        <span className="flex items-center gap-1.5 text-[10px] font-bold text-muted uppercase tracking-widest">
+                                            <TrendingUp size={10} className="text-emerald-500" /> {formatNumber(beat.conteo_ventas || 0)}
+                                        </span>
+                                    </div>
+
+                                    {/* Visibility toggle */}
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-muted/60 mb-0.5">Visibilidad</p>
                                             <span className={`text-[10px] font-black uppercase tracking-widest ${beat.es_publico ? 'text-emerald-500' : 'text-amber-500'}`}>
                                                 {beat.es_publico ? 'Público' : 'Oculto'}
                                             </span>
                                         </div>
-
                                         <Switch
                                             active={beat.es_publico}
                                             onChange={async (newStatus) => {
-                                                const { error } = await supabase
-                                                    .from('beats')
-                                                    .update({ es_publico: newStatus })
-                                                    .eq('id', beat.id);
-
+                                                const { error } = await supabase.from('beats').update({ es_publico: newStatus }).eq('id', beat.id);
                                                 if (!error) {
-                                                    const playCount = beats?.reduce((sum, b) => sum + (b.conteo_reproducciones || 0), 0) || 0;
-                                                    const updatedBeats = beats.map(b =>
-                                                        b.id === beat.id ? { ...b, es_publico: newStatus } : b
-                                                    );
-                                                    setBeats(updatedBeats);
+                                                    setBeats(prev => prev.map(b => b.id === beat.id ? { ...b, es_publico: newStatus } : b));
                                                     showToast(newStatus ? 'Beat publicado' : 'Beat ocultado', 'success');
                                                 } else {
                                                     showToast('Error al actualizar estado', 'error');
@@ -176,28 +187,25 @@ export default function StudioBeatsPage() {
                                     </div>
                                 </div>
 
+                                {/* Actions */}
                                 <div className="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-white/5">
                                     <Link
                                         href={`/studio/beats/edit/${beat.id}`}
-                                        className="flex-1 h-12 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-foreground rounded-xl flex items-center justify-center hover:bg-slate-900 hover:text-white dark:hover:bg-white/10 dark:hover:border-accent/40 transition-all duration-300 group/btn shadow-sm text-[10px] font-black uppercase tracking-widest gap-2"
-                                        title="Editar"
+                                        className="flex-1 h-10 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-foreground rounded-xl flex items-center justify-center hover:bg-slate-900 hover:text-white dark:hover:bg-white/10 dark:hover:border-accent/30 transition-all duration-300 text-[10px] font-black uppercase tracking-widest gap-2"
                                     >
-                                        <Edit size={14} className="transition-transform group-hover/btn:scale-110" />
-                                        Editar
+                                        <Edit size={12} /> Editar
                                     </Link>
                                     <button
                                         onClick={() => handleDelete(beat.id)}
-                                        className="w-12 h-12 bg-white dark:bg-rose-500/5 border border-slate-200 dark:border-rose-500/10 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-300 group/btn shadow-sm"
-                                        title="Eliminar"
+                                        className="w-10 h-10 bg-rose-50 dark:bg-rose-500/5 border border-rose-200 dark:border-rose-500/10 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-300"
                                     >
-                                        <Trash2 size={16} className="transition-transform group-hover/btn:scale-110" />
+                                        <Trash2 size={14} />
                                     </button>
                                 </div>
                             </div>
                         ))}
                     </div>
-                )
-                }
+                )}
             </div>
         </div>
     );

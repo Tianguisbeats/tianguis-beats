@@ -118,6 +118,28 @@ export default function StudioSalesPage() {
         return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(val);
     };
 
+    const handleDownloadCSV = () => {
+        const rows = [
+            ['Fecha', 'Producto', 'Tipo', 'Comprador', 'Licencia', 'Metodo Pago', 'Ingreso (MXN)'],
+            ...filteredSales.map(s => [
+                new Date(s.created_at).toLocaleDateString('es-MX'),
+                s.producto?.titulo || 'Producto',
+                s.tipo_producto || '',
+                s.comprador?.nombre_artistico || s.comprador?.nombre_usuario || 'Cliente',
+                s.license_type || '',
+                s.payment_method || 'Stripe',
+                Number(s.amount || 0).toFixed(2)
+            ])
+        ];
+        const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ventas_tianguis_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+    };
+
     const getItemIcon = (type: string) => {
         switch (type) {
             case 'beat': return <Music size={18} />;
@@ -155,8 +177,8 @@ export default function StudioSalesPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <button className="bg-card border border-border px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-accent/10 transition-all flex items-center gap-2 active:scale-95">
-                        <Download size={14} /> Reporte PDF
+                    <button onClick={handleDownloadCSV} className="bg-card border border-border px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-accent/10 transition-all flex items-center gap-2 active:scale-95">
+                        <Download size={14} /> Reporte CSV
                     </button>
                     <button className="bg-foreground text-background dark:bg-foreground dark:text-background px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-accent hover:text-white hover:scale-105 transition-all shadow-xl shadow-accent/20 active:scale-95 flex items-center gap-2">
                         Retirar Fondos <ArrowUpRight size={14} />

@@ -263,28 +263,25 @@ export default function MyPurchasesPage() {
     };
 
     if (loading) return (
-        <div className="flex flex-col items-center justify-center py-20 animate-pulse">
-            <div className="w-16 h-16 bg-muted/10 rounded-3xl mb-4" />
-            <div className="h-4 w-32 bg-muted/10 rounded-full" />
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+            <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted animate-pulse">Cargando tu bóveda...</p>
         </div>
     );
 
     return (
         <div className="space-y-12">
-            {/* Header Section */}
+            {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                 <div>
-                    <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground mb-4">
-                        Mis <span className="text-accent underline decoration-border underline-offset-8">Compras</span>
-                    </h1>
-                    <div className="flex flex-wrap items-center gap-4 text-muted">
-                        <div className="flex items-center gap-2 bg-accent/10 text-accent px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-accent/10">
-                            <Package size={12} /> Bóveda Segura
-                        </div>
-                        <span className="text-[10px] font-bold uppercase tracking-widest opacity-60 flex items-center gap-2">
-                            <Clock size={12} /> Sincronizado
-                        </span>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full mb-4">
+                        <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Bóveda Segura · {orders.length} Pedido{orders.length !== 1 ? 's' : ''}</span>
                     </div>
+                    <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground mb-2 leading-[1]">
+                        Mis<br /><span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Compras.</span>
+                    </h1>
+                    <p className="text-[10px] font-black text-muted uppercase tracking-widest opacity-50 ml-1 mt-1">Todos tus productos y licencias en un solo lugar</p>
                 </div>
             </div>
 
@@ -319,25 +316,23 @@ export default function MyPurchasesPage() {
             </div>
 
             {filteredOrders.length === 0 ? (
-                <div className="py-24 text-center bg-white/50 dark:bg-white/5 rounded-[3.5rem] border-2 border-dashed border-border/50">
-                    <div className="w-20 h-20 bg-card rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 text-muted shadow-inner opacity-40">
-                        <ShoppingBag size={32} />
+                <div className="py-24 text-center bg-slate-50 dark:bg-white/[0.02] rounded-[3.5rem] border-2 border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center gap-4">
+                    <div className="w-20 h-20 bg-white dark:bg-card border border-slate-200 dark:border-border/50 rounded-[2rem] flex items-center justify-center mx-auto text-muted shadow-sm">
+                        <ShoppingBag size={32} strokeWidth={1.5} />
                     </div>
-                    <h3 className="text-xl font-black text-foreground uppercase tracking-tight mb-2">
-                        {searchTerm || filterType !== 'all' ? 'No hay resultados para tu búsqueda' : 'No has realizado compras aún'}
+                    <h3 className="text-xl font-black text-foreground uppercase tracking-tight">
+                        {searchTerm || filterType !== 'all' ? 'Sin resultados' : 'Aún no hay compras'}
                     </h3>
-                    <p className="text-muted text-[11px] font-bold uppercase tracking-widest max-w-xs mx-auto mb-10 opacity-70">
-                        {searchTerm || filterType !== 'all' ? 'Intenta con otros términos o limpia los filtros.' : 'Explora el catálogo y encuentra los mejores beats y servicios para tu música.'}
+                    <p className="text-[11px] font-bold text-muted uppercase tracking-widest max-w-xs mx-auto opacity-60">
+                        {searchTerm || filterType !== 'all' ? 'Ajusta los filtros para ver más.' : 'Explora el catálogo y encuentra beats increibles.'}
                     </p>
                     {(searchTerm || filterType !== 'all') ? (
-                        <button
-                            onClick={() => { setSearchTerm(""); setFilterType("all"); }}
-                            className="bg-accent text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
-                        >
+                        <button onClick={() => { setSearchTerm(""); setFilterType("all"); }}
+                            className="mt-4 bg-accent text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
                             Limpiar Filtros
                         </button>
                     ) : (
-                        <Link href="/beats" className="bg-foreground text-background dark:bg-foreground dark:text-background px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
+                        <Link href="/beats" className="mt-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
                             Ir al Catálogo
                         </Link>
                     )}

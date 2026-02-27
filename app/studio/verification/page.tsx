@@ -194,8 +194,9 @@ export default function VerificationPage() {
     };
 
     if (loading) return (
-        <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full"></div>
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+            <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted animate-pulse">Verificando Requisitos...</p>
         </div>
     );
 
@@ -203,13 +204,20 @@ export default function VerificationPage() {
 
     if (status === 'verified') {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-md mx-auto">
-                <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mb-6 animate-in zoom-in duration-500">
-                    <ShieldCheck className="w-12 h-12 text-green-500" />
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-lg mx-auto py-20">
+                <div className="relative mb-8">
+                    <div className="w-32 h-32 bg-emerald-500/10 border-2 border-emerald-500/20 rounded-[3rem] flex items-center justify-center animate-in zoom-in duration-500 shadow-2xl shadow-emerald-500/10">
+                        <ShieldCheck className="w-16 h-16 text-emerald-500" />
+                    </div>
+                    <div className="absolute inset-0 bg-emerald-500/5 blur-3xl rounded-full" />
                 </div>
-                <h1 className="text-3xl font-black uppercase tracking-tighter mb-4">¡Estás Verificado!</h1>
-                <p className="text-muted text-sm font-bold uppercase tracking-widest leading-loose">
-                    Tu cuenta ya cuenta con la insignia de autenticidad. Gracias por ser un productor destacado en Tianguis Beats.
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full mb-4">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-500">Estado · Verificado</span>
+                </div>
+                <h1 className="text-5xl font-black uppercase tracking-tighter mb-4 leading-[1]">¡Cuenta<br /><span className="text-emerald-500">Verificada!</span></h1>
+                <p className="text-muted text-[11px] font-bold uppercase tracking-widest leading-loose max-w-sm opacity-70">
+                    Tu insignia de verificación confirma tu identidad. Eres un productor destacado en Tianguis Beats.
                 </p>
             </div>
         );
@@ -217,30 +225,42 @@ export default function VerificationPage() {
 
     if (status === 'pending') {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-md mx-auto">
-                <div className="w-24 h-24 bg-amber-500/10 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                    <ShieldCheck className="w-12 h-12 text-amber-500" />
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-lg mx-auto py-20">
+                <div className="relative mb-8">
+                    <div className="w-32 h-32 bg-amber-500/10 border-2 border-amber-500/20 rounded-[3rem] flex items-center justify-center shadow-2xl shadow-amber-500/10">
+                        <ShieldCheck className="w-16 h-16 text-amber-400 animate-pulse" />
+                    </div>
+                    <div className="absolute inset-0 bg-amber-500/5 blur-3xl rounded-full animate-pulse" />
                 </div>
-                <h1 className="text-3xl font-black uppercase tracking-tighter mb-4">Solicitud en Revisión</h1>
-                <p className="text-muted text-sm font-bold uppercase tracking-widest leading-loose">
-                    Nuestro equipo está revisando tu documentación. Te notificaremos por correo electrónico cuando haya una actualización (24-48 horas).
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full mb-4">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-500">Estado · En Revisión</span>
+                </div>
+                <h1 className="text-5xl font-black uppercase tracking-tighter mb-4 leading-[1]">Solicitud en<br /><span className="text-amber-400">Revisión.</span></h1>
+                <p className="text-muted text-[11px] font-bold uppercase tracking-widest leading-loose max-w-sm mt-2 opacity-70">
+                    Nuestro equipo está revisando tu documentación. Te notificaremos en 24–48 hrs.
                 </p>
+                <div className="mt-8 p-6 bg-amber-500/5 border border-amber-500/20 rounded-3xl max-w-sm w-full">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-400">Tip mientras esperas</p>
+                    <p className="text-[11px] text-muted mt-2 font-medium leading-relaxed">Sigue subiendo beats para aumentar tus estadísticas. Mientras más activo estés, mejor será tu perfil al momento de la revisión.</p>
+                </div>
             </div>
         );
     }
 
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="mb-12 text-center md:text-left">
-                <div className="flex flex-col md:flex-row items-center gap-6 mb-6">
-                    <img src="/verified-badge.png" alt="Verificado" className="w-16 h-16 md:w-20 md:h-20 object-contain shadow-2xl shadow-blue-500/20 rounded-full" />
-                    <div>
-                        <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-2">Solicitud de <span className="text-accent">Verificación</span></h1>
-                        <p className="text-muted font-bold uppercase tracking-widest text-xs max-w-xl leading-relaxed">
-                            La insignia de verificación confirma tu identidad y destaca tu perfil como un profesional de confianza.
-                        </p>
-                    </div>
+            <div className="mb-12">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full mb-4">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-400">Proceso de verificación</span>
                 </div>
+                <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground mb-2 leading-[1]">
+                    Solicitud de<br /><span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Verificación.</span>
+                </h1>
+                <p className="text-[10px] font-black text-muted uppercase tracking-widest opacity-50 ml-1 mt-2">
+                    Completa los requisitos para obtener la insignia oficial de autenticidad.
+                </p>
             </div>
 
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
