@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
     FileText, Settings, ShieldCheck, FileKey, Crown, Zap,
-    Package, AlignLeft, Info, Music, Check, X
+    Package, AlignLeft, Info, Music, Check, X, Layers
 } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
 import LoadingTianguis from '@/components/LoadingTianguis';
@@ -14,9 +14,9 @@ export type ContractType = 'basica' | 'mp3' | 'pro' | 'premium' | 'ilimitada' | 
 const CONTRACT_TYPES = [
     {
         id: 'basica' as ContractType,
-        name: 'Licencia Gratis',
+        name: 'Descarga Gratuita',
         tier: 'FREE',
-        description: 'Uso personal / promocional con tag de voz.',
+        description: 'Uso no comercial con TAG de voz.',
         icon: <FileText size={26} />,
         color: 'text-slate-400',
         iconBg: 'bg-slate-400/10',
@@ -27,9 +27,9 @@ const CONTRACT_TYPES = [
     },
     {
         id: 'mp3' as ContractType,
-        name: 'Licencia Básica',
+        name: 'Licencia Básica (MP3)',
         tier: 'MP3 HQ',
-        description: 'MP3 de alta calidad sin tag. Distribución estándar.',
+        description: 'Uso comercial limitado · MP3 HQ.',
         icon: <Music size={26} />,
         color: 'text-blue-400',
         iconBg: 'bg-blue-500/10',
@@ -40,10 +40,10 @@ const CONTRACT_TYPES = [
     },
     {
         id: 'pro' as ContractType,
-        name: 'Licencia Pro',
+        name: 'Licencia Pro (MP3+WAV)',
         tier: 'PRO',
-        description: 'MP3 + WAV con límites de distribución extendidos.',
-        icon: <Zap size={26} />,
+        description: 'Uso comercial profesional · MP3 + WAV.',
+        icon: <ShieldCheck size={26} />,
         color: 'text-indigo-400',
         iconBg: 'bg-indigo-500/10',
         borderColor: 'border-indigo-500/20',
@@ -53,23 +53,23 @@ const CONTRACT_TYPES = [
     },
     {
         id: 'premium' as ContractType,
-        name: 'Licencia Premium',
-        tier: 'ESTUDIO WAV',
-        description: 'WAV de calidad estudio. Altos límites de explotación.',
-        icon: <Package size={26} />,
-        color: 'text-purple-400',
-        iconBg: 'bg-purple-500/10',
-        borderColor: 'border-purple-500/20',
-        glowColor: 'shadow-purple-500/10',
-        accentLine: 'via-purple-500',
-        badgeBg: 'bg-purple-500/10 text-purple-400',
+        name: 'Licencia Premium (+STEMS)',
+        tier: 'TRACKOUTS',
+        description: 'Máximo control · Incluye STEMS (Trackout).',
+        icon: <Crown size={26} />,
+        color: 'text-emerald-400',
+        iconBg: 'bg-emerald-500/10',
+        borderColor: 'border-emerald-500/20',
+        glowColor: 'shadow-emerald-500/10',
+        accentLine: 'via-emerald-500',
+        badgeBg: 'bg-emerald-500/10 text-emerald-400',
     },
     {
         id: 'ilimitada' as ContractType,
         name: 'Licencia Ilimitada',
-        tier: 'TODOS LOS ARCHIVOS',
-        description: 'Todos los formatos. Sin límites comerciales.',
-        icon: <Crown size={26} />,
+        tier: 'UNLIMITED',
+        description: 'Sin límites de distribución ni streaming.',
+        icon: <Layers size={26} />,
         color: 'text-amber-400',
         iconBg: 'bg-amber-500/10',
         borderColor: 'border-amber-500/20',
@@ -81,7 +81,7 @@ const CONTRACT_TYPES = [
         id: 'exclusiva' as ContractType,
         name: 'Compra Exclusiva',
         tier: 'EXCLUSIVA',
-        description: 'Cesión completa de derechos exclusivos sobre el beat.',
+        description: 'Cesión exclusiva de derechos sobre el beat.',
         icon: <ShieldCheck size={26} />,
         color: 'text-emerald-400',
         iconBg: 'bg-emerald-500/10',
@@ -144,10 +144,10 @@ export default function ContractsPage() {
 
     const getDefaultLegalText = (type: ContractType) => {
         const defaults: Record<string, string> = {
-            basica: "LICENCIA GRATIS: Este contrato otorga derechos no exclusivos de uso sobre el Beat para fines promocionales. Descarga MP3 con etiqueta de voz (Tag).",
-            mp3: "LICENCIA BÁSICA: Derechos no exclusivos con descarga de archivo MP3 de alta calidad (High Quality limpio). Limite estándar de distribución.",
-            pro: "LICENCIA PRO: Derechos no exclusivos con limites extendidos de distribución y reproducciones. Descarga MP3 / WAV.",
-            premium: "LICENCIA PREMIUM: Derechos no exclusivos con calidad de estudio profesional (WAV). Altos límites de explotación.",
+            basica: "DESCARGA GRATUITA: Este contrato otorga derechos no exclusivos de uso sobre el Beat para fines promocionales. Descarga MP3 con etiqueta de voz (Tag).",
+            mp3: "LICENCIA BÁSICA (MP3): Derechos no exclusivos con descarga de archivo MP3 de alta calidad (High Quality limpio). Limite estándar de distribución.",
+            pro: "LICENCIA PRO (MP3+WAV): Derechos no exclusivos con limites extendidos de distribución y reproducciones. Descarga MP3 / WAV.",
+            premium: "LICENCIA PREMIUM (+STEMS): Derechos no exclusivos con calidad de estudio profesional (WAV y STEMS). Altos límites de explotación.",
             ilimitada: "LICENCIA ILIMITADA: Derechos no exclusivos con acceso a todos los archivos y sin limites comerciales.",
             exclusiva: "COMPRA EXCLUSIVA: Cesión de derechos exclusivos sobre el instrumental."
         };
@@ -249,29 +249,27 @@ export default function ContractsPage() {
                                 </div>
 
                                 {/* Action buttons */}
-                                <div className="space-y-3 mt-auto">
+                                <div className="flex flex-col gap-2 mt-auto">
                                     <button
                                         onClick={() => openModal(contract.id, 'easy')}
-                                        className={`w-full py-4 px-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-between border ${contract.borderColor} bg-slate-50 dark:bg-white/5 text-slate-700 dark:text-foreground hover:bg-white dark:hover:bg-white/10 active:scale-95 shadow-sm`}
+                                        className={`group/btn w-full py-3 px-4 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all flex items-center justify-between border border-transparent hover:${contract.borderColor} bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-foreground hover:bg-slate-200 dark:hover:bg-white/10 active:scale-95`}
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <Settings size={14} className={`${contract.color} group-[&]:rotate-90 transition-transform`} />
-                                            Modo Parámetros
+                                        <div className="flex items-center gap-2">
+                                            <Settings size={14} className={`${contract.color} group-hover/btn:rotate-90 transition-transform`} />
+                                            Parámetros
                                         </div>
-                                        <div className={`w-5 h-5 rounded-full ${contract.iconBg} ${contract.color} flex items-center justify-center`}>
-                                            <Zap size={9} fill="currentColor" />
-                                        </div>
+                                        <Zap size={10} className={`${contract.color} opacity-40 group-hover/btn:opacity-100 transition-opacity`} />
                                     </button>
 
                                     <button
                                         onClick={() => openModal(contract.id, 'expert')}
-                                        className={`w-full py-4 px-5 bg-slate-900 dark:bg-white/5 text-white dark:text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-between hover:${contract.iconBg} active:scale-95 shadow-xl border border-transparent hover:${contract.borderColor}`}
+                                        className={`group/btn w-full py-3 px-4 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all flex items-center justify-between border border-transparent hover:${contract.borderColor} bg-slate-900 dark:bg-white/5 text-white dark:text-foreground hover:bg-black dark:hover:bg-white/10 active:scale-95`}
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <AlignLeft size={14} />
-                                            Redactar Contrato
+                                        <div className="flex items-center gap-2">
+                                            <AlignLeft size={14} className={`${contract.color}`} />
+                                            Contrato Legal
                                         </div>
-                                        <ShieldCheck size={16} className={`opacity-40 group-hover:opacity-100 ${contract.color} transition-opacity`} />
+                                        <ShieldCheck size={12} className={`${contract.color} opacity-40 group-hover/btn:opacity-100 transition-opacity`} />
                                     </button>
                                 </div>
                             </div>
