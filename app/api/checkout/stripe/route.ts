@@ -14,6 +14,11 @@ export async function POST(req: Request) {
     try {
         const { items, customerEmail, customerId, couponId, currency = 'mxn' } = await req.json();
 
+        if (!customerId) {
+            console.error('ERROR: No customerId (userId) provided to Checkout');
+            return NextResponse.json({ error: "Debes iniciar sesión para realizar una compra" }, { status: 400 });
+        }
+
         // 1. Preparar line_items para Stripe
         const line_items = items.map((item: any) => {
             // Limpiar el nombre para que sea Premium (Ej: "Girl" en vez de "girl [MP3]")
