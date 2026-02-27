@@ -210,7 +210,6 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
             const { data, error } = await supabase
                 .from('solicitudes_verificacion')
                 .select(`*, perfiles: user_id(nombre_usuario, foto_perfil, correo, fecha_creacion)`)
-                .eq('estado', 'pendiente')
                 .order('fecha_creacion', { ascending: false });
 
             if (error) {
@@ -312,21 +311,21 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                 </div>
             )}
 
-            {requests.length === 0 ? (
+            {requests.filter(r => r.estado === 'pendiente').length === 0 ? (
                 <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] rounded-[2rem] p-12 text-center">
                     <CheckCircle size={48} className="mx-auto text-emerald-500 mb-4" />
                     <h3 className="text-xl font-bold text-foreground">¡Sin pendientes!</h3>
                     <p className="text-muted text-sm mt-2">No hay solicitudes de verificación para revisar.</p>
                 </div>
             ) : (
-                requests.map((req) => (
+                requests.filter(r => r.estado === 'pendiente').map((req) => (
                     <div key={req.id} className="relative bg-white dark:bg-[#020205] border-t-4 border-t-blue-600 border-x border-b border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 flex flex-col gap-8 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,112,243,0.05)] hover:border-blue-500/30 transition-all duration-500">
 
                         <div className="flex flex-col lg:flex-row gap-8 items-start">
                             {/* User Info Section - Photo above, text below */}
                             <div className="lg:w-1/4 w-full flex flex-col items-center lg:items-start">
                                 <Link
-                                    href={`/ ${req.nombre_usuario} `}
+                                    href={`/${req.nombre_usuario}`}
                                     target="_blank"
                                     className="group/user mb-6 flex flex-col items-center lg:items-start gap-4 hover:opacity-80 transition-opacity"
                                 >
@@ -342,7 +341,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                                 </Link >
                                 <div className="space-y-2 w-full">
                                     <DetailBox label="Nombre Real" value={req.nombre_completo} />
-                                    <DetailBox label="Correo" value={req.correo} />
+                                    <DetailBox label="Correo" value={req.perfiles?.correo || req.correo} />
                                     <div className="p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50">
                                         <p className="text-[8px] font-black uppercase text-muted tracking-widest mb-1">Registro</p>
                                         <p className="text-[10px] font-bold text-foreground">
@@ -406,6 +405,45 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                         </div >
                     </div >
                 ))
+            )}
+
+            {/* Historial de Verificaciones Compacto */}
+            {requests.filter(r => r.estado !== 'pendiente').length > 0 && (
+                <div className="mt-20 pt-20 border-t border-slate-200 dark:border-white/10">
+                    <div className="flex items-center gap-4 mb-10">
+                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-muted">
+                            <Clock size={20} />
+                        </div>
+                        <div>
+                            <h3 className="text-2xl font-black uppercase tracking-tighter">Historial de Verificaciones</h3>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-muted">Solicitudes Procesadas</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {requests.filter(r => r.estado !== 'pendiente').map(req => (
+                            <div key={req.id} className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-3xl p-6 shadow-sm hover:border-accent/20 transition-all flex flex-col gap-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 border border-border/50">
+                                            <img src={req.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.nombre_usuario}`} className="w-full h-full object-cover" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-black uppercase tracking-tight">@{req.nombre_usuario}</p>
+                                            <p className="text-[9px] font-medium text-muted">{new Date(req.fecha_creacion).toLocaleDateString()}</p>
+                                        </div>
+                                    </div>
+                                    <div className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${req.estado === 'aprobado' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                                        {req.estado === 'aprobado' ? 'APROBADO' : 'RECHAZADO'}
+                                    </div>
+                                </div>
+                                <div className="text-[10px] font-medium text-muted italic line-clamp-2">
+                                    "{req.motivacion}"
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             )}
         </div >
     );
@@ -992,7 +1030,7 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
         try {
             const { data, error } = await supabase
                 .from('quejas_y_sugerencias')
-                .select(`*, perfiles:usuario_id (nombre_artistico, nombre_usuario, email)`)
+                .select(`*, perfiles:user_id (nombre_artistico, nombre_usuario, email)`)
                 .order('fecha_creacion', { ascending: false });
 
             if (error) throw error;
@@ -1025,14 +1063,14 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
                     </span>
                 </div>
             </header>
-            {feedbacks.length === 0 ? (
+            {feedbacks.filter(f => (f.estado || 'pendiente') === 'pendiente').length === 0 ? (
                 <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] rounded-[2.5rem] p-12 text-center">
                     <CheckCircle size={48} className="mx-auto text-emerald-500 mb-4" />
                     <h3 className="text-xl font-black uppercase text-foreground">Buzón vacío</h3>
                     <p className="text-muted text-[10px] uppercase font-bold tracking-widest mt-2">No hay quejas o sugerencias en este momento.</p>
                 </div>
             ) : (
-                feedbacks.map((item) => {
+                feedbacks.filter(f => (f.estado || 'pendiente') === 'pendiente').map((item) => {
                     const isPending = (item.estado || 'pendiente') === 'pendiente';
                     return (
                         <div
@@ -1102,6 +1140,56 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
                         </div>
                     )
                 })
+            )}
+
+            {/* Historial de Feedback Compacto */}
+            {feedbacks.filter(f => (f.estado || 'pendiente') !== 'pendiente').length > 0 && (
+                <div className="mt-20 pt-20 border-t border-slate-200 dark:border-white/10">
+                    <div className="flex items-center gap-4 mb-10">
+                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-muted">
+                            <Clock size={20} />
+                        </div>
+                        <div>
+                            <h3 className="text-2xl font-black uppercase tracking-tighter">Historial de Buzón</h3>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-muted">Mensajes Procesados</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-sm">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-border bg-slate-50 dark:bg-white/5">
+                                    <th className="px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Fecha</th>
+                                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Usuario</th>
+                                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Tipo</th>
+                                    <th className="px-8 py-4 text-right text-[9px] font-black uppercase tracking-[0.2em] text-muted">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border">
+                                {feedbacks.filter(f => (f.estado || 'pendiente') !== 'pendiente').map(item => (
+                                    <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                        <td className="px-8 py-4 text-[10px] font-bold text-muted">
+                                            {new Date(item.fecha_creacion).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <p className="font-black text-xs">@{item.perfiles ? item.perfiles.nombre_usuario : item.usuario_q}</p>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-2 py-0.5 rounded-lg text-[7px] font-black uppercase tracking-widest border ${item.tipo_mensaje === 'queja' ? 'bg-rose-500/5 text-rose-500 border-rose-500/10' : 'bg-blue-500/5 text-blue-500 border-blue-500/10'}`}>
+                                                {item.tipo_mensaje}
+                                            </span>
+                                        </td>
+                                        <td className="px-8 py-4 text-right">
+                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[8px] font-black uppercase tracking-widest ${item.estado === 'resuelto' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'}`}>
+                                                {item.estado}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             )}
         </div>
     );
