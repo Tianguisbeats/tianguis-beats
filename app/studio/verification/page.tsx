@@ -127,7 +127,7 @@ export default function VerificationPage() {
 
         try {
             if (!form.idDocument) throw new Error("Debes subir una identificación oficial.");
-            if (!profile?.username) throw new Error("No se pudo obtener el nombre de usuario.");
+            if (!profile?.nombre_usuario) throw new Error("No se pudo obtener el nombre de usuario.");
 
             // 1. Upload ID
             const fileExt = form.idDocument.name.split('.').pop();
@@ -249,8 +249,8 @@ export default function VerificationPage() {
                                     <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Perfil Completo</h3>
                                     <p className="text-[10px] text-muted leading-tight">Configura tu presencia en el estudio.</p>
                                 </div>
-                                {!checks.profileComplete && profile?.username && (
-                                    <Link href={`/${profile.username}`} className="px-4 py-2 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 shadow-sm">
+                                {!checks.profileComplete && profile?.nombre_usuario && (
+                                    <Link href={`/${profile.nombre_usuario}`} className="px-4 py-2 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 shadow-sm">
                                         <Edit3 size={10} /> Editar
                                     </Link>
                                 )}
@@ -303,8 +303,8 @@ export default function VerificationPage() {
                                 <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Redes Conectadas</h3>
                                 <p className="text-[10px] text-muted leading-tight">Al menos una red (IG, YT o TikTok) en Smart Bio.</p>
                             </div>
-                            {!checks.socialsLinked && profile?.username && (
-                                <Link href={`/${profile.username}`} className="px-4 py-2 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 shadow-sm">
+                            {!checks.socialsLinked && profile?.nombre_usuario && (
+                                <Link href={`/${profile.nombre_usuario}`} className="px-4 py-2 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 shadow-sm">
                                     <LinkIcon size={10} /> Vincular
                                 </Link>
                             )}
