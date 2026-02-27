@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import FeaturedBanner from '@/components/explore/FeaturedBanner';
 import { GENRES, MOODS } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 
@@ -76,9 +75,6 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [trendingBeats, setTrendingBeats] = useState<any[]>([]);
-  const [trendingProducers, setTrendingProducers] = useState<any[]>([]);
-  const [bannerLoading, setBannerLoading] = useState(true);
 
   useEffect(() => {
     if (!searchQuery.trim() || searchQuery.length < 2) { setSearchResults([]); setShowResults(false); return; }
@@ -95,22 +91,6 @@ export default function Home() {
     }, 300);
     return () => clearTimeout(t);
   }, [searchQuery]);
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const { data: beats } = await supabase.from('beats')
-          .select('id, productor_id, titulo, precio_basico_mxn, bpm, genero, portada_url, archivo_mp3_url, archivo_muestra_url, tono_escala, vibras, fecha_creacion, conteo_reproducciones, producer:productor_id ( nombre_artistico, nombre_usuario, esta_verificado, es_fundador, foto_perfil, nivel_suscripcion )')
-          .eq('es_publico', true).order('conteo_reproducciones', { ascending: false, nullsFirst: false }).limit(10);
-        const { data: prods } = await supabase.from('perfiles')
-          .select('id, nombre_artistico, nombre_usuario, foto_perfil, nivel_suscripcion, esta_verificado, es_fundador, biografia, fecha_creacion')
-          .order('nivel_suscripcion', { ascending: false }).limit(5);
-        if (beats) setTrendingBeats(beats as any);
-        if (prods) setTrendingProducers(prods);
-      } catch { /* noop */ } finally { setBannerLoading(false); }
-    }
-    load();
-  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans overflow-x-hidden transition-colors duration-300 selection:bg-accent selection:text-white">
@@ -228,22 +208,6 @@ export default function Home() {
           </div>
         </div>
 
-
-        {/* ══ HIT DE LA SEMANA / PRODUCTOR DESTACADO ══ */}
-        {bannerLoading ? (
-          <div className="py-16 px-4">
-            <div className="max-w-[1700px] mx-auto">
-              <div className="w-full h-[420px] bg-card rounded-[3rem] border border-border flex items-center justify-center">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-10 h-10 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
-                  <p className="text-[9px] font-black text-muted uppercase tracking-widest">Cargando...</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <FeaturedBanner trendingBeats={trendingBeats} trendingProducers={trendingProducers} featuredMoods={[]} />
-        )}
 
         {/* ══ FEATURES ══ */}
         <section className="py-20 px-4">
