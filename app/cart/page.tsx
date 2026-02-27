@@ -225,7 +225,9 @@ export default function CartPage() {
                 <div className="absolute bottom-[-20%] left-[-10%] w-[70%] h-[70%] bg-purple-600/5 dark:bg-purple-500/10 blur-[200px] rounded-full animate-pulse-slow delay-1000" />
             </div>
 
-            <main className="relative z-10 pt-32 pb-40 px-6 sm:px-10 lg:px-16 max-w-[1600px] mx-auto">
+            {/* pb-24 en móvil: espacio para MobileBottomNav + AudioPlayer */}
+            <main className="relative z-10 pt-24 md:pt-32 pb-24 md:pb-16 px-4 sm:px-10 lg:px-16 max-w-[1600px] mx-auto">
+
 
                 {/* Sección de Título */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-16">
@@ -236,7 +238,9 @@ export default function CartPage() {
                                 Seguir Comprando
                             </Link>
                         </div>
-                        <h1 className="text-4xl md:text-[5rem] font-black uppercase tracking-[-0.06em] leading-[0.8] text-foreground mt-4">
+                        {/* Título compacto en móvil */}
+                        <h1 className="text-3xl md:text-[5rem] font-black uppercase tracking-[-0.06em] leading-[0.85] text-foreground mt-4">
+
                             Carrito <br />
                             <span className="text-blue-500">de Compras.</span>
                         </h1>
@@ -252,7 +256,9 @@ export default function CartPage() {
                 </div>
 
                 {itemCount > 0 ? (
-                    <div className="grid lg:grid-cols-12 gap-10 xl:gap-16">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-16">
+                        {/* Grid apilado en móvil, de lado en lg */}
+
 
                         {/* Columna de Productos */}
                         <div className="lg:col-span-7 xl:col-span-8 space-y-6">

@@ -68,8 +68,11 @@ export default function AudioPlayer() {
 
     return (
         <>
-            {/* ====== VERSIÓN MÓVIL (MINI-PLAYER) ====== */}
-            <div className="md:hidden fixed bottom-[72px] left-0 right-0 z-[100] px-2 animate-in slide-in-from-bottom-2 duration-300">
+            {/* ══ VERSIÓN MÓVIL (MINI-PLAYER) ══
+                Flota justo encima del MobileBottomNav (62px) + margen de 8px.
+                Se posiciona en bottom-[70px] para no tapar las pestañas de navegación. */}
+            <div className="md:hidden fixed bottom-[70px] left-0 right-0 z-[100] px-2 animate-in slide-in-from-bottom-2 duration-300">
+
                 <div className="bg-background/95 backdrop-blur-xl border border-border rounded-2xl shadow-lg shadow-black/5 dark:shadow-black/20 overflow-hidden relative">
                     {/* Barra de Progreso Superior */}
                     <div className="absolute top-0 left-0 w-full h-[2px] bg-muted/20">
