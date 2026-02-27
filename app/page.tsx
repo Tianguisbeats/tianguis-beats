@@ -214,6 +214,36 @@ export default function Home() {
           </div>
         </div>
 
+        {/* ── SECCIÓN: TIANGUIS FAMILY (Artistas) ── */}
+        <section className="py-20 px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-accent mb-4 block">COMUNIDAD TIANGUIS</span>
+              <h2 className="text-4xl md:text-6xl font-black text-foreground uppercase tracking-tighter mb-4">La Familia que no para de <span className="text-accent italic">Crear.</span></h2>
+              <p className="text-muted text-sm md:text-base font-medium max-w-2xl mx-auto leading-relaxed">
+                Más que una plataforma, somos el motor de la nueva era musical en México. Cientos de productores y artistas ya están rompiéndola con nosotros.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                { img: '/images/featured/producer1.png', name: 'Producer One', bio: 'Especialista en Corridos Tumbados con más de 50 hits en el marketplace.' },
+                { img: '/images/featured/producer2.png', name: 'Creative Mind', bio: 'Innovando el sonido Mexa con texturas únicas y ritmos envolventes.' },
+                { img: '/images/featured/producer3.png', name: 'Beat Master', bio: 'Calidad de estudio profesional al alcance de todos los artistas emergentes.' },
+              ].map((p, i) => (
+                <div key={i} className="group relative rounded-[2.5rem] overflow-hidden border border-border bg-card aspect-[4/5] hover:scale-[1.02] transition-all duration-700">
+                  <img src={p.img} alt={p.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                  <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2 group-hover:text-accent transition-colors">{p.name}</h3>
+                    <p className="text-white/60 text-xs font-medium leading-relaxed opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500">{p.bio}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
 
 
         {/* ══ FEATURES ══ */}
@@ -246,30 +276,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ── Sección CTA final: registrarse o explorar ── */}
-        <section className="py-20 md:py-32 px-4 text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/[0.04] to-transparent pointer-events-none" />
-          <div className="max-w-4xl mx-auto relative">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full mb-6 shadow-sm">
-              <Star size={12} className="text-amber-400 fill-amber-400" />
-              <span className="text-[9px] font-black text-muted uppercase tracking-widest">Únete a miles de productores</span>
-            </div>
-            <h2 className="text-5xl md:text-9xl font-black text-foreground tracking-tighter mb-8 leading-[0.85]">
-              ¿Listo para<br /><span className="text-accent italic">romperla?</span>
-            </h2>
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-3 px-4">
-              <Link href="/beats" className="group relative overflow-hidden bg-accent text-white w-full sm:w-auto px-10 py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:scale-[1.03] active:scale-95 transition-all shadow-2xl shadow-accent/20 flex items-center gap-3 justify-center">
-                <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                <Music size={18} className="relative z-10" />
-                <span className="relative z-10">Explorar Beats</span>
-              </Link>
-              <Link href="/pricing" className="group inline-flex items-center gap-2 w-full sm:w-auto px-10 py-5 bg-card border border-border rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] text-muted hover:text-foreground hover:border-foreground/20 hover:shadow-lg transition-all justify-center">
-                <Crown size={16} className="text-amber-400" />
-                Ver Planes
-              </Link>
-            </div>
-          </div>
-        </section>
       </main>
       <Footer />
     </div>

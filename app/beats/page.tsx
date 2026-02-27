@@ -32,7 +32,7 @@ export default function ExploreHubPage() {
 function CategoryCard({ href, img, label, sub, count, accent }: { href: string; img: string; label: string; sub: string; count?: string; accent: string }) {
   return (
     <Link href={href} className="group relative rounded-[3rem] overflow-hidden cursor-pointer border border-border hover:border-foreground/20 transition-all duration-700 shadow-xl dark:shadow-none aspect-[3/4]">
-      <Image src={img} alt={label} fill className="object-cover transition-transform duration-1000 group-hover:scale-110 opacity-50 group-hover:opacity-70" />
+      <Image src={img} alt={label} fill className="object-cover transition-transform duration-1000 group-hover:scale-110 opacity-100 group-hover:opacity-70" />
       {/* gradient overlay always present */}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
       {/* top accent shimmer */}
@@ -152,16 +152,6 @@ function HubContent() {
 
           {/* ── FEATURED BANNER ── */}
           <div className="mb-16">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-7 h-7 bg-accent/10 rounded-xl flex items-center justify-center text-accent">
-                <TrendingUp size={14} />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Trending Esta Semana</span>
-              <ChevronRight size={14} className="text-muted" />
-              <Link href="/beats/catalog" className="text-[10px] font-black text-accent uppercase tracking-widest hover:underline">
-                Ver Catálogo Completo
-              </Link>
-            </div>
             {!isBannerLoading ? (
               <FeaturedBanner
                 trendingBeats={trendingBeats}
@@ -178,27 +168,6 @@ function HubContent() {
             )}
           </div>
 
-          {/* ── Acciones rápidas por género — scroll horizontal en móvil ── */}
-          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-            <div className="flex gap-2.5 mb-14 pb-4 border-b border-border min-w-max sm:min-w-0 sm:flex-wrap">
-              {[
-                { label: "🎺 Corridos Tumbados", href: "/beats/catalog?genre=Corridos+Tumbados+🇲🇽" },
-                { label: "🍑 Reggaetón Mexa", href: "/beats/catalog?genre=Reggaetón+Mexa+🇲🇽" },
-                { label: "🔥 Trap Latino", href: "/beats/catalog?genre=Trap+Latino" },
-                { label: "💎 R&B / Soul", href: "/beats/catalog?genre=R%26B+%2F+Soul" },
-                { label: "🎹 Boom Bap", href: "/beats/catalog?genre=Boom+Bap" },
-              ].map(a => (
-                <Link key={a.href} href={a.href}
-                  className="group inline-flex items-center gap-2 px-5 py-2.5 bg-card border border-border rounded-full text-[10px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:border-foreground/20 transition-all whitespace-nowrap">
-                  {a.label}
-                </Link>
-              ))}
-              <Link href="/beats/catalog"
-                className="group inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all whitespace-nowrap">
-                <Zap size={12} fill="white" /> Ver Todo
-              </Link>
-            </div>
-          </div>
 
 
           {/* ── CATEGORY CARDS ── */}
@@ -216,28 +185,6 @@ function HubContent() {
             </div>
           </div>
 
-          {/* ── Banda CTA: subir beat o ver planes ── */}
-          <div className="relative overflow-hidden rounded-[2.5rem] border border-border bg-card px-6 md:px-10 py-10 md:py-12 text-center">
-            <div className="absolute inset-0 bg-gradient-to-r from-accent/[0.05] via-transparent to-purple-600/[0.05] pointer-events-none" />
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
-            <h3 className="text-2xl md:text-5xl font-black text-foreground uppercase tracking-tighter mb-3 relative">
-              ¿Listo para crear? <span className="text-accent">Publica hoy.</span>
-            </h3>
-            <p className="text-muted text-[10px] font-black uppercase tracking-widest mb-6">Empieza gratis · Sin tarjeta de crédito</p>
-            {/* Botones apilados en móvil, fila en sm+ */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 px-2">
-              <Link href="/upload"
-                className="group relative overflow-hidden bg-accent text-white w-full sm:w-auto px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:scale-[1.03] active:scale-95 transition-all shadow-xl shadow-accent/20 flex items-center gap-3 justify-center">
-                <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                <Music size={16} className="relative z-10" />
-                <span className="relative z-10">Subir Beat</span>
-              </Link>
-              <Link href="/pricing"
-                className="inline-flex items-center gap-2 w-full sm:w-auto px-8 py-4 bg-background border border-border rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-muted hover:text-foreground hover:border-foreground/20 hover:shadow-md transition-all justify-center">
-                Ver Planes <ArrowRight size={14} />
-              </Link>
-            </div>
-          </div>
 
 
         </div>
