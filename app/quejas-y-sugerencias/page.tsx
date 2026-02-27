@@ -61,8 +61,8 @@ export default function QuejasSugerenciasPage() {
         const tipo = formData.get('tipo') as string;
         const mensaje = formData.get('mensaje') as string;
 
-        // Usamos los estados controlados directamente para evitar problemas de shadowing o campos vacíos
-        const finalNombre = nombre || user?.profile?.nombre_usuario || 'Usuario Anónimo';
+        // Usamos los estados controlados directamente para asegurar que se capture el nombre real
+        const finalNombre = nombre || user?.profile?.nombre_usuario || user?.nombre_usuario || user?.email?.split('@')[0] || 'Usuario';
         const finalEmail = email || user?.profile?.email || 'anonimo@tianguisbeats.com';
 
         try {
@@ -85,10 +85,10 @@ export default function QuejasSugerenciasPage() {
                 evidenceUrls[i] = data.path;
             }
 
-            // 2. Insert with correct column names (usuario_id, correo, descripcion_problema)
+            // 2. Insert with correct column names (usuario_id, correo, descripcion_problema, usuario_q)
             const { error } = await supabase.from('quejas_y_sugerencias').insert([{
                 tipo_mensaje: tipo,
-                nombre_usuario: finalNombre,
+                usuario_q: finalNombre,
                 correo: finalEmail,
                 descripcion_problema: mensaje,
                 usuario_id: authUser?.id || null,
