@@ -44,7 +44,6 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     const [isMp3Active, setIsMp3Active] = useState(true);
     const [isProActive, setIsProActive] = useState(true);
     const [isPremiumActive, setIsPremiumActive] = useState(true);
-    const [isUnlimitedActive, setIsUnlimitedActive] = useState(true);
     const [isExclusiveActive, setIsExclusiveActive] = useState(false);
     const [isSoundKitActive, setIsSoundKitActive] = useState(false);
 
@@ -52,7 +51,6 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     const [mp3Price, setMp3Price] = useState('349');
     const [proPrice, setProPrice] = useState('499');
     const [premiumPrice, setPremiumPrice] = useState('999');
-    const [unlimitedPrice, setUnlimitedPrice] = useState('1999');
     const [exclusivePrice, setExclusivePrice] = useState('3500');
     const [soundKitPrice, setSoundKitPrice] = useState('499');
 
@@ -134,14 +132,12 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             setMp3Price(beat.precio_mp3_mxn?.toString() || '349');
             setProPrice(beat.precio_pro_mxn?.toString() || '599');
             setPremiumPrice(beat.precio_premium_mxn?.toString() || '999');
-            setUnlimitedPrice(beat.precio_ilimitado_mxn?.toString() || '1999');
-            setExclusivePrice(beat.precio_exclusivo_mxn?.toString() || '3500');
+            setExclusivePrice(beat.precio_exclusiva_mxn?.toString() || beat.precio_exclusivo_mxn?.toString() || '3500');
 
             setIsBasicActive(beat.es_basica_activa !== false);
             setIsMp3Active(beat.es_mp3_activa !== false);
             setIsProActive(beat.es_pro_activa !== false);
             setIsPremiumActive(beat.es_premium_activa !== false);
-            setIsUnlimitedActive(beat.es_ilimitada_activa !== false);
             setIsExclusiveActive(beat.es_exclusiva_activa || false);
             setIsSoundKitActive(beat.es_soundkit_activa || false);
 
@@ -196,12 +192,10 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
         basicPrice !== initialData.precio_basico_mxn ||
         proPrice !== initialData.precio_pro_mxn ||
         premiumPrice !== initialData.precio_premium_mxn ||
-        unlimitedPrice !== initialData.precio_ilimitado_mxn ||
         exclusivePrice !== initialData.precio_exclusivo_mxn ||
         isBasicActive !== initialData.es_basica_activa ||
         isProActive !== initialData.es_pro_activa ||
         isPremiumActive !== initialData.es_premium_activa ||
-        isUnlimitedActive !== initialData.es_ilimitada_activa ||
         isExclusiveActive !== initialData.es_exclusiva_activa ||
         coverFile !== null ||
         previewFile !== null ||
@@ -311,7 +305,6 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                 es_mp3_activa: isMp3Active,
                 es_pro_activa: isProActive,
                 es_premium_activa: isPremiumActive,
-                es_ilimitada_activa: isUnlimitedActive,
                 es_exclusiva_activa: isExclusiveActive,
                 es_soundkit_activa: isSoundKitActive,
 
@@ -319,8 +312,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                 precio_mp3_mxn: parseInt(mp3Price) || 0,
                 precio_pro_mxn: parseInt(proPrice) || 0,
                 precio_premium_mxn: parseInt(premiumPrice) || 0,
-                precio_ilimitado_mxn: parseInt(unlimitedPrice) || 0,
-                precio_exclusivo_mxn: isExclusiveActive ? parseInt(exclusivePrice) : null,
+                precio_exclusiva_mxn: isExclusiveActive ? parseInt(exclusivePrice) : null,
                 precio_soundkit_mxn: parseInt(soundKitPrice) || 0,
             }).eq('id', id);
 
@@ -667,20 +659,20 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
                     <div className="space-y-4">
                         {[
-                            { id: 'free', label: 'Licencia Gratis', active: isBasicActive, set: setIsBasicActive, price: '0', setPrice: setBasicPrice, desc: 'Uso no comercial con TAG de voz', color: 'slate', lock: true },
-                            { id: 'mp3', label: 'Licencia Básica', active: isMp3Active, set: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'Uso comercial limitado · MP3 HQ', color: 'emerald' },
-                            { id: 'pro', label: 'Licencia Pro', active: isProActive, set: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Uso comercial profesional · MP3 + WAV', color: 'amber', disabled: isFree },
-                            { id: 'premium', label: 'Licencia Premium', active: isPremiumActive, set: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Máximo control · Incluye STEMS (Trackout)', color: 'blue', disabled: !isPremium && !isPro },
-                            { id: 'unlimited', label: 'Licencia Ilimitada', active: isUnlimitedActive, set: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Sin límites de distribución ni streaming', color: 'pink', disabled: !isPremium }
+                            { id: 'free', label: 'Licencia Gratis', active: isBasicActive, set: setIsBasicActive, price: '0', setPrice: setBasicPrice, desc: 'Uso no comercial · Tag de Voz Obligatorio', color: 'slate', lock: true },
+                            { id: 'mp3', label: 'Licencia Básica', active: isMp3Active, set: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'MP3 · 10K-50K Streams · 1 Video YT', color: 'emerald' },
+                            { id: 'pro', label: 'Licencia Premium', active: isProActive, set: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'WAV + MP3 · 500K Streams · Radio', color: 'blue', disabled: isFree },
+                            { id: 'premium', label: 'Licencia Pro', active: isPremiumActive, set: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'STEMS · Mix Individual · Uso Ilimitado', color: 'amber', disabled: !isPremium && !isPro },
+                            { id: 'exclusiva', label: 'Licencia Exclusiva', active: isExclusiveActive, set: setIsExclusiveActive, price: exclusivePrice, setPrice: setExclusivePrice, desc: 'Cesión exclusiva + Permite Content ID', color: 'rose', disabled: !isPremium }
                         ].map((lic) => (
                             <div key={lic.id} className={`group p-6 rounded-[2rem] border-2 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden
                                 ${lic.disabled ? 'opacity-30 grayscale cursor-not-allowed bg-white/[0.02] border-white/5' :
-                                    lic.active ? 'bg-[#111116] border-accent/30' : 'bg-white/[0.02] border-white/5 opacity-70 hover:opacity-100'}`} style={lic.active && !lic.disabled ? { borderColor: lic.color === 'slate' ? '#64748b40' : lic.color === 'emerald' ? '#10b98140' : lic.color === 'amber' ? '#f59e0b40' : lic.color === 'blue' ? '#3b82f640' : '#ec489940' } : {}}>
+                                    lic.active ? 'bg-[#111116] border-accent/30' : 'bg-white/[0.02] border-white/5 opacity-70 hover:opacity-100'}`} style={lic.active && !lic.disabled ? { borderColor: lic.color === 'slate' ? '#64748b40' : lic.color === 'emerald' ? '#10b98140' : lic.color === 'blue' ? '#3b82f640' : lic.color === 'amber' ? '#f59e0b40' : '#f43f5e40' } : {}}>
 
                                 <div className="flex items-center gap-5">
                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${lic.active ? 'text-white shadow-2xl' : 'bg-white/5 text-muted'}`}
-                                        style={lic.active ? { background: lic.color === 'slate' ? '#64748b' : lic.color === 'emerald' ? '#10b981' : lic.color === 'amber' ? '#f59e0b' : lic.color === 'blue' ? '#3b82f6' : '#ec4899' } : {}}>
-                                        {lic.id === 'premium' ? <Crown size={24} /> : lic.id === 'unlimited' ? <Layers size={24} /> : <ShieldCheck size={24} />}
+                                        style={lic.active ? { background: lic.color === 'slate' ? '#64748b' : lic.color === 'emerald' ? '#10b981' : lic.color === 'blue' ? '#3b82f6' : lic.color === 'amber' ? '#f59e0b' : '#f43f5e' } : {}}>
+                                        {lic.id === 'pro' ? <ShieldCheck size={24} /> : lic.id === 'premium' ? <Layers size={24} /> : lic.id === 'exclusiva' ? <Crown size={24} /> : <FileText size={24} />}
                                     </div>
                                     <div>
                                         <h4 className="text-base font-black uppercase tracking-tight text-foreground flex items-center gap-2">
@@ -708,7 +700,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                 {/* Submit */}
                 <div className="pt-6">
                     <button type="submit" disabled={saving} onClick={!hasChanges ? (e) => { e.preventDefault(); router.back(); } : undefined}
-                        className={`group relative w-full overflow-hidden rounded-[2rem] p-6 transition-all active:scale-[0.98] ${hasChanges ? 'bg-accent text-white shadow-[0_20px_40px_-15px_rgba(255,107,0,0.4)]' : 'bg-white/5 text-muted grayscale'}`}>
+                        className={`group relative w - full overflow - hidden rounded - [2rem] p - 6 transition - all active:scale-[0.98] ${hasChanges ? 'bg-accent text-white shadow-[0_20px_40px_-15px_rgba(255,107,0,0.4)]' : 'bg-white/5 text-muted grayscale'}`}>
                         <div className="relative z-10 flex items-center justify-center gap-4">
                             {saving ? (
                                 <><Loader2 className="animate-spin text-white" size={24} /><span className="text-sm font-black uppercase tracking-[0.3em]">Guardando Cambios...</span></>

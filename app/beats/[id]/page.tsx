@@ -39,7 +39,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
     const [producerBeats, setProducerBeats] = useState<Beat[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedLicense, setSelectedLicense] = useState<'Básica' | 'MP3' | 'Pro' | 'Premium' | 'Ilimitada' | 'Exclusiva' | 'Sound Kit' | null>(null);
+    const [selectedLicense, setSelectedLicense] = useState<'Básica' | 'MP3' | 'Pro' | 'Premium' | 'Exclusiva' | 'Sound Kit' | null>(null);
     const [isLiked, setIsLiked] = useState(false);
 
     const { currentBeat, isPlaying, playBeat } = usePlayer();
@@ -65,7 +65,6 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
             else if (beat.es_mp3_activa !== false) setSelectedLicense('MP3');
             else if (beat.es_pro_activa !== false) setSelectedLicense('Pro');
             else if (beat.es_premium_activa !== false) setSelectedLicense('Premium');
-            else if (beat.es_ilimitada_activa !== false) setSelectedLicense('Ilimitada');
             else if (beat.es_exclusiva_activa !== false) setSelectedLicense('Exclusiva');
             else if (beat.es_soundkit_activa !== false) setSelectedLicense('Sound Kit');
             else setSelectedLicense(null); // No hay licencias disponibles
@@ -80,7 +79,6 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
             'MP3': beat.precio_mp3_mxn || 349,
             'Pro': beat.precio_pro_mxn || 499,
             'Premium': beat.precio_premium_mxn || 999,
-            'Ilimitada': beat.precio_ilimitado_mxn || 1999,
             'Exclusiva': beat.precio_exclusivo_mxn || 3500,
             'Sound Kit': beat.precio_soundkit_mxn || 499
         };
@@ -535,17 +533,6 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                             features={['WAV de Alta Fidelidad', 'Calidad de Estudio', 'Sin tags de voz']}
                                             selected={selectedLicense === 'Premium'}
                                             onSelect={() => setSelectedLicense('Premium')}
-                                            active={true}
-                                            isSold={beat.esta_vendido}
-                                        />
-                                    )}
-                                    {beat.es_ilimitada_activa !== false && (
-                                        <LicenseCard
-                                            type="Ilimitada"
-                                            price={beat.precio_ilimitado_mxn || 1999}
-                                            features={['STEMS / Trackout', 'Control total de mezcla', 'Uso ilimitado']}
-                                            selected={selectedLicense === 'Ilimitada'}
-                                            onSelect={() => setSelectedLicense('Ilimitada')}
                                             active={true}
                                             isSold={beat.esta_vendido}
                                         />

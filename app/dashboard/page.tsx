@@ -142,7 +142,6 @@ export default function ProducerDashboard() {
                 es_basica_activa: true,
                 es_pro_activa: profile?.nivel_suscripcion !== 'free',
                 es_premium_activa: wavFile ? true : false,
-                es_ilimitada_activa: stemsFile ? true : false,
                 es_exclusiva_activa: isExclusive
             });
 

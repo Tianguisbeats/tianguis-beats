@@ -18,12 +18,11 @@ import { EXCHANGE_RATES } from '@/context/CurrencyContext';
 
 // License tier definitions (synced with Studio licencias)
 const LICENSE_META: Record<string, { label: string; color: string; hex: string; icon: React.ReactNode; planReq: string | null; desc: string }> = {
-    basic: { label: 'Licencia Gratis', color: 'slate', hex: '#64748b', icon: <Music size={20} />, planReq: null, desc: 'MP3 con tag · Demo personal' },
-    mp3: { label: 'Licencia Básica', color: 'emerald', hex: '#10b981', icon: <FileText size={20} />, planReq: null, desc: 'MP3 HQ · Hasta 10k streams' },
-    pro: { label: 'Licencia Pro', color: 'amber', hex: '#f59e0b', icon: <Zap size={20} />, planReq: 'pro', desc: 'MP3/WAV · Distribución libre' },
-    premium: { label: 'Licencia Premium', color: 'blue', hex: '#3b82f6', icon: <ShieldCheck size={20} />, planReq: 'pro', desc: 'WAV · 100k streams' },
-    unlimited: { label: 'Licencia Ilimitada', color: 'pink', hex: '#ec4899', icon: <Layers size={20} />, planReq: 'premium', desc: 'STEMS + WAV · Sin límites' },
-    exclusiva: { label: 'Licencia Exclusiva', color: 'rose', hex: '#f43f5e', icon: <ShieldCheck size={20} />, planReq: 'premium', desc: 'Cesión total · Derechos exclusivos' },
+    basic: { label: 'Licencia Gratis', color: 'slate', hex: '#64748b', icon: <Music size={20} />, planReq: null, desc: 'Uso no comercial · Tag de Voz Obligatorio' },
+    mp3: { label: 'Licencia Básica', color: 'emerald', hex: '#10b981', icon: <FileText size={20} />, planReq: null, desc: 'MP3 · 10K-50K Streams · 1 Video YT' },
+    pro: { label: 'Licencia Premium', color: 'blue', hex: '#3b82f6', icon: <ShieldCheck size={20} />, planReq: 'pro', desc: 'WAV + MP3 · 500K Streams · Radio' },
+    premium: { label: 'Licencia Pro', color: 'amber', hex: '#f59e0b', icon: <Layers size={20} />, planReq: 'premium', desc: 'STEMS · Mix Invidual · Uso Ilimitado' },
+    exclusiva: { label: 'Licencia Exclusiva', color: 'rose', hex: '#f43f5e', icon: <Crown size={20} />, planReq: 'premium', desc: 'Cesión exclusiva + Permite Content ID' },
 };
 
 
@@ -100,13 +99,11 @@ export default function UploadPage() {
     const [isMp3Active, setIsMp3Active] = useState(true);
     const [isProActive, setIsProActive] = useState(true);
     const [isPremiumActive, setIsPremiumActive] = useState(true);
-    const [isUnlimitedActive, setIsUnlimitedActive] = useState(true);
     const [isExclusivaActive, setIsExclusivaActive] = useState(true);
     const [basicPrice, setBasicPrice] = useState('0');
     const [mp3Price, setMp3Price] = useState('349');
     const [proPrice, setProPrice] = useState('599');
     const [premiumPrice, setPremiumPrice] = useState('999');
-    const [unlimitedPrice, setUnlimitedPrice] = useState('1999');
     const [exclusivaPrice, setExclusivaPrice] = useState('9999');
 
     // Files
@@ -147,7 +144,6 @@ export default function UploadPage() {
                 const mp3 = find('mp3'); if (mp3?.precio) setMp3Price(mp3.precio.toString());
                 const pro = find('pro'); if (pro?.precio) setProPrice(pro.precio.toString());
                 const premium = find('premium'); if (premium?.precio) setPremiumPrice(premium.precio.toString());
-                const unlimited = find('unlimited'); if (unlimited?.precio) setUnlimitedPrice(unlimited.precio.toString());
                 const exclusiva = find('exclusiva'); if (exclusiva?.precio) setExclusivaPrice(exclusiva.precio.toString());
             }
         };
@@ -211,12 +207,11 @@ export default function UploadPage() {
                 archivo_wav_url: wavPath, archivo_stems_url: stemsPath,
                 es_basica_activa: isBasicActive, es_mp3_activa: isMp3Active,
                 es_pro_activa: isProActive, es_premium_activa: isPremiumActive,
-                es_ilimitada_activa: isUnlimitedActive, es_exclusiva_activa: isExclusivaActive,
+                es_exclusiva_activa: isExclusivaActive,
                 precio_basico_mxn: 0,
                 precio_mp3_mxn: parseInt(mp3Price) || 0,
                 precio_pro_mxn: parseInt(proPrice) || 0,
                 precio_premium_mxn: parseInt(premiumPrice) || 0,
-                precio_ilimitado_mxn: parseInt(unlimitedPrice) || 0,
                 precio_exclusiva_mxn: parseInt(exclusivaPrice) || 0,
                 es_publico: true
             });
@@ -256,7 +251,6 @@ export default function UploadPage() {
         { key: 'mp3', active: isMp3Active, setActive: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, locked: false },
         { key: 'pro', active: isProActive, setActive: setIsProActive, price: proPrice, setPrice: setProPrice, locked: isFree },
         { key: 'premium', active: isPremiumActive, setActive: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, locked: isFree },
-        { key: 'unlimited', active: isUnlimitedActive, setActive: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, locked: !isPremium },
         { key: 'exclusiva', active: isExclusivaActive, setActive: setIsExclusivaActive, price: exclusivaPrice, setPrice: setExclusivaPrice, locked: !isPremium },
     ];
 
