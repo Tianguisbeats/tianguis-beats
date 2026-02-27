@@ -52,8 +52,8 @@ export default function QuejasSugerenciasPage() {
 
         const formData = new FormData(form);
         const tipo = formData.get('tipo') as string;
-        const nombre = formData.get('nombre') as string;
-        const email = formData.get('email') as string;
+        const nombre = (formData.get('nombre') as string) || user?.profile?.nombre_usuario || '';
+        const email = (formData.get('email') as string) || user?.profile?.email || '';
         const mensaje = formData.get('mensaje') as string;
 
         try {
@@ -90,12 +90,15 @@ export default function QuejasSugerenciasPage() {
 
             setLastType(tipo as 'queja' | 'sugerencia');
             setStatus('success');
+            setEvidences([]); // Limpiar evidencias exitosamente
+            setUploadingEvidences(false);
             form.reset();
         } catch (error: any) {
             console.error("Error submitting feedback:", error);
             const errorMsg = error.message || "Verifica tu conexión e intenta nuevamente.";
             showToast(`Error: ${errorMsg}`, "error");
             setStatus('idle');
+            setUploadingEvidences(false);
         }
     };
 
@@ -177,7 +180,11 @@ export default function QuejasSugerenciasPage() {
                             </div>
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
+                        <form
+                            key={user?.id || 'anon'}
+                            onSubmit={handleSubmit}
+                            className="space-y-8 relative z-10"
+                        >
                             <div className="space-y-4">
                                 <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-2">¿Qué tipo de mensaje envías?</label>
                                 <div className="grid grid-cols-2 gap-4">
