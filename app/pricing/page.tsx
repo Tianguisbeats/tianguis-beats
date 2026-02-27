@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Check, Zap, Star, ShieldCheck, ArrowUpRight, Lock, AlertTriangle, X, Crown, Sparkles, ArrowRight } from 'lucide-react';
+import { Check, Zap, ShieldCheck, X, Crown, Star, Sparkles, ArrowRight, Lock, Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -16,7 +16,6 @@ export default function PricingPage() {
     const [loading, setLoading] = useState(true);
     const [session, setSession] = useState<any>(null);
     const [userTier, setUserTier] = useState<string | null>(null);
-
     const [terminaSuscripcion, setTerminaSuscripcion] = useState<string | null>(null);
     const [comenzarSuscripcion, setComenzarSuscripcion] = useState<string | null>(null);
 
@@ -25,15 +24,13 @@ export default function PricingPage() {
     const { showToast } = useToast();
     const router = useRouter();
 
-    // Modal State
-    const [showDowngradeModal, setShowDowngradeModal] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState<any>(null);
 
     useEffect(() => {
         const fetchUser = async () => {
             const { data: { session: currentSession } } = await supabase.auth.getSession();
             setSession(currentSession);
-
             if (currentSession?.user) {
                 try {
                     const { data, error } = await supabase
@@ -41,15 +38,12 @@ export default function PricingPage() {
                         .select('nivel_suscripcion, fecha_termino_suscripcion, fecha_inicio_suscripcion')
                         .eq('id', currentSession.user.id)
                         .single();
-
                     if (data && !error) {
                         setUserTier(data.nivel_suscripcion);
                         setTerminaSuscripcion(data.fecha_termino_suscripcion);
                         setComenzarSuscripcion(data.fecha_inicio_suscripcion);
                     }
-                } catch (e) {
-                    console.error("Error fetching subscription details:", e);
-                }
+                } catch (e) { console.error(e); }
             }
             setLoading(false);
         };
@@ -59,427 +53,419 @@ export default function PricingPage() {
     const plans = [
         {
             tier: 'free',
-            name: 'Gratis',
-            description: 'Ideal para empezar a compartir tu música.',
-            price: 0,
+            name: 'Free',
+            tagline: 'Para empezar tu camino.',
+            price: { monthly: 0, yearly: 0 },
+            icon: <Zap size={28} />,
+            color: 'slate',
             features: [
-                "5 Beats públicos",
-                "Comisión del 15%",
-                "Estadísticas básicas",
-                "Perfil de productor"
+                { text: '5 Beats públicos', included: true },
+                { text: 'Comisión del 15%', included: true },
+                { text: 'Estadísticas básicas', included: true },
+                { text: 'Perfil de productor', included: true },
+                { text: 'MP3 + WAV', included: false },
+                { text: 'Beats ilimitados', included: false },
+                { text: 'Stems & Sound Kits', included: false },
             ]
         },
         {
             tier: 'pro',
             name: 'Pro',
-            description: 'Para productores que se lo toman muy en serio.',
-            price: billingCycle === 'monthly' ? 149 : 111,
+            tagline: 'Para productores serios.',
+            price: { monthly: 149, yearly: 111 },
+            icon: <Star size={28} fill="currentColor" />,
+            color: 'amber',
+            highlight: true,
+            badge: 'Más Popular',
             features: [
-                "Beats Ilimitados",
-                "0% COMISIÓN",
-                "MP3 + WAV",
-                "Servicios habilitados",
-                "Soporte 24/7"
+                { text: 'Beats ilimitados', included: true },
+                { text: '0% de comisión', included: true },
+                { text: 'MP3 + WAV', included: true },
+                { text: 'Soporte 24/7', included: true },
+                { text: 'Estadísticas avanzadas', included: true },
+                { text: 'Anillo ámbar de Pro', included: true },
+                { text: 'Stems & Sound Kits', included: false },
             ]
         },
         {
             tier: 'premium',
             name: 'Premium',
-            description: 'Para productores que ofrecen experiencia y calidad.',
-            price: billingCycle === 'monthly' ? 349 : 261,
+            tagline: 'La experiencia completa.',
+            price: { monthly: 349, yearly: 261 },
+            icon: <Crown size={28} fill="currentColor" />,
+            color: 'blue',
+            founderBadge: true,
             features: [
-                "Stems (Pistas)",
-                "Licencia exclusiva",
-                "Sound Kits",
-                "Acerca de mí",
-                "Venta de servicios",
-                "Impulso Algorítmico"
+                { text: 'Todo lo de Pro', included: true },
+                { text: 'Stems (Pistas)', included: true },
+                { text: 'Licencia Exclusiva', included: true },
+                { text: 'Sound Kits', included: true },
+                { text: 'Venta de Servicios', included: true },
+                { text: 'Impulso Algorítmico', included: true },
+                { text: 'Anillo azul Premium', included: true },
             ]
         }
     ];
+
+    const getButtonConfig = (plan: any) => {
+        const currentTier = (userTier || 'free').toLowerCase();
+        const tierOrder = ['free', 'pro', 'premium'];
+        const currentIdx = tierOrder.indexOf(currentTier);
+        const targetIdx = tierOrder.indexOf(plan.tier);
+        const isCurrentPlan = currentTier === plan.tier;
+        const isUpgrade = targetIdx > currentIdx;
+        const isDowngrade = targetIdx < currentIdx;
+
+        if (!session) {
+            if (plan.tier === 'free') return { label: 'Empieza Gratis', style: 'secondary' };
+            return { label: `Unirse a ${plan.name}`, style: plan.tier };
+        }
+
+        if (isCurrentPlan) {
+            return {
+                label: billingCycle === 'yearly' ? `Extender ${plan.name} (Anual)` : `Extender ${plan.name}`,
+                style: plan.tier
+            };
+        }
+        if (isUpgrade) return { label: `Mejorar a ${plan.name}`, style: plan.tier };
+        if (isDowngrade) return { label: `Cambiar a ${plan.name}`, style: 'downgrade' };
+
+        return { label: `Elegir ${plan.name}`, style: plan.tier };
+    };
 
     const handleSelectPlan = (plan: any) => {
         if (!session) {
             router.push('/signup');
             return;
         }
-
         const currentTier = (userTier || 'free').toLowerCase();
-
-        // Permitir seleccionar el mismo plan si el ciclo de facturación es diferente (ej. de mensual a anual)
-        // O si ya está en ese plan y simplemente quiere extenderlo/comprarlo de nuevo
-        // (Anteriormente se bloqueaba si currentTier === plan.tier)
-        // Eliminamos el: if (currentTier === plan.tier) return;
-
         const tierOrder = ['free', 'pro', 'premium'];
         const currentIdx = tierOrder.indexOf(currentTier);
         const targetIdx = tierOrder.indexOf(plan.tier);
-
         const isDowngrade = targetIdx < currentIdx;
         const isUpgrade = targetIdx > currentIdx;
         const isSameTier = currentTier === plan.tier;
 
         if (isDowngrade) {
-            let downgradeMessages: string[] = [];
-
+            let msgs: string[] = [];
             if (currentTier === 'premium' && plan.tier === 'pro') {
-                downgradeMessages = [
-                    "Perderás el acceso a la descarga de Stems (Pistas).",
-                    "Perderás la capacidad de vender Licencias Exclusivas.",
-                    "Se desactivarán tus Sound Kits y tu Acerca de mí Premium.",
-                    "Ya no tendrás Impulso Algorítmico en el catálogo."
-                ];
-            } else if (currentTier === 'premium' && plan.tier === 'free') {
-                downgradeMessages = [
-                    "Tu comisión por venta subirá del 0% al 15%.",
-                    "Solo podrás tener 5 Beats públicos (los demás se ocultarán).",
-                    "Perderás el acceso a Stems, Sound Kits y Acerca de mí.",
-                    "Ya no podrás descargar archivos WAV de tus producciones."
-                ];
-            } else if (currentTier === 'pro' && plan.tier === 'free') {
-                downgradeMessages = [
-                    "Tu comisión por venta subirá del 0% al 15%.",
-                    "Solo podrás tener 5 Beats públicos.",
-                    "Perderás el soporte 24/7 y la descarga de WAV.",
-                    "Se desactivarán tus servicios profesionales."
-                ];
+                msgs = ['Perderás Stems, Licencias Exclusivas, Sound Kits.', 'Ya no tendrás Impulso Algorítmico en el catálogo.'];
+            } else if (plan.tier === 'free') {
+                msgs = ['Tu comisión subirá del 0% al 15%.', 'Solo podrás tener 5 Beats públicos.', 'Perderás el acceso a WAV, Stems y más.'];
             }
-
             setSelectedPlan({
-                ...plan,
-                type: 'downgrade',
+                ...plan, type: 'downgrade',
+                messages: ['Tu plan actual permanece activo hasta el final del ciclo.', ...msgs, terminaSuscripcion ? `Pasarás a ${plan.name} el ${new Date(terminaSuscripcion).toLocaleDateString('es-MX', { day: 'numeric', month: 'long' })}.` : '']
+            });
+        } else if (isUpgrade && currentTier !== 'free') {
+            setSelectedPlan({
+                ...plan, type: 'upgrade',
                 messages: [
-                    "Tu plan actual permanecerá activo hasta el final de tu ciclo.",
-                    ...downgradeMessages,
-                    `Al finalizar tu periodo (${new Date(terminaSuscripcion || '').toLocaleDateString()}), pasarás a ${plan.name} automáticamente.`
+                    `¡Tu plan ${plan.name} se activa INMEDIATAMENTE!`,
+                    'Tus días restantes del plan anterior se convierten en días de crédito.',
+                    'No pierdes ni un centavo de lo que ya pagaste.'
                 ]
             });
-            setShowDowngradeModal(true);
-        } else if (isUpgrade && currentTier !== 'free') {
-            // Upgrade con Prorrateo Automático (Pro a Premium)
-            setSelectedPlan({
-                ...plan,
-                type: 'upgrade',
-                messages: [
-                    `¡Tu plan ${plan.name} se activará INMEDIATAMENTE!`,
-                    `Tus días restantes de ${currentTier.toUpperCase()} se convertirán matemáticamente a días Premium.`,
-                    `Aprovechas el 100% del valor de tu plan anterior, convertido en tiempo extra.`,
-                    `El nuevo periodo (mes/año) + tus días abonados comenzarán hoy mismo.`
-                ],
-                disclaimer: "Justo y Transparente: Cambias hoy y no pierdes ni un centavo de lo que ya habías pagado."
-            });
-            setShowDowngradeModal(true);
         } else {
-            // Upgrade desde Free o Extensión del mismo plan
-            const isExtending = isSameTier;
             setSelectedPlan({
-                ...plan,
-                type: isExtending ? 'extend' : 'upgrade',
-                messages: isExtending
-                    ? ["Tu tiempo actual se mantiene.", "Se sumará el nuevo periodo a tu fecha de vencimiento actual."]
-                    : ["¡Activación Inmediata!", "Acceso total a todas las funciones de " + plan.name + "."],
-                disclaimer: isExtending ? "Tu suscripción se extenderá automáticamente." : "Importante: Tu nuevo plan comienza hoy."
+                ...plan, type: isSameTier ? 'extend' : 'new',
+                messages: isSameTier
+                    ? ['Tu tiempo actual se mantiene intacto.', 'El nuevo periodo se suma a tu fecha de vencimiento actual.']
+                    : ['¡Activación Inmediata!', `Acceso total a todas las funciones de ${plan.name}.`]
             });
-            setShowDowngradeModal(true);
         }
+        setShowModal(true);
     };
 
-    const handleCancelChange = async () => {
-        if (!session) return;
-        setLoading(true);
-        try {
-            const { error } = await supabase
-                .from('perfiles')
-                .update({ fecha_inicio_suscripcion: null })
-                .eq('id', session.user.id);
-
-            if (error) throw error;
-            setComenzarSuscripcion(null);
-            showToast("Cambio programado cancelado. Mantendrás tu plan actual.", 'success');
-        } catch (err) {
-            console.error(err);
-            showToast("Error al cancelar el cambio.", 'error');
-        } finally {
-            setLoading(false);
-        }
+    const handleCancelSubscription = () => {
+        const freePlan = plans.find(p => p.tier === 'free');
+        handleSelectPlan(freePlan);
     };
 
     const confirmAction = async () => {
         if (!selectedPlan || !session) return;
 
-        if (selectedPlan.type === 'downgrade' || selectedPlan.type === 'upgrade_sequential') {
-            const isDowngrade = selectedPlan.type === 'downgrade';
+        if (selectedPlan.type === 'downgrade' && selectedPlan.tier === 'free') {
             try {
-                // Si es solo programar el cambio sin pago inmediato (downgrade a free)
-                if (isDowngrade && selectedPlan.tier === 'free') {
-                    const { error } = await supabase
-                        .from('perfiles')
-                        .update({ fecha_inicio_suscripcion: selectedPlan.tier })
-                        .eq('id', session.user.id);
-
-                    if (error) throw error;
-                    setShowDowngradeModal(false);
-                    setComenzarSuscripcion(selectedPlan.tier);
-                    showToast("Cambio programado exitosamente.", 'success');
-                } else {
-                    // Si requiere pago (Upgrade Secuencial o Downgrade pagado)
-                    const isYearly = billingCycle === 'yearly';
-                    const totalPrice = isYearly ? (selectedPlan.price * 12) : selectedPlan.price;
-
-                    const wasAdded = addItem({
-                        id: `plan-${selectedPlan.tier}-${billingCycle}`,
-                        type: 'plan',
-                        name: `Plan ${selectedPlan.name} ${isYearly ? '[Anual]' : '[Mensual]'}`,
-                        price: totalPrice,
-                        subtitle: selectedPlan.description,
-                        metadata: {
-                            tier: selectedPlan.tier,
-                            cycle: billingCycle,
-                            sequential: selectedPlan.type === 'upgrade_sequential'
-                        }
-                    });
-
-                    if (wasAdded) {
-                        router.push('/cart');
-                    }
-                }
+                const { error } = await supabase.from('perfiles').update({ fecha_inicio_suscripcion: selectedPlan.tier }).eq('id', session.user.id);
+                if (error) throw error;
+                setShowModal(false);
+                setComenzarSuscripcion(selectedPlan.tier);
+                showToast('Cambio programado. Tu plan actual sigue activo.', 'success');
             } catch (err) {
-                console.error(err);
-                showToast("Error al procesar la solicitud.", 'error');
+                showToast('Error al procesar la solicitud.', 'error');
             }
         } else {
             const isYearly = billingCycle === 'yearly';
-            const totalPrice = isYearly ? (selectedPlan.price * 12) : selectedPlan.price;
-
+            const totalPrice = isYearly ? (selectedPlan.price.yearly * 12) : selectedPlan.price.monthly;
             const wasAdded = addItem({
                 id: `plan-${selectedPlan.tier}-${billingCycle}`,
                 type: 'plan',
                 name: `Plan ${selectedPlan.name} ${isYearly ? '[Anual]' : '[Mensual]'}`,
                 price: totalPrice,
-                subtitle: selectedPlan.description,
+                subtitle: selectedPlan.tagline,
                 metadata: { tier: selectedPlan.tier, cycle: billingCycle }
             });
-
-            if (wasAdded) {
-                router.push('/cart');
-            }
+            if (wasAdded) router.push('/cart');
         }
     };
 
+    const btnStyles: Record<string, string> = {
+        pro: 'bg-gradient-to-r from-amber-500 to-amber-400 text-white hover:from-amber-400 hover:to-amber-300 shadow-lg shadow-amber-500/30',
+        premium: 'bg-gradient-to-r from-[#00f2ff] to-[#0ea5e9] text-slate-900 hover:from-[#00e0ff] hover:to-[#0ea5e9] shadow-lg shadow-[#00f2ff]/30',
+        free: 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:opacity-90',
+        secondary: 'bg-slate-100 text-slate-900 dark:bg-white/10 dark:text-white hover:bg-slate-200 dark:hover:bg-white/20',
+        downgrade: 'bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-slate-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 dark:hover:text-red-400 border border-slate-200 dark:border-white/10',
+    };
+
     return (
-        <div className="min-h-screen bg-background transition-colors duration-300">
+        <div className="min-h-screen bg-background transition-colors duration-300 font-sans">
             <Navbar />
 
-            {/* Modal */}
-            {showDowngradeModal && selectedPlan && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-card rounded-[2rem] p-8 max-w-md w-full shadow-2xl relative border border-border">
-                        <button onClick={() => setShowDowngradeModal(false)} className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted/10 transition-colors">
-                            <X size={20} className="text-muted" />
-                        </button>
-                        <div className="text-center mb-6">
-                            <h2 className="text-2xl font-black uppercase tracking-tighter text-foreground mb-4">
-                                {selectedPlan.type === 'downgrade' ? 'Confirmar Cambio' : selectedPlan.type === 'extend' ? 'Extender Suscripción' : 'Mejorar Plan'}
-                            </h2>
+            {/* ─────────────── MODAL ─────────────── */}
+            {showModal && selectedPlan && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
+                    <div className={`relative w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl border overflow-hidden ${selectedPlan.tier === 'premium' ? 'bg-slate-900 border-[#00f2ff]/20' : selectedPlan.tier === 'pro' ? 'bg-slate-900 border-amber-500/20' : 'bg-card border-border'}`}>
 
+                        <div className={`absolute top-0 left-0 w-full h-1 ${selectedPlan.tier === 'premium' ? 'bg-gradient-to-r from-transparent via-[#00f2ff] to-transparent' : selectedPlan.tier === 'pro' ? 'bg-gradient-to-r from-transparent via-amber-500 to-transparent' : 'bg-gradient-to-r from-transparent via-slate-400 to-transparent'}`} />
+
+                        <button onClick={() => setShowModal(false)} className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-rose-500/20 transition-all">
+                            <X size={18} />
+                        </button>
+
+                        <div className="mb-6">
+                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest mb-4 ${selectedPlan.tier === 'premium' ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/20' : selectedPlan.tier === 'pro' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-slate-400/10 text-slate-400 border border-slate-400/20'}`}>
+                                {selectedPlan.icon} Plan {selectedPlan.name}
+                            </div>
+                            <h2 className="text-2xl font-black uppercase tracking-tighter text-white mb-2">
+                                {selectedPlan.type === 'downgrade' ? 'Cambio de Plan' : selectedPlan.type === 'extend' ? 'Extender Suscripción' : selectedPlan.type === 'upgrade' ? '¡Mejora Inmediata!' : 'Confirmar Plan'}
+                            </h2>
                             {selectedPlan.type === 'downgrade' && terminaSuscripcion && (
-                                <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">
-                                        Periodo Actual
-                                    </p>
-                                    <p className="text-sm font-bold text-foreground">
-                                        Tienes hasta el {new Date(terminaSuscripcion).toLocaleDateString()}
-                                    </p>
+                                <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-amber-400 mb-1">Tu periodo actual vence</p>
+                                    <p className="text-sm font-bold text-white">{new Date(terminaSuscripcion).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                                 </div>
                             )}
-
-                            <div className="mb-6 text-left">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted mb-3">
-                                    {selectedPlan.type === 'downgrade' ? 'Lo que debes saber:' : 'Beneficios inmediatos:'}
-                                </p>
-                                <ul className="space-y-2">
-                                    {selectedPlan.messages?.map((msg: string, i: number) => (
-                                        <li key={i} className="flex gap-2 text-sm text-foreground/80 font-medium">
-                                            <Check size={16} className="text-accent shrink-0 mt-0.5" /> {msg}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            <button onClick={confirmAction} className="w-full py-4 bg-accent text-white rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-accent/20 hover:scale-[1.02] transition-all">
-                                {selectedPlan.type === 'downgrade' ? 'Programar Cambio' : 'Ir al Carrito'}
-                            </button>
-
-                            {selectedPlan.type === 'downgrade' && (
-                                <button
-                                    onClick={() => setShowDowngradeModal(false)}
-                                    className="w-full mt-4 py-4 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-emerald-500 hover:text-white transition-all shadow-lg shadow-emerald-500/10 active:scale-[0.98]"
-                                >
-                                    Arrepentirse y Mantener Plan Actual
-                                </button>
-                            )}
                         </div>
+
+                        <ul className="space-y-3 mb-8">
+                            {selectedPlan.messages?.map((msg: string, i: number) => msg && (
+                                <li key={i} className="flex items-start gap-3 text-sm text-slate-300 font-medium">
+                                    <div className={`shrink-0 mt-0.5 w-5 h-5 rounded-full flex items-center justify-center ${selectedPlan.type === 'downgrade' ? 'bg-amber-500/15 text-amber-400' : 'bg-emerald-500/15 text-emerald-400'}`}>
+                                        <Check size={12} strokeWidth={3} />
+                                    </div>
+                                    {msg}
+                                </li>
+                            ))}
+                        </ul>
+
+                        <button onClick={confirmAction} className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:scale-[1.02] active:scale-95 transition-all ${btnStyles[selectedPlan.tier] || btnStyles.free}`}>
+                            {selectedPlan.type === 'downgrade' ? 'Programar Cambio' : 'Ir al Carrito →'}
+                        </button>
+                        <button onClick={() => setShowModal(false)} className="w-full mt-3 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-slate-300 transition-all">
+                            Cancelar
+                        </button>
                     </div>
                 </div>
             )}
 
-            {/* Hero Section */}
-            <section className="relative pt-32 pb-20 overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-                    <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-accent/10 rounded-full blur-[120px]"></div>
-                    <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-purple-500/10 rounded-full blur-[120px]"></div>
+            {/* ─────────────── HERO ─────────────── */}
+            <section className="relative pt-36 pb-16 overflow-hidden">
+                {/* Ambient blobs */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-accent/10 to-transparent rounded-full blur-[100px]" />
+                    <div className="absolute top-20 left-0 w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-[150px]" />
+                    <div className="absolute top-20 right-0 w-[400px] h-[400px] bg-[#00f2ff]/5 rounded-full blur-[150px]" />
                 </div>
 
-                <div className="max-w-7xl mx-auto px-4 relative z-10 text-center">
-                    <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-[0.2em] mb-8 border border-amber-500/40 shadow-[0_0_30px_rgba(245,158,11,0.2)] animate-pulse">
-                        <Crown size={14} className="fill-amber-500" /> Únete ahora: Las primeras 100 personas obtendrán el distintivo exclusivo de Founder
+                <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
+                    {/* Founder Badge */}
+                    <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[10px] font-black uppercase tracking-[0.2em] mb-8 shadow-[0_0_40px_rgba(245,158,11,0.15)] animate-pulse">
+                        <Crown size={14} fill="currentColor" />
+                        Las primeras 100 personas obtienen la insignia exclusiva de Founder
+                        <Crown size={14} fill="currentColor" />
                     </div>
-                    <h1 className="text-5xl md:text-8xl font-black text-foreground tracking-tighter mb-6 font-heading leading-tight uppercase drop-shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
-                        Elige tu <span className="text-accent">plan</span>
+
+                    <h1 className="text-6xl md:text-9xl font-black uppercase tracking-[-0.05em] leading-[0.85] mb-6 text-foreground">
+                        Elige tu<br /><span className="text-accent">plan.</span>
                     </h1>
-                    <p className="max-w-2xl mx-auto text-lg text-muted font-medium mb-12">
-                        Tu música no tiene límites. Desbloquea el poder total del Tianguis y conviértete en la próxima leyenda de la industria.
+
+                    <p className="text-muted text-base font-medium mb-12 max-w-xl mx-auto">
+                        Sin contratos forzosos. Cancela cuando quieras.
                     </p>
 
-                    {/* Cycle Toggle */}
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="inline-flex p-1.5 bg-card border border-border rounded-full items-center gap-2 relative">
+                    {/* Billing Toggle */}
+                    <div className="inline-flex flex-col items-center gap-3">
+                        <div className="relative flex items-center p-1.5 bg-card border border-border rounded-2xl shadow-inner">
                             <button
                                 onClick={() => setBillingCycle('monthly')}
-                                className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'monthly' ? 'bg-accent text-white shadow-lg' : 'text-muted hover:text-foreground'}`}
+                                className={`relative px-8 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${billingCycle === 'monthly' ? 'bg-foreground text-background shadow-lg' : 'text-muted hover:text-foreground'}`}
                             >
                                 Mensual
                             </button>
                             <button
                                 onClick={() => setBillingCycle('yearly')}
-                                className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${billingCycle === 'yearly' ? 'bg-accent text-white shadow-lg' : 'text-muted hover:text-foreground'}`}
+                                className={`relative px-8 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${billingCycle === 'yearly' ? 'bg-foreground text-background shadow-lg' : 'text-muted hover:text-foreground'}`}
                             >
                                 Anual
                             </button>
-                            {/* 25% OFF Badge */}
-                            <div className="absolute -top-4 -right-4 bg-blue-600 text-white text-[8px] font-black px-2 py-1 rounded-lg rotate-12 shadow-lg">
-                                25% OFF + 3 MESES GRATIS
+                            {/* Badge */}
+                            <div className="absolute -top-5 -right-3 bg-emerald-500 text-white text-[8px] font-black px-3 py-1 rounded-full shadow-lg whitespace-nowrap rotate-3 shadow-emerald-500/30">
+                                25% OFF · 3 MESES GRATIS
                             </div>
                         </div>
-                        <p className={`text-[10px] font-bold uppercase tracking-widest transition-all ${billingCycle === 'yearly' ? 'text-accent' : 'text-muted'}`}>
-                            {billingCycle === 'yearly' ? 'Ahorras un 25% anual y obtienes 3 meses gratis' : 'Cambia a anual para ahorrar'}
+                        <p className={`text-[10px] font-bold uppercase tracking-widest transition-all duration-300 ${billingCycle === 'yearly' ? 'text-emerald-500' : 'text-muted opacity-60'}`}>
+                            {billingCycle === 'yearly' ? '✨ Ahorras 3 meses completos al año' : 'Cambia a anual y ahorra 25%'}
                         </p>
                     </div>
                 </div>
             </section>
 
-            {/* Pricing Grid */}
-            <section className="pb-32 relative z-10">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+            {/* ─────────────── PRICING GRID ─────────────── */}
+            <section className="pb-24 relative z-10">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-end">
                         {plans.map((plan) => {
                             const currentTier = (userTier || 'free').toLowerCase();
                             const isCurrentPlan = currentTier === plan.tier;
-                            const isScheduled = comenzarSuscripcion === plan.tier;
-
-                            const tierOrder = ['free', 'pro', 'premium'];
-                            const currentIdx = tierOrder.indexOf(currentTier);
-                            const targetIdx = tierOrder.indexOf(plan.tier);
-                            const isUpgrade = targetIdx > currentIdx;
-                            const isDowngrade = targetIdx < currentIdx;
-
-                            const isPremium = plan.tier === 'premium';
                             const isPro = plan.tier === 'pro';
+                            const isPremium = plan.tier === 'premium';
                             const isFree = plan.tier === 'free';
-
-                            // Plan specific colors
-                            const planColorClass = isPremium ? 'text-blue-500' : isPro ? 'text-amber-500' : 'text-slate-400';
-                            const planBgSoftClass = isPremium ? 'bg-blue-500/10' : isPro ? 'bg-amber-500/10' : 'bg-slate-500/10';
-                            const planBorderClass = isFree ? 'border-slate-300 dark:border-slate-700' : isPro ? 'border-amber-400/50' : 'border-blue-500/50';
+                            const isScheduled = comenzarSuscripcion === plan.tier;
+                            const btnCfg = getButtonConfig(plan);
+                            const price = billingCycle === 'yearly' ? plan.price.yearly : plan.price.monthly;
 
                             return (
-                                <div key={plan.tier} className={`group relative bg-card/60 backdrop-blur-xl rounded-[3rem] p-8 md:p-10 border transition-all duration-500 hover:-translate-y-2 flex flex-col ${isPro ? 'border-amber-500 shadow-[0_40px_80px_-20px_rgba(245,158,11,0.2)] scale-105 z-20' : `border-border/80 shadow-premium hover:border-accent/40`}`}>
+                                <div
+                                    key={plan.tier}
+                                    className={`relative flex flex-col rounded-[3rem] border transition-all duration-500 overflow-hidden ${isPro
+                                        ? 'md:-translate-y-6 bg-gradient-to-b from-amber-950/60 to-slate-900 border-amber-500/40 shadow-[0_40px_100px_-20px_rgba(245,158,11,0.3)] ring-1 ring-amber-500/20'
+                                        : isPremium
+                                            ? 'bg-gradient-to-b from-[#001a2e] to-slate-900 border-[#00f2ff]/30 shadow-[0_40px_100px_-20px_rgba(0,242,255,0.2)] ring-1 ring-[#00f2ff]/10'
+                                            : 'bg-card border-border hover:border-border/80'
+                                        }`}
+                                >
+                                    {/* Top accent line */}
+                                    {!isFree && (
+                                        <div className={`absolute top-0 left-0 right-0 h-px ${isPro ? 'bg-gradient-to-r from-transparent via-amber-500 to-transparent' : 'bg-gradient-to-r from-transparent via-[#00f2ff] to-transparent'}`} />
+                                    )}
+
+                                    {/* Most Popular badge */}
                                     {isPro && (
-                                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl">
-                                            Más Popular
+                                        <div className="absolute -top-px left-1/2 -translate-x-1/2 bg-amber-500 text-white px-6 py-1.5 rounded-b-2xl font-black text-[9px] uppercase tracking-widest shadow-xl z-10">
+                                            ★ Más Popular
                                         </div>
                                     )}
-                                    <div className="mb-8 flex flex-col items-center text-center">
-                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${planBgSoftClass} ${planColorClass}`}>
-                                            {isPremium ? <Crown size={28} fill="currentColor" /> : isPro ? <Star size={28} fill="currentColor" /> : <Zap size={28} />}
+
+                                    {/* Current plan indicator */}
+                                    {isCurrentPlan && session && (
+                                        <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${isPro ? 'bg-amber-500/20 text-amber-400' : isPremium ? 'bg-[#00f2ff]/20 text-[#00f2ff]' : 'bg-white/10 text-slate-400'}`}>
+                                            Tu plan actual
                                         </div>
-                                        <h3 className="text-2xl font-black text-foreground mb-2 font-heading tracking-tighter">{plan.name}</h3>
-                                        <p className="text-muted text-sm font-medium">{plan.description}</p>
-                                    </div>
-                                    <div className="mb-8">
-                                        <div className="flex items-baseline justify-center gap-1">
-                                            <span className="text-5xl font-black text-foreground tracking-tighter">{formatPrice(plan.price).split(' ')[0]}</span>
-                                            <span className="text-muted font-black uppercase text-[10px] tracking-widest">{currency}/Mes</span>
+                                    )}
+
+                                    <div className={`p-8 md:p-10 flex flex-col flex-1 ${isPro ? 'pt-14' : 'pt-10'}`}>
+
+                                        {/* Icon + Plan Name */}
+                                        <div className="mb-8">
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${isFree ? 'bg-slate-200/10 text-slate-400' : isPro ? 'bg-amber-500/15 text-amber-400' : 'bg-[#00f2ff]/10 text-[#00f2ff]'}`}>
+                                                {plan.icon}
+                                            </div>
+                                            <h3 className={`text-2xl font-black uppercase tracking-tighter mb-1 ${isFree ? 'text-slate-400' : isPro ? 'text-amber-400' : 'text-[#00f2ff]'}`}>
+                                                {plan.name}
+                                            </h3>
+                                            <p className="text-muted text-[11px] font-bold uppercase tracking-widest opacity-70">{plan.tagline}</p>
                                         </div>
-                                    </div>
-                                    <div className="flex justify-center mb-10">
-                                        <ul className="space-y-4 flex flex-col items-start min-w-[220px]">
-                                            {plan.features.map((feature, i) => (
-                                                <li key={i} className="flex items-center gap-4 text-sm font-bold text-foreground/90">
-                                                    <div className={`p-1 rounded-full ${planBgSoftClass} ${planColorClass} shrink-0`}>
-                                                        <Check size={isPro ? 14 : 12} strokeWidth={4} />
+
+                                        {/* Price */}
+                                        <div className="mb-8">
+                                            <div className="flex items-baseline gap-2">
+                                                <span className={`text-5xl font-black tracking-tighter ${isFree ? 'text-foreground' : isPro ? 'text-amber-300' : 'text-[#00f2ff]'}`}>
+                                                    {isFree ? 'Gratis' : `$${price}`}
+                                                </span>
+                                                {!isFree && (
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] font-black text-muted uppercase tracking-widest">{currency}</span>
+                                                        <span className="text-[9px] font-bold text-muted/60 uppercase tracking-widest">/ mes</span>
                                                     </div>
-                                                    <span>{feature}</span>
+                                                )}
+                                            </div>
+                                            {!isFree && billingCycle === 'yearly' && (
+                                                <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-2 flex items-center gap-1">
+                                                    <Sparkles size={10} fill="currentColor" /> ${price * 12} al año · Ahorras ${(plan.price.monthly - price) * 12}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {/* Founder note */}
+                                        {isPremium && (
+                                            <div className="mb-6 px-4 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3">
+                                                <Crown size={16} className="text-amber-400 shrink-0" fill="currentColor" />
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-amber-400 leading-tight">
+                                                    Primeras 100 personas reciben insignia Founder
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* Features */}
+                                        <ul className="space-y-3.5 mb-10 flex-1">
+                                            {plan.features.map((f, i) => (
+                                                <li key={i} className={`flex items-center gap-3 text-[12px] font-bold ${f.included ? (isFree ? 'text-foreground/80' : isPro ? 'text-amber-100' : 'text-white/90') : 'text-muted/40 line-through'}`}>
+                                                    <div className={`shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${f.included ? (isFree ? 'bg-slate-400/15 text-slate-400' : isPro ? 'bg-amber-500/20 text-amber-400' : 'bg-[#00f2ff]/15 text-[#00f2ff]') : 'bg-white/5 text-muted/20'}`}>
+                                                        <Check size={11} strokeWidth={3} />
+                                                    </div>
+                                                    {f.text}
                                                 </li>
                                             ))}
                                         </ul>
+
+                                        {/* CTA Button */}
+                                        {isScheduled ? (
+                                            <button className="w-full py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest bg-amber-500/10 text-amber-400 border border-amber-500/20 cursor-default">
+                                                <Clock size={14} className="inline mr-2" />
+                                                Cambio Programado
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleSelectPlan(plan)}
+                                                className={`w-full py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 ${btnStyles[btnCfg.style] || btnStyles.secondary}`}
+                                            >
+                                                {btnCfg.label}
+                                                {!isFree && <ArrowRight size={14} className="inline ml-2" />}
+                                            </button>
+                                        )}
+
+                                        {/* Vencimiento */}
+                                        {isCurrentPlan && terminaSuscripcion && !isFree && (
+                                            <p className="mt-3 text-center text-[9px] font-bold uppercase tracking-widest text-muted/50">
+                                                Vence el {new Date(terminaSuscripcion).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            </p>
+                                        )}
                                     </div>
-                                    {isScheduled ? (
-                                        <button
-                                            onClick={handleCancelChange}
-                                            className="w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest bg-amber-500/10 text-amber-500 border border-amber-500/20 hover:bg-amber-500 hover:text-white transition-all shadow-lg"
-                                        >
-                                            Cancelar Cambio Programado
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => handleSelectPlan(plan)}
-                                            className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${isCurrentPlan
-                                                ? 'bg-accent text-white hover:scale-105 shadow-xl'
-                                                : isPro ? 'bg-amber-500 text-white hover:bg-foreground hover:shadow-xl' : 'bg-foreground text-background hover:bg-accent hover:text-white'
-                                                }`}
-                                        >
-                                            {isCurrentPlan ? (
-                                                billingCycle === 'yearly' ? 'Extender Anual (Ahorra 25%)' : 'Extender Plan Actual'
-                                            ) : isUpgrade ? (
-                                                `Mejorar a ${plan.name}`
-                                            ) : isDowngrade ? (
-                                                `Cambiar a ${plan.name}`
-                                            ) : (
-                                                `Suscribirse ${plan.name}`
-                                            )}
-                                        </button>
-                                    )}
-
-                                    <Link href={`/pricing/${plan.tier}`} className={`mt-4 text-center text-[10px] font-black uppercase tracking-widest text-muted hover:${planColorClass} transition-colors`}>
-                                        Saber más sobre el plan
-                                    </Link>
-
-                                    {/* Expiration Info */}
-                                    {isCurrentPlan && terminaSuscripcion && (
-                                        <p className="mt-4 text-center text-[9px] font-black uppercase tracking-widest text-muted">
-                                            Vence el: {new Date(terminaSuscripcion).toLocaleDateString()}
-                                        </p>
-                                    )}
                                 </div>
                             );
                         })}
                     </div>
 
-                    <div className="mt-20 text-center">
-                        <p className="text-foreground text-sm font-black uppercase tracking-[0.3em] mb-4">Cancela cuando quieras</p>
+                    {/* ── Trust Bar ── */}
+                    <div className="mt-16 flex flex-col items-center gap-6">
+                        <div className="flex flex-wrap items-center justify-center gap-8 text-[10px] font-black uppercase tracking-widest text-muted/60">
+                            <span className="flex items-center gap-2"><Lock size={12} /> Sin contratos forzosos</span>
+                            <span className="w-px h-4 bg-border hidden sm:block" />
+                            <span className="flex items-center gap-2"><ShieldCheck size={12} /> Garantía de satisfacción</span>
+                            <span className="w-px h-4 bg-border hidden sm:block" />
+                            <span className="flex items-center gap-2"><Zap size={12} fill="currentColor" /> Soporte 24/7</span>
+                        </div>
 
-                        {/* Cancel Button - Subtle and below cancel text */}
+                        {/* Cancel Subscription – only for active subscribers */}
                         {session && (userTier === 'pro' || userTier === 'premium') && (
                             <button
-                                onClick={() => handleSelectPlan(plans.find(p => p.tier === 'free'))}
-                                className="block mx-auto mb-6 text-[9px] font-bold uppercase tracking-widest text-muted hover:text-red-400 transition-all opacity-40 hover:opacity-100"
+                                onClick={handleCancelSubscription}
+                                className="text-[9px] font-bold uppercase tracking-widest text-muted/30 hover:text-red-400 transition-all opacity-60 hover:opacity-100 mt-2"
                             >
-                                Cancelar Suscripción
+                                Cancelar suscripción
                             </button>
                         )}
-
-                        <p className="text-muted text-[10px] font-bold uppercase tracking-widest mb-8">Sin contratos forzosos • Garantía de satisfacción • Soporte 24/7</p>
                     </div>
                 </div>
             </section>
