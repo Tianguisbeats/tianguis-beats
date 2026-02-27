@@ -83,7 +83,7 @@ export default function MyPurchasesPage() {
             const groupedOrders: Record<string, any> = {};
 
             (txData || []).forEach(tx => {
-                const pagoId = tx.pago_id || tx.id; // Group key
+                const pagoId = tx.id_pago_stripe || tx.id; // Group key
                 if (!groupedOrders[pagoId]) {
                     groupedOrders[pagoId] = {
                         id: pagoId,
@@ -92,18 +92,18 @@ export default function MyPurchasesPage() {
                         currency: tx.moneda || 'MXN',
                         status: tx.estado_pago,
                         payment_method: tx.metodo_pago,
-                        stripe_id: tx.pago_id,
+                        stripe_id: tx.id_pago_stripe,
                         items: []
                     };
                 }
 
-                groupedOrders[pagoId].total_amount += Number(tx.precio);
+                groupedOrders[pagoId].total_amount += Number(tx.precio_total);
 
                 groupedOrders[pagoId].items.push({
                     id: tx.id,
                     product_type: tx.tipo_producto,
                     name: tx.nombre_producto,
-                    price: tx.precio,
+                    price: tx.precio_total,
                     license_type: tx.tipo_licencia,
                     metadata: tx.metadatos,
                     producer_id: tx.vendedor_id,

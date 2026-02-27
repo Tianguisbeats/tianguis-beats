@@ -70,7 +70,7 @@ export async function POST(req: Request) {
                 const { data: userData, error: userError } = await supabaseAdmin
                     .from('perfiles')
                     .select('id, nombre_usuario')
-                    .eq('email', customerEmail)
+                    .eq('correo', customerEmail)
                     .single();
 
                 if (userData && !userError) {
@@ -153,7 +153,7 @@ export async function POST(req: Request) {
 
                         const { data: prodProfile } = await supabaseAdmin
                             .from('perfiles')
-                            .select('nombre_artistico, email')
+                            .select('nombre_artistico, correo')
                             .eq('id', sellerId)
                             .single();
 
@@ -164,7 +164,7 @@ export async function POST(req: Request) {
                             productName: product.name,
                             price: (item.amount_total / 100).toString(),
                             producerName: prodProfile?.nombre_artistico || 'Productor Tianguis',
-                            producerEmail: prodProfile?.email || '',
+                            producerEmail: prodProfile?.correo || '',
                             buyerName: session.customer_details?.name || 'Cliente Verificado',
                             buyerEmail: customerEmail || '',
                             isCustomText: false,
@@ -208,17 +208,17 @@ export async function POST(req: Request) {
                 const { error: txError } = await supabaseAdmin
                     .from('transacciones')
                     .insert({
-                        pago_id: stripeId,
+                        id_pago_stripe: stripeId,
                         comprador_id: usuarioId,
                         vendedor_id: vendedorId,
                         producto_id: itemId,
                         tipo_producto: metadata.type || 'beat',
                         nombre_producto: product.name,
-                        precio: item.amount_total / 100,
+                        precio_total: item.amount_total / 100,
                         moneda: moneda,
                         estado_pago: 'completado',
                         metodo_pago: 'stripe',
-                        tipo_licencia: metadata.licenseType || 'basica',
+                        tipo_licencia: metadata.type === 'plan' ? metadata.tier : (metadata.licenseType || 'basica'),
                         metadatos: { ...metadata, contract_pdf_url: pdfUrl }, // Guardar la URL aquí
                         cupon_id: cuponId || null
                     });
