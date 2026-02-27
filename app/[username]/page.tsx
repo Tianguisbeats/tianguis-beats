@@ -564,7 +564,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
             <Navbar />
 
-            <main className="flex-1 pb-40">
+            {/* pb-24 en móvil: reserva espacio para MobileBottomNav + AudioPlayer */}
+            <main className="flex-1 pb-24 md:pb-0">
+
                 {/* 1. Portada Refinada */}
                 <div
                     className={`relative h-[40vh] md:h-[50vh] bg-foreground/5 group overflow-hidden ${isAdjustingCover ? 'cursor-ns-resize ring-4 ring-accent ring-inset z-50' : ''}`}
@@ -682,21 +684,24 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                    {/* Header Info Vitaminado */}
-                    <div className="flex flex-col md:flex-row items-center md:items-end gap-8 -mt-24 md:-mt-32 mb-16">
-                        {/* Avatar */}
+                    {/* ── Header de perfil: Avatar + nombre + acción ── */}
+                    <div className="flex flex-col md:flex-row items-center md:items-end gap-5 -mt-16 md:-mt-32 mb-10 md:mb-16">
+                        {/* Avatar — más pequeño en móvil para no dominar la pantalla */}
                         <div className="relative group shrink-0">
+
                             {/* Glow Effect */}
                             <div className={`absolute inset-0 rounded-full blur-2xl opacity-40 transition-all duration-700 bg-accent`} />
 
-                            <div className={`w-48 h-48 md:w-56 md:h-56 rounded-full border-[6px] shadow-2xl overflow-hidden transition-all duration-700 bg-background relative z-10 ${profile.nivel_suscripcion === 'premium'
-                                ? 'border-[#00f2ff] ring-4 ring-[#00f2ff]/20 shadow-[#00f2ff]/30' // Azul Premium Eléctrico
+                            {/* Borde del avatar según nivel de suscripción */}
+                            <div className={`w-32 h-32 md:w-48 md:h-48 rounded-full border-[5px] shadow-2xl overflow-hidden transition-all duration-700 bg-background relative z-10 ${profile.nivel_suscripcion === 'premium'
+                                ? 'border-[#00f2ff] ring-4 ring-[#00f2ff]/20 shadow-[#00f2ff]/30'
                                 : profile.es_fundador
                                     ? 'border-amber-500 ring-4 ring-amber-500/20 shadow-amber-500/30'
                                     : profile.nivel_suscripcion === 'pro'
                                         ? 'border-accent ring-4 ring-accent/20'
                                         : 'border-white/10'
                                 }`}>
+
                                 {profile.foto_perfil ? (
                                     <img src={profile.foto_perfil} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Avatar" />
                                 ) : (
@@ -717,8 +722,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         <div className="flex-1 text-center md:text-left">
                             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 w-full">
                                 <div className="space-y-4">
+                                    {/* Nombre artístico: compacto en móvil */}
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                                        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.8] text-foreground drop-shadow-sm">
+                                        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.85] text-foreground drop-shadow-sm">
+
                                             {profile.nombre_artistico || profile.nombre_usuario}
                                         </h1>
                                         <div className="flex items-center gap-2 translate-y-3 md:translate-y-6">
@@ -764,14 +771,15 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                                {/* ── Botones de acción (Editar / Seguir): full-width en móvil ── */}
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 w-full sm:w-auto">
 
 
 
                                     {isOwner ? (
                                         <button
                                             onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}
-                                            className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center gap-3 ${isEditing ? 'bg-foreground dark:bg-white text-background dark:text-slate-900' : 'bg-white dark:bg-white/10 text-foreground dark:text-white border border-slate-100 dark:border-white/20 hover:shadow-2xl hover:-translate-y-1 backdrop-blur-md dark:hover:bg-white dark:hover:text-slate-900'}`}
+                                            className={`h-12 sm:h-14 px-8 sm:px-10 w-full sm:w-auto rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${isEditing ? 'bg-foreground dark:bg-white text-background dark:text-slate-900' : 'bg-white dark:bg-white/10 text-foreground dark:text-white border border-slate-100 dark:border-white/20 hover:shadow-2xl hover:-translate-y-1 backdrop-blur-md dark:hover:bg-white dark:hover:text-slate-900'}`}
                                         >
                                             {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Editar Perfil</>}
                                         </button>
@@ -780,7 +788,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             {currentUserId !== profile?.id && (
                                                 <button
                                                     onClick={handleFollowToggle}
-                                                    className={`h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center gap-3 shadow-xl active:scale-95 ${isFollowing ? 'bg-success text-white shadow-success/20' : 'bg-accent text-white shadow-accent/20 hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900'}`}
+                                                    className={`h-12 sm:h-14 px-8 sm:px-10 w-full sm:w-auto rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-xl active:scale-95 ${isFollowing ? 'bg-success text-white shadow-success/20' : 'bg-accent text-white shadow-accent/20 hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900'}`}
                                                 >
                                                     {isFollowing ? <><Check size={16} /> Siguiendo</> : <><UserPlus size={16} /> Seguir</>}
                                                 </button>
@@ -788,15 +796,19 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         </>
                                     )}
                                 </div>
+
                             </div>
                         </div>
                     </div>
 
+                    {/* ── Layout principal: sidebar (bio) + feed de beats ──
+                         En móvil el feed de beats aparece PRIMERO (order-last en desktop) */}
                     <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
-                        {/* Sidebar Vitaminado */}
-                        <div className="lg:col-span-4 space-y-8">
-                            {/* Estadísticas Premium */}
+                        {/* Sidebar: va debajo en móvil */}
+                        <div className="lg:col-span-4 space-y-8 order-2 lg:order-1">
+                            {/* ── Estadísticas: seguidores, beats, siguiendo ── */}
                             <div className="grid grid-cols-3 gap-3">
+
                                 {[
                                     { label: 'Seguidores', value: followersCount, icon: Users, color: 'text-accent', href: `/${username}/connections` },
                                     { label: 'Beats', value: beats.length, icon: Music, color: 'text-accent', href: `/${username}/beats` },
@@ -1019,11 +1031,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             )}
                         </div>
 
-                        {/* Beats Feed */}
-                        <div className="lg:col-span-8">
-                            {/* 3. Navegación de Contenido (Tabs) */}
-                            <div className="flex items-center justify-between gap-4 border-b border-border mb-12 overflow-x-auto pb-px scrollbar-hide">
-                                <div className="flex gap-10">
+                        {/* ── Feed de Beats (aparece PRIMERO en móvil) ── */}
+                        <div className="lg:col-span-8 order-1 lg:order-2">
+                            {/* ── Navegación de pestaNas con scroll horizontal en móvil ── */}
+                            <div className="flex items-center gap-4 border-b border-border mb-10 overflow-x-auto pb-px no-scrollbar">
+                                <div className="flex gap-6 md:gap-10 shrink-0">
+
                                     {[
                                         { id: 'beats', label: 'Beats', icon: Music },
                                         { id: 'playlists', label: 'Playlists', icon: LayoutGrid },
@@ -1068,9 +1081,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 </span>
                                                 <span className="text-[9px] font-black uppercase tracking-[0.3em] text-accent">Catálogo</span>
                                             </div>
-                                            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground leading-none">
+                                            {/* Título de sección de beats compacto en móvil */}
+                                            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-foreground leading-none">
                                                 Recién<br />Horneados 🔥
                                             </h2>
+
                                             <p className="text-[9px] font-bold text-muted uppercase tracking-[0.3em] mt-2">
                                                 {beats.length} beats · Más recientes primero
                                             </p>
