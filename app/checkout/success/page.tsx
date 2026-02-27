@@ -42,7 +42,7 @@ export default function SuccessPage() {
                 const { data: transacciones, error: txError } = await supabase
                     .from('transacciones')
                     .select('*')
-                    .eq('id_pago_stripe', sessionId);
+                    .eq('pago_id', sessionId);
 
                 if (txError) throw txError;
 
