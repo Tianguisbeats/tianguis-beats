@@ -38,7 +38,7 @@ export default function StudioSalesPage() {
                     metodo_pago,
                     nombre_producto,
                     tipo_producto,
-                    comprador:perfiles!comprador_id (nombre_usuario, nombre_artistico, foto_perfil)
+                    comprador:perfiles!fk_transacciones_comprador (nombre_usuario, nombre_artistico, foto_perfil)
                 `)
                 .eq('vendedor_id', user.id)
                 .order('fecha_creacion', { ascending: false });
