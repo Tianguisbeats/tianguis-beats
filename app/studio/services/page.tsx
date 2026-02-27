@@ -377,7 +377,7 @@ function ServicesManagerPage() {
                 </div>
 
                 {services.length === 0 && !isEditing ? (
-                    <div className="py-24 text-center bg-slate-50 dark:bg-[#020205] border-2 border-dashed border-slate-200 dark:border-white/5 rounded-[3.5rem] relative overflow-hidden group">
+                    <div className="py-24 text-center bg-foreground/[0.02] border-2 border-dashed border-border rounded-[3.5rem] relative overflow-hidden group">
                         <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="w-24 h-24 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 text-muted shadow-sm shadow-black/5 dark:shadow-white/5 group-hover:scale-110 transition-transform duration-500">
                             <Briefcase size={40} strokeWidth={1.5} />
@@ -400,7 +400,7 @@ function ServicesManagerPage() {
                 ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {services.map(service => (
-                            <div key={service.id} className="group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3rem] p-10 overflow-hidden transition-all duration-500 hover:border-accent/40 hover:-translate-y-2 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] dark:hover:shadow-accent/10">
+                            <div key={service.id} className="group relative bg-card border border-border rounded-[3rem] p-10 overflow-hidden transition-all duration-500 hover:border-accent/40 hover:-translate-y-2">
                                 <div className="absolute top-0 right-0 w-48 h-48 bg-accent/5 blur-[80px] -mr-24 -mt-24 pointer-events-none group-hover:bg-accent/10 transition-colors" />
 
                                 <div className="flex justify-start items-start mb-10 relative z-10">
@@ -435,7 +435,7 @@ function ServicesManagerPage() {
                                             setInitialService({ ...service });
                                             setServiceErrors({});
                                             setIsEditing(true);
-                                        }} className="flex-1 h-12 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-foreground rounded-xl flex items-center justify-center hover:bg-slate-900 hover:text-white dark:hover:bg-white/10 dark:hover:border-accent/40 shadow-sm transition-all text-[10px] font-black uppercase tracking-widest gap-2">
+                                        }} className="flex-1 h-12 bg-foreground/5 border border-border text-foreground rounded-xl flex items-center justify-center hover:bg-foreground hover:text-background transition-all text-[10px] font-black uppercase tracking-widest gap-2">
                                             <Edit3 size={14} /> Editar
                                         </button>
                                         <button onClick={() => handleDelete(service.id)} className="w-12 h-12 bg-white dark:bg-error/5 border border-slate-200 dark:border-error/10 text-error rounded-xl flex items-center justify-center hover:bg-error hover:text-white transition-all shadow-sm">
@@ -483,7 +483,7 @@ function ServicesManagerPage() {
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
                     {soundKits.map(kit => (
-                        <div key={kit.id} className="group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3.5rem] overflow-hidden transition-all duration-700 hover:border-amber-500/40 hover:-translate-y-2 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] dark:hover:shadow-amber-500/10">
+                        <div key={kit.id} className="group relative bg-card border border-border rounded-[3.5rem] overflow-hidden transition-all duration-700 hover:border-amber-500/40 hover:-translate-y-2">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-[100px] -mr-32 -mt-32 pointer-events-none group-hover:bg-amber-500/10 transition-colors" />
 
                             <div className="relative h-48 w-full overflow-hidden border-b border-slate-200 dark:border-white/5">
@@ -526,7 +526,7 @@ function ServicesManagerPage() {
                                             setInitialKit({ ...kit });
                                             setKitErrors({});
                                             setIsEditingKit(true);
-                                        }} className="flex-1 h-12 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-foreground rounded-xl flex items-center justify-center hover:bg-slate-900 hover:text-white dark:hover:bg-white/10 dark:hover:border-accent/40 shadow-sm transition-all text-[10px] font-black uppercase tracking-widest gap-2">
+                                        }} className="flex-1 h-12 bg-foreground/5 border border-border text-foreground rounded-xl flex items-center justify-center hover:bg-foreground hover:text-background transition-all text-[10px] font-black uppercase tracking-widest gap-2">
                                             <Edit3 size={14} /> Editar
                                         </button>
                                         <button onClick={() => handleDeleteKit(kit.id)} className="w-12 h-12 bg-white dark:bg-error/5 border border-slate-200 dark:border-error/10 text-error rounded-xl flex items-center justify-center hover:bg-error hover:text-white transition-all shadow-sm">

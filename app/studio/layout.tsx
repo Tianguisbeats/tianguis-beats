@@ -43,7 +43,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
     }, []);
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-[#020205] font-sans text-foreground transition-all duration-500">
+        <div className="min-h-screen bg-background font-sans text-foreground transition-all duration-500">
             <Navbar />
 
             <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 pt-12 pb-20 flex flex-col lg:flex-row gap-12">

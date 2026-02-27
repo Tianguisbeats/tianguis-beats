@@ -91,7 +91,7 @@ export default function StudioBeatsPage() {
             </div>
 
             {/* Table container */}
-            <div className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-none rounded-[3rem] p-8 md:p-10 relative overflow-hidden">
+            <div className="bg-card border border-border rounded-[3rem] p-8 md:p-10 relative overflow-hidden">
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
 
                 {/* Search */}
@@ -191,7 +191,7 @@ export default function StudioBeatsPage() {
                                 <div className="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-white/5">
                                     <Link
                                         href={`/studio/beats/edit/${beat.id}`}
-                                        className="flex-1 h-10 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-foreground rounded-xl flex items-center justify-center hover:bg-slate-900 hover:text-white dark:hover:bg-white/10 dark:hover:border-accent/30 transition-all duration-300 text-[10px] font-black uppercase tracking-widest gap-2"
+                                        className="flex-1 h-10 bg-foreground/5 border border-border text-foreground rounded-xl flex items-center justify-center hover:bg-foreground hover:text-background transition-all duration-300 text-[10px] font-black uppercase tracking-widest gap-2"
                                     >
                                         <Edit size={12} /> Editar
                                     </Link>

@@ -196,7 +196,7 @@ export default function CouponsPage() {
 
             {/* Coupons Grid */}
             {coupons.length === 0 && !isEditing ? (
-                <div className="py-40 text-center bg-slate-50 dark:bg-[#020205] border border-slate-200 dark:border-white/5 rounded-[4rem] relative overflow-hidden shadow-inner dark:shadow-none">
+                <div className="py-40 text-center bg-foreground/[0.02] border border-border rounded-[4rem] relative overflow-hidden shadow-inner">
                     {/* Background Grid Pattern */}
                     <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
 
@@ -226,7 +226,7 @@ export default function CouponsPage() {
                         }[coupon.aplica_a] || { color: 'accent', label: 'Unknown', bg: 'bg-accent/10', border: 'border-accent/20', text: 'text-accent' };
 
                         return (
-                            <div key={coupon.id} className={`group relative bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 transition-all duration-700 hover:border-accent/40 hover:shadow-2xl dark:hover:shadow-accent/10 hover:-translate-y-1 overflow-hidden shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] ${(!coupon.es_activo || isExpired) && 'opacity-60 grayscale'}`}>
+                            <div key={coupon.id} className={`group relative bg-card border border-border rounded-[2.5rem] p-8 transition-all duration-700 hover:border-accent/40 hover:shadow-2xl hover:-translate-y-1 overflow-hidden ${(!coupon.es_activo || isExpired) && 'opacity-60 grayscale'}`}>
 
                                 {/* Estética de Ticket: Recortes laterales */}
                                 <div className="absolute top-1/2 -left-4 w-8 h-8 rounded-full bg-slate-50 dark:bg-[#050508] border-r border-slate-200 dark:border-white/5 -translate-y-1/2 z-20" />
@@ -313,7 +313,7 @@ export default function CouponsPage() {
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => { setCurrentCoupon(coupon); setOriginalCoupon(coupon); setIsEditing(true); }}
-                                                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-slate-900 text-white dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400 hover:bg-slate-800 transition-all text-[11px] font-black uppercase tracking-widest shadow-xl shadow-black/10 dark:shadow-emerald-500/20 active:scale-95"
+                                                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-foreground text-background hover:bg-accent hover:text-white transition-all text-[11px] font-black uppercase tracking-widest shadow-xl active:scale-95"
                                             >
                                                 <Edit3 size={14} /> Editar
                                             </button>

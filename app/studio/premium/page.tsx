@@ -136,7 +136,7 @@ export default function PremiumHubPage() {
             <div className="grid lg:grid-cols-2 gap-10">
                 <div className="space-y-10">
                     {/* Video Spotlight Card */}
-                    <div className={`group relative bg-white dark:bg-[#020205] backdrop-blur-3xl border border-slate-200 dark:border-white/5 p-8 rounded-[2.5rem] transition-all duration-700 hover:shadow-2xl dark:hover:shadow-black/60 overflow-hidden shadow-xl dark:shadow-none ${!preferences.is_video_active && 'opacity-60'}`}>
+                    <div className={`group relative bg-card border border-border p-8 rounded-[2.5rem] transition-all duration-700 hover:shadow-2xl overflow-hidden ${!preferences.is_video_active && 'opacity-60'}`}>
                         {/* Red Accent Aura */}
                         <div className={`absolute -top-24 -right-24 w-64 h-64 bg-red-500/5 blur-[80px] rounded-full transition-all duration-1000 group-hover:scale-125 ${preferences.is_video_active ? 'opacity-100' : 'opacity-0'}`} />
 
