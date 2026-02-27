@@ -68,7 +68,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
             else if (beat.es_ilimitada_activa !== false) setSelectedLicense('Ilimitada');
             else if (beat.es_exclusiva_activa !== false) setSelectedLicense('Exclusiva');
             else if (beat.es_soundkit_activa !== false) setSelectedLicense('Sound Kit');
-            else setSelectedLicense(null); // No licenses available
+            else setSelectedLicense(null); // No hay licencias disponibles
         }
     }, [beat]);
 
@@ -378,18 +378,18 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                             </div>
 
                             {/* Tags: Genre, Tempo, Key/Scale */}
-                            <div className="grid grid-cols-2 md:flex md:flex-wrap gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 {[
-                                    { label: 'Género', val: beat.genero, icon: Tag, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                                    { label: 'Tempo', val: `${beat.bpm} BPM`, icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-                                    { label: 'Tono / Escala', val: MUSICAL_KEYS.find(k => k.value === beat.tono_escala)?.label || beat.tono_escala || 'N/A', icon: Music2, color: 'text-accent', bg: 'bg-accent/10' }
+                                    { label: 'Género', val: beat.genero, icon: Tag, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                                    { label: 'Tempo', val: `${beat.bpm} BPM`, icon: Activity, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                                    { label: 'Tono / Escala', val: MUSICAL_KEYS.find(k => k.value === beat.tono_escala)?.label || beat.tono_escala || 'N/A', icon: Music2, color: 'text-blue-500', bg: 'bg-blue-500/10' }
                                 ].map((stat, i) => (
-                                    <div key={i} className="flex-1 min-w-[120px] p-4 rounded-3xl bg-card border border-border/50 shadow-sm flex flex-col items-center gap-2">
-                                        <span className={`p-2 rounded-xl ${stat.bg} ${stat.color}`}>
-                                            <stat.icon size={18} />
+                                    <div key={i} className="flex-1 p-4 rounded-3xl bg-card border border-border/50 shadow-sm flex flex-col items-center justify-center gap-2 transition-all hover:border-accent/30">
+                                        <span className={`p-2.5 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center`}>
+                                            <stat.icon size={20} />
                                         </span>
                                         <div className="text-center">
-                                            <p className="text-[8px] font-black uppercase text-muted tracking-widest">{stat.label}</p>
+                                            <p className="text-[9px] font-black uppercase text-muted tracking-widest mb-0.5">{stat.label}</p>
                                             <p className="text-sm font-black text-foreground uppercase tracking-tight">{stat.val}</p>
                                         </div>
                                     </div>
@@ -462,8 +462,8 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 <WaveformPlayer
                                     url={beat.archivo_mp3_url || ''}
                                     height={140}
-                                    waveColor="rgba(37, 99, 235, 0.4)"
-                                    progressColor="#2563eb"
+                                    waveColor="rgba(59, 130, 246, 0.25)"
+                                    progressColor="#3b82f6"
                                     isSync={true}
                                     beatId={beat.id}
                                     muted={true}
@@ -550,7 +550,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                             isSold={beat.esta_vendido}
                                         />
                                     )}
-                                    {beat.es_exclusiva_activa !== false && beat.esta_vendido && (
+                                    {beat.es_exclusiva_activa !== false && !beat.esta_vendido && (
                                         <LicenseCard
                                             type="Exclusiva"
                                             price={beat.precio_exclusivo_mxn || 3500}
@@ -689,7 +689,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 className="flex overflow-x-auto gap-6 pb-12 snap-x scrollbar-hide scroll-smooth no-scrollbar"
                             >
                                 {relatedBeats.map((relatedBeat) => (
-                                    <div key={relatedBeat.id} className="w-[220px] md:w-[250px] shrink-0 snap-start">
+                                    <div key={relatedBeat.id} className="w-[220px] md:w-[250px] shrink-0 snap-start h-auto">
                                         <BeatCardPro beat={relatedBeat} />
                                     </div>
                                 ))}
@@ -722,7 +722,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         <div className="relative group/pcarousel">
                             <div className="flex overflow-x-auto gap-6 pb-12 snap-x scrollbar-hide scroll-smooth no-scrollbar">
                                 {producerBeats.map((pb) => (
-                                    <div key={pb.id} className="w-[220px] md:w-[250px] shrink-0 snap-start">
+                                    <div key={pb.id} className="w-[220px] md:w-[250px] shrink-0 snap-start h-auto">
                                         <BeatCardPro beat={pb} />
                                     </div>
                                 ))}

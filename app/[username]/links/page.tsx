@@ -172,7 +172,7 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                     </div>
 
                     {profile.biografia && (
-                        <p className="text-[12px] text-muted font-medium leading-relaxed mx-auto max-w-[260px] opacity-80 italic">
+                        <p className="text-[12px] text-muted font-medium leading-relaxed mx-auto max-w-[260px] opacity-80">
                             "{profile.biografia}"
                         </p>
                     )}

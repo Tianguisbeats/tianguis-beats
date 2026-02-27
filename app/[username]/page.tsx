@@ -708,7 +708,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 : profile.es_fundador
                                     ? 'border-amber-500 ring-4 ring-amber-500/20 shadow-amber-500/30'
                                     : profile.nivel_suscripcion === 'pro'
-                                        ? 'border-accent ring-4 ring-accent/20'
+                                        ? 'border-amber-500 ring-4 ring-amber-500/20 shadow-amber-500/30'
                                         : 'border-white/10'
                                 }`}>
 
@@ -734,7 +734,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                 <div className="space-y-4">
                                     {/* Nombre artístico: compacto en móvil */}
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                                        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.85] text-foreground drop-shadow-sm">
+                                        <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-tighter leading-[0.85] text-foreground drop-shadow-sm">
 
                                             {profile.nombre_artistico || profile.nombre_usuario}
                                         </h1>
@@ -957,7 +957,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     <div className="flex flex-col items-center justify-center py-8 w-full">
                                         {/* Bio Text (Optional/Reduced) */}
                                         {profile.biografia && (
-                                            <p className="mb-10 text-xs font-medium text-center text-muted max-w-lg mx-auto line-clamp-3 italic leading-relaxed">
+                                            <p className="mb-10 text-xs font-medium text-center text-muted max-w-lg mx-auto line-clamp-3 leading-relaxed">
                                                 &ldquo;{profile.biografia}&rdquo;
                                             </p>
                                         )}
@@ -1427,6 +1427,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             )}
                         </div>
                     </div>
+                </div>
             </main>
 
             {isOwner && profile && (
