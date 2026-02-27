@@ -7,7 +7,7 @@ import Link from 'next/link';
 import {
     Upload, Music, Image as ImageIcon, CheckCircle2,
     AlertCircle, Loader2, Info, ChevronLeft, Hash, Lock,
-    Link as LinkIcon, Edit2, Zap, Eye, EyeOff, Save, X, Crown, ShieldCheck, FileText, Layers
+    Link as LinkIcon, Edit2, Zap, Eye, EyeOff, Save, X, Crown, ShieldCheck, FileText, Layers, Star
 } from 'lucide-react';
 import TagInput from '@/components/ui/TagInput';
 import Switch from '@/components/ui/Switch';
@@ -373,18 +373,18 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     return (
         <div className="w-full">
             {/* Header */}
-            <div className="mb-10 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Link href="/studio/beats" className="w-9 h-9 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-muted hover:text-accent hover:border-accent/30 transition-all">
-                        <ChevronLeft size={16} />
+            <div className="mb-14 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-center gap-5">
+                    <Link href="/studio/beats" className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-muted hover:text-accent hover:border-accent/30 transition-all group">
+                        <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                     </Link>
                     <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full mb-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Modo Edición</span>
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl border mb-3 shadow-xl" style={{ background: '#3b82f6', borderColor: '#ffffff20' }}>
+                            <Crown size={12} className="text-white fill-white" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Modo Edición Profunda</span>
                         </div>
-                        <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground leading-[1]">
-                            Editar <span className="text-accent">Beat</span>
+                        <h1 className="text-5xl font-black uppercase tracking-tighter leading-[1] text-foreground">
+                            Editar <span className="text-accent underline decoration-white/10 underline-offset-8">Beat.</span>
                         </h1>
                     </div>
                 </div>
@@ -392,426 +392,332 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
             {/* Error / Success */}
             {error && (
-                <div className="flex items-center gap-3 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[11px] font-bold mb-6">
+                <div className="flex items-center gap-3 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[11px] font-bold mb-8">
                     <AlertCircle size={16} className="shrink-0" /> {error}
                     <button onClick={() => setError(null)} className="ml-auto"><X size={14} /></button>
                 </div>
             )}
             {success && (
-                <div className="flex items-center gap-3 p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-bold mb-6">
-                    <CheckCircle2 size={20} /> ¡Cambios guardados! Redirigiendo...
+                <div className="flex items-center gap-3 p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-bold mb-8">
+                    <CheckCircle2 size={24} className="shrink-0" /> <span className="text-base uppercase tracking-tight">¡Cambios guardados con éxito! Redirigiendo...</span>
                 </div>
             )}
 
             <form onSubmit={handleUpdate} className="space-y-10">
-                {/* 1. Datos Principales */}
-                <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Título</label>
-                            <input
-                                type="text"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-sm font-bold outline-none focus:border-accent focus:bg-card transition-all"
-                                required
-                            />
+                {/* ─── SECTION 1: Identidad del Beat ─── */}
+                <div className="bg-card border border-border rounded-[2.5rem] p-8 relative overflow-hidden transition-all">
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+                    <div className="flex items-center gap-3 mb-10">
+                        <div className="w-11 h-11 bg-accent/10 rounded-2xl flex items-center justify-center text-accent ring-1 ring-accent/20">
+                            <Star size={20} />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Género</label>
-                            <select
-                                value={genre}
-                                onChange={(e) => {
-                                    setGenre(e.target.value);
-                                    setSubgenre('');
-                                }}
-                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all appearance-none"
-                                required
-                            >
-                                <option value="">Seleccionar</option>
-                                {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
-                            </select>
+                        <div>
+                            <h2 className="text-2xl font-black uppercase tracking-tighter text-foreground">Identidad del Beat</h2>
+                            <p className="text-[10px] font-bold text-muted uppercase tracking-widest opacity-50">Configuración musical y visual</p>
                         </div>
+                    </div>
 
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Subgénero</label>
-                                <span className="text-[9px] font-bold text-muted uppercase tracking-widest mr-1">(Opcional)</span>
+                    <div className="grid md:grid-cols-2 gap-10">
+                        {/* Col 1 */}
+                        <div className="space-y-6">
+                            <div className="space-y-2.5">
+                                <label className="text-[10px] font-black uppercase tracking-[0.25em] text-muted ml-1">Título del Beat *</label>
+                                <input type="text" value={title} onChange={e => setTitle(e.target.value)} required placeholder="Ej: Dark Summer Remix"
+                                    className="w-full bg-foreground/5 border border-border rounded-[1.25rem] px-5 py-4.5 text-base font-bold outline-none focus:border-accent/50 focus:bg-foreground/[0.08] transition-all text-foreground placeholder:text-muted/30" />
                             </div>
-                            <select
-                                value={subgenre}
-                                onChange={(e) => setSubgenre(e.target.value)}
-                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={!genre || !SUBGENRES[genre]}
-                            >
-                                <option value="">{genre ? 'Ninguno / Automático' : 'Selecciona un género primero'}</option>
-                                {genre && SUBGENRES[genre]?.map(sg => (
-                                    <option key={sg} value={sg}>{sg}</option>
-                                ))}
-                            </select>
-                        </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">BPM</label>
-                                <input
-                                    type="number"
-                                    value={bpm}
-                                    onChange={(e) => setBpm(e.target.value)}
-                                    className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-sm font-bold outline-none focus:border-accent transition-all"
-                                    required
-                                />
+                            <div className="grid grid-cols-2 gap-5">
+                                <div className="space-y-2.5">
+                                    <label className="text-[10px] font-black uppercase tracking-[0.25em] text-muted ml-1">Género *</label>
+                                    <select value={genre} onChange={e => { setGenre(e.target.value); setSubgenre(''); }} required
+                                        className="w-full bg-foreground/5 border border-border rounded-[1.25rem] px-5 py-4 text-xs font-bold outline-none focus:border-accent/50 transition-all appearance-none text-foreground cursor-pointer">
+                                        <option value="">Seleccionar</option>
+                                        {GENRES.map(g => <option key={g} value={g} className="bg-[#020205]">{g}</option>)}
+                                    </select>
+                                </div>
+                                <div className="space-y-2.5">
+                                    <label className="text-[10px] font-black uppercase tracking-[0.25em] text-muted ml-1">Subgénero</label>
+                                    <select value={subgenre} onChange={e => setSubgenre(e.target.value)} disabled={!genre || !SUBGENRES[genre]}
+                                        className="w-full bg-foreground/5 border border-border rounded-[1.25rem] px-5 py-4 text-xs font-bold outline-none focus:border-accent/50 transition-all appearance-none disabled:opacity-40 text-foreground cursor-pointer">
+                                        <option value="">{genre ? 'Ninguno' : 'Selecciona género'}</option>
+                                        {genre && SUBGENRES[genre]?.map(sg => <option key={sg} value={sg} className="bg-[#020205]">{sg}</option>)}
+                                    </select>
+                                </div>
                             </div>
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between ml-1">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted">Tono / Escala</label>
-                                        <div className="group relative">
-                                            <Info size={14} className="text-accent cursor-help opacity-70 hover:opacity-100 transition-opacity" />
-                                            <div className="absolute bottom-full right-0 mb-2 w-64 p-3 bg-card border border-border rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
-                                                <p className="text-[9px] font-bold text-foreground leading-relaxed uppercase tracking-wider">
-                                                    <span className="text-accent">¿No sabes el tono?</span> Db y C# son la misma nota. Si usas Auto-Tune, ambos ajustes funcionarán igual para este beat.
-                                                </p>
-                                                <div className="absolute top-full right-4 w-2 h-2 bg-card border-r border-b border-border rotate-45 -translate-y-1"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <select
-                                        value={tonoEscala}
-                                        onChange={(e) => setTonoEscala(e.target.value)}
-                                        className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all font-heading appearance-none"
-                                        required
-                                    >
-                                        <option value="">Seleccionar Tono / Escala</option>
-                                        <optgroup label="NOTAS NATURALES" className="bg-card text-accent font-black">
-                                            {MUSICAL_KEYS.filter(k => k.group === 'natural').map(k => (
-                                                <option key={k.value} value={k.value} className="bg-card text-foreground">{k.label}</option>
-                                            ))}
+
+                            <div className="grid grid-cols-2 gap-5">
+                                <div className="space-y-2.5">
+                                    <label className="text-[10px] font-black uppercase tracking-[0.25em] text-muted ml-1">BPM *</label>
+                                    <input type="number" value={bpm} onChange={e => setBpm(e.target.value)} required placeholder="140"
+                                        className="w-full bg-foreground/5 border border-border rounded-[1.25rem] px-5 py-4.5 text-base font-bold outline-none focus:border-accent/50 focus:bg-foreground/[0.08] transition-all text-foreground placeholder:text-muted/30" />
+                                </div>
+                                <div className="space-y-2.5">
+                                    <label className="text-[10px] font-black uppercase tracking-[0.25em] text-muted ml-1">Tono / Escala *</label>
+                                    <select value={tonoEscala} onChange={e => setTonoEscala(e.target.value)} required
+                                        className="w-full bg-foreground/5 border border-border rounded-[1.25rem] px-5 py-4 text-xs font-bold outline-none focus:border-accent/50 transition-all appearance-none text-foreground cursor-pointer">
+                                        <option value="">Seleccionar</option>
+                                        <optgroup label="NATURALES" className="bg-[#020205] text-accent">
+                                            {MUSICAL_KEYS.filter(k => k.group === 'natural').map(k => <option key={k.value} value={k.value} className="bg-[#020205]">{k.label}</option>)}
                                         </optgroup>
-                                        <optgroup label="SOLO PARA PROS (ALTERADAS)" className="bg-card text-accent font-black">
-                                            {MUSICAL_KEYS.filter(k => k.group === 'accidental').map(k => (
-                                                <option key={k.value} value={k.value} className="bg-card text-foreground">{k.label}</option>
-                                            ))}
+                                        <optgroup label="ALTERADAS (PRO)" className="bg-[#020205] text-muted">
+                                            {MUSICAL_KEYS.filter(k => k.group === 'accidental').map(k => <option key={k.value} value={k.value} className="bg-[#020205]">{k.label}</option>)}
                                         </optgroup>
                                     </select>
                                 </div>
                             </div>
+
+                            <div className="space-y-2.5">
+                                <label className="text-[10px] font-black uppercase tracking-[0.25em] text-muted ml-1">Artistas de Referencia *</label>
+                                <TagInput tags={beatTypes} setTags={setBeatTypes} placeholder="Ej: Tainy, 808 Mafia..." />
+                            </div>
                         </div>
 
-                        {/* Beat Type moved here */}
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Beat Type / Artistas de Referencia</label>
-                            <TagInput
-                                tags={beatTypes}
-                                setTags={setBeatTypes}
-                                placeholder="Ej: 808 Mafia, Tainy, Zaytoven..."
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Artwork (3000x3000px)</label>
-                            <div className="relative">
-                                <input
-                                    type="file"
-                                    accept=".jpg,.jpeg,.png"
-                                    onChange={(e) => setCoverFile(e.target.files?.[0] || null)}
-                                    className="hidden"
-                                    id="cover"
-                                />
-                                <label htmlFor="cover" className="flex items-center gap-4 p-3 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-background hover:border-accent transition-all h-[116px] overflow-hidden">
+                        {/* Col 2 */}
+                        <div className="space-y-6">
+                            {/* Cover upload */}
+                            <div className="space-y-2.5">
+                                <label className="text-[10px] font-black uppercase tracking-[0.25em] text-muted ml-1">Artwork (Premium · 3000px) *</label>
+                                <input type="file" accept=".jpg,.jpeg,.png"
+                                    onChange={e => {
+                                        const f = e.target.files?.[0] || null;
+                                        if (f && !['image/jpeg', 'image/png', 'image/jpg'].includes(f.type)) { setError("Artwork: Solo JPG/PNG"); e.target.value = ''; return; }
+                                        setCoverFile(f);
+                                    }} className="hidden" id="cover" />
+                                <label htmlFor="cover" className="flex items-center gap-6 p-6 bg-foreground/5 border-2 border-dashed border-border rounded-[2rem] cursor-pointer hover:bg-foreground/8 hover:border-accent/30 transition-all h-[160px] overflow-hidden group">
                                     {(coverFile || existingPortada) ? (
-                                        <div className="flex items-center gap-3 w-full">
-                                            <div className="w-16 h-16 bg-background rounded-lg flex items-center justify-center shrink-0 overflow-hidden border border-border shadow-sm">
-                                                <img
-                                                    src={coverFile ? URL.createObjectURL(coverFile) : existingPortada!}
-                                                    className="w-full h-full object-cover"
-                                                    alt="Original"
-                                                />
+                                        <div className="flex items-center gap-5 w-full">
+                                            <div className="w-28 h-28 rounded-2xl overflow-hidden border border-border shrink-0 shadow-2xl group-hover:scale-105 transition-transform">
+                                                <img src={coverFile ? URL.createObjectURL(coverFile) : existingPortada!} className="w-full h-full object-cover" alt="Preview" />
                                             </div>
-                                            <div className="min-w-0">
-                                                <p className="text-xs font-bold text-foreground truncate">{coverFile ? coverFile.name : 'Portada Actual'}</p>
-                                                <p className="text-[10px] text-green-500 font-bold uppercase">{coverFile ? 'Lista para subir' : 'Sin cambios'}</p>
+                                            <div>
+                                                <p className="text-sm font-black text-foreground truncate max-w-[160px] uppercase tracking-tighter">{coverFile ? coverFile.name : 'Portada Actual'}</p>
+                                                <p className={`text-[9px] font-black uppercase tracking-widest mt-1.5 ${coverFile ? 'text-emerald-400' : 'text-accent'}`}>
+                                                    {coverFile ? '✓ Reemplazo cargado' : 'Click para cambiar'}
+                                                </p>
                                             </div>
                                         </div>
                                     ) : (
                                         <div className="flex flex-col items-center justify-center w-full text-muted">
-                                            <Upload size={20} className="mb-2" />
-                                            <span className="text-[9px] font-bold uppercase">Click para cambiar</span>
+                                            <ImageIcon size={32} className="mb-3 opacity-20" />
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Seleccionar Artwork</span>
+                                            <span className="text-[8px] font-bold text-muted/40 uppercase mt-1">Click o arrastra archivo</span>
                                         </div>
                                     )}
                                 </label>
                             </div>
-                        </div>
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between ml-1">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted">Mood Tags</label>
-                                <span className={`text-[9px] font-bold uppercase tracking-widest ${selectedMoods.length === 3 ? 'text-green-500' : 'text-accent'}`}>
-                                    {selectedMoods.length}/3 Seleccionados (Forzoso 3)
-                                </span>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                                {MOODS.map(mood => (
-                                    <button
-                                        key={mood.label}
-                                        type="button"
-                                        onClick={() => handleMoodToggle(mood.label)}
-                                        className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${selectedMoods.includes(mood.label)
-                                            ? 'bg-foreground text-background shadow-lg shadow-black/10'
-                                            : 'bg-accent-soft text-muted hover:text-foreground'
-                                            }`}
-                                    >
-                                        <span className="mr-1">{mood.emoji}</span> {mood.label}
-                                    </button>
-                                ))}
+
+                            {/* Moods */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between px-1">
+                                    <label className="text-[10px] font-black uppercase tracking-[0.25em] text-muted">Mood Tags (Elije 3) *</label>
+                                    <span className={`text-[10px] font-black uppercase tracking-widest ${selectedMoods.length === 3 ? 'text-emerald-400' : 'text-accent animate-pulse'}`}>
+                                        {selectedMoods.length}/3
+                                    </span>
+                                </div>
+                                <div className="flex flex-wrap gap-2.5">
+                                    {MOODS.map(mood => (
+                                        <button key={mood.label} type="button" onClick={() => handleMoodToggle(mood.label)}
+                                            className={`px-4 py-2.5 rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest transition-all ${selectedMoods.includes(mood.label)
+                                                ? 'bg-accent text-white shadow-xl shadow-accent/20 scale-105'
+                                                : 'bg-white/5 border border-white/10 text-muted hover:text-foreground hover:border-white/20'}`}>
+                                            {mood.emoji} {mood.label}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <hr className="border-slate-100" />
+                <div className="h-4" /> {/* Spacer */}
 
-                {/* 2. Archivos y Licencias */}
-                <div className="space-y-10">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
-                            <ShieldCheck size={20} />
+                <div className="bg-card border border-white/5 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden">
+                    <div className="flex items-center gap-3 mb-10">
+                        <div className="w-11 h-11 bg-accent/10 rounded-2xl flex items-center justify-center text-accent ring-1 ring-accent/20">
+                            <Upload size={24} />
                         </div>
                         <div>
-                            <h3 className="text-xl font-black text-foreground uppercase tracking-tighter">Archivos y Licencias</h3>
-                            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em]">Gestiona tus archivos y precios por tier</p>
+                            <h2 className="text-2xl font-black uppercase tracking-tighter text-foreground">Gestión de Archivos</h2>
+                            <p className="text-[10px] font-bold text-muted uppercase tracking-widest opacity-50">Actualiza tus archivos fuente</p>
                         </div>
                     </div>
 
-                    {/* SECTION: FILE UPLOADS */}
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-2 mb-2">
-                            <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent">
-                                <Upload size={16} />
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {/* MP3 Tagged */}
+                        <div className="bg-[#111116] border border-white/5 rounded-[2rem] p-8 group hover:border-accent/40 transition-all relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-[50px] rounded-full -translate-y-1/2 translate-x-1/2" />
+                            <div className="flex flex-col h-full">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                                            <Music size={20} />
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest block">Muestra (MP3) *</span>
+                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest opacity-40">Audio con marca de voz</span>
+                                        </div>
+                                    </div>
+                                    {(previewFile || existingPreview) && <CheckCircle2 size={18} className="text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]" />}
+                                </div>
+
+                                <input type="file" accept=".mp3" onChange={e => setPreviewFile(validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 Tagged', 20))} className="hidden" id="preview-file" />
+                                <label htmlFor="preview-file" className="mt-auto flex items-center justify-between px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] cursor-pointer hover:bg-white/10 hover:border-blue-500/50 transition-all group/btn">
+                                    <span className="truncate max-w-[180px]">{previewFile ? previewFile.name : (existingPreview ? '✓ Archivo Actual' : 'Seleccionar MP3')}</span>
+                                    <Upload size={14} className="group-hover/btn:scale-110 transition-transform text-blue-400" />
+                                </label>
                             </div>
-                            <h4 className="text-sm font-black uppercase tracking-widest text-foreground">1. Gestión de Archivos</h4>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-6">
-                            {/* MP3 Tagged */}
-                            <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-slate-200 dark:border-white/10 group transition-all">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                            <Music size={14} className="text-blue-500" /> MP3 Tag (Muestra)
-                                        </span>
-                                        <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Pre-escucha con marca de voz</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        {(previewFile || existingPreview) && <CheckCircle2 size={16} className="text-emerald-500" />}
-                                        <span className="text-[9px] font-black text-accent/50 uppercase">Obligatorio</span>
-                                    </div>
-                                </div>
-                                <div className="relative">
-                                    <input
-                                        type="file"
-                                        accept=".mp3"
-                                        onChange={(e) => setPreviewFile(validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 Tagged', 20))}
-                                        className="hidden"
-                                        id="preview-file"
-                                    />
-                                    <label htmlFor="preview-file" className="flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-accent transition-all group/label overflow-hidden">
-                                        <span className="truncate max-w-[150px]">{previewFile ? previewFile.name : (existingPreview ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
-                                        <div className="w-6 h-6 rounded-lg bg-accent/10 flex items-center justify-center text-accent group-hover/label:bg-accent group-hover/label:text-white transition-colors">
-                                            <Upload size={12} />
+                        {/* MP3 Master */}
+                        <div className="bg-[#111116] border border-white/5 rounded-[2rem] p-8 group hover:border-indigo-500/40 transition-all relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-[50px] rounded-full -translate-y-1/2 translate-x-1/2" />
+                            <div className="flex flex-col h-full">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                                            <Zap size={20} />
                                         </div>
-                                    </label>
+                                        <div>
+                                            <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest block">Master (MP3) *</span>
+                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest opacity-40">Alta calidad sin tags (320kbps)</span>
+                                        </div>
+                                    </div>
+                                    {(hqMp3File || existingMp3HQ) && <CheckCircle2 size={18} className="text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]" />}
                                 </div>
-                            </div>
 
-                            {/* MP3 Master */}
-                            <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-slate-200 dark:border-white/10 group transition-all">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                            <Zap size={14} className="text-indigo-500" /> MP3 Master (HQ)
-                                        </span>
-                                        <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Calidad 320kbps sin tags</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        {(hqMp3File || existingMp3HQ) && <CheckCircle2 size={16} className="text-emerald-500" />}
-                                        <span className="text-[9px] font-black text-indigo-500/50 uppercase">Altamente Recomendado</span>
-                                    </div>
-                                </div>
-                                <div className="relative">
-                                    <input
-                                        type="file"
-                                        accept=".mp3"
-                                        onChange={(e) => setHqMp3File(validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 HQ', 50))}
-                                        className="hidden"
-                                        id="hq-file"
-                                    />
-                                    <label htmlFor="hq-file" className="flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-indigo-500 transition-all group/label overflow-hidden">
-                                        <span className="truncate max-w-[150px]">{hqMp3File ? hqMp3File.name : (existingMp3HQ ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
-                                        <div className="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500 group-hover/label:bg-indigo-500 group-hover/label:text-white transition-colors">
-                                            <Upload size={12} />
-                                        </div>
-                                    </label>
-                                </div>
+                                <input type="file" accept=".mp3" onChange={e => setHqMp3File(validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 HQ', 50))} className="hidden" id="hq-file" />
+                                <label htmlFor="hq-file" className="mt-auto flex items-center justify-between px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] cursor-pointer hover:bg-white/10 hover:border-indigo-500/50 transition-all group/btn">
+                                    <span className="truncate max-w-[180px]">{hqMp3File ? hqMp3File.name : (existingMp3HQ ? '✓ Archivo Actual' : 'Seleccionar MP3 HQ')}</span>
+                                    <Upload size={14} className="group-hover/btn:scale-110 transition-transform text-indigo-400" />
+                                </label>
                             </div>
+                        </div>
 
-                            {/* WAV */}
-                            <div className={`p-6 rounded-3xl border transition-all relative ${isFree ? 'opacity-50 grayscale bg-slate-200/50' : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10'}`}>
-                                {isFree && (
-                                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] rounded-3xl">
-                                        <Lock size={20} className="text-slate-400 mb-2" />
-                                        <Link href="/pricing" className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-transform">Desbloquear Pro</Link>
-                                    </div>
-                                )}
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                            <FileText size={14} className="text-emerald-500" /> WAV (Lossless)
-                                        </span>
-                                        <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Calidad de estudio profesional</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        {(wavFile || existingWav) && <CheckCircle2 size={16} className="text-emerald-500" />}
-                                    </div>
-                                </div>
-                                <div className="relative">
-                                    <input
-                                        type="file"
-                                        accept=".wav"
-                                        onChange={(e) => setWavFile(validateFile(e.target.files?.[0] || null, ['wav'], 'WAV', 200))}
-                                        className="hidden"
-                                        id="wav-file"
-                                        disabled={isFree}
-                                    />
-                                    <label htmlFor="wav-file" className={`flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all group/label overflow-hidden ${isFree ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-emerald-500'}`}>
-                                        <span className="truncate max-w-[150px]">{wavFile ? wavFile.name : (existingWav ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
-                                        <div className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 group-hover/label:bg-emerald-500 group-hover/label:text-white transition-colors">
-                                            <Upload size={12} />
+                        {/* WAV */}
+                        <div className={`bg-[#111116] border border-white/5 rounded-[2rem] p-8 group hover:border-emerald-500/40 transition-all relative overflow-hidden ${isFree ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[50px] rounded-full -translate-y-1/2 translate-x-1/2" />
+                            <div className="flex flex-col h-full">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                                            <FileText size={20} />
                                         </div>
-                                    </label>
+                                        <div>
+                                            <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block">Estudio (WAV) *</span>
+                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest opacity-40">Formato sin pérdida (24-bit)</span>
+                                        </div>
+                                    </div>
+                                    {(wavFile || existingWav) && <CheckCircle2 size={18} className="text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]" />}
                                 </div>
-                            </div>
 
-                            {/* Stems */}
-                            <div className={`p-6 rounded-3xl border transition-all relative ${!isPremium ? 'opacity-50 grayscale bg-slate-200/50' : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10'}`}>
-                                {!isPremium && (
-                                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] rounded-3xl">
-                                        <Lock size={20} className="text-slate-400 mb-2" />
-                                        <Link href="/pricing" className="px-4 py-2 bg-purple-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-transform">Desbloquear Premium</Link>
-                                    </div>
-                                )}
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                            <Layers size={14} className="text-purple-500" /> STEMS (Trackout)
-                                        </span>
-                                        <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Pistas separadas en .ZIP o .RAR</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        {(stemsFile || existingStems) && <CheckCircle2 size={16} className="text-emerald-500" />}
-                                    </div>
-                                </div>
-                                <div className="relative">
-                                    <input
-                                        type="file"
-                                        accept=".zip,.rar"
-                                        onChange={(e) => setStemsFile(validateFile(e.target.files?.[0] || null, ['zip', 'rar'], 'Stems', 500))}
-                                        className="hidden"
-                                        id="stems-file"
-                                        disabled={!isPremium}
-                                    />
-                                    <label htmlFor="stems-file" className={`flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all group/label overflow-hidden ${!isPremium ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-purple-500'}`}>
-                                        <span className="truncate max-w-[150px]">{stemsFile ? stemsFile.name : (existingStems ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
-                                        <div className="w-6 h-6 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500 group-hover/label:bg-purple-500 group-hover/label:text-white transition-colors">
-                                            <Upload size={12} />
-                                        </div>
-                                    </label>
-                                </div>
+                                <input type="file" accept=".wav" onChange={e => setWavFile(validateFile(e.target.files?.[0] || null, ['wav'], 'WAV', 200))} className="hidden" id="wav-file" disabled={isFree} />
+                                <label htmlFor="wav-file" className="mt-auto flex items-center justify-between px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] cursor-pointer hover:bg-white/10 hover:border-emerald-500/50 transition-all group/btn">
+                                    <span className="truncate max-w-[180px]">{wavFile ? wavFile.name : (existingWav ? '✓ Archivo Actual' : 'Seleccionar WAV')}</span>
+                                    <Upload size={14} className="group-hover/btn:scale-110 transition-transform text-emerald-400" />
+                                </label>
                             </div>
+                            {isFree && <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center z-10">
+                                <Lock size={20} className="text-white/40 mb-3" />
+                                <Link href="/pricing" className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl pointer-events-auto">Activar Plan Pro</Link>
+                            </div>}
+                        </div>
+
+                        {/* Stems */}
+                        <div className={`bg-[#111116] border border-white/5 rounded-[2rem] p-8 group hover:border-purple-500/40 transition-all relative overflow-hidden ${!isPremium ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[50px] rounded-full -translate-y-1/2 translate-x-1/2" />
+                            <div className="flex flex-col h-full">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-500">
+                                            <Layers size={20} />
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] font-black text-purple-500 uppercase tracking-widest block">Sesión (STEMS)</span>
+                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest opacity-40">Pistas separadas (.ZIP / .RAR)</span>
+                                        </div>
+                                    </div>
+                                    {(stemsFile || existingStems) && <CheckCircle2 size={18} className="text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]" />}
+                                </div>
+
+                                <input type="file" accept=".zip,.rar" onChange={e => setStemsFile(validateFile(e.target.files?.[0] || null, ['zip', 'rar'], 'Stems', 500))} className="hidden" id="stems-file" disabled={!isPremium} />
+                                <label htmlFor="stems-file" className="mt-auto flex items-center justify-between px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] cursor-pointer hover:bg-white/10 hover:border-purple-500/50 transition-all group/btn">
+                                    <span className="truncate max-w-[180px]">{stemsFile ? stemsFile.name : (existingStems ? '✓ Archivo Actual' : 'Seleccionar STEMS')}</span>
+                                    <Upload size={14} className="group-hover/btn:scale-110 transition-transform text-purple-400" />
+                                </label>
+                            </div>
+                            {!isPremium && <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center z-10">
+                                <Lock size={20} className="text-white/40 mb-3" />
+                                <Link href="/pricing" className="px-4 py-2 bg-purple-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl pointer-events-auto">Plan Premium Activo</Link>
+                            </div>}
+                        </div>
+                    </div>
+                </div>
+
+                {/* ─── SECTION 3: Distribución y Licencias ─── */}
+                <div className="bg-card border border-white/5 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden">
+                    <div className="flex items-center gap-3 mb-10">
+                        <div className="w-11 h-11 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500 ring-1 ring-amber-500/20">
+                            <ShieldCheck size={24} />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-black uppercase tracking-tighter text-foreground">Distribución y Licencias</h2>
+                            <p className="text-[10px] font-bold text-muted uppercase tracking-widest opacity-50">Configura tus tiers de precios</p>
                         </div>
                     </div>
 
-                    {/* SECTION: LICENSE TIERS */}
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-2 mb-2">
-                            <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
-                                <ShieldCheck size={16} />
-                            </div>
-                            <h4 className="text-sm font-black uppercase tracking-widest text-foreground">2. Configuración de Licencias</h4>
-                        </div>
-
+                    <div className="space-y-4">
                         {[
-                            { id: 'basic', label: 'Licencia Gratis', color: 'slate', active: isBasicActive, setAction: setIsBasicActive, price: '0', setPrice: setBasicPrice, desc: 'Uso limitado (MP3 con Tag)', disabled: false, lockPrice: true },
-                            { id: 'mp3', label: 'Licencia Básica', color: 'blue', active: isMp3Active, setAction: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'Descarga MP3 High Quality', disabled: false },
-                            { id: 'pro', label: 'Licencia Pro', color: 'indigo', active: isProActive, setAction: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Mayores límites (MP3/WAV)', disabled: isFree },
-                            { id: 'premium', label: 'Licencia Premium', color: 'emerald', active: isPremiumActive, setAction: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Calidad de estudio (WAV)', disabled: !isPremium && !isPro },
-                            { id: 'unlimited', label: 'Licencia Ilimitada', color: 'amber', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Todos los archivos y stems', disabled: !isPremium }
+                            { id: 'free', label: 'Descarga Gratuita', active: isBasicActive, set: setIsBasicActive, price: '0', setPrice: setBasicPrice, desc: 'Uso no comercial con TAG de voz', color: 'slate', lock: true },
+                            { id: 'mp3', label: 'Licencia Básica (MP3)', active: isMp3Active, set: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'Uso comercial limitado · MP3 HQ', color: 'blue' },
+                            { id: 'pro', label: 'Licencia Pro (MP3+WAV)', active: isProActive, set: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Uso comercial profesional · MP3 + WAV', color: 'indigo', disabled: isFree },
+                            { id: 'premium', label: 'Licencia Premium (+STEMS)', active: isPremiumActive, set: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Máximo control · Incluye STEMS (Trackout)', color: 'emerald', disabled: !isPremium && !isPro },
+                            { id: 'unlimited', label: 'Licencia Ilimitada', active: isUnlimitedActive, set: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Sin límites de distribución ni streaming', color: 'amber', disabled: !isPremium }
+                        ].map((lic) => (
+                            <div key={lic.id} className={`group p-6 rounded-[2rem] border-2 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden
+                                ${lic.disabled ? 'opacity-30 grayscale cursor-not-allowed bg-white/[0.02] border-white/5' :
+                                    lic.active ? 'bg-[#111116] border-accent/30' : 'bg-white/[0.02] border-white/5 opacity-70 hover:opacity-100'}`} style={lic.active && !lic.disabled ? { borderColor: lic.color === 'slate' ? '#64748b40' : lic.color === 'blue' ? '#3b82f640' : lic.color === 'indigo' ? '#6366f140' : lic.color === 'emerald' ? '#10b98140' : '#f59e0b40' } : {}}>
 
-                        ].map((lic: any) => (
-                            <div key={lic.id} className={`p-6 rounded-[1.5rem] border-2 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden ${lic.disabled ? 'bg-slate-100 dark:bg-white/5 opacity-60 grayscale' : (lic.active ? `bg-white dark:bg-black border-${lic.color}-500/30 shadow-xl shadow-${lic.color}-500/5` : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 opacity-75')}`}>
                                 <div className="flex items-center gap-5">
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${lic.active ? `bg-${lic.color}-500 text-white shadow-lg shadow-${lic.color}-500/20` : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
-                                        {lic.id === 'premium' ? <Crown size={20} /> :
-                                            lic.id === 'unlimited' ? <Layers size={20} /> :
-                                                <ShieldCheck size={20} />}
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${lic.active ? 'text-white shadow-2xl' : 'bg-white/5 text-muted'}`}
+                                        style={lic.active ? { background: lic.color === 'slate' ? '#64748b' : lic.color === 'blue' ? '#3b82f6' : lic.color === 'indigo' ? '#6366f1' : lic.color === 'emerald' ? '#10b981' : '#f59e0b' } : {}}>
+                                        {lic.id === 'premium' ? <Crown size={24} /> : lic.id === 'unlimited' ? <Layers size={24} /> : <ShieldCheck size={24} />}
                                     </div>
                                     <div>
-                                        <h5 className="font-black uppercase tracking-tight text-foreground">{lic.label}</h5>
-                                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest">{lic.desc}</p>
+                                        <h4 className="text-base font-black uppercase tracking-tight text-foreground flex items-center gap-2">
+                                            {lic.label}
+                                            {lic.id === 'premium' && <span className="text-[8px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">BEST SELLER</span>}
+                                        </h4>
+                                        <p className="text-[10px] font-bold text-muted uppercase tracking-[0.1em]">{lic.desc}</p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center gap-6">
-                                    <div className={`flex items-center gap-2 bg-slate-50 dark:bg-white/5 px-4 py-3 rounded-2xl border-2 transition-all ${lic.active ? 'border-accent shadow-sm' : 'border-slate-200 dark:border-white/10 opacity-50'}`}>
-                                        <span className="text-[11px] font-black text-muted">$</span>
-                                        <input
-                                            type="number"
-                                            value={lic.price}
-                                            onChange={(e) => lic.setPrice(e.target.value)}
-                                            disabled={lic.disabled || !lic.active}
-                                            className="w-16 bg-transparent outline-none font-black text-xs text-foreground placeholder:text-muted"
-                                            placeholder="0"
-                                        />
-                                        <span className="text-[9px] font-black text-muted">MXN</span>
+                                    <div className={`flex items-center gap-3 bg-black/40 px-5 py-4 rounded-2xl border transition-all ${lic.active ? 'border-accent/40 shadow-inner' : 'border-white/5'}`}>
+                                        <span className="text-xs font-black text-muted/50 tracking-tighter">$</span>
+                                        <input type="number" value={lic.price} onChange={e => lic.setPrice(e.target.value)} disabled={lic.disabled || !lic.active || lic.lock}
+                                            className="w-16 bg-transparent outline-none font-bold text-base text-foreground placeholder:text-muted/20" />
+                                        <span className="text-[9px] font-black text-muted/30">MXN</span>
                                     </div>
-                                    <Toggle
-                                        active={lic.active}
-                                        onToggle={() => lic.setAction(!lic.active)}
-                                        disabled={lic.disabled}
-                                    />
+                                    <Toggle active={lic.active} onToggle={() => !lic.disabled && lic.set(!lic.active)} disabled={lic.disabled} />
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <button
-                    type="submit"
-                    disabled={saving}
-                    onClick={!hasChanges ? (e) => { e.preventDefault(); router.back(); } : undefined}
-                    className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 border-t border-white/10 ${hasChanges
-                        ? 'bg-accent text-white hover:bg-accent/90 shadow-accent/20'
-                        : 'bg-muted/10 text-muted hover:bg-muted/20 shadow-none'
-                        }`}
-                >
-                    {saving ? (
-                        <>
-                            <Loader2 className="animate-spin" size={20} />
-                            Guardando...
-                        </>
-                    ) : hasChanges ? (
-                        <>
-                            <Save size={18} />
-                            Guardar Cambios
-                        </>
-                    ) : (
-                        <>
-                            <X size={18} />
-                            Cancelar
-                        </>
-                    )}
-                </button>
+                {/* Submit */}
+                <div className="pt-6">
+                    <button type="submit" disabled={saving} onClick={!hasChanges ? (e) => { e.preventDefault(); router.back(); } : undefined}
+                        className={`group relative w-full overflow-hidden rounded-[2rem] p-6 transition-all active:scale-[0.98] ${hasChanges ? 'bg-accent text-white shadow-[0_20px_40px_-15px_rgba(255,107,0,0.4)]' : 'bg-white/5 text-muted grayscale'}`}>
+                        <div className="relative z-10 flex items-center justify-center gap-4">
+                            {saving ? (
+                                <><Loader2 className="animate-spin text-white" size={24} /><span className="text-sm font-black uppercase tracking-[0.3em]">Guardando Cambios...</span></>
+                            ) : (
+                                <><Save size={24} className="group-hover:rotate-12 transition-transform" /><span className="text-sm font-black uppercase tracking-[0.3em]">{hasChanges ? 'Actualizar Beat' : 'Volver sin Cambios'}</span></>
+                            )}
+                        </div>
+                    </button>
+                </div>
             </form>
         </div>
     );

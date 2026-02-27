@@ -19,7 +19,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         { name: 'Estadísticas', href: '/studio/stats', icon: <BarChart2 size={18} /> },
         { name: 'Ventas', href: '/studio/sales', icon: <DollarSign size={18} /> },
         { name: 'Mis Compras', href: '/studio/purchases', icon: <Package size={18} /> },
-        { name: 'Facturación', href: '/studio/billing', icon: <CreditCard size={18} /> },
+        { name: 'Mi Suscripción', href: '/studio/billing', icon: <CreditCard size={18} /> },
     ]);
 
     const [profile, setProfile] = React.useState<any>(null);
@@ -58,8 +58,8 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                             return (
                                 <Link key={item.href} href={item.href}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-2xl transition-all font-black text-[9px] uppercase tracking-widest whitespace-nowrap ${isActive
-                                            ? 'bg-foreground text-background shadow-lg'
-                                            : 'bg-card text-muted border border-border hover:text-foreground'
+                                        ? 'bg-foreground text-background shadow-lg'
+                                        : 'bg-card text-muted border border-border hover:text-foreground'
                                         }`}>
                                     {item.icon}
                                     {item.name}

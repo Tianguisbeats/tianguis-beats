@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ListMusic, Plus, Check, Loader2, Minus, Music } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/context/ToastContext';
@@ -17,9 +18,11 @@ export default function AddToPlaylistModal({ isOpen, onClose, beatId }: AddToPla
     const [loading, setLoading] = useState(true);
     const [processingId, setProcessingId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [mounted, setMounted] = useState(false);
     const { showToast } = useToast();
 
     useEffect(() => {
+        setMounted(true);
         if (isOpen) {
             fetchData();
         }
@@ -113,10 +116,10 @@ export default function AddToPlaylistModal({ isOpen, onClose, beatId }: AddToPla
         }
     };
 
-    if (!isOpen) return null;
+    if (!isOpen || !mounted) return null;
 
-    return (
-        <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-0 sm:p-4">
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
             <div className="absolute inset-0 bg-background/80 backdrop-blur-md" onClick={onClose} />
 
             <div className="relative bg-card w-full sm:max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl border border-border flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 duration-300">
@@ -187,6 +190,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, beatId }: AddToPla
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

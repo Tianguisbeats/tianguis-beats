@@ -225,7 +225,12 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                 {isBeat ? (
                                     <>
                                         <button
-                                            onClick={() => playBeat(mixedItems[currentIndex])}
+                                            onClick={() => {
+                                                const beatToPlay = items[currentIndex];
+                                                if (beatToPlay.type === 'beat') {
+                                                    playBeat(beatToPlay as any);
+                                                }
+                                            }}
                                             className={`h-14 w-14 rounded-2xl flex items-center justify-center transition-all shadow-xl active:scale-95 ${isBeatPlaying ? 'bg-white text-accent' : 'bg-accent text-white hover:scale-110 shadow-accent/30'}`}
                                         >
                                             {isBeatPlaying ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" className="ml-1" />}

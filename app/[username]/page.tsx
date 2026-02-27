@@ -700,7 +700,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     {/* ── Header de perfil: Avatar + nombre + acción ── */}
-                    <div className="flex flex-col md:flex-row items-center md:items-end gap-5 -mt-16 md:-mt-32 mb-10 md:mb-16">
+                    <div className="flex flex-col md:flex-row items-center md:items-end gap-5 -mt-24 md:-mt-44 mb-10 md:mb-16">
                         {/* Avatar — más pequeño en móvil para no dominar la pantalla */}
                         <div className="relative group shrink-0">
 
@@ -734,8 +734,31 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         </div>
 
                         {/* Info Header */}
-                        <div className="flex-1 w-full">
-                            <div className="flex flex-col items-center md:items-start justify-center gap-6 w-full text-center md:text-left md:pl-8">
+                        <div className="flex-1 w-full relative">
+                            {/* ── Botones de acción (Editar / Seguir) — Moviendo a la izquierda y arriba ── */}
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-start gap-3 w-full sm:w-auto mb-8">
+                                {isOwner ? (
+                                    <button
+                                        onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}
+                                        className={`h-12 sm:h-14 px-8 sm:px-10 w-full sm:w-auto rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${isEditing ? 'bg-foreground dark:bg-white text-background dark:text-slate-900 border-2 border-accent' : 'bg-white dark:bg-white/10 text-foreground dark:text-white border border-slate-100 dark:border-white/20 hover:shadow-2xl hover:-translate-y-1 backdrop-blur-md dark:hover:bg-white dark:hover:text-slate-900'}`}
+                                    >
+                                        {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Editar Perfil</>}
+                                    </button>
+                                ) : (
+                                    <>
+                                        {currentUserId !== profile?.id && (
+                                            <button
+                                                onClick={handleFollowToggle}
+                                                className={`h-12 sm:h-14 px-8 sm:px-10 w-full sm:w-auto rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-xl active:scale-95 ${isFollowing ? 'bg-success text-white shadow-success/20' : 'bg-accent text-white shadow-accent/20 hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900'}`}
+                                            >
+                                                {isFollowing ? <><Check size={16} /> Siguiendo</> : <><UserPlus size={16} /> Seguir</>}
+                                            </button>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+
+                            <div className="flex flex-col items-center md:items-start text-center md:text-left gap-4">
                                 <div className="space-y-6 w-full max-w-4xl mx-auto md:mx-0">
                                     {/* Nombre artístico: compacto en móvil */}
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
@@ -834,33 +857,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         </div>
                                     )}
                                 </div>
-
-                                {/* ── Botones de acción (Editar / Seguir): full-width en móvil ── */}
-                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-start gap-3 w-full sm:w-auto">
-
-
-
-                                    {isOwner ? (
-                                        <button
-                                            onClick={() => isEditing ? (hasChanges() ? handleUpdateProfile() : setIsEditing(false)) : setIsEditing(true)}
-                                            className={`h-12 sm:h-14 px-8 sm:px-10 w-full sm:w-auto rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${isEditing ? 'bg-foreground dark:bg-white text-background dark:text-slate-900' : 'bg-white dark:bg-white/10 text-foreground dark:text-white border border-slate-100 dark:border-white/20 hover:shadow-2xl hover:-translate-y-1 backdrop-blur-md dark:hover:bg-white dark:hover:text-slate-900'}`}
-                                        >
-                                            {isEditing ? (hasChanges() ? <><Save size={16} /> Guardar</> : 'Cerrar') : <><Edit3 size={16} /> Editar Perfil</>}
-                                        </button>
-                                    ) : (
-                                        <>
-                                            {currentUserId !== profile?.id && (
-                                                <button
-                                                    onClick={handleFollowToggle}
-                                                    className={`h-12 sm:h-14 px-8 sm:px-10 w-full sm:w-auto rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-xl active:scale-95 ${isFollowing ? 'bg-success text-white shadow-success/20' : 'bg-accent text-white shadow-accent/20 hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900'}`}
-                                                >
-                                                    {isFollowing ? <><Check size={16} /> Siguiendo</> : <><UserPlus size={16} /> Seguir</>}
-                                                </button>
-                                            )}
-                                        </>
-                                    )}
-                                </div>
-
                             </div>
                         </div>
                     </div>
