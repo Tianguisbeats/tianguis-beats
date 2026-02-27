@@ -177,14 +177,14 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
         try {
             const { data, error } = await supabase
                 .from('solicitudes_verificacion')
-                .select(`*, perfiles:user_id (nombre_usuario, foto_perfil, correo)`)
+                .select(`*, perfiles:user_id (nombre_usuario, foto_perfil, correo, fecha_creacion)`)
                 .eq('estado', 'pendiente')
                 .order('fecha_creacion', { ascending: false });
 
             if (error) {
                 const { data: retryData } = await supabase
                     .from('solicitudes_verificacion')
-                    .select(`*, perfiles:user_id (nombre_usuario, foto_perfil, correo)`)
+                    .select(`*, perfiles:user_id (nombre_usuario, foto_perfil, correo, fecha_creacion)`)
                     .eq('estado', 'pendiente');
                 setRequests(retryData || []);
             } else {
@@ -237,56 +237,99 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                 </div>
             ) : (
                 requests.map((req) => (
-                    <div key={req.id} className="bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 flex flex-col lg:flex-row gap-8 shadow-lg dark:shadow-[0_4px_20px_rgba(255,255,255,0.02)] hover:border-accent/30 transition-all">
-                        <div className="lg:w-1/4">
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="w-12 h-12 rounded-full overflow-hidden bg-accent-soft">
+                    <div key={req.id} className="bg-white dark:bg-[#020205] border-t-4 border-t-blue-600 border-x border-b border-slate-200 dark:border-white/10 rounded-[2.5rem] p-10 flex flex-col lg:flex-row gap-10 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,112,243,0.05)] hover:scale-[1.01] transition-all duration-500 overflow-hidden">
+                        <div className="lg:w-1/4 flex flex-col items-center lg:items-start text-center lg:text-left">
+                            <div className="flex flex-col items-center lg:items-start gap-4 mb-6">
+                                <div className="w-20 h-20 rounded-3xl overflow-hidden bg-accent-soft shadow-xl border-2 border-white/10">
                                     <img src={req.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.nombre_usuario}`} alt="Avatar" className="w-full h-full object-cover" />
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-lg text-foreground truncate">{req.nombre_usuario}</h3>
-                                    <p className="text-xs text-muted">@{req.nombre_usuario}</p>
+                                    <h3 className="font-black text-2xl text-foreground tracking-tighter mb-1 truncate">{req.nombre_usuario}</h3>
+                                    <div className="inline-flex px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">@{req.nombre_usuario}</p>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="space-y-1 text-[10px] font-bold uppercase tracking-widest text-muted/60">
-                                <p className="truncate">Email: {req.correo}</p>
-                                <p className="truncate">Nombre: {req.nombre_completo}</p>
-                                <p className="text-[8px] opacity-40">ID: {req.user_id}</p>
+                            <div className="space-y-3 w-full">
+                                <DetailBox label="Nombre Completo" value={req.nombre_completo} />
+                                <DetailBox label="Correo" value={req.correo} />
+                                <div className="p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50">
+                                    <p className="text-[8px] font-black uppercase text-muted tracking-widest mb-1">Registro</p>
+                                    <p className="text-[10px] font-bold text-foreground">
+                                        {req.perfiles?.fecha_creacion ? new Date(req.perfiles.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) : '---'}
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="flex-1 space-y-4">
+                        <div className="flex-1 space-y-6">
                             <div className="grid md:grid-cols-2 gap-4">
-                                <div className="p-4 bg-slate-50 dark:bg-black/20 rounded-2xl border border-border">
-                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-2">Red Social</p>
-                                    <a href={req.url_red_social} target="_blank" className="text-sm font-bold text-blue-500 hover:underline flex items-center gap-2 truncate">
-                                        {req.url_red_social} <ExternalLink size={12} />
+                                <div className="p-5 bg-slate-50 dark:bg-black/20 rounded-3xl border border-border shadow-inner">
+                                    <p className="text-[10px] font-black uppercase text-muted tracking-[0.2em] mb-3">Red Social Confirmada</p>
+                                    <a href={req.url_red_social} target="_blank" className="text-sm font-black text-blue-500 hover:text-blue-600 transition-colors flex items-center gap-2 truncate">
+                                        {req.url_red_social} <ExternalLink size={14} />
                                     </a>
                                 </div>
-                                <div className="p-4 bg-slate-50 dark:bg-black/20 rounded-2xl border border-border">
-                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-2">Identificación</p>
-                                    <a
-                                        href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/documentos_verificacion/${req.url_documento}`}
-                                        target="_blank"
-                                        className="text-sm font-bold text-accent hover:underline flex items-center gap-2"
-                                    >
-                                        Ver Documento <ExternalLink size={12} />
-                                    </a>
+                                <div className="p-5 bg-slate-50 dark:bg-black/20 rounded-3xl border border-border shadow-inner">
+                                    <p className="text-[10px] font-black uppercase text-muted tracking-[0.2em] mb-3">Identificaciones (Frente / Vuelta)</p>
+                                    <div className="flex gap-4">
+                                        {/* Previsualización Frontal */}
+                                        <div className="group/img relative w-20 h-14 rounded-xl overflow-hidden cursor-pointer border-2 border-border/50 hover:border-blue-500 transition-all">
+                                            <img
+                                                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/documentos_verificacion/${req.url_doc_frontal}`}
+                                                className="w-full h-full object-cover grayscale group-hover/img:grayscale-0 transition-all"
+                                                alt="Front"
+                                            />
+                                            <a
+                                                href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/documentos_verificacion/${req.url_doc_frontal}`}
+                                                target="_blank"
+                                                className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity"
+                                            >
+                                                <ExternalLink size={14} className="text-white" />
+                                            </a>
+                                        </div>
+                                        {/* Previsualización Trasera */}
+                                        {req.url_doc_trasero && (
+                                            <div className="group/img relative w-20 h-14 rounded-xl overflow-hidden cursor-pointer border-2 border-border/50 hover:border-blue-500 transition-all">
+                                                <img
+                                                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/documentos_verificacion/${req.url_doc_trasero}`}
+                                                    className="w-full h-full object-cover grayscale group-hover/img:grayscale-0 transition-all"
+                                                    alt="Back"
+                                                />
+                                                <a
+                                                    href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/documentos_verificacion/${req.url_doc_trasero}`}
+                                                    target="_blank"
+                                                    className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity"
+                                                >
+                                                    <ExternalLink size={14} className="text-white" />
+                                                </a>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                            <div className="p-4 bg-slate-50 dark:bg-black/20 rounded-2xl border border-border">
-                                <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-2">Motivación</p>
-                                <p className="text-xs text-foreground italic leading-relaxed">"{req.motivation}"</p>
+                            <div className="p-6 bg-slate-50 dark:bg-black/20 rounded-[2.5rem] border border-border shadow-inner">
+                                <p className="text-[10px] font-black uppercase text-muted tracking-[0.2em] mb-3">Motivación del Artista</p>
+                                <p className="text-sm text-foreground font-medium leading-relaxed italic opacity-80">"{req.motivacion}"</p>
                             </div>
                         </div>
 
-                        <div className="lg:w-48 flex flex-col gap-3 justify-center">
-                            <button onClick={() => handleDecision(req.id, req.user_id, 'approved')} className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all">Aprobar</button>
-                            <button onClick={() => handleDecision(req.id, req.user_id, 'rejected')} className="w-full py-4 bg-red-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all">Rechazar</button>
+                        <div className="lg:w-56 flex flex-col gap-4 justify-center">
+                            <button onClick={() => handleDecision(req.id, req.user_id, 'approved')} className="w-full py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all">Aprobar</button>
+                            <button onClick={() => handleDecision(req.id, req.user_id, 'rejected')} className="w-full py-5 bg-red-500 hover:bg-red-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-red-500/20 hover:scale-105 active:scale-95 transition-all">Rechazar</button>
                         </div>
                     </div>
                 ))
             )}
+        </div>
+    );
+}
+
+function DetailBox({ label, value }: { label: string, value: string }) {
+    return (
+        <div className="p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50 text-left">
+            <p className="text-[8px] font-black uppercase text-muted tracking-widest mb-1">{label}</p>
+            <p className="text-[10px] font-bold text-foreground truncate">{value || '---'}</p>
         </div>
     );
 }

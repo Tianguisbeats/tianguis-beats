@@ -33,8 +33,9 @@ export default function VerificationPage() {
         realName: '',
         artisticName: '',
         portfolioUrl: '',
-        motivation: '',
-        idDocument: null as File | null
+        motivacion: '', // Cambiado de motivation a motivacion para consistencia
+        idDocumentFront: null as File | null,
+        idDocumentBack: null as File | null
     });
     const [submitting, setSubmitting] = useState(false);
 
@@ -111,9 +112,13 @@ export default function VerificationPage() {
         setLoading(false);
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, side: 'front' | 'back') => {
         if (e.target.files && e.target.files[0]) {
-            setForm({ ...form, idDocument: e.target.files[0] });
+            if (side === 'front') {
+                setForm({ ...form, idDocumentFront: e.target.files[0] });
+            } else {
+                setForm({ ...form, idDocumentBack: e.target.files[0] });
+            }
         }
     };
 
@@ -126,29 +131,46 @@ export default function VerificationPage() {
         setSubmitting(true);
 
         try {
-            if (!form.idDocument) throw new Error("Debes subir una identificación oficial.");
+            if (!form.idDocumentFront) throw new Error("Debes subir al menos el frente de tu identificación.");
             if (!profile?.nombre_usuario) throw new Error("No se pudo obtener el nombre de usuario.");
 
-            // 1. Upload ID to correct bucket
-            const fileExt = form.idDocument.name.split('.').pop();
-            const fileName = `${profile.nombre_usuario}/verificacion_${Date.now()}.${fileExt}`;
-            const { error: uploadError, data: uploadData } = await supabase.storage
+            let url_doc_frontal = '';
+            let url_doc_trasero = '';
+
+            // 1. Upload ID Front
+            const frontExt = form.idDocumentFront.name.split('.').pop();
+            const frontFileName = `${profile.nombre_usuario}/frente_${Date.now()}.${frontExt}`;
+            const { error: frontError, data: frontData } = await supabase.storage
                 .from('documentos_verificacion')
-                .upload(fileName, form.idDocument);
+                .upload(frontFileName, form.idDocumentFront);
 
-            if (uploadError) throw uploadError;
+            if (frontError) throw frontError;
+            url_doc_frontal = frontData.path;
 
-            // 2. Insert into solicitudes_verificacion with correct columns
+            // 2. Upload ID Back (Optional but recommended)
+            if (form.idDocumentBack) {
+                const backExt = form.idDocumentBack.name.split('.').pop();
+                const backFileName = `${profile.nombre_usuario}/vuelta_${Date.now()}.${backExt}`;
+                const { error: backError, data: backData } = await supabase.storage
+                    .from('documentos_verificacion')
+                    .upload(backFileName, form.idDocumentBack);
+
+                if (backError) throw backError;
+                url_doc_trasero = backData.path;
+            }
+
+            // 3. Insert into solicitudes_verificacion
             const { error: insertError } = await supabase
                 .from('solicitudes_verificacion')
                 .insert({
                     user_id: user.id,
                     nombre_completo: form.realName,
-                    nombre_usuario: form.artisticName, // que ahora es nombre_usuario
-                    correo: profile.correo, // Enviamos el correo del perfil
+                    nombre_usuario: form.artisticName,
+                    correo: profile.correo || profile.email,
                     url_red_social: form.portfolioUrl,
-                    motivacion: form.motivation,
-                    url_documento: uploadData.path,
+                    motivacion: form.motivacion,
+                    url_doc_frontal,
+                    url_doc_trasero,
                     estado: 'pendiente'
                 });
 
@@ -392,22 +414,40 @@ export default function VerificationPage() {
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-muted">Identificación Oficial</label>
-                            <div className="relative">
-                                <input
-                                    type="file"
-                                    required
-                                    accept="image/*,.pdf"
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                    onChange={handleFileChange}
-                                />
-                                <div className="w-full bg-background border-2 border-dashed border-border rounded-xl px-4 py-8 flex flex-col items-center justify-center text-center hover:bg-accent/5 transition-all">
-                                    <Upload className="text-muted mb-2" size={20} />
-                                    <span className="text-xs font-bold text-foreground">
-                                        {form.idDocument ? form.idDocument.name : "Click para subir archivo"}
-                                    </span>
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-muted mt-1">JPG, PNG o PDF</span>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted">Identificación (Frente)</label>
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        required
+                                        accept="image/*"
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                        onChange={(e) => handleFileChange(e, 'front')}
+                                    />
+                                    <div className="w-full bg-background border-2 border-dashed border-border rounded-xl px-4 py-6 flex flex-col items-center justify-center text-center hover:bg-accent/5 transition-all">
+                                        <Upload className="text-muted mb-2" size={16} />
+                                        <span className="text-[10px] font-bold text-foreground">
+                                            {form.idDocumentFront ? form.idDocumentFront.name : "Subir Frente"}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted">Identificación (Vuelta)</label>
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                        onChange={(e) => handleFileChange(e, 'back')}
+                                    />
+                                    <div className="w-full bg-background border-2 border-dashed border-border rounded-xl px-4 py-6 flex flex-col items-center justify-center text-center hover:bg-accent/5 transition-all">
+                                        <Upload className="text-muted mb-2" size={16} />
+                                        <span className="text-[10px] font-bold text-foreground">
+                                            {form.idDocumentBack ? form.idDocumentBack.name : "Subir Vuelta"}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -418,8 +458,8 @@ export default function VerificationPage() {
                                 required
                                 className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-accent transition-all h-24 resize-none"
                                 placeholder="Cuéntanos sobre tu trayectoria..."
-                                value={form.motivation}
-                                onChange={e => setForm({ ...form, motivation: e.target.value })}
+                                value={form.motivacion}
+                                onChange={e => setForm({ ...form, motivacion: e.target.value })}
                             />
                         </div>
 
