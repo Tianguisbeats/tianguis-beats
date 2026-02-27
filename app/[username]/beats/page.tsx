@@ -2,294 +2,260 @@
 
 import React, { useEffect, useState, use } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Music, ArrowLeft, Search, Filter, Loader2, Play, LayoutGrid, Heart, Eye, ListMusic, Plus, Edit3, Settings, Share2, ChevronDown, CheckCircle2, Crown } from 'lucide-react';
+import {
+    Music, ArrowLeft, Search, Loader2, Play, Heart, Crown,
+    Share2, CheckCircle2, Flame, Zap, BarChart2
+} from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BeatCardPro from '@/components/explore/BeatCardPro';
-import PlaylistSection from '@/components/PlaylistSection';
-import PlaylistManagerModal from '@/components/PlaylistManagerModal';
 import { Beat, Profile } from '@/lib/types';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useToast } from '@/context/ToastContext';
 
 export default function ProducerBeatsPage({ params }: { params: Promise<{ username: string }> }) {
     const resolvedParams = use(params);
     const username = resolvedParams.username;
-    const router = useRouter();
 
     const [profile, setProfile] = useState<Profile | null>(null);
     const [beats, setBeats] = useState<Beat[]>([]);
-    // Playlists eliminadas de esta vista
     const [loading, setLoading] = useState(true);
-    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [isOwner, setIsOwner] = useState(false);
-    const { showToast } = useToast();
-
-    // Search and Filters
-    const [selectedBpmRange, setSelectedBpmRange] = useState('Todos');
     const [searchQuery, setSearchQuery] = useState('');
-
+    const [activeGenre, setActiveGenre] = useState('Todos');
+    const { showToast } = useToast();
 
     const fetchAll = async () => {
         try {
             setLoading(true);
             const { data: { user } } = await supabase.auth.getUser();
-            setCurrentUserId(user?.id || null);
 
-            // 1. Get Profile
             const { data: profileData } = await supabase
-                .from('perfiles')
-                .select('*')
-                .eq('nombre_usuario', username)
-                .single();
+                .from('perfiles').select('*').eq('nombre_usuario', username).single();
 
             if (profileData) {
                 setProfile(profileData);
                 if (user?.id === profileData.id) setIsOwner(true);
 
-                // 2. Get All Beats
                 const { data: beatsData } = await supabase
-                    .from('beats')
-                    .select('*')
+                    .from('beats').select('*')
                     .eq('productor_id', profileData.id)
                     .eq('es_publico', true)
                     .order('fecha_creacion', { ascending: false });
 
                 if (beatsData) {
-                    const transformedBeats = await Promise.all(beatsData.map(async (b: any) => {
-                        // Priorizar archivo_muestra_url
+                    const transformed = await Promise.all(beatsData.map(async (b: any) => {
                         const path = b.archivo_muestra_url || b.archivo_mp3_url || '';
-                        const encodedPath = path;
-
-                        // Usar buckets unificados en español
                         const bucket = path === b.archivo_muestra_url ? 'muestras_beats' : 'beats_mp3';
-                        const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
-
-                        const finalCoverUrl = b.portada_url?.startsWith('http')
+                        const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(path);
+                        const finalCover = b.portada_url?.startsWith('http')
                             ? b.portada_url
-                            : b.portada_url
-                                ? supabase.storage.from('portadas_beats').getPublicUrl(b.portada_url).data.publicUrl
-                                : null;
-
+                            : b.portada_url ? supabase.storage.from('portadas_beats').getPublicUrl(b.portada_url).data.publicUrl : null;
                         return {
-                            ...b,
-                            archivo_mp3_url: publicUrl,
-                            portada_url: finalCoverUrl,
+                            ...b, archivo_mp3_url: publicUrl, portada_url: finalCover,
                             productor_nombre_usuario: profileData.nombre_usuario,
                             productor_nombre_artistico: profileData.nombre_artistico,
                             productor_foto_perfil: profileData.foto_perfil,
                             productor_esta_verificado: profileData.esta_verificado,
                             productor_es_fundador: profileData.es_fundador,
-                            productor_nivel_suscripcion: profileData.nivel_suscripcion
+                            productor_nivel_suscripcion: profileData.nivel_suscripcion,
                         };
                     }));
-                    setBeats(transformedBeats);
+                    setBeats(transformed);
                 }
-
             }
-
-            // 3. Playlists logic removed
         } catch (err) {
-            console.error("Error fetching producer catalog:", err);
+            console.error(err);
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchAll();
-    }, [username]);
+    useEffect(() => { fetchAll(); }, [username]);
 
-    // Stats Calculations
-    const totalLikes = beats.reduce((acc, b) => acc + (b.conteo_likes || 0), 0);
-    const totalPlays = beats.reduce((acc, b) => acc + (b.conteo_reproducciones || 0), 0);
-
+    const totalLikes = beats.reduce((a, b) => a + (b.conteo_likes || 0), 0);
+    const totalPlays = beats.reduce((a, b) => a + (b.conteo_reproducciones || 0), 0);
     const genres = ['Todos', ...new Set(beats.map(b => b.genero).filter(Boolean) as string[])];
-    const moods = ['Todos', ...new Set(beats.map(b => b.vibras).filter(Boolean) as string[])];
 
     const filteredBeats = beats.filter(b => {
-        return b.titulo.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchSearch = b.titulo.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchGenre = activeGenre === 'Todos' || b.genero === activeGenre;
+        return matchSearch && matchGenre;
     });
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-background">
-            <Loader2 className="animate-spin text-muted" size={32} />
+            <Loader2 className="animate-spin text-accent" size={32} />
         </div>
     );
-
     if (!profile) return null;
 
+    const tierColor = profile.nivel_suscripcion === 'premium' ? '#00f2ff'
+        : profile.nivel_suscripcion === 'pro' ? '#f59e0b' : '#64748b';
+
     return (
-        <div className="min-h-screen bg-background text-foreground font-sans flex flex-col selection:bg-accent selection:text-white transition-colors duration-300">
+        <div className="min-h-screen bg-background text-foreground font-sans flex flex-col selection:bg-accent selection:text-white">
             <Navbar />
 
-            {/* Dynamic Background */}
-            <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,var(--accent-soft),transparent)] opacity-40" />
-                <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-accent/5 blur-[150px] rounded-full" />
-                <div className="absolute top-1/4 left-0 w-[300px] h-[300px] bg-accent/5 blur-[120px] rounded-full" />
-            </div>
-
-            <main className="flex-1 relative z-10 pt-20">
-                {/* Minimalist & Pro Header */}
-                <div className="relative pt-16 pb-24 overflow-hidden border-b border-border">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                        <div className="flex flex-col md:flex-row items-end gap-12 md:gap-16">
-
-                            {/* Pro Avatar Container */}
-                            <div className="relative group shrink-0 mx-auto md:mx-0">
-                                <div className="absolute -inset-4 bg-accent rounded-full blur-2xl opacity-10 group-hover:opacity-20 transition-opacity" />
-                                <div className={`relative w-48 h-48 md:w-56 md:h-56 rounded-full p-1.5 bg-gradient-to-br from-card to-transparent backdrop-blur-3xl border-[3px] shadow-2xl transition-all duration-700 ${profile?.nivel_suscripcion === 'premium'
-                                        ? 'border-[#00f2ff] ring-4 ring-[#00f2ff]/20 shadow-[#00f2ff]/20'
-                                        : profile?.es_fundador || profile?.nivel_suscripcion === 'pro'
-                                            ? 'border-amber-500 ring-4 ring-amber-500/20 shadow-amber-500/20'
-                                            : 'border-border'
-                                    }`}>
-                                    {profile?.foto_perfil ? (
-                                        <img src={profile.foto_perfil} className="w-full h-full object-cover rounded-full" alt="Avatar" />
-                                    ) : (
-                                        <div className="w-full h-full bg-slate-800 rounded-full flex items-center justify-center text-slate-500"><Music size={60} /></div>
-                                    )}
-                                    {profile?.esta_verificado && (
-                                        <div className="absolute bottom-2 right-2 translate-x-1/4 translate-y-1/4">
-                                            <img src="/verified-badge.png" className="w-12 h-12 md:w-14 md:h-14 drop-shadow-2xl" alt="Verificado" />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Impact Text Area - Streamlined */}
-                            <div className="flex-1 text-center md:text-left space-y-6">
-                                <Link href={`/${username}`} className="inline-flex items-center gap-2 text-muted font-bold text-[9px] uppercase tracking-[0.3em] mb-4 hover:text-accent transition-all group">
-                                    <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" /> Volver al Perfil
-                                </Link>
-
-                                <div>
-                                    <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-2 leading-none">
-                                        {profile.nombre_artistico || profile.nombre_usuario}
-                                    </h1>
-                                    <div className="flex items-center justify-center md:justify-start gap-3">
-                                        <span className="text-accent text-[10px] font-black uppercase tracking-[0.4em]">TIANGUIS PRO CATALOGO</span>
-                                        <div className="w-8 h-px bg-border" />
-                                        {profile.es_fundador && <span className="flex items-center gap-1.5 text-amber-500 text-[9px] font-black uppercase tracking-widest bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30"><Crown size={12} fill="currentColor" /> Founder</span>}
-                                    </div>
-                                </div>
-
-                                {/* Premium Stats - Clean Dashboard Style */}
-                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-8 pt-4">
-                                    <div className="text-center md:text-left">
-                                        <span className="block text-2xl font-black mb-0.5 tabular-nums">
-                                            {totalLikes.toString().padStart(2, '0')}
-                                        </span>
-                                        <span className="text-[9px] font-black text-muted uppercase tracking-[0.2em]">Likes</span>
-                                    </div>
-                                    <div className="w-px h-6 bg-border" />
-                                    <div className="text-center md:text-left">
-                                        <span className="block text-2xl font-black mb-0.5 tabular-nums text-accent">
-                                            {totalPlays.toString().padStart(2, '0')}
-                                        </span>
-                                        <span className="text-[9px] font-black text-muted uppercase tracking-[0.2em]">Plays</span>
-                                    </div>
-                                    <div className="w-px h-6 bg-border" />
-                                    <div className="text-center md:text-left">
-                                        <span className="block text-2xl font-black mb-0.5 tabular-nums">
-                                            {beats.length.toString().padStart(2, '0')}
-                                        </span>
-                                        <span className="text-[9px] font-black text-muted uppercase tracking-[0.2em]">Beats</span>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                        </div>
-                    </div>
+            {/* ── Hero Header ── */}
+            <div className="relative border-b border-border bg-card overflow-hidden">
+                {/* Ambient glow */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    <div className="absolute -top-1/2 -left-1/4 w-[80%] h-[200%] rounded-full blur-[120px] opacity-[0.07]"
+                        style={{ backgroundColor: tierColor }} />
+                    <div className="absolute -top-1/2 right-0 w-[40%] h-[200%] rounded-full blur-[150px] opacity-[0.04] bg-accent" />
                 </div>
 
-                {/* Main Content Area */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 pb-32 relative z-20">
+                <div className="relative max-w-[1700px] mx-auto px-4 sm:px-10 pt-8 pb-12">
+                    {/* Back link */}
+                    <Link href={`/${username}`}
+                        className="inline-flex items-center gap-2 text-muted hover:text-accent font-black text-[9px] uppercase tracking-[0.3em] mb-8 group transition-all">
+                        <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" /> Volver al Perfil
+                    </Link>
 
-                    {/* Floating Search Hub */}
-                    <div className="bg-card/80 backdrop-blur-3xl rounded-[3.5rem] shadow-3xl border border-border p-4 md:p-6 mb-24 ring-1 ring-border">
-                        <div className="flex flex-col lg:flex-row gap-6 items-center">
-                            <div className="relative flex-1 w-full group">
-                                <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-accent transition-colors" size={24} />
-                                <input
-                                    type="text"
-                                    placeholder="¿Cuál es tu próximo hit?"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full bg-accent-soft border border-transparent rounded-[2.5rem] pl-20 pr-10 py-6 text-lg font-bold focus:outline-none focus:ring-4 focus:ring-accent/10 focus:bg-background focus:border-accent/50 transition-all text-foreground placeholder:text-muted/50 uppercase tracking-tight"
-                                />
+                    <div className="flex flex-col lg:flex-row items-start lg:items-end gap-10">
+
+                        {/* Avatar */}
+                        <div className="relative shrink-0">
+                            <div className="absolute inset-0 rounded-[3rem] blur-2xl scale-90 opacity-30"
+                                style={{ backgroundColor: tierColor }} />
+                            <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-[3rem] overflow-hidden border-2 shadow-2xl"
+                                style={{ borderColor: `${tierColor}60` }}>
+                                {profile.foto_perfil
+                                    ? <img src={profile.foto_perfil} className="w-full h-full object-cover" alt="Avatar" />
+                                    : <div className="w-full h-full bg-foreground/5 flex items-center justify-center text-muted"><Music size={52} strokeWidth={1} /></div>}
                             </div>
-
-                            <div className="flex items-center gap-4 w-full lg:w-auto">
-                                <button
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(window.location.href);
-                                        showToast("¡Enlace del catálogo copiado! 🚀", "success");
-                                    }}
-                                    className="p-6 bg-accent-soft text-muted rounded-[2.5rem] hover:text-accent transition-all border border-border hover:border-accent/20 flex-1 lg:flex-none flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest"
-                                >
-                                    <Share2 size={24} /> Compartir Catálogo
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    {/* Vitaminized Content Grid */}
-                    <div className="space-y-32">
-
-
-                        {/* Full Catalog Grid */}
-                        <div className="space-y-16">
-                            <div className="flex flex-col md:flex-row items-center justify-between gap-8 border-b border-slate-100 pb-10">
-                                <div className="flex items-center gap-6">
-                                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-[2rem] flex items-center justify-center text-white shadow-2xl">
-                                        <Music size={32} />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">Explora todas las creaciones del productor</h2>
-                                        <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] mt-2">Creaciones originales listas para grabar</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {filteredBeats.length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-16">
-                                    {filteredBeats.map((beat, idx) => (
-                                        <div key={beat.id} className="animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both" style={{ animationDelay: `${idx * 50}ms` }}>
-                                            <BeatCardPro beat={beat} />
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="bg-card rounded-[4rem] py-32 text-center border-2 border-dashed border-border">
-                                    <div className="w-24 h-24 bg-background rounded-full flex items-center justify-center text-muted/30 mx-auto mb-10 shadow-sm border border-border">
-                                        <Music size={48} />
-                                    </div>
-                                    <h3 className="text-3xl font-black uppercase tracking-tighter text-foreground mb-4 italic">No se encontraron frecuencias</h3>
-                                    <p className="text-muted text-[11px] font-black uppercase tracking-[0.3em]">Ajusta tus filtros para descubrir nuevos sonidos</p>
+                            {profile.esta_verificado && (
+                                <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl flex items-center justify-center border-2 border-background shadow-xl"
+                                    style={{ backgroundColor: tierColor }}>
+                                    <CheckCircle2 size={18} className="text-white" fill="white" />
                                 </div>
                             )}
                         </div>
+
+                        {/* Info */}
+                        <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2 flex-wrap">
+                                <span className="text-[8px] font-black uppercase tracking-[0.4em] text-muted px-3 py-1 bg-foreground/5 border border-border rounded-full">
+                                    Catálogo Completo
+                                </span>
+                                {profile.es_fundador && (
+                                    <span className="inline-flex items-center gap-1.5 text-[8px] font-black uppercase tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full">
+                                        <Crown size={11} fill="currentColor" /> Founder
+                                    </span>
+                                )}
+                            </div>
+
+                            <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-foreground leading-none mb-4">
+                                {profile.nombre_artistico || profile.nombre_usuario}
+                            </h1>
+
+                            {/* Stats row */}
+                            <div className="flex items-center gap-8 flex-wrap">
+                                <div className="flex items-center gap-2">
+                                    <Music size={14} className="text-accent" />
+                                    <span className="text-2xl font-black tabular-nums text-foreground">{beats.length}</span>
+                                    <span className="text-[9px] font-black text-muted uppercase tracking-widest">Beats</span>
+                                </div>
+                                <div className="w-px h-5 bg-border" />
+                                <div className="flex items-center gap-2">
+                                    <Heart size={14} className="text-rose-400" />
+                                    <span className="text-2xl font-black tabular-nums text-foreground">{totalLikes.toLocaleString('es-MX')}</span>
+                                    <span className="text-[9px] font-black text-muted uppercase tracking-widest">Likes</span>
+                                </div>
+                                <div className="w-px h-5 bg-border" />
+                                <div className="flex items-center gap-2">
+                                    <BarChart2 size={14} className="text-accent" />
+                                    <span className="text-2xl font-black tabular-nums text-accent">{totalPlays.toLocaleString('es-MX')}</span>
+                                    <span className="text-[9px] font-black text-muted uppercase tracking-widest">Plays</span>
+                                </div>
+                                <div className="w-px h-5 bg-border hidden sm:block" />
+                                <button
+                                    onClick={() => { navigator.clipboard.writeText(window.location.href); showToast('¡Enlace copiado! 🚀', 'success'); }}
+                                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-foreground/5 border border-border rounded-xl text-[9px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:border-foreground/20 transition-all">
+                                    <Share2 size={12} /> Compartir
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
 
+            {/* ── Main Content ── */}
+            <main className="flex-1 pt-8 pb-20">
+                <div className="max-w-[1700px] mx-auto px-4 sm:px-10">
 
+                    {/* Search + filter bar */}
+                    <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                        <div className="relative flex-1 group">
+                            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-accent transition-colors" />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={e => setSearchQuery(e.target.value)}
+                                placeholder="Buscar beat..."
+                                className="w-full h-12 bg-card border border-border rounded-2xl pl-11 pr-4 text-sm font-medium focus:outline-none focus:border-accent/50 focus:ring-2 focus:ring-accent/10 transition-all text-foreground placeholder:text-muted"
+                            />
+                        </div>
+                        {/* Genre pills */}
+                        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                            {genres.slice(0, 6).map(g => (
+                                <button key={g} onClick={() => setActiveGenre(g)}
+                                    className={`whitespace-nowrap px-4 h-12 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all shrink-0 ${activeGenre === g
+                                        ? 'bg-accent text-white shadow-lg shadow-accent/20'
+                                        : 'bg-card border border-border text-muted hover:text-foreground hover:border-foreground/20'}`}>
+                                    {g}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Results count */}
+                    <div className="flex items-center gap-3 mb-6">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
+                        </span>
+                        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted">
+                            {filteredBeats.length} {filteredBeats.length === 1 ? 'beat' : 'beats'} {searchQuery || activeGenre !== 'Todos' ? '· filtrado' : '· en catálogo'}
+                        </span>
+                    </div>
+
+                    {/* Beat Grid */}
+                    {filteredBeats.length > 0 ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                            {filteredBeats.map((beat, idx) => (
+                                <div key={beat.id}
+                                    className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
+                                    style={{ animationDelay: `${idx * 40}ms` }}>
+                                    <BeatCardPro beat={beat} />
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="py-32 text-center bg-foreground/[0.02] border-2 border-dashed border-border rounded-[3rem]">
+                            <div className="w-20 h-20 bg-foreground/5 border border-border rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-muted">
+                                <Music size={32} strokeWidth={1.5} />
+                            </div>
+                            <h3 className="text-2xl font-black uppercase tracking-tight text-foreground mb-2">Sin Resultados</h3>
+                            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.3em] mb-6">
+                                {searchQuery ? `No se encontraron beats para "${searchQuery}"` : 'Este productor aún no tiene beats públicos'}
+                            </p>
+                            {searchQuery && (
+                                <button onClick={() => { setSearchQuery(''); setActiveGenre('Todos'); }}
+                                    className="px-5 py-2.5 bg-card border border-border rounded-xl text-[9px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:border-foreground/20 transition-all">
+                                    Limpiar búsqueda
+                                </button>
+                            )}
+                        </div>
+                    )}
+                </div>
             </main>
 
             <Footer />
-
             <style jsx global>{`
                 .no-scrollbar::-webkit-scrollbar { display: none; }
                 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-                @keyframes fade-in-up {
-                    from { opacity: 0; transform: translateY(30px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                .animate-fade-in-up { animation: fade-in-up 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
             `}</style>
         </div>
     );
