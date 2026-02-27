@@ -219,7 +219,9 @@ export default function PricingPage() {
         <div className="min-h-screen bg-background transition-colors duration-300 font-sans">
             <Navbar />
 
-            {/* ─────────────── MODAL ─────────────── */}
+            {/* ── 1. MODAL DE CONFIRMACIÓN ── 
+                Permite a los usuarios confirmar su elección antes de proceder al carrito o realizar cambios.
+            */}
             {showModal && selectedPlan && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
                     <div className={`relative w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl border overflow-hidden ${selectedPlan.tier === 'premium' ? 'bg-slate-900 border-[#00f2ff]/20' : selectedPlan.tier === 'pro' ? 'bg-slate-900 border-amber-500/20' : 'bg-card border-border'}`}>
@@ -266,9 +268,10 @@ export default function PricingPage() {
                 </div>
             )}
 
-            {/* ─────────────── HERO ─────────────── */}
-            <section className="relative pt-36 pb-16 overflow-hidden">
-                {/* Ambient blobs */}
+            {/* ── 2. SECCIÓN HERO ── 
+                Optimizada para móviles con un espaciado más compacto y tipografía responsiva.
+            */}
+            <section className="relative pt-24 pb-12 md:pt-36 md:pb-16 overflow-hidden">
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
                     <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-accent/10 to-transparent rounded-full blur-[100px]" />
                     <div className="absolute top-20 left-0 w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-[150px]" />
@@ -276,37 +279,35 @@ export default function PricingPage() {
                 </div>
 
                 <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
-                    {/* Founder Badge */}
                     <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[10px] font-black uppercase tracking-[0.2em] mb-8 shadow-[0_0_40px_rgba(245,158,11,0.15)] animate-pulse">
                         <Crown size={14} fill="currentColor" />
-                        Las primeras 100 personas obtienen la insignia exclusiva de Founder
+                        Founder: Primeras 100 personas
                         <Crown size={14} fill="currentColor" />
                     </div>
 
-                    <h1 className="text-6xl md:text-9xl font-black uppercase tracking-[-0.05em] leading-[0.85] mb-6 text-foreground">
+                    <h1 className="text-4xl md:text-8xl lg:text-9xl font-black uppercase tracking-[-0.05em] leading-[0.85] mb-6 text-foreground">
                         Elige tu<br /><span className="text-accent">plan.</span>
                     </h1>
 
-                    <p className="text-muted text-base font-medium mb-12 max-w-xl mx-auto">
-                        Sin contratos forzosos. Cancela cuando quieras.
+                    <p className="text-muted text-sm md:text-base font-medium mb-12 max-w-xl mx-auto px-4">
+                        Sin contratos forzosos. Cancela cuando quieras. Impulsa tu carrera como productor hoy mismo.
                     </p>
 
-                    {/* Billing Toggle */}
-                    <div className="inline-flex flex-col items-center gap-3">
-                        <div className="relative flex items-center p-1.5 bg-card border border-border rounded-2xl shadow-inner">
+                    {/* Selector de Ciclo de Facturación */}
+                    <div className="inline-flex flex-col items-center gap-4">
+                        <div className="relative flex items-center p-1.5 bg-card border border-border rounded-2xl shadow-inner scale-90 md:scale-100">
                             <button
                                 onClick={() => setBillingCycle('monthly')}
-                                className={`relative px-8 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${billingCycle === 'monthly' ? 'bg-foreground text-background shadow-lg' : 'text-muted hover:text-foreground'}`}
+                                className={`relative px-6 md:px-8 py-3 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${billingCycle === 'monthly' ? 'bg-foreground text-background shadow-lg' : 'text-muted hover:text-foreground'}`}
                             >
                                 Mensual
                             </button>
                             <button
                                 onClick={() => setBillingCycle('yearly')}
-                                className={`relative px-8 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${billingCycle === 'yearly' ? 'bg-foreground text-background shadow-lg' : 'text-muted hover:text-foreground'}`}
+                                className={`relative px-6 md:px-8 py-3 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${billingCycle === 'yearly' ? 'bg-foreground text-background shadow-lg' : 'text-muted hover:text-foreground'}`}
                             >
                                 Anual
                             </button>
-                            {/* Badge */}
                             <div className="absolute -top-5 -right-3 bg-emerald-500 text-white text-[8px] font-black px-3 py-1 rounded-full shadow-lg whitespace-nowrap rotate-3 shadow-emerald-500/30">
                                 25% OFF · 3 MESES GRATIS
                             </div>
@@ -318,10 +319,12 @@ export default function PricingPage() {
                 </div>
             </section>
 
-            {/* ─────────────── PRICING GRID ─────────────── */}
+            {/* ── 3. MATRIZ DE PRECIOS ── 
+                Diseño responsivo que apila las tarjetas de plan en móviles y las muestra en rejilla en escritorio.
+            */}
             <section className="pb-24 relative z-10">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-end">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10 items-end">
                         {plans.map((plan) => {
                             const currentTier = (userTier || 'free').toLowerCase();
                             const isCurrentPlan = currentTier === plan.tier;
@@ -342,28 +345,23 @@ export default function PricingPage() {
                                             : 'bg-card border-border hover:border-border/80'
                                         }`}
                                 >
-                                    {/* Top accent line */}
                                     {!isFree && (
                                         <div className={`absolute top-0 left-0 right-0 h-px ${isPro ? 'bg-gradient-to-r from-transparent via-amber-500 to-transparent' : 'bg-gradient-to-r from-transparent via-[#00f2ff] to-transparent'}`} />
                                     )}
 
-                                    {/* Most Popular badge */}
                                     {isPro && (
                                         <div className="absolute -top-px left-1/2 -translate-x-1/2 bg-amber-500 text-white px-6 py-1.5 rounded-b-2xl font-black text-[9px] uppercase tracking-widest shadow-xl z-10">
                                             ★ Más Popular
                                         </div>
                                     )}
 
-                                    {/* Current plan indicator – positioned below the 'Más Popular' badge */}
                                     {isCurrentPlan && session && (
-                                        <div className={`absolute top-12 right-4 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${isPro ? 'bg-amber-500/20 text-amber-400' : isPremium ? 'bg-[#00f2ff]/20 text-[#00f2ff]' : 'bg-white/10 text-slate-400'}`}>
+                                        <div className={`absolute top-12 right-6 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${isPro ? 'bg-amber-500/20 text-amber-400' : isPremium ? 'bg-[#00f2ff]/20 text-[#00f2ff]' : 'bg-white/10 text-slate-400'}`}>
                                             Tu plan actual
                                         </div>
                                     )}
 
                                     <div className={`p-8 md:p-10 flex flex-col flex-1 ${isPro ? 'pt-14' : 'pt-10'}`}>
-
-                                        {/* Icon + Plan Name */}
                                         <div className="mb-8">
                                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${isFree ? 'bg-slate-200/10 text-slate-400' : isPro ? 'bg-amber-500/15 text-amber-400' : 'bg-[#00f2ff]/10 text-[#00f2ff]'}`}>
                                                 {plan.icon}
@@ -373,7 +371,6 @@ export default function PricingPage() {
                                             </h3>
                                         </div>
 
-                                        {/* Price */}
                                         <div className="mb-8">
                                             <div className="flex items-baseline gap-2">
                                                 <span className={`text-5xl font-black tracking-tighter ${isFree ? 'text-foreground' : isPro ? 'text-amber-300' : 'text-[#00f2ff]'}`}>
@@ -388,22 +385,11 @@ export default function PricingPage() {
                                             </div>
                                             {!isFree && billingCycle === 'yearly' && (
                                                 <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-2 flex items-center gap-1">
-                                                    <Sparkles size={10} fill="currentColor" /> ${price * 12} al año · Ahorras ${(plan.price.monthly - price) * 12}
+                                                    <Sparkles size={10} fill="currentColor" /> ${price * 12} al año · Ahorras 25%
                                                 </p>
                                             )}
                                         </div>
 
-                                        {/* Founder note */}
-                                        {isPremium && (
-                                            <div className="mb-6 px-4 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3">
-                                                <Crown size={16} className="text-amber-400 shrink-0" fill="currentColor" />
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-amber-400 leading-tight">
-                                                    Primeras 100 personas reciben insignia Founder
-                                                </p>
-                                            </div>
-                                        )}
-
-                                        {/* Features */}
                                         <ul className="space-y-3.5 mb-10 flex-1">
                                             {plan.features.map((f, i) => (
                                                 <li key={i} className={`flex items-center gap-3 text-[12px] font-bold ${f.included ? (isFree ? 'text-foreground/80' : isPro ? 'text-amber-100' : 'text-white/90') : 'text-muted/40 line-through'}`}>
@@ -415,7 +401,6 @@ export default function PricingPage() {
                                             ))}
                                         </ul>
 
-                                        {/* CTA Button */}
                                         {isScheduled ? (
                                             <button className="w-full py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest bg-amber-500/10 text-amber-400 border border-amber-500/20 cursor-default">
                                                 <Clock size={14} className="inline mr-2" />
@@ -431,38 +416,27 @@ export default function PricingPage() {
                                             </button>
                                         )}
 
-                                        {/* Vencimiento */}
                                         {isCurrentPlan && terminaSuscripcion && !isFree && (
                                             <p className="mt-3 text-center text-[9px] font-bold uppercase tracking-widest text-muted/50">
                                                 Vence el {new Date(terminaSuscripcion).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             </p>
                                         )}
-
-                                        {/* Saber más */}
-                                        <Link
-                                            href={`/pricing/${plan.tier}`}
-                                            className={`block mt-4 text-center text-[9px] font-black uppercase tracking-widest transition-colors ${isFree ? 'text-slate-400/50 hover:text-slate-400' : isPro ? 'text-amber-500/40 hover:text-amber-400' : 'text-[#00f2ff]/40 hover:text-[#00f2ff]'
-                                                }`}
-                                        >
-                                            Saber más sobre este plan →
-                                        </Link>
                                     </div>
                                 </div>
                             );
                         })}
                     </div>
 
-                    {/* ── Trust Bar ── */}
-                    <div className="mt-16 flex flex-col items-center gap-6">
-                        <div className="flex flex-wrap items-center justify-center gap-8 text-[10px] font-black uppercase tracking-widest text-muted/60">
+                    {/* Barra de Confianza */}
+                    <div className="mt-16 flex flex-col items-center gap-8">
+                        <div className="flex flex-wrap items-center justify-center gap-8 text-[10px] font-black uppercase tracking-widest text-muted/60 px-4 text-center">
                             <span className="flex items-center gap-2"><Lock size={12} /> Sin contratos forzosos</span>
                             <span className="w-px h-4 bg-border hidden sm:block" />
-                            <span className="flex items-center gap-2"><ShieldCheck size={12} /> Garantía de satisfacción</span>
+                            <span className="flex items-center gap-2"><ShieldCheck size={12} /> Pagos 100% seguros</span>
                             <span className="w-px h-4 bg-border hidden sm:block" />
-                            <span className="flex items-center gap-2"><Zap size={12} fill="currentColor" /> Soporte 24/7</span>
+                            <span className="flex items-center gap-2"><Zap size={12} fill="currentColor" /> Activación Instantánea</span>
                         </div>
 
-                        {/* Cancel Subscription – only for active subscribers */}
                         {session && (userTier === 'pro' || userTier === 'premium') && (
                             <button
                                 onClick={handleCancelSubscription}

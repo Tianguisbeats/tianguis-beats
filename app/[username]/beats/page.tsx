@@ -97,9 +97,12 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
         <div className="min-h-screen bg-background text-foreground font-sans flex flex-col selection:bg-accent selection:text-white">
             <Navbar />
 
-            {/* ── Hero Header ── */}
+            {/* ── 1. CABECERA DEL PRODUCTOR (HERO) ── 
+                Muestra la identidad del productor y sus estadísticas globales. 
+                Optimizado para apilarse en móviles y expandirse en escritorio.
+            */}
             <div className="relative border-b border-border bg-card overflow-hidden">
-                {/* Ambient glow */}
+                {/* Efectos de luz ambiental */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
                     <div className="absolute -top-1/2 -left-1/4 w-[80%] h-[200%] rounded-full blur-[120px] opacity-[0.07]"
                         style={{ backgroundColor: tierColor }} />
@@ -107,35 +110,35 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                 </div>
 
                 <div className="relative max-w-[1700px] mx-auto px-4 sm:px-10 pt-8 pb-12">
-                    {/* Back link */}
+                    {/* Enlace de retroceso */}
                     <Link href={`/${username}`}
                         className="inline-flex items-center gap-2 text-muted hover:text-accent font-black text-[9px] uppercase tracking-[0.3em] mb-8 group transition-all">
                         <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" /> Volver al Perfil
                     </Link>
 
-                    <div className="flex flex-col lg:flex-row items-start lg:items-end gap-10">
+                    <div className="flex flex-col md:flex-row items-center md:items-end gap-8 md:gap-10 text-center md:text-left">
 
-                        {/* Avatar */}
+                        {/* Foto de Perfil / Avatar */}
                         <div className="relative shrink-0">
                             <div className="absolute inset-0 rounded-[3rem] blur-2xl scale-90 opacity-30"
                                 style={{ backgroundColor: tierColor }} />
-                            <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-[3rem] overflow-hidden border-2 shadow-2xl"
+                            <div className="relative w-32 h-32 md:w-44 md:h-44 rounded-[3rem] overflow-hidden border-2 shadow-2xl"
                                 style={{ borderColor: `${tierColor}60` }}>
                                 {profile.foto_perfil
                                     ? <img src={profile.foto_perfil} className="w-full h-full object-cover" alt="Avatar" />
                                     : <div className="w-full h-full bg-foreground/5 flex items-center justify-center text-muted"><Music size={52} strokeWidth={1} /></div>}
                             </div>
                             {profile.esta_verificado && (
-                                <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl flex items-center justify-center border-2 border-background shadow-xl"
+                                <div className="absolute -bottom-2 -right-2 w-9 h-9 md:w-10 md:h-10 rounded-2xl flex items-center justify-center border-2 border-background shadow-xl"
                                     style={{ backgroundColor: tierColor }}>
-                                    <CheckCircle2 size={18} className="text-white" fill="white" />
+                                    <CheckCircle2 size={16} className="text-white" fill="white" />
                                 </div>
                             )}
                         </div>
 
-                        {/* Info */}
-                        <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2 flex-wrap">
+                        {/* Información y Títulos */}
+                        <div className="flex-1 w-full">
+                            <div className="flex items-center justify-center md:justify-start gap-3 mb-2 flex-wrap">
                                 <span className="text-[8px] font-black uppercase tracking-[0.4em] text-muted px-3 py-1 bg-foreground/5 border border-border rounded-full">
                                     Catálogo Completo
                                 </span>
@@ -146,33 +149,39 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                                 )}
                             </div>
 
-                            <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-foreground leading-none mb-4">
+                            <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter text-foreground leading-none mb-6">
                                 {profile.nombre_artistico || profile.nombre_usuario}
                             </h1>
 
-                            {/* Stats row */}
-                            <div className="flex items-center gap-8 flex-wrap">
-                                <div className="flex items-center gap-2">
-                                    <Music size={14} className="text-accent" />
-                                    <span className="text-2xl font-black tabular-nums text-foreground">{beats.length}</span>
+                            {/* Fila de Estadísticas */}
+                            <div className="flex items-center justify-center md:justify-start gap-6 md:gap-8 flex-wrap">
+                                <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
+                                    <div className="flex items-center justify-center md:justify-start gap-2">
+                                        <Music size={14} className="text-accent" />
+                                        <span className="text-2xl font-black tabular-nums text-foreground">{beats.length}</span>
+                                    </div>
                                     <span className="text-[9px] font-black text-muted uppercase tracking-widest">Beats</span>
                                 </div>
-                                <div className="w-px h-5 bg-border" />
-                                <div className="flex items-center gap-2">
-                                    <Heart size={14} className="text-rose-400" />
-                                    <span className="text-2xl font-black tabular-nums text-foreground">{totalLikes.toLocaleString('es-MX')}</span>
+                                <div className="hidden md:block w-px h-5 bg-border" />
+                                <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
+                                    <div className="flex items-center justify-center md:justify-start gap-2">
+                                        <Heart size={14} className="text-rose-400" />
+                                        <span className="text-2xl font-black tabular-nums text-foreground">{totalLikes.toLocaleString('es-MX')}</span>
+                                    </div>
                                     <span className="text-[9px] font-black text-muted uppercase tracking-widest">Likes</span>
                                 </div>
-                                <div className="w-px h-5 bg-border" />
-                                <div className="flex items-center gap-2">
-                                    <BarChart2 size={14} className="text-accent" />
-                                    <span className="text-2xl font-black tabular-nums text-accent">{totalPlays.toLocaleString('es-MX')}</span>
+                                <div className="hidden md:block w-px h-5 bg-border" />
+                                <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
+                                    <div className="flex items-center justify-center md:justify-start gap-2">
+                                        <BarChart2 size={14} className="text-accent" />
+                                        <span className="text-2xl font-black tabular-nums text-accent">{totalPlays.toLocaleString('es-MX')}</span>
+                                    </div>
                                     <span className="text-[9px] font-black text-muted uppercase tracking-widest">Plays</span>
                                 </div>
-                                <div className="w-px h-5 bg-border hidden sm:block" />
+                                <div className="hidden md:block w-px h-5 bg-border" />
                                 <button
-                                    onClick={() => { navigator.clipboard.writeText(window.location.href); showToast('¡Enlace copiado! 🚀', 'success'); }}
-                                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-foreground/5 border border-border rounded-xl text-[9px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:border-foreground/20 transition-all">
+                                    onClick={() => { navigator.clipboard.writeText(window.location.href); showToast('¡Enlace copiado!', 'success'); }}
+                                    className="px-4 py-2 bg-foreground/5 border border-border rounded-xl text-[9px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:border-foreground/20 transition-all flex items-center gap-2">
                                     <Share2 size={12} /> Compartir
                                 </button>
                             </div>
@@ -181,27 +190,29 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                 </div>
             </div>
 
-            {/* ── Main Content ── */}
+            {/* ── 2. CONTENIDO PRINCIPAL (LISTADO) ── 
+                Incluye la barra de búsqueda, filtros por género y la rejilla de beats.
+            */}
             <main className="flex-1 pt-8 pb-20">
                 <div className="max-w-[1700px] mx-auto px-4 sm:px-10">
 
-                    {/* Search + filter bar */}
-                    <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                        <div className="relative flex-1 group">
+                    {/* Barra de Búsqueda y Filtros */}
+                    <div className="flex flex-col gap-4 mb-8">
+                        <div className="relative group">
                             <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-accent transition-colors" />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)}
                                 placeholder="Buscar beat..."
-                                className="w-full h-12 bg-card border border-border rounded-2xl pl-11 pr-4 text-sm font-medium focus:outline-none focus:border-accent/50 focus:ring-2 focus:ring-accent/10 transition-all text-foreground placeholder:text-muted"
+                                className="w-full h-12 bg-card border border-border rounded-2xl pl-11 pr-4 text-sm font-medium focus:outline-none focus:border-accent/50 transition-all text-foreground placeholder:text-muted"
                             />
                         </div>
-                        {/* Genre pills */}
+                        {/* Selector de Géneros */}
                         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-                            {genres.slice(0, 6).map(g => (
+                            {genres.map(g => (
                                 <button key={g} onClick={() => setActiveGenre(g)}
-                                    className={`whitespace-nowrap px-4 h-12 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all shrink-0 ${activeGenre === g
+                                    className={`whitespace-nowrap px-4 h-10 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shrink-0 ${activeGenre === g
                                         ? 'bg-accent text-white shadow-lg shadow-accent/20'
                                         : 'bg-card border border-border text-muted hover:text-foreground hover:border-foreground/20'}`}>
                                     {g}
@@ -210,20 +221,20 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                         </div>
                     </div>
 
-                    {/* Results count */}
+                    {/* Contador de Resultados */}
                     <div className="flex items-center gap-3 mb-6">
                         <span className="relative flex h-2 w-2">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
                         </span>
                         <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted">
-                            {filteredBeats.length} {filteredBeats.length === 1 ? 'beat' : 'beats'} {searchQuery || activeGenre !== 'Todos' ? '· filtrado' : '· en catálogo'}
+                            {filteredBeats.length} {filteredBeats.length === 1 ? 'beat' : 'beats'} en catálogo
                         </span>
                     </div>
 
-                    {/* Beat Grid */}
+                    {/* Rejilla de Beats - Optimizada para dispositivos móviles */}
                     {filteredBeats.length > 0 ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
                             {filteredBeats.map((beat, idx) => (
                                 <div key={beat.id}
                                     className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
@@ -233,18 +244,19 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                             ))}
                         </div>
                     ) : (
-                        <div className="py-32 text-center bg-foreground/[0.02] border-2 border-dashed border-border rounded-[3rem]">
-                            <div className="w-20 h-20 bg-foreground/5 border border-border rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-muted">
-                                <Music size={32} strokeWidth={1.5} />
+                        /* Estado Vacío / Sin Resultados */
+                        <div className="py-24 text-center bg-foreground/[0.02] border-2 border-dashed border-border rounded-[3rem]">
+                            <div className="w-16 h-16 bg-foreground/5 border border-border rounded-2xl flex items-center justify-center mx-auto mb-6 text-muted">
+                                <Music size={28} strokeWidth={1.5} />
                             </div>
-                            <h3 className="text-2xl font-black uppercase tracking-tight text-foreground mb-2">Sin Resultados</h3>
-                            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.3em] mb-6">
-                                {searchQuery ? `No se encontraron beats para "${searchQuery}"` : 'Este productor aún no tiene beats públicos'}
+                            <h3 className="text-xl font-black uppercase tracking-tight text-foreground mb-2">Sin Resultados</h3>
+                            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em] mb-6">
+                                Intenta con otros filtros o términos de búsqueda
                             </p>
-                            {searchQuery && (
+                            {(searchQuery || activeGenre !== 'Todos') && (
                                 <button onClick={() => { setSearchQuery(''); setActiveGenre('Todos'); }}
-                                    className="px-5 py-2.5 bg-card border border-border rounded-xl text-[9px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:border-foreground/20 transition-all">
-                                    Limpiar búsqueda
+                                    className="px-5 py-2.5 bg-card border border-border rounded-xl text-[9px] font-black uppercase tracking-widest text-muted hover:text-foreground transition-all">
+                                    Limpiar filtros
                                 </button>
                             )}
                         </div>

@@ -105,7 +105,9 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-accent selection:text-white overflow-x-hidden">
 
-            {/* Ambient glows */}
+            {/* ── 1. EFECTOS AMBIENTALES (GLOWS) ── 
+                Crea una atmósfera premium con colores suaves que dependen del color de acento del productor.
+            */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
                 <div className="absolute top-[-15%] left-[-10%] w-[60%] h-[60%] rounded-full opacity-[0.06] blur-[180px] transition-all" style={{ backgroundColor: accentColor }} />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full opacity-[0.04] blur-[160px]" style={{ backgroundColor: accentColor }} />
@@ -113,7 +115,7 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
 
             <div className="max-w-sm mx-auto px-5 pt-16 pb-20 relative z-10">
 
-                {/* Owner bar */}
+                {/* Barra de Propietario: Visible solo si el usuario está viendo su propia página */}
                 {isOwner && (
                     <div className="flex flex-col items-center gap-2 mb-8">
                         {!profile.enlaces_activos && (
@@ -128,9 +130,10 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                     </div>
                 )}
 
-                {/* ── Profile Hero ── */}
+                {/* ── 2. CABECERA DE PERFIL (HERO) ── 
+                    Presenta la identidad visual del productor: foto, nombre y badges.
+                */}
                 <div className="text-center mb-10">
-                    {/* Avatar */}
                     <div className="relative inline-block mb-5">
                         <div className="absolute inset-0 rounded-[3rem] blur-2xl scale-90 opacity-40 transition-all duration-700"
                             style={{ backgroundColor: accentColor }} />
@@ -152,7 +155,6 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                         )}
                     </div>
 
-                    {/* Name + founder badge */}
                     <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground mb-1 flex items-center justify-center gap-2">
                         {profile.nombre_artistico}
                         {profile.es_fundador && (
@@ -170,13 +172,15 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                     </div>
 
                     {profile.biografia && (
-                        <p className="text-[12px] text-muted font-medium leading-relaxed mx-auto max-w-[260px] opacity-80">
-                            {profile.biografia}
+                        <p className="text-[12px] text-muted font-medium leading-relaxed mx-auto max-w-[260px] opacity-80 italic">
+                            "{profile.biografia}"
                         </p>
                     )}
                 </div>
 
-                {/* ── Primary CTA: Catalog ── */}
+                {/* ── 3. CTA PRINCIPAL: CATÁLOGO ── 
+                    Botón destacado con el color de acento para redirigir al perfil principal.
+                */}
                 <Link href={`/${username}`}
                     className="group relative w-full flex items-center gap-5 p-5 rounded-[2rem] mb-8 overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98] shadow-2xl"
                     style={{ background: `linear-gradient(135deg, ${accentColor}ee, ${accentColor}99)`, boxShadow: `0 20px 50px ${accentColor}30` }}>
@@ -185,13 +189,15 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                         <Play size={22} fill="white" className="text-white ml-1" />
                     </div>
                     <div className="relative flex-1">
-                        <span className="block text-white font-black text-base uppercase tracking-tight leading-none mb-0.5">Catálogo de Beats</span>
-                        <span className="block text-white/60 text-[9px] font-black uppercase tracking-widest">Escucha · Compra · Descarga</span>
+                        <span className="block text-white font-black text-base uppercase tracking-tight leading-none mb-0.5">Tienda de Beats</span>
+                        <span className="block text-white/60 text-[9px] font-black uppercase tracking-widest">Escucha y Descarga</span>
                     </div>
                     <ArrowUpRight size={20} className="relative text-white/60 group-hover:text-white group-hover:rotate-45 transition-all" />
                 </Link>
 
-                {/* ── Music Platforms ── */}
+                {/* ── 4. PLATAFORMAS MUSICALES ── 
+                    Enlaces a Spotify, Apple Music, etc., con diseño de tarjeta táctil.
+                */}
                 {musicLinks.length > 0 && (
                     <div className="mb-8">
                         <div className="flex items-center gap-3 mb-4">
@@ -203,10 +209,8 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                             {musicLinks.map(({ key, url, meta }) => (
                                 <a key={key} href={url} target="_blank" rel="noopener noreferrer"
                                     className="group relative w-full flex items-center gap-4 p-4 rounded-2xl border border-border bg-card hover:border-foreground/20 transition-all duration-300 hover:-translate-y-0.5 overflow-hidden">
-                                    {/* Hover glow */}
                                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"
                                         style={{ background: `linear-gradient(135deg, ${meta.hex}08, transparent)` }} />
-                                    {/* Icon */}
                                     <div className={`relative w-11 h-11 rounded-xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                                         {meta.icon ? (
                                             <meta.icon size={18} className="text-white" />
@@ -224,7 +228,9 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                     </div>
                 )}
 
-                {/* ── Social Grid ── */}
+                {/* ── 5. REDES SOCIALES ── 
+                    Grid de iconos para acceso rápido a perfiles sociales.
+                */}
                 {socialLinksArr.length > 0 && (
                     <div className="mb-8">
                         <div className="flex items-center gap-3 mb-4">
@@ -254,23 +260,9 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                     </div>
                 )}
 
-                {/* ── Premium Custom CTA ── */}
-                {profile.nivel_suscripcion === 'premium' && profile.texto_cta && profile.url_cta && (
-                    <a href={profile.url_cta} target="_blank" rel="noopener noreferrer"
-                        className="group relative w-full flex items-center gap-5 p-5 rounded-[2rem] mb-8 overflow-hidden border border-indigo-500/20 bg-card hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl">
-                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/5 pointer-events-none" />
-                        <div className="relative w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shrink-0 shadow-xl shadow-indigo-500/30">
-                            <Zap size={18} fill="white" className="text-white" />
-                        </div>
-                        <div className="relative flex-1">
-                            <span className="block font-black text-sm uppercase tracking-tight text-foreground leading-none mb-0.5">{profile.texto_cta}</span>
-                            <span className="block text-muted text-[9px] font-black uppercase tracking-widest">Enlace Destacado</span>
-                        </div>
-                        <ArrowUpRight size={18} className="relative text-muted group-hover:text-indigo-400 group-hover:rotate-45 transition-all" />
-                    </a>
-                )}
-
-                {/* ── Newsletter ── */}
+                {/* ── 6. BOLETÍN DE NOTICIAS (NEWSLETTER) ── 
+                    Permite a los suscriptores premium recolectar correos electrónicos de sus fans.
+                */}
                 {profile.nivel_suscripcion === 'premium' && profile.boletin_activo && (
                     <div className="relative rounded-[2rem] border border-border bg-card p-7 mb-8 overflow-hidden">
                         <div className="absolute top-0 right-0 w-40 h-40 bg-accent/5 blur-[60px] -mr-16 -mt-16 pointer-events-none" />
@@ -279,7 +271,7 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                                 <Mail size={22} className="text-white" />
                             </div>
                             <h3 className="text-xl font-black uppercase tracking-tighter text-foreground mb-1">Inner Circle</h3>
-                            <p className="text-muted text-[10px] font-bold uppercase tracking-[0.2em] mb-5 leading-loose">Acceso anticipado + beats exclusivos</p>
+                            <p className="text-muted text-[10px] font-bold uppercase tracking-[0.2em] mb-5 leading-loose">Acceso anticipado + Beats Exclusivos</p>
                             <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
                                 <input type="email" placeholder="Tu correo electrónico" required
                                     className="w-full h-12 bg-background border border-border rounded-xl px-4 text-[10px] font-black uppercase tracking-widest outline-none focus:border-accent transition-all text-center" />
@@ -291,8 +283,8 @@ export default function SmartLinkBioPage({ params }: { params: Promise<{ usernam
                     </div>
                 )}
 
-                {/* Footer */}
-                <div className="text-center pt-4">
+                {/* Pie de página con enlace al inicio */}
+                <div className="text-center pt-8">
                     <Link href="/" className="inline-flex flex-col items-center gap-3 group">
                         <div className="w-10 h-10 rounded-2xl bg-card border border-border flex items-center justify-center group-hover:border-accent/40 group-hover:bg-accent/5 transition-all">
                             <span className="text-xl font-black text-accent">T</span>

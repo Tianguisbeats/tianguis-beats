@@ -534,11 +534,19 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         setSaving(false);
     };
 
-    if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-            <Loader2 className="animate-spin text-muted" size={32} />
-        </div>
-    );
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="flex flex-col items-center gap-6">
+                    <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin shadow-lg shadow-accent/20" />
+                    <div className="flex flex-col items-center">
+                        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-accent animate-pulse">Cargando Tianguis</p>
+                        <p className="text-[8px] font-bold text-muted uppercase tracking-widest mt-2">Sintonizando frecuencias...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     if (!profile && !loading) return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-background pt-32 p-4 text-center">
@@ -589,12 +597,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     {profile.portada_perfil ? (
                         <img
                             src={profile.portada_perfil}
-                            className="w-full h-full object-cover pointer-events-none select-none transition-opacity duration-700"
+                            className="w-full h-full object-cover pointer-events-none transition-opacity duration-700"
                             style={{ objectPosition: `center ${isAdjustingCover ? tempOffset : (profile.ajuste_portada ?? 50)}%` }}
                             alt="Cover"
                         />
                     ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-foreground/[0.06] via-foreground/[0.03] to-background" />
+                        <div className="w-full h-full bg-gradient-to-br from-background to-slate-100 dark:to-slate-900 flex items-center justify-center text-muted/20">
+                            <Camera size={64} strokeWidth={1} />
+                        </div>
                     )}
 
                     {/* Overlay Gradiente para legibilidad */}
@@ -1119,31 +1129,31 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             )}
 
                             {activeTab === 'services' && (
-                                <div className="animate-in fade-in slide-in-from-bottom-2">
-                                    <div className="pb-6 border-b border-border mb-8">
+                                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
+                                    <div className="pb-6 border-b border-border mb-10">
                                         <div className="flex items-center gap-2 mb-2">
-                                            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted">Oferta</span>
+                                            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-accent">Servicios</span>
                                         </div>
-                                        <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground leading-none">Servicios<br />Profesionales</h2>
-                                        <p className="text-[9px] font-bold text-muted uppercase tracking-[0.3em] mt-2">Contrata talento experto para tu próximo hit</p>
+                                        <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground leading-none">Mis<br />Servicios</h2>
+                                        <p className="text-[9px] font-bold text-muted uppercase tracking-[0.3em] mt-2">Colaboraciones y servicios profesionales</p>
                                     </div>
 
-                                    {/* Owner Upsell for Non-Premium (Services) */}
+                                    {/* Mensaje de mejora para usuarios no premium (Servicios) */}
                                     {profile.nivel_suscripcion !== 'premium' ? (
-                                        <div className="rounded-[3rem] p-12 text-center overflow-hidden relative group border border-border bg-card transition-all duration-700 hover:scale-[1.01]">
-                                            <div className="absolute top-0 right-0 p-48 bg-purple-600/5 blur-[150px] rounded-full group-hover:bg-purple-600/10 transition-all pointer-events-none" />
+                                        <div className="rounded-[3.5rem] p-12 text-center overflow-hidden relative group border border-border bg-card transition-all duration-700 hover:scale-[1.01]">
+                                            <div className="absolute top-0 right-0 p-48 bg-accent/5 blur-[150px] rounded-full group-hover:bg-accent/10 transition-all pointer-events-none" />
                                             <div className="relative z-10">
-                                                <div className="w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 bg-accent/10 border border-accent/20">
+                                                <div className="w-20 h-20 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 bg-accent/10 border border-accent/20">
                                                     <Briefcase size={32} className="text-accent" />
                                                 </div>
-                                                <h3 className="text-3xl font-black uppercase tracking-tighter mb-4 text-foreground">Servicios Profesionales</h3>
+                                                <h3 className="text-3xl font-black uppercase tracking-tighter mb-4 text-foreground">Servicios de Productor</h3>
                                                 <p className="max-w-lg mx-auto mb-8 text-sm font-medium leading-relaxed text-muted">
                                                     {isOwner
-                                                        ? "Ofrece servicios de Mezcla, Masterización, Composición o Clases. Disponible para cuentas Premium."
-                                                        : "Este usuario aún no ofrece servicios profesionales. Los servicios se desbloquean al mejorar el plan."}
+                                                        ? "Ofrece servicios de mezcla, máster y producciones personalizadas directamente en tu perfil. Disponible para cuentas Premium."
+                                                        : "Este productor no cuenta con Premium para ofrecer servicios adicionales."}
                                                 </p>
                                                 {isOwner ? (
-                                                    <Link href="/pricing" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] bg-accent text-white hover:opacity-90 transition-all shadow-lg shadow-accent/20 active:scale-95">
+                                                    <Link href="/pricing" className="inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] bg-accent text-white hover:opacity-90 transition-all shadow-xl shadow-accent/20 active:scale-95">
                                                         <Crown size={14} fill="currentColor" /> Mejorar a Premium
                                                     </Link>
                                                 ) : (
@@ -1154,67 +1164,57 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             {services.length > 0 ? (
-                                                services.map(service => (
-                                                    <div key={service.id} className={`p-10 rounded-[2.5rem] border shadow-sm transition-all hover:scale-[1.02] hover:shadow-xl group relative overflow-hidden backdrop-blur-md 
-                                                        ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
-                                                            'bg-slate-900/60 border-white/5 text-white' :
-                                                            'bg-white dark:bg-slate-900/60 border-slate-100 dark:border-white/5 text-slate-900 dark:text-white'
-                                                        }`}>
-                                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                        <div className="flex justify-between items-start mb-6">
-                                                            <span className="bg-accent/10 text-accent px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-accent/20">
-                                                                {service.tipo_servicio === 'beat_custom' ? 'Beat a Medida' :
-                                                                    service.tipo_servicio === 'mentor' ? 'Mentoría / Clase' :
-                                                                        service.tipo_servicio === 'mixing' ? 'Mezcla y Masterización' :
-                                                                            service.tipo_servicio?.replace(/_/g, ' ') || service.tipo_servicio}
-                                                            </span>
-                                                            <span className="text-2xl font-black text-slate-900 dark:text-white">${service.precio}</span>
-                                                        </div>
-                                                        <h3 className="font-black text-xl mb-3 group-hover:text-purple-500 transition-colors text-slate-900 dark:text-white">{service.titulo}</h3>
-                                                        <p className="text-xs mb-8 line-clamp-3 leading-relaxed font-medium text-slate-500 dark:text-slate-300">{service.descripcion}</p>
-
-                                                        <div className={`flex items-center justify-between pt-6 border-t ${profile.tema_perfil === 'light' ? 'border-slate-100' : 'border-white/10'}`}>
-                                                            <div className="flex items-center gap-2 text-slate-400 dark:text-slate-200 text-[10px] font-black uppercase tracking-widest">
-                                                                <Clock size={16} className="text-accent" />
-                                                                {service.tiempo_entrega_dias} Días hábiles
+                                                services.map((service) => (
+                                                    <div key={service.id} className="group bg-card border border-border rounded-[2.5rem] p-8 hover:border-accent/30 hover:shadow-2xl hover:shadow-accent/5 transition-all relative overflow-hidden flex flex-col h-full">
+                                                        <div className="relative z-10">
+                                                            <div className="flex items-center justify-between mb-8">
+                                                                <div className="px-5 py-2 bg-foreground/5 rounded-full text-[9px] font-black uppercase tracking-widest text-muted border border-border">
+                                                                    {service.category || 'Servicio'}
+                                                                </div>
+                                                                <div className="text-2xl font-black text-foreground tracking-tighter">
+                                                                    ${service.price} <span className="text-[10px] text-muted uppercase tracking-widest ml-1">MXN</span>
+                                                                </div>
                                                             </div>
+                                                            <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-4 leading-tight group-hover:text-accent transition-colors">
+                                                                {service.title}
+                                                            </h3>
+                                                            <p className="text-sm font-medium text-muted mb-8 line-clamp-3 leading-relaxed">
+                                                                {service.description}
+                                                            </p>
+                                                        </div>
+                                                        <div className="mt-auto flex items-center justify-between gap-4 pt-6 border-t border-border/50">
                                                             {isOwner ? (
                                                                 <Link
-                                                                    href={`/studio/services?edit_service=${service.id}`}
-                                                                    className="bg-accent/10 text-accent px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-accent/20 hover:bg-accent hover:text-white transition-all shadow-xl shadow-accent/10 active:scale-95 flex items-center gap-2"
+                                                                    href={`/studio/services?edit=${service.id}`}
+                                                                    className="w-full py-4 bg-foreground/5 text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-foreground hover:text-background transition-all flex items-center justify-center gap-3 active:scale-95"
                                                                 >
-                                                                    <Edit3 size={14} /> Editar
+                                                                    <Edit3 size={14} /> Editar Servicio
                                                                 </Link>
                                                             ) : (
                                                                 <button
                                                                     onClick={() => handleAddToCart(service, 'service')}
-                                                                    className="bg-accent text-white px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest border border-accent/20 hover:bg-accent/90 transition-all shadow-xl shadow-accent/10 active:scale-95"
+                                                                    className="w-full py-4 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-accent/20 flex items-center justify-center gap-3 active:scale-95"
                                                                 >
-                                                                    Contratar
+                                                                    <ShoppingBag size={14} /> Contratar Ahora
                                                                 </button>
                                                             )}
                                                         </div>
                                                     </div>
                                                 ))
                                             ) : (
-                                                <div className="col-span-full py-24 bg-gradient-to-br from-purple-50/50 to-indigo-50/30 dark:from-[#0a0a0f] dark:to-[#050508] rounded-[3rem] border border-slate-100 dark:border-white/5 text-center flex flex-col items-center justify-center relative overflow-hidden group hover:scale-[1.02] transition-transform">
-                                                    <div className="relative z-10">
-                                                        <div className="w-24 h-24 bg-white dark:bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-soft border border-slate-50 dark:border-white/5">
-                                                            <Briefcase size={40} className="text-accent opacity-60" />
-                                                        </div>
-                                                        <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white mb-3 tracking-tighter">Aún no hay servicios</h3>
-                                                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] max-w-[200px] mx-auto leading-relaxed mb-8">Este productor aún no ha publicado servicios profesionales</p>
-                                                        {isOwner && (
-                                                            <Link
-                                                                href="/studio/services"
-                                                                className="px-12 py-5 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent/20"
-                                                            >
-                                                                Crea tu primer servicio
-                                                            </Link>
-                                                        )}
+                                                <div className="col-span-full py-20 bg-foreground/[0.02] border border-border rounded-[3rem] text-center flex flex-col items-center justify-center">
+                                                    <div className="w-20 h-20 bg-card rounded-[2rem] border border-border flex items-center justify-center mb-6 text-muted">
+                                                        <Briefcase size={32} strokeWidth={1.5} />
                                                     </div>
+                                                    <h3 className="text-xl font-black uppercase tracking-tight text-foreground mb-2">Servicios no disponibles</h3>
+                                                    <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em] mb-8">El productor no ha publicado servicios aún</p>
+                                                    {isOwner && (
+                                                        <Link href="/studio/services" className="px-10 py-4 bg-accent text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:opacity-90 transition-all shadow-xl shadow-accent/20">
+                                                            Crear mi primer servicio
+                                                        </Link>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
@@ -1224,53 +1224,46 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
                             {activeTab === 'playlists' && (
                                 <div className="animate-in fade-in slide-in-from-bottom-2">
-
-
-                                    {/* Acciones de Colecciones (Solo Dueño) */}
+                                    {/* SECCIÓN DE PLAYLISTS */}
                                     {isOwner && (
-                                        <div className="mt-12 flex flex-wrap items-center justify-center gap-4 py-8 border-y border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-white/5 rounded-[2.5rem]">
+                                        <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 py-6 px-4 bg-foreground/[0.03] border border-border rounded-[2rem]">
                                             <button
                                                 onClick={() => {
                                                     setEditingPlaylist(null);
                                                     setIsPlaylistModalOpen(true);
                                                 }}
-                                                className="px-8 py-4 bg-accent/5 dark:bg-accent/10 text-accent dark:text-accent border border-accent/10 dark:border-accent/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-accent hover:text-white transition-all flex items-center gap-3 shadow-sm hover:shadow-xl hover:shadow-accent/10 active:scale-95"
+                                                className="px-8 py-4 bg-accent text-white rounded-xl font-black text-[9px] uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center gap-3 shadow-lg shadow-accent/10 active:scale-95"
                                             >
-                                                <Plus size={18} /> Nueva Playlist
+                                                <Plus size={16} /> Nueva Playlist
                                             </button>
 
                                             <button
                                                 onClick={() => setIsReordering(!isReordering)}
-                                                className={`px-8 py-4 border rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-3 shadow-sm active:scale-95 ${isReordering ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-xl' : 'bg-white dark:bg-slate-900/60 text-slate-400 dark:text-slate-500 border-slate-100 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'}`}
+                                                className={`px-8 py-4 border rounded-xl font-black text-[9px] uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-sm active:scale-95 ${isReordering ? 'bg-foreground text-background border-foreground shadow-xl' : 'bg-card border-border text-muted hover:text-foreground hover:border-foreground/20'}`}
                                             >
-                                                {isReordering ? <><MoveVertical size={18} className="animate-bounce" /> Reordenando...</> : <><MoveVertical size={18} /> Organizar Playlists</>}
+                                                {isReordering ? <><Check size={16} /> Finalizar</> : <><MoveVertical size={16} /> Organizar</>}
                                             </button>
                                         </div>
                                     )}
 
-                                    {/* Reordering Controls (Only visible when isReordering is true) */}
                                     {isReordering && (
-                                        <div className="mt-8 p-6 bg-blue-50/50 dark:bg-blue-900/20 rounded-[2rem] border border-blue-100 dark:border-blue-500/20 animate-in fade-in slide-in-from-top-4">
+                                        <div className="mt-8 p-6 bg-accent/[0.03] rounded-[2rem] border border-accent/20 animate-in fade-in slide-in-from-top-4">
                                             <div className="flex items-center justify-between mb-6">
-                                                <h3 className="text-[10px] font-black uppercase tracking-widest text-accent">Cambiar orden de aparición</h3>
-                                                <button
-                                                    onClick={() => {
-                                                        setIsReordering(false);
-                                                        setHasChangedOrder(false);
-                                                    }}
-                                                    className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors"
-                                                >
-                                                    {hasChangedOrder ? "Guardar cambios" : "Cancelar cambios"}
-                                                </button>
+                                                <h3 className="text-[10px] font-black uppercase tracking-widest text-accent flex items-center gap-2">
+                                                    <MoveVertical size={14} /> Cambiar Orden
+                                                </h3>
+                                                <span className="text-[8px] font-bold text-muted uppercase">Manual</span>
                                             </div>
-                                            <div className="space-y-2">
+                                            <div className="space-y-3">
                                                 {playlists.map((pl, idx) => (
-                                                    <div key={pl.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-white/5 shadow-sm">
-                                                        <div className="flex items-center gap-4">
-                                                            <span className="text-[10px] font-black text-slate-300 dark:text-slate-600 w-4">#{idx + 1}</span>
-                                                            <span className="text-xs font-bold text-slate-700 dark:text-white">{pl.name}</span>
+                                                    <div key={pl.id} className="flex items-center justify-between p-4 bg-card rounded-2xl border border-border shadow-sm">
+                                                        <div className="flex items-center gap-4 min-w-0">
+                                                            <div className="w-8 h-8 rounded-lg bg-foreground/5 flex items-center justify-center text-[10px] font-black text-muted shrink-0">
+                                                                {idx + 1}
+                                                            </div>
+                                                            <span className="text-[11px] font-bold text-foreground truncate">{pl.name}</span>
                                                         </div>
-                                                        <div className="flex gap-2">
+                                                        <div className="flex gap-2 shrink-0">
                                                             <button
                                                                 disabled={idx === 0}
                                                                 onClick={async () => {
@@ -1279,7 +1272,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                     setPlaylists(newPlaylists);
                                                                     setHasChangedOrder(true);
                                                                 }}
-                                                                className="p-2 hover:bg-slate-50 text-slate-400 rounded-lg disabled:opacity-20"
+                                                                className="p-2.5 bg-foreground/5 hover:bg-accent hover:text-white rounded-xl text-muted disabled:opacity-10 transition-all"
                                                             >
                                                                 <ChevronUp size={16} />
                                                             </button>
@@ -1291,7 +1284,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                     setPlaylists(newPlaylists);
                                                                     setHasChangedOrder(true);
                                                                 }}
-                                                                className="p-2 hover:bg-slate-50 text-slate-400 rounded-lg disabled:opacity-20"
+                                                                className="p-2.5 bg-foreground/5 hover:bg-accent hover:text-white rounded-xl text-muted disabled:opacity-10 transition-all"
                                                             >
                                                                 <ChevronDown size={16} />
                                                             </button>
@@ -1317,22 +1310,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             />
                                         </div>
                                     ) : (
-                                        <div className="empty-state-card mt-12 bg-card text-center flex flex-col items-center justify-center">
-                                            {profile.tema_perfil !== 'light' && (
-                                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-                                            )}
-                                            <div className="relative inline-block mb-10">
-                                                <div className={`absolute inset-0 blur-[60px] rounded-full scale-[2.5] ${profile.tema_perfil !== 'light' ? 'bg-accent/10' : 'bg-accent/5'}`} />
-                                                <div className={`relative w-32 h-32 rounded-[3.5rem] flex items-center justify-center mx-auto border shadow-inner ${profile.tema_perfil !== 'light' ? 'bg-[#0a0a0f] border-white/10' : 'bg-white border-slate-200'}`}>
-                                                    <ListMusic size={48} className="text-accent opacity-60" />
-                                                </div>
+                                        <div className="empty-state-card mt-12 bg-card text-center flex flex-col items-center justify-center pb-20 pt-20 border border-border rounded-[2.5rem]">
+                                            <div className="w-20 h-20 bg-foreground/5 border border-border rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-muted">
+                                                <ListMusic size={32} strokeWidth={1.5} />
                                             </div>
-                                            <h3 className="text-2xl font-black uppercase tracking-tight mb-4 text-foreground text-center">
-                                                {isOwner ? "Sube tu primera playlist" : "Este productor aún no ha creado playlists"}
+                                            <h3 className="text-xl font-black uppercase tracking-tight text-foreground mb-2">
+                                                {isOwner ? "Sube tu primera playlist" : "Sin playlists todavía"}
                                             </h3>
+                                            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em] mb-8">
+                                                Las mejores colecciones de beats
+                                            </p>
                                         </div>
                                     )}
-
                                 </div>
                             )}
 
@@ -1346,7 +1335,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         <p className="text-[9px] font-bold text-muted uppercase tracking-[0.3em] mt-2">Librerías de sonidos oficiales y presets</p>
                                     </div>
 
-                                    {/* Owner Upsell for Non-Premium */}
                                     {profile.nivel_suscripcion !== 'premium' ? (
                                         <div className="rounded-[3rem] p-12 text-center overflow-hidden relative group border border-border bg-card transition-all duration-700 hover:scale-[1.01]">
                                             <div className="absolute top-0 right-0 p-48 bg-amber-500/5 blur-[150px] rounded-full group-hover:bg-amber-500/10 transition-all pointer-events-none" />
@@ -1373,53 +1361,49 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                         </div>
                                     ) : (
                                         <>
-                                            {/* Logic for Visitors OR Premium Owner */}
                                             {soundKits.length === 0 ? (
-                                                <div className="bg-gradient-to-br from-amber-50/50 to-orange-50/30 dark:from-[#0a0a0f] dark:to-[#050508] rounded-[3rem] p-24 text-center border border-slate-100 dark:border-white/5 shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-transform">
-                                                    <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-[80px] rounded-full -mr-32 -mt-32 group-hover:bg-amber-500/10 transition-all duration-700" />
-                                                    <div className="relative z-10">
-                                                        <div className="w-24 h-24 bg-white dark:bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-soft border border-slate-50 dark:border-white/5">
-                                                            <Package size={40} className="text-accent opacity-60" />
-                                                        </div>
-                                                        <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-3">
-                                                            {isOwner ? "Sube tu primera librería" : "Aún no hay Sound Kits"}
-                                                        </h3>
-                                                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] max-w-[200px] mx-auto leading-relaxed mb-8">Este productor aún no ha publicado librerías de sonidos</p>
-                                                        {isOwner && (
-                                                            <Link href="/studio/services" className="bg-accent text-white px-12 py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all inline-block shadow-xl shadow-accent/20 mx-auto">
-                                                                Subir mi primer Kit
-                                                            </Link>
-                                                        )}
+                                                <div className="bg-foreground/[0.02] border border-border rounded-[3rem] p-20 text-center flex flex-col items-center justify-center">
+                                                    <div className="w-20 h-20 bg-card border border-border rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-muted">
+                                                        <Package size={32} strokeWidth={1.5} />
                                                     </div>
+                                                    <h3 className="text-xl font-black text-foreground uppercase tracking-tight mb-2">
+                                                        {isOwner ? "Sube tu primera librería" : "Aún no hay Sound Kits"}
+                                                    </h3>
+                                                    <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em] mb-8">Librerías de sonidos profesionales</p>
+                                                    {isOwner && (
+                                                        <Link href="/studio/services" className="bg-accent text-white px-10 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:opacity-90 transition-all shadow-xl shadow-accent/20">
+                                                            Subir mi primer Kit
+                                                        </Link>
+                                                    )}
                                                 </div>
                                             ) : (
-                                                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                                     {soundKits.map(kit => (
-                                                        <div key={kit.id} className={`p-6 rounded-[2rem] border transition-all hover:scale-[1.02] hover:shadow-xl group backdrop-blur-md 
+                                                        <div key={kit.id} className={`p-6 rounded-[2rem] border transition-all hover:scale-[1.01] hover:shadow-xl group backdrop-blur-md 
                                                             ${profile.tema_perfil === 'dark' || profile.tema_perfil === 'neon' || profile.tema_perfil === 'gold' ?
                                                                 'bg-slate-900/60 border-white/5 text-white' :
                                                                 'bg-white dark:bg-slate-900/60 border-slate-100 dark:border-white/5 text-slate-900 dark:text-white'
                                                             }`}>
-                                                            <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden relative">
+                                                            <div className="aspect-square bg-foreground/5 rounded-2xl mb-4 overflow-hidden relative">
                                                                 {kit.cover_url ? (
                                                                     <img src={kit.cover_url} className="w-full h-full object-cover transition-transform duration-500" alt={kit.title} />
                                                                 ) : (
-                                                                    <div className="w-full h-full flex items-center justify-center bg-slate-50 text-slate-300">
-                                                                        <Package size={48} />
+                                                                    <div className="w-full h-full flex items-center justify-center text-muted/20">
+                                                                        <Package size={48} strokeWidth={1} />
                                                                     </div>
                                                                 )}
                                                             </div>
                                                             <div className="flex justify-between items-start mb-2">
-                                                                <h3 className="font-bold text-lg mb-1 group-hover:text-amber-500 transition-colors line-clamp-1 text-slate-900 dark:text-white">{kit.title}</h3>
+                                                                <h3 className="font-bold text-lg mb-1 group-hover:text-accent transition-colors line-clamp-1 text-foreground">{kit.title}</h3>
                                                             </div>
-                                                            <p className="text-xs mb-4 line-clamp-2 text-slate-500 dark:text-slate-400">{kit.description}</p>
+                                                            <p className="text-xs mb-4 line-clamp-2 text-muted">{kit.description}</p>
                                                             <div className={`flex items-center justify-between pt-4 border-t ${profile.tema_perfil === 'light' ? 'border-slate-50' : 'border-white/10'}`}>
                                                                 {isOwner ? (
                                                                     <>
-                                                                        <span className="text-xl font-black text-slate-900 dark:text-white">${kit.price} MXN</span>
+                                                                        <span className="text-lg font-black text-foreground">${kit.price} MXN</span>
                                                                         <Link
                                                                             href={`/studio/services?edit_kit=${kit.id}`}
-                                                                            className="bg-accent/10 text-accent px-6 py-2 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-accent hover:text-white transition-all flex items-center gap-2 shadow-sm border border-accent/20 active:scale-95"
+                                                                            className="bg-foreground/5 text-foreground px-4 py-2 rounded-xl font-black uppercase tracking-widest text-[9px] hover:bg-foreground hover:text-background transition-all flex items-center gap-2 border border-border active:scale-95"
                                                                         >
                                                                             <Edit3 size={12} /> Editar
                                                                         </Link>
@@ -1427,7 +1411,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                                 ) : (
                                                                     <button
                                                                         onClick={() => handleAddToCart(kit, 'sound_kit')}
-                                                                        className="w-full bg-accent text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-accent/20 hover:bg-accent/90 group/btn"
+                                                                        className="w-full bg-accent text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-accent/20 active:scale-95"
                                                                     >
                                                                         Comprar ${kit.price}
                                                                     </button>
@@ -1441,23 +1425,20 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     )}
                                 </div>
                             )}
-
                         </div>
-                    </div >
-                </div >
+                    </div>
+            </main>
 
-                {isOwner && profile && (
-                    <PlaylistManagerModal
-                        isOpen={isPlaylistModalOpen}
-                        onClose={() => setIsPlaylistModalOpen(false)}
-                        producerId={profile.id}
-                        existingPlaylist={editingPlaylist}
-                        allBeats={beats}
-                        onSuccess={fetchAll}
-                    />
-                )
-                }
-            </main >
+            {isOwner && profile && (
+                <PlaylistManagerModal
+                    isOpen={isPlaylistModalOpen}
+                    onClose={() => setIsPlaylistModalOpen(false)}
+                    producerId={profile.id}
+                    existingPlaylist={editingPlaylist}
+                    allBeats={beats}
+                    onSuccess={fetchAll}
+                />
+            )}
 
             {/* Fan Capture Popup */}
             {

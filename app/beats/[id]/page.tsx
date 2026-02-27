@@ -23,8 +23,11 @@ interface BeatDetail extends Beat {
 }
 
 /**
- * BeatDetailPage: Muestra la información detallada de un beat específico.
- * Permite reproducir, dar like, comentar y ver opciones de licencia.
+ * BeatDetailPage: Esta página representa la vista detallada de un beat individual.
+ * Aquí los usuarios pueden escuchar el beat completo con un visualizador de forma de onda,
+ * ver información técnica (BPM, Tono), elegir licencias para comprar y dejar comentarios.
+ * 
+ * Se ha optimizado para móviles ajustando tamaños de fuente, espaciados y el orden de los elementos.
  */
 export default function BeatDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
@@ -274,11 +277,12 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
         }
     };
 
+    // 🛑 SECCIÓN DE MANEJO DE ESTADOS DE CARGA Y ERRORES
     if (loading) {
         return (
             <div className="min-h-screen bg-background flex flex-col items-center justify-center">
                 <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin mb-4"></div>
-                <p className="font-black text-muted uppercase tracking-widest text-xs">Cargando...</p>
+                <p className="font-black text-muted uppercase tracking-widest text-xs">Cargando beat...</p>
             </div>
         );
     }
@@ -307,13 +311,16 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
             <Navbar />
 
             <main className="flex-1 pb-32">
-                {/* 1. HERO HEADER */}
-                <div className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-4 shadow-sm bg-background overflow-hidden">
+                {/* ── 1. CABECERA PRINCIPAL (HERO SECTION) ── 
+                    Se ha reducido el padding superior en móviles para que el contenido sea más accesible.
+                */}
+                <div className="relative pt-24 pb-20 md:pt-40 md:pb-32 px-4 shadow-sm bg-background overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-accent/5 to-transparent -z-10" />
 
-                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16">
+                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                        {/* Portada del Beat */}
                         <div className="relative group shrink-0">
-                            <div className="w-64 h-64 md:w-96 md:h-96 rounded-[3.5rem] bg-card shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden border border-border/50 relative z-10 transition-all duration-700 group-hover:scale-[1.03] group-hover:-rotate-1">
+                            <div className="w-64 h-64 md:w-96 md:h-96 rounded-[2.5rem] md:rounded-[3.5rem] bg-card shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden border border-border/50 relative z-10 transition-all duration-700 group-hover:scale-[1.03] group-hover:-rotate-1">
                                 {beat.portada_url ? (
                                     <img src={beat.portada_url} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={beat.titulo} />
                                 ) : (
@@ -343,10 +350,11 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     </div>
                                 </div>
 
-                                <h1 className="text-5xl md:text-8xl lg:text-9xl font-black text-foreground leading-[1] uppercase tracking-tighter mb-4 drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+                                <h1 className="text-4xl md:text-8xl lg:text-9xl font-black text-foreground leading-[1] uppercase tracking-tighter mb-4 drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
                                     {beat.titulo}
                                 </h1>
 
+                                {/* Información del Productor */}
                                 <Link href={`/${beat.productor_nombre_usuario || ''}`} className="inline-flex items-center gap-4 group">
                                     <div className={`p-1 rounded-2xl border-2 transition-all group-hover:scale-110 ${beat.productor_nivel_suscripcion === 'premium'
                                         ? 'border-[#00f2ff] shadow-sm shadow-[#00f2ff]/30'
@@ -369,7 +377,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 </Link>
                             </div>
 
-                            {/* Tags: Genre, Tempo, Key/Scale - All Centered */}
+                            {/* Tags: Genre, Tempo, Key/Scale */}
                             <div className="grid grid-cols-2 md:flex md:flex-wrap gap-4">
                                 {[
                                     { label: 'Género', val: beat.genero, icon: Tag, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
@@ -436,9 +444,11 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
                 </div>
 
-                {/* 2. WAVEFORM VISUALIZER */}
-                <div className="max-w-7xl mx-auto px-4 -mt-10 relative z-20 mb-16">
-                    <div className="dark:bg-slate-950 bg-white p-10 rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] dark:ring-1 dark:ring-white/10 ring-1 ring-slate-200 relative overflow-hidden group">
+                {/* ── 2. VISUALIZADOR DE ONDA (WAVEFORM) ── 
+                    Situado para solaparse con la cabecera, creando un efecto de profundidad.
+                */}
+                <div className="max-w-7xl mx-auto px-4 -mt-16 md:-mt-10 relative z-20 mb-16">
+                    <div className="dark:bg-slate-950 bg-white p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] dark:ring-1 dark:ring-white/10 ring-1 ring-slate-200 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-[100px] -mr-32 -mt-32 transition-all duration-700 group-hover:bg-accent/30" />
                         <div className="relative z-10 flex flex-col gap-6">
                             <div className="flex items-center justify-between dark:text-white text-slate-900 text-[10px] font-black uppercase tracking-[0.3em]">
@@ -463,12 +473,14 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
                 </div>
 
-                {/* 3. MAIN CONTENT */}
-                <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-12 gap-16">
+                {/* ── 3. CONTENIDO PRINCIPAL: LICENCIAS Y COMENTARIOS ── 
+                    En móviles, las licencias se apilan verticalmente para facilitar la selección táctil.
+                */}
+                <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-12 gap-10 md:gap-16">
                     <div className="lg:col-span-8">
-                        <div className="flex items-center justify-between mb-10">
-                            <h2 className="text-3xl font-black uppercase tracking-tight text-foreground flex items-center gap-3">
-                                <ShieldCheck size={32} className="text-accent" /> Licencias <span className="text-muted">Disponibles</span>
+                        <div className="flex items-center justify-between mb-8 md:mb-10">
+                            <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-foreground flex items-center gap-3">
+                                <ShieldCheck size={28} className="md:w-8 md:h-8 text-accent" /> Licencias <span className="text-muted">Disponibles</span>
                             </h2>
                         </div>
 
@@ -592,18 +604,19 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         )}
 
                         {beat.descripcion && (
-                            <div className="mt-20 pt-20 border-t border-border/50">
-                                <h3 className="text-xl font-black uppercase tracking-tighter text-foreground mb-8 flex items-center gap-3">
+                            <div className="mt-16 md:mt-20 pt-16 md:pt-20 border-t border-border/50">
+                                <h3 className="text-xl font-black uppercase tracking-tighter text-foreground mb-6 md:mb-8 flex items-center gap-3">
                                     <Info size={24} className="text-accent" />
                                     Notas del <span className="text-muted">Productor</span>
                                 </h3>
-                                <div className="p-10 bg-card/30 rounded-[2.5rem] border border-border/50">
-                                    <p className="text-muted leading-relaxed font-medium whitespace-pre-wrap text-lg italic">"{beat.descripcion}"</p>
+                                <div className="p-6 md:p-10 bg-card/30 rounded-[2rem] md:rounded-[2.5rem] border border-border/50">
+                                    <p className="text-muted leading-relaxed font-medium whitespace-pre-wrap text-base md:text-lg italic">"{beat.descripcion}"</p>
                                 </div>
                             </div>
                         )}
                     </div>
 
+                    {/* Barra Lateral: Comentarios y Contacto */}
                     <div className="lg:col-span-4">
                         <div className="sticky top-32 space-y-12">
                             <section>
@@ -626,7 +639,9 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
                 </div>
 
-                {/* Related Beats Section */}
+                {/* ── 4. SECCIÓN DE BEATS RELACIONADOS ── 
+                    Presentado en un carrusel deslizable horizontalmente en dispositivos táctiles.
+                */}
                 {relatedBeats.length > 0 && (
                     <div className="max-w-7xl mx-auto px-4 mt-32 mb-16">
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -685,7 +700,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
                 )}
 
-                {/* More from Same Producer Section */}
+                {/* ── 5. MÁS DEL MISMO PRODUCTOR ── */}
                 {producerBeats.length > 0 && (
                     <div className="max-w-7xl mx-auto px-4 mt-16 mb-16">
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -718,6 +733,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
                 )}
             </main>
+
             <Footer />
         </div>
     );

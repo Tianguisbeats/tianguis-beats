@@ -122,9 +122,12 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
         <div className="min-h-screen bg-background text-foreground font-sans flex flex-col selection:bg-accent selection:text-white">
             <Navbar />
 
-            {/* ── Hero Header ── */}
+            {/* ── 1. CABECERA DE LA PLAYLIST (HERO) ── 
+                Muestra la portada generada, el título de la colección y la información del productor.
+                Adaptado para una visualización compacta en dispositivos móviles.
+            */}
             <div className="relative border-b border-border bg-card overflow-hidden">
-                {/* Ambient */}
+                {/* Efectos visuales de fondo */}
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute -top-1/2 left-[-10%] w-[60%] h-[200%] rounded-full blur-[120px] opacity-[0.06]"
                         style={{ backgroundColor: tierColor }} />
@@ -132,20 +135,20 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                 </div>
 
                 <div className="relative max-w-[1700px] mx-auto px-4 sm:px-10 pt-8 pb-12">
-                    {/* Back */}
+                    {/* Regresar al catálogo del productor */}
                     <Link href={`/${username}/beats`}
                         className="inline-flex items-center gap-2 text-muted hover:text-accent font-black text-[9px] uppercase tracking-[0.3em] mb-8 group transition-all">
                         <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" />
                         Catálogo de {profile.nombre_artistico || profile.nombre_usuario}
                     </Link>
 
-                    <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8">
-                        <div className="flex items-start gap-8">
-                            {/* Playlist cover art */}
+                    <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-8 text-center md:text-left">
+                        <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
+                            {/* Portada de la Playlist */}
                             <div className="relative shrink-0">
                                 <div className="absolute inset-0 rounded-[2.5rem] blur-2xl scale-90 opacity-30"
                                     style={{ backgroundColor: tierColor }} />
-                                <div className="relative w-32 h-32 md:w-44 md:h-44 rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-accent/20 via-foreground/5 to-foreground/10 border border-border shadow-2xl flex items-center justify-center">
+                                <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-accent/20 via-foreground/5 to-foreground/10 border border-border shadow-2xl flex items-center justify-center">
                                     {beatsInPlaylist[0]?.portada_url ? (
                                         <div className="relative w-full h-full">
                                             <img src={beatsInPlaylist[0].portada_url} className="w-full h-full object-cover opacity-60" alt="" />
@@ -159,30 +162,32 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                                 </div>
                             </div>
 
-                            {/* Playlist Info */}
+                            {/* Información Detallada */}
                             <div className="flex-1 min-w-0">
-                                <span className="text-[8px] font-black uppercase tracking-[0.4em] text-muted">Tianguis Playlist</span>
+                                <span className="text-[8px] font-black uppercase tracking-[0.4em] text-muted">Colección Curada</span>
                                 <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-foreground leading-tight my-2">
                                     {playlist.name}
                                 </h1>
                                 {playlist.description && (
-                                    <p className="text-muted text-sm font-medium max-w-md mb-4 leading-relaxed">{playlist.description}</p>
+                                    <p className="text-muted text-xs md:text-sm font-medium max-w-md mb-4 leading-relaxed mx-auto md:mx-0">
+                                        {playlist.description}
+                                    </p>
                                 )}
 
-                                {/* Producer line */}
-                                <Link href={`/${username}`} className="inline-flex items-center gap-3 group">
-                                    {profile.foto_perfil && (
-                                        <img src={profile.foto_perfil} className="w-7 h-7 rounded-full object-cover border border-border" alt="" />
-                                    )}
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted group-hover:text-foreground transition-colors">
-                                        {profile.nombre_artistico || profile.nombre_usuario}
-                                    </span>
-                                    {profile.esta_verificado && <img src="/verified-badge.png" className="w-4 h-4" alt="✓" />}
-                                    {profile.es_fundador && <Crown size={13} className="text-amber-500 fill-amber-500" />}
-                                </Link>
+                                {/* Perfil del Creador */}
+                                <div className="flex flex-col md:flex-row items-center gap-4 mt-4">
+                                    <Link href={`/${username}`} className="inline-flex items-center gap-3 group">
+                                        {profile.foto_perfil && (
+                                            <img src={profile.foto_perfil} className="w-7 h-7 rounded-full object-cover border border-border" alt="" />
+                                        )}
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-muted group-hover:text-foreground transition-colors">
+                                            {profile.nombre_artistico || profile.nombre_usuario}
+                                        </span>
+                                        {profile.esta_verificado && <CheckCircle2 size={12} className="text-accent" fill="currentColor" />}
+                                    </Link>
 
-                                {/* Beat count badge */}
-                                <div className="flex items-center gap-3 mt-4">
+                                    <span className="hidden md:block w-1 h-1 rounded-full bg-border" />
+
                                     <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-foreground/5 border border-border rounded-xl text-[9px] font-black uppercase tracking-widest text-muted">
                                         <Music size={11} /> {beatsInPlaylist.length} {beatsInPlaylist.length === 1 ? 'Beat' : 'Beats'}
                                     </span>
@@ -190,62 +195,67 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                             </div>
                         </div>
 
-                        {/* Actions */}
-                        <div className="flex items-center gap-3 shrink-0">
+                        {/* Botones de Acción */}
+                        <div className="flex items-center gap-3 shrink-0 w-full md:w-auto">
                             {isOwner && (
                                 <button onClick={() => setIsPlaylistModalOpen(true)}
-                                    className="inline-flex items-center gap-2 px-5 py-3 bg-foreground text-background rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-accent hover:text-white transition-all active:scale-95 shadow-lg">
+                                    className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-6 py-3 bg-foreground text-background rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-accent hover:text-white transition-all active:scale-95 shadow-lg">
                                     <Edit3 size={14} /> Editar
                                 </button>
                             )}
                             <button onClick={handleShare}
-                                className={`inline-flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest border transition-all active:scale-95 ${copied ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500' : 'bg-card border-border text-muted hover:text-foreground hover:border-foreground/20'}`}>
+                                className={`flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest border transition-all active:scale-95 ${copied ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500' : 'bg-card border-border text-muted hover:text-foreground hover:border-foreground/20'}`}>
                                 <Share2 size={14} />
-                                {copied ? '¡Copiado!' : 'Compartir'}
+                                {copied ? 'Copiado' : 'Compartir'}
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* ── Beats Grid ── */}
+            {/* ── 2. REJILLA DE TRACKS ── 
+                Lista de todos los beats incluidos en la playlist con diseño de tarjeta responsiva.
+            */}
             <main className="flex-1 pt-8 pb-20">
                 <div className="max-w-[1700px] mx-auto px-4 sm:px-10">
 
                     {beatsInPlaylist.length > 0 ? (
                         <>
-                            {/* Live indicator */}
-                            <div className="flex items-center gap-3 mb-6">
+                            {/* Indicador de estado */}
+                            <div className="flex items-center justify-center md:justify-start gap-3 mb-8">
                                 <span className="relative flex h-2 w-2">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
                                 </span>
                                 <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted">
-                                    {beatsInPlaylist.length} tracks en esta colección
+                                    {beatsInPlaylist.length} Tracks en esta playlist
                                 </span>
                             </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+
+                            {/* Grid de Beats */}
+                            <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
                                 {beatsInPlaylist.map((beat, idx) => (
                                     <div key={beat.id}
                                         className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
                                         style={{ animationDelay: `${idx * 40}ms` }}>
-                                        <BeatCardPro beat={beat} compact={true} />
+                                        <BeatCardPro beat={beat} />
                                     </div>
                                 ))}
                             </div>
                         </>
                     ) : (
-                        <div className="py-40 text-center bg-foreground/[0.02] border-2 border-dashed border-border rounded-[3rem]">
-                            <div className="w-20 h-20 bg-foreground/5 border border-border rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-muted">
-                                <ListMusic size={32} strokeWidth={1.5} />
+                        /* Estado sin contenido */
+                        <div className="py-32 text-center bg-foreground/[0.02] border-2 border-dashed border-border rounded-[3rem]">
+                            <div className="w-16 h-16 bg-foreground/5 border border-border rounded-2xl flex items-center justify-center mx-auto mb-6 text-muted">
+                                <ListMusic size={28} strokeWidth={1.5} />
                             </div>
-                            <h3 className="text-2xl font-black uppercase tracking-tight text-foreground mb-2">Playlist Vacía</h3>
-                            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.3em]">
+                            <h3 className="text-xl font-black uppercase tracking-tight text-foreground mb-2">Playlist Vacía</h3>
+                            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em]">
                                 Esta colección aún no tiene tracks guardados
                             </p>
                             {isOwner && (
                                 <button onClick={() => setIsPlaylistModalOpen(true)}
-                                    className="mt-8 inline-flex items-center gap-2 px-5 py-3 bg-accent text-white rounded-2xl font-black text-[9px] uppercase tracking-widest hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-accent/20">
+                                    className="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-2xl font-black text-[9px] uppercase tracking-widest hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-accent/20">
                                     <Edit3 size={14} /> Agregar Beats
                                 </button>
                             )}
@@ -254,6 +264,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                 </div>
             </main>
 
+            {/* Modal de gestión para el propietario */}
             {isOwner && (
                 <PlaylistManagerModal
                     isOpen={isPlaylistModalOpen}
