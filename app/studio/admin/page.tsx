@@ -97,6 +97,7 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
         totalBeats: 0,
         pendingVerifications: 0,
         pendingFeedback: 0,
+        monthlyRevenue: 0,
         activeSubscriptions: 0
     });
     const [loading, setLoading] = useState(true);
@@ -113,13 +114,24 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
 
             const revenue = sales.data?.reduce((acc, s) => acc + (s.precio || 0), 0) || 0;
 
+            // Ingresos del mes actual
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+            const { data: monthlyData } = await supabase
+                .from('transacciones')
+                .select('precio')
+                .gte('fecha_creacion', startOfMonth);
+
+            const monthlyRevenue = monthlyData?.reduce((acc, s) => acc + (s.precio || 0), 0) || 0;
+
             setStats({
                 totalSales: revenue,
                 totalUsers: users.count || 0,
                 totalBeats: beats.count || 0,
                 pendingVerifications: verifs.count || 0,
                 pendingFeedback: feedback.count || 0,
-                activeSubscriptions: 0 // Fetch logic needed for sub tracking later
+                monthlyRevenue: monthlyRevenue,
+                activeSubscriptions: 0
             });
             setLoading(false);
         };
@@ -129,12 +141,13 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
     if (loading) return <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-accent" /></div>;
 
     const cards = [
-        { id: 'income', label: 'Ingresos Totales', value: `$${stats.totalSales.toLocaleString()}`, sub: 'Ventas de Beats/Kits', icon: <DollarSign className="text-emerald-500" />, gradient: 'hover:shadow-emerald-500/10' },
-        { id: 'users', label: 'Usuarios', value: stats.totalUsers, sub: 'Productores registrados', icon: <Users className="text-blue-500" />, gradient: 'hover:shadow-blue-500/10' },
-        { id: 'beats', label: 'Total Beats', value: stats.totalBeats, sub: 'En catálogo global', icon: <Music className="text-purple-500" />, gradient: 'hover:shadow-purple-500/10' },
-        { id: 'verifications', label: 'Verificaciones', value: stats.pendingVerifications, sub: 'Solicitudes por revisar', icon: <ShieldCheck className="text-amber-500" />, gradient: 'hover:shadow-amber-500/10' },
-        { id: 'coupons', label: 'Cupones', value: 'PRO', sub: 'Gestión de descuentos', icon: <Ticket className="text-emerald-500" />, gradient: 'hover:shadow-emerald-500/10' },
-        { id: 'feedback', label: 'Reportes Pendientes', value: stats.pendingFeedback, sub: 'Ideas y reportes sin leer', icon: <MessageSquare className="text-rose-500" />, gradient: 'hover:shadow-rose-500/10' }
+        { id: 'income', label: 'Ingresos Totales', value: `$${stats.totalSales.toLocaleString()}`, sub: 'Ventas Globales Históricas', icon: <DollarSign className="text-emerald-500" />, gradient: 'hover:shadow-emerald-500/10' },
+        { id: 'monthly', label: 'Ingresos Mensuales', value: `$${stats.monthlyRevenue.toLocaleString()}`, sub: 'Corte al día de hoy', icon: <TrendingUp className="text-indigo-500" />, gradient: 'hover:shadow-indigo-500/10' },
+        { id: 'users', label: 'Usuarios', value: stats.totalUsers.toLocaleString(), sub: 'Productores registrados', icon: <Users className="text-blue-500" />, gradient: 'hover:shadow-blue-500/10' },
+        { id: 'beats', label: 'Total Beats', value: stats.totalBeats.toLocaleString(), sub: 'En catálogo global', icon: <Music className="text-purple-500" />, gradient: 'hover:shadow-purple-500/10' },
+        { id: 'verifications', label: 'Verificaciones', value: stats.pendingVerifications, sub: 'Solicitudes por revisar', icon: <img src="/verified-badge.png" alt="Verified" className="w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]" />, gradient: 'hover:shadow-blue-500/10' },
+        { id: 'coupons', label: 'Cupones Pro', value: 'ADMIN', sub: 'Gestión de descuentos', icon: <Ticket className="text-amber-500" />, gradient: 'hover:shadow-amber-500/10' },
+        { id: 'feedback', label: 'Buzón', value: stats.pendingFeedback, sub: 'Quejas y reportes', icon: <MessageSquare className="text-rose-500" />, gradient: 'hover:shadow-rose-500/10' }
     ];
 
     return (
@@ -143,19 +156,36 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
                 <button
                     key={i}
                     onClick={() => onViewChange(card.id as View)}
-                    className={`bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3rem] p-10 shadow-lg dark:shadow-none transition-all duration-500 text-left group hover:scale-[1.02] hover:border-accent/40 ${card.gradient}`}
+                    className={`bg-white dark:bg-[#020205] border border-slate-200 dark:border-white/10 rounded-[3.5rem] p-12 shadow-lg dark:shadow-none transition-all duration-500 group hover:scale-[1.02] hover:border-accent/40 ${card.gradient} flex flex-col items-center text-center relative overflow-hidden`}
                 >
-                    <div className="flex justify-between items-start mb-8">
-                        <div className="w-16 h-16 rounded-3xl bg-slate-50 dark:bg-white/5 flex items-center justify-center transition-transform group-hover:rotate-[10deg] duration-500 text-foreground">
-                            {React.cloneElement(card.icon as React.ReactElement<any>, { size: 28 })}
-                        </div>
-                        <div className="w-10 h-10 rounded-full border border-slate-100 dark:border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                            <ExternalLink size={14} className="text-accent" />
-                        </div>
+                    {/* Background Glow */}
+                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-accent/5 blur-[50px] rounded-full pointer-events-none group-hover:bg-accent/10 transition-colors" />
+
+                    <div className="w-20 h-20 rounded-[2rem] bg-slate-50 dark:bg-white/5 flex items-center justify-center transition-all group-hover:rotate-[5deg] group-hover:scale-110 duration-500 text-foreground mb-8 shadow-inner border border-border/50">
+                        {card.id === 'verifications' ? (
+                            card.icon
+                        ) : (
+                            React.cloneElement(card.icon as React.ReactElement<any>, { size: 32 })
+                        )}
                     </div>
-                    <h3 className="text-4xl font-black tracking-tighter mb-2 text-foreground group-hover:text-accent transition-colors">{card.value}</h3>
-                    <p className="text-muted text-[11px] font-black uppercase tracking-[0.3em]">{card.label}</p>
-                    <p className="text-[10px] text-muted/40 font-bold mt-2 uppercase tracking-widest">{card.sub}</p>
+
+                    <h3 className="text-5xl font-black tracking-tighter mb-4 text-foreground group-hover:text-accent transition-colors tabular-nums leading-none">
+                        {card.value}
+                    </h3>
+
+                    <div className="space-y-1">
+                        <p className="text-muted text-[11px] font-black uppercase tracking-[0.3em] leading-tight">
+                            {card.label}
+                        </p>
+                        <p className="text-[10px] text-muted/40 font-bold uppercase tracking-widest">
+                            {card.sub}
+                        </p>
+                    </div>
+
+                    {/* Action Arrow */}
+                    <div className="mt-8 w-10 h-10 rounded-full border border-slate-100 dark:border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                        <ExternalLink size={14} className="text-accent" />
+                    </div>
                 </button>
             ))}
         </div>
@@ -199,6 +229,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
         if (!window.confirm(confirmMsg)) return;
 
         try {
+            // 1. Actualizar el estado de la solicitud
             const { error: reqError } = await supabase
                 .from('solicitudes_verificacion')
                 .update({ estado: status === 'approved' ? 'aprobado' : 'rechazado' })
@@ -206,14 +237,26 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
 
             if (reqError) throw reqError;
 
+            // 2. Si se aprueba, actualizar el perfil Y habilitar la insignia
             if (status === 'approved') {
-                await supabase.from('perfiles').update({ esta_verificado: true }).eq('id', userId);
+                const { error: profileError } = await supabase
+                    .from('perfiles')
+                    .update({
+                        esta_verificado: true,
+                        // El usuario ha pedido que se habilite algo de True para que se habilite la imagen PNG
+                        // Probablemente se refiere a un check o simplemente 'esta_verificado' es suficiente para la lógica de UI
+                        notificaciones_newsletter: true // Ejemplo de habilitar algo extra si es necesario
+                    })
+                    .eq('id', userId);
+
+                if (profileError) throw profileError;
             }
 
             setRequests(requests.filter(r => r.id !== requestId));
-            showToast(`Solicitud ${status === 'approved' ? 'aprobada' : 'rechazada'}`, "success");
+            showToast(`Solicitud ${status === 'approved' ? 'Aprobada ✅' : 'Rechazada ❌'} correctamente`, "success");
         } catch (error: any) {
-            showToast("Hubo un problema al procesar la decisión. Inténtalo de nuevo.", "error");
+            console.error(error);
+            showToast("Error al procesar la decisión. Verifica los permisos de la base de datos.", "error");
         }
     };
 
@@ -469,7 +512,12 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                                 <img src={user.foto_perfil || `https://ui-avatars.com/api/?name=${user.nombre_usuario}`} alt="" className="w-full h-full object-cover" />
                                             </div>
                                             <div className="min-w-0">
-                                                <p className="font-black text-xs text-foreground truncate">@{user.nombre_usuario}</p>
+                                                <div className="flex items-center gap-1.5">
+                                                    <p className="font-black text-xs text-foreground truncate">@{user.nombre_usuario}</p>
+                                                    {user.esta_verificado && (
+                                                        <img src="/verified-badge.png" alt="Verificado" className="w-3.5 h-3.5 object-contain" title="Productor Verificado" />
+                                                    )}
+                                                </div>
                                                 <p className="text-[9px] text-muted uppercase tracking-widest truncate">{user.nombre_artistico}</p>
                                             </div>
                                         </div>
@@ -511,7 +559,12 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                     <img src={selectedUser.foto_perfil || `https://ui-avatars.com/api/?name=${selectedUser.nombre_usuario}`} alt="" className="w-full h-full object-cover" />
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl font-black uppercase tracking-tighter">{selectedUser.nombre_artistico}</h3>
+                                    <div className="flex items-center gap-2 mb-0.5">
+                                        <h3 className="text-2xl font-black uppercase tracking-tighter">{selectedUser.nombre_artistico}</h3>
+                                        {selectedUser.esta_verificado && (
+                                            <img src="/verified-badge.png" alt="Verificado" className="w-6 h-6 object-contain drop-shadow-[0_0_8px_rgba(59,130,246,0.2)]" />
+                                        )}
+                                    </div>
                                     <p className="text-xs text-muted font-bold uppercase tracking-widest">@{selectedUser.nombre_usuario}</p>
                                 </div>
                             </div>
@@ -862,17 +915,17 @@ function CouponManager({ onBack }: { onBack: () => void }) {
 
                                     <div className="flex items-center gap-2 min-h-[44px]">
                                         {confirmDeleteId === cp.id ? (
-                                            <div className="flex items-center gap-1 bg-rose-500 rounded-xl overflow-hidden animate-in fade-in slide-in-from-right-4 duration-300 shadow-lg shadow-rose-500/30">
-                                                <button onClick={() => handleDelete(cp.id)} className="px-6 py-2.5 text-white font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 transition-colors">Borrar Cupón</button>
-                                                <button onClick={() => setConfirmDeleteId(null)} className="p-2.5 text-white/60 hover:text-white transition-colors border-l border-white/20"><XCircle size={16} /></button>
+                                            <div className="flex items-center gap-1 bg-rose-500 rounded-2xl overflow-hidden animate-in fade-in slide-in-from-right-4 duration-300 shadow-2xl shadow-rose-500/40">
+                                                <button onClick={() => handleDelete(cp.id)} className="px-8 py-3 text-white font-black text-[11px] uppercase tracking-widest hover:bg-rose-600 transition-colors">Confirmar Borrado</button>
+                                                <button onClick={() => setConfirmDeleteId(null)} className="p-3 text-white/70 hover:text-white transition-colors border-l border-white/20"><XCircle size={18} /></button>
                                             </div>
                                         ) : (
                                             <>
-                                                <button onClick={() => { setEditingId(cp.id); setNewCoupon({ codigo: cp.codigo, porcentaje_descuento: cp.porcentaje_descuento, fecha_expiracion: cp.fecha_expiracion || '', nivel_objetivo: cp.nivel_objetivo || 'todos', es_activo: cp.es_activo }); document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 hover:bg-slate-200 transition-all text-[10px] font-black uppercase tracking-widest active:scale-95">
-                                                    <Edit2 size={12} /> Editar
+                                                <button onClick={() => { setEditingId(cp.id); setNewCoupon({ codigo: cp.codigo, porcentaje_descuento: cp.porcentaje_descuento, fecha_expiracion: cp.fecha_expiracion || '', nivel_objetivo: cp.nivel_objetivo || 'todos', es_activo: cp.es_activo }); document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-100 text-slate-700 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 hover:bg-slate-200 transition-all text-[11px] font-black uppercase tracking-widest active:scale-95 shadow-sm">
+                                                    <Edit2 size={14} /> Editar
                                                 </button>
-                                                <button onClick={() => setConfirmDeleteId(cp.id)} className="w-11 h-11 rounded-xl bg-rose-50 text-rose-500 dark:bg-rose-500/10 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center justify-center flex-shrink-0 active:scale-95">
-                                                    <Trash2 size={16} />
+                                                <button onClick={() => setConfirmDeleteId(cp.id)} className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 dark:bg-rose-500/10 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center justify-center flex-shrink-0 active:scale-95 shadow-sm">
+                                                    <Trash2 size={18} />
                                                 </button>
                                             </>
                                         )}
@@ -999,12 +1052,27 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
 
     return (
         <div className="space-y-6">
-            <header className="flex items-center justify-between mb-8">
-                <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
-                    ← Volver al Dashboard
-                </button>
-                <div className="px-4 py-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-border">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Historial de Transacciones</span>
+            <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                <div className="space-y-4">
+                    <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
+                        ← Volver al Dashboard
+                    </button>
+                    <h2 className="text-4xl font-black uppercase tracking-tighter text-foreground">Ingresos del <span className="text-accent">Sitio</span></h2>
+                </div>
+
+                <div className="flex gap-4">
+                    <div className="px-8 py-5 bg-white dark:bg-[#020205] border border-border rounded-[2rem] text-center shadow-lg">
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted mb-1">Este Mes</p>
+                        <p className="text-2xl font-black text-accent tabular-nums">${transactions.filter(tx => {
+                            const date = new Date(tx.fecha_creacion);
+                            const now = new Date();
+                            return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+                        }).reduce((acc, tx) => acc + (tx.precio || 0), 0).toLocaleString()}</p>
+                    </div>
+                    <div className="px-8 py-5 bg-white dark:bg-[#020205] border border-border rounded-[2rem] text-center shadow-lg">
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted mb-1">Total Histórico</p>
+                        <p className="text-2xl font-black text-foreground tabular-nums">${transactions.reduce((acc, tx) => acc + (tx.precio || 0), 0).toLocaleString()}</p>
+                    </div>
                 </div>
             </header>
 

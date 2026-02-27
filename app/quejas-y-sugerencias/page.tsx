@@ -18,7 +18,10 @@ export default function QuejasSugerenciasPage() {
     useEffect(() => {
         const checkUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
+            if (user) {
+                const { data: profile } = await supabase.from('perfiles').select('nombre_usuario, email').eq('id', user.id).single();
+                setUser({ ...user, profile });
+            }
             setCheckingAuth(false);
         };
         checkUser();
@@ -42,7 +45,7 @@ export default function QuejasSugerenciasPage() {
                 tipo_mensaje: tipo,
                 nombre_usuario: nombre,
                 email,
-                descripcion_queja: mensaje,
+                mensaje: mensaje, // Mapeado correctamente a la columna 'mensaje'
                 user_id: user?.id || null,
                 estado: 'pendiente'
             }]);
@@ -165,7 +168,7 @@ export default function QuejasSugerenciasPage() {
                                         name="nombre"
                                         required
                                         readOnly={!!user}
-                                        defaultValue={user?.user_metadata?.artistic_name || user?.user_metadata?.username || user?.user_metadata?.full_name || ''}
+                                        defaultValue={user?.profile?.nombre_usuario || user?.user_metadata?.artistic_name || user?.user_metadata?.username || ''}
                                         className={`w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl p-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-colors placeholder:text-muted/40 uppercase tracking-widest text-xs ${user ? 'opacity-60 cursor-not-allowed' : ''}`}
                                         placeholder="EJ. PRODUCTOR X"
                                     />
@@ -177,7 +180,7 @@ export default function QuejasSugerenciasPage() {
                                         name="email"
                                         required
                                         readOnly={!!user}
-                                        defaultValue={user?.email || ''}
+                                        defaultValue={user?.profile?.email || user?.email || ''}
                                         className={`w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-2xl p-5 font-black text-slate-900 dark:text-foreground outline-none focus:border-accent transition-colors placeholder:text-muted/40 uppercase tracking-widest text-xs ${user ? 'opacity-60 cursor-not-allowed' : ''}`}
                                         placeholder="EJ. TU@CORREO.COM"
                                     />
