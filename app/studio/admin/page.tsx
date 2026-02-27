@@ -225,8 +225,8 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                 <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
                     ← Volver al Dashboard
                 </button>
-                <div className={`px-4 py-2 rounded-xl border transition-colors ${requests.length > 0 ? 'bg-amber-500/10 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
-                    <span className={`text-[10px] font-black uppercase tracking-widest ${requests.length > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                <div className={`flex items-center justify-center px-4 py-2 rounded-xl border transition-colors ${requests.length > 0 ? 'bg-amber-500/10 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
+                    <span className={`text-[10px] font-black uppercase tracking-widest leading-none ${requests.length > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
                         {requests.length} {requests.length === 1 ? 'Pendiente' : 'Pendientes'}
                     </span>
                 </div>
@@ -243,20 +243,24 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                     <div key={req.id} className="relative bg-white dark:bg-[#020205] border-t-4 border-t-blue-600 border-x border-b border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 flex flex-col gap-8 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,112,243,0.05)] hover:border-blue-500/30 transition-all duration-500">
 
                         <div className="flex flex-col lg:flex-row gap-8 items-start">
-                            {/* User Info Section */}
-                            <div className="lg:w-1/4 w-full">
-                                <div className="flex items-center gap-4 mb-6">
-                                    <div className="w-16 h-16 rounded-2xl overflow-hidden bg-accent-soft shadow-lg">
+                            {/* User Info Section - Photo above, text below */}
+                            <div className="lg:w-1/4 w-full flex flex-col items-center lg:items-start">
+                                <Link
+                                    href={`/${req.nombre_usuario}`}
+                                    target="_blank"
+                                    className="group/user mb-6 flex flex-col items-center lg:items-start gap-4 hover:opacity-80 transition-opacity"
+                                >
+                                    <div className="w-20 h-20 rounded-2xl overflow-hidden bg-accent-soft shadow-lg border-2 border-border/50 group-hover/user:border-accent transition-colors">
                                         <img src={req.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.nombre_usuario}`} alt="Avatar" className="w-full h-full object-cover" />
                                     </div>
-                                    <div className="min-w-0">
+                                    <div className="min-w-0 text-center lg:text-left">
                                         <h3 className="font-black text-xl text-foreground tracking-tighter truncate">{req.nombre_usuario}</h3>
                                         <div className="inline-flex px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full">
                                             <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">@{req.nombre_usuario}</p>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="space-y-2">
+                                </Link>
+                                <div className="space-y-2 w-full">
                                     <DetailBox label="Nombre Real" value={req.nombre_completo} />
                                     <DetailBox label="Correo" value={req.correo} />
                                     <div className="p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-border/50">
@@ -270,15 +274,9 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
 
                             {/* Content Sections - Layout Horizontal */}
                             <div className="flex-1 w-full space-y-4">
-                                {/* Red Social Horizontal */}
-                                <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-border flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                    <div>
-                                        <p className="text-[9px] font-black uppercase text-muted tracking-[0.2em] mb-1">Red Social a Verificar</p>
-                                        <p className="text-sm font-black text-foreground truncate max-w-md">{req.url_red_social}</p>
-                                    </div>
-                                    <a href={req.url_red_social} target="_blank" className="shrink-0 px-4 py-2 bg-blue-500/10 text-blue-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all flex items-center gap-2">
-                                        Visitar Perfil <ExternalLink size={12} />
-                                    </a>
+                                <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-border flex flex-col gap-1">
+                                    <p className="text-[9px] font-black uppercase text-muted tracking-[0.2em] mb-1">Red Social a Verificar</p>
+                                    <p className="text-sm font-black text-foreground break-all">{req.url_red_social}</p>
                                 </div>
 
                                 {/* Identificaciones Horizontal */}
@@ -311,19 +309,19 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                             </div>
                         </div>
 
-                        {/* Action Buttons - Corner Position */}
-                        <div className="flex justify-end gap-3 mt-4 border-t border-border pt-6">
+                        {/* Action Buttons - Centered Position */}
+                        <div className="flex justify-center items-center gap-6 mt-4 border-t border-border pt-8">
                             <button
                                 onClick={() => handleDecision(req.id, req.user_id, 'rejected')}
-                                className="px-6 py-2.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all"
+                                className="px-10 py-3 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg hover:shadow-red-500/10"
                             >
-                                Rechazar
+                                Rechazar Solicitud
                             </button>
                             <button
                                 onClick={() => handleDecision(req.id, req.user_id, 'approved')}
-                                className="px-8 py-2.5 bg-emerald-500 text-white hover:bg-emerald-600 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all"
+                                className="px-14 py-3 bg-emerald-500 text-white hover:bg-emerald-600 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all"
                             >
-                                Aprobar
+                                Aprobar Verificación
                             </button>
                         </div>
                     </div>
