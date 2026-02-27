@@ -33,6 +33,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
     const [beat, setBeat] = useState<BeatDetail | null>(null);
     const [relatedBeats, setRelatedBeats] = useState<Beat[]>([]);
+    const [producerBeats, setProducerBeats] = useState<Beat[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedLicense, setSelectedLicense] = useState<'Básica' | 'MP3' | 'Pro' | 'Premium' | 'Ilimitada' | 'Exclusiva' | 'Sound Kit' | null>(null);
@@ -214,6 +215,27 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
                 fetchRelated(data);
 
+                // Fetch more beats from same producer
+                const { data: moreFromProducer } = await supabase
+                    .from('beats')
+                    .select('id, titulo, genero, bpm, precio_basico_mxn, portada_url, productor_id, tono_escala, vibras, tipos_beat, conteo_reproducciones, conteo_likes, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
+                    .eq('productor_id', (data as any).productor_id)
+                    .neq('id', id)
+                    .limit(8);
+
+                if (moreFromProducer) {
+                    const mappedProducerBeats = (moreFromProducer || []).map((r: any) => ({
+                        ...r,
+                        productor_nombre_artistico: (r.productor as any)?.nombre_artistico,
+                        productor_nombre_usuario: (r.productor as any)?.nombre_usuario,
+                        productor_foto_perfil: (r.productor as any)?.foto_perfil,
+                        productor_esta_verificado: (r.productor as any)?.esta_verificado,
+                        productor_es_fundador: (r.productor as any)?.es_fundador,
+                        productor_nivel_suscripcion: (r.productor as any)?.nivel_suscripcion
+                    }));
+                    setProducerBeats(mappedProducerBeats as any);
+                }
+
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
                     const { count } = await supabase
@@ -347,17 +369,18 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 </Link>
                             </div>
 
+                            {/* Tags: Genre, Tempo, Key/Scale - All Centered */}
                             <div className="grid grid-cols-2 md:flex md:flex-wrap gap-4">
                                 {[
                                     { label: 'Género', val: beat.genero, icon: Tag, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
                                     { label: 'Tempo', val: `${beat.bpm} BPM`, icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
                                     { label: 'Tono / Escala', val: MUSICAL_KEYS.find(k => k.value === beat.tono_escala)?.label || beat.tono_escala || 'N/A', icon: Music2, color: 'text-accent', bg: 'bg-accent/10' }
                                 ].map((stat, i) => (
-                                    <div key={i} className="flex-1 min-w-[120px] p-4 rounded-3xl bg-card border border-border/50 shadow-sm flex flex-col items-center md:items-start gap-2">
+                                    <div key={i} className="flex-1 min-w-[120px] p-4 rounded-3xl bg-card border border-border/50 shadow-sm flex flex-col items-center gap-2">
                                         <span className={`p-2 rounded-xl ${stat.bg} ${stat.color}`}>
                                             <stat.icon size={18} />
                                         </span>
-                                        <div>
+                                        <div className="text-center">
                                             <p className="text-[8px] font-black uppercase text-muted tracking-widest">{stat.label}</p>
                                             <p className="text-sm font-black text-foreground uppercase tracking-tight">{stat.val}</p>
                                         </div>
@@ -429,10 +452,11 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 <WaveformPlayer
                                     url={beat.archivo_mp3_url || ''}
                                     height={140}
-                                    waveColor="rgba(59, 130, 246, 0.1)"
-                                    progressColor="#3b82f6"
+                                    waveColor="rgba(37, 99, 235, 0.4)"
+                                    progressColor="#2563eb"
                                     isSync={true}
                                     beatId={beat.id}
+                                    muted={true}
                                 />
                             </div>
                         </div>
@@ -650,13 +674,46 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 className="flex overflow-x-auto gap-6 pb-12 snap-x scrollbar-hide scroll-smooth no-scrollbar"
                             >
                                 {relatedBeats.map((relatedBeat) => (
-                                    <div key={relatedBeat.id} className="min-w-[170px] md:min-w-[230px] snap-start">
+                                    <div key={relatedBeat.id} className="w-[220px] md:w-[250px] shrink-0 snap-start">
                                         <BeatCardPro beat={relatedBeat} />
                                     </div>
                                 ))}
                             </div>
                             <div className="absolute top-0 right-0 h-full w-24 bg-gradient-to-l from-background to-transparent pointer-events-none opacity-0 group-hover/carousel:opacity-100 transition-opacity" />
                             <div className="absolute top-0 left-0 h-full w-24 bg-gradient-to-r from-background to-transparent pointer-events-none opacity-0 group-hover/carousel:opacity-100 transition-opacity" />
+                        </div>
+                    </div>
+                )}
+
+                {/* More from Same Producer Section */}
+                {producerBeats.length > 0 && (
+                    <div className="max-w-7xl mx-auto px-4 mt-16 mb-16">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                            <div className="space-y-4">
+                                <span className="px-5 py-2 rounded-2xl bg-accent/10 text-accent text-[10px] font-black uppercase tracking-[0.2em] inline-block">
+                                    Del mismo productor
+                                </span>
+                                <h2 className="text-4xl md:text-6xl font-black text-foreground uppercase tracking-tighter leading-none">
+                                    Más de <span className="text-muted">{beat.productor_nombre_artistico || beat.productor_nombre_usuario}</span>
+                                </h2>
+                            </div>
+                            <Link href={`/${beat.productor_nombre_usuario}`} className="group flex items-center gap-3 text-muted hover:text-accent transition-colors">
+                                <span className="text-xs font-black uppercase tracking-widest">Ver perfil completo</span>
+                                <div className="w-10 h-10 rounded-full border border-border flex items-center justify-center group-hover:bg-accent group-hover:border-accent group-hover:text-white transition-all">
+                                    <ChevronRight size={20} />
+                                </div>
+                            </Link>
+                        </div>
+                        <div className="relative group/pcarousel">
+                            <div className="flex overflow-x-auto gap-6 pb-12 snap-x scrollbar-hide scroll-smooth no-scrollbar">
+                                {producerBeats.map((pb) => (
+                                    <div key={pb.id} className="w-[220px] md:w-[250px] shrink-0 snap-start">
+                                        <BeatCardPro beat={pb} />
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="absolute top-0 right-0 h-full w-24 bg-gradient-to-l from-background to-transparent pointer-events-none opacity-0 group-hover/pcarousel:opacity-100 transition-opacity" />
+                            <div className="absolute top-0 left-0 h-full w-24 bg-gradient-to-r from-background to-transparent pointer-events-none opacity-0 group-hover/pcarousel:opacity-100 transition-opacity" />
                         </div>
                     </div>
                 )}

@@ -13,6 +13,7 @@ interface WaveformPlayerProps {
     progressColor?: string;
     isSync?: boolean; // New prop for synchronization
     beatId?: string;  // Required if isSync is true
+    muted?: boolean;  // Mute audio but still show waveform
 }
 
 export default function WaveformPlayer({
@@ -22,7 +23,8 @@ export default function WaveformPlayer({
     waveColor = 'rgba(59, 130, 246, 0.1)', // Mau-soft default
     progressColor = '#3b82f6',             // Mau-accent default
     isSync = false,
-    beatId
+    beatId,
+    muted = false
 }: WaveformPlayerProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const wavesurfer = useRef<WaveSurfer | null>(null);
@@ -59,6 +61,8 @@ export default function WaveformPlayer({
         ws.on('ready', () => {
             setDuration(ws.getDuration());
             wavesurfer.current = ws;
+            // Mute the waveform if it's just for visualization
+            if (muted) ws.setMuted(true);
             // If already playing in global, sync position
             if (isActuallySyncing) {
                 ws.setTime(globalCurrentTime);

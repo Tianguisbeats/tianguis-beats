@@ -140,7 +140,12 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                             {/* Pro Avatar Container */}
                             <div className="relative group shrink-0 mx-auto md:mx-0">
                                 <div className="absolute -inset-4 bg-accent rounded-full blur-2xl opacity-10 group-hover:opacity-20 transition-opacity" />
-                                <div className={`relative w-48 h-48 md:w-56 md:h-56 rounded-full p-1.5 bg-gradient-to-br from-card to-transparent backdrop-blur-3xl border border-border shadow-2xl transition-all duration-700 ${profile?.nivel_suscripcion === 'premium' ? 'ring-2 ring-accent/50 ring-offset-4 ring-offset-background' : ''}`}>
+                                <div className={`relative w-48 h-48 md:w-56 md:h-56 rounded-full p-1.5 bg-gradient-to-br from-card to-transparent backdrop-blur-3xl border-[3px] shadow-2xl transition-all duration-700 ${profile?.nivel_suscripcion === 'premium'
+                                        ? 'border-[#00f2ff] ring-4 ring-[#00f2ff]/20 shadow-[#00f2ff]/20'
+                                        : profile?.es_fundador || profile?.nivel_suscripcion === 'pro'
+                                            ? 'border-amber-500 ring-4 ring-amber-500/20 shadow-amber-500/20'
+                                            : 'border-border'
+                                    }`}>
                                     {profile?.foto_perfil ? (
                                         <img src={profile.foto_perfil} className="w-full h-full object-cover rounded-full" alt="Avatar" />
                                     ) : (
@@ -167,7 +172,7 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                                     <div className="flex items-center justify-center md:justify-start gap-3">
                                         <span className="text-accent text-[10px] font-black uppercase tracking-[0.4em]">TIANGUIS PRO CATALOGO</span>
                                         <div className="w-8 h-px bg-border" />
-                                        {profile.es_fundador && <span className="flex items-center gap-1.5 text-[#FDE047] text-[9px] font-black uppercase tracking-widest bg-yellow-400/10 px-3 py-1 rounded-full border border-yellow-400/20"><Crown size={12} fill="currentColor" /> Founder</span>}
+                                        {profile.es_fundador && <span className="flex items-center gap-1.5 text-amber-500 text-[9px] font-black uppercase tracking-widest bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30"><Crown size={12} fill="currentColor" /> Founder</span>}
                                     </div>
                                 </div>
 
@@ -245,7 +250,7 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                                         <Music size={32} />
                                     </div>
                                     <div>
-                                        <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter italic">Explora todas las creaciones del productor</h2>
+                                        <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">Explora todas las creaciones del productor</h2>
                                         <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] mt-2">Creaciones originales listas para grabar</p>
                                     </div>
                                 </div>
@@ -255,7 +260,7 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-16">
                                     {filteredBeats.map((beat, idx) => (
                                         <div key={beat.id} className="animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both" style={{ animationDelay: `${idx * 50}ms` }}>
-                                            <BeatCardPro beat={beat} compact={true} />
+                                            <BeatCardPro beat={beat} />
                                         </div>
                                     ))}
                                 </div>

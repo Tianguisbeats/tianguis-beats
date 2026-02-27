@@ -884,7 +884,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                     </div>
                                     <div className="flex items-center justify-between group">
                                         <span className="text-sm font-bold text-slate-400 dark:text-white/60">Rango</span>
-                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.es_fundador ? 'bg-accent/10 dark:bg-accent/20 border-accent/20 text-accent dark:text-accent' : 'bg-slate-500/5 dark:bg-white/5 border-white/10 text-slate-400'}`}>
+                                        <span className={`text-[10px] font-black uppercase px-5 py-2 rounded-2xl border flex items-center gap-2 transition-all ${profile.es_fundador ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400' : 'bg-slate-500/5 dark:bg-white/5 border-white/10 text-slate-400'}`}>
                                             {profile.es_fundador ? <><Crown size={12} fill="currentColor" /> Founder</> : 'Sin rango'}
                                         </span>
                                     </div>
