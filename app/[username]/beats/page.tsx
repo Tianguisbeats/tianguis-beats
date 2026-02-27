@@ -60,7 +60,7 @@ export default function ProducerBeatsPage({ params }: { params: Promise<{ userna
                     const transformedBeats = await Promise.all(beatsData.map(async (b: any) => {
                         // Priorizar archivo_muestra_url
                         const path = b.archivo_muestra_url || b.archivo_mp3_url || '';
-                        const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
+                        const encodedPath = path;
 
                         // Usar buckets unificados en español
                         const bucket = path === b.archivo_muestra_url ? 'muestras_beats' : 'beats_mp3';

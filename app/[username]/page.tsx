@@ -252,7 +252,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         if (path.startsWith('http')) {
                             publicUrl = path;
                         } else {
-                            const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
+                            const encodedPath = path;
                             const bucket = path.includes('-hq-') ? 'beats_mp3' : 'muestras_beats';
                             const { data } = supabase.storage
                                 .from(bucket)

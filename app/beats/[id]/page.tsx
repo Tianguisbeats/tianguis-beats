@@ -115,7 +115,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
                 // Resolve high-quality preview (Prioritizing Samples)
                 const path = data.archivo_muestra_url || data.archivo_mp3_url || '';
-                const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
+                const encodedPath = path;
 
                 // Usar buckets unificados en español
                 const bucket = path === data.archivo_muestra_url ? 'muestras_beats' : 'beats_mp3';

@@ -56,7 +56,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
 
                     const transformedBeats = await Promise.all(playlistBeats.map(async (b: any) => {
                         const path = b.archivo_muestra_url || b.archivo_mp3_url || '';
-                        const encodedPath = path.split('/').map((s: string) => encodeURIComponent(s)).join('/');
+                        const encodedPath = path;
                         const bucket = path.includes('-hq-') ? 'beats_mp3' : 'muestras_beats';
                         const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(encodedPath);
 
