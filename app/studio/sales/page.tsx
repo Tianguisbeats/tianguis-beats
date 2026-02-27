@@ -5,7 +5,7 @@ import {
     DollarSign, Clock, User, ArrowUpRight, Music,
     Download, Search, Filter, CreditCard,
     ArrowDownLeft, ExternalLink, Calendar,
-    TrendingUp, Users, Wallet
+    TrendingUp, Users, Wallet, Package, Crown
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
@@ -56,7 +56,12 @@ export default function StudioSalesPage() {
                 created_at: sale.fecha_creacion,
                 license_type: sale.tipo_licencia,
                 payment_method: sale.metodo_pago,
-                producto: { titulo: sale.nombre_producto || 'Producto Vendido', portada_url: null },
+                tipo_producto: sale.tipo_producto,
+                producto: {
+                    titulo: sale.nombre_producto || 'Producto Vendido',
+                    type: sale.tipo_producto,
+                    portada_url: null
+                },
                 comprador: sale.comprador
             }));
 
@@ -85,9 +90,10 @@ export default function StudioSalesPage() {
         return sales.filter(sale => {
             const matchesSearch =
                 sale.producto?.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                sale.comprador?.nombre_usuario?.toLowerCase().includes(searchTerm.toLowerCase());
+                sale.comprador?.nombre_usuario?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                sale.comprador?.nombre_artistico?.toLowerCase().includes(searchTerm.toLowerCase());
 
-            const matchesFilter = filterLicense === "all" || sale.license_type === filterLicense;
+            const matchesFilter = filterLicense === "all" || sale.tipo_producto === filterLicense;
 
             return matchesSearch && matchesFilter;
         });
@@ -110,6 +116,16 @@ export default function StudioSalesPage() {
 
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(val);
+    };
+
+    const getItemIcon = (type: string) => {
+        switch (type) {
+            case 'beat': return <Music size={18} />;
+            case 'sound_kit': return <Package size={18} />;
+            case 'service': return <DollarSign size={18} />;
+            case 'plan': return <Crown size={18} className="text-accent" />;
+            default: return <Package size={18} />;
+        }
     };
 
     if (loading) return (
@@ -206,90 +222,105 @@ export default function StudioSalesPage() {
                             value={filterLicense}
                             onChange={(e) => setFilterLicense(e.target.value)}
                         >
-                            <option value="all">Suscripción/Licencia</option>
-                            <option value="EXCLUSIVE">Exclusive</option>
-                            <option value="NON-EXCLUSIVE">Non-Exclusive</option>
-                            <option value="BASIC">Basic</option>
+                            <option value="all">Ver Todo (Categoría)</option>
+                            <option value="beat">Beats</option>
+                            <option value="sound_kit">Sound Kits</option>
+                            <option value="service">Servicios</option>
+                            <option value="license">Licencias</option>
                         </select>
                     </div>
                 </div>
 
                 {/* Ledger Table */}
-                <div className="space-y-4">
+                <div className="space-y-6">
                     {filteredSales.map((sale) => (
-                        <div key={sale.id} className="group flex flex-col md:flex-row md:items-center justify-between p-6 rounded-[2rem] bg-accent/5 border border-border hover:bg-accent/10 hover:border-accent/20 transition-all duration-500">
-                            <div className="flex items-center gap-6 flex-1">
-                                {/* Beat Cover */}
-                                <div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-border shadow-xl shrink-0 group-hover:scale-105 transition-transform duration-500">
-                                    {sale.producto?.portada_url ? (
-                                        <Image
-                                            src={sale.producto.portada_url}
-                                            fill
-                                            className="object-cover"
-                                            alt={sale.producto.titulo}
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full bg-card flex items-center justify-center">
-                                            <Music className="text-muted/20" />
-                                        </div>
-                                    )}
-                                </div>
+                        <div key={sale.id} className="group relative bg-accent/5 border border-border hover:bg-accent/10 hover:border-accent/40 rounded-[2.5rem] p-8 transition-all duration-500 hover:shadow-2xl dark:hover:shadow-accent/5 overflow-hidden">
+                            <div className="absolute top-0 left-0 w-2 h-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                {/* Main Info */}
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <h4 className="font-black text-sm text-foreground uppercase tracking-tight truncate max-w-[200px]">
-                                            {sale.producto?.titulo || 'Producto eliminado'}
-                                        </h4>
-                                        <span className={`px-2.5 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest ${sale.license_type === 'EXCLUSIVE'
-                                            ? 'bg-accent/10 text-accent'
-                                            : 'bg-info/10 text-info'
-                                            }`}>
-                                            {sale.license_type || 'Licencia'}
-                                        </span>
+                            <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+                                {/* Product Info Section */}
+                                <div className="flex items-center gap-6 flex-1 w-full">
+                                    <div className="w-20 h-20 bg-card border border-border shadow-2xl rounded-3xl flex items-center justify-center text-muted group-hover:text-accent group-hover:scale-105 transition-all duration-500 shrink-0 relative overflow-hidden">
+                                        {sale.producto?.portada_url ? (
+                                            <Image
+                                                src={sale.producto.portada_url}
+                                                fill
+                                                className="object-cover"
+                                                alt={sale.producto.titulo}
+                                            />
+                                        ) : (
+                                            getItemIcon(sale.tipo_producto)
+                                        )}
                                     </div>
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex items-center gap-2 group/buyer">
-                                            {sale.comprador?.foto_perfil ? (
-                                                <div className="w-5 h-5 rounded-full overflow-hidden border border-border">
-                                                    <Image src={sale.comprador.foto_perfil} width={20} height={20} className="object-cover" alt={sale.comprador.nombre_usuario} />
-                                                </div>
-                                            ) : (
-                                                <User size={12} className="text-muted/40" />
+
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <span className="text-[10px] font-black text-accent uppercase tracking-[0.3em]">
+                                                {sale.tipo_producto === 'beat' ? 'Beat / Licencia' :
+                                                    sale.tipo_producto === 'sound_kit' ? 'Sound Kit' :
+                                                        sale.tipo_producto === 'service' ? 'Servicio' : 'Producto'}
+                                            </span>
+                                            {sale.license_type && (
+                                                <span className="bg-foreground/5 dark:bg-white/5 border border-border px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest text-muted">
+                                                    {sale.license_type}
+                                                </span>
                                             )}
-                                            <span className="text-[10px] font-bold text-muted uppercase tracking-widest group-hover/buyer:text-accent transition-colors">
-                                                {sale.comprador?.nombre_artistico || sale.comprador?.nombre_usuario || 'Comprador'}
-                                            </span>
                                         </div>
-                                        <div className="h-3 w-px bg-border" />
-                                        <span className="text-[10px] font-bold text-muted/60 uppercase tracking-widest flex items-center gap-1.5">
-                                            <Clock size={10} /> {new Date(sale.created_at).toLocaleDateString()}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
+                                        <h4 className="text-xl font-black text-foreground uppercase tracking-tighter truncate group-hover:text-accent transition-colors mb-4">
+                                            {sale.producto?.titulo || 'Producto Vendido'}
+                                        </h4>
 
-                            {/* Financial Details */}
-                            <div className="flex items-center justify-between md:justify-end gap-12 mt-6 md:mt-0 pt-6 md:pt-0 border-t md:border-t-0 border-border">
-                                <div className="text-left md:text-right">
-                                    <p className="text-[8px] font-black text-muted uppercase tracking-[0.3em] mb-1">Estado</p>
-                                    <span className="text-[10px] font-black text-success uppercase tracking-widest flex items-center gap-1.5">
-                                        <ArrowDownLeft size={12} /> Comisionado
-                                    </span>
-                                </div>
-                                <div className="text-right min-w-[100px]">
-                                    <p className="text-[9px] font-black text-success uppercase tracking-[0.3em] mb-1">Impacto</p>
-                                    <div className="flex items-center justify-end gap-2">
-                                        <div className="flex flex-col items-end">
-                                            <span className="text-[10px] font-bold text-muted uppercase tracking-widest mb-1">{new Date(sale.created_at).toLocaleDateString()}</span>
-                                            <span className="font-black text-lg text-foreground tracking-tighter">
-                                                {formatCurrency(sale.amount)} <span className="text-[10px] uppercase text-muted/40">{sale.payment_method || 'MXN'}</span>
-                                            </span>
+                                        {/* Buyer Preview */}
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-2.5 bg-background/50 dark:bg-white/5 border border-border px-3 py-1.5 rounded-2xl">
+                                                {sale.comprador?.foto_perfil ? (
+                                                    <div className="w-6 h-6 rounded-full overflow-hidden border border-border">
+                                                        <Image src={sale.comprador.foto_perfil} width={24} height={24} className="object-cover" alt={sale.comprador.nombre_usuario} />
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center">
+                                                        <User size={12} className="text-accent" />
+                                                    </div>
+                                                )}
+                                                <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">
+                                                    {sale.comprador?.nombre_artistico || sale.comprador?.nombre_usuario || 'Cliente Tianguis'}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-muted/60 text-[10px] font-bold uppercase tracking-widest">
+                                                <Clock size={12} /> {new Date(sale.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            </div>
                                         </div>
-                                        <button className="w-10 h-10 rounded-xl bg-accent/10 border border-border flex items-center justify-center text-accent hover:bg-accent hover:text-white hover:border-accent transition-all group-hover:scale-105 active:scale-95">
-                                            <Download size={14} />
-                                        </button>
                                     </div>
+                                </div>
+
+                                {/* Financial Impact Section */}
+                                <div className="flex items-center gap-10 w-full lg:w-auto pt-6 lg:pt-0 border-t lg:border-t-0 border-border">
+                                    <div className="flex flex-col items-end gap-1">
+                                        <span className="text-[9px] font-black text-muted uppercase tracking-[0.4em]">Estado de Venta</span>
+                                        <div className="flex items-center gap-2 text-success">
+                                            <ArrowDownLeft size={16} />
+                                            <span className="text-[11px] font-black uppercase tracking-widest">Acreditado</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="h-10 w-px bg-border hidden lg:block" />
+
+                                    <div className="flex flex-col items-end">
+                                        <span className="text-[9px] font-black text-muted uppercase tracking-[0.4em] mb-1">Ingreso Neto</span>
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-3xl font-black text-foreground tracking-tighter">
+                                                {formatCurrency(sale.amount)}
+                                            </span>
+                                            <div className="flex flex-col">
+                                                <span className="text-[8px] font-black uppercase text-muted/40 tracking-widest leading-none mb-1">Pagado vía</span>
+                                                <span className="text-[10px] font-black text-accent uppercase tracking-widest leading-none">{sale.payment_method || 'Stripe'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button className="w-14 h-14 bg-foreground text-background dark:bg-foreground dark:text-background rounded-2xl flex items-center justify-center hover:bg-accent hover:text-white hover:scale-110 active:scale-90 transition-all shadow-xl shadow-black/10 dark:shadow-accent/5">
+                                        <ExternalLink size={20} />
+                                    </button>
                                 </div>
                             </div>
                         </div>
