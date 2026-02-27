@@ -28,6 +28,7 @@ export default function SignupPage() {
     // Username availability
     const [isCheckingName, setIsCheckingName] = useState(false);
     const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean | null>(null);
+    const [hasImmediateSession, setHasImmediateSession] = useState(false);
 
     // Debounce for username check
     useEffect(() => {
@@ -115,7 +116,9 @@ export default function SignupPage() {
             }
 
             if (authData.session) {
-                window.location.href = '/studio';
+                // En lugar de redirigir inmediatamente, mostramos la pantalla de éxito/bienvenida
+                setHasImmediateSession(true);
+                setSuccess(true);
                 return;
             }
 
@@ -149,14 +152,27 @@ export default function SignupPage() {
                 <div className="max-w-xl w-full">
                     {success ? (
                         <div className="card-modern bg-accent/5 p-12 text-center animate-in zoom-in duration-500">
-                            <div className="w-20 h-20 bg-accent rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl shadow-accent/20">
-                                <Music className="text-white w-10 h-10" />
+                            <div className="w-24 h-24 bg-accent rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-accent/30 rotate-3 transition-transform hover:rotate-0">
+                                <Check className="text-white w-12 h-12" strokeWidth={3} />
                             </div>
-                            <h2 className="text-3xl font-black uppercase tracking-tighter mb-4">¡Casi listo!</h2>
-                            <p className="text-muted font-medium mb-8">Hemos enviado un correo de confirmación a <span className="font-bold text-accent">{email}</span>. Revisa tu bandeja de entrada para verificar tu cuenta.</p>
-                            <Link href="/login" className="inline-flex items-center gap-2 text-accent font-black uppercase tracking-widest text-xs hover:underline">
-                                Ir al Inicio de Sesión <ArrowRight size={16} />
-                            </Link>
+                            <h2 className="text-4xl font-black uppercase tracking-tighter mb-4 text-foreground"> ¡Bienvenido a la Familia!</h2>
+                            <p className="text-muted font-medium mb-10 text-lg">
+                                {hasImmediateSession ? (
+                                    <>Tu cuenta ha sido creada exitosamente. Ya puedes empezar a explorar y subir tus propios beats al <span className="text-accent font-bold">Tianguis</span>.</>
+                                ) : (
+                                    <>Hemos enviado un correo de confirmación a <span className="font-bold text-accent">{email}</span>. Revisa tu bandeja para activar tu cuenta.</>
+                                )}
+                            </p>
+
+                            <div className="flex flex-col gap-4">
+                                <Link href="/studio" className="w-full py-5 bg-accent text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-accent/20 hover:bg-blue-600 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                                    Explorar Mi Studio <ArrowRight size={18} />
+                                </Link>
+
+                                <Link href="/" className="text-muted font-black uppercase tracking-widest text-[10px] hover:text-accent transition-colors">
+                                    Ir a la Página de Inicio
+                                </Link>
+                            </div>
                         </div>
                     ) : (
                         <>
