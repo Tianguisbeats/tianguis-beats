@@ -23,11 +23,11 @@ export default function QuejasSugerenciasPage() {
         const checkUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                const { data: profile } = await supabase.from('perfiles').select('nombre_usuario, nombre_artistico, email').eq('id', user.id).single();
+                const { data: profile } = await supabase.from('perfiles').select('nombre_usuario, nombre_artistico').eq('id', user.id).single();
                 setUser({ ...user, profile });
                 const displayName = profile?.nombre_usuario || profile?.nombre_artistico || user?.user_metadata?.username || user?.user_metadata?.artistic_name || '';
                 setNombre(displayName);
-                setEmail(profile?.email || user?.email || '');
+                setEmail(user?.email || '');
             }
             setCheckingAuth(false);
         };
