@@ -33,7 +33,13 @@ export default function QuejasSugerenciasPage() {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-            const filesArray = Array.from(e.target.files).slice(0, 3);
+            const filesArray = Array.from(e.target.files);
+            if (filesArray.length > 3) {
+                showToast("Solo puedes seleccionar hasta 3 imágenes", "error");
+                e.target.value = ''; // Limpiar el input
+                setEvidences([]);
+                return;
+            }
             setEvidences(filesArray);
         }
     };
@@ -256,12 +262,23 @@ export default function QuejasSugerenciasPage() {
                                             </div>
                                         )}
                                     </label>
-                                    <div className="sm:col-span-2 flex flex-col justify-center gap-2">
-                                        <p className="text-[9px] font-bold text-muted uppercase tracking-widest leading-relaxed">
-                                            • Puedes subir capturas de pantalla del problema.<br />
-                                            • Formatos aceptados: PNG, JPG, JPEG.<br />
-                                            • Máximo 3 imágenes por reporte.
+                                    <div className="sm:col-span-2 flex flex-col justify-center gap-3">
+                                        <p className="text-[9px] font-black text-muted uppercase tracking-[0.2em] leading-relaxed">
+                                            • Máximo 3 imágenes por reporte.<br />
+                                            • Formatos: PNG, JPG, JPEG.
                                         </p>
+                                        {evidences.length > 0 && (
+                                            <div className="space-y-1.5 p-3 bg-slate-50 dark:bg-white/5 rounded-xl border border-border/50 animate-in fade-in slide-in-from-left-2 transition-all">
+                                                <p className="text-[8px] font-black uppercase tracking-widest text-accent mb-1">Archivos seleccionados:</p>
+                                                {evidences.map((file, i) => (
+                                                    <div key={i} className="flex items-center gap-2 text-[9px] font-bold text-foreground">
+                                                        <div className="w-1 h-1 rounded-full bg-accent" />
+                                                        <span className="truncate max-w-[150px]">{file.name}</span>
+                                                        <span className="text-[8px] text-muted font-normal italic">({(file.size / 1024).toFixed(0)}KB)</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
