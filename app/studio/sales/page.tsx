@@ -234,13 +234,13 @@ export default function StudioSalesPage() {
                 {/* Ledger Table */}
                 <div className="space-y-6">
                     {filteredSales.map((sale) => (
-                        <div key={sale.id} className="group relative bg-accent/5 border border-border hover:bg-accent/10 hover:border-accent/40 rounded-[2.5rem] p-8 transition-all duration-500 hover:shadow-2xl dark:hover:shadow-accent/5 overflow-hidden">
-                            <div className="absolute top-0 left-0 w-2 h-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div key={sale.id} className="group relative bg-accent/5 border border-border hover:bg-accent/10 hover:border-accent/40 rounded-3xl p-5 transition-all duration-500 hover:shadow-xl dark:hover:shadow-accent/5 overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1.5 h-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
 
                             <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
                                 {/* Product Info Section */}
-                                <div className="flex items-center gap-6 flex-1 w-full">
-                                    <div className="w-20 h-20 bg-card border border-border shadow-2xl rounded-3xl flex items-center justify-center text-muted group-hover:text-accent group-hover:scale-105 transition-all duration-500 shrink-0 relative overflow-hidden">
+                                <div className="flex items-center gap-5 flex-1 w-full">
+                                    <div className="w-14 h-14 bg-card border border-border shadow-lg rounded-2xl flex items-center justify-center text-muted group-hover:text-accent group-hover:scale-105 transition-all duration-500 shrink-0 relative overflow-hidden">
                                         {sale.producto?.portada_url ? (
                                             <Image
                                                 src={sale.producto.portada_url}
@@ -254,72 +254,69 @@ export default function StudioSalesPage() {
                                     </div>
 
                                     <div className="min-w-0 flex-1">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <span className="text-[10px] font-black text-accent uppercase tracking-[0.3em]">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-[8px] font-black text-accent uppercase tracking-[0.2em]">
                                                 {sale.tipo_producto === 'beat' ? 'Beat / Licencia' :
                                                     sale.tipo_producto === 'sound_kit' ? 'Sound Kit' :
                                                         sale.tipo_producto === 'service' ? 'Servicio' : 'Producto'}
                                             </span>
                                             {sale.license_type && (
-                                                <span className="bg-foreground/5 dark:bg-white/5 border border-border px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest text-muted">
+                                                <span className="bg-foreground/5 dark:bg-white/5 border border-border px-1.5 py-0.5 rounded-md text-[7px] font-black uppercase tracking-widest text-muted">
                                                     {sale.license_type}
                                                 </span>
                                             )}
                                         </div>
-                                        <h4 className="text-xl font-black text-foreground uppercase tracking-tighter truncate group-hover:text-accent transition-colors mb-4">
+                                        <h4 className="text-base font-black text-foreground uppercase tracking-tight truncate group-hover:text-accent transition-colors mb-2">
                                             {sale.producto?.titulo || 'Producto Vendido'}
                                         </h4>
 
                                         {/* Buyer Preview */}
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex items-center gap-2.5 bg-background/50 dark:bg-white/5 border border-border px-3 py-1.5 rounded-2xl">
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex items-center gap-2 bg-background/50 dark:bg-white/5 border border-border px-2 py-1 rounded-xl">
                                                 {sale.comprador?.foto_perfil ? (
-                                                    <div className="w-6 h-6 rounded-full overflow-hidden border border-border">
-                                                        <Image src={sale.comprador.foto_perfil} width={24} height={24} className="object-cover" alt={sale.comprador.nombre_usuario} />
+                                                    <div className="w-5 h-5 rounded-full overflow-hidden border border-border">
+                                                        <Image src={sale.comprador.foto_perfil} width={20} height={20} className="object-cover" alt={sale.comprador.nombre_usuario} />
                                                     </div>
                                                 ) : (
-                                                    <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center">
-                                                        <User size={12} className="text-accent" />
+                                                    <div className="w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center">
+                                                        <User size={10} className="text-accent" />
                                                     </div>
                                                 )}
-                                                <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">
+                                                <span className="text-[9px] font-bold text-foreground uppercase tracking-widest">
                                                     {sale.comprador?.nombre_artistico || sale.comprador?.nombre_usuario || 'Cliente Tianguis'}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center gap-2 text-muted/60 text-[10px] font-bold uppercase tracking-widest">
-                                                <Clock size={12} /> {new Date(sale.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            <div className="flex items-center gap-1.5 text-muted/60 text-[9px] font-bold uppercase tracking-widest">
+                                                <Clock size={10} /> {new Date(sale.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Financial Impact Section */}
-                                <div className="flex items-center gap-10 w-full lg:w-auto pt-6 lg:pt-0 border-t lg:border-t-0 border-border">
-                                    <div className="flex flex-col items-end gap-1">
-                                        <span className="text-[9px] font-black text-muted uppercase tracking-[0.4em]">Estado de Venta</span>
-                                        <div className="flex items-center gap-2 text-success">
-                                            <ArrowDownLeft size={16} />
-                                            <span className="text-[11px] font-black uppercase tracking-widest">Acreditado</span>
+                                <div className="flex items-center justify-between lg:justify-end gap-6 w-full lg:w-auto pt-4 lg:pt-0 border-t lg:border-t-0 border-border">
+                                    <div className="flex flex-col items-end gap-0.5">
+                                        <span className="text-[8px] font-black text-muted uppercase tracking-[0.2em]">Estado</span>
+                                        <div className="flex items-center gap-1.5 text-success">
+                                            <ArrowDownLeft size={12} />
+                                            <span className="text-[9px] font-black uppercase tracking-widest">Acreditado</span>
                                         </div>
                                     </div>
 
-                                    <div className="h-10 w-px bg-border hidden lg:block" />
+                                    <div className="h-8 w-px bg-border hidden lg:block" />
 
                                     <div className="flex flex-col items-end">
-                                        <span className="text-[9px] font-black text-muted uppercase tracking-[0.4em] mb-1">Ingreso Neto</span>
+                                        <span className="text-[8px] font-black text-muted uppercase tracking-[0.2em] mb-0.5">Ingreso Neto</span>
                                         <div className="flex items-center gap-3">
-                                            <span className="text-3xl font-black text-foreground tracking-tighter">
+                                            <span className="text-xl font-black text-foreground tracking-tighter">
                                                 {formatCurrency(sale.amount)}
                                             </span>
-                                            <div className="flex flex-col">
-                                                <span className="text-[8px] font-black uppercase text-muted/40 tracking-widest leading-none mb-1">Pagado vía</span>
-                                                <span className="text-[10px] font-black text-accent uppercase tracking-widest leading-none">{sale.payment_method || 'Stripe'}</span>
-                                            </div>
+                                            <span className="text-[8px] font-black text-accent uppercase tracking-widest bg-accent/5 px-1.5 py-0.5 rounded-md border border-accent/10">{sale.payment_method || 'Stripe'}</span>
                                         </div>
                                     </div>
 
-                                    <button className="w-14 h-14 bg-foreground text-background dark:bg-foreground dark:text-background rounded-2xl flex items-center justify-center hover:bg-accent hover:text-white hover:scale-110 active:scale-90 transition-all shadow-xl shadow-black/10 dark:shadow-accent/5">
-                                        <ExternalLink size={20} />
+                                    <button className="w-10 h-10 bg-foreground text-background dark:bg-foreground dark:text-background rounded-xl flex items-center justify-center hover:bg-accent hover:text-white hover:scale-105 active:scale-95 transition-all shadow-lg shadow-black/5">
+                                        <ExternalLink size={16} />
                                     </button>
                                 </div>
                             </div>

@@ -104,8 +104,8 @@ export default function VerificationPage() {
             plan: profile?.nivel_suscripcion === 'pro' || profile?.nivel_suscripcion === 'premium',
             profileComplete: !!(profile?.foto_perfil && profile?.portada_perfil && profile?.biografia && profile?.nombre_artistico),
             activityMin: beatCount >= 5,
-            socialsLinked: !!(profile?.verificacion_instagram && profile?.verificacion_youtube && profile?.verificacion_tiktok),
-            performance: playCount >= 100 && (saleCount || 0) >= 1
+            socialsLinked: !!(profile?.verificacion_instagram || profile?.verificacion_youtube || profile?.verificacion_tiktok),
+            performance: playCount >= 100 || (saleCount || 0) >= 1
         });
 
         setLoading(false);
@@ -304,7 +304,7 @@ export default function VerificationPage() {
                             </div>
                             <div className="flex-1">
                                 <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Redes Conectadas</h3>
-                                <p className="text-[10px] text-muted leading-tight">Instagram, YouTube y TikTok vinculados en Smart Bio.</p>
+                                <p className="text-[10px] text-muted leading-tight">Al menos una red (IG, YT o TikTok) en Smart Bio.</p>
                             </div>
                             {!checks.socialsLinked && profile?.username && (
                                 <Link href={`/${profile.username}`} className="px-4 py-2 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 shadow-sm">
@@ -320,7 +320,7 @@ export default function VerificationPage() {
                             </div>
                             <div className="flex-1">
                                 <h3 className="font-bold text-foreground uppercase text-[10px] tracking-widest mb-0.5">Validación</h3>
-                                <p className="text-[10px] text-muted leading-tight">100 plays Y al menos 1 venta.</p>
+                                <p className="text-[10px] text-muted leading-tight">100 plays O al menos 1 venta.</p>
                             </div>
                             {!checks.performance && (
                                 <Link href="/studio/stats" className="px-4 py-2 bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 shadow-sm">
