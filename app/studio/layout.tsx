@@ -115,15 +115,24 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 whitespace-nowrap">Verificado</span>
                                 </div>
                             ) : (
-                                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/10">
+                                <div className={`mt-4 pt-4 border-t ${profile?.nivel_suscripcion !== 'free' ? 'border-black/10 dark:border-white/10' : 'border-slate-200 dark:border-white/10'}`}>
                                     <Link href="/studio/verification" className="flex flex-col items-center justify-center gap-1 group/verify hover:opacity-80 transition-opacity w-full">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center">
+                                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${profile?.nivel_suscripcion === 'pro' ? 'bg-black/10 text-slate-900' :
+                                                    profile?.nivel_suscripcion === 'premium' ? 'bg-white/20 text-white' :
+                                                        'bg-blue-100 text-blue-500'
+                                                }`}>
                                                 <ShieldCheck size={10} />
                                             </div>
-                                            <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-500 text-[9px] font-black uppercase tracking-widest border border-blue-100">Sin Verificar</span>
+                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${profile?.nivel_suscripcion === 'pro' ? 'bg-black/5 text-slate-900 border-black/10' :
+                                                    profile?.nivel_suscripcion === 'premium' ? 'bg-white/10 text-white border-white/20' :
+                                                        'bg-blue-50 text-blue-500 border-blue-100'
+                                                }`}>Sin Verificar</span>
                                         </div>
-                                        <span className="text-[7px] font-black uppercase tracking-[0.2em] text-blue-500/60 transition-colors group-hover/verify:text-blue-500">solicita la verificación</span>
+                                        <span className={`text-[7px] font-black uppercase tracking-[0.2em] transition-colors ${profile?.nivel_suscripcion === 'pro' ? 'text-slate-900/60 group-hover/verify:text-slate-900' :
+                                                profile?.nivel_suscripcion === 'premium' ? 'text-white/60 group-hover/verify:text-white' :
+                                                    'text-blue-500/60 group-hover/verify:text-blue-500'
+                                            }`}>solicita la verificación</span>
                                     </Link>
                                 </div>
                             )}

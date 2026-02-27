@@ -611,9 +611,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             profile.tema_perfil === 'neon' ? 'bg-[#09090b] text-white selection:bg-green-400 selection:text-black' :
                 profile.tema_perfil === 'gold' ? 'bg-[#1a1610] text-amber-50 font-serif selection:bg-amber-400 selection:text-black' :
                     'bg-background text-foreground selection:bg-accent selection:text-white'
-            }`} style={{
-                '--accent': profile.color_acento || '#3b82f6'
-            } as React.CSSProperties}>
+            }`}>
 
             <Navbar />
 
