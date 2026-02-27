@@ -238,7 +238,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 // 2. Get Beats (Optimized Select)
                 const { data: beatsData } = await supabase
                     .from('beats')
-                    .select('id, productor_id, titulo, genero, bpm, precio_basico_mxn, portada_url, archivo_mp3_url, archivo_muestra_url, nota_musical, vibras, es_publico, conteo_reproducciones, conteo_likes, fecha_creacion')
+                    .select('id, productor_id, titulo, genero, bpm, precio_basico_mxn, portada_url, archivo_mp3_url, archivo_muestra_url, tono_escala, vibras, es_publico, conteo_reproducciones, conteo_likes, fecha_creacion')
                     .eq('productor_id', profileData.id)
                     .eq('es_publico', true)
                     .order('fecha_creacion', { ascending: false });
@@ -777,7 +777,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 <img src="/verified-badge.png" alt="Verificado" className="w-6 h-6 md:w-8 md:h-8 object-contain hover:scale-110 transition-transform cursor-help shadow-accent/20 shadow-2xl" title="Verificado" />
                                             )}
                                             {profile.es_fundador && (
-                                                <div className="flex items-center justify-center text-accent hover:rotate-12 transition-transform cursor-help" title="Founder">
+                                                <div className="flex items-center justify-center text-amber-500 hover:rotate-12 transition-transform cursor-help" title="Founder">
                                                     <Crown className="w-6 h-6 md:w-8 md:h-8" fill="currentColor" />
                                                 </div>
                                             )}

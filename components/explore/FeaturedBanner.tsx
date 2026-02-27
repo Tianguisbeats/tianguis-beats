@@ -149,7 +149,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                     <div className="flex flex-col gap-1">
                                         <div className="flex items-center gap-2">
                                             <span className="text-xl md:text-2xl font-black uppercase tracking-widest group-hover/prod:text-accent transition-colors leading-none">{prodInfo.nombre_artistico}</span>
-                                            {prodInfo.es_fundador && <Crown size={22} className="text-accent fill-accent animate-pulse" />}
+                                            {prodInfo.es_fundador && <Crown size={22} className="text-amber-500 fill-amber-500 animate-pulse" />}
                                         </div>
                                         <span className="text-xs font-bold text-muted tracking-[0.2em] uppercase opacity-60 group-hover/prod:opacity-100 transition-opacity">@{prodInfo.nombre_usuario}</span>
                                     </div>

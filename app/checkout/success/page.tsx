@@ -58,10 +58,11 @@ export default function SuccessPage() {
                         metadatos: tx.metadatos
                     }));
                     setPurchasedItems(items);
-                    // Limpiar el carrito localmente después de una compra exitosa
-                    clearCart();
-                    localStorage.removeItem('tianguis_cart');
                 }
+
+                // Limpiar el carrito localmente después de una compra exitosa (Siempre que haya sessionId)
+                clearCart();
+                localStorage.removeItem('tianguis_cart');
             } catch (err) {
                 console.error("Error fetching purchase session:", err);
                 showToast("Hubo un error al cargar los detalles de tu compra.", 'error');

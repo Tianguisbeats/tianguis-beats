@@ -46,6 +46,8 @@
   --color-card: var(--card);
   --color-border: var(--border);
   --color-muted: var(--muted);
+  --color-error: #ef4444;
+  --color-success: #22c55e;
 
   --font-heading: var(--font-heading);
   --font-body: var(--font-body);

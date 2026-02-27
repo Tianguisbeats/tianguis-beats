@@ -185,9 +185,11 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                     <div className="flex flex-col truncate min-w-0">
                         <div className="flex items-center gap-1.5 justify-center">
                             <p className={`${compact ? 'text-[10px]' : 'text-xs md:text-sm'} font-black uppercase text-muted tracking-tight truncate group-hover/prod:text-accent transition-colors`}>
-                                {beat.productor_nombre_artistico}
+                                {beat.productor_nombre_artistico || beat.productor_nombre_usuario || 'Artista Tianguis'}
                             </p>
-                            <img src="/verified-badge.png" className={`${compact ? 'w-3 h-3' : 'w-3.5 h-3.5 md:w-4 md:h-4'} object-contain brightness-110`} alt="Verificado" />
+                            {beat.productor_esta_verificado && (
+                                <img src="/verified-badge.png" className={`${compact ? 'w-3 h-3' : 'w-3.5 h-3.5 md:w-4 md:h-4'} object-contain brightness-110`} alt="Verificado" />
+                            )}
                             {beat.productor_es_fundador && (
                                 <Crown size={compact ? 10 : 12} className="text-amber-500 fill-amber-500" />
                             )}

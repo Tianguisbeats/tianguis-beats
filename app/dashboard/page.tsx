@@ -126,7 +126,7 @@ export default function ProducerDashboard() {
                 titulo: title,
                 genero: genre,
                 bpm: bpm ? parseInt(bpm) : null,
-                nota_musical: musicalKey,
+                tono_escala: musicalKey,
                 etiqueta: tag,
                 portada_url: null,
                 precio_basico_mxn: parseFloat(price),

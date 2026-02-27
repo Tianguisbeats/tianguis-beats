@@ -157,7 +157,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                 const fetchRelated = async (beatForRelated: any) => {
                     let query = supabase
                         .from('beats')
-                        .select('id, titulo, genero, bpm, precio_basico_mxn, portada_url, productor_id, nota_musical, escala_musical, vibras, tipos_beat, conteo_reproducciones, conteo_likes, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
+                        .select('id, titulo, genero, bpm, precio_basico_mxn, portada_url, productor_id, tono_escala, vibras, tipos_beat, conteo_reproducciones, conteo_likes, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
                         .neq('id', beatForRelated.id)
                         .limit(10);
 
@@ -174,7 +174,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                     if ((!related || related.length < 4) && beatForRelated.genero) {
                         const { data: byGenre } = await supabase
                             .from('beats')
-                            .select('id, titulo, genero, bpm, precio_basico_mxn, portada_url, productor_id, nota_musical, escala_musical, vibras, tipos_beat, conteo_reproducciones, conteo_likes, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
+                            .select('id, titulo, genero, bpm, precio_basico_mxn, portada_url, productor_id, tono_escala, vibras, tipos_beat, conteo_reproducciones, conteo_likes, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
                             .neq('id', beatForRelated.id)
                             .eq('genero', beatForRelated.genero)
                             .limit(10);
@@ -189,7 +189,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         const firstMood = beatForRelated.vibras.split(',')[0].trim();
                         const { data: byMood } = await supabase
                             .from('beats')
-                            .select('id, titulo, genero, bpm, precio_basico_mxn, portada_url, productor_id, nota_musical, escala_musical, vibras, tipos_beat, conteo_reproducciones, conteo_likes, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
+                            .select('id, titulo, genero, bpm, precio_basico_mxn, portada_url, productor_id, tono_escala, vibras, tipos_beat, conteo_reproducciones, conteo_likes, productor:productor_id(nombre_artistico, nombre_usuario, foto_perfil, esta_verificado, es_fundador, nivel_suscripcion)')
                             .neq('id', beatForRelated.id)
                             .ilike('vibras', `%${firstMood}%`)
                             .limit(10);

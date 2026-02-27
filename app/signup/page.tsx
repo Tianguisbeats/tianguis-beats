@@ -53,9 +53,23 @@ export default function SignupPage() {
     }, [username]);
 
     const handleSignup = async (e: React.FormEvent) => {
-        e.preventDefault();
+        const missingFields = [];
+        if (!fullName) missingFields.push('Nombre Completo');
+        if (!username) missingFields.push('Username');
+        if (!artisticName) missingFields.push('Nombre Artístico');
+        if (!birthDate) missingFields.push('Fecha de Nacimiento');
+        if (!email) missingFields.push('Email');
+        if (!password) missingFields.push('Contraseña');
+
+        if (missingFields.length > 0) {
+            setError(`Faltan datos obligatorios: ${missingFields.join(', ')}`);
+            setLoading(false);
+            return;
+        }
+
         if (isUsernameAvailable === false) {
-            setError('Ese nombre de usuario ya está en uso. Elige otro.');
+            setError('⚠️ Ese usuario ya está registrado, busca otro.');
+            setLoading(false);
             return;
         }
 
@@ -123,15 +137,15 @@ export default function SignupPage() {
             if (err.message?.includes('rate limit') || err.message?.includes('too many requests') || err.status === 429) {
                 userMessage = '⚠️ Has hecho demasiados intentos. Por seguridad, Supabase ha bloqueado temporalmente el registro. Espera unos 15 minutos o intenta con una red/correo diferente.';
             } else if (err.message?.includes('already registered')) {
-                userMessage = 'Este correo ya tiene una cuenta asociada. Prueba iniciando sesión.';
+                userMessage = '⚠️ Ese usuario (o correo) ya está registrado, busca otro o intenta iniciar sesión.';
             } else if (err.status === 422 || err.message?.includes('invalid format')) {
-                userMessage = 'Alguno de los datos tiene un formato incorrecto. Revisa los campos.';
+                userMessage = '⚠️ Alguno de los datos tiene un formato incorrecto. Revisa los campos.';
             } else if (err.message === 'Debes ser mayor de 18 años para registrarte en Tianguis Beats.') {
-                userMessage = err.message;
+                userMessage = `⚠️ ${err.message}`;
             } else if (err.message?.includes('User already registered') || err.message?.includes('already been registered')) {
-                userMessage = 'Este correo ya está registrado. ¿Ya tienes cuenta? Intenta iniciar sesión.';
+                userMessage = '⚠️ Ese usuario ya está registrado, busca otro o intenta iniciar sesión.';
             } else {
-                userMessage = err.message || 'Error inesperado al registrar. Por favor intenta más tarde.';
+                userMessage = `⚠️ ${err.message || 'Error inesperado al registrar. Por favor intenta más tarde.'}`;
             }
 
             setError(userMessage);
@@ -220,7 +234,7 @@ export default function SignupPage() {
                                                 </div>
                                             </div>
                                             {isUsernameAvailable === false && (
-                                                <p className="text-[9px] text-error font-black uppercase mt-1.5 ml-1">Usuario no disponible</p>
+                                                <p className="text-[9px] text-error font-black uppercase mt-1.5 ml-1 animate-pulse">Ese usuario ya está registrado, busca otro</p>
                                             )}
                                         </div>
 
@@ -284,7 +298,7 @@ export default function SignupPage() {
                                     <button
                                         type="submit"
                                         disabled={loading || isUsernameAvailable === false}
-                                        className="btn-standard w-full py-4 rounded-2xl gap-3 mt-2 group text-[11px] disabled:opacity-50"
+                                        className="w-full py-4 rounded-2xl gap-3 mt-2 group text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center bg-accent text-white shadow-xl shadow-accent/20 hover:bg-blue-600 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {loading ? (
                                             <Loader2 className="animate-spin" size={18} />

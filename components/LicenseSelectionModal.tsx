@@ -259,8 +259,7 @@ export default function LicenseSelectionModal({ beat, isOpen, onClose }: License
                             <div className="grid grid-cols-2 gap-2">
                                 <SpecItem label="Género" value={beat.genero} />
                                 <SpecItem label="BPM" value={`${beat.bpm} BPM`} />
-                                <SpecItem label="Nota" value={beat.nota_musical} />
-                                <SpecItem label="Escala" value={beat.escala_musical} />
+                                <SpecItem label="Tono / Escala" value={beat.tono_escala} />
                                 <SpecItem label="Mood" value={beat.vibras} />
                                 <SpecItem label="Tipo" value={Array.isArray(beat.tipos_beat) ? beat.tipos_beat[0] : (beat.tipos_beat || 'Original')} />
                             </div>

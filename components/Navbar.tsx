@@ -130,7 +130,7 @@ export default function Navbar() {
                                                         <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain translate-y-[-1px]" />
                                                     )}
                                                     {profile?.es_fundador && (
-                                                        <Crown size={16} className="text-accent translate-y-[-1px]" fill="currentColor" />
+                                                        <Crown size={16} className="text-amber-500 translate-y-[-1px]" fill="currentColor" />
                                                     )}
                                                 </div>
                                             </Link>

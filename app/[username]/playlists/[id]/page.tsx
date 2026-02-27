@@ -94,7 +94,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ username: s
                             .select('*')
                             .eq('productor_id', profileData.id)
                             .eq('es_publico', true)
-                            .order('created_at', { ascending: false });
+                            .order('fecha_creacion', { ascending: false });
 
                         if (allBeatsData) {
                             // Transformation skip for brevity in modal

@@ -150,7 +150,7 @@ function ProducersContent() {
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     {artist.es_fundador && (
-                                                        <div className="w-10 h-10 bg-slate-950/80 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center justify-center text-amber-400 shadow-2xl">
+                                                        <div className="w-10 h-10 bg-slate-950/80 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center justify-center text-amber-500 shadow-2xl">
                                                             <Crown size={20} fill="currentColor" />
                                                         </div>
                                                     )}
