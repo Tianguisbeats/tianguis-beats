@@ -337,8 +337,9 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     };
 
     if (loading) return (
-        <div className="flex items-center justify-center min-h-[50vh]">
-            <Loader2 className="animate-spin text-accent" size={30} />
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+            <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted animate-pulse">Cargando Beat...</p>
         </div>
     );
 
@@ -370,444 +371,448 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
     };
 
     return (
-        <div className="w-full lg:-m-14 -m-10 lg:p-14 p-10 bg-background dark:bg-card/20 rounded-[3.5rem] min-h-screen">
-            <div className="mb-10 pl-1 flex items-center justify-between">
+        <div className="w-full">
+            {/* Header */}
+            <div className="mb-10 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <Link href="/studio/beats" className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-background border border-border text-muted hover:text-accent hover:border-accent transition-all shrink-0">
+                    <Link href="/studio/beats" className="w-9 h-9 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-muted hover:text-accent hover:border-accent/30 transition-all">
                         <ChevronLeft size={16} />
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-black uppercase tracking-tighter text-foreground flex items-center gap-2">
-                            <span className="bg-gradient-to-r from-[#3b82f6] to-indigo-600 bg-clip-text text-transparent">Editar</span>
-                            <span>Beat</span>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full mb-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Modo Edición</span>
+                        </div>
+                        <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground leading-[1]">
+                            Editar <span className="text-accent">Beat</span>
                         </h1>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-transparent space-y-8">
-                {error && (
-                    <div className="bg-red-50 text-red-600 p-4 rounded-xl text-xs font-bold mb-6 flex items-center gap-2">
-                        <AlertCircle size={16} /> {error}
-                    </div>
-                )}
-                {success && (
-                    <div className="bg-green-50 text-green-600 p-4 rounded-xl text-xs font-bold mb-6 flex items-center gap-2">
-                        <CheckCircle2 size={16} /> ¡Cambios guardados correctamente!
-                    </div>
-                )}
+            {/* Error / Success */}
+            {error && (
+                <div className="flex items-center gap-3 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[11px] font-bold mb-6">
+                    <AlertCircle size={16} className="shrink-0" /> {error}
+                    <button onClick={() => setError(null)} className="ml-auto"><X size={14} /></button>
+                </div>
+            )}
+            {success && (
+                <div className="flex items-center gap-3 p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-bold mb-6">
+                    <CheckCircle2 size={20} /> ¡Cambios guardados! Redirigiendo...
+                </div>
+            )}
 
-                <form onSubmit={handleUpdate} className="space-y-10">
-                    {/* 1. Datos Principales */}
-                    <div className="grid md:grid-cols-2 gap-8">
-                        <div className="space-y-4">
+            <form onSubmit={handleUpdate} className="space-y-10">
+                {/* 1. Datos Principales */}
+                <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Título</label>
+                            <input
+                                type="text"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-sm font-bold outline-none focus:border-accent focus:bg-card transition-all"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Género</label>
+                            <select
+                                value={genre}
+                                onChange={(e) => {
+                                    setGenre(e.target.value);
+                                    setSubgenre('');
+                                }}
+                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all appearance-none"
+                                required
+                            >
+                                <option value="">Seleccionar</option>
+                                {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
+                            </select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Subgénero</label>
+                                <span className="text-[9px] font-bold text-muted uppercase tracking-widest mr-1">(Opcional)</span>
+                            </div>
+                            <select
+                                value={subgenre}
+                                onChange={(e) => setSubgenre(e.target.value)}
+                                className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={!genre || !SUBGENRES[genre]}
+                            >
+                                <option value="">{genre ? 'Ninguno / Automático' : 'Selecciona un género primero'}</option>
+                                {genre && SUBGENRES[genre]?.map(sg => (
+                                    <option key={sg} value={sg}>{sg}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Título</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">BPM</label>
                                 <input
-                                    type="text"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-sm font-bold outline-none focus:border-accent focus:bg-card transition-all"
+                                    type="number"
+                                    value={bpm}
+                                    onChange={(e) => setBpm(e.target.value)}
+                                    className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-sm font-bold outline-none focus:border-accent transition-all"
                                     required
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Género</label>
-                                <select
-                                    value={genre}
-                                    onChange={(e) => {
-                                        setGenre(e.target.value);
-                                        setSubgenre('');
-                                    }}
-                                    className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all appearance-none"
-                                    required
-                                >
-                                    <option value="">Seleccionar</option>
-                                    {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
-                                </select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Subgénero</label>
-                                    <span className="text-[9px] font-bold text-muted uppercase tracking-widest mr-1">(Opcional)</span>
-                                </div>
-                                <select
-                                    value={subgenre}
-                                    onChange={(e) => setSubgenre(e.target.value)}
-                                    className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                    disabled={!genre || !SUBGENRES[genre]}
-                                >
-                                    <option value="">{genre ? 'Ninguno / Automático' : 'Selecciona un género primero'}</option>
-                                    {genre && SUBGENRES[genre]?.map(sg => (
-                                        <option key={sg} value={sg}>{sg}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">BPM</label>
-                                    <input
-                                        type="number"
-                                        value={bpm}
-                                        onChange={(e) => setBpm(e.target.value)}
-                                        className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-sm font-bold outline-none focus:border-accent transition-all"
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <div className="flex items-center justify-between ml-1">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted">Tono / Escala</label>
-                                            <div className="group relative">
-                                                <Info size={14} className="text-accent cursor-help opacity-70 hover:opacity-100 transition-opacity" />
-                                                <div className="absolute bottom-full right-0 mb-2 w-64 p-3 bg-card border border-border rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
-                                                    <p className="text-[9px] font-bold text-foreground leading-relaxed uppercase tracking-wider">
-                                                        <span className="text-accent">¿No sabes el tono?</span> Db y C# son la misma nota. Si usas Auto-Tune, ambos ajustes funcionarán igual para este beat.
-                                                    </p>
-                                                    <div className="absolute top-full right-4 w-2 h-2 bg-card border-r border-b border-border rotate-45 -translate-y-1"></div>
-                                                </div>
+                                    <div className="flex items-center justify-between ml-1">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted">Tono / Escala</label>
+                                        <div className="group relative">
+                                            <Info size={14} className="text-accent cursor-help opacity-70 hover:opacity-100 transition-opacity" />
+                                            <div className="absolute bottom-full right-0 mb-2 w-64 p-3 bg-card border border-border rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
+                                                <p className="text-[9px] font-bold text-foreground leading-relaxed uppercase tracking-wider">
+                                                    <span className="text-accent">¿No sabes el tono?</span> Db y C# son la misma nota. Si usas Auto-Tune, ambos ajustes funcionarán igual para este beat.
+                                                </p>
+                                                <div className="absolute top-full right-4 w-2 h-2 bg-card border-r border-b border-border rotate-45 -translate-y-1"></div>
                                             </div>
                                         </div>
-                                        <select
-                                            value={tonoEscala}
-                                            onChange={(e) => setTonoEscala(e.target.value)}
-                                            className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all font-heading appearance-none"
-                                            required
-                                        >
-                                            <option value="">Seleccionar Tono / Escala</option>
-                                            <optgroup label="NOTAS NATURALES" className="bg-card text-accent font-black">
-                                                {MUSICAL_KEYS.filter(k => k.group === 'natural').map(k => (
-                                                    <option key={k.value} value={k.value} className="bg-card text-foreground">{k.label}</option>
-                                                ))}
-                                            </optgroup>
-                                            <optgroup label="SOLO PARA PROS (ALTERADAS)" className="bg-card text-accent font-black">
-                                                {MUSICAL_KEYS.filter(k => k.group === 'accidental').map(k => (
-                                                    <option key={k.value} value={k.value} className="bg-card text-foreground">{k.label}</option>
-                                                ))}
-                                            </optgroup>
-                                        </select>
                                     </div>
+                                    <select
+                                        value={tonoEscala}
+                                        onChange={(e) => setTonoEscala(e.target.value)}
+                                        className="w-full bg-background border-2 border-border rounded-xl px-4 py-3 text-base md:text-xs font-bold outline-none focus:border-accent transition-all font-heading appearance-none"
+                                        required
+                                    >
+                                        <option value="">Seleccionar Tono / Escala</option>
+                                        <optgroup label="NOTAS NATURALES" className="bg-card text-accent font-black">
+                                            {MUSICAL_KEYS.filter(k => k.group === 'natural').map(k => (
+                                                <option key={k.value} value={k.value} className="bg-card text-foreground">{k.label}</option>
+                                            ))}
+                                        </optgroup>
+                                        <optgroup label="SOLO PARA PROS (ALTERADAS)" className="bg-card text-accent font-black">
+                                            {MUSICAL_KEYS.filter(k => k.group === 'accidental').map(k => (
+                                                <option key={k.value} value={k.value} className="bg-card text-foreground">{k.label}</option>
+                                            ))}
+                                        </optgroup>
+                                    </select>
                                 </div>
-                            </div>
-
-                            {/* Beat Type moved here */}
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Beat Type / Artistas de Referencia</label>
-                                <TagInput
-                                    tags={beatTypes}
-                                    setTags={setBeatTypes}
-                                    placeholder="Ej: 808 Mafia, Tainy, Zaytoven..."
-                                />
                             </div>
                         </div>
 
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Artwork (3000x3000px)</label>
+                        {/* Beat Type moved here */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Beat Type / Artistas de Referencia</label>
+                            <TagInput
+                                tags={beatTypes}
+                                setTags={setBeatTypes}
+                                placeholder="Ej: 808 Mafia, Tainy, Zaytoven..."
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Artwork (3000x3000px)</label>
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    accept=".jpg,.jpeg,.png"
+                                    onChange={(e) => setCoverFile(e.target.files?.[0] || null)}
+                                    className="hidden"
+                                    id="cover"
+                                />
+                                <label htmlFor="cover" className="flex items-center gap-4 p-3 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-background hover:border-accent transition-all h-[116px] overflow-hidden">
+                                    {(coverFile || existingPortada) ? (
+                                        <div className="flex items-center gap-3 w-full">
+                                            <div className="w-16 h-16 bg-background rounded-lg flex items-center justify-center shrink-0 overflow-hidden border border-border shadow-sm">
+                                                <img
+                                                    src={coverFile ? URL.createObjectURL(coverFile) : existingPortada!}
+                                                    className="w-full h-full object-cover"
+                                                    alt="Original"
+                                                />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="text-xs font-bold text-foreground truncate">{coverFile ? coverFile.name : 'Portada Actual'}</p>
+                                                <p className="text-[10px] text-green-500 font-bold uppercase">{coverFile ? 'Lista para subir' : 'Sin cambios'}</p>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center w-full text-muted">
+                                            <Upload size={20} className="mb-2" />
+                                            <span className="text-[9px] font-bold uppercase">Click para cambiar</span>
+                                        </div>
+                                    )}
+                                </label>
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between ml-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted">Mood Tags</label>
+                                <span className={`text-[9px] font-bold uppercase tracking-widest ${selectedMoods.length === 3 ? 'text-green-500' : 'text-accent'}`}>
+                                    {selectedMoods.length}/3 Seleccionados (Forzoso 3)
+                                </span>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                {MOODS.map(mood => (
+                                    <button
+                                        key={mood.label}
+                                        type="button"
+                                        onClick={() => handleMoodToggle(mood.label)}
+                                        className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${selectedMoods.includes(mood.label)
+                                            ? 'bg-foreground text-background shadow-lg shadow-black/10'
+                                            : 'bg-accent-soft text-muted hover:text-foreground'
+                                            }`}
+                                    >
+                                        <span className="mr-1">{mood.emoji}</span> {mood.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr className="border-slate-100" />
+
+                {/* 2. Archivos y Licencias */}
+                <div className="space-y-10">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
+                            <ShieldCheck size={20} />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-black text-foreground uppercase tracking-tighter">Archivos y Licencias</h3>
+                            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em]">Gestiona tus archivos y precios por tier</p>
+                        </div>
+                    </div>
+
+                    {/* SECTION: FILE UPLOADS */}
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent">
+                                <Upload size={16} />
+                            </div>
+                            <h4 className="text-sm font-black uppercase tracking-widest text-foreground">1. Gestión de Archivos</h4>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {/* MP3 Tagged */}
+                            <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-slate-200 dark:border-white/10 group transition-all">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                            <Music size={14} className="text-blue-500" /> MP3 Tag (Muestra)
+                                        </span>
+                                        <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Pre-escucha con marca de voz</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {(previewFile || existingPreview) && <CheckCircle2 size={16} className="text-emerald-500" />}
+                                        <span className="text-[9px] font-black text-accent/50 uppercase">Obligatorio</span>
+                                    </div>
+                                </div>
                                 <div className="relative">
                                     <input
                                         type="file"
-                                        accept=".jpg,.jpeg,.png"
-                                        onChange={(e) => setCoverFile(e.target.files?.[0] || null)}
+                                        accept=".mp3"
+                                        onChange={(e) => setPreviewFile(validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 Tagged', 20))}
                                         className="hidden"
-                                        id="cover"
+                                        id="preview-file"
                                     />
-                                    <label htmlFor="cover" className="flex items-center gap-4 p-3 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-background hover:border-accent transition-all h-[116px] overflow-hidden">
-                                        {(coverFile || existingPortada) ? (
-                                            <div className="flex items-center gap-3 w-full">
-                                                <div className="w-16 h-16 bg-background rounded-lg flex items-center justify-center shrink-0 overflow-hidden border border-border shadow-sm">
-                                                    <img
-                                                        src={coverFile ? URL.createObjectURL(coverFile) : existingPortada!}
-                                                        className="w-full h-full object-cover"
-                                                        alt="Original"
-                                                    />
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="text-xs font-bold text-foreground truncate">{coverFile ? coverFile.name : 'Portada Actual'}</p>
-                                                    <p className="text-[10px] text-green-500 font-bold uppercase">{coverFile ? 'Lista para subir' : 'Sin cambios'}</p>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="flex flex-col items-center justify-center w-full text-muted">
-                                                <Upload size={20} className="mb-2" />
-                                                <span className="text-[9px] font-bold uppercase">Click para cambiar</span>
-                                            </div>
-                                        )}
+                                    <label htmlFor="preview-file" className="flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-accent transition-all group/label overflow-hidden">
+                                        <span className="truncate max-w-[150px]">{previewFile ? previewFile.name : (existingPreview ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
+                                        <div className="w-6 h-6 rounded-lg bg-accent/10 flex items-center justify-center text-accent group-hover/label:bg-accent group-hover/label:text-white transition-colors">
+                                            <Upload size={12} />
+                                        </div>
                                     </label>
                                 </div>
                             </div>
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between ml-1">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted">Mood Tags</label>
-                                    <span className={`text-[9px] font-bold uppercase tracking-widest ${selectedMoods.length === 3 ? 'text-green-500' : 'text-accent'}`}>
-                                        {selectedMoods.length}/3 Seleccionados (Forzoso 3)
-                                    </span>
+
+                            {/* MP3 Master */}
+                            <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-slate-200 dark:border-white/10 group transition-all">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                            <Zap size={14} className="text-indigo-500" /> MP3 Master (HQ)
+                                        </span>
+                                        <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Calidad 320kbps sin tags</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {(hqMp3File || existingMp3HQ) && <CheckCircle2 size={16} className="text-emerald-500" />}
+                                        <span className="text-[9px] font-black text-indigo-500/50 uppercase">Altamente Recomendado</span>
+                                    </div>
                                 </div>
-                                <div className="flex flex-wrap gap-2">
-                                    {MOODS.map(mood => (
-                                        <button
-                                            key={mood.label}
-                                            type="button"
-                                            onClick={() => handleMoodToggle(mood.label)}
-                                            className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${selectedMoods.includes(mood.label)
-                                                ? 'bg-foreground text-background shadow-lg shadow-black/10'
-                                                : 'bg-accent-soft text-muted hover:text-foreground'
-                                                }`}
-                                        >
-                                            <span className="mr-1">{mood.emoji}</span> {mood.label}
-                                        </button>
-                                    ))}
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        accept=".mp3"
+                                        onChange={(e) => setHqMp3File(validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 HQ', 50))}
+                                        className="hidden"
+                                        id="hq-file"
+                                    />
+                                    <label htmlFor="hq-file" className="flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-indigo-500 transition-all group/label overflow-hidden">
+                                        <span className="truncate max-w-[150px]">{hqMp3File ? hqMp3File.name : (existingMp3HQ ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
+                                        <div className="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500 group-hover/label:bg-indigo-500 group-hover/label:text-white transition-colors">
+                                            <Upload size={12} />
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* WAV */}
+                            <div className={`p-6 rounded-3xl border transition-all relative ${isFree ? 'opacity-50 grayscale bg-slate-200/50' : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10'}`}>
+                                {isFree && (
+                                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] rounded-3xl">
+                                        <Lock size={20} className="text-slate-400 mb-2" />
+                                        <Link href="/pricing" className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-transform">Desbloquear Pro</Link>
+                                    </div>
+                                )}
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                            <FileText size={14} className="text-emerald-500" /> WAV (Lossless)
+                                        </span>
+                                        <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Calidad de estudio profesional</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {(wavFile || existingWav) && <CheckCircle2 size={16} className="text-emerald-500" />}
+                                    </div>
+                                </div>
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        accept=".wav"
+                                        onChange={(e) => setWavFile(validateFile(e.target.files?.[0] || null, ['wav'], 'WAV', 200))}
+                                        className="hidden"
+                                        id="wav-file"
+                                        disabled={isFree}
+                                    />
+                                    <label htmlFor="wav-file" className={`flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all group/label overflow-hidden ${isFree ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-emerald-500'}`}>
+                                        <span className="truncate max-w-[150px]">{wavFile ? wavFile.name : (existingWav ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
+                                        <div className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 group-hover/label:bg-emerald-500 group-hover/label:text-white transition-colors">
+                                            <Upload size={12} />
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* Stems */}
+                            <div className={`p-6 rounded-3xl border transition-all relative ${!isPremium ? 'opacity-50 grayscale bg-slate-200/50' : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10'}`}>
+                                {!isPremium && (
+                                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] rounded-3xl">
+                                        <Lock size={20} className="text-slate-400 mb-2" />
+                                        <Link href="/pricing" className="px-4 py-2 bg-purple-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-transform">Desbloquear Premium</Link>
+                                    </div>
+                                )}
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                            <Layers size={14} className="text-purple-500" /> STEMS (Trackout)
+                                        </span>
+                                        <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Pistas separadas en .ZIP o .RAR</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {(stemsFile || existingStems) && <CheckCircle2 size={16} className="text-emerald-500" />}
+                                    </div>
+                                </div>
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        accept=".zip,.rar"
+                                        onChange={(e) => setStemsFile(validateFile(e.target.files?.[0] || null, ['zip', 'rar'], 'Stems', 500))}
+                                        className="hidden"
+                                        id="stems-file"
+                                        disabled={!isPremium}
+                                    />
+                                    <label htmlFor="stems-file" className={`flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all group/label overflow-hidden ${!isPremium ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-purple-500'}`}>
+                                        <span className="truncate max-w-[150px]">{stemsFile ? stemsFile.name : (existingStems ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
+                                        <div className="w-6 h-6 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500 group-hover/label:bg-purple-500 group-hover/label:text-white transition-colors">
+                                            <Upload size={12} />
+                                        </div>
+                                    </label>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <hr className="border-slate-100" />
-
-                    {/* 2. Archivos y Licencias */}
-                    <div className="space-y-10">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
-                                <ShieldCheck size={20} />
+                    {/* SECTION: LICENSE TIERS */}
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
+                                <ShieldCheck size={16} />
                             </div>
-                            <div>
-                                <h3 className="text-xl font-black text-foreground uppercase tracking-tighter">Archivos y Licencias</h3>
-                                <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em]">Gestiona tus archivos y precios por tier</p>
-                            </div>
+                            <h4 className="text-sm font-black uppercase tracking-widest text-foreground">2. Configuración de Licencias</h4>
                         </div>
 
-                        {/* SECTION: FILE UPLOADS */}
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-2 mb-2">
-                                <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent">
-                                    <Upload size={16} />
-                                </div>
-                                <h4 className="text-sm font-black uppercase tracking-widest text-foreground">1. Gestión de Archivos</h4>
-                            </div>
+                        {[
+                            { id: 'basic', label: 'Licencia Gratis', color: 'slate', active: isBasicActive, setAction: setIsBasicActive, price: '0', setPrice: setBasicPrice, desc: 'Uso limitado (MP3 con Tag)', disabled: false, lockPrice: true },
+                            { id: 'mp3', label: 'Licencia Básica', color: 'blue', active: isMp3Active, setAction: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'Descarga MP3 High Quality', disabled: false },
+                            { id: 'pro', label: 'Licencia Pro', color: 'indigo', active: isProActive, setAction: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Mayores límites (MP3/WAV)', disabled: isFree },
+                            { id: 'premium', label: 'Licencia Premium', color: 'emerald', active: isPremiumActive, setAction: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Calidad de estudio (WAV)', disabled: !isPremium && !isPro },
+                            { id: 'unlimited', label: 'Licencia Ilimitada', color: 'amber', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Todos los archivos y stems', disabled: !isPremium }
 
-                            <div className="grid md:grid-cols-2 gap-6">
-                                {/* MP3 Tagged */}
-                                <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-slate-200 dark:border-white/10 group transition-all">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                                <Music size={14} className="text-blue-500" /> MP3 Tag (Muestra)
-                                            </span>
-                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Pre-escucha con marca de voz</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            {(previewFile || existingPreview) && <CheckCircle2 size={16} className="text-emerald-500" />}
-                                            <span className="text-[9px] font-black text-accent/50 uppercase">Obligatorio</span>
-                                        </div>
+                        ].map((lic: any) => (
+                            <div key={lic.id} className={`p-6 rounded-[1.5rem] border-2 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden ${lic.disabled ? 'bg-slate-100 dark:bg-white/5 opacity-60 grayscale' : (lic.active ? `bg-white dark:bg-black border-${lic.color}-500/30 shadow-xl shadow-${lic.color}-500/5` : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 opacity-75')}`}>
+                                <div className="flex items-center gap-5">
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${lic.active ? `bg-${lic.color}-500 text-white shadow-lg shadow-${lic.color}-500/20` : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
+                                        {lic.id === 'premium' ? <Crown size={20} /> :
+                                            lic.id === 'unlimited' ? <Layers size={20} /> :
+                                                <ShieldCheck size={20} />}
                                     </div>
-                                    <div className="relative">
-                                        <input
-                                            type="file"
-                                            accept=".mp3"
-                                            onChange={(e) => setPreviewFile(validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 Tagged', 20))}
-                                            className="hidden"
-                                            id="preview-file"
-                                        />
-                                        <label htmlFor="preview-file" className="flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-accent transition-all group/label overflow-hidden">
-                                            <span className="truncate max-w-[150px]">{previewFile ? previewFile.name : (existingPreview ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
-                                            <div className="w-6 h-6 rounded-lg bg-accent/10 flex items-center justify-center text-accent group-hover/label:bg-accent group-hover/label:text-white transition-colors">
-                                                <Upload size={12} />
-                                            </div>
-                                        </label>
+                                    <div>
+                                        <h5 className="font-black uppercase tracking-tight text-foreground">{lic.label}</h5>
+                                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest">{lic.desc}</p>
                                     </div>
                                 </div>
 
-                                {/* MP3 Master */}
-                                <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-slate-200 dark:border-white/10 group transition-all">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                                <Zap size={14} className="text-indigo-500" /> MP3 Master (HQ)
-                                            </span>
-                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Calidad 320kbps sin tags</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            {(hqMp3File || existingMp3HQ) && <CheckCircle2 size={16} className="text-emerald-500" />}
-                                            <span className="text-[9px] font-black text-indigo-500/50 uppercase">Altamente Recomendado</span>
-                                        </div>
-                                    </div>
-                                    <div className="relative">
+                                <div className="flex items-center gap-6">
+                                    <div className={`flex items-center gap-2 bg-slate-50 dark:bg-white/5 px-4 py-3 rounded-2xl border-2 transition-all ${lic.active ? 'border-accent shadow-sm' : 'border-slate-200 dark:border-white/10 opacity-50'}`}>
+                                        <span className="text-[11px] font-black text-muted">$</span>
                                         <input
-                                            type="file"
-                                            accept=".mp3"
-                                            onChange={(e) => setHqMp3File(validateFile(e.target.files?.[0] || null, ['mp3'], 'MP3 HQ', 50))}
-                                            className="hidden"
-                                            id="hq-file"
+                                            type="number"
+                                            value={lic.price}
+                                            onChange={(e) => lic.setPrice(e.target.value)}
+                                            disabled={lic.disabled || !lic.active}
+                                            className="w-16 bg-transparent outline-none font-black text-xs text-foreground placeholder:text-muted"
+                                            placeholder="0"
                                         />
-                                        <label htmlFor="hq-file" className="flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-indigo-500 transition-all group/label overflow-hidden">
-                                            <span className="truncate max-w-[150px]">{hqMp3File ? hqMp3File.name : (existingMp3HQ ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
-                                            <div className="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500 group-hover/label:bg-indigo-500 group-hover/label:text-white transition-colors">
-                                                <Upload size={12} />
-                                            </div>
-                                        </label>
+                                        <span className="text-[9px] font-black text-muted">MXN</span>
                                     </div>
-                                </div>
-
-                                {/* WAV */}
-                                <div className={`p-6 rounded-3xl border transition-all relative ${isFree ? 'opacity-50 grayscale bg-slate-200/50' : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10'}`}>
-                                    {isFree && (
-                                        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] rounded-3xl">
-                                            <Lock size={20} className="text-slate-400 mb-2" />
-                                            <Link href="/pricing" className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-transform">Desbloquear Pro</Link>
-                                        </div>
-                                    )}
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                                <FileText size={14} className="text-emerald-500" /> WAV (Lossless)
-                                            </span>
-                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Calidad de estudio profesional</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            {(wavFile || existingWav) && <CheckCircle2 size={16} className="text-emerald-500" />}
-                                        </div>
-                                    </div>
-                                    <div className="relative">
-                                        <input
-                                            type="file"
-                                            accept=".wav"
-                                            onChange={(e) => setWavFile(validateFile(e.target.files?.[0] || null, ['wav'], 'WAV', 200))}
-                                            className="hidden"
-                                            id="wav-file"
-                                            disabled={isFree}
-                                        />
-                                        <label htmlFor="wav-file" className={`flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all group/label overflow-hidden ${isFree ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-emerald-500'}`}>
-                                            <span className="truncate max-w-[150px]">{wavFile ? wavFile.name : (existingWav ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
-                                            <div className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 group-hover/label:bg-emerald-500 group-hover/label:text-white transition-colors">
-                                                <Upload size={12} />
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                {/* Stems */}
-                                <div className={`p-6 rounded-3xl border transition-all relative ${!isPremium ? 'opacity-50 grayscale bg-slate-200/50' : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10'}`}>
-                                    {!isPremium && (
-                                        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] rounded-3xl">
-                                            <Lock size={20} className="text-slate-400 mb-2" />
-                                            <Link href="/pricing" className="px-4 py-2 bg-purple-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-transform">Desbloquear Premium</Link>
-                                        </div>
-                                    )}
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                                <Layers size={14} className="text-purple-500" /> STEMS (Trackout)
-                                            </span>
-                                            <span className="text-[9px] font-bold text-muted uppercase tracking-widest">Pistas separadas en .ZIP o .RAR</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            {(stemsFile || existingStems) && <CheckCircle2 size={16} className="text-emerald-500" />}
-                                        </div>
-                                    </div>
-                                    <div className="relative">
-                                        <input
-                                            type="file"
-                                            accept=".zip,.rar"
-                                            onChange={(e) => setStemsFile(validateFile(e.target.files?.[0] || null, ['zip', 'rar'], 'Stems', 500))}
-                                            className="hidden"
-                                            id="stems-file"
-                                            disabled={!isPremium}
-                                        />
-                                        <label htmlFor="stems-file" className={`flex items-center justify-between px-4 py-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all group/label overflow-hidden ${!isPremium ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-purple-500'}`}>
-                                            <span className="truncate max-w-[150px]">{stemsFile ? stemsFile.name : (existingStems ? 'Actualizar Archivo' : 'Seleccionar Archivo')}</span>
-                                            <div className="w-6 h-6 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500 group-hover/label:bg-purple-500 group-hover/label:text-white transition-colors">
-                                                <Upload size={12} />
-                                            </div>
-                                        </label>
-                                    </div>
+                                    <Toggle
+                                        active={lic.active}
+                                        onToggle={() => lic.setAction(!lic.active)}
+                                        disabled={lic.disabled}
+                                    />
                                 </div>
                             </div>
-                        </div>
-
-                        {/* SECTION: LICENSE TIERS */}
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-2 mb-2">
-                                <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
-                                    <ShieldCheck size={16} />
-                                </div>
-                                <h4 className="text-sm font-black uppercase tracking-widest text-foreground">2. Configuración de Licencias</h4>
-                            </div>
-
-                            {[
-                                { id: 'basic', label: 'Licencia Gratis', color: 'slate', active: isBasicActive, setAction: setIsBasicActive, price: '0', setPrice: setBasicPrice, desc: 'Uso limitado (MP3 con Tag)', disabled: false, lockPrice: true },
-                                { id: 'mp3', label: 'Licencia Básica', color: 'blue', active: isMp3Active, setAction: setIsMp3Active, price: mp3Price, setPrice: setMp3Price, desc: 'Descarga MP3 High Quality', disabled: false },
-                                { id: 'pro', label: 'Licencia Pro', color: 'indigo', active: isProActive, setAction: setIsProActive, price: proPrice, setPrice: setProPrice, desc: 'Mayores límites (MP3/WAV)', disabled: isFree },
-                                { id: 'premium', label: 'Licencia Premium', color: 'emerald', active: isPremiumActive, setAction: setIsPremiumActive, price: premiumPrice, setPrice: setPremiumPrice, desc: 'Calidad de estudio (WAV)', disabled: !isPremium && !isPro },
-                                { id: 'unlimited', label: 'Licencia Ilimitada', color: 'amber', active: isUnlimitedActive, setAction: setIsUnlimitedActive, price: unlimitedPrice, setPrice: setUnlimitedPrice, desc: 'Todos los archivos y stems', disabled: !isPremium }
-
-                            ].map((lic: any) => (
-                                <div key={lic.id} className={`p-6 rounded-[1.5rem] border-2 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden ${lic.disabled ? 'bg-slate-100 dark:bg-white/5 opacity-60 grayscale' : (lic.active ? `bg-white dark:bg-black border-${lic.color}-500/30 shadow-xl shadow-${lic.color}-500/5` : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 opacity-75')}`}>
-                                    <div className="flex items-center gap-5">
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${lic.active ? `bg-${lic.color}-500 text-white shadow-lg shadow-${lic.color}-500/20` : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
-                                            {lic.id === 'premium' ? <Crown size={20} /> :
-                                                lic.id === 'unlimited' ? <Layers size={20} /> :
-                                                    <ShieldCheck size={20} />}
-                                        </div>
-                                        <div>
-                                            <h5 className="font-black uppercase tracking-tight text-foreground">{lic.label}</h5>
-                                            <p className="text-[10px] font-bold text-muted uppercase tracking-widest">{lic.desc}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-6">
-                                        <div className={`flex items-center gap-2 bg-slate-50 dark:bg-white/5 px-4 py-3 rounded-2xl border-2 transition-all ${lic.active ? 'border-accent shadow-sm' : 'border-slate-200 dark:border-white/10 opacity-50'}`}>
-                                            <span className="text-[11px] font-black text-muted">$</span>
-                                            <input
-                                                type="number"
-                                                value={lic.price}
-                                                onChange={(e) => lic.setPrice(e.target.value)}
-                                                disabled={lic.disabled || !lic.active}
-                                                className="w-16 bg-transparent outline-none font-black text-xs text-foreground placeholder:text-muted"
-                                                placeholder="0"
-                                            />
-                                            <span className="text-[9px] font-black text-muted">MXN</span>
-                                        </div>
-                                        <Toggle
-                                            active={lic.active}
-                                            onToggle={() => lic.setAction(!lic.active)}
-                                            disabled={lic.disabled}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        ))}
                     </div>
+                </div>
 
-                    <button
-                        type="submit"
-                        disabled={saving}
-                        onClick={!hasChanges ? (e) => { e.preventDefault(); router.back(); } : undefined}
-                        className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 border-t border-white/10 ${hasChanges
-                            ? 'bg-accent text-white hover:bg-accent/90 shadow-accent/20'
-                            : 'bg-muted/10 text-muted hover:bg-muted/20 shadow-none'
-                            }`}
-                    >
-                        {saving ? (
-                            <>
-                                <Loader2 className="animate-spin" size={20} />
-                                Guardando...
-                            </>
-                        ) : hasChanges ? (
-                            <>
-                                <Save size={18} />
-                                Guardar Cambios
-                            </>
-                        ) : (
-                            <>
-                                <X size={18} />
-                                Cancelar
-                            </>
-                        )}
-                    </button>
-                </form>
-            </div>
+                <button
+                    type="submit"
+                    disabled={saving}
+                    onClick={!hasChanges ? (e) => { e.preventDefault(); router.back(); } : undefined}
+                    className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 border-t border-white/10 ${hasChanges
+                        ? 'bg-accent text-white hover:bg-accent/90 shadow-accent/20'
+                        : 'bg-muted/10 text-muted hover:bg-muted/20 shadow-none'
+                        }`}
+                >
+                    {saving ? (
+                        <>
+                            <Loader2 className="animate-spin" size={20} />
+                            Guardando...
+                        </>
+                    ) : hasChanges ? (
+                        <>
+                            <Save size={18} />
+                            Guardar Cambios
+                        </>
+                    ) : (
+                        <>
+                            <X size={18} />
+                            Cancelar
+                        </>
+                    )}
+                </button>
+            </form>
         </div>
     );
 }
