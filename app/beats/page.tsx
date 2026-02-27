@@ -149,6 +149,8 @@ function HubContent() {
             </div>
           </div>
 
+          <div className="w-full h-px bg-border/40 mb-10" />
+
 
           {/* ── FEATURED BANNER ── */}
           <div className="mb-16">

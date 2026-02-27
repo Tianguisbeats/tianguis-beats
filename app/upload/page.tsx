@@ -279,16 +279,16 @@ export default function UploadPage() {
                     {/* Header */}
                     <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div>
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border mb-4" style={{ background: `${planColor}10`, borderColor: `${planColor}30` }}>
-                                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: planColor }} />
-                                <span className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: planColor }}>Plan {planLabel} · Activo</span>
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border mb-4 shadow-xl" style={{ background: '#0f172a', borderColor: `${planColor}50` }}>
+                                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: planColor }} />
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Plan {planLabel} Activo</span>
                             </div>
                             <h1 className="text-5xl font-black uppercase tracking-tighter leading-[1] mb-2">
                                 Publicar<br />
                                 <span className="text-accent underline decoration-white/10 underline-offset-8">Beat.</span>
                                 <Sparkles className="inline ml-3 text-amber-400 fill-amber-400 w-7 h-7 mb-1" />
                             </h1>
-                            <p className="text-[10px] font-black text-muted uppercase tracking-widest opacity-50">Completa los 3 pasos para lanzar tu producción</p>
+                            <p className="text-[10px] font-black text-muted uppercase tracking-widest opacity-50">Lanza tu producción al mercado</p>
                         </div>
 
                         {isFree && (
@@ -308,19 +308,6 @@ export default function UploadPage() {
                         )}
                     </div>
 
-                    {/* Stepper */}
-                    <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2">
-                        {sections.map((s, i) => (
-                            <React.Fragment key={i}>
-                                <button type="button" onClick={() => setActiveSection(i)}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 ${activeSection === i ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-white/5 border border-white/10 text-muted hover:text-foreground'}`}>
-                                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] ${activeSection === i ? 'bg-white text-accent' : 'bg-white/10'}`}>{i + 1}</span>
-                                    {s}
-                                </button>
-                                {i < sections.length - 1 && <div className="h-px flex-1 bg-white/10 min-w-[20px] shrink-0" />}
-                            </React.Fragment>
-                        ))}
-                    </div>
 
                     {/* Error / Success */}
                     {error && (
@@ -338,7 +325,7 @@ export default function UploadPage() {
                     <form onSubmit={handleSubmit} className="space-y-8">
 
                         {/* ─── SECTION 1: Identidad del Beat ─── */}
-                        <div className={`bg-card border border-border rounded-[2.5rem] p-8 relative overflow-hidden transition-all ${activeSection !== 0 ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+                        <div className={`bg-card border border-border rounded-[2.5rem] p-8 relative overflow-hidden transition-all`}>
                             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
                             <div className="flex items-center gap-3 mb-8">
                                 <div className="w-10 h-10 bg-accent/10 rounded-2xl flex items-center justify-center text-accent">
@@ -348,11 +335,6 @@ export default function UploadPage() {
                                     <h2 className="text-xl font-black uppercase tracking-tighter text-foreground">Identidad del Beat</h2>
                                     <p className="text-[9px] font-bold text-muted uppercase tracking-widest opacity-50">Información musical y metadatos</p>
                                 </div>
-                                {activeSection === 0 && (
-                                    <button type="button" onClick={() => setActiveSection(1)} className="ml-auto flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-[9px] font-black text-muted uppercase tracking-widest hover:text-foreground transition-all">
-                                        Siguiente <ArrowRight size={12} />
-                                    </button>
-                                )}
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-8">
@@ -466,7 +448,7 @@ export default function UploadPage() {
                         </div>
 
                         {/* ─── SECTION 2: Archivos de Audio ─── */}
-                        <div className={`bg-card border border-border rounded-[2.5rem] p-8 relative overflow-hidden transition-all ${activeSection !== 1 ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+                        <div className={`bg-card border border-border rounded-[2.5rem] p-8 relative overflow-hidden transition-all`}>
                             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent" />
                             <div className="flex items-center gap-3 mb-8">
                                 <div className="w-10 h-10 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400">
@@ -476,16 +458,6 @@ export default function UploadPage() {
                                     <h2 className="text-xl font-black uppercase tracking-tighter text-foreground">Archivos de Audio</h2>
                                     <p className="text-[9px] font-bold text-muted uppercase tracking-widest opacity-50">Sube tus archivos maestros</p>
                                 </div>
-                                {activeSection === 1 && (
-                                    <div className="ml-auto flex gap-2">
-                                        <button type="button" onClick={() => setActiveSection(0)} className="flex items-center gap-1 px-3 py-2 bg-white/5 border border-white/10 rounded-full text-[9px] font-black text-muted uppercase tracking-widest hover:text-foreground transition-all">
-                                            Atrás
-                                        </button>
-                                        <button type="button" onClick={() => setActiveSection(2)} className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-[9px] font-black text-muted uppercase tracking-widest hover:text-foreground transition-all">
-                                            Siguiente <ArrowRight size={12} />
-                                        </button>
-                                    </div>
-                                )}
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-4">
@@ -508,7 +480,7 @@ export default function UploadPage() {
                         </div>
 
                         {/* ─── SECTION 3: Licencias & Precios ─── */}
-                        <div className={`bg-card border border-border rounded-[2.5rem] p-8 relative overflow-hidden transition-all ${activeSection !== 2 ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+                        <div className={`bg-card border border-border rounded-[2.5rem] p-8 relative overflow-hidden transition-all`}>
                             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="w-10 h-10 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-400">
@@ -518,11 +490,6 @@ export default function UploadPage() {
                                     <h2 className="text-xl font-black uppercase tracking-tighter text-foreground">Licencias & Precios</h2>
                                     <p className="text-[9px] font-bold text-muted uppercase tracking-widest opacity-50">Precios sincronizados con Tianguis Studio</p>
                                 </div>
-                                {activeSection === 2 && (
-                                    <button type="button" onClick={() => setActiveSection(1)} className="flex items-center gap-1 px-3 py-2 bg-white/5 border border-white/10 rounded-full text-[9px] font-black text-muted uppercase tracking-widest hover:text-foreground transition-all">
-                                        Atrás
-                                    </button>
-                                )}
                             </div>
 
                             {studioLicenses.length > 0 && (

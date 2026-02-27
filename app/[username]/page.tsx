@@ -729,28 +729,28 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                         </div>
 
                         {/* Info Header */}
-                        <div className="flex-1 text-center md:text-left">
-                            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 w-full">
-                                <div className="space-y-4">
+                        <div className="flex-1 w-full">
+                            <div className="flex flex-col items-center justify-center gap-6 w-full text-center">
+                                <div className="space-y-6 w-full max-w-4xl mx-auto">
                                     {/* Nombre artístico: compacto en móvil */}
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
                                         <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-tighter leading-[0.85] text-foreground drop-shadow-sm">
 
                                             {profile.nombre_artistico || profile.nombre_usuario}
                                         </h1>
-                                        <div className="flex items-center gap-2 translate-y-3 md:translate-y-6">
+                                        <div className="flex items-center gap-2">
                                             {profile.esta_verificado && (
-                                                <img src="/verified-badge.png" alt="Verificado" className="w-6 h-6 md:w-8 md:h-8 object-contain hover:scale-110 transition-transform cursor-help shadow-accent/20 shadow-2xl" title="Verificado" />
+                                                <img src="/verified-badge.png" alt="Verificado" className="w-8 h-8 object-contain hover:scale-110 transition-transform cursor-help shadow-accent/20 shadow-2xl" title="Verificado" />
                                             )}
                                             {profile.es_fundador && (
                                                 <div className="flex items-center justify-center text-amber-500 hover:rotate-12 transition-transform cursor-help" title="Founder">
-                                                    <Crown className="w-6 h-6 md:w-8 md:h-8" fill="currentColor" />
+                                                    <Crown className="w-8 h-8" fill="currentColor" />
                                                 </div>
                                             )}
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-[11px] font-black uppercase tracking-[0.2em] text-muted">
+                                    <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] font-black uppercase tracking-[0.2em] text-muted">
                                         <span className="text-accent underline decoration-2 underline-offset-4">@{profile.nombre_usuario}</span>
                                         <span className="opacity-30">•</span>
                                         {isEditing ? (
@@ -758,7 +758,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                 <select
                                                     value={editCountry}
                                                     onChange={(e) => setEditCountry(e.target.value)}
-                                                    className="bg-accent/5 rounded-lg px-2 py-1 text-accent outline-none border border-accent/20"
+                                                    className="bg-accent/5 rounded-lg px-2 py-1 text-accent outline-none border border-accent/20 transition-all focus:border-accent"
                                                 >
                                                     <option value="">Escribe tu país</option>
                                                     {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -768,17 +768,38 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                                         type="text"
                                                         value={editCountry}
                                                         onChange={(e) => setEditCountry(e.target.value)}
-                                                        placeholder="Escribe tu país..."
-                                                        className="bg-accent/5 rounded-lg px-2 py-1 text-accent outline-none border border-accent/20 w-32"
+                                                        placeholder="Otro..."
+                                                        className="bg-accent/5 rounded-lg px-3 py-1 text-accent outline-none border border-accent/20 w-24 focus:border-accent transition-all"
                                                     />
                                                 )}
                                             </div>
                                         ) : (
-                                            <span className="flex items-center gap-1.5"><MapPin size={12} className="text-accent" /> {profile.pais || (isOwner ? "Agrega tu país" : "Planeta Tierra")}</span>
+                                            <span className="flex items-center gap-1.5"><MapPin size={12} className="text-accent" /> {profile.pais || (isOwner ? "Agrega tu país" : "México")}</span>
                                         )}
                                         <span className="opacity-30">•</span>
                                         <span className="flex items-center gap-1.5"><Calendar size={12} /> {profile.fecha_creacion ? new Date(profile.fecha_creacion).getFullYear() : '2025'}</span>
                                     </div>
+
+                                    {/* BIO CENTERED (ABOVE BUTTONS) */}
+                                    {!isEditing && profile.biografia && (
+                                        <div className="max-w-2xl mx-auto py-4">
+                                            <p className="text-sm md:text-base font-medium text-muted leading-relaxed text-center italic opacity-80 decoration-accent/10">
+                                                &ldquo;{profile.biografia}&rdquo;
+                                            </p>
+                                        </div>
+                                    )}
+                                    {isEditing && (
+                                        <div className="max-w-2xl mx-auto py-2">
+                                            <textarea
+                                                value={editBio}
+                                                maxLength={160}
+                                                onChange={(e) => setEditBio(e.target.value)}
+                                                className="w-full bg-foreground/5 border border-border focus:border-accent rounded-2xl p-4 text-sm font-medium outline-none resize-none text-center"
+                                                placeholder="Tu biografía corta y poderosa..."
+                                            />
+                                            <p className="text-[8px] font-black text-muted uppercase mt-1 text-right">{editBio.length}/160</p>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* ── Botones de acción (Editar / Seguir): full-width en móvil ── */}
@@ -878,165 +899,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                                             className="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity"
                                         ></iframe>
                                     </div>
-                                </div>
-                            )}
-
-                            {/* Trayectoria y Socials */}
-                            <div className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-white/10 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-slate-400/5 dark:bg-white/5 blur-[60px] rounded-full pointer-events-none" />
-                                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] mb-10 text-slate-400 dark:text-white/40 flex items-center gap-3">
-                                    <ListMusic size={14} className="text-accent" /> Acerca de mí
-                                </h3>
-
-                                {isEditing ? (
-                                    <div className="space-y-6">
-                                        <div>
-                                            <textarea
-                                                value={editBio}
-                                                maxLength={500}
-                                                onChange={(e) => setEditBio(e.target.value.slice(0, 500))}
-                                                className="w-full h-40 bg-foreground/5 border border-border focus:border-accent rounded-[2rem] p-6 text-sm font-medium outline-none resize-none text-foreground transition-all"
-                                                placeholder="Tu historia comienza aquí..."
-                                            />
-                                            <div className="flex justify-end mt-2 px-2">
-                                                <span className={`text-[9px] font-black uppercase tracking-widest ${editBio.length >= 500 ? 'text-red-500' : 'text-slate-400'}`}>
-                                                    {editBio.length}/500 Caracteres
-                                                </span>
-                                            </div>
-                                        </div>
-                                        {/* Redes sociales removidas de aquí según solicitud */}
-                                        <div className="pt-6 border-t border-slate-100 dark:border-white/5 space-y-6">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <ShieldCheck size={14} className="text-accent" />
-                                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-white/40">Redes para Verificación (Privado)</h4>
-                                            </div>
-                                            <div className="grid grid-cols-1 gap-4">
-                                                <div className="space-y-1.5">
-                                                    <label className="text-[9px] font-black uppercase text-muted tracking-widest ml-1">Link Instagram</label>
-                                                    <input
-                                                        value={editVerifyInstagram}
-                                                        onChange={(e) => setEditVerifyInstagram(e.target.value)}
-                                                        className="w-full bg-foreground/5 border border-border focus:border-accent rounded-xl px-4 py-3 text-[10px] font-bold text-foreground outline-none transition-all"
-                                                        placeholder="https://instagram.com/tu_perfil"
-                                                    />
-                                                </div>
-                                                <div className="space-y-1.5">
-                                                    <label className="text-[9px] font-black uppercase text-muted tracking-widest ml-1">Link YouTube</label>
-                                                    <input
-                                                        value={editVerifyYoutube}
-                                                        onChange={(e) => setEditVerifyYoutube(e.target.value)}
-                                                        className="w-full bg-foreground/5 border border-border focus:border-accent rounded-xl px-4 py-3 text-[10px] font-bold text-foreground outline-none transition-all"
-                                                        placeholder="https://youtube.com/@tu_canal"
-                                                    />
-                                                </div>
-                                                <div className="space-y-1.5">
-                                                    <label className="text-[9px] font-black uppercase text-muted tracking-widest ml-1">Link TikTok</label>
-                                                    <input
-                                                        value={editVerifyTiktok}
-                                                        onChange={(e) => setEditVerifyTiktok(e.target.value)}
-                                                        className="w-full bg-foreground/5 border border-border focus:border-accent rounded-xl px-4 py-3 text-[10px] font-bold text-foreground outline-none transition-all"
-                                                        placeholder="https://tiktok.com/@tu_perfil"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {profile.nivel_suscripcion === 'premium' && (
-                                            <div className="pt-6 border-t border-slate-100 dark:border-white/5">
-                                                <label className="text-[9px] font-black uppercase text-accent mb-2 block tracking-widest">Link YouTube Destacado (Banner)</label>
-                                                <input
-                                                    value={editVideoUrl}
-                                                    onChange={(e) => setEditVideoUrl(e.target.value)}
-                                                    className="w-full bg-foreground/5 border border-border focus:border-accent rounded-xl px-4 py-3 text-[10px] font-bold text-foreground outline-none transition-all"
-                                                    placeholder="URL de Video..."
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center py-8 w-full">
-                                        {/* Bio Text (Optional/Reduced) */}
-                                        {profile.biografia && (
-                                            <p className="mb-10 text-xs font-medium text-center text-muted max-w-lg mx-auto line-clamp-3 leading-relaxed">
-                                                &ldquo;{profile.biografia}&rdquo;
-                                            </p>
-                                        )}
-
-                                        {/* Social Icons inside About Me Section (below bio) */}
-                                        {(profile.enlaces_sociales?.instagram || profile.enlaces_sociales?.youtube || profile.enlaces_sociales?.tiktok) && (
-                                            <div className="flex justify-center gap-4 mt-10">
-                                                {profile.enlaces_sociales.instagram && (
-                                                    <a href={profile.enlaces_sociales.instagram} target="_blank" rel="noopener noreferrer" className="p-4 bg-foreground/5 border border-border rounded-full text-muted hover:text-accent hover:border-accent/30 hover:scale-110 transition-all">
-                                                        <Instagram size={20} />
-                                                    </a>
-                                                )}
-                                                {profile.enlaces_sociales.youtube && (
-                                                    <a href={profile.enlaces_sociales.youtube} target="_blank" rel="noopener noreferrer" className="p-4 bg-foreground/5 border border-border rounded-full text-muted hover:text-accent hover:border-accent/30 hover:scale-110 transition-all">
-                                                        <Youtube size={20} />
-                                                    </a>
-                                                )}
-                                                {profile.enlaces_sociales.tiktok && (
-                                                    <a href={profile.enlaces_sociales.tiktok} target="_blank" rel="noopener noreferrer" className="p-4 bg-foreground/5 border border-border rounded-full text-muted hover:text-accent hover:border-accent/30 hover:scale-110 transition-all">
-                                                        <Music size={20} />
-                                                    </a>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Acerca de mí Card (Independent) */}
-                            {(isOwner || profile.enlaces_activos) && (
-                                <div className="p-10 rounded-[3rem] border border-border bg-card transition-all duration-500 hover:border-accent/20 hover:scale-[1.01] relative overflow-hidden group">
-                                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <div className="flex items-center gap-3 mb-8">
-                                        <Zap size={14} className="text-accent" />
-                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-muted">Acerca de mí</h4>
-                                    </div>
-
-                                    {profile.nivel_suscripcion !== 'premium' && profile.nivel_suscripcion !== 'pro' ? (
-                                        <div className="relative group overflow-hidden rounded-[2.5rem] border border-accent/10 bg-gradient-to-br from-accent/5 to-accent/10 dark:from-accent/5 dark:to-accent/10 p-8 transition-all hover:scale-[1.01]">
-
-                                            <div className="relative z-10 flex flex-col items-center text-center gap-6">
-                                                <div className="w-16 h-16 bg-white dark:bg-slate-950 rounded-2xl flex items-center justify-center text-accent shadow-xl border border-slate-100 dark:border-white/5">
-                                                    <Link2 size={24} />
-                                                </div>
-                                                <div>
-                                                    <h5 className="font-black text-foreground text-lg mb-2 tracking-tight">Multi-Link Profesional</h5>
-                                                    <p className="text-[10px] font-bold text-muted uppercase tracking-widest leading-relaxed">Conecta todas tus redes en una sola tarjeta inteligente</p>
-                                                </div>
-
-                                                {isOwner ? (
-                                                    <Link
-                                                        href="/pricing"
-                                                        className="w-full py-4 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-accent/25 hover:scale-105 transition-all active:scale-95 flex items-center justify-center gap-3"
-                                                    >
-                                                        <Crown size={14} fill="currentColor" /> Desbloquear con Premium
-                                                    </Link>
-                                                ) : (
-                                                    <div className="w-full py-4 bg-foreground/5 border border-border rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-muted text-center">
-                                                        Exclusivo Premium
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <Link
-                                            href={`/${profile.nombre_usuario}/links`}
-                                            className="w-full h-24 rounded-[2.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-between px-10 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(255,255,255,0.05)] hover:scale-[1.03] active:scale-95 relative overflow-hidden group border border-white/5"
-                                        >
-                                            <div className="flex items-center gap-6">
-                                                <div className="w-12 h-12 bg-white/10 dark:bg-slate-900/10 rounded-2xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
-                                                    <Zap size={24} fill="currentColor" />
-                                                </div>
-                                                <span className="font-black text-sm">Mi Acerca de mí</span>
-                                            </div>
-                                            <div className="w-10 h-10 rounded-full bg-white/5 dark:bg-slate-900/5 flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                                                <ChevronRight size={20} />
-                                            </div>
-                                        </Link>
-                                    )}
                                 </div>
                             )}
                         </div>
@@ -1427,8 +1289,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             )}
                         </div>
                     </div>
-                </div>
-            </main>
+                </div >
+            </main >
 
             {isOwner && profile && (
                 <PlaylistManagerModal
@@ -1439,7 +1301,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     allBeats={beats}
                     onSuccess={fetchAll}
                 />
-            )}
+            )
+            }
 
             {/* Fan Capture Popup */}
             {

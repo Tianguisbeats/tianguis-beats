@@ -62,19 +62,12 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
     const isBeatPlaying = isBeat && currentBeat?.id === currentItem.id && isPlaying;
 
     return (
-        <section className="py-16 px-4">
+        <section className="py-8 px-4">
             <div className="max-w-[1700px] mx-auto">
 
                 {/* Section Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
                     <div>
-                        <div className="flex items-center gap-2 mb-2">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
-                            </span>
-                            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-accent">En vivo · Esta semana</span>
-                        </div>
                         <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground leading-none">
                             Trending de<br />
                             <span className="text-accent">esta semana.</span>
