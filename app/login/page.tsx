@@ -37,14 +37,14 @@ export default function LoginPage() {
                 if (!isEmail) {
                     const { data, error: profileError } = await supabase
                         .from('perfiles')
-                        .select('email')
+                        .select('correo')
                         .ilike('nombre_usuario', loginEmail)
                         .maybeSingle();
 
-                    if (profileError || !data?.email) {
+                    if (profileError || !data?.correo) {
                         throw new Error('Usuario no encontrado');
                     }
-                    loginEmail = data.email;
+                    loginEmail = data.correo;
                 }
 
                 const { error: authError } = await supabase.auth.signInWithPassword({
@@ -60,7 +60,7 @@ export default function LoginPage() {
                 const { data: profile } = await supabase
                     .from('perfiles')
                     .select('id')
-                    .eq('email', loginEmail)
+                    .eq('correo', loginEmail)
                     .maybeSingle();
 
                 if (!profile) {
@@ -82,7 +82,7 @@ export default function LoginPage() {
                 const { data: profile } = await supabase
                     .from('perfiles')
                     .select('id')
-                    .eq('email', loginEmail)
+                    .eq('correo', loginEmail)
                     .maybeSingle();
 
                 if (!profile) {
@@ -156,7 +156,7 @@ export default function LoginPage() {
 
                         <form onSubmit={handleLogin} className="space-y-6 pt-4">
                             {error && (
-                                <div className="p-4 bg-error/10 border border-error/20 text-error text-xs font-bold rounded-2xl text-center animate-in fade-in slide-in-from-top-2">
+                                <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold rounded-2xl text-center animate-in fade-in slide-in-from-top-2 duration-300">
                                     {error}
                                 </div>
                             )}
@@ -246,13 +246,13 @@ export default function LoginPage() {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="btn-standard w-full py-5 rounded-[2rem] text-[11px] gap-3 mt-4 group disabled:opacity-50"
+                                        className="w-full py-5 bg-accent text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-accent/20 hover:bg-blue-600 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                                     >
                                         {loading ? (
                                             <Loader2 className="animate-spin" size={18} />
                                         ) : (
                                             <>
-                                                {mode === 'password' ? 'Iniciar Sesión' : mode === 'magic-link' ? 'Enviar Enlace Mágico' : 'Enviar Instrucciones'}
+                                                {mode === 'password' ? 'Entrar al Estudio' : mode === 'magic-link' ? 'Enviar Enlace Mágico' : 'Enviar Instrucciones'}
                                                 {mode === 'password' ? <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" /> : <Send size={18} className="group-hover:scale-110 transition-transform" />}
                                             </>
                                         )}
