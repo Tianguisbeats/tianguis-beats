@@ -26,7 +26,8 @@ import {
     Cpu,
     CheckCircle2,
     Crown,
-    FileText
+    FileText,
+    CreditCard
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
@@ -98,6 +99,7 @@ export default function MyPurchasesPage() {
                 const orderKey = tx.orden_pedido || tx.pago_id || tx.id;
 
                 if (!groupedOrders[orderKey]) {
+                    // Si encontramos una Orden por primera vez, inicializamos variables
                     groupedOrders[orderKey] = {
                         id: orderKey,
                         pago_id: tx.pago_id,
@@ -108,6 +110,8 @@ export default function MyPurchasesPage() {
                         status: tx.estado_pago,
                         payment_method: tx.metodo_pago,
                         stripe_id: tx.pago_id,
+                        buyer_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Cliente Tianguis',
+                        buyer_email: user.email,
                         items: []
                     };
                 }
@@ -260,6 +264,80 @@ export default function MyPurchasesPage() {
         } catch (error) {
             console.error("Error generating PDF:", error);
             showToast("Error al procesar la licencia", "error");
+        }
+    };
+
+    const handleDownloadReceipt = (order: Order) => {
+        try {
+            showToast("Generando comprobante...", "info");
+            import('jspdf').then(async ({ default: jsPDF }) => {
+                const autoTable = (await import('jspdf-autotable')).default;
+                const doc = new jsPDF();
+
+                doc.setFillColor(15, 23, 42);
+                doc.rect(0, 0, 210, 40, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(24);
+                doc.setFont("helvetica", "bold");
+                doc.text("TIANGUIS BEATS", 15, 25);
+
+                doc.setFontSize(10);
+                doc.setFont("helvetica", "normal");
+                doc.text("Comprobante de Pago Digital", 140, 20);
+                doc.text(new Date().toLocaleDateString('es-MX'), 140, 28);
+
+                doc.setTextColor(50, 50, 50);
+                doc.setFontSize(12);
+                doc.setFont("helvetica", "bold");
+                doc.text("Detalles de la Transacción", 15, 55);
+
+                doc.setFontSize(10);
+                doc.setFont("helvetica", "normal");
+                doc.text(`ID de Orden: ${order.orden_pedido || order.stripe_id || order.id}`, 15, 65);
+                doc.text(`Fecha: ${new Date(order.created_at).toLocaleString()}`, 15, 72);
+                doc.text(`Estado: Pago Completado (${order.payment_method || 'Stripe'})`, 15, 79);
+
+                doc.setFont("helvetica", "bold");
+                doc.text("Facturado a:", 120, 65);
+                doc.setFont("helvetica", "normal");
+                const buyerEmail = (order as any).buyer_email || 'Estudio / Cliente';
+                const buyerName = (order as any).buyer_name || 'Productor Vendedor';
+                doc.text(buyerName, 120, 72);
+                doc.text(buyerEmail, 120, 79);
+
+                const tableBody = order.items.map(item => [
+                    item.name,
+                    item.product_type.toUpperCase(),
+                    `$${Number(item.price).toFixed(2)} ${order.currency}`
+                ]);
+
+                autoTable(doc, {
+                    startY: 95,
+                    head: [['Descripción del Producto', 'Tipo', 'Monto']],
+                    body: tableBody,
+                    theme: 'striped',
+                    headStyles: { fillColor: [59, 130, 246] },
+                    styles: { font: 'helvetica', fontSize: 10 },
+                });
+
+                const finalY = (doc as any).lastAutoTable.finalY || 150;
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(14);
+                // @ts-ignore
+                doc.text(`Total Pagado: $${order.total_amount.toFixed(2)} ${order.currency}`, 140, finalY + 15);
+
+                doc.setFontSize(9);
+                doc.setTextColor(150, 150, 150);
+                doc.text("Este documento es un comprobante de compra digital expedido por la plataforma.", 15, 280);
+                doc.text("Si necesitas factura fiscal oficial, contáctanos en soporte@tianguisbeats.com", 15, 285);
+
+                doc.save(`Recibo_${order.orden_pedido || order.id.slice(0, 8)}.pdf`);
+                showToast("Descarga completada", "success");
+            });
+        } catch (e) {
+            console.error(e);
+            showToast("No se pudo generar el comprobante", "error");
         }
     };
 
@@ -456,73 +534,77 @@ export default function MyPurchasesPage() {
                         className="absolute inset-0 bg-background/80 backdrop-blur-md animate-in fade-in duration-300"
                         onClick={() => setSelectedOrder(null)}
                     />
-                    <div className="relative w-full max-w-2xl bg-background border border-border rounded-[3rem] overflow-hidden shadow-[0_0_100px_-20px_rgba(37,99,235,0.3)] animate-in zoom-in fade-in duration-300">
+                    <div className="relative w-full max-w-2xl bg-slate-900 border border-white/20 rounded-[3rem] overflow-hidden shadow-[0_40px_100px_-20px_rgba(59,130,246,0.5)] animate-in zoom-in-95 fade-in duration-300">
+                        {/* Modal Glow Wrapper */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-purple-600/10 pointer-events-none" />
+                        <div className="absolute -top-32 -right-32 w-64 h-64 bg-blue-500/20 rounded-full blur-[80px] pointer-events-none" />
+
                         {/* Modal Header */}
-                        <div className="p-8 border-b border-border flex items-center justify-between bg-gradient-to-r from-accent/5 to-transparent">
+                        <div className="relative z-10 p-6 sm:p-8 border-b border-white/10 flex items-center justify-between">
                             <div>
-                                <h3 className="text-2xl font-black uppercase tracking-tighter text-foreground">Detalles de Compra</h3>
-                                <p className="text-[10px] font-bold text-muted uppercase tracking-widest">
+                                <h3 className="text-2xl font-black uppercase tracking-tighter text-white">Detalles del Pedido</h3>
+                                <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest shadow-sm">
                                     Orden {selectedOrder.orden_pedido || `#${selectedOrder.id.slice(0, 8).toUpperCase()}`}
                                 </p>
                             </div>
                             <button
                                 onClick={() => setSelectedOrder(null)}
-                                className="w-12 h-12 rounded-2xl bg-accent-soft border border-border flex items-center justify-center text-foreground hover:bg-accent/10 transition-all"
+                                className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all z-20 relative"
                             >
                                 <X size={24} />
                             </button>
                         </div>
 
                         {/* Modal Content */}
-                        <div className="p-8 max-h-[70vh] overflow-y-auto space-y-8 scrollbar-hide">
+                        <div className="p-8 max-h-[70vh] overflow-y-auto space-y-8 scrollbar-hide text-white">
                             {/* General Info Grid */}
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="p-5 bg-card border border-border rounded-2xl">
-                                    <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-2">Método de Pago</p>
-                                    <p className="text-sm font-black text-foreground uppercase tracking-tight">{selectedOrder.payment_method || 'Tarjeta de Crédito / Stripe'}</p>
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div className="p-5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md hover:bg-white/10 transition-colors">
+                                    <p className="text-[9px] font-black text-white/50 uppercase tracking-widest mb-2 flex items-center gap-1.5"><CreditCard size={12} className="text-blue-400" /> Vía de Pago</p>
+                                    <p className="text-sm font-black text-white uppercase tracking-tight">{selectedOrder.payment_method || 'Tarjeta / Stripe'}</p>
                                 </div>
-                                <div className="p-5 bg-card border border-border rounded-2xl">
-                                    <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-2">Fecha de Pago</p>
-                                    <p className="text-sm font-black text-foreground uppercase tracking-tight">{new Date(selectedOrder.created_at).toLocaleString()}</p>
+                                <div className="p-5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md hover:bg-white/10 transition-colors">
+                                    <p className="text-[9px] font-black text-white/50 uppercase tracking-widest mb-2 flex items-center gap-1.5"><Clock size={12} className="text-amber-400" /> Fecha / Hora</p>
+                                    <p className="text-xs font-black text-white uppercase tracking-tight">{new Date(selectedOrder.created_at).toLocaleString()}</p>
                                 </div>
-                                <div className="p-5 bg-card border border-border rounded-2xl">
-                                    <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-2">Total Pagado</p>
-                                    <p className="text-xl font-black text-accent tracking-tighter">${selectedOrder.total_amount} <span className="text-[10px] uppercase">{selectedOrder.currency}</span></p>
+                                <div className="p-5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md hover:bg-white/10 transition-colors">
+                                    <p className="text-[9px] font-black text-white/50 uppercase tracking-widest mb-2 flex items-center gap-1.5"><CheckCircle2 size={12} className="text-emerald-400" /> Estado Pedido</p>
+                                    <p className="text-sm font-black text-emerald-400 uppercase tracking-widest">{selectedOrder.status === 'completado' ? 'PAGO VERIFICADO' : selectedOrder.status.toUpperCase()}</p>
                                 </div>
-                                <div className="p-5 bg-card border border-border rounded-2xl">
-                                    <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-2">Estado del Pedido</p>
-                                    <p className="text-sm font-black text-success uppercase tracking-widest">{selectedOrder.status === 'completado' ? 'PAGO VERIFICADO' : selectedOrder.status.toUpperCase()}</p>
+                                <div className="p-5 bg-blue-600/20 border border-blue-500/30 rounded-2xl backdrop-blur-md">
+                                    <p className="text-[9px] font-black text-blue-300 uppercase tracking-widest mb-2 flex items-center gap-1.5"><DollarSign size={12} className="text-blue-400" /> Total Gastado</p>
+                                    <p className="text-2xl font-black text-white tracking-tighter">${selectedOrder.total_amount} <span className="text-[10px] text-blue-300 uppercase">{selectedOrder.currency}</span></p>
                                 </div>
                             </div>
 
                             {/* Itemized Breakdown */}
                             <div className="space-y-4">
-                                <h4 className="text-[10px] font-black text-muted uppercase tracking-[0.2em] px-2 flex items-center gap-2">
-                                    <Package size={14} className="text-accent" />
-                                    Desglose de Productos
+                                <h4 className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] px-2 flex items-center gap-2">
+                                    <Package size={14} className="text-blue-400" />
+                                    Detalle del Contenido
                                 </h4>
                                 <div className="space-y-3">
                                     {selectedOrder.items.map((item) => (
-                                        <div key={item.id} className="p-6 rounded-[2rem] bg-card border border-border flex items-center justify-between group hover:border-accent/30 transition-all">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent">
+                                        <div key={item.id} className="p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 group hover:bg-white/10 hover:border-white/20 transition-all">
+                                            <div className="flex items-center gap-4 w-full md:w-auto">
+                                                <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400 border border-blue-500/20">
                                                     {getItemIcon(item.product_type)}
                                                 </div>
-                                                <div>
-                                                    <h5 className="font-black text-sm text-foreground uppercase tracking-tight">{item.name}</h5>
-                                                    <p className="text-[9px] font-bold text-muted uppercase tracking-widest">
+                                                <div className="min-w-0 flex-1">
+                                                    <h5 className="font-black text-sm text-white uppercase tracking-tight truncate">{item.name}</h5>
+                                                    <p className="text-[9px] font-bold text-white/60 uppercase tracking-widest">
                                                         {item.product_type === 'beat' ? `Licencia ${item.license_type}` : item.product_type === 'plan' ? `Suscripción ${item.metadata?.tier?.toUpperCase() || 'PRO'}` : 'Recurso Digital'}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="text-right">
-                                                <p className="text-sm font-black text-foreground tracking-tighter">${item.price} <span className="text-[9px] text-muted">{selectedOrder.currency}</span></p>
+                                            <div className="w-full md:w-auto flex items-center justify-between md:flex-col md:items-end md:justify-center border-t border-white/10 md:border-none pt-4 md:pt-0">
+                                                <p className="text-sm font-black text-white tracking-tighter">${item.price} <span className="text-[9px] text-white/60">{selectedOrder.currency}</span></p>
                                                 {item.product_type !== 'plan' && (
                                                     <button
                                                         onClick={() => handleDownloadFiles(item)}
-                                                        className="text-[9px] font-black text-accent uppercase tracking-widest mt-1 hover:underline"
+                                                        className="text-[9px] md:mt-1 border border-white/20 bg-white/5 px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-black text-blue-400 uppercase tracking-widest hover:bg-white/10 transition-colors"
                                                     >
-                                                        Re-descargar Archivos
+                                                        <Download size={10} /> Extraer
                                                     </button>
                                                 )}
                                             </div>
@@ -532,24 +614,30 @@ export default function MyPurchasesPage() {
                             </div>
 
                             {/* Official References */}
-                            <div className="p-6 bg-card/50 rounded-[2.5rem] border border-border/10">
-                                <div className="flex items-center gap-4 text-muted/40">
-                                    <div className="w-px h-10 bg-border/20" />
-                                    <p className="text-[10px] font-bold leading-relaxed uppercase tracking-wide">
-                                        ID de Transacción: {selectedOrder.stripe_id || 'ID NO DISPONIBLE'}<br />
-                                        Esta es una transacción digital segura procesada por Tianguis Beats.
-                                    </p>
+                            <div className="p-6 bg-black/40 rounded-3xl border border-white/5">
+                                <div className="flex items-center gap-4 text-white/50">
+                                    <div className="w-1 h-12 bg-blue-500/50 rounded-full" />
+                                    <div className="text-[10px] font-bold leading-relaxed tracking-wide">
+                                        <p className="mb-0.5">ID de Transacción Stripe (Segura): <span className="text-white/80 font-mono tracking-tighter">{selectedOrder.stripe_id || 'N/A'}</span></p>
+                                        <p className="opacity-80">Si tienes dudas sobre el acceso a tus archivos contacta con soporte. Esta compra está blindada en la base de datos de Tianguis Beats.</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="p-8 bg-background flex justify-center">
+                        <div className="p-6 bg-white/5 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <button
+                                onClick={() => handleDownloadReceipt(selectedOrder)}
+                                className="w-full sm:w-auto px-6 py-4 bg-white/10 border border-white/20 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/20 transition-all flex items-center justify-center gap-2"
+                            >
+                                <FileText size={16} /> Descargar Factura (PDF)
+                            </button>
                             <button
                                 onClick={() => setSelectedOrder(null)}
-                                className="w-full py-5 bg-foreground text-background dark:bg-foreground dark:text-background rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-xl active:scale-95"
+                                className="w-full sm:w-auto px-10 py-4 bg-white text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-white/20 hover:scale-105 active:scale-95 transition-all"
                             >
-                                Cerrar Ventana
+                                Cerrar
                             </button>
                         </div>
                     </div>

@@ -113,21 +113,21 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                         </div>
 
                         {/* ── Tarjeta de estado de membresia y verificación ── */}
-                        <div className={`p-6 rounded-[2rem] relative overflow-hidden group transition-all duration-500 ${profile?.nivel_suscripcion === 'premium' ? 'bg-gradient-to-br from-blue-600 to-indigo-900 text-white shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)]' :
-                            profile?.nivel_suscripcion === 'pro' ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-900 shadow-[0_20px_50px_-10px_rgba(245,158,11,0.2)]' :
+                        <div className={`p-6 rounded-[2rem] relative overflow-hidden group transition-all duration-500 ${profile?.nivel_suscripcion?.toLowerCase() === 'premium' ? 'bg-gradient-to-br from-blue-600 to-indigo-900 text-white shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)]' :
+                            profile?.nivel_suscripcion?.toLowerCase() === 'pro' ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-900 shadow-[0_20px_50px_-10px_rgba(245,158,11,0.2)]' :
                                 'bg-gradient-to-br from-slate-100 to-slate-200 dark:from-white/5 dark:to-white/10 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/5 shadow-sm'
                             }`}>
-                            <div className={`absolute top-0 right-0 w-20 h-20 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700 ${profile?.nivel_suscripcion === 'premium' ? 'bg-white/20' :
-                                profile?.nivel_suscripcion === 'pro' ? 'bg-white/40' :
+                            <div className={`absolute top-0 right-0 w-20 h-20 rounded-full blur-[40px] group-hover:scale-150 transition-transform duration-700 ${profile?.nivel_suscripcion?.toLowerCase() === 'premium' ? 'bg-white/20' :
+                                profile?.nivel_suscripcion?.toLowerCase() === 'pro' ? 'bg-white/40' :
                                     'bg-slate-400/20'
                                 }`} />
                             <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-1 text-center w-full">Membresía</p>
                             <h4 className="text-sm font-black uppercase tracking-tight flex items-center justify-center gap-2 w-full">
-                                {profile?.nivel_suscripcion === 'premium' ? <><Crown size={14} /> Plan Premium</> :
-                                    profile?.nivel_suscripcion === 'pro' ? <><Crown size={14} /> Plan Pro</> :
+                                {profile?.nivel_suscripcion?.toLowerCase() === 'premium' ? <><Crown size={14} /> Plan Premium</> :
+                                    profile?.nivel_suscripcion?.toLowerCase() === 'pro' ? <><Crown size={14} /> Plan Pro</> :
                                         <span className="px-2 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-black tracking-widest border border-slate-300 dark:border-slate-700">PLAN FREE</span>}
                             </h4>
-                            {profile?.fecha_termino_suscripcion && (profile.nivel_suscripcion === 'premium' || profile.nivel_suscripcion === 'pro') && (
+                            {profile?.fecha_termino_suscripcion && (profile.nivel_suscripcion?.toLowerCase() === 'premium' || profile.nivel_suscripcion?.toLowerCase() === 'pro') && (
                                 <p className="text-[9px] font-black tracking-widest opacity-80 mt-2 flex items-center justify-center text-center gap-1 w-full">
                                     Válido hasta: {new Date(profile.fecha_termino_suscripcion).toLocaleDateString()}
                                 </p>
@@ -139,22 +139,22 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 whitespace-nowrap">Verificado</span>
                                 </div>
                             ) : (
-                                <div className={`mt-4 pt-4 border-t ${profile?.nivel_suscripcion !== 'free' ? 'border-black/10 dark:border-white/10' : 'border-slate-200 dark:border-white/10'}`}>
+                                <div className={`mt-4 pt-4 border-t ${profile?.nivel_suscripcion?.toLowerCase() !== 'free' ? 'border-black/10 dark:border-white/10' : 'border-slate-200 dark:border-white/10'}`}>
                                     <Link href="/studio/verification" className="flex flex-col items-center justify-center gap-1 group/verify hover:opacity-80 transition-opacity w-full">
                                         <div className="flex items-center gap-2">
-                                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${profile?.nivel_suscripcion === 'pro' ? 'bg-black/10 text-slate-900' :
-                                                profile?.nivel_suscripcion === 'premium' ? 'bg-white/20 text-white' :
+                                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${profile?.nivel_suscripcion?.toLowerCase() === 'pro' ? 'bg-black/10 text-slate-900' :
+                                                profile?.nivel_suscripcion?.toLowerCase() === 'premium' ? 'bg-white/20 text-white' :
                                                     'bg-blue-100 text-blue-500'
                                                 }`}>
                                                 <ShieldCheck size={10} />
                                             </div>
-                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${profile?.nivel_suscripcion === 'pro' ? 'bg-black/5 text-slate-900 border-black/10' :
-                                                profile?.nivel_suscripcion === 'premium' ? 'bg-white/10 text-white border-white/20' :
+                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${profile?.nivel_suscripcion?.toLowerCase() === 'pro' ? 'bg-black/5 text-slate-900 border-black/10' :
+                                                profile?.nivel_suscripcion?.toLowerCase() === 'premium' ? 'bg-white/10 text-white border-white/20' :
                                                     'bg-blue-50 text-blue-500 border-blue-100'
                                                 }`}>Sin Verificar</span>
                                         </div>
-                                        <span className={`text-[7px] font-black uppercase tracking-[0.2em] transition-colors ${profile?.nivel_suscripcion === 'pro' ? 'text-slate-900/60 group-hover/verify:text-slate-900' :
-                                            profile?.nivel_suscripcion === 'premium' ? 'text-white/60 group-hover/verify:text-white' :
+                                        <span className={`text-[7px] font-black uppercase tracking-[0.2em] transition-colors ${profile?.nivel_suscripcion?.toLowerCase() === 'pro' ? 'text-slate-900/60 group-hover/verify:text-slate-900' :
+                                            profile?.nivel_suscripcion?.toLowerCase() === 'premium' ? 'text-white/60 group-hover/verify:text-white' :
                                                 'text-blue-500/60 group-hover/verify:text-blue-500'
                                             }`}>solicita la verificación</span>
                                     </Link>

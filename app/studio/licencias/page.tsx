@@ -193,8 +193,7 @@ export default function ContractsPage() {
                 </div>
                 <div className="space-y-2">
                     <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground leading-[1] flex flex-col">
-                        Tus
-                        <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Licencias.</span>
+                        Tus <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Licencias.</span>
                     </h1>
                     <p className="text-slate-500 dark:text-muted text-[11px] font-bold uppercase tracking-[0.4em] opacity-60 ml-1">
                         Personaliza los términos legales y límites de cada tipo

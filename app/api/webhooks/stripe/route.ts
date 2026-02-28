@@ -213,6 +213,7 @@ export async function POST(req: Request) {
                     .from('transacciones')
                     .insert({
                         pago_id: stripeId,
+                        orden_pedido: ordenPedido,
                         comprador_id: usuarioId,
                         vendedor_id: vendedorId,
                         producto_id: itemId,

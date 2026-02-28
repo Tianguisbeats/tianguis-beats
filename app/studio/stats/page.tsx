@@ -108,8 +108,8 @@ export default function StudioStatsPage() {
     };
 
     const progress = getSubscriptionProgress();
-    const isPremium = stats.userTier === 'premium';
-    const isPro = stats.userTier === 'pro';
+    const isPremium = stats.userTier.toLowerCase() === 'premium';
+    const isPro = stats.userTier.toLowerCase() === 'pro';
     const planColor = isPremium ? '#00f2ff' : '#f59e0b';
     const planTailwind = isPremium ? 'text-[#00f2ff]' : 'text-amber-400';
     const planBg = isPremium ? 'bg-[#00f2ff]/10' : 'bg-amber-500/10';
@@ -201,7 +201,7 @@ export default function StudioStatsPage() {
             {/* KPI Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <KpiCard color="#10b981" icon={<DollarSign size={22} />} value={formatCurrency(stats.totalRevenue)} label="Ingresos Totales" sub={<span className="flex items-center justify-center gap-1 text-emerald-600 dark:text-emerald-400"><TrendingUp size={10} /> Listo para retiro</span>} />
-                <KpiCard color="#10b981" icon={<ShieldCheck size={22} />} value={formatCurrency(stats.totalRevenue * 0.15)} label="Ahorro en Comisiones" sub={`Gracias a tu plan ${stats.userTier !== 'free' ? stats.userTier.toUpperCase() : 'Pro/Premium'}`} />
+                <KpiCard color="#10b981" icon={<ShieldCheck size={22} />} value={formatCurrency(stats.totalRevenue * 0.15)} label="Ahorro en Comisiones" sub={`Gracias a tu plan ${stats.userTier.toLowerCase() !== 'free' ? stats.userTier.toUpperCase() : 'Pro/Premium'}`} />
 
                 {/* Subscription progress card */}
                 <div className={`group relative bg-card border rounded-[2.5rem] p-8 overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl flex flex-col items-center text-center ${planBorder}`}>

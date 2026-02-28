@@ -57,8 +57,8 @@ export default function StudioBillingPage() {
         }
     };
 
-    const isPremium = profile?.nivel_suscripcion === 'premium';
-    const isPro = profile?.nivel_suscripcion === 'pro';
+    const isPremium = profile?.nivel_suscripcion?.toLowerCase() === 'premium';
+    const isPro = profile?.nivel_suscripcion?.toLowerCase() === 'pro';
     const isFree = !isPremium && !isPro;
 
     const planLabel = isPremium ? 'Premium' : isPro ? 'Pro' : 'Free';
@@ -140,7 +140,7 @@ export default function StudioBillingPage() {
                         </h2>
                         {!isFree && (
                             <p className="text-[11px] font-bold text-muted uppercase tracking-widest mt-1">
-                                {profile?.nivel_suscripcion === 'premium' ? '$349 MXN / mes' : '$149 MXN / mes'}
+                                {profile?.nivel_suscripcion?.toLowerCase() === 'premium' ? '$349 MXN / mes' : '$149 MXN / mes'}
                             </p>
                         )}
                     </div>
