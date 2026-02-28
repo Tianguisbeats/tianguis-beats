@@ -534,75 +534,75 @@ export default function MyPurchasesPage() {
                         className="absolute inset-0 bg-background/80 backdrop-blur-md animate-in fade-in duration-300"
                         onClick={() => setSelectedOrder(null)}
                     />
-                    <div className="relative w-full max-w-2xl bg-slate-900 border border-white/20 rounded-[3rem] overflow-hidden shadow-[0_40px_100px_-20px_rgba(59,130,246,0.5)] animate-in zoom-in-95 fade-in duration-300">
+                    <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/20 rounded-[3rem] overflow-hidden shadow-[0_40px_100px_-20px_rgba(59,130,246,0.3)] dark:shadow-[0_40px_100px_-20px_rgba(59,130,246,0.5)] animate-in zoom-in-95 fade-in duration-300">
                         {/* Modal Glow Wrapper */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-purple-600/10 pointer-events-none" />
-                        <div className="absolute -top-32 -right-32 w-64 h-64 bg-blue-500/20 rounded-full blur-[80px] pointer-events-none" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 dark:from-blue-600/10 via-transparent to-purple-600/5 dark:to-purple-600/10 pointer-events-none" />
+                        <div className="absolute -top-32 -right-32 w-64 h-64 bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-[80px] pointer-events-none" />
 
                         {/* Modal Header */}
-                        <div className="relative z-10 p-6 sm:p-8 border-b border-white/10 flex items-center justify-between">
+                        <div className="relative z-10 p-6 sm:p-8 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
                             <div>
-                                <h3 className="text-2xl font-black uppercase tracking-tighter text-white">Detalles del Pedido</h3>
-                                <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest shadow-sm">
+                                <h3 className="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-white">Detalles del Pedido</h3>
+                                <p className="text-[10px] font-bold text-slate-400 dark:text-white/50 uppercase tracking-widest shadow-sm">
                                     Orden {selectedOrder.orden_pedido || `#${selectedOrder.id.slice(0, 8).toUpperCase()}`}
                                 </p>
                             </div>
                             <button
                                 onClick={() => setSelectedOrder(null)}
-                                className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all z-20 relative"
+                                className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10 transition-all z-20 relative"
                             >
                                 <X size={24} />
                             </button>
                         </div>
 
                         {/* Modal Content */}
-                        <div className="p-8 max-h-[70vh] overflow-y-auto space-y-8 scrollbar-hide text-white">
+                        <div className="p-8 max-h-[70vh] overflow-y-auto space-y-8 scrollbar-hide text-slate-900 dark:text-white">
                             {/* General Info Grid */}
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div className="p-5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md hover:bg-white/10 transition-colors">
-                                    <p className="text-[9px] font-black text-white/50 uppercase tracking-widest mb-2 flex items-center gap-1.5"><CreditCard size={12} className="text-blue-400" /> Vía de Pago</p>
-                                    <p className="text-sm font-black text-white uppercase tracking-tight">{selectedOrder.payment_method || 'Tarjeta / Stripe'}</p>
+                                <div className="p-5 bg-blue-50 dark:bg-blue-600/10 border border-blue-100 dark:border-blue-500/20 rounded-2xl backdrop-blur-md hover:bg-blue-100 dark:hover:bg-blue-600/20 transition-colors group">
+                                    <p className="text-[9px] font-black text-blue-600 dark:text-blue-300 uppercase tracking-widest mb-2 flex items-center gap-1.5"><CreditCard size={12} className="group-hover:scale-110 transition-transform" /> Vía de Pago</p>
+                                    <p className="text-sm font-black text-blue-900 dark:text-white uppercase tracking-tight">{selectedOrder.payment_method || 'Tarjeta / Stripe'}</p>
                                 </div>
-                                <div className="p-5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md hover:bg-white/10 transition-colors">
-                                    <p className="text-[9px] font-black text-white/50 uppercase tracking-widest mb-2 flex items-center gap-1.5"><Clock size={12} className="text-amber-400" /> Fecha / Hora</p>
-                                    <p className="text-xs font-black text-white uppercase tracking-tight">{new Date(selectedOrder.created_at).toLocaleString()}</p>
+                                <div className="p-5 bg-amber-50 dark:bg-amber-600/10 border border-amber-100 dark:border-amber-500/20 rounded-2xl backdrop-blur-md hover:bg-amber-100 dark:hover:bg-amber-600/20 transition-colors group">
+                                    <p className="text-[9px] font-black text-amber-600 dark:text-amber-300 uppercase tracking-widest mb-2 flex items-center gap-1.5"><Clock size={12} className="group-hover:scale-110 transition-transform" /> Fecha / Hora</p>
+                                    <p className="text-xs font-black text-amber-900 dark:text-white uppercase tracking-tight">{new Date(selectedOrder.created_at).toLocaleString()}</p>
                                 </div>
-                                <div className="p-5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md hover:bg-white/10 transition-colors">
-                                    <p className="text-[9px] font-black text-white/50 uppercase tracking-widest mb-2 flex items-center gap-1.5"><CheckCircle2 size={12} className="text-emerald-400" /> Estado Pedido</p>
-                                    <p className="text-sm font-black text-emerald-400 uppercase tracking-widest">{selectedOrder.status === 'completado' ? 'PAGO VERIFICADO' : selectedOrder.status.toUpperCase()}</p>
+                                <div className="p-5 bg-emerald-50 dark:bg-emerald-600/10 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl backdrop-blur-md hover:bg-emerald-100 dark:hover:bg-emerald-600/20 transition-colors group">
+                                    <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-300 uppercase tracking-widest mb-2 flex items-center gap-1.5"><CheckCircle2 size={12} className="group-hover:scale-110 transition-transform" /> Estado Pedido</p>
+                                    <p className="text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">{selectedOrder.status === 'completado' ? 'PAGO VERIFICADO' : selectedOrder.status.toUpperCase()}</p>
                                 </div>
-                                <div className="p-5 bg-blue-600/20 border border-blue-500/30 rounded-2xl backdrop-blur-md">
-                                    <p className="text-[9px] font-black text-blue-300 uppercase tracking-widest mb-2 flex items-center gap-1.5"><DollarSign size={12} className="text-blue-400" /> Total Gastado</p>
-                                    <p className="text-2xl font-black text-white tracking-tighter">${selectedOrder.total_amount} <span className="text-[10px] text-blue-300 uppercase">{selectedOrder.currency}</span></p>
+                                <div className="p-5 bg-indigo-50 dark:bg-indigo-600/20 border border-indigo-100 dark:border-indigo-500/30 rounded-2xl backdrop-blur-md hover:bg-indigo-100 dark:hover:bg-indigo-600/30 transition-colors group">
+                                    <p className="text-[9px] font-black text-indigo-600 dark:text-indigo-300 uppercase tracking-widest mb-2 flex items-center gap-1.5"><DollarSign size={12} className="group-hover:scale-110 transition-transform" /> Total de compra</p>
+                                    <p className="text-2xl font-black text-indigo-900 dark:text-white tracking-tighter">${selectedOrder.total_amount} <span className="text-[10px] text-indigo-500 dark:text-indigo-300 uppercase">{selectedOrder.currency}</span></p>
                                 </div>
                             </div>
 
                             {/* Itemized Breakdown */}
                             <div className="space-y-4">
-                                <h4 className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] px-2 flex items-center gap-2">
-                                    <Package size={14} className="text-blue-400" />
+                                <h4 className="text-[10px] font-black text-slate-400 dark:text-white/50 uppercase tracking-[0.2em] px-2 flex items-center gap-2">
+                                    <Package size={14} className="text-blue-500 dark:text-blue-400" />
                                     Detalle del Contenido
                                 </h4>
                                 <div className="space-y-3">
                                     {selectedOrder.items.map((item) => (
-                                        <div key={item.id} className="p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 group hover:bg-white/10 hover:border-white/20 transition-all">
+                                        <div key={item.id} className="p-5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 group hover:bg-slate-100 dark:hover:bg-white/10 hover:border-slate-200 dark:hover:border-white/20 transition-all">
                                             <div className="flex items-center gap-4 w-full md:w-auto">
-                                                <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400 border border-blue-500/20">
+                                                <div className="w-12 h-12 bg-blue-500/10 dark:bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-500/10 dark:border-blue-500/20">
                                                     {getItemIcon(item.product_type)}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <h5 className="font-black text-sm text-white uppercase tracking-tight truncate">{item.name}</h5>
-                                                    <p className="text-[9px] font-bold text-white/60 uppercase tracking-widest">
+                                                    <h5 className="font-black text-sm text-slate-900 dark:text-white uppercase tracking-tight truncate">{item.name}</h5>
+                                                    <p className="text-[9px] font-bold text-slate-500 dark:text-white/60 uppercase tracking-widest">
                                                         {item.product_type === 'beat' ? `Licencia ${item.license_type}` : item.product_type === 'plan' ? `Suscripción ${item.metadata?.tier?.toUpperCase() || 'PRO'}` : 'Recurso Digital'}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="w-full md:w-auto flex items-center justify-between md:flex-col md:items-end md:justify-center border-t border-white/10 md:border-none pt-4 md:pt-0">
-                                                <p className="text-sm font-black text-white tracking-tighter">${item.price} <span className="text-[9px] text-white/60">{selectedOrder.currency}</span></p>
+                                            <div className="w-full md:w-auto flex items-center justify-between md:flex-col md:items-end md:justify-center border-t border-slate-200 dark:border-white/10 md:border-none pt-4 md:pt-0">
+                                                <p className="text-sm font-black text-slate-900 dark:text-white tracking-tighter">${item.price} <span className="text-[9px] text-slate-500 dark:text-white/60">{selectedOrder.currency}</span></p>
                                                 {item.product_type !== 'plan' && (
                                                     <button
                                                         onClick={() => handleDownloadFiles(item)}
-                                                        className="text-[9px] md:mt-1 border border-white/20 bg-white/5 px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-black text-blue-400 uppercase tracking-widest hover:bg-white/10 transition-colors"
+                                                        className="text-[9px] md:mt-1 border border-blue-200 dark:border-white/20 bg-blue-50 dark:bg-white/5 px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest hover:bg-blue-600 hover:text-white dark:hover:bg-white/10 transition-all active:scale-95"
                                                     >
                                                         <Download size={10} /> Extraer
                                                     </button>
@@ -614,11 +614,11 @@ export default function MyPurchasesPage() {
                             </div>
 
                             {/* Official References */}
-                            <div className="p-6 bg-black/40 rounded-3xl border border-white/5">
-                                <div className="flex items-center gap-4 text-white/50">
+                            <div className="p-6 bg-slate-50 dark:bg-black/40 rounded-3xl border border-slate-100 dark:border-white/5">
+                                <div className="flex items-center gap-4 text-slate-400 dark:text-white/50">
                                     <div className="w-1 h-12 bg-blue-500/50 rounded-full" />
                                     <div className="text-[10px] font-bold leading-relaxed tracking-wide">
-                                        <p className="mb-0.5">ID de Transacción Stripe (Segura): <span className="text-white/80 font-mono tracking-tighter">{selectedOrder.stripe_id || 'N/A'}</span></p>
+                                        <p className="mb-0.5">ID de Transacción Stripe (Segura): <span className="text-slate-900 dark:text-white/80 font-mono tracking-tighter">{selectedOrder.stripe_id || 'N/A'}</span></p>
                                         <p className="opacity-80">Si tienes dudas sobre el acceso a tus archivos contacta con soporte. Esta compra está blindada en la base de datos de Tianguis Beats.</p>
                                     </div>
                                 </div>
@@ -626,16 +626,16 @@ export default function MyPurchasesPage() {
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="p-6 bg-white/5 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="p-6 bg-slate-50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
                             <button
                                 onClick={() => handleDownloadReceipt(selectedOrder)}
-                                className="w-full sm:w-auto px-6 py-4 bg-white/10 border border-white/20 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/20 transition-all flex items-center justify-center gap-2"
+                                className="w-full sm:w-auto px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 transition-all flex items-center justify-center gap-2"
                             >
                                 <FileText size={16} /> Descargar Factura (PDF)
                             </button>
                             <button
                                 onClick={() => setSelectedOrder(null)}
-                                className="w-full sm:w-auto px-10 py-4 bg-white text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-white/20 hover:scale-105 active:scale-95 transition-all"
+                                className="w-full sm:w-auto px-10 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-black/10 dark:shadow-white/10 hover:scale-[1.02] active:scale-95 transition-all"
                             >
                                 Cerrar
                             </button>

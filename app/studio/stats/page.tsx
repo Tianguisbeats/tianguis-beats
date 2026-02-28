@@ -108,8 +108,8 @@ export default function StudioStatsPage() {
     };
 
     const progress = getSubscriptionProgress();
-    const isPremium = stats.userTier.toLowerCase() === 'premium';
-    const isPro = stats.userTier.toLowerCase() === 'pro';
+    const isPremium = stats.userTier.trim().toLowerCase() === 'premium';
+    const isPro = stats.userTier.trim().toLowerCase() === 'pro';
     const planColor = isPremium ? '#00f2ff' : '#f59e0b';
     const planTailwind = isPremium ? 'text-[#00f2ff]' : 'text-amber-400';
     const planBg = isPremium ? 'bg-[#00f2ff]/10' : 'bg-amber-500/10';

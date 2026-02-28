@@ -57,8 +57,8 @@ export default function StudioBillingPage() {
         }
     };
 
-    const isPremium = profile?.nivel_suscripcion?.toLowerCase() === 'premium';
-    const isPro = profile?.nivel_suscripcion?.toLowerCase() === 'pro';
+    const isPremium = profile?.nivel_suscripcion?.trim().toLowerCase() === 'premium';
+    const isPro = profile?.nivel_suscripcion?.trim().toLowerCase() === 'pro';
     const isFree = !isPremium && !isPro;
 
     const planLabel = isPremium ? 'Premium' : isPro ? 'Pro' : 'Free';
@@ -145,22 +145,24 @@ export default function StudioBillingPage() {
                         )}
                     </div>
 
-                    {isFree ? (
+                    {isPremium ? (
+                        <div className="flex items-center gap-2 px-6 py-3 bg-emerald-500/10 text-emerald-500 rounded-2xl font-black text-[9px] uppercase tracking-widest border border-emerald-500/20">
+                            <Shield size={14} /> Máximo nivel activo
+                        </div>
+                    ) : isPro ? (
+                        <Link
+                            href="/pricing/premium"
+                            className="shrink-0 flex items-center gap-2 px-8 py-4 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-accent/20"
+                        >
+                            Subir a Premium <ArrowRight size={16} />
+                        </Link>
+                    ) : (
                         <Link
                             href="/pricing"
                             className="shrink-0 flex items-center gap-2 px-8 py-4 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-accent/20"
                         >
                             Mejorar Plan <ArrowRight size={16} />
                         </Link>
-                    ) : (
-                        <button
-                            onClick={handleManageBilling}
-                            disabled={redirecting}
-                            className="shrink-0 flex items-center gap-2 px-8 py-4 bg-card border border-border text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest hover:border-accent hover:text-accent transition-all active:scale-95 disabled:opacity-50"
-                        >
-                            {redirecting ? <Loader2 size={14} className="animate-spin" /> : <ExternalLink size={14} />}
-                            {redirecting ? 'Abriendo...' : 'Gestionar Plan'}
-                        </button>
                     )}
                 </div>
             </div>
@@ -247,8 +249,8 @@ export default function StudioBillingPage() {
                 </div>
             </div>
 
-            {/* Upgrade CTA if Free */}
-            {isFree && (
+            {/* Upgrade CTA if not Premium */}
+            {!isPremium && (
                 <div className="relative bg-gradient-to-br from-accent/10 via-accent/5 to-transparent border border-accent/20 rounded-[2.5rem] p-8 overflow-hidden">
                     <div className="absolute top-0 right-0 w-48 h-48 bg-accent/10 blur-[80px] rounded-full pointer-events-none" />
                     <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-6">
@@ -258,17 +260,19 @@ export default function StudioBillingPage() {
                                 <span className="text-[10px] font-black uppercase tracking-widest text-accent">Desbloquea más</span>
                             </div>
                             <h3 className="text-2xl font-black uppercase tracking-tighter text-foreground mb-2">
-                                Mejora tu cuenta
+                                {isPro ? 'Pásate a Premium' : 'Mejora tu cuenta'}
                             </h3>
                             <p className="text-[11px] font-bold text-muted uppercase tracking-widest">
-                                Accede a comisiones reducidas, anillos premium, y más herramientas
+                                {isPro
+                                    ? 'Accede a las comisiones más bajas (0% Tianguis) y todas las herramientas exclusivas.'
+                                    : 'Accede a comisiones reducidas, anillos premium, y más herramientas'}
                             </p>
                         </div>
                         <Link
-                            href="/pricing"
+                            href={isPro ? "/pricing/premium" : "/pricing"}
                             className="shrink-0 flex items-center gap-3 px-10 py-5 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-accent/25"
                         >
-                            Ver Planes <ArrowRight size={16} />
+                            {isPro ? 'Hacerse Premium' : 'Ver Planes'} <ArrowRight size={16} />
                         </Link>
                     </div>
                 </div>
