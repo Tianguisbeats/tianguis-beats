@@ -98,18 +98,20 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
         pendingVerifications: 0,
         pendingFeedback: 0,
         monthlyRevenue: 0,
-        activeSubscriptions: 0
+        activeSubscriptions: 0,
+        totalCoupons: 0
     });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchStats = async () => {
-            const [sales, users, beats, verifs, feedback] = await Promise.all([
+            const [sales, users, beats, verifs, feedback, coupons] = await Promise.all([
                 supabase.from('transacciones').select('precio'),
                 supabase.from('perfiles').select('id', { count: 'exact', head: true }),
                 supabase.from('beats').select('id', { count: 'exact', head: true }),
                 supabase.from('solicitudes_verificacion').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente'),
-                supabase.from('quejas_y_sugerencias').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente')
+                supabase.from('quejas_y_sugerencias').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente'),
+                supabase.from('cupones').select('id', { count: 'exact', head: true }).eq('es_activo', true)
             ]);
 
             const revenue = sales.data?.reduce((acc, s) => acc + (s.precio || 0), 0) || 0;
@@ -137,7 +139,8 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
                 pendingVerifications: pendingVerifs,
                 pendingFeedback: pendingFeedback,
                 monthlyRevenue: monthlyRevenue,
-                activeSubscriptions: 0
+                activeSubscriptions: 0,
+                totalCoupons: coupons.count || 0
             });
             setLoading(false);
         };
@@ -151,8 +154,8 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
         { id: 'users', label: 'Usuarios', value: stats.totalUsers.toLocaleString(), sub: 'Productores registrados', icon: <Users className="text-blue-500" />, gradient: 'hover:shadow-blue-500/10' },
         { id: 'beats', label: 'Total Beats', value: stats.totalBeats.toLocaleString(), sub: 'En catálogo global', icon: <Music className="text-purple-500" />, gradient: 'hover:shadow-purple-500/10' },
         { id: 'verifications', label: 'Verificaciones', value: stats.pendingVerifications, sub: 'Solicitudes por revisar', icon: <img src="/verified-badge.png" alt="Verified" className="w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]" />, gradient: 'hover:shadow-blue-500/10' },
-        { id: 'coupons', label: 'Cupones Pro', value: 'ADMIN', sub: 'Gestión de descuentos', icon: <Ticket className="text-amber-500" />, gradient: 'hover:shadow-amber-500/10' },
-        { id: 'feedback', label: 'Buzón', value: stats.pendingFeedback, sub: 'Quejas y reportes', icon: <MessageSquare className="text-rose-500" />, gradient: 'hover:shadow-rose-500/10' }
+        { id: 'coupons', label: 'Cupones', value: stats.totalCoupons, sub: 'Cupones activos', icon: <Ticket className="text-amber-500" />, gradient: 'hover:shadow-amber-500/10' },
+        { id: 'feedback', label: 'Buzón', value: stats.pendingFeedback, sub: 'Quejas y sugerencias', icon: <MessageSquare className="text-rose-500" />, gradient: 'hover:shadow-rose-500/10' }
     ];
 
     return (
@@ -625,10 +628,21 @@ function UserManager({ onBack }: { onBack: () => void }) {
     // Initialize edit form when a user is selected
     useEffect(() => {
         if (selectedUser) {
+            const formatDateSafe = (dateStr: any) => {
+                try {
+                    if (!dateStr) return '';
+                    const date = new Date(dateStr);
+                    if (isNaN(date.getTime())) return '';
+                    return date.toISOString().split('T')[0];
+                } catch {
+                    return '';
+                }
+            };
+
             setEditForm({
                 nivel_suscripcion: selectedUser.nivel_suscripcion || 'free',
-                fecha_inicio_suscripcion: selectedUser.fecha_inicio_suscripcion ? new Date(selectedUser.fecha_inicio_suscripcion).toISOString().split('T')[0] : '',
-                fecha_termino_suscripcion: selectedUser.fecha_termino_suscripcion ? new Date(selectedUser.fecha_termino_suscripcion).toISOString().split('T')[0] : '',
+                fecha_inicio_suscripcion: formatDateSafe(selectedUser.fecha_inicio_suscripcion),
+                fecha_termino_suscripcion: formatDateSafe(selectedUser.fecha_termino_suscripcion),
                 esta_verificado: selectedUser.esta_verificado || false,
                 es_admin: selectedUser.es_admin || false,
                 es_soporte: selectedUser.es_soporte || false
@@ -636,14 +650,26 @@ function UserManager({ onBack }: { onBack: () => void }) {
         }
     }, [selectedUser]);
 
-    const hasChanges = selectedUser && (
-        editForm.nivel_suscripcion !== (selectedUser.nivel_suscripcion || 'free') ||
-        editForm.fecha_inicio_suscripcion !== (selectedUser.fecha_inicio_suscripcion ? new Date(selectedUser.fecha_inicio_suscripcion).toISOString().split('T')[0] : '') ||
-        editForm.fecha_termino_suscripcion !== (selectedUser.fecha_termino_suscripcion ? new Date(selectedUser.fecha_termino_suscripcion).toISOString().split('T')[0] : '') ||
-        editForm.esta_verificado !== (selectedUser.esta_verificado || false) ||
-        editForm.es_admin !== (selectedUser.es_admin || false) ||
-        editForm.es_soporte !== (selectedUser.es_soporte || false)
-    );
+    const hasChanges = (() => {
+        if (!selectedUser) return false;
+        const formatDateSafe = (dateStr: any) => {
+            try {
+                if (!dateStr) return '';
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) return '';
+                return date.toISOString().split('T')[0];
+            } catch {
+                return '';
+            }
+        };
+
+        return editForm.nivel_suscripcion !== (selectedUser.nivel_suscripcion || 'free') ||
+            editForm.fecha_inicio_suscripcion !== formatDateSafe(selectedUser.fecha_inicio_suscripcion) ||
+            editForm.fecha_termino_suscripcion !== formatDateSafe(selectedUser.fecha_termino_suscripcion) ||
+            editForm.esta_verificado !== (selectedUser.esta_verificado || false) ||
+            editForm.es_admin !== (selectedUser.es_admin || false) ||
+            editForm.es_soporte !== (selectedUser.es_soporte || false);
+    })();
 
     const handleSave = async () => {
         if (!selectedUser) return;
@@ -1486,18 +1512,40 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
 function IncomeManager({ onBack }: { onBack: () => void }) {
     const [transactions, setTransactions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedTx, setSelectedTx] = useState<any>(null);
+    const { showToast } = useToast();
 
     useEffect(() => {
-        const fetchTransactions = async () => {
-            const { data, error } = await supabase
-                .from('transacciones')
-                .select(`*, perfiles:comprador_id (nombre_usuario, correo, email)`)
-                .order('fecha_creacion', { ascending: false });
-            if (!error) setTransactions(data || []);
-            setLoading(false);
-        };
         fetchTransactions();
     }, []);
+
+    const fetchTransactions = async () => {
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('transacciones')
+                .select(`
+                    *,
+                    comprador:comprador_id(nombre_usuario, nombre_artistico, foto_perfil, correo),
+                    vendedor:vendedor_id(nombre_usuario, nombre_artistico, foto_perfil, correo)
+                `)
+                .order('fecha_creacion', { ascending: false });
+
+            if (error) throw error;
+            setTransactions(data || []);
+        } catch (err) {
+            console.error(err);
+            showToast("Error al cargar transacciones", "error");
+        }
+        setLoading(false);
+    };
+
+    const totalHistorical = transactions.reduce((acc, tx) => acc + (tx.precio || 0), 0);
+    const totalMonthly = transactions.filter(tx => {
+        const date = new Date(tx.fecha_creacion);
+        const now = new Date();
+        return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    }).reduce((acc, tx) => acc + (tx.precio || 0), 0);
 
     return (
         <div className="space-y-6">
@@ -1512,50 +1560,76 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
                 <div className="flex gap-4">
                     <div className="px-8 py-5 bg-card border border-border rounded-[2rem] text-center hover:border-accent/30 transition-all">
                         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted mb-1">Este Mes</p>
-                        <p className="text-2xl font-black text-accent tabular-nums">${transactions.filter(tx => {
-                            const date = new Date(tx.fecha_creacion);
-                            const now = new Date();
-                            return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
-                        }).reduce((acc, tx) => acc + (tx.precio_total || 0), 0).toLocaleString()}</p>
+                        <p className="text-2xl font-black text-accent tabular-nums">${totalMonthly.toLocaleString()}</p>
                     </div>
                     <div className="px-8 py-5 bg-card border border-border rounded-[2rem] text-center hover:border-accent/30 transition-all">
                         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted mb-1">Total Histórico</p>
-                        <p className="text-2xl font-black text-foreground tabular-nums">${transactions.reduce((acc, tx) => acc + (tx.precio_total || 0), 0).toLocaleString()}</p>
+                        <p className="text-2xl font-black text-foreground tabular-nums">${totalHistorical.toLocaleString()}</p>
                     </div>
                 </div>
             </header>
 
-            <div className="bg-card border border-border rounded-[2.5rem] overflow-hidden">
+            <div className="bg-card border border-border rounded-[3rem] overflow-hidden shadow-2xl shadow-foreground/5 relative">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-border bg-foreground/[0.03]">
-                                <th className="px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Fecha</th>
-                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Comprador</th>
-                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Producto</th>
-                                <th className="px-8 py-4 text-right text-[9px] font-black uppercase tracking-[0.2em] text-muted">Monto</th>
+                                <th className="px-8 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Orden / Fecha</th>
+                                <th className="px-6 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Producto</th>
+                                <th className="px-6 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Comprador</th>
+                                <th className="px-6 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Vendedor</th>
+                                <th className="px-8 py-6 text-right text-[9px] font-black uppercase tracking-[0.2em] text-muted">Monto</th>
+                                <th className="px-8 py-6 text-right text-[9px] font-black uppercase tracking-[0.2em] text-muted">Acción</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
                             {loading ? (
-                                <tr><td colSpan={4} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent" /></td></tr>
+                                <tr><td colSpan={6} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent" /></td></tr>
                             ) : transactions.length === 0 ? (
-                                <tr><td colSpan={4} className="py-20 text-center text-muted text-xs font-bold uppercase tracking-widest">No hay transacciones registradas</td></tr>
+                                <tr><td colSpan={6} className="py-20 text-center text-muted text-xs font-bold uppercase tracking-widest">No hay transacciones registradas</td></tr>
                             ) : transactions.map(tx => (
-                                <tr key={tx.id} className="hover:bg-foreground/[0.03] transition-colors">
-                                    <td className="px-8 py-5 text-[10px] font-bold text-muted">
-                                        {new Date(tx.fecha_creacion).toLocaleDateString()}
+                                <tr key={tx.id} className="hover:bg-foreground/[0.02] transition-colors group">
+                                    <td className="px-8 py-6">
+                                        <p className="text-[10px] font-black text-foreground uppercase tracking-widest mb-1">#{tx.id.slice(0, 8)}</p>
+                                        <p className="text-[9px] font-bold text-muted uppercase">{new Date(tx.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2-digit' })}</p>
                                     </td>
-                                    <td className="px-6 py-5">
-                                        <p className="font-black text-xs">@{tx.perfiles?.nombre_usuario || 'Desconocido'}</p>
-                                        <p className="text-[9px] text-muted uppercase tracking-widest">{tx.perfiles?.correo || tx.perfiles?.email}</p>
+                                    <td className="px-6 py-6">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
+                                                {tx.tipo_producto === 'beat' ? <Music size={14} /> : tx.tipo_producto === 'plan' ? <Crown size={14} /> : <Layout size={14} />}
+                                            </div>
+                                            <div>
+                                                <p className="font-black text-xs uppercase tracking-tight text-foreground">{tx.nombre_producto || 'Producto sin nombre'}</p>
+                                                <p className="text-[9px] text-muted uppercase font-bold tracking-widest">{tx.tipo_producto}</p>
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td className="px-6 py-5">
-                                        <p className="font-bold text-xs capitalize">{tx.tipo_producto || tx.tipo_item || 'Beat'}</p>
-                                        <p className="text-[9px] text-muted uppercase tracking-widest">{tx.metadatos?.beat_id ? 'ID: ' + tx.metadatos.beat_id.slice(0, 8) : '---'}</p>
+                                    <td className="px-6 py-6">
+                                        {tx.comprador ? (
+                                            <div className="flex items-center gap-2">
+                                                <img src={tx.comprador.foto_perfil || `https://ui-avatars.com/api/?name=${tx.comprador.nombre_usuario}`} className="w-6 h-6 rounded-full border border-border" />
+                                                <p className="font-bold text-[10px] text-foreground">@{tx.comprador.nombre_usuario}</p>
+                                            </div>
+                                        ) : <span className="text-[10px] text-muted">---</span>}
                                     </td>
-                                    <td className="px-8 py-5 text-right font-black text-emerald-500">
-                                        ${tx.precio_total || tx.precio || 0}
+                                    <td className="px-6 py-6">
+                                        {tx.vendedor ? (
+                                            <div className="flex items-center gap-2">
+                                                <img src={tx.vendedor.foto_perfil || `https://ui-avatars.com/api/?name=${tx.vendedor.nombre_usuario}`} className="w-6 h-6 rounded-full border border-border" />
+                                                <p className="font-bold text-[10px] text-foreground">@{tx.vendedor.nombre_usuario}</p>
+                                            </div>
+                                        ) : <span className="text-[10px] text-muted italic">Tianguis</span>}
+                                    </td>
+                                    <td className="px-8 py-6 text-right font-black text-xs text-emerald-500 tabular-nums">
+                                        ${tx.precio?.toLocaleString() || '0'}
+                                    </td>
+                                    <td className="px-8 py-6 text-right">
+                                        <button
+                                            onClick={() => setSelectedTx(tx)}
+                                            className="px-3 py-1.5 bg-foreground/5 border border-border rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-accent hover:text-white hover:border-accent transition-all"
+                                        >
+                                            Detalles
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -1563,6 +1637,89 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
                     </table>
                 </div>
             </div>
+
+            {/* Modal de Detalles de Transacción */}
+            {selectedTx && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300">
+                    <div className="absolute inset-0 bg-background/80 backdrop-blur-xl" onClick={() => setSelectedTx(null)} />
+                    <div className="relative w-full max-w-2xl bg-card border border-border rounded-[3rem] shadow-2xl p-10 overflow-hidden">
+                        <header className="flex justify-between items-start mb-10">
+                            <div>
+                                <h3 className="text-3xl font-black uppercase tracking-tighter text-foreground">Detalles de <span className="text-accent">Orden</span></h3>
+                                <p className="text-[10px] text-muted font-black uppercase tracking-[0.3em]">ID: {selectedTx.id}</p>
+                            </div>
+                            <button onClick={() => setSelectedTx(null)} className="w-12 h-12 bg-foreground/5 border border-border rounded-full flex items-center justify-center text-foreground hover:bg-rose-500 hover:text-white transition-all">
+                                <X size={20} />
+                            </button>
+                        </header>
+
+                        <div className="grid md:grid-cols-2 gap-8 mb-10">
+                            <div className="space-y-6">
+                                <div className="p-6 bg-foreground/5 rounded-3xl border border-border">
+                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-3">Información del Producto</p>
+                                    <p className="text-lg font-black text-foreground uppercase tracking-tight">{selectedTx.nombre_producto}</p>
+                                    <p className="text-[10px] text-accent font-black uppercase tracking-widest mt-1">{selectedTx.tipo_producto}</p>
+                                    {selectedTx.tipo_licencia && <p className="text-[10px] text-muted uppercase font-bold mt-2">Licencia: {selectedTx.tipo_licencia}</p>}
+                                </div>
+
+                                <div className="p-6 bg-foreground/5 rounded-3xl border border-border">
+                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-3">Comprador</p>
+                                    <div className="flex items-center gap-3">
+                                        <img src={selectedTx.comprador?.foto_perfil || `https://ui-avatars.com/api/?name=${selectedTx.comprador?.nombre_usuario}`} className="w-10 h-10 rounded-xl border border-border" />
+                                        <div>
+                                            <p className="font-black text-sm text-foreground">@{selectedTx.comprador?.nombre_usuario}</p>
+                                            <p className="text-[10px] text-muted uppercase font-bold">{selectedTx.comprador?.correo}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/20">
+                                    <p className="text-[10px] font-black uppercase text-emerald-500 tracking-widest mb-3">Monto de Transacción</p>
+                                    <p className="text-4xl font-black text-emerald-500 tabular-nums">${selectedTx.precio?.toLocaleString()}</p>
+                                    <p className="text-[10px] text-emerald-500/60 font-bold uppercase tracking-widest mt-1">Moneda: {selectedTx.moneda || 'MXN'}</p>
+                                </div>
+
+                                <div className="p-6 bg-foreground/5 rounded-3xl border border-border">
+                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-3">Vendedor</p>
+                                    {selectedTx.vendedor ? (
+                                        <div className="flex items-center gap-3">
+                                            <img src={selectedTx.vendedor.foto_perfil || `https://ui-avatars.com/api/?name=${selectedTx.vendedor.nombre_usuario}`} className="w-10 h-10 rounded-xl border border-border" />
+                                            <div>
+                                                <p className="font-black text-sm text-foreground">@{selectedTx.vendedor.nombre_usuario}</p>
+                                                <p className="text-[10px] text-muted uppercase font-bold">{selectedTx.vendedor.correo}</p>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center text-white">
+                                                <ShieldCheck size={20} />
+                                            </div>
+                                            <p className="font-black text-sm text-foreground uppercase tracking-widest">Tianguis Beats</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-6 bg-foreground/5 rounded-3xl border border-border flex items-center justify-between mb-8">
+                            <div>
+                                <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">Método de Pago</p>
+                                <p className="font-black text-[10px] text-foreground uppercase tracking-widest">{selectedTx.metodo_pago || 'Stripe'}</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">Status</p>
+                                <span className="px-3 py-1 bg-emerald-500 text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-full">Completado</span>
+                            </div>
+                        </div>
+
+                        <button onClick={() => setSelectedTx(null)} className="w-full h-16 bg-foreground text-background dark:bg-white dark:text-black rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:scale-[1.02] transition-all active:scale-95 shadow-xl">
+                            Cerrar Detalles
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
