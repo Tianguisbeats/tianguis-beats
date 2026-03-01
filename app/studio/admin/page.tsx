@@ -750,7 +750,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                     </td>
                                     <td className="px-6 py-5">
                                         <p className="text-[10px] font-bold text-muted uppercase">
-                                            {user.fecha_creacion ? new Date(user.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2y' }) : '---'}
+                                            {user.fecha_creacion ? new Date(user.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2-digit' }) : '---'}
                                         </p>
                                     </td>
                                     <td className="px-6 py-5 text-center">
