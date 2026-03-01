@@ -2,23 +2,25 @@ import React from 'react';
 import { Check, ShoppingCart } from 'lucide-react';
 
 interface LicenseProps {
-    type: 'Básica' | 'MP3' | 'Pro' | 'Premium' | 'Ilimitada' | 'Exclusiva' | 'Sound Kit';
+    type: 'Básica' | 'MP3' | 'Pro' | 'Premium' | 'Exclusiva' | 'Sound Kit';
+    label?: string; // Custom label like "Licencia Básica"
     price: number;
     features: string[];
     active: boolean;
     onSelect: () => void;
     selected?: boolean;
     isSold?: boolean;
+    isPurchased?: boolean;
 }
 
-export default function LicenseCard({ type, price, features, active, onSelect, selected, isSold }: LicenseProps) {
+export default function LicenseCard({ type, label, price, features, active, onSelect, selected, isSold, isPurchased }: LicenseProps) {
     if (!active) return null;
 
     return (
         <div
             onClick={!isSold ? onSelect : undefined}
-            className={`tianguis-card relative p-8 border-2
-                ${isSold
+            className={`tianguis-card relative p-8 border-2 transition-all duration-300
+                ${isSold || isPurchased
                     ? 'bg-background border-dashed opacity-60 cursor-not-allowed'
                     : selected
                         ? 'bg-foreground text-background border-foreground shadow-xl scale-[1.02] cursor-pointer'
@@ -35,11 +37,13 @@ export default function LicenseCard({ type, price, features, active, onSelect, s
             )}
             <div className="flex justify-between items-start mb-6">
                 <div>
-                    <h3 className="font-black text-xl uppercase tracking-tighter leading-none mb-1">{type} License</h3>
-                    <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${selected ? 'opacity-60' : 'text-muted'}`}>Uso Comercial</p>
+                    <h3 className="font-black text-xl uppercase tracking-tighter leading-none mb-1">{label || `${type} License`}</h3>
+                    <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${selected ? 'opacity-60' : 'text-muted'}`}>
+                        {isPurchased ? 'Ya Adquirida' : 'Uso Comercial'}
+                    </p>
                 </div>
-                <div className={`w-8 h-8 rounded-2xl flex items-center justify-center transition-all duration-500 ${selected ? 'bg-accent text-white rotate-0' : 'bg-slate-100 text-slate-300 -rotate-12 group-hover:rotate-0 group-hover:bg-accent/10 group-hover:text-accent'}`}>
-                    <Check size={18} className={selected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} />
+                <div className={`w-8 h-8 rounded-2xl flex items-center justify-center transition-all duration-500 ${isPurchased ? 'bg-emerald-500 text-white' : selected ? 'bg-accent text-white rotate-0' : 'bg-slate-100 text-slate-300 -rotate-12 group-hover:rotate-0 group-hover:bg-accent/10 group-hover:text-accent'}`}>
+                    <Check size={18} className={selected || isPurchased ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} />
                 </div>
             </div>
 

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, use } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Play, Pause, Heart, Share2, Clock, Music2, ShieldCheck, Download, MessageCircle, BarChart3, ShoppingCart, Info, Globe, ChevronRight, Speaker } from 'lucide-react';
+import { Play, Pause, Heart, Share2, Clock, Music2, ShieldCheck, Download, MessageCircle, BarChart3, ShoppingCart, Info, Globe, ChevronRight, Speaker, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -41,6 +41,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
     const [error, setError] = useState<string | null>(null);
     const [selectedLicense, setSelectedLicense] = useState<'Básica' | 'MP3' | 'Pro' | 'Premium' | 'Exclusiva' | 'Sound Kit' | null>(null);
     const [isLiked, setIsLiked] = useState(false);
+    const [purchasedLicenses, setPurchasedLicenses] = useState<string[]>([]);
 
     const { currentBeat, isPlaying, playBeat } = usePlayer();
     const { addItem, currentUserId } = useCart();
@@ -245,6 +246,20 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         .eq('beat_id', data.id)
                         .eq('usuario_id', user.id);
                     setIsLiked(!!count);
+                }
+
+                // Fetch Purchased Licenses for this beat
+                if (user) {
+                    const { data: purchases } = await supabase
+                        .from('transacciones')
+                        .select('tipo_licencia')
+                        .eq('usuario_id', user.id)
+                        .eq('beat_id', data.id)
+                        .eq('estatus', 'completed');
+
+                    if (purchases) {
+                        setPurchasedLicenses(purchases.map(p => p.tipo_licencia));
+                    }
                 }
             } catch (err: any) {
                 console.error("Fetch Beat Error:", err);
@@ -496,56 +511,66 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     {beat.es_basica_activa !== false && (
                                         <LicenseCard
                                             type="Básica"
-                                            price={beat.precio_basico_mxn || 199}
-                                            features={['MP3 con Tag (Muestra)', 'Límite: 5k streams', 'Uso no comercial']}
+                                            label="Licencia Gratis"
+                                            price={beat.precio_basico_mxn || 0}
+                                            features={['MP3 con Tag (Muestra)', 'Uso No Comercial', 'Tag de Voz Obligatorio']}
                                             selected={selectedLicense === 'Básica'}
                                             onSelect={() => setSelectedLicense('Básica')}
                                             active={true}
                                             isSold={beat.esta_vendido}
+                                            isPurchased={purchasedLicenses.includes('Básica')}
                                         />
                                     )}
                                     {beat.es_mp3_activa !== false && (
                                         <LicenseCard
                                             type="MP3"
+                                            label="Licencia Básica"
                                             price={beat.precio_mp3_mxn || 349}
-                                            features={['MP3 High Quality', 'Límite: 25k streams', 'Distribución digital']}
+                                            features={['Audio MP3 (Sin Tags)', '10K-50K Streams', 'Distribución Digital']}
                                             selected={selectedLicense === 'MP3'}
                                             onSelect={() => setSelectedLicense('MP3')}
                                             active={true}
                                             isSold={beat.esta_vendido}
+                                            isPurchased={purchasedLicenses.includes('MP3')}
                                         />
                                     )}
                                     {beat.es_pro_activa !== false && (
                                         <LicenseCard
                                             type="Pro"
-                                            price={beat.precio_pro_mxn || 499}
-                                            features={['MP3 Master (HQ)', 'Mayores límites de streams', 'Distribución extendida']}
+                                            label="Licencia Premium"
+                                            price={beat.precio_pro_mxn || 599}
+                                            features={['Audio WAV + MP3', 'Hasta 500K Streams', 'Uso en Radio / TV']}
                                             selected={selectedLicense === 'Pro'}
                                             onSelect={() => setSelectedLicense('Pro')}
                                             active={true}
                                             isSold={beat.esta_vendido}
+                                            isPurchased={purchasedLicenses.includes('Pro')}
                                         />
                                     )}
                                     {beat.es_premium_activa !== false && (
                                         <LicenseCard
                                             type="Premium"
+                                            label="Licencia Pro"
                                             price={beat.precio_premium_mxn || 999}
-                                            features={['WAV de Alta Fidelidad', 'Calidad de Estudio', 'Sin tags de voz']}
+                                            features={['STEMS Separados', 'Mix Individual HD', 'Uso Ilimitado']}
                                             selected={selectedLicense === 'Premium'}
                                             onSelect={() => setSelectedLicense('Premium')}
                                             active={true}
                                             isSold={beat.esta_vendido}
+                                            isPurchased={purchasedLicenses.includes('Premium')}
                                         />
                                     )}
                                     {beat.es_exclusiva_activa !== false && !beat.esta_vendido && (
                                         <LicenseCard
                                             type="Exclusiva"
+                                            label="Licencia Exclusiva"
                                             price={beat.precio_exclusivo_mxn || 3500}
-                                            features={['Propiedad Exclusiva', 'Eliminación del mercado', 'Cesión total de derechos']}
+                                            features={['Propiedad Total', 'Retirada del Mercado', 'YouTube Content ID OK']}
                                             selected={selectedLicense === 'Exclusiva'}
                                             onSelect={() => setSelectedLicense('Exclusiva')}
                                             active={true}
                                             isSold={beat.esta_vendido}
+                                            isPurchased={purchasedLicenses.includes('Exclusiva')}
                                         />
                                     )}
                                     {beat.es_soundkit_activa !== false && (
@@ -568,9 +593,9 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                 ) : (
                                     <button
                                         onClick={handleAddToCart}
-                                        disabled={beat.esta_vendido}
-                                        className={`w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs transition-all flex items-center justify-center gap-4 group ${beat.esta_vendido
-                                            ? 'bg-slate-200 text-slate-500 cursor-not-allowed shadow-none'
+                                        disabled={beat.esta_vendido || purchasedLicenses.includes(selectedLicense)}
+                                        className={`w-full h-20 rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs transition-all flex items-center justify-center gap-4 group ${beat.esta_vendido || purchasedLicenses.includes(selectedLicense)
+                                            ? 'bg-slate-200 text-slate-500 cursor-not-allowed shadow-none dark:bg-white/10 dark:text-muted'
                                             : 'bg-accent text-white hover:bg-accent/90 shadow-[0_20px_50px_-10px_rgba(37,99,235,0.3)]'
                                             }`}
                                     >
@@ -578,6 +603,11 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                             <>
                                                 <ShieldCheck size={22} />
                                                 Este beat ya ha sido vendido
+                                            </>
+                                        ) : purchasedLicenses.includes(selectedLicense) ? (
+                                            <>
+                                                <CheckCircle2 size={22} />
+                                                Ya has adquirido esta {selectedLicense === 'Sound Kit' ? 'licencia' : 'licencia'}
                                             </>
                                         ) : (
                                             <>
