@@ -729,8 +729,8 @@ export default function MyPurchasesPage() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="shrink-0 bg-white p-2 rounded-2xl shadow-xl">
-                                        <ValidationQR orderId={selectedOrder.id} size={90} />
+                                    <div className="shrink-0 bg-white p-2 rounded-xl shadow-2xl">
+                                        <ValidationQR orderId={selectedOrder.id} size={100} />
                                     </div>
                                 </div>
                             </div>
