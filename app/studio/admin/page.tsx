@@ -577,6 +577,8 @@ function UserManager({ onBack }: { onBack: () => void }) {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedUser, setSelectedUser] = useState<any>(null);
+    const [editForm, setEditForm] = useState<any>(null);
+    const [saving, setSaving] = useState(false);
     const { showToast } = useToast();
 
 
@@ -607,36 +609,64 @@ function UserManager({ onBack }: { onBack: () => void }) {
         fetchUsers();
     }, []);
 
-    const updateTier = async (userId: string, tier: string) => {
-        const { error } = await supabase.from('perfiles').update({ nivel_suscripcion: tier }).eq('id', userId);
-        if (!error) {
-            setUsers(users.map(u => u.id === userId ? { ...u, nivel_suscripcion: tier } : u));
-            if (selectedUser?.id === userId) setSelectedUser({ ...selectedUser, nivel_suscripcion: tier });
-            showToast("Nivel actualizado con éxito", "success");
+    // Initialize edit form when a user is selected
+    useEffect(() => {
+        if (selectedUser) {
+            setEditForm({
+                nivel_suscripcion: selectedUser.nivel_suscripcion || 'free',
+                esta_verificado: !!selectedUser.esta_verificado,
+                es_admin: !!selectedUser.es_admin,
+                fecha_inicio_suscripcion: selectedUser.fecha_inicio_suscripcion ? selectedUser.fecha_inicio_suscripcion.split('T')[0] : '',
+                fecha_termino_suscripcion: selectedUser.fecha_termino_suscripcion ? selectedUser.fecha_termino_suscripcion.split('T')[0] : ''
+            });
+        } else {
+            setEditForm(null);
         }
-    };
+    }, [selectedUser]);
 
-    const toggleAdmin = async (userId: string, currentStatus: boolean) => {
-        const { error } = await supabase.from('perfiles').update({ es_admin: !currentStatus }).eq('id', userId);
-        if (!error) {
-            setUsers(users.map(u => u.id === userId ? { ...u, es_admin: !currentStatus } : u));
-            if (selectedUser?.id === userId) setSelectedUser({ ...selectedUser, es_admin: !currentStatus });
-            showToast("Permisos actualizados", "success");
-        }
-    };
+    const hasChanges = editForm && selectedUser && (
+        editForm.nivel_suscripcion !== (selectedUser.nivel_suscripcion || 'free') ||
+        editForm.esta_verificado !== !!selectedUser.esta_verificado ||
+        editForm.es_admin !== !!selectedUser.es_admin ||
+        editForm.fecha_inicio_suscripcion !== (selectedUser.fecha_inicio_suscripcion ? selectedUser.fecha_inicio_suscripcion.split('T')[0] : '') ||
+        editForm.fecha_termino_suscripcion !== (selectedUser.fecha_termino_suscripcion ? selectedUser.fecha_termino_suscripcion.split('T')[0] : '')
+    );
 
-    const toggleVerification = async (userId: string, currentStatus: boolean) => {
-        const { error } = await supabase.from('perfiles').update({ esta_verificado: !currentStatus }).eq('id', userId);
-        if (!error) {
-            setUsers(users.map(u => u.id === userId ? { ...u, esta_verificado: !currentStatus } : u));
-            if (selectedUser?.id === userId) setSelectedUser({ ...selectedUser, esta_verificado: !currentStatus });
-            showToast("Estado de verificación actualizado", "success");
+    const handleSave = async () => {
+        if (!hasChanges) {
+            setSelectedUser(null);
+            return;
         }
+
+        setSaving(true);
+        try {
+            const payload = {
+                nivel_suscripcion: editForm.nivel_suscripcion,
+                esta_verificado: editForm.esta_verificado,
+                es_admin: editForm.es_admin,
+                fecha_inicio_suscripcion: editForm.fecha_inicio_suscripcion ? new Date(editForm.fecha_inicio_suscripcion).toISOString() : null,
+                fecha_termino_suscripcion: editForm.fecha_termino_suscripcion ? new Date(editForm.fecha_termino_suscripcion).toISOString() : null
+            };
+
+            const { error } = await supabase.from('perfiles').update(payload).eq('id', selectedUser.id);
+
+            if (error) throw error;
+
+            // Update local lists
+            const updatedUser = { ...selectedUser, ...payload };
+            setUsers(users.map(u => u.id === selectedUser.id ? updatedUser : u));
+            setSelectedUser(null);
+            showToast("Cambios guardados correctamente", "success");
+        } catch (err: any) {
+            showToast(err.message || "Error al guardar cambios", "error");
+        }
+        setSaving(false);
     };
 
     const filteredUsers = users.filter(u =>
         u.nombre_usuario?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         u.nombre_artistico?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        u.correo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         u.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -688,10 +718,11 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                                 <div className="flex items-center gap-1.5">
                                                     <p className="font-black text-xs text-foreground truncate">@{user.nombre_usuario}</p>
                                                     {user.esta_verificado && (
-                                                        <img src="/verified-badge.png" alt="Verificado" className="w-3.5 h-3.5 object-contain" title="Productor Verificado" />
+                                                        <BadgeCheck size={14} className="text-accent fill-accent" />
                                                     )}
                                                 </div>
                                                 <p className="text-[9px] text-muted uppercase tracking-widest truncate">{user.nombre_artistico}</p>
+                                                <p className="text-[8px] text-muted font-bold truncate lowercase">{user.correo || user.email}</p>
                                             </div>
                                         </div>
                                     </td>
@@ -722,9 +753,9 @@ function UserManager({ onBack }: { onBack: () => void }) {
             </div>
 
             {/* PREMIUM User Detail Modal */}
-            {selectedUser && (
+            {selectedUser && editForm && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-10 backdrop-blur-xl animate-in fade-in duration-300">
-                    <div className="absolute inset-0 bg-black/60 dark:bg-black/80" onClick={() => setSelectedUser(null)} />
+                    <div className="absolute inset-0 bg-black/60 dark:bg-black/80" onClick={() => hasChanges ? null : setSelectedUser(null)} />
 
                     <div className="relative bg-white dark:bg-[#08080a] border border-border dark:border-white/10 w-full max-w-2xl rounded-[3.5rem] p-10 md:p-16 shadow-[0_0_100px_rgba(var(--accent-rgb),0.2)] overflow-hidden animate-in zoom-in-95 duration-500">
                         {/* Environmental Glow */}
@@ -752,24 +783,15 @@ function UserManager({ onBack }: { onBack: () => void }) {
 
                         <div className="relative z-10 grid md:grid-cols-2 gap-8 mb-12">
                             <div className="space-y-6">
-                                <DetailItem label="Correo Electrónico" value={selectedUser.correo || selectedUser.email} />
+                                <DetailItem label="Correo Electrónico" value={selectedUser.correo || selectedUser.email || 'No registrado'} />
                                 <DetailItem label="Nombre Completo" value={selectedUser.nombre_completo || 'No especificado'} />
-                                <DetailItem label="Fecha de Registro" value={selectedUser.fecha_creacion ? new Date(selectedUser.fecha_creacion).toLocaleDateString() : 'Desconocida'} />
 
                                 <div className="p-5 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-3xl space-y-3">
                                     <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted">Inicio Suscripción</p>
                                     <input
                                         type="date"
-                                        value={selectedUser.fecha_inicio_suscripcion ? selectedUser.fecha_inicio_suscripcion.split('T')[0] : ''}
-                                        onChange={async (e) => {
-                                            const date = e.target.value ? new Date(e.target.value).toISOString() : null;
-                                            const { error } = await supabase.from('perfiles').update({ fecha_inicio_suscripcion: date }).eq('id', selectedUser.id);
-                                            if (!error) {
-                                                setUsers(users.map(u => u.id === selectedUser.id ? { ...u, fecha_inicio_suscripcion: date } : u));
-                                                setSelectedUser({ ...selectedUser, fecha_inicio_suscripcion: date });
-                                                showToast("Fecha de inicio actualizada", "success");
-                                            }
-                                        }}
+                                        value={editForm.fecha_inicio_suscripcion}
+                                        onChange={(e) => setEditForm({ ...editForm, fecha_inicio_suscripcion: e.target.value })}
                                         className="w-full bg-transparent font-black text-xs text-foreground dark:text-white outline-none cursor-pointer"
                                     />
                                 </div>
@@ -779,8 +801,8 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                 <div className="p-5 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-3xl space-y-3">
                                     <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted">Membresía Actual</p>
                                     <select
-                                        value={selectedUser.nivel_suscripcion || 'free'}
-                                        onChange={(e) => updateTier(selectedUser.id, e.target.value)}
+                                        value={editForm.nivel_suscripcion}
+                                        onChange={(e) => setEditForm({ ...editForm, nivel_suscripcion: e.target.value })}
                                         className="w-full bg-transparent font-black text-xs uppercase tracking-widest text-accent outline-none cursor-pointer appearance-none"
                                     >
                                         <option value="free">Gratis (Free)</option>
@@ -792,52 +814,89 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                 <div className="p-5 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-3xl flex items-center justify-between">
                                     <div>
                                         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted mb-1">Verificación</p>
-                                        <p className="font-black text-[10px] text-foreground dark:text-white uppercase tracking-widest">{selectedUser.esta_verificado ? 'Verificado' : 'Sin Verificar'}</p>
+                                        <p className="font-black text-[10px] text-foreground dark:text-white uppercase tracking-widest">{editForm.esta_verificado ? 'Verificado' : 'Sin Verificar'}</p>
                                     </div>
                                     <button
-                                        onClick={() => toggleVerification(selectedUser.id, !!selectedUser.esta_verificado)}
-                                        className={`px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all ${selectedUser.esta_verificado ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'}`}
+                                        onClick={() => setEditForm({ ...editForm, esta_verificado: !editForm.esta_verificado })}
+                                        className={`px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all ${editForm.esta_verificado ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'}`}
                                     >
-                                        {selectedUser.esta_verificado ? 'Quitar' : 'Verificar'}
+                                        {editForm.esta_verificado ? 'Quitar' : 'Verificar'}
                                     </button>
                                 </div>
 
                                 <div className="p-5 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-3xl space-y-3">
-                                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted">Fin Suscripción</p>
+                                    <div className="flex justify-between items-center">
+                                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted">Fin Suscripción</p>
+                                        <div className="flex gap-1">
+                                            <button
+                                                onClick={() => {
+                                                    const base = editForm.fecha_termino_suscripcion ? new Date(editForm.fecha_termino_suscripcion) : new Date();
+                                                    base.setDate(base.getDate() + 30);
+                                                    setEditForm({ ...editForm, fecha_termino_suscripcion: base.toISOString().split('T')[0] });
+                                                }}
+                                                className="px-2 py-0.5 bg-accent/10 text-accent text-[8px] font-black rounded-lg hover:bg-accent hover:text-white transition-colors"
+                                            >
+                                                +30D
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const base = editForm.fecha_termino_suscripcion ? new Date(editForm.fecha_termino_suscripcion) : new Date();
+                                                    base.setFullYear(base.getFullYear() + 1);
+                                                    setEditForm({ ...editForm, fecha_termino_suscripcion: base.toISOString().split('T')[0] });
+                                                }}
+                                                className="px-2 py-0.5 bg-accent/10 text-accent text-[8px] font-black rounded-lg hover:bg-accent hover:text-white transition-colors"
+                                            >
+                                                +1A
+                                            </button>
+                                        </div>
+                                    </div>
                                     <input
                                         type="date"
-                                        value={selectedUser.fecha_termino_suscripcion ? selectedUser.fecha_termino_suscripcion.split('T')[0] : ''}
-                                        onChange={async (e) => {
-                                            const date = e.target.value ? new Date(e.target.value).toISOString() : null;
-                                            const { error } = await supabase.from('perfiles').update({ fecha_termino_suscripcion: date }).eq('id', selectedUser.id);
-                                            if (!error) {
-                                                setUsers(users.map(u => u.id === selectedUser.id ? { ...u, fecha_termino_suscripcion: date } : u));
-                                                setSelectedUser({ ...selectedUser, fecha_termino_suscripcion: date });
-                                                showToast("Fecha de vencimiento actualizada", "success");
-                                            }
-                                        }}
+                                        value={editForm.fecha_termino_suscripcion}
+                                        onChange={(e) => setEditForm({ ...editForm, fecha_termino_suscripcion: e.target.value })}
                                         className="w-full bg-transparent font-black text-xs text-foreground dark:text-white outline-none cursor-pointer"
                                     />
                                 </div>
                             </div>
                         </div>
 
+                        <div className="relative z-10 p-6 bg-accent/5 border border-accent/20 rounded-3xl mb-8 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${editForm.es_admin ? 'bg-amber-500 text-white' : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
+                                    <ShieldAlert size={20} />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-foreground dark:text-white">Permisos de Administrador</p>
+                                    <p className="text-[8px] text-muted font-bold uppercase tracking-widest">{editForm.es_admin ? 'Acceso Total al Panel' : 'Usuario Estándar'}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setEditForm({ ...editForm, es_admin: !editForm.es_admin })}
+                                className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${editForm.es_admin ? 'bg-amber-500 text-white border-amber-600' : 'dark:bg-white/5 border-border hover:border-accent'}`}
+                            >
+                                {editForm.es_admin ? 'Quitar' : 'Hacer Admin'}
+                            </button>
+                        </div>
+
                         <footer className="relative z-10 flex gap-4 pt-8 border-t border-border dark:border-white/10">
                             <button
-                                onClick={() => toggleAdmin(selectedUser.id, !!selectedUser.es_admin)}
-                                className={`flex-1 h-16 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all shadow-2xl flex items-center justify-center gap-3 ${selectedUser.es_admin ? 'bg-rose-600 text-white shadow-rose-600/30' : 'bg-emerald-600 text-white shadow-emerald-600/30'}`}
+                                onClick={handleSave}
+                                disabled={saving}
+                                className={`flex-1 h-16 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all shadow-2xl flex items-center justify-center gap-3 ${hasChanges
+                                    ? 'bg-accent text-white shadow-accent/40'
+                                    : 'bg-emerald-600 text-white shadow-emerald-600/30'
+                                    }`}
                             >
-                                <ShieldAlert size={16} />
-                                {selectedUser.es_admin ? 'Degradar a Usuario' : 'Ascender a Admin'}
+                                {saving ? <Loader2 className="animate-spin" /> : hasChanges ? <Save size={16} /> : <CheckCircle size={16} />}
+                                {hasChanges ? 'Guardar Cambios' : 'Todo en Orden'}
                             </button>
-                            <Link
-                                href={`/${selectedUser.nombre_usuario}`}
-                                target="_blank"
+                            <button
+                                onClick={() => setSelectedUser(null)}
                                 className="flex-1 h-16 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 hover:border-accent/30 text-foreground dark:text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all"
                             >
-                                <ExternalLink size={16} />
-                                Perfil Público
-                            </Link>
+                                <X size={16} />
+                                {hasChanges ? 'Cancelar' : 'Cerrar'}
+                            </button>
                         </footer>
                     </div>
                 </div>
