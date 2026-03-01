@@ -8,7 +8,8 @@ import {
     TrendingUp, Calendar, Layout, Mail, ShieldCheck, UserPlus,
     ExternalLink, Filter, MoreVertical, X, AlertTriangle, AlertCircle,
     Ticket, MessageSquare, XCircle, Edit2, Save, Crown, User, FileKey,
-    Plus, Percent, BadgeCheck, ShieldAlert, Target, ChevronDown
+    Plus, Percent, BadgeCheck, ShieldAlert, Target, ChevronDown,
+    Package, Download, CreditCard, CheckCircle2, FileText
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
@@ -654,7 +655,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
     }, [selectedUser]);
 
     const hasChanges = (() => {
-        if (!selectedUser) return false;
+        if (!selectedUser || !editForm) return false;
         const formatDateSafe = (dateStr: any) => {
             try {
                 if (!dateStr) return '';
@@ -1129,59 +1130,85 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                 ) : (
                     coupons.map(cp => {
                         const isExpired = cp.fecha_expiracion && new Date(cp.fecha_expiracion) < new Date();
-                        let tierStyle = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
-                        if (cp.nivel_objetivo === 'free') tierStyle = "bg-blue-500/10 text-blue-500 border-blue-500/20";
-                        if (cp.nivel_objetivo === 'pro') tierStyle = "bg-indigo-500/10 text-indigo-500 border-indigo-500/20";
-                        if (cp.nivel_objetivo === 'premium') tierStyle = "bg-amber-500/10 text-amber-500 border-amber-500/20";
-
                         return (
-                            <div key={cp.id} className={`group relative bg-card/40 backdrop-blur-xl border border-border rounded-[2.5rem] p-8 transition-all duration-500 hover:border-accent/40 hover:shadow-2xl overflow-hidden flex flex-col ${(!cp.es_activo || isExpired) && 'opacity-60 grayscale'}`}>
+                            <div key={cp.id} className={`group relative bg-card border rounded-[2.5rem] p-8 transition-all duration-500 hover:border-accent/40 hover:shadow-2xl overflow-hidden flex flex-col ${(!cp.es_activo || isExpired) ? 'opacity-70 grayscale-[0.5]' : 'border-border shadow-xl shadow-foreground/5'}`}>
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
 
                                 <div className="flex justify-between items-start mb-8 relative z-10">
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-3">
-                                            <h3 className="font-black text-3xl text-foreground tracking-tighter uppercase font-mono">{cp.codigo}</h3>
-                                            <span className={`px-3 py-1 rounded-lg text-[7px] font-black uppercase tracking-widest border ${tierStyle}`}>
-                                                TARGET: {cp.nivel_objetivo}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className={`w-1.5 h-1.5 rounded-full ${cp.es_activo && !isExpired ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                                            <p className="text-[9px] font-bold text-muted uppercase tracking-widest">
-                                                {isExpired ? 'Expirado' : cp.es_activo ? 'Activo' : 'Pausado'} • {cp.fecha_expiracion ? new Date(cp.fecha_expiracion).toLocaleDateString() : 'Sin Vencimiento'}
-                                            </p>
+                                    <div className="space-y-3">
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-3 bg-accent/10 rounded-2xl text-accent border border-accent/20">
+                                                <Ticket size={24} />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-2xl font-black uppercase tracking-tighter text-foreground group-hover:text-accent font-mono transition-colors">{cp.codigo}</h3>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${cp.es_activo && !isExpired ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                                                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted leading-none">
+                                                        {isExpired ? 'Expirado' : cp.es_activo ? 'Activo' : 'Pausado'}
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="text-3xl font-black text-accent">-{cp.porcentaje_descuento}%</div>
-                                        <div className="text-[8px] font-black uppercase tracking-widest text-muted opacity-60">SUSCRIPCIONES</div>
+                                        <div className="text-4xl font-black text-accent leading-none">-{cp.porcentaje_descuento}%</div>
+                                        <div className="text-[8px] font-black uppercase tracking-widest text-muted mt-2 opacity-60">SUSCRIPCIONES</div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 mb-8 relative z-10">
+                                    <div className="p-4 bg-foreground/5 rounded-2xl border border-border/50">
+                                        <p className="text-[8px] font-black uppercase tracking-widest text-muted mb-1 flex items-center gap-1.5">
+                                            <Calendar size={10} /> Expiración
+                                        </p>
+                                        <p className="text-[10px] font-bold text-foreground uppercase">
+                                            {cp.fecha_expiracion ? new Date(cp.fecha_expiracion).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2-digit' }) : 'Sin Límite'}
+                                        </p>
+                                    </div>
+                                    <div className="p-4 bg-foreground/5 rounded-2xl border border-border/50">
+                                        <p className="text-[8px] font-black uppercase tracking-widest text-muted mb-1 flex items-center gap-1.5">
+                                            <Target size={10} /> Alcance
+                                        </p>
+                                        <p className="text-[10px] font-bold text-foreground uppercase truncate">
+                                            {cp.nivel_objetivo === 'todos' ? 'Todos' : cp.nivel_objetivo.toUpperCase()}
+                                        </p>
                                     </div>
                                 </div>
 
                                 <div className="mt-auto pt-6 border-t border-border flex items-center justify-between gap-4 relative z-10">
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={() => toggleStatus(cp.id, cp.es_activo)}
+                                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 focus:outline-none shadow-inner ${cp.es_activo ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-white/10'}`}
+                                            >
+                                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${cp.es_activo ? 'translate-x-6' : 'translate-x-1'}`} />
+                                            </button>
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-muted">Habilitado</span>
+                                        </div>
+                                    </div>
+
                                     <div className="flex gap-2">
-                                        <button onClick={() => openEditModal(cp)} className="p-3 rounded-xl bg-foreground/5 text-foreground hover:bg-accent hover:text-white transition-all active:scale-95 shadow-sm">
-                                            <Edit2 size={16} />
+                                        <button onClick={() => openEditModal(cp)} className="p-2.5 rounded-xl bg-foreground/5 text-muted hover:bg-accent hover:text-white transition-all active:scale-95 border border-border/50">
+                                            <Edit2 size={14} />
                                         </button>
                                         <button
                                             onClick={() => confirmDeleteId === cp.id ? handleDelete(cp.id) : setConfirmDeleteId(cp.id)}
-                                            className={`p-3 rounded-xl transition-all active:scale-95 shadow-sm ${confirmDeleteId === cp.id ? 'bg-rose-500 text-white w-32' : 'bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white'}`}
+                                            className={`p-2.5 rounded-xl transition-all active:scale-95 border flex items-center justify-center gap-2 ${confirmDeleteId === cp.id
+                                                ? 'bg-rose-500 text-white border-rose-600 px-4'
+                                                : 'bg-rose-500/10 text-rose-500 border-rose-500/20 hover:bg-rose-500 hover:text-white'
+                                                }`}
                                         >
-                                            {confirmDeleteId === cp.id ? <span className="text-[10px] font-black uppercase">¿Borrar?</span> : <Trash2 size={16} />}
+                                            {confirmDeleteId === cp.id ? <span className="text-[8px] font-black uppercase">¿Borrar?</span> : <Trash2 size={14} />}
+                                            {confirmDeleteId === cp.id && <Trash2 size={12} />}
                                         </button>
                                         {confirmDeleteId === cp.id && (
-                                            <button onClick={() => setConfirmDeleteId(null)} className="p-3 rounded-xl bg-foreground/5 text-muted hover:text-foreground">
-                                                <X size={16} />
+                                            <button onClick={() => setConfirmDeleteId(null)} className="p-2.5 rounded-xl bg-foreground/5 text-muted hover:text-foreground border border-border/50">
+                                                <X size={14} />
                                             </button>
                                         )}
                                     </div>
-                                    <button
-                                        onClick={() => toggleStatus(cp.id, cp.es_activo)}
-                                        className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${cp.es_activo ? 'bg-emerald-500 text-white border-emerald-600' : 'bg-rose-500 text-white border-rose-600'} active:scale-95 shadow-lg`}
-                                    >
-                                        {cp.es_activo ? 'Pausar' : 'Reactivar'}
-                                    </button>
                                 </div>
                             </div>
                         )
@@ -1287,7 +1314,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
 
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-muted/60 ml-1">
-                                    Fecha de Expiración <span className="text-accent underline lowercase ml-2 font-black">(Vacío = No expira)</span>
+                                    Fecha de Expiración <span className="text-muted/40 lowercase ml-2 font-bold">(vacío no expira)</span>
                                 </label>
                                 <div
                                     className="relative group cursor-pointer"
@@ -1538,42 +1565,142 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
 
 // --- INCOME MANAGER MODULE ---
 function IncomeManager({ onBack }: { onBack: () => void }) {
-    const [transactions, setTransactions] = useState<any[]>([]);
+    const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedTx, setSelectedTx] = useState<any>(null);
+    const [selectedOrder, setSelectedOrder] = useState<any>(null);
     const { showToast } = useToast();
 
     useEffect(() => {
-        fetchTransactions();
+        fetchOrders();
     }, []);
 
-    const fetchTransactions = async () => {
+    const fetchOrders = async () => {
         setLoading(true);
         try {
-            const { data, error } = await supabase
+            const { data: txData, error: txError } = await supabase
                 .from('transacciones')
                 .select(`
                     *,
-                    comprador:comprador_id(nombre_usuario, nombre_artistico, foto_perfil, correo),
-                    vendedor:vendedor_id(nombre_usuario, nombre_artistico, foto_perfil, correo)
+                    comprador:comprador_id(nombre_usuario, nombre_artistico, correo),
+                    vendedor:vendedor_id(nombre_usuario, nombre_artistico, correo)
                 `)
                 .order('fecha_creacion', { ascending: false });
 
-            if (error) throw error;
-            setTransactions(data || []);
+            if (txError) throw txError;
+
+            // Group transactions by orden_pedido / pago_id
+            const groupedOrders: Record<string, any> = {};
+
+            (txData || []).forEach(tx => {
+                const orderKey = tx.orden_pedido || tx.pago_id || tx.id;
+
+                if (!groupedOrders[orderKey]) {
+                    groupedOrders[orderKey] = {
+                        id: orderKey,
+                        pago_id: tx.pago_id,
+                        orden_pedido: tx.orden_pedido,
+                        created_at: tx.fecha_creacion,
+                        total_amount: 0,
+                        currency: tx.moneda || 'MXN',
+                        status: tx.estado_pago || 'completado',
+                        payment_method: tx.metodo_pago || 'Stripe',
+                        comprador: tx.comprador,
+                        vendedor: tx.vendedor,
+                        items: []
+                    };
+                }
+
+                groupedOrders[orderKey].total_amount += Number(tx.precio_total || tx.precio || 0);
+
+                groupedOrders[orderKey].items.push({
+                    id: tx.id,
+                    product_type: tx.tipo_producto,
+                    name: tx.nombre_producto,
+                    price: tx.precio_total || tx.precio || 0,
+                    license_type: tx.tipo_licencia,
+                    metadata: tx.metadatos
+                });
+            });
+
+            setOrders(Object.values(groupedOrders));
         } catch (err) {
             console.error(err);
-            showToast("Error al cargar transacciones", "error");
+            showToast("Error al cargar pedidos e ingresos", "error");
         }
         setLoading(false);
     };
 
-    const totalHistorical = transactions.reduce((acc, tx) => acc + (tx.precio || 0), 0);
-    const totalMonthly = transactions.filter(tx => {
-        const date = new Date(tx.fecha_creacion);
+    const totalHistorical = orders.reduce((acc, order) => acc + order.total_amount, 0);
+    const totalMonthly = orders.filter(order => {
+        const date = new Date(order.created_at);
         const now = new Date();
         return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
-    }).reduce((acc, tx) => acc + (tx.precio || 0), 0);
+    }).reduce((acc, order) => acc + order.total_amount, 0);
+
+    const handleDownloadReceipt = (order: any) => {
+        try {
+            showToast("Generando comprobante (Admin)...", "info");
+            import('jspdf').then(async ({ default: jsPDF }) => {
+                const autoTable = (await import('jspdf-autotable')).default;
+                const doc = new jsPDF();
+
+                doc.setFillColor(15, 23, 42);
+                doc.rect(0, 0, 210, 40, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(24);
+                doc.setFont("helvetica", "bold");
+                doc.text("TIANGUIS BEATS", 15, 25);
+
+                doc.setFontSize(10);
+                doc.setFont("helvetica", "normal");
+                doc.text("Comprobante Administrativo de Pago", 140, 20);
+                doc.text(new Date().toLocaleDateString('es-MX'), 140, 28);
+
+                doc.setTextColor(50, 50, 50);
+                doc.setFontSize(12);
+                doc.setFont("helvetica", "bold");
+                doc.text("Detalles de la Transacción", 15, 55);
+
+                doc.setFontSize(10);
+                doc.setFont("helvetica", "normal");
+                doc.text(`ID de Orden: ${order.orden_pedido || order.id}`, 15, 65);
+                doc.text(`Fecha: ${new Date(order.created_at).toLocaleString()}`, 15, 72);
+                doc.text(`Estado: Pago Verificado (${order.payment_method})`, 15, 79);
+
+                doc.setFont("helvetica", "bold");
+                doc.text("Comprador:", 120, 65);
+                doc.setFont("helvetica", "normal");
+                doc.text(order.comprador?.nombre_artistico || order.comprador?.nombre_usuario || 'Cliente', 120, 72);
+                doc.text(order.comprador?.correo || 'Sin correo', 120, 79);
+
+                const tableBody = order.items.map((item: any) => [
+                    item.name,
+                    item.product_type.toUpperCase(),
+                    `$${Number(item.price).toFixed(2)} ${order.currency}`
+                ]);
+
+                autoTable(doc, {
+                    startY: 95,
+                    head: [['Descripción', 'Tipo', 'Monto']],
+                    body: tableBody,
+                    theme: 'striped',
+                    headStyles: { fillColor: [59, 130, 246] },
+                    styles: { font: 'helvetica', fontSize: 10 },
+                });
+
+                const finalY = (doc as any).lastAutoTable.finalY || 150;
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(14);
+                doc.text(`Total: $${order.total_amount.toFixed(2)} ${order.currency}`, 140, finalY + 15);
+
+                doc.save(`Pedido_${order.orden_pedido || order.id.slice(0, 8)}.pdf`);
+                showToast("Descarga completada", "success");
+            });
+        } catch (e) {
+            console.error(e);
+            showToast("Error al generar PDF", "error");
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -1602,61 +1729,58 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-border bg-foreground/[0.03]">
-                                <th className="px-8 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Orden / Fecha</th>
-                                <th className="px-6 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Producto</th>
+                                <th className="px-8 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Pedido / Fecha</th>
+                                <th className="px-6 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Items</th>
                                 <th className="px-6 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Comprador</th>
                                 <th className="px-6 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Vendedor</th>
-                                <th className="px-8 py-6 text-right text-[9px] font-black uppercase tracking-[0.2em] text-muted">Monto</th>
+                                <th className="px-8 py-6 text-right text-[9px] font-black uppercase tracking-[0.2em] text-muted">Monto Total</th>
                                 <th className="px-8 py-6 text-right text-[9px] font-black uppercase tracking-[0.2em] text-muted">Acción</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
                             {loading ? (
                                 <tr><td colSpan={6} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent" /></td></tr>
-                            ) : transactions.length === 0 ? (
+                            ) : orders.length === 0 ? (
                                 <tr><td colSpan={6} className="py-20 text-center text-muted text-xs font-bold uppercase tracking-widest">No hay transacciones registradas</td></tr>
-                            ) : transactions.map(tx => (
-                                <tr key={tx.id} className="hover:bg-foreground/[0.02] transition-colors group">
+                            ) : orders.map(order => (
+                                <tr key={order.id} className="hover:bg-foreground/[0.02] transition-colors group">
                                     <td className="px-8 py-6">
-                                        <p className="text-[10px] font-black text-foreground uppercase tracking-widest mb-1">#{tx.id.slice(0, 8)}</p>
-                                        <p className="text-[9px] font-bold text-muted uppercase">{new Date(tx.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2-digit' })}</p>
+                                        <p className="text-[10px] font-black text-foreground uppercase tracking-widest mb-1">
+                                            {order.orden_pedido || `#${order.id.slice(0, 8).toUpperCase()}`}
+                                        </p>
+                                        <p className="text-[9px] font-bold text-muted uppercase">
+                                            {new Date(order.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2-digit' })}
+                                        </p>
                                     </td>
                                     <td className="px-6 py-6">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
-                                                {tx.tipo_producto === 'beat' ? <Music size={14} /> : tx.tipo_producto === 'plan' ? <Crown size={14} /> : <Layout size={14} />}
-                                            </div>
-                                            <div>
-                                                <p className="font-black text-xs uppercase tracking-tight text-foreground">{tx.nombre_producto || 'Producto sin nombre'}</p>
-                                                <p className="text-[9px] text-muted uppercase font-bold tracking-widest">{tx.tipo_producto}</p>
-                                            </div>
+                                        <div className="flex -space-x-2">
+                                            {order.items.slice(0, 3).map((item: any, idx: number) => (
+                                                <div key={item.id} className="w-8 h-8 rounded-lg bg-accent/20 border-2 border-card flex items-center justify-center text-accent" title={item.name}>
+                                                    {item.product_type === 'beat' ? <Music size={14} /> : item.product_type === 'plan' ? <Crown size={14} /> : <Layout size={14} />}
+                                                </div>
+                                            ))}
+                                            {order.items.length > 3 && (
+                                                <div className="w-8 h-8 rounded-lg bg-foreground/5 border-2 border-card flex items-center justify-center text-[10px] font-black text-muted">
+                                                    +{order.items.length - 3}
+                                                </div>
+                                            )}
                                         </div>
                                     </td>
                                     <td className="px-6 py-6">
-                                        {tx.comprador ? (
-                                            <div className="flex items-center gap-2">
-                                                <img src={tx.comprador.foto_perfil || `https://ui-avatars.com/api/?name=${tx.comprador.nombre_usuario}`} className="w-6 h-6 rounded-full border border-border" />
-                                                <p className="font-bold text-[10px] text-foreground">@{tx.comprador.nombre_usuario}</p>
-                                            </div>
-                                        ) : <span className="text-[10px] text-muted">---</span>}
+                                        <p className="font-bold text-[10px] text-foreground uppercase">@{order.comprador?.nombre_usuario || '---'}</p>
                                     </td>
                                     <td className="px-6 py-6">
-                                        {tx.vendedor ? (
-                                            <div className="flex items-center gap-2">
-                                                <img src={tx.vendedor.foto_perfil || `https://ui-avatars.com/api/?name=${tx.vendedor.nombre_usuario}`} className="w-6 h-6 rounded-full border border-border" />
-                                                <p className="font-bold text-[10px] text-foreground">@{tx.vendedor.nombre_usuario}</p>
-                                            </div>
-                                        ) : <span className="text-[10px] text-muted italic">Tianguis</span>}
+                                        <p className="font-bold text-[10px] text-muted uppercase">{order.vendedor?.nombre_usuario ? `@${order.vendedor.nombre_usuario}` : 'Tianguis Beats'}</p>
                                     </td>
                                     <td className="px-8 py-6 text-right font-black text-xs text-emerald-500 tabular-nums">
-                                        ${tx.precio?.toLocaleString() || '0'}
+                                        ${order.total_amount.toLocaleString()} <span className="text-[8px] opacity-60 uppercase">{order.currency}</span>
                                     </td>
                                     <td className="px-8 py-6 text-right">
                                         <button
-                                            onClick={() => setSelectedTx(tx)}
-                                            className="px-3 py-1.5 bg-foreground/5 border border-border rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-accent hover:text-white hover:border-accent transition-all"
+                                            onClick={() => setSelectedOrder(order)}
+                                            className="px-4 py-2 bg-foreground/5 border border-border rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-accent hover:text-white hover:border-accent transition-all active:scale-95"
                                         >
-                                            Detalles
+                                            Ver Pedido
                                         </button>
                                     </td>
                                 </tr>
@@ -1666,85 +1790,108 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
                 </div>
             </div>
 
-            {/* Modal de Detalles de Transacción */}
-            {selectedTx && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300">
-                    <div className="absolute inset-0 bg-background/80 backdrop-blur-xl" onClick={() => setSelectedTx(null)} />
-                    <div className="relative w-full max-w-2xl bg-card border border-border rounded-[3rem] shadow-2xl p-10 overflow-hidden">
-                        <header className="flex justify-between items-start mb-10">
+            {/* Modal de Detalles de Pedido Unificado */}
+            {selectedOrder && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div
+                        className="absolute inset-0 bg-background/80 backdrop-blur-md animate-in fade-in duration-300"
+                        onClick={() => setSelectedOrder(null)}
+                    />
+                    <div className="relative w-full max-w-2xl bg-card border border-border rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in-95 fade-in duration-300">
+                        {/* Modal Header */}
+                        <div className="relative z-10 p-8 border-b border-border flex items-center justify-between">
                             <div>
-                                <h3 className="text-3xl font-black uppercase tracking-tighter text-foreground">Detalles de <span className="text-accent">Orden</span></h3>
-                                <p className="text-[10px] text-muted font-black uppercase tracking-[0.3em]">ID: {selectedTx.id}</p>
+                                <h3 className="text-2xl font-black uppercase tracking-tighter text-foreground">Detalles del Pedido</h3>
+                                <p className="text-[10px] font-bold text-muted uppercase tracking-widest">
+                                    Pedido {selectedOrder.orden_pedido || `#${selectedOrder.id.slice(0, 8).toUpperCase()}`}
+                                </p>
                             </div>
-                            <button onClick={() => setSelectedTx(null)} className="w-12 h-12 bg-foreground/5 border border-border rounded-full flex items-center justify-center text-foreground hover:bg-rose-500 hover:text-white transition-all">
-                                <X size={20} />
+                            <button
+                                onClick={() => setSelectedOrder(null)}
+                                className="w-12 h-12 rounded-2xl bg-foreground/5 border border-border flex items-center justify-center text-muted hover:text-rose-500 hover:bg-rose-500/10 transition-all"
+                            >
+                                <X size={24} />
                             </button>
-                        </header>
+                        </div>
 
-                        <div className="grid md:grid-cols-2 gap-8 mb-10">
-                            <div className="space-y-6">
-                                <div className="p-6 bg-foreground/5 rounded-3xl border border-border">
-                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-3">Información del Producto</p>
-                                    <p className="text-lg font-black text-foreground uppercase tracking-tight">{selectedTx.nombre_producto}</p>
-                                    <p className="text-[10px] text-accent font-black uppercase tracking-widest mt-1">{selectedTx.tipo_producto}</p>
-                                    {selectedTx.tipo_licencia && <p className="text-[10px] text-muted uppercase font-bold mt-2">Licencia: {selectedTx.tipo_licencia}</p>}
+                        {/* Modal Content */}
+                        <div className="p-8 max-h-[60vh] overflow-y-auto space-y-8 scrollbar-hide">
+                            {/* General Info Grid */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-5 bg-foreground/5 border border-border rounded-2xl">
+                                    <p className="text-[8px] font-black text-muted uppercase tracking-widest mb-1 flex items-center gap-1.5"><CreditCard size={12} /> Método</p>
+                                    <p className="text-xs font-black text-foreground uppercase tracking-tight">{selectedOrder.payment_method}</p>
                                 </div>
-
-                                <div className="p-6 bg-foreground/5 rounded-3xl border border-border">
-                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-3">Comprador</p>
-                                    <div className="flex items-center gap-3">
-                                        <img src={selectedTx.comprador?.foto_perfil || `https://ui-avatars.com/api/?name=${selectedTx.comprador?.nombre_usuario}`} className="w-10 h-10 rounded-xl border border-border" />
-                                        <div>
-                                            <p className="font-black text-sm text-foreground">@{selectedTx.comprador?.nombre_usuario}</p>
-                                            <p className="text-[10px] text-muted uppercase font-bold">{selectedTx.comprador?.correo}</p>
-                                        </div>
-                                    </div>
+                                <div className="p-5 bg-foreground/5 border border-border rounded-2xl">
+                                    <p className="text-[8px] font-black text-muted uppercase tracking-widest mb-1 flex items-center gap-1.5"><Clock size={12} /> Fecha</p>
+                                    <p className="text-xs font-black text-foreground uppercase tracking-tight">{new Date(selectedOrder.created_at).toLocaleString()}</p>
+                                </div>
+                                <div className="p-5 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl">
+                                    <p className="text-[8px] font-black text-emerald-500 uppercase tracking-widest mb-1 flex items-center gap-1.5"><CheckCircle2 size={12} /> Estado</p>
+                                    <p className="text-xs font-black text-emerald-500 uppercase tracking-widest">{selectedOrder.status.toUpperCase()}</p>
+                                </div>
+                                <div className="p-5 bg-accent/5 border border-accent/20 rounded-2xl">
+                                    <p className="text-[8px] font-black text-accent uppercase tracking-widest mb-1 flex items-center gap-1.5"><DollarSign size={12} /> Total</p>
+                                    <p className="text-xl font-black text-accent tracking-tighter">${selectedOrder.total_amount.toLocaleString()} <span className="text-[10px] opacity-60">{selectedOrder.currency}</span></p>
                                 </div>
                             </div>
 
-                            <div className="space-y-6">
-                                <div className="p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/20">
-                                    <p className="text-[10px] font-black uppercase text-emerald-500 tracking-widest mb-3">Monto de Transacción</p>
-                                    <p className="text-4xl font-black text-emerald-500 tabular-nums">${selectedTx.precio?.toLocaleString()}</p>
-                                    <p className="text-[10px] text-emerald-500/60 font-bold uppercase tracking-widest mt-1">Moneda: {selectedTx.moneda || 'MXN'}</p>
+                            {/* Itemized Breakdown */}
+                            <div className="space-y-4">
+                                <h4 className="text-[10px] font-black text-muted uppercase tracking-[0.2em] px-2 flex items-center gap-2">
+                                    <Package size={14} className="text-accent" />
+                                    Detalle del Contenido
+                                </h4>
+                                <div className="space-y-3">
+                                    {selectedOrder.items.map((item: any) => (
+                                        <div key={item.id} className="p-5 rounded-2xl bg-foreground/5 border border-border flex items-center justify-between gap-4 group hover:bg-foreground/10 transition-all">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center text-accent border border-accent/10">
+                                                    {item.product_type === 'beat' ? <Music size={14} /> : item.product_type === 'plan' ? <Crown size={14} /> : <Layout size={14} />}
+                                                </div>
+                                                <div>
+                                                    <h5 className="font-black text-xs text-foreground uppercase tracking-tight">{item.name}</h5>
+                                                    <p className="text-[9px] font-bold text-muted uppercase tracking-widest">
+                                                        {item.product_type === 'beat' ? `Licencia ${item.license_type}` : item.product_type.toUpperCase()}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <p className="text-sm font-black text-foreground tracking-tighter">${item.price.toLocaleString()} <span className="text-[9px] text-muted">{selectedOrder.currency}</span></p>
+                                        </div>
+                                    ))}
                                 </div>
+                            </div>
 
+                            {/* User Info Section */}
+                            <div className="grid md:grid-cols-2 gap-6">
                                 <div className="p-6 bg-foreground/5 rounded-3xl border border-border">
-                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-3">Vendedor</p>
-                                    {selectedTx.vendedor ? (
-                                        <div className="flex items-center gap-3">
-                                            <img src={selectedTx.vendedor.foto_perfil || `https://ui-avatars.com/api/?name=${selectedTx.vendedor.nombre_usuario}`} className="w-10 h-10 rounded-xl border border-border" />
-                                            <div>
-                                                <p className="font-black text-sm text-foreground">@{selectedTx.vendedor.nombre_usuario}</p>
-                                                <p className="text-[10px] text-muted uppercase font-bold">{selectedTx.vendedor.correo}</p>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center text-white">
-                                                <ShieldCheck size={20} />
-                                            </div>
-                                            <p className="font-black text-sm text-foreground uppercase tracking-widest">Tianguis Beats</p>
-                                        </div>
-                                    )}
+                                    <p className="text-[8px] font-black uppercase text-muted tracking-widest mb-3">Comprador</p>
+                                    <p className="font-black text-xs text-foreground uppercase tracking-widest">@{selectedOrder.comprador?.nombre_usuario || 'Anónimo'}</p>
+                                    <p className="text-[10px] text-muted font-bold uppercase tracking-widest truncate">{selectedOrder.comprador?.correo || '---'}</p>
+                                </div>
+                                <div className="p-6 bg-foreground/5 rounded-3xl border border-border">
+                                    <p className="text-[8px] font-black uppercase text-muted tracking-widest mb-3">Vendedor</p>
+                                    <p className="font-black text-xs text-foreground uppercase tracking-widest">@{selectedOrder.vendedor?.nombre_usuario || 'Tianguis Beats'}</p>
+                                    <p className="text-[10px] text-muted font-bold uppercase tracking-widest truncate">{selectedOrder.vendedor?.correo || 'soporte@tianguisbeats.com'}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="p-6 bg-foreground/5 rounded-3xl border border-border flex items-center justify-between mb-8">
-                            <div>
-                                <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">Método de Pago</p>
-                                <p className="font-black text-[10px] text-foreground uppercase tracking-widest">{selectedTx.metodo_pago || 'Stripe'}</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">Status</p>
-                                <span className="px-3 py-1 bg-emerald-500 text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-full">Completado</span>
-                            </div>
+                        {/* Modal Footer */}
+                        <div className="p-8 bg-foreground/5 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <button
+                                onClick={() => handleDownloadReceipt(selectedOrder)}
+                                className="w-full sm:w-auto px-8 py-4 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] shadow-xl shadow-accent/25 active:scale-95 transition-all flex items-center justify-center gap-2"
+                            >
+                                <FileText size={16} /> Descargar Factura (PDF)
+                            </button>
+                            <button
+                                onClick={() => setSelectedOrder(null)}
+                                className="w-full sm:w-auto px-10 py-4 bg-foreground text-background dark:bg-white dark:text-black rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
+                            >
+                                Cerrar
+                            </button>
                         </div>
-
-                        <button onClick={() => setSelectedTx(null)} className="w-full h-16 bg-foreground text-background dark:bg-white dark:text-black rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:scale-[1.02] transition-all active:scale-95 shadow-xl">
-                            Cerrar Detalles
-                        </button>
                     </div>
                 </div>
             )}
