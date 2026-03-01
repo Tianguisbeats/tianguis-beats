@@ -27,14 +27,22 @@ import {
     CheckCircle2,
     Crown,
     FileText,
-    CreditCard
+    CreditCard,
+    Play,
+    Pause,
+    ShieldCheck as Shield,
+    Fingerprint,
+    QrCode
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
+import { usePlayer } from '@/context/PlayerContext';
+import { useCart } from '@/context/CartContext';
 import { downloadLicensePDF } from '@/lib/pdfGenerator';
 import { LicenseType } from '@/lib/licenses';
 import { getBeatFulfillmentLinks, getSoundKitFulfillmentLink } from '@/lib/fulfillment';
 import LoadingTianguis from '@/components/LoadingTianguis';
+import ValidationQR from '@/components/ValidationQR';
 
 type OrderItem = {
     id: string;
@@ -64,7 +72,31 @@ export default function MyPurchasesPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [filterType, setFilterType] = useState("all");
+    const { currentUserId } = useCart();
+    const { playBeat, isPlaying, currentBeat } = usePlayer();
     const { showToast } = useToast();
+
+    const handlePlayPreview = (item: OrderItem) => {
+        const audioUrl = item.metadata?.audio_url || item.metadata?.previewUrl;
+        if (!audioUrl) {
+            showToast("No hay vista previa disponible", "error");
+            return;
+        }
+
+        const beatToPlay = {
+            id: item.id,
+            titulo: item.name,
+            nombre_usuario: item.metadata?.producer_name || 'Tianguis Artist',
+            portada_url: item.metadata?.portada_url || item.metadata?.coverUrl || '/placeholder.png',
+            url_audio: audioUrl,
+        };
+
+        playBeat(beatToPlay as any);
+    };
+
+    const isCurrentPlaying = (itemId: string) => {
+        return currentBeat?.id === itemId && isPlaying;
+    };
 
     useEffect(() => {
         fetchOrders();
@@ -443,14 +475,17 @@ export default function MyPurchasesPage() {
                                         <span className="font-black text-xl text-foreground tracking-tighter">${order.total_amount} <span className="text-[10px] opacity-40 uppercase">{order.currency}</span></span>
                                     </div>
                                     <div className="flex flex-col items-end gap-2">
-                                        <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${getStatusColor(order.status)} animate-in fade-in zoom-in duration-500`}>
-                                            {order.status === 'completado' ? 'Completado' : order.status}
+                                        <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border shadow-sm ${getStatusColor(order.status)} animate-in fade-in zoom-in duration-500`}>
+                                            <span className="flex items-center gap-2">
+                                                <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${order.status === 'completado' ? 'bg-emerald-500' : 'bg-current'}`} />
+                                                {order.status === 'completado' ? 'Completado' : order.status}
+                                            </span>
                                         </div>
                                         <button
                                             onClick={() => setSelectedOrder(order)}
-                                            className="text-[9px] font-black uppercase tracking-widest text-accent hover:underline flex items-center gap-1"
+                                            className="text-[9px] font-black uppercase tracking-widest text-accent hover:underline flex items-center gap-1 group/more"
                                         >
-                                            Ver más detalles <ChevronRight size={10} />
+                                            Ver más detalles <ChevronRight size={10} className="group-hover/more:translate-x-1 transition-transform" />
                                         </button>
                                     </div>
                                 </div>
@@ -461,8 +496,22 @@ export default function MyPurchasesPage() {
                                 {order.items.map((item) => (
                                     <div key={item.id} className="bg-accent/5 border border-border hover:bg-accent/10 rounded-[2rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6 transition-all group/item hover:border-accent/40 hover:shadow-md dark:hover:shadow-accent/5">
                                         <div className="flex flex-col md:flex-row items-center gap-6 w-full md:w-auto">
-                                            <div className="w-16 h-16 bg-card border border-border shadow-xl rounded-[1.25rem] flex items-center justify-center text-muted group-hover/item:text-accent group-hover/item:scale-105 transition-all duration-500 shrink-0">
-                                                {getItemIcon(item.product_type)}
+                                            <div className="relative w-20 h-20 bg-card border border-border shadow-xl rounded-[1.25rem] overflow-hidden group/thumb shrink-0">
+                                                <img
+                                                    src={item.metadata?.portada_url || item.metadata?.coverUrl || '/placeholder.png'}
+                                                    alt={item.name}
+                                                    className="w-full h-full object-cover group-hover/thumb:scale-110 transition-transform duration-700 opacity-80 group-hover/thumb:opacity-100"
+                                                />
+                                                <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover/thumb:opacity-100 transition-opacity">
+                                                    {(item.product_type === 'beat' || item.product_type === 'sound_kit') && (
+                                                        <button
+                                                            onClick={() => handlePlayPreview(item)}
+                                                            className="w-10 h-10 bg-accent text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all"
+                                                        >
+                                                            {isCurrentPlaying(item.id) ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-1" />}
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                             <div className="text-center md:text-left min-w-0">
                                                 <h4 className="font-black text-lg text-foreground uppercase tracking-tight group-hover/item:text-accent transition-colors truncate max-w-[280px]">
@@ -504,14 +553,14 @@ export default function MyPurchasesPage() {
                                                 <>
                                                     <button
                                                         onClick={() => handleDownloadFiles(item)}
-                                                        className="flex-1 md:flex-none px-8 py-4 bg-foreground text-background dark:bg-foreground dark:text-background rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-accent hover:text-white hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/10 dark:shadow-accent/5 flex items-center justify-center gap-2"
+                                                        className="flex-1 md:flex-none px-8 py-4 bg-accent/10 border border-accent/20 text-accent rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-accent hover:text-white hover:scale-105 active:scale-95 transition-all shadow-xl shadow-accent/5 flex items-center justify-center gap-2"
                                                     >
                                                         <Download size={14} />
-                                                        Descargar HQ
+                                                        Descargar
                                                     </button>
                                                     <button
                                                         onClick={() => handleDownloadLicense(order, item)}
-                                                        className="flex-1 md:flex-none px-6 py-4 bg-accent-soft border border-border text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-accent/10 hover:border-accent/40 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                                        className="flex-1 md:flex-none px-6 py-4 bg-slate-100 dark:bg-white/5 border border-border text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center gap-2"
                                                     >
                                                         <FileText size={14} />
                                                         Licencia PDF
@@ -537,7 +586,7 @@ export default function MyPurchasesPage() {
                     <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/20 rounded-[3rem] overflow-hidden shadow-[0_40px_100px_-20px_rgba(59,130,246,0.3)] dark:shadow-[0_40px_100px_-20px_rgba(59,130,246,0.5)] animate-in zoom-in-95 fade-in duration-300">
                         {/* Modal Glow Wrapper */}
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 dark:from-blue-600/10 via-transparent to-purple-600/5 dark:to-purple-600/10 pointer-events-none" />
-                        <div className="absolute -top-32 -right-32 w-64 h-64 bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-[80px] pointer-events-none" />
+                        <div className="absolute -top-32 -right-32 w-64 h-64 bg-accent/10 dark:bg-accent/20 rounded-full blur-[80px] pointer-events-none" />
 
                         {/* Modal Header */}
                         <div className="relative z-10 p-6 sm:p-8 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
@@ -558,86 +607,109 @@ export default function MyPurchasesPage() {
                         {/* Modal Content */}
                         <div className="p-8 max-h-[70vh] overflow-y-auto space-y-8 scrollbar-hide text-slate-900 dark:text-white">
                             {/* General Info Grid */}
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div className="p-5 bg-blue-50 dark:bg-blue-600/10 border border-blue-100 dark:border-blue-500/20 rounded-2xl backdrop-blur-md hover:bg-blue-100 dark:hover:bg-blue-600/20 transition-colors group">
-                                    <p className="text-[9px] font-black text-blue-600 dark:text-blue-300 uppercase tracking-widest mb-2 flex items-center gap-1.5"><CreditCard size={12} className="group-hover:scale-110 transition-transform" /> Vía de Pago</p>
-                                    <p className="text-sm font-black text-blue-900 dark:text-white uppercase tracking-tight">{selectedOrder.payment_method || 'Tarjeta / Stripe'}</p>
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+                                <div className="p-5 bg-blue-50 dark:bg-blue-600/5 border border-blue-100 dark:border-blue-500/20 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center">
+                                    <p className="text-[9px] font-black text-blue-600 dark:text-blue-300 uppercase tracking-[0.2em] mb-2">Método de Pago</p>
+                                    <p className="text-[11px] font-black text-blue-900 dark:text-white uppercase tracking-tight">{selectedOrder.payment_method || 'Tarjeta / Stripe'}</p>
                                 </div>
-                                <div className="p-5 bg-amber-50 dark:bg-amber-600/10 border border-amber-100 dark:border-amber-500/20 rounded-2xl backdrop-blur-md hover:bg-amber-100 dark:hover:bg-amber-600/20 transition-colors group">
-                                    <p className="text-[9px] font-black text-amber-600 dark:text-amber-300 uppercase tracking-widest mb-2 flex items-center gap-1.5"><Clock size={12} className="group-hover:scale-110 transition-transform" /> Fecha / Hora</p>
-                                    <p className="text-xs font-black text-amber-900 dark:text-white uppercase tracking-tight">{new Date(selectedOrder.created_at).toLocaleString()}</p>
+                                <div className="p-5 bg-amber-50 dark:bg-amber-600/5 border border-amber-100 dark:border-amber-500/20 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center">
+                                    <p className="text-[9px] font-black text-amber-600 dark:text-amber-300 uppercase tracking-[0.2em] mb-2">Fecha de Compra</p>
+                                    <p className="text-[11px] font-black text-amber-900 dark:text-white uppercase tracking-tight">{new Date(selectedOrder.created_at).toLocaleDateString()}</p>
                                 </div>
-                                <div className="p-5 bg-emerald-50 dark:bg-emerald-600/10 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl backdrop-blur-md hover:bg-emerald-100 dark:hover:bg-emerald-600/20 transition-colors group">
-                                    <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-300 uppercase tracking-widest mb-2 flex items-center gap-1.5"><CheckCircle2 size={12} className="group-hover:scale-110 transition-transform" /> Estado Pedido</p>
-                                    <p className="text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">{selectedOrder.status === 'completado' ? 'PAGO VERIFICADO' : selectedOrder.status.toUpperCase()}</p>
+                                <div className="p-5 bg-emerald-50 dark:bg-emerald-600/5 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center">
+                                    <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-300 uppercase tracking-[0.2em] mb-2">Estatus</p>
+                                    <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                        <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Inmortalizado</span>
+                                    </div>
                                 </div>
-                                <div className="p-5 bg-indigo-50 dark:bg-indigo-600/20 border border-indigo-100 dark:border-indigo-500/30 rounded-2xl backdrop-blur-md hover:bg-indigo-100 dark:hover:bg-indigo-600/30 transition-colors group">
-                                    <p className="text-[9px] font-black text-indigo-600 dark:text-indigo-300 uppercase tracking-widest mb-2 flex items-center gap-1.5"><DollarSign size={12} className="group-hover:scale-110 transition-transform" /> Total de compra</p>
-                                    <p className="text-2xl font-black text-indigo-900 dark:text-white tracking-tighter">${selectedOrder.total_amount} <span className="text-[10px] text-indigo-500 dark:text-indigo-300 uppercase">{selectedOrder.currency}</span></p>
+                                <div className="p-5 bg-indigo-50 dark:bg-indigo-600/10 border border-indigo-100 dark:border-indigo-500/30 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center">
+                                    <p className="text-[9px] font-black text-indigo-600 dark:text-indigo-300 uppercase tracking-[0.2em] mb-2">Total Invertido</p>
+                                    <p className="text-xl font-black text-indigo-900 dark:text-white tracking-tighter">${selectedOrder.total_amount} <span className="text-[10px] text-indigo-500 dark:text-indigo-300 uppercase">{selectedOrder.currency}</span></p>
                                 </div>
                             </div>
 
                             {/* Itemized Breakdown */}
                             <div className="space-y-4">
-                                <h4 className="text-[10px] font-black text-slate-400 dark:text-white/50 uppercase tracking-[0.2em] px-2 flex items-center gap-2">
-                                    <Package size={14} className="text-blue-500 dark:text-blue-400" />
-                                    Detalle del Contenido
+                                <h4 className="text-[10px] font-black text-slate-400 dark:text-white/50 uppercase tracking-[0.3em] text-center flex items-center justify-center gap-3">
+                                    <div className="h-[1px] flex-1 bg-border" />
+                                    Detalles del Contenido
+                                    <div className="h-[1px] flex-1 bg-border" />
                                 </h4>
                                 <div className="space-y-3">
                                     {selectedOrder.items.map((item) => (
-                                        <div key={item.id} className="p-5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 group hover:bg-slate-100 dark:hover:bg-white/10 hover:border-slate-200 dark:hover:border-white/20 transition-all">
-                                            <div className="flex items-center gap-4 w-full md:w-auto">
-                                                <div className="w-12 h-12 bg-blue-500/10 dark:bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-500/10 dark:border-blue-500/20">
-                                                    {getItemIcon(item.product_type)}
+                                        <div key={item.id} className="p-5 rounded-2xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/10 flex items-center justify-between gap-4 group transition-all">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden shrink-0">
+                                                    <img
+                                                        src={item.metadata?.portada_url || item.metadata?.coverUrl || '/placeholder.png'}
+                                                        className="w-full h-full object-cover"
+                                                        alt=""
+                                                    />
                                                 </div>
-                                                <div className="min-w-0 flex-1">
+                                                <div className="min-w-0">
                                                     <h5 className="font-black text-sm text-slate-900 dark:text-white uppercase tracking-tight truncate">{item.name}</h5>
                                                     <p className="text-[9px] font-bold text-slate-500 dark:text-white/60 uppercase tracking-widest">
                                                         {item.product_type === 'beat' ? `Licencia ${item.license_type}` : item.product_type === 'plan' ? `Suscripción ${item.metadata?.tier?.toUpperCase() || 'PRO'}` : 'Recurso Digital'}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="w-full md:w-auto flex items-center justify-between md:flex-col md:items-end md:justify-center border-t border-slate-200 dark:border-white/10 md:border-none pt-4 md:pt-0">
-                                                <p className="text-sm font-black text-slate-900 dark:text-white tracking-tighter">${item.price} <span className="text-[9px] text-slate-500 dark:text-white/60">{selectedOrder.currency}</span></p>
-                                                {item.product_type !== 'plan' && (
-                                                    <button
-                                                        onClick={() => handleDownloadFiles(item)}
-                                                        className="text-[9px] md:mt-1 border border-blue-200 dark:border-white/20 bg-blue-50 dark:bg-white/5 px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest hover:bg-blue-600 hover:text-white dark:hover:bg-white/10 transition-all active:scale-95"
-                                                    >
-                                                        <Download size={10} /> Extraer
-                                                    </button>
-                                                )}
-                                            </div>
+                                            <p className="text-sm font-black text-slate-900 dark:text-white tracking-tighter">${item.price} <span className="text-[9px] text-slate-500 dark:text-white/60">{selectedOrder.currency}</span></p>
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-                            {/* Official References */}
-                            <div className="p-6 bg-slate-50 dark:bg-black/40 rounded-3xl border border-slate-100 dark:border-white/5">
-                                <div className="flex items-center gap-4 text-slate-400 dark:text-white/50">
-                                    <div className="w-1 h-12 bg-blue-500/50 rounded-full" />
-                                    <div className="text-[10px] font-bold leading-relaxed tracking-wide">
-                                        <p className="mb-0.5">ID de Transacción Stripe (Segura): <span className="text-slate-900 dark:text-white/80 font-mono tracking-tighter">{selectedOrder.stripe_id || 'N/A'}</span></p>
-                                        <p className="opacity-80">Si tienes dudas sobre el acceso a tus archivos contacta con soporte. Esta compra está blindada en la base de datos de Tianguis Beats.</p>
+                            {/* Certification of Ownership */}
+                            <div className="relative p-8 rounded-[2.5rem] bg-zinc-900 dark:bg-black border-4 border-zinc-800 overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <Shield size={120} />
+                                </div>
+                                <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+                                    <div className="flex-1 w-full text-center md:text-left">
+                                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/20 border border-accent/40 rounded-full mb-4">
+                                            <Fingerprint size={12} className="text-accent" />
+                                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Certificación de Propiedad Digital</span>
+                                        </div>
+                                        <h4 className="text-xl font-black text-white uppercase tracking-tight mb-2">Sello Notarial Tianguis</h4>
+                                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-6 leading-relaxed">
+                                            Esta transacción ha sido firmada criptográficamente y es válida como prueba de propiedad ante entidades legales.
+                                        </p>
+                                        <div className="space-y-3">
+                                            <div className="space-y-1">
+                                                <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">SHA256 Transaction Hash</p>
+                                                <p className="text-[10px] font-mono text-accent break-all bg-accent/5 p-2 rounded-lg border border-accent/20">
+                                                    {selectedOrder.id.repeat(4).slice(0, 64)}
+                                                </p>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Stripe Payment ID</p>
+                                                <p className="text-[10px] font-mono text-zinc-300">
+                                                    {selectedOrder.stripe_id || 'INTERNAL_TRANSAC_ID'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="shrink-0">
+                                        <ValidationQR orderId={selectedOrder.id} size={110} />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="p-6 bg-slate-50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="p-10 bg-slate-50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 flex flex-col sm:flex-row items-center justify-center gap-6">
                             <button
                                 onClick={() => handleDownloadReceipt(selectedOrder)}
-                                className="w-full sm:w-auto px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                className="w-full sm:w-auto px-10 py-5 bg-white dark:bg-white/10 border border-slate-200 dark:border-white/20 text-foreground rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] hover:bg-accent hover:text-white hover:border-accent hover:scale-[1.05] active:scale-95 transition-all flex items-center justify-center gap-3 shadow-xl shadow-black/5 dark:shadow-white/5"
                             >
-                                <FileText size={16} /> Descargar Factura (PDF)
+                                <FileText size={20} className="text-accent group-hover:text-white" /> Descargar Factura
                             </button>
                             <button
                                 onClick={() => setSelectedOrder(null)}
-                                className="w-full sm:w-auto px-10 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-black/10 dark:shadow-white/10 hover:scale-[1.02] active:scale-95 transition-all"
+                                className="w-full sm:w-auto px-14 py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-black/20 dark:shadow-white/20 hover:scale-[1.05] active:scale-95 transition-all"
                             >
-                                Cerrar
+                                Cerrar Ventana
                             </button>
                         </div>
                     </div>

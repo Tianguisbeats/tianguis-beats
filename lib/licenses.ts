@@ -35,7 +35,7 @@ export const generateLicenseText = (type: LicenseType, data: LicenseData): strin
     switch (type) {
         case 'basic':
             return header + commonIntro +
-                `1. TIPO DE LICENCIA: BÁSICA (MP3)\n` +
+                `1. TIPO DE LICENCIA: LICENCIA BÁSICA (MP3)\n` +
                 `En consideración del pago de la Tarifa, el Productor otorga al Licenciatario el derecho no exclusivo, intransferible y mundial para usar el Beat en la creación de una (1) Nueva Canción final.\n\n` +
                 `2. FORMATO DE ENTREGA\n` +
                 `El Productor entregará un archivo de alta calidad en formato MP3.\n\n` +
@@ -59,7 +59,7 @@ export const generateLicenseText = (type: LicenseType, data: LicenseData): strin
 
         case 'premium':
             return header + commonIntro +
-                `1. TIPO DE LICENCIA: PREMIUM (MP3 + WAV)\n` +
+                `1. TIPO DE LICENCIA: LICENCIA PRO (WAV + MP3)\n` +
                 `En consideración del pago de la Tarifa, el Productor otorga al Licenciatario el derecho no exclusivo, intransferible y mundial para usar el Beat en la creación de una (1) Nueva Canción final.\n\n` +
                 `2. FORMATO DE ENTREGA\n` +
                 `El Productor entregará archivos de alta calidad en formato MP3 y WAV integral.\n\n` +
@@ -82,7 +82,7 @@ export const generateLicenseText = (type: LicenseType, data: LicenseData): strin
 
         case 'unlimited':
             return header + commonIntro +
-                `1. TIPO DE LICENCIA: ILIMITADA CON STEMS\n` +
+                `1. TIPO DE LICENCIA: LICENCIA PREMIUM (STEMS SEPARADOS)\n` +
                 `En consideración del pago de la Tarifa, el Productor otorga al Licenciatario el derecho no exclusivo para explotar comercialmente la Nueva Canción, SIN LÍMITES de regalías o alcance, amparado por las siguientes estipulaciones.\n\n` +
                 `2. FORMATO DE ENTREGA\n` +
                 `El Productor entregará MP3, WAV y "Trackouts" (Stems Separados) del Beat.\n\n` +

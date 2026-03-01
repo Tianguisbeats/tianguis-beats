@@ -537,7 +537,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     {beat.es_pro_activa !== false && (
                                         <LicenseCard
                                             type="Pro"
-                                            label="Licencia Premium"
+                                            label="Licencia Pro"
                                             price={beat.precio_pro_mxn || 599}
                                             features={['Audio WAV + MP3', 'Hasta 500K Streams', 'Uso en Radio / TV']}
                                             selected={selectedLicense === 'Pro'}
@@ -550,7 +550,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     {beat.es_premium_activa !== false && (
                                         <LicenseCard
                                             type="Premium"
-                                            label="Licencia Pro"
+                                            label="Licencia Premium"
                                             price={beat.precio_premium_mxn || 999}
                                             features={['STEMS Separados', 'Mix Individual HD', 'Uso Ilimitado']}
                                             selected={selectedLicense === 'Premium'}

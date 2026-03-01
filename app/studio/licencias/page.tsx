@@ -40,7 +40,7 @@ const CONTRACT_TYPES = [
     },
     {
         id: 'pro' as ContractType,
-        name: 'Licencia Premium',
+        name: 'Licencia Pro',
         tier: 'WAV',
         description: 'Mejor calidad de audio. Hasta 500k streams + radio.',
         icon: <ShieldCheck size={26} />,
@@ -53,7 +53,7 @@ const CONTRACT_TYPES = [
     },
     {
         id: 'premium' as ContractType,
-        name: 'Licencia Pro',
+        name: 'Licencia Premium',
         tier: 'STEMS',
         description: 'Para mezcla profesional (Trackouts). Streams ilimitados.',
         icon: <Layers size={26} />,

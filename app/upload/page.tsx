@@ -20,8 +20,8 @@ import { EXCHANGE_RATES } from '@/context/CurrencyContext';
 const LICENSE_META: Record<string, { label: string; color: string; hex: string; icon: React.ReactNode; planReq: string | null; desc: string }> = {
     basic: { label: 'Licencia Gratis', color: 'slate', hex: '#64748b', icon: <Music size={20} />, planReq: null, desc: 'Uso no comercial · Tag de Voz Obligatorio' },
     mp3: { label: 'Licencia Básica', color: 'emerald', hex: '#10b981', icon: <FileText size={20} />, planReq: null, desc: 'MP3 · 10K-50K Streams · 1 Video YT' },
-    pro: { label: 'Licencia Premium', color: 'blue', hex: '#3b82f6', icon: <ShieldCheck size={20} />, planReq: 'pro', desc: 'WAV + MP3 · 500K Streams · Radio' },
-    premium: { label: 'Licencia Pro', color: 'amber', hex: '#f59e0b', icon: <Layers size={20} />, planReq: 'premium', desc: 'STEMS · Mix Invidual · Uso Ilimitado' },
+    pro: { label: 'Licencia Pro', color: 'blue', hex: '#3b82f6', icon: <ShieldCheck size={20} />, planReq: 'pro', desc: 'WAV + MP3 · 500K Streams · Radio' },
+    premium: { label: 'Licencia Premium', color: 'amber', hex: '#f59e0b', icon: <Layers size={20} />, planReq: 'premium', desc: 'STEMS · Mix Invidual · Uso Ilimitado' },
     exclusiva: { label: 'Licencia Exclusiva', color: 'rose', hex: '#f43f5e', icon: <Crown size={20} />, planReq: 'premium', desc: 'Cesión exclusiva + Permite Content ID' },
 };
 
@@ -538,7 +538,7 @@ export default function UploadPage() {
                                                             {meta.planReq && (
                                                                 <span className="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border"
                                                                     style={{ color: meta.hex, borderColor: `${meta.hex}30`, background: `${meta.hex}10` }}>
-                                                                    {meta.planReq === 'premium' ? 'Solo Premium' : 'Pro+'}
+                                                                    {meta.planReq === 'premium' ? 'Premium' : 'Pro'}
                                                                 </span>
                                                             )}
                                                         </div>
