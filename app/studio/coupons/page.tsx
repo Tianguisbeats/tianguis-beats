@@ -49,7 +49,7 @@ export default function CouponsPage() {
 
         // Get Tier
         const { data: profile } = await supabase.from('perfiles').select('nivel_suscripcion').eq('id', user.id).single();
-        setUserTier(profile?.nivel_suscripcion);
+        setUserTier(profile?.nivel_suscripcion?.toLowerCase()?.trim() || 'free');
 
         // Get Coupons
         const { data: couponsData, error } = await supabase
@@ -73,9 +73,16 @@ export default function CouponsPage() {
 
         setSaving(true);
         try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                showToast("Sesión expirada. Por favor, inicia sesión de nuevo.", "error");
+                setSaving(false);
+                return;
+            }
+
             const payload: any = {
                 productor_id: user.id,
-                codigo: currentCoupon.codigo?.toUpperCase(),
+                codigo: currentCoupon.codigo?.toUpperCase().trim(),
                 porcentaje_descuento: Number(currentCoupon.porcentaje_descuento),
                 usos_maximos: currentCoupon.usos_maximos ? Number(currentCoupon.usos_maximos) : null,
                 fecha_expiracion: currentCoupon.fecha_expiracion || null,
@@ -83,6 +90,12 @@ export default function CouponsPage() {
                 nivel_objetivo: currentCoupon.nivel_objetivo || 'todos',
                 es_activo: currentCoupon.id ? currentCoupon.es_activo : true
             };
+
+            if (!payload.codigo) {
+                showToast("Por favor ingresa un código para el cupón", "error");
+                setSaving(false);
+                return;
+            }
 
             let error;
             if (currentCoupon.id) {
@@ -93,15 +106,20 @@ export default function CouponsPage() {
                 error = err;
             }
 
-            if (error) throw error;
+            if (error) {
+                if (error.code === '23505') {
+                    throw new Error("Este código de cupón ya existe. Por favor usa uno diferente.");
+                }
+                throw error;
+            }
 
-            showToast(currentCoupon.id ? "Cupón actualizado" : "Cupón creado exitosamente", "success");
+            showToast(currentCoupon.id ? "Cupón actualizado con éxito" : "Cupón creado y publicado exitosamente", "success");
             setIsEditing(false);
             setCurrentCoupon(null);
             fetchData();
         } catch (err: any) {
-            console.error(err);
-            showToast("Error al guardar: " + err.message, "error");
+            console.error("Error saving coupon:", err);
+            showToast(err.message || "Error al procesar el cupón", "error");
         } finally {
             setSaving(false);
         }

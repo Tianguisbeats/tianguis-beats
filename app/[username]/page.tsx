@@ -709,11 +709,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                             <div className={`absolute inset-0 rounded-full blur-2xl opacity-40 transition-all duration-700 bg-accent`} />
 
                             {/* Borde del avatar según nivel de suscripción */}
-                            <div className={`w-32 h-32 md:w-48 md:h-48 rounded-full border-[5px] shadow-2xl overflow-hidden transition-all duration-700 bg-background relative z-10 ${profile.nivel_suscripcion === 'premium'
+                            <div className={`w-32 h-32 md:w-48 md:h-48 rounded-full border-[5px] shadow-2xl overflow-hidden transition-all duration-700 bg-background relative z-10 ${profile.nivel_suscripcion?.toLowerCase()?.trim() === 'premium'
                                 ? 'border-[#00f2ff] ring-4 ring-[#00f2ff]/20 shadow-[#00f2ff]/30'
                                 : profile.es_fundador
                                     ? 'border-amber-500 ring-4 ring-amber-500/20 shadow-amber-500/30'
-                                    : profile.nivel_suscripcion === 'pro'
+                                    : profile.nivel_suscripcion?.toLowerCase()?.trim() === 'pro'
                                         ? 'border-amber-500 ring-4 ring-amber-500/20 shadow-amber-500/30'
                                         : 'border-white/10'
                                 }`}>

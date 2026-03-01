@@ -7,7 +7,8 @@ import {
     ChevronRight, Search, Loader2, ArrowUpRight, ArrowDownRight,
     TrendingUp, Calendar, Layout, Mail, ShieldCheck, UserPlus,
     ExternalLink, Filter, MoreVertical, X, AlertTriangle, AlertCircle,
-    Ticket, MessageSquare, XCircle, Edit2, Save, Crown, User, FileKey
+    Ticket, MessageSquare, XCircle, Edit2, Save, Crown, User, FileKey,
+    Plus, Percent
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
@@ -821,9 +822,10 @@ function DetailItem({ label, value, copyable }: { label: string, value: any, cop
 function CouponManager({ onBack }: { onBack: () => void }) {
     const [coupons, setCoupons] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-    const [newCoupon, setNewCoupon] = useState({
+    const [formCoupon, setFormCoupon] = useState({
         codigo: '',
         porcentaje_descuento: 20,
         fecha_expiracion: '',
@@ -841,14 +843,8 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                 .select('*')
                 .is('productor_id', null)
                 .order('fecha_creacion', { ascending: false });
-            if (error) {
-                const { data: retryData } = await supabase.from('cupones')
-                    .select('*')
-                    .is('productor_id', null);
-                setCoupons(retryData || []);
-            } else {
-                setCoupons(data || []);
-            }
+            if (error) throw error;
+            setCoupons(data || []);
         } catch (err) { console.error(err); }
         setLoading(false);
     };
@@ -856,29 +852,27 @@ function CouponManager({ onBack }: { onBack: () => void }) {
     const handleAction = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            const payload = {
+                codigo: formCoupon.codigo.toUpperCase(),
+                porcentaje_descuento: formCoupon.porcentaje_descuento,
+                fecha_expiracion: formCoupon.fecha_expiracion || null,
+                nivel_objetivo: formCoupon.nivel_objetivo,
+                es_activo: formCoupon.es_activo,
+                aplica_a: 'suscripciones' // Admin coupons only for subscriptions
+            };
+
             if (editingId) {
-                const { error } = await supabase.from('cupones').update({
-                    codigo: newCoupon.codigo.toUpperCase(),
-                    porcentaje_descuento: newCoupon.porcentaje_descuento,
-                    fecha_expiracion: newCoupon.fecha_expiracion || null,
-                    nivel_objetivo: newCoupon.nivel_objetivo,
-                    es_activo: newCoupon.es_activo
-                }).eq('id', editingId);
+                const { error } = await supabase.from('cupones').update(payload).eq('id', editingId);
                 if (error) throw error;
                 showToast("Cupón actualizado", "success");
             } else {
-                const { error } = await supabase.from('cupones').insert([{
-                    codigo: newCoupon.codigo.toUpperCase(),
-                    porcentaje_descuento: newCoupon.porcentaje_descuento,
-                    fecha_expiracion: newCoupon.fecha_expiracion || null,
-                    nivel_objetivo: newCoupon.nivel_objetivo,
-                    aplica_a: 'suscripciones'
-                }]);
+                const { error } = await supabase.from('cupones').insert([payload]);
                 if (error) throw error;
                 showToast("Cupón creado", "success");
             }
-            setNewCoupon({ codigo: '', porcentaje_descuento: 20, fecha_expiracion: '', nivel_objetivo: 'todos', es_activo: true });
+            setShowModal(false);
             setEditingId(null);
+            setFormCoupon({ codigo: '', porcentaje_descuento: 20, fecha_expiracion: '', nivel_objetivo: 'todos', es_activo: true });
             fetchCoupons();
         } catch (error: any) { showToast(error.message, "error"); }
     };
@@ -901,193 +895,209 @@ function CouponManager({ onBack }: { onBack: () => void }) {
         }
     };
 
+    const openCreateModal = () => {
+        setEditingId(null);
+        setFormCoupon({ codigo: '', porcentaje_descuento: 20, fecha_expiracion: '', nivel_objetivo: 'todos', es_activo: true });
+        setShowModal(true);
+    };
+
+    const openEditModal = (cp: any) => {
+        setEditingId(cp.id);
+        setFormCoupon({
+            codigo: cp.codigo,
+            porcentaje_descuento: cp.porcentaje_descuento,
+            fecha_expiracion: cp.fecha_expiracion ? cp.fecha_expiracion.split('.')[0] : '', // format for datetime-local
+            nivel_objetivo: cp.nivel_objetivo || 'todos',
+            es_activo: cp.es_activo
+        });
+        setShowModal(true);
+    };
+
     return (
-        <div className="space-y-12">
+        <div className="space-y-12 animate-in fade-in duration-700">
             <header className="flex items-center justify-between mb-8">
-                <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
-                    ← Volver al Dashboard
+                <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors group">
+                    <ChevronRight size={14} className="rotate-180 group-hover:-translate-x-1 transition-transform" /> Volver al Dashboard
                 </button>
-                <div className="px-4 py-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-border">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Control de Cupones</span>
-                </div>
+                <button
+                    onClick={openCreateModal}
+                    className="px-6 py-3 bg-accent text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-lg shadow-accent/20 flex items-center gap-2"
+                >
+                    <Plus size={14} /> Nuevo Cupón
+                </button>
             </header>
-            <div className="bg-card border border-border rounded-[3rem] p-10 md:p-14 relative overflow-hidden group hover:border-accent/20 transition-all duration-500">
-                {/* Decoración Glassmorphism */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[80px] rounded-full pointer-events-none" />
 
-                <div className="mb-10 relative z-10">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full mb-4">
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Control Maestro</span>
+            <div className="grid lg:grid-cols-2 gap-8">
+                {loading ? (
+                    <div className="col-span-full py-20 flex justify-center"><Loader2 className="animate-spin text-accent" /></div>
+                ) : coupons.length === 0 ? (
+                    <div className="col-span-full bg-card border border-border rounded-[2.5rem] p-20 text-center">
+                        <Ticket size={64} className="mx-auto text-muted/20 mb-6" />
+                        <h3 className="text-2xl font-black uppercase text-foreground">Sin cupones activos</h3>
+                        <p className="text-muted text-[10px] uppercase font-bold tracking-widest mt-2">Comienza creando una oferta de suscripción.</p>
                     </div>
-                    <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground leading-[0.9] flex items-center gap-4">
-                        {editingId ? 'Refinar Cupón' : 'Nuevo Cupón'}
-                    </h2>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted/70 mt-2">
-                        Exclusivo para descuentos en planes de suscripción.
-                    </p>
-                </div>
-
-                <form onSubmit={handleAction} className="relative z-10 space-y-8">
-                    <div className="grid md:grid-cols-4 gap-6 items-start">
-                        <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 pl-2 whitespace-nowrap">Código Promocional</label>
-                            <input
-                                required
-                                value={newCoupon.codigo}
-                                onChange={e => setNewCoupon({ ...newCoupon, codigo: e.target.value.toUpperCase() })}
-                                placeholder="EJ. BLACKFRIDAY"
-                                className="w-full bg-foreground/5 border border-border rounded-2xl px-4 py-3 font-black text-foreground text-sm outline-none focus:border-accent transition-all uppercase tracking-widest placeholder:text-muted/30 font-mono"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 pl-2 whitespace-nowrap">Descuento (%)</label>
-                            <div className="relative">
-                                <input
-                                    type="number"
-                                    min="1"
-                                    max="100"
-                                    required
-                                    value={newCoupon.porcentaje_descuento || ''}
-                                    onChange={e => setNewCoupon({ ...newCoupon, porcentaje_descuento: parseInt(e.target.value) })}
-                                    className="w-full bg-foreground/5 border border-border rounded-2xl pl-10 pr-4 py-3 font-black text-foreground text-sm outline-none focus:border-accent transition-all tabular-nums font-mono"
-                                />
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-accent/60 font-black text-sm">%</div>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 pl-2 whitespace-nowrap">Aplica a</label>
-                            <select
-                                value={newCoupon.nivel_objetivo}
-                                onChange={e => setNewCoupon({ ...newCoupon, nivel_objetivo: e.target.value })}
-                                className="w-full bg-foreground/5 border border-border rounded-2xl px-4 py-3 font-black text-foreground text-sm outline-none focus:border-accent transition-all uppercase tracking-widest appearance-none cursor-pointer"
-                            >
-                                <option value="todos">Todos los Planes</option>
-                                <option value="free">Solo Free</option>
-                                <option value="pro">Solo Pro</option>
-                                <option value="premium">Solo Premium</option>
-                            </select>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 pl-2 whitespace-nowrap">
-                                Expiración <span className="opacity-40 lowercase font-bold tracking-normal">*Opcional</span>
-                            </label>
-                            <input
-                                type="datetime-local"
-                                value={newCoupon.fecha_expiracion}
-                                onChange={e => setNewCoupon({ ...newCoupon, fecha_expiracion: e.target.value })}
-                                className="w-full bg-foreground/5 border border-border rounded-2xl px-4 py-3 font-bold text-foreground text-xs outline-none focus:border-accent transition-all"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="pt-4 flex gap-4">
-                        <button
-                            type="submit"
-                            className="flex-1 h-14 bg-accent text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] hover:scale-[1.02] shadow-xl hover:shadow-accent/40 transition-all flex items-center justify-center gap-2 active:scale-95"
-                        >
-                            {editingId ? <Edit2 size={16} /> : <Save size={16} />}
-                            {editingId ? 'Guardar Cambios' : 'Activar Cupón'}
-                        </button>
-                        {editingId && (
-                            <button
-                                type="button"
-                                onClick={() => { setEditingId(null); setNewCoupon({ codigo: '', porcentaje_descuento: 20, fecha_expiracion: '', nivel_objetivo: 'todos', es_activo: true }); }}
-                                className="w-14 h-14 bg-foreground/5 border border-border text-muted rounded-2xl flex items-center justify-center hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/30 transition-all active:scale-95"
-                            >
-                                <XCircle size={20} />
-                            </button>
-                        )}
-                    </div>
-                </form>
-            </div>
-
-            {/* Coupons List - Premium Redesign */}
-            {coupons.length > 0 && (
-                <div className="grid lg:grid-cols-2 gap-8">
-                    {coupons.map(cp => {
+                ) : (
+                    coupons.map(cp => {
                         const isExpired = cp.fecha_expiracion && new Date(cp.fecha_expiracion) < new Date();
-
-                        // Determinar el estilo basado en el nivel_objetivo, similar a la suite de productores
-                        let tierConfig = { bg: 'bg-emerald-500/10', text: 'text-emerald-500', label: 'TODOS' };
-                        if (cp.nivel_objetivo === 'free') tierConfig = { bg: 'bg-blue-500/10', text: 'text-blue-500', label: 'FREE' };
-                        if (cp.nivel_objetivo === 'pro') tierConfig = { bg: 'bg-indigo-500/10', text: 'text-indigo-500', label: 'PRO' };
-                        if (cp.nivel_objetivo === 'premium') tierConfig = { bg: 'bg-amber-500/10', text: 'text-amber-500', label: 'PREMIUM' };
+                        let tierStyle = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+                        if (cp.nivel_objetivo === 'free') tierStyle = "bg-blue-500/10 text-blue-500 border-blue-500/20";
+                        if (cp.nivel_objetivo === 'pro') tierStyle = "bg-indigo-500/10 text-indigo-500 border-indigo-500/20";
+                        if (cp.nivel_objetivo === 'premium') tierStyle = "bg-amber-500/10 text-amber-500 border-amber-500/20";
 
                         return (
-                            <div key={cp.id} className={`group relative bg-card border border-border rounded-[2.5rem] p-8 transition-all duration-500 hover:border-accent/40 hover:shadow-2xl hover:shadow-accent/5 hover:-translate-y-1 overflow-hidden ${(!cp.es_activo || isExpired) && 'opacity-60 grayscale'}`}>
-                                {/* Ticket pattern */}
-                                <div className="absolute top-[88px] left-8 right-8 h-px border-t-2 border-dashed border-slate-200 dark:border-white/10 z-10" />
+                            <div key={cp.id} className={`group relative bg-card/40 backdrop-blur-xl border border-border rounded-[2.5rem] p-8 transition-all duration-500 hover:border-accent/40 hover:shadow-2xl overflow-hidden flex flex-col ${(!cp.es_activo || isExpired) && 'opacity-60 grayscale'}`}>
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                <div className="flex justify-between items-start mb-12 relative z-10">
-                                    <div className="space-y-1">
-                                        <h3 className="font-black text-4xl text-foreground tracking-[-0.05em] uppercase font-mono leading-none">{cp.codigo}</h3>
-                                        <div className="flex items-center gap-2 mt-2">
-                                            <span className={`w-1.5 h-1.5 rounded-full ${cp.es_activo ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`} />
-                                            <p className="text-[9px] font-black text-muted uppercase tracking-[0.3em]">
-                                                EXP: {cp.fecha_expiracion ? new Date(cp.fecha_expiracion).toLocaleDateString() : '∞'}
+                                <div className="flex justify-between items-start mb-8 relative z-10">
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <h3 className="font-black text-3xl text-foreground tracking-tighter uppercase font-mono">{cp.codigo}</h3>
+                                            <span className={`px-3 py-1 rounded-lg text-[7px] font-black uppercase tracking-widest border ${tierStyle}`}>
+                                                TARGET: {cp.nivel_objetivo}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className={`w-1.5 h-1.5 rounded-full ${cp.es_activo && !isExpired ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                                            <p className="text-[9px] font-bold text-muted uppercase tracking-widest">
+                                                {isExpired ? 'Expirado' : cp.es_activo ? 'Activo' : 'Pausado'} • {cp.fecha_expiracion ? new Date(cp.fecha_expiracion).toLocaleDateString() : 'Sin Vencimiento'}
                                             </p>
                                         </div>
                                     </div>
-                                    <div className={`px-5 py-3 ${tierConfig.bg} border border-${tierConfig.text.replace('text-', '')}/20 rounded-2xl flex flex-col items-center gap-1 shadow-inner relative overflow-hidden group-hover:scale-105 transition-transform`}>
-                                        <div className={`absolute top-0 right-0 w-16 h-16 bg-white/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity`} />
-                                        <span className={`text-[9px] font-black uppercase tracking-widest ${tierConfig.text}`}>{tierConfig.label}</span>
-                                        <span className="text-xl font-black text-slate-900 dark:text-foreground tabular-nums tracking-tighter leading-none">
-                                            -{cp.porcentaje_descuento}<span className="text-xs text-muted">%</span>
-                                        </span>
+                                    <div className="text-right">
+                                        <div className="text-3xl font-black text-accent">-{cp.porcentaje_descuento}%</div>
+                                        <div className="text-[8px] font-black uppercase tracking-widest text-muted opacity-60">SUSCRIPCIONES</div>
                                     </div>
                                 </div>
 
-                                {/* Target info */}
-                                <div className="grid grid-cols-2 gap-4 mb-10 relative z-10">
-                                    <div className="bg-foreground/5 rounded-2xl p-4 border border-border">
-                                        <p className="text-[8px] font-black text-muted uppercase tracking-[0.3em] mb-2">Aplica a</p>
-                                        <div className="flex items-center gap-2 text-slate-900 dark:text-foreground">
-                                            <TrendingUp size={14} className="text-accent" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest">SUSCRIPCIONES</span>
-                                        </div>
-                                    </div>
-                                    <div className="bg-foreground/5 rounded-2xl p-4 border border-border">
-                                        <p className="text-[8px] font-black text-muted uppercase tracking-[0.3em] mb-2">Usos Realizados</p>
-                                        <div className="flex items-center justify-between text-slate-900 dark:text-foreground">
-                                            <span className="text-lg font-black tabular-nums leading-none">0</span>
-                                            <span className="text-[10px] font-bold text-muted/60">∞ max</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Actions Footer */}
-                                <div className="flex items-center justify-between gap-4 relative z-10 pt-6 border-t border-slate-100 dark:border-white/5">
-                                    <div className="flex items-center gap-3">
-                                        <button
-                                            onClick={() => toggleStatus(cp.id, cp.es_activo)}
-                                            className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${cp.es_activo ? 'border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20' : 'border-rose-500/30 text-rose-600 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20'} active:scale-95`}
-                                        >
-                                            {cp.es_activo ? 'Activo' : 'Inactivo'}
+                                <div className="mt-auto pt-6 border-t border-border flex items-center justify-between gap-4 relative z-10">
+                                    <div className="flex gap-2">
+                                        <button onClick={() => openEditModal(cp)} className="p-3 rounded-xl bg-foreground/5 text-foreground hover:bg-accent hover:text-white transition-all active:scale-95 shadow-sm">
+                                            <Edit2 size={16} />
                                         </button>
-                                    </div>
-
-                                    <div className="flex items-center gap-2 min-h-[44px]">
-                                        {confirmDeleteId === cp.id ? (
-                                            <div className="flex items-center gap-1 bg-rose-500 rounded-2xl overflow-hidden animate-in fade-in slide-in-from-right-4 duration-300 shadow-2xl shadow-rose-500/40">
-                                                <button onClick={() => handleDelete(cp.id)} className="px-8 py-3 text-white font-black text-[11px] uppercase tracking-widest hover:bg-rose-600 transition-colors">Confirmar Borrado</button>
-                                                <button onClick={() => setConfirmDeleteId(null)} className="p-3 text-white/70 hover:text-white transition-colors border-l border-white/20"><XCircle size={18} /></button>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <button onClick={() => { setEditingId(cp.id); setNewCoupon({ codigo: cp.codigo, porcentaje_descuento: cp.porcentaje_descuento, fecha_expiracion: cp.fecha_expiracion || '', nivel_objetivo: cp.nivel_objetivo || 'todos', es_activo: cp.es_activo }); document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-foreground/5 border border-border text-foreground hover:bg-foreground/10 hover:border-accent/20 transition-all text-[11px] font-black uppercase tracking-widest active:scale-95">
-                                                    <Edit2 size={14} /> Editar
-                                                </button>
-                                                <button onClick={() => setConfirmDeleteId(cp.id)} className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:bg-rose-500/20 transition-all flex items-center justify-center flex-shrink-0 active:scale-95">
-                                                    <Trash2 size={18} />
-                                                </button>
-                                            </>
+                                        <button
+                                            onClick={() => confirmDeleteId === cp.id ? handleDelete(cp.id) : setConfirmDeleteId(cp.id)}
+                                            className={`p-3 rounded-xl transition-all active:scale-95 shadow-sm ${confirmDeleteId === cp.id ? 'bg-rose-500 text-white w-32' : 'bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white'}`}
+                                        >
+                                            {confirmDeleteId === cp.id ? <span className="text-[10px] font-black uppercase">¿Borrar?</span> : <Trash2 size={16} />}
+                                        </button>
+                                        {confirmDeleteId === cp.id && (
+                                            <button onClick={() => setConfirmDeleteId(null)} className="p-3 rounded-xl bg-foreground/5 text-muted hover:text-foreground">
+                                                <X size={16} />
+                                            </button>
                                         )}
+                                    </div>
+                                    <button
+                                        onClick={() => toggleStatus(cp.id, cp.es_activo)}
+                                        className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${cp.es_activo ? 'bg-emerald-500 text-white border-emerald-600' : 'bg-rose-500 text-white border-rose-600'} active:scale-95 shadow-lg`}
+                                    >
+                                        {cp.es_activo ? 'Pausar' : 'Reactivar'}
+                                    </button>
+                                </div>
+                            </div>
+                        )
+                    })
+                )}
+            </div>
+
+            {/* HIGH-END MODAL */}
+            {showModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-10 backdrop-blur-xl animate-in fade-in duration-300">
+                    <div className="absolute inset-0 bg-black/60" onClick={() => setShowModal(false)} />
+
+                    <div className="relative bg-[#08080a] border border-white/10 w-full max-w-2xl rounded-[3.5rem] p-10 md:p-16 shadow-[0_0_100px_rgba(var(--accent-rgb),0.2)] overflow-hidden animate-in zoom-in-95 duration-500">
+                        {/* Environmental Glow */}
+                        <div className="absolute -top-20 -right-20 w-64 h-64 bg-accent/20 blur-[100px] rounded-full" />
+
+                        <header className="relative z-10 mb-12 flex justify-between items-start">
+                            <div className="space-y-4">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Marketing Engine</span>
+                                </div>
+                                <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white leading-none">
+                                    {editingId ? 'Editar' : 'Crear'} <br />
+                                    <span className="text-accent">Cupón.</span>
+                                </h2>
+                            </div>
+                            <button onClick={() => setShowModal(false)} className="w-12 h-12 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-rose-500 hover:border-rose-500 transition-all active:scale-90">
+                                <X size={20} />
+                            </button>
+                        </header>
+
+                        <form onSubmit={handleAction} className="relative z-10 space-y-8">
+                            <div className="grid md:grid-cols-2 gap-8">
+                                <div className="space-y-3">
+                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-muted/60 ml-1">Código Promocional</label>
+                                    <input
+                                        required
+                                        value={formCoupon.codigo}
+                                        onChange={e => setFormCoupon({ ...formCoupon, codigo: e.target.value.toUpperCase() })}
+                                        placeholder="EJ. VERANO50"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 font-black text-white text-xl outline-none focus:border-accent transition-all uppercase tracking-widest placeholder:text-white/10 font-mono"
+                                    />
+                                </div>
+                                <div className="space-y-3">
+                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-muted/60 ml-1">Descuento (%)</label>
+                                    <div className="relative">
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="100"
+                                            required
+                                            value={formCoupon.porcentaje_descuento || ''}
+                                            onChange={e => setFormCoupon({ ...formCoupon, porcentaje_descuento: parseInt(e.target.value) })}
+                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 font-black text-white text-xl outline-none focus:border-accent transition-all tabular-nums font-mono"
+                                        />
+                                        <Percent className="absolute right-6 top-1/2 -translate-y-1/2 text-accent/40" size={24} />
                                     </div>
                                 </div>
                             </div>
-                        );
-                    })}
+
+                            <div className="grid md:grid-cols-2 gap-8">
+                                <div className="space-y-3">
+                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-muted/60 ml-1">Segmento Objetivo</label>
+                                    <select
+                                        value={formCoupon.nivel_objetivo}
+                                        onChange={e => setFormCoupon({ ...formCoupon, nivel_objetivo: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 font-black text-white text-sm outline-none focus:border-accent transition-all uppercase tracking-widest appearance-none cursor-pointer"
+                                    >
+                                        <option value="todos">Todos los Planes</option>
+                                        <option value="free">Solo Usuarios Free</option>
+                                        <option value="pro">Solo Suscriptores PRO</option>
+                                        <option value="premium">Solo Suscriptores PREMIUM</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-3">
+                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-muted/60 ml-1">Fecha de Expiración</label>
+                                    <div className="relative">
+                                        <input
+                                            type="datetime-local"
+                                            value={formCoupon.fecha_expiracion}
+                                            onChange={e => setFormCoupon({ ...formCoupon, fecha_expiracion: e.target.value })}
+                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 font-bold text-white text-xs outline-none focus:border-accent transition-all"
+                                        />
+                                        <Calendar className="absolute right-6 top-1/2 -translate-y-1/2 text-muted/20" size={20} />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 p-6 bg-accent/5 border border-accent/20 rounded-2xl">
+                                <ShieldCheck size={20} className="text-accent" />
+                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-accent/80 leading-relaxed">
+                                    Este cupón solo afectará a planes de suscripción. Los porcentajes de regalías de beats no se verán afectados.
+                                </p>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="w-full h-20 bg-accent text-white rounded-[1.5rem] font-black text-[11px] uppercase tracking-[0.5em] hover:scale-[1.02] shadow-2xl shadow-accent/40 transition-all flex items-center justify-center gap-4 active:scale-95 group/btn"
+                            >
+                                {editingId ? <Edit2 size={20} /> : <Save size={20} />}
+                                {editingId ? 'Guardar Cambios' : 'Desplegar Cupón'}
+                                <ChevronRight size={20} className="group-hover/btn:translate-x-2 transition-transform" />
+                            </button>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>

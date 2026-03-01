@@ -97,19 +97,23 @@ export default function CartPage() {
             const producerId = data.productor_id;
 
             items.forEach(item => {
-                const itemProducerId = item.metadata?.productor_id || item.metadata?.producerId;
+                const itemProducerId = item.metadata?.productor_id || item.metadata?.producerId || item.metadata?.producer_id || item.metadata?.seller_id;
                 let isItemEligible = false;
+
+                const iType = item.type; // beat, plan, sound_kit, service
+                const cAppliesTo = data.aplica_a; // todos, beats, sound_kits, servicios, suscripciones
 
                 if (!producerId) {
                     // Es cupón de administrador, solo aplica a suscripciones
-                    isItemEligible = (data.aplica_a === 'suscripciones' && item.type === 'plan');
+                    isItemEligible = (cAppliesTo === 'suscripciones' && iType === 'plan');
                 } else {
                     // Es cupón de productor, aplica a sus propios productos según `aplica_a`
-                    if (itemProducerId === producerId && item.type !== 'plan') {
-                        if (data.aplica_a === 'todos') isItemEligible = true;
-                        if (data.aplica_a === 'beats' && item.type === 'beat') isItemEligible = true;
-                        if (data.aplica_a === 'sound_kits' && item.type === 'sound_kit') isItemEligible = true;
-                        if (data.aplica_a === 'servicios' && item.type === 'service') isItemEligible = true;
+                    // Normalizar tipos para comparación
+                    if (itemProducerId === producerId && iType !== 'plan') {
+                        if (cAppliesTo === 'todos') isItemEligible = true;
+                        if ((cAppliesTo === 'beats' || cAppliesTo === 'beat') && iType === 'beat') isItemEligible = true;
+                        if ((cAppliesTo === 'sound_kits' || cAppliesTo === 'sound_kit') && iType === 'sound_kit') isItemEligible = true;
+                        if ((cAppliesTo === 'servicios' || cAppliesTo === 'servicio' || cAppliesTo === 'service') && iType === 'service') isItemEligible = true;
                     }
                 }
 
@@ -123,14 +127,18 @@ export default function CartPage() {
                 let errorMessage = "";
                 if (producerId) {
                     if (data.aplica_a === 'todos') {
-                        errorMessage = "Este cupón es válido solo para productos de este productor.";
-                    } else if (data.aplica_a === 'sound_kits') {
+                        errorMessage = "Este cupón es válido solo para productos de este productor que tienes en tu carrito.";
+                    } else if (data.aplica_a === 'sound_kits' || data.aplica_a === 'sound_kit') {
                         errorMessage = "Este cupón es válido solo para Sound Kits de este productor.";
+                    } else if (data.aplica_a === 'beats' || data.aplica_a === 'beat') {
+                        errorMessage = "Este cupón es válido solo para Beats de este productor.";
+                    } else if (data.aplica_a === 'servicios' || data.aplica_a === 'servicio' || data.aplica_a === 'service') {
+                        errorMessage = "Este cupón es válido solo para Servicios de este productor.";
                     } else {
-                        errorMessage = `Este cupón es válido solo para ${data.aplica_a.charAt(0).toUpperCase() + data.aplica_a.slice(1)} de este productor.`;
+                        errorMessage = `Este cupón no aplica a los productos que tienes en tu carrito actualmente.`;
                     }
                 } else {
-                    errorMessage = "Este cupón solo aplica para suscripciones premium o pro.";
+                    errorMessage = "Este cupón de administrador solo es válido para nuevas suscripciones.";
                 }
                 showToast(errorMessage, 'error');
                 return;
