@@ -68,6 +68,19 @@ export async function POST(req: Request) {
             payment_status: session.payment_status
         });
 
+        const totalDiscount = (session.total_details?.amount_discount || 0) / 100;
+        let couponCode = null;
+
+        // Intentar obtener el nombre del cupón desde la metadata o preguntando a Supabase
+        if (cuponId) {
+            const { data: cData } = await supabaseAdmin
+                .from('cupones')
+                .select('codigo')
+                .eq('id', cuponId)
+                .single();
+            if (cData) couponCode = cData.codigo;
+        }
+
         try {
             // 1. Validar Usuario (y Buscar por Email si falta ID)
             if (!usuarioId && customerEmail) {
@@ -102,6 +115,10 @@ export async function POST(req: Request) {
 
             // 2. Registrar Transacciones individualmente
             console.log('--- INSERTING TRANSACTIONS ---');
+
+            // Calcular descuento proporcional por item si hay varios (Stripe lo aplica al total)
+            const itemCount = lineItems.data.length;
+            const discountPerItem = itemCount > 0 ? totalDiscount / itemCount : 0;
 
             for (const item of lineItems.data) {
                 const product = item.price?.product as Stripe.Product;
@@ -225,7 +242,9 @@ export async function POST(req: Request) {
                         metodo_pago: 'stripe',
                         tipo_licencia: metadata.type === 'plan' ? metadata.tier : (metadata.licenseType || 'basica'),
                         metadatos: { ...metadata, contract_pdf_url: pdfUrl },
-                        cupon_id: cuponId || null
+                        cupon_id: cuponId || null,
+                        codigo_cupon: couponCode,
+                        monto_descuento: discountPerItem
                     })
                     .select()
                     .single();

@@ -64,6 +64,8 @@ type Order = {
     payment_method?: string;
     stripe_id?: string;
     orden_pedido?: string;
+    codigo_cupon?: string;
+    monto_descuento?: number;
 };
 
 export default function MyPurchasesPage() {
@@ -144,11 +146,14 @@ export default function MyPurchasesPage() {
                         stripe_id: tx.pago_id,
                         buyer_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Cliente Tianguis',
                         buyer_email: user.email,
+                        codigo_cupon: tx.codigo_cupon,
+                        monto_descuento: 0,
                         items: []
                     };
                 }
 
                 groupedOrders[orderKey].total_amount += Number(tx.precio_total);
+                groupedOrders[orderKey].monto_descuento += Number(tx.monto_descuento || 0);
 
                 groupedOrders[orderKey].items.push({
                     id: tx.id,
@@ -625,9 +630,28 @@ export default function MyPurchasesPage() {
                                 </div>
                                 <div className="p-5 bg-indigo-50 dark:bg-indigo-600/10 border border-indigo-100 dark:border-indigo-500/30 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center">
                                     <p className="text-[9px] font-black text-indigo-600 dark:text-indigo-300 uppercase tracking-[0.2em] mb-2">Total Invertido</p>
-                                    <p className="text-xl font-black text-indigo-900 dark:text-white tracking-tighter">${selectedOrder.total_amount} <span className="text-[10px] text-indigo-500 dark:text-indigo-300 uppercase">{selectedOrder.currency}</span></p>
+                                    <p className="text-xl font-black text-indigo-900 dark:text-white tracking-tighter">${selectedOrder.total_amount.toFixed(2)} <span className="text-[10px] text-indigo-500 dark:text-indigo-300 uppercase">{selectedOrder.currency}</span></p>
                                 </div>
                             </div>
+
+                            {/* Coupon Section (Conditional) */}
+                            {selectedOrder.codigo_cupon && (
+                                <div className="p-6 bg-emerald-500/5 border border-emerald-500/20 rounded-3xl flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center">
+                                            <ShoppingBag size={20} />
+                                        </div>
+                                        <div>
+                                            <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Cupón Aplicado</p>
+                                            <p className="text-sm font-black text-emerald-900 dark:text-white uppercase tracking-tight">{selectedOrder.codigo_cupon}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-[9px] font-black text-emerald-500/50 uppercase tracking-[0.2em]">Descuento Ahorrado</p>
+                                        <p className="text-lg font-black text-emerald-500 tracking-tighter">-${selectedOrder.monto_descuento?.toFixed(2)}</p>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Itemized Breakdown */}
                             <div className="space-y-4">
