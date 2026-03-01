@@ -302,7 +302,10 @@ export async function POST(req: Request) {
                         console.log('SEQUENTIAL UPGRADE: Target tier saved', tier);
                     } else {
                         updates.nivel_suscripcion = tier;
-                        updates.fecha_inicio_suscripcion = null; // Limpiar cambios programados si ya se aplicó un plan directo
+                        // Si no es secuencial, la suscripción empieza HOY (basDate si es renovación o ahora si es nuevo)
+                        // Pero para efectos de visualización en el admin, marcamos la fecha de la transacción actual
+                        updates.fecha_inicio_suscripcion = baseDate.toISOString();
+                        console.log('IMMEDIATE ACTIVATION: Start date set to', baseDate.toISOString());
                     }
 
                     const { error: profileError } = await supabaseAdmin

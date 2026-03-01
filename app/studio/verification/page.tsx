@@ -437,9 +437,9 @@ export default function VerificationPage() {
                         </div>
 
                         <div className="grid md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
+                            <div className="space-y-4">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-muted">Identificación (Frente)</label>
-                                <div className="relative">
+                                <div className="relative group/upload">
                                     <input
                                         type="file"
                                         required
@@ -447,17 +447,33 @@ export default function VerificationPage() {
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                         onChange={(e) => handleFileChange(e, 'front')}
                                     />
-                                    <div className="w-full bg-background border-2 border-dashed border-border rounded-xl px-4 py-6 flex flex-col items-center justify-center text-center hover:bg-accent/5 transition-all">
-                                        <Upload className="text-muted mb-2" size={16} />
-                                        <span className="text-[10px] font-bold text-foreground">
-                                            {form.idDocumentFront ? form.idDocumentFront.name : "Subir Frente"}
-                                        </span>
+                                    <div className="w-full aspect-video bg-background border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center text-center group-hover/upload:bg-accent/5 transition-all overflow-hidden relative">
+                                        {form.idDocumentFront ? (
+                                            <>
+                                                <img
+                                                    src={URL.createObjectURL(form.idDocumentFront)}
+                                                    alt="Preview Front"
+                                                    className="w-full h-full object-cover opacity-50 group-hover/upload:opacity-30 transition-opacity"
+                                                />
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+                                                    <Edit3 className="text-accent mb-2" size={20} />
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground bg-background/80 px-3 py-1 rounded-full backdrop-blur-sm truncate max-w-full">
+                                                        {form.idDocumentFront.name}
+                                                    </span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload className="text-muted mb-2" size={20} />
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-muted">Subir Frente</span>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-4">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-muted">Identificación (Vuelta)</label>
-                                <div className="relative">
+                                <div className="relative group/upload">
                                     <input
                                         type="file"
                                         required
@@ -465,11 +481,27 @@ export default function VerificationPage() {
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                         onChange={(e) => handleFileChange(e, 'back')}
                                     />
-                                    <div className="w-full bg-background border-2 border-dashed border-border rounded-xl px-4 py-6 flex flex-col items-center justify-center text-center hover:bg-accent/5 transition-all">
-                                        <Upload className="text-muted mb-2" size={16} />
-                                        <span className="text-[10px] font-bold text-foreground">
-                                            {form.idDocumentBack ? form.idDocumentBack.name : "Subir Vuelta"}
-                                        </span>
+                                    <div className="w-full aspect-video bg-background border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center text-center group-hover/upload:bg-accent/5 transition-all overflow-hidden relative">
+                                        {form.idDocumentBack ? (
+                                            <>
+                                                <img
+                                                    src={URL.createObjectURL(form.idDocumentBack)}
+                                                    alt="Preview Back"
+                                                    className="w-full h-full object-cover opacity-50 group-hover/upload:opacity-30 transition-opacity"
+                                                />
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+                                                    <Edit3 className="text-accent mb-2" size={20} />
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground bg-background/80 px-3 py-1 rounded-full backdrop-blur-sm truncate max-w-full">
+                                                        {form.idDocumentBack.name}
+                                                    </span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload className="text-muted mb-2" size={20} />
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-muted">Subir Vuelta</span>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </div>

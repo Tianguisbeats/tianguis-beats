@@ -124,12 +124,18 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
 
             const monthlyRevenue = monthlyData?.reduce((acc, s) => acc + (s.precio || 0), 0) || 0;
 
+            const { data: verifsData } = await supabase.from('solicitudes_verificacion').select('id').eq('estado', 'pendiente');
+            const pendingVerifs = verifsData?.length || 0;
+
+            const { data: feedbackData } = await supabase.from('quejas_y_sugerencias').select('id').eq('estado', 'pendiente');
+            const pendingFeedback = feedbackData?.length || 0;
+
             setStats({
                 totalSales: revenue,
                 totalUsers: users.count || 0,
                 totalBeats: beats.count || 0,
-                pendingVerifications: verifs.count || 0,
-                pendingFeedback: feedback.count || 0,
+                pendingVerifications: pendingVerifs,
+                pendingFeedback: pendingFeedback,
                 monthlyRevenue: monthlyRevenue,
                 activeSubscriptions: 0
             });
@@ -298,9 +304,9 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                 <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors">
                     ← Volver al Dashboard
                 </button>
-                <div className={`flex items-center justify-center px-4 py-2 rounded-xl border transition-colors ${requests.length > 0 ? 'bg-amber-500/10 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-emerald-500/10 border-emerald-500/20'} `}>
-                    <span className={`text-[10px] font-black uppercase tracking-widest leading-none ${requests.length > 0 ? 'text-amber-500' : 'text-emerald-500'} `}>
-                        {requests.length} {requests.length === 1 ? 'Pendiente' : 'Pendientes'}
+                <div className={`flex items-center justify-center px-4 py-2 rounded-xl border transition-all ${requests.filter(r => r.estado === 'pendiente').length > 0 ? 'bg-amber-500/10 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-emerald-500/10 border-emerald-500/20'} `}>
+                    <span className={`text-[10px] font-black uppercase tracking-widest leading-none ${requests.filter(r => r.estado === 'pendiente').length > 0 ? 'text-amber-500' : 'text-emerald-500'} `}>
+                        {requests.filter(r => r.estado === 'pendiente').length} {requests.filter(r => r.estado === 'pendiente').length === 1 ? 'Pendiente' : 'Pendientes'}
                     </span>
                 </div>
             </header>
@@ -477,6 +483,13 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                             <div className="flex flex-wrap gap-4">
                                 <ImageDocPreview label="Frente" path={selectedHistoryReq.url_doc_frontal} />
                                 {selectedHistoryReq.url_doc_trasero && <ImageDocPreview label="Vuelta" path={selectedHistoryReq.url_doc_trasero} />}
+                            </div>
+
+                            <div className="p-6 bg-foreground/5 rounded-3xl border border-border flex flex-col gap-3">
+                                <p className="text-[9px] font-black uppercase text-muted tracking-[0.2em]">Motivación del Artista</p>
+                                <p className="text-sm text-foreground font-medium italic opacity-80 leading-relaxed">
+                                    "{selectedHistoryReq.motivacion || 'No proporcionada'}"
+                                </p>
                             </div>
                         </div>
 
@@ -698,7 +711,8 @@ function UserManager({ onBack }: { onBack: () => void }) {
                             <tr className="border-b border-border bg-slate-50 dark:bg-white/5">
                                 <th className="px-8 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Usuario</th>
                                 <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Membresía</th>
-                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Admin</th>
+                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted">Registro</th>
+                                <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-muted text-center">Admin</th>
                                 <th className="px-8 py-4 text-right text-[9px] font-black uppercase tracking-[0.2em] text-muted">Acciones</th>
                             </tr>
                         </thead>
@@ -735,7 +749,12 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                         </div>
                                     </td>
                                     <td className="px-6 py-5">
-                                        <div className={`w-2 h-2 rounded-full ${user.es_admin ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-300 dark:bg-white/10'}`} />
+                                        <p className="text-[10px] font-bold text-muted uppercase">
+                                            {user.fecha_creacion ? new Date(user.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2y' }) : '---'}
+                                        </p>
+                                    </td>
+                                    <td className="px-6 py-5 text-center">
+                                        <div className={`w-2 h-2 rounded-full mx-auto ${user.es_admin ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-300 dark:bg-white/10'}`} />
                                     </td>
                                     <td className="px-8 py-5 text-right">
                                         <button
@@ -800,15 +819,18 @@ function UserManager({ onBack }: { onBack: () => void }) {
                             <div className="space-y-6">
                                 <div className="p-5 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-3xl space-y-3">
                                     <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted">Membresía Actual</p>
-                                    <select
-                                        value={editForm.nivel_suscripcion}
-                                        onChange={(e) => setEditForm({ ...editForm, nivel_suscripcion: e.target.value })}
-                                        className="w-full bg-transparent font-black text-xs uppercase tracking-widest text-accent outline-none cursor-pointer appearance-none"
-                                    >
-                                        <option value="free">Gratis (Free)</option>
-                                        <option value="pro">Plan Pro</option>
-                                        <option value="premium">Plan Premium</option>
-                                    </select>
+                                    <div className="relative group/select">
+                                        <select
+                                            value={editForm.nivel_suscripcion}
+                                            onChange={(e) => setEditForm({ ...editForm, nivel_suscripcion: e.target.value })}
+                                            className="w-full bg-transparent font-black text-xs uppercase tracking-widest text-accent outline-none cursor-pointer appearance-none pr-8"
+                                        >
+                                            <option value="free">Gratis (Free)</option>
+                                            <option value="pro">Plan Pro</option>
+                                            <option value="premium">Plan Premium</option>
+                                        </select>
+                                        <ChevronRight size={14} className="absolute right-0 top-1/2 -translate-y-1/2 text-accent group-hover/select:translate-x-1 transition-transform pointer-events-none" />
+                                    </div>
                                 </div>
 
                                 <div className="p-5 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-3xl flex items-center justify-between">
