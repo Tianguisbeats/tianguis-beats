@@ -269,13 +269,13 @@ function ServicesManagerPage() {
             if (kitSampleFile) {
                 const sampleName = `${username}/${Date.now()}-sample.mp3`;
                 const { data: sampleData, error: sampleError } = await supabase.storage
-                    .from('muestras_soundkits')
+                    .from('muestra_soundkit')
                     .upload(sampleName, kitSampleFile);
 
                 if (sampleError) throw sampleError;
 
                 const { data: { publicUrl: sUrl } } = supabase.storage
-                    .from('muestras_soundkits')
+                    .from('muestra_soundkit')
                     .getPublicUrl(sampleName);
 
                 sampleUrl = sUrl;
