@@ -6,7 +6,8 @@ import {
     Plus, Edit3, Trash2, Ticket, Percent, Calendar,
     CheckCircle2, XCircle, Loader2, Users, HardDrive,
     ArrowUpRight, Info, Search, Filter, Hash, CreditCard,
-    DollarSign, BarChart3, ChevronRight, X
+    DollarSign, BarChart3, ChevronRight, X, User, Clock,
+    Target, ChevronDown, CheckCircle, ShieldCheck, Mail
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
@@ -38,6 +39,8 @@ export default function CouponsPage() {
     const [currentCoupon, setCurrentCoupon] = useState<Partial<Coupon> | null>(null);
     const [originalCoupon, setOriginalCoupon] = useState<Partial<Coupon> | null>(null);
     const [saving, setSaving] = useState(false);
+    const [couponUses, setCouponUses] = useState<any[]>([]);
+    const [loadingUses, setLoadingUses] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -62,6 +65,31 @@ export default function CouponsPage() {
             setCoupons(couponsData as Coupon[]);
         }
         setLoading(false);
+    };
+
+    const fetchUsage = async (couponId: string) => {
+        setLoadingUses(true);
+        try {
+            const { data, error } = await supabase
+                .from('usos_cupones')
+                .select(`
+                    id,
+                    fecha_uso,
+                    usuario_id,
+                    perfiles:usuario_id (
+                        nombre_artistico,
+                        nombre_usuario,
+                        foto_perfil
+                    )
+                `)
+                .eq('cupon_id', couponId)
+                .order('fecha_uso', { ascending: false });
+
+            if (data) setCouponUses(data);
+        } catch (err) {
+            console.error("Error fetching usage:", err);
+        }
+        setLoadingUses(false);
     };
 
     const handleSave = async (e: React.FormEvent) => {
@@ -324,7 +352,12 @@ export default function CouponsPage() {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <button
-                                                onClick={() => { setCurrentCoupon(coupon); setOriginalCoupon(coupon); setIsEditing(true); }}
+                                                onClick={() => {
+                                                    setCurrentCoupon(coupon);
+                                                    setOriginalCoupon(coupon);
+                                                    setIsEditing(true);
+                                                    fetchUsage(coupon.id);
+                                                }}
                                                 className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-foreground text-background hover:bg-accent hover:text-white transition-all text-[11px] font-black uppercase tracking-widest shadow-xl active:scale-95"
                                             >
                                                 <Edit3 size={14} /> Editar
@@ -344,88 +377,73 @@ export default function CouponsPage() {
                 </div>
             )}
 
-            {/* Editing Modal Premium: Architecture Style */}
+            {/* Editing Modal Elite: Architecture Style */}
             {isEditing && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-2xl animate-in fade-in transition-all">
-                    <div className="bg-white dark:bg-[#0c0c0e] rounded-[3rem] p-12 max-w-2xl w-full shadow-2xl dark:shadow-[0_0_100px_rgba(var(--accent-rgb),0.2)] overflow-hidden border border-slate-200 dark:border-white/5 relative">
-                        {/* Background Grid Pattern */}
-                        <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/90 backdrop-blur-2xl animate-in fade-in transition-all">
+                    <div className="bg-white dark:bg-[#0c0c0e] rounded-[3.5rem] p-12 max-w-4xl w-full shadow-2xl dark:shadow-[0_0_100px_rgba(var(--accent-rgb),0.2)] overflow-hidden border border-slate-200 dark:border-white/5 relative flex flex-col md:flex-row gap-10 max-h-[90vh] overflow-y-auto">
 
                         <button
-                            onClick={() => { setIsEditing(false); setCurrentCoupon(null); setOriginalCoupon(null); }}
-                            className="absolute top-10 right-10 w-12 h-12 rounded-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-rose-50 dark:hover:bg-rose-500 text-slate-500 hover:text-rose-500 dark:text-foreground dark:hover:text-white transition-all z-10"
+                            onClick={() => { setIsEditing(false); setCurrentCoupon(null); setOriginalCoupon(null); setCouponUses([]); }}
+                            className="absolute top-8 right-8 w-12 h-12 rounded-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-rose-50 dark:hover:bg-rose-500 text-slate-500 hover:text-rose-500 dark:text-foreground dark:hover:text-white transition-all z-20"
                         >
                             <X size={20} />
                         </button>
 
-                        <div className="mb-10 relative z-10">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full mb-4">
-                                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Motor de Conversión</span>
-                            </div>
-                            <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground leading-[0.9]">
-                                {currentCoupon?.id ? 'Refinar' : 'Datos'} <br />
-                                <span className="text-accent underline decoration-slate-200 dark:decoration-accent/20 underline-offset-8">del Cupón.</span>
-                            </h2>
-                        </div>
-
-                        <form onSubmit={handleSave} className="space-y-8 relative z-10">
-                            {/* Grupo 1: Identidad y Valor */}
-                            <div className="grid md:grid-cols-2 gap-8 bg-slate-50/50 dark:bg-white/[0.02] p-6 rounded-[2rem] border border-slate-200/50 dark:border-white/5 shadow-inner">
-                                <div className="space-y-3">
-                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Código Promocional</label>
-                                    <input
-                                        required
-                                        value={currentCoupon?.codigo || ''}
-                                        onChange={e => setCurrentCoupon({ ...currentCoupon, codigo: e.target.value.toUpperCase() })}
-                                        placeholder="EJ. FUEGO20"
-                                        className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-5 py-4 font-black text-slate-900 dark:text-foreground text-xl outline-none focus:border-accent transition-all uppercase tracking-widest placeholder:text-slate-300 dark:placeholder:text-muted/10 font-mono shadow-sm"
-                                    />
+                        {/* Left Side: Form */}
+                        <div className="flex-1 space-y-8 relative z-10">
+                            <div className="mb-6">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full mb-4">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Configuración Estratégica</span>
                                 </div>
-                                <div className="space-y-3">
-                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Descuento (%)</label>
-                                    <div className="relative">
+                                <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground leading-[0.9]">
+                                    {currentCoupon?.id ? 'Refinar' : 'Datos'} <br />
+                                    <span className="text-accent underline decoration-slate-200 dark:decoration-accent/20 underline-offset-8">del Cupón.</span>
+                                </h2>
+                            </div>
+
+                            <form onSubmit={handleSave} className="space-y-6">
+                                <div className="grid grid-cols-2 gap-4 bg-slate-50/50 dark:bg-white/[0.02] p-4 rounded-2xl border border-slate-200/50 dark:border-white/5 shadow-inner">
+                                    <div className="space-y-2">
+                                        <label className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Código</label>
                                         <input
-                                            type="number"
                                             required
-                                            min="1"
-                                            max="100"
-                                            value={currentCoupon?.porcentaje_descuento || ''}
-                                            onChange={e => setCurrentCoupon({ ...currentCoupon, porcentaje_descuento: Number(e.target.value) })}
-                                            className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl pl-12 pr-5 py-4 font-black text-slate-900 dark:text-foreground text-xl outline-none focus:border-accent transition-all tabular-nums font-mono"
+                                            value={currentCoupon?.codigo || ''}
+                                            onChange={e => setCurrentCoupon({ ...currentCoupon, codigo: e.target.value.toUpperCase() })}
+                                            placeholder="FUEGO20"
+                                            className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all uppercase tracking-widest font-mono shadow-sm"
                                         />
-                                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-accent/60">
-                                            <Percent size={18} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Descuento (%)</label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                required
+                                                min="1"
+                                                max="100"
+                                                value={currentCoupon?.porcentaje_descuento || ''}
+                                                onChange={e => setCurrentCoupon({ ...currentCoupon, porcentaje_descuento: Number(e.target.value) })}
+                                                className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all font-mono"
+                                            />
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Grupo 2: Segmentación y Target (UNIFICADO) */}
-                            <div className="grid md:grid-cols-2 gap-8">
                                 <div className="space-y-4">
-                                    <div className="flex items-center gap-2 ml-1">
-                                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60">Aplicable a</label>
-                                        <div className="group relative">
-                                            <Info size={12} className="text-slate-400 dark:text-muted/40 cursor-help" />
-                                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-bold tracking-wider rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                                                Selecciona a qué tipo de productos de tu catálogo se aplicará este descuento.
-                                                <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 dark:bg-white rotate-45" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-2">
+                                    <label className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1 text-center block">Tipo de Producto</label>
+                                    <div className="grid grid-cols-4 gap-2">
                                         {[
                                             { id: 'todos', label: 'Todos' },
                                             { id: 'beats', label: 'Beats' },
                                             { id: 'sound_kits', label: 'Kits' },
-                                            { id: 'servicios', label: 'Servicios' }
+                                            { id: 'servicios', label: 'Serv.' }
                                         ].map((type) => (
                                             <button
                                                 key={type.id}
                                                 type="button"
                                                 onClick={() => setCurrentCoupon({ ...currentCoupon, aplica_a: type.id as any })}
-                                                className={`px-3 py-2.5 rounded-xl text-[8px] font-black uppercase tracking-widest border transition-all ${currentCoupon?.aplica_a === type.id
+                                                className={`px-2 py-3 rounded-xl text-[8px] font-black uppercase tracking-widest border transition-all ${currentCoupon?.aplica_a === type.id
                                                     ? 'border-accent bg-accent text-white shadow-lg shadow-accent/20'
                                                     : 'border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-muted/60 hover:border-accent/30'}`}
                                             >
@@ -435,100 +453,98 @@ export default function CouponsPage() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-2 ml-1">
-                                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60">Para Usuarios</label>
-                                        <div className="group relative">
-                                            <Info size={12} className="text-slate-400 dark:text-muted/40 cursor-help" />
-                                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-bold tracking-wider rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                                                Filtra quién puede usar este cupón basado en su plan de membresía.
-                                                <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 dark:bg-white rotate-45" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {[
-                                            { id: 'todos', label: 'Cualquiera' },
-                                            { id: 'gratis', label: 'Free' },
-                                            { id: 'pro', label: 'Pro' },
-                                            { id: 'premium', label: 'Premium' }
-                                        ].map((tier) => (
-                                            <button
-                                                key={tier.id}
-                                                type="button"
-                                                onClick={() => setCurrentCoupon({ ...currentCoupon, nivel_objetivo: tier.id as any })}
-                                                className={`px-3 py-2.5 rounded-xl text-[8px] font-black uppercase tracking-widest border transition-all ${currentCoupon?.nivel_objetivo === tier.id
-                                                    ? 'border-blue-500 bg-blue-500 text-white shadow-lg shadow-blue-500/20'
-                                                    : 'border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-muted/60 hover:border-accent/30'}`}
-                                            >
-                                                {tier.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Grupo 3: Reglas de Uso y Control */}
-                            <div className="grid md:grid-cols-2 gap-8 pt-4">
-                                <div className="space-y-3">
-                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Límite de usos</label>
-                                    <div className="relative">
-                                        <Hash size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-muted/20" />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Uso Límite</label>
                                         <input
                                             type="number"
                                             min="1"
-                                            placeholder="SIN LÍMITE (∞)"
+                                            placeholder="Ilimitado (∞)"
                                             value={currentCoupon?.usos_maximos || ''}
                                             onChange={e => setCurrentCoupon({ ...currentCoupon, usos_maximos: e.target.value ? Number(e.target.value) : null })}
-                                            className="w-full bg-slate-50/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl pl-12 pr-5 py-4 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all tabular-nums font-mono shadow-sm"
+                                            className="w-full bg-slate-50/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 font-black text-slate-900 dark:text-foreground text-[10px] outline-none focus:border-accent transition-all font-mono shadow-sm"
                                         />
                                     </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Expiración</label>
-                                    <div className="relative">
-                                        <Calendar size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-muted/20" />
+                                    <div className="space-y-2">
+                                        <label className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Expiración</label>
                                         <input
                                             type="date"
                                             value={currentCoupon?.fecha_expiracion?.split('T')[0] || ''}
                                             onChange={e => setCurrentCoupon({ ...currentCoupon, fecha_expiracion: e.target.value })}
-                                            className="w-full bg-slate-50/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl pl-12 pr-5 py-4 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all font-mono shadow-sm"
+                                            className="w-full bg-slate-50/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 font-black text-slate-900 dark:text-foreground text-[10px] outline-none focus:border-accent transition-all font-mono shadow-sm"
                                         />
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="flex flex-col sm:flex-row gap-6 pt-6 border-t border-slate-200 dark:border-white/5">
-                                {(() => {
-                                    const isDirty = JSON.stringify(currentCoupon) !== JSON.stringify(originalCoupon);
+                                <button
+                                    type="submit"
+                                    disabled={saving}
+                                    className="w-full bg-accent text-white py-5 rounded-xl font-black uppercase tracking-[0.4em] text-[10px] hover:scale-[1.01] transition-all shadow-xl shadow-accent/40 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 mt-4"
+                                >
+                                    {saving ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                                    {saving ? 'PROCESANDO...' : 'GUARDAR ESTRATEGIA'}
+                                </button>
+                            </form>
+                        </div>
 
-                                    return (
-                                        <button
-                                            type={isDirty ? "submit" : "button"}
-                                            onClick={() => {
-                                                if (!isDirty) {
-                                                    setIsEditing(false); setCurrentCoupon(null); setOriginalCoupon(null);
-                                                }
-                                            }}
-                                            disabled={saving}
-                                            className="w-full bg-accent text-white py-5 rounded-xl font-black uppercase tracking-[0.4em] text-[10px] hover:scale-[1.01] transition-all shadow-xl shadow-accent/40 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
-                                        >
-                                            {saving ? (
-                                                <>
-                                                    <Loader2 size={16} className="animate-spin" /> Procesando...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {isDirty ? <CheckCircle2 size={16} /> : <X size={16} />}
-                                                    {isDirty ? 'Desplegar Arquitectura' : 'Cerrar sin cambios'}
-                                                </>
-                                            )}
-                                        </button>
-                                    );
-                                })()}
+                        {/* Right Side: Usage History */}
+                        {currentCoupon?.id && (
+                            <div className="flex-1 bg-slate-50 dark:bg-[#08080a] border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 flex flex-col">
+                                <div className="flex items-center justify-between mb-8">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-500 border border-emerald-500/20">
+                                            <BarChart3 size={20} />
+                                        </div>
+                                        <h3 className="text-xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground">Historial de Uso</h3>
+                                    </div>
+                                    <div className="px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+                                        <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">{currentCoupon.usos_actuales} TOTAL</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto space-y-4 max-h-[350px] pr-2 custom-scrollbar">
+                                    {loadingUses ? (
+                                        <div className="flex justify-center py-10"><Loader2 className="animate-spin text-emerald-500" /></div>
+                                    ) : couponUses.length === 0 ? (
+                                        <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+                                            <Clock size={32} className="text-muted/20" />
+                                            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted max-w-[180px]">Este cupón aún no ha sido utilizado por ningún usuario.</p>
+                                        </div>
+                                    ) : (
+                                        couponUses.map((use, idx) => (
+                                            <div key={idx} className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex items-center gap-4 group hover:border-emerald-500/30 transition-all">
+                                                <div className="w-10 h-10 rounded-xl bg-slate-900 overflow-hidden relative border border-white/10">
+                                                    {use.perfiles?.foto_perfil ? (
+                                                        <img src={use.perfiles.foto_perfil} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-xs font-black text-white">{use.perfiles?.nombre_artistico?.[0] || '?'}</div>
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 overflow-hidden">
+                                                    <p className="text-[10px] font-black text-slate-900 dark:text-white truncate uppercase tracking-tight">{use.perfiles?.nombre_artistico || 'Usuario Desconocido'}</p>
+                                                    <p className="text-[8px] font-bold text-muted uppercase tracking-widest opacity-60">@{use.perfiles?.nombre_usuario || '...'}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-[9px] font-black tabular-nums text-slate-900 dark:text-foreground">
+                                                        {new Date(use.fecha_uso).toLocaleDateString()}
+                                                    </p>
+                                                    <p className="text-[7px] font-bold text-muted uppercase tracking-[0.2em]">{new Date(use.fecha_uso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+
+                                <div className="mt-8 pt-6 border-t border-slate-200 dark:border-white/10">
+                                    <div className="flex items-center gap-3 p-4 bg-orange-500/5 border border-orange-500/10 rounded-2xl">
+                                        <Mail size={16} className="text-orange-500/60" />
+                                        <p className="text-[8px] font-bold uppercase tracking-widest text-orange-500/80 leading-relaxed">
+                                            Usa esta data para fidelizar a tus compradores más recurrentes.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                        </form>
+                        )}
                     </div>
                 </div>
             )}

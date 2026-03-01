@@ -2,7 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Plus, Edit3, Trash2, Briefcase, DollarSign, Clock, AlertCircle, Check, X, Loader2, Package, Upload, FileArchive, ArrowUpRight, Layers } from 'lucide-react';
+import {
+    Plus, Edit3, Trash2, Ticket, Percent, Calendar,
+    CheckCircle2, XCircle, Loader2, Users, HardDrive,
+    ArrowUpRight, Info, Search, Filter, Hash, CreditCard,
+    DollarSign, BarChart3, ChevronRight, X, Music, Layers,
+    Briefcase, Package, Clock, Upload, FileArchive
+} from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
@@ -237,13 +243,17 @@ function ServicesManagerPage() {
             // Handle File Upload (ZIP/RAR)
             if (kitFile) {
                 const fileName = `${username}/${Date.now()}-${kitFile.name}`;
-                const { data, error: uploadError } = await supabase.storage
-                    .from('archivos_kits_sonido')
+                const { data, error: fileError } = await supabase.storage
+                    .from('kits_sonido_files')
                     .upload(fileName, kitFile);
 
-                if (uploadError) throw uploadError;
-                const { data: { publicUrl: fUrl } } = supabase.storage.from('archivos_kits_sonido').getPublicUrl(fileName); // We'd get it later normally but ok for here
-                fileUrl = fUrl; // Ensure we save url or path
+                if (fileError) throw fileError;
+
+                const { data: { publicUrl: fUrl } } = supabase.storage
+                    .from('kits_sonido_files')
+                    .getPublicUrl(fileName);
+
+                fileUrl = fUrl;
             }
 
             // Handle Cover Upload
@@ -267,7 +277,7 @@ function ServicesManagerPage() {
             // Handle Sample Audio Upload
             let sampleUrl = currentKit.archivo_muestra_url || null;
             if (kitSampleFile) {
-                const sampleName = `${username}/${Date.now()}-sample.mp3`;
+                const sampleName = `${username}/${Date.now()}-preview.mp3`;
                 const { data: sampleData, error: sampleError } = await supabase.storage
                     .from('muestra_soundkit')
                     .upload(sampleName, kitSampleFile);
