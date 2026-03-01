@@ -13,7 +13,7 @@ export type ContractType = 'basica' | 'mp3' | 'pro' | 'premium' | 'ilimitada' | 
 
 const CONTRACT_TYPES = [
     {
-        id: 'basica' as ContractType,
+        id: 'basic' as ContractType,
         name: 'Licencia Gratis',
         tier: 'FREE',
         description: 'Uso no comercial en redes sociales. Tag de voz obligatorio.',
@@ -39,7 +39,7 @@ const CONTRACT_TYPES = [
         badgeBg: 'bg-emerald-500/10 text-emerald-400',
     },
     {
-        id: 'premium' as ContractType,
+        id: 'pro' as ContractType,
         name: 'Licencia Premium',
         tier: 'WAV',
         description: 'Mejor calidad de audio. Hasta 500k streams + radio.',
@@ -52,7 +52,7 @@ const CONTRACT_TYPES = [
         badgeBg: 'bg-blue-500/10 text-blue-400',
     },
     {
-        id: 'pro' as ContractType,
+        id: 'premium' as ContractType,
         name: 'Licencia Pro',
         tier: 'STEMS',
         description: 'Para mezcla profesional (Trackouts). Streams ilimitados.',
@@ -144,10 +144,10 @@ export default function ContractsPage() {
 
     const getDefaultLegalText = (type: ContractType) => {
         const defaults: Record<string, string> = {
-            basica: "LICENCIA GRATIS (FREE / TAGGED): Diseñada para que el artista pruebe el beat o lo use en redes sociales sin fines de lucro.\nARCHIVOS: MP3 (con Tag/Voz del productor).\nUSO: Únicamente No comercial. Prohibido monetizar.\nSTREAMS: Limitado (1,000 a 5,000 reproducciones).\nYOUTUBE: Permitido (sin monetizar).\nRESTRICCIÓN CLAVE: El artista debe dar crédito obligatorio y no puede registrar la canción en plataformas de distribución.\n\nCRÉDITO: Obligatorio \"Producido por {ARTISTA}\".\nPUBLISHING: 50% Productor / 50% Escritor.\nCONTENT ID: Prohibido registrar beats no exclusivos.\nJURISDICCIÓN: Leyes de México.",
+            basic: "LICENCIA GRATIS (FREE / TAGGED): Diseñada para que el artista pruebe el beat o lo use en redes sociales sin fines de lucro.\nARCHIVOS: MP3 (con Tag/Voz del productor).\nUSO: Únicamente No comercial. Prohibido monetizar.\nSTREAMS: Limitado (1,000 a 5,000 reproducciones).\nYOUTUBE: Permitido (sin monetizar).\nRESTRICCIÓN CLAVE: El artista debe dar crédito obligatorio y no puede registrar la canción en plataformas de distribución.\n\nCRÉDITO: Obligatorio \"Producido por {ARTISTA}\".\nPUBLISHING: 50% Productor / 50% Escritor.\nCONTENT ID: Prohibido registrar beats no exclusivos.\nJURISDICCIÓN: Leyes de México.",
             mp3: "LICENCIA BÁSICA (LEASE): Ideal para artistas independientes que están empezando a monetizar.\nARCHIVOS: MP3 (sin Tag).\nSTREAMS: Hasta 10,000 - 50,000 reproducciones.\nVENTAS: Hasta 2,000 unidades.\nYOUTUBE: 1 video musical (monetización limitada).\nPRESENTACIONES: Solo presentaciones sin fines de lucro.\n\nCRÉDITO: Obligatorio \"Producido por {ARTISTA}\".\nPUBLISHING: 50% Productor / 50% Escritor.\nCONTENT ID: Prohibido registrar beats no exclusivos.\nJURISDICCIÓN: Leyes de México.",
-            premium: "LICENCIA PREMIUM (STANDARD): La opción más popular, ofrece mejor calidad de audio.\nARCHIVOS: MP3 + WAV (sin Tag).\nSTREAMS: Hasta 100,000 - 500,000 reproducciones.\nVENTAS: Hasta 5,000 - 10,000 unidades.\nRADIO: Permitido en 2 a 5 estaciones.\nPRESENTACIONES: Hasta 5 presentaciones pagadas.\n\nCRÉDITO: Obligatorio \"Producido por {ARTISTA}\".\nPUBLISHING: 50% Productor / 50% Escritor.\nCONTENT ID: Prohibido registrar beats no exclusivos.\nJURISDICCIÓN: Leyes de México.",
-            pro: "LICENCIA PRO (TRACKOUT): Para artistas que necesitan mezclar la voz con cada instrumento por separado.\nARCHIVOS: MP3 + WAV + STEMS.\nSTREAMS: Ilimitados.\nVENTAS: Ilimitadas.\nRADIO: Ilimitado.\nPRESENTACIONES: Ilimitadas.\nYOUTUBE: Videos ilimitados (monetización permitida).\n\nCRÉDITO: Obligatorio \"Producido por {ARTISTA}\".\nPUBLISHING: 50% Productor / 50% Escritor.\nCONTENT ID: Prohibido registrar beats no exclusivos.\nJURISDICCIÓN: Leyes de México.",
+            pro: "LICENCIA PREMIUM (STANDARD): La opción más popular, ofrece mejor calidad de audio.\nARCHIVOS: MP3 + WAV (sin Tag).\nSTREAMS: Hasta 100,000 - 500,000 reproducciones.\nVENTAS: Hasta 5,000 - 10,000 unidades.\nRADIO: Permitido en 2 a 5 estaciones.\nPRESENTACIONES: Hasta 5 presentaciones pagadas.\n\nCRÉDITO: Obligatorio \"Producido por {ARTISTA}\".\nPUBLISHING: 50% Productor / 50% Escritor.\nCONTENT ID: Prohibido registrar beats no exclusivos.\nJURISDICCIÓN: Leyes de México.",
+            premium: "LICENCIA PRO (TRACKOUT): Para artistas que necesitan mezclar la voz con cada instrumento por separado.\nARCHIVOS: MP3 + WAV + STEMS.\nSTREAMS: Ilimitados.\nVENTAS: Ilimitadas.\nRADIO: Ilimitado.\nPRESENTACIONES: Ilimitadas.\nYOUTUBE: Videos ilimitados (monetización permitida).\n\nCRÉDITO: Obligatorio \"Producido por {ARTISTA}\".\nPUBLISHING: 50% Productor / 50% Escritor.\nCONTENT ID: Prohibido registrar beats no exclusivos.\nJURISDICCIÓN: Leyes de México.",
             exclusiva: "LICENCIA EXCLUSIVA: Venta única. El beat se retira de la tienda tras la compra.\nARCHIVOS: MP3, WAV, STEMS.\nUSO: Ilimitado en todo.\nPROPIEDAD: El artista es dueño del máster (grabación).\n\nCRÉDITO: Obligatorio \"Producido por {ARTISTA}\".\nPUBLISHING: El productor retiene el 50% de los derechos de autor.\nCONTENT ID: Permitido registrar la canción en YouTube Content ID.\nJURISDICCIÓN: Leyes de México.",
             soundkit: "LICENCIA SOUND KIT (ROYALTY FREE): Específicamente para packs de samples o loops.\nARCHIVOS: WAV Loops / One shots.\nDERECHOS: Royalty Free. El comprador puede usar los sonidos en beats comerciales sin pagar regalías adicionales.\nRESTRICCIÓN CRÍTICA: Prohibida la redistribución o reventa del kit. El usuario no puede vender los sonidos individualmente.\nJURISDICCIÓN: Leyes de México.",
         };
@@ -193,7 +193,8 @@ export default function ContractsPage() {
                 </div>
                 <div className="space-y-2">
                     <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground leading-[1] flex flex-col">
-                        Tus <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Licencias.</span>
+                        Tus
+                        <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Licencias.</span>
                     </h1>
                     <p className="text-slate-500 dark:text-muted text-[11px] font-bold uppercase tracking-[0.4em] opacity-60 ml-1">
                         Personaliza los términos legales y límites de cada tipo
