@@ -8,7 +8,7 @@ import {
     TrendingUp, Calendar, Layout, Mail, ShieldCheck, UserPlus,
     ExternalLink, Filter, MoreVertical, X, AlertTriangle, AlertCircle,
     Ticket, MessageSquare, XCircle, Edit2, Save, Crown, User, FileKey,
-    Plus, Percent, BadgeCheck, ShieldAlert
+    Plus, Percent, BadgeCheck, ShieldAlert, Target, ChevronDown
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
@@ -1207,21 +1207,29 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                             </button>
                         </header>
 
-                        <form onSubmit={handleAction} className="relative z-10 space-y-8">
-                            <div className="grid md:grid-cols-2 gap-8">
-                                <div className="space-y-3">
-                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-muted/60 ml-1">Código Promocional</label>
-                                    <input
-                                        required
-                                        value={formCoupon.codigo}
-                                        onChange={e => setFormCoupon({ ...formCoupon, codigo: e.target.value.toUpperCase() })}
-                                        placeholder="EJ. VERANO50"
-                                        className="w-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl px-6 py-5 font-black text-foreground dark:text-white text-xl outline-none focus:border-accent transition-all uppercase tracking-widest placeholder:text-foreground/10 dark:placeholder:text-white/10 font-mono"
-                                    />
+                        <form onSubmit={handleAction} className="relative z-10 space-y-6">
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted/60 ml-1">Código Promocional</label>
+                                    <div className="relative group">
+                                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted/30 group-focus-within:text-accent transition-colors">
+                                            <Ticket size={18} />
+                                        </div>
+                                        <input
+                                            required
+                                            value={formCoupon.codigo}
+                                            onChange={e => setFormCoupon({ ...formCoupon, codigo: e.target.value.toUpperCase() })}
+                                            placeholder="EJ. VERANO50"
+                                            className="w-full h-14 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl pl-14 pr-6 font-bold text-foreground dark:text-white text-sm outline-none focus:border-accent transition-all uppercase tracking-[0.2em] placeholder:text-muted/20"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="space-y-3">
-                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-muted/60 ml-1">Descuento (%)</label>
-                                    <div className="relative">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted/60 ml-1">Descuento (%)</label>
+                                    <div className="relative group">
+                                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted/30 group-focus-within:text-accent transition-colors">
+                                            <Percent size={18} />
+                                        </div>
                                         <input
                                             type="number"
                                             min="1"
@@ -1229,55 +1237,65 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                                             required
                                             value={formCoupon.porcentaje_descuento || ''}
                                             onChange={e => setFormCoupon({ ...formCoupon, porcentaje_descuento: parseInt(e.target.value) })}
-                                            className="w-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl px-6 py-5 font-black text-foreground dark:text-white text-xl outline-none focus:border-accent transition-all tabular-nums font-mono"
+                                            className="w-full h-14 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl pl-14 pr-12 font-bold text-foreground dark:text-white text-sm outline-none focus:border-accent transition-all tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            placeholder="0"
                                         />
-                                        <Percent className="absolute right-6 top-1/2 -translate-y-1/2 text-accent/40" size={24} />
                                     </div>
                                 </div>
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-black uppercase text-muted tracking-[0.2em] ml-2 flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-accent" /> Uso Límite (Dejar vacío para ilimitado)
-                                    </label>
-                                    <div className="relative">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted/60 ml-1">Uso Límite</label>
+                                    <div className="relative group">
+                                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted/30 group-focus-within:text-accent transition-colors">
+                                            <Users size={18} />
+                                        </div>
                                         <input
                                             type="number"
                                             min="1"
                                             value={formCoupon.usos_maximos || ''}
                                             onChange={e => setFormCoupon({ ...formCoupon, usos_maximos: e.target.value })}
-                                            placeholder="Ej. 100"
-                                            className="w-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl px-6 py-5 font-black text-foreground dark:text-white text-xl outline-none focus:border-accent transition-all tabular-nums font-mono placeholder:text-muted/20"
+                                            placeholder="Vacío = Ilimitado"
+                                            className="w-full h-14 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl pl-14 pr-12 font-bold text-foreground dark:text-white text-sm outline-none focus:border-accent transition-all tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-muted/40"
                                         />
-                                        <Users className="absolute right-6 top-1/2 -translate-y-1/2 text-accent/40" size={20} />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted/60 ml-1">Segmento Objetivo</label>
+                                    <div className="relative group">
+                                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted/30 group-focus-within:text-accent transition-colors">
+                                            <Target size={18} />
+                                        </div>
+                                        <select
+                                            value={formCoupon.nivel_objetivo}
+                                            onChange={e => setFormCoupon({ ...formCoupon, nivel_objetivo: e.target.value })}
+                                            className="w-full h-14 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl pl-14 pr-6 font-bold text-foreground dark:text-white text-xs outline-none focus:border-accent transition-all uppercase tracking-widest appearance-none cursor-pointer"
+                                        >
+                                            <option value="todos">Todos (Excl. Free)</option>
+                                            <option value="pro">Solo Plan PRO</option>
+                                            <option value="premium">Solo Plan PREMIUM</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-muted/30 pointer-events-none" size={16} />
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-8">
-                                <div className="space-y-3">
-                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-muted/60 ml-1">Segmento Objetivo</label>
-                                    <select
-                                        value={formCoupon.nivel_objetivo}
-                                        onChange={e => setFormCoupon({ ...formCoupon, nivel_objetivo: e.target.value })}
-                                        className="w-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl px-6 py-5 font-black text-foreground dark:text-white text-sm outline-none focus:border-accent transition-all uppercase tracking-widest appearance-none cursor-pointer"
-                                    >
-                                        <option value="todos">Todos los Planes (Excluye Free)</option>
-                                        <option value="pro">Plan PRO</option>
-                                        <option value="premium">Plan PREMIUM</option>
-                                    </select>
-                                </div>
-                                <div className="space-y-3">
-                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-muted/60 ml-1">
-                                        Fecha de Expiración <span className="text-[8px] lowercase opacity-60 font-medium">(Si se deja vacío, no expirará)</span>
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="datetime-local"
-                                            value={formCoupon.fecha_expiracion}
-                                            onChange={e => setFormCoupon({ ...formCoupon, fecha_expiracion: e.target.value })}
-                                            className="w-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl px-6 py-5 font-bold text-foreground dark:text-white text-xs outline-none focus:border-accent transition-all"
-                                        />
-                                        <Calendar className="absolute right-6 top-1/2 -translate-y-1/2 text-muted/20" size={20} />
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted/60 ml-1">Fecha de Expiración</label>
+                                <div className="relative group">
+                                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted/30 group-focus-within:text-accent transition-colors pointer-events-none z-10">
+                                        <Calendar size={18} />
                                     </div>
+                                    <input
+                                        type="datetime-local"
+                                        value={formCoupon.fecha_expiracion}
+                                        onChange={e => setFormCoupon({ ...formCoupon, fecha_expiracion: e.target.value })}
+                                        className="w-full h-14 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl pl-14 pr-6 font-bold text-foreground dark:text-white text-xs outline-none focus:border-accent transition-all cursor-pointer relative z-0 [color-scheme:light] dark:[color-scheme:dark]"
+                                        placeholder="Vacío = No expira"
+                                    />
+                                    {!formCoupon.fecha_expiracion && (
+                                        <div className="absolute left-14 top-1/2 -translate-y-1/2 text-muted/40 text-xs font-bold pointer-events-none z-10">
+                                            Vacío = No expira
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -1290,11 +1308,10 @@ function CouponManager({ onBack }: { onBack: () => void }) {
 
                             <button
                                 type="submit"
-                                className="w-full h-20 bg-accent text-white rounded-[1.5rem] font-black text-[11px] uppercase tracking-[0.5em] hover:scale-[1.02] shadow-2xl shadow-accent/40 transition-all flex items-center justify-center gap-4 active:scale-95 group/btn"
+                                className="w-full h-16 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.4em] hover:scale-[1.01] shadow-xl shadow-accent/20 transition-all flex items-center justify-center gap-3 active:scale-95 group/btn mt-8"
                             >
-                                {editingId ? <Edit2 size={20} /> : <Save size={20} />}
+                                {editingId ? <Edit2 size={16} /> : <Save size={16} />}
                                 {editingId ? 'Guardar Cambios' : 'Desplegar Cupón'}
-                                <ChevronRight size={20} className="group-hover/btn:translate-x-2 transition-transform" />
                             </button>
                         </form>
                     </div>
