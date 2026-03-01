@@ -631,6 +631,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
             const formatDateSafe = (dateStr: any) => {
                 try {
                     if (!dateStr) return '';
+                    // Handle ISO strings or YYYY-MM-DD
                     const date = new Date(dateStr);
                     if (isNaN(date.getTime())) return '';
                     return date.toISOString().split('T')[0];
@@ -643,10 +644,12 @@ function UserManager({ onBack }: { onBack: () => void }) {
                 nivel_suscripcion: selectedUser.nivel_suscripcion || 'free',
                 fecha_inicio_suscripcion: formatDateSafe(selectedUser.fecha_inicio_suscripcion),
                 fecha_termino_suscripcion: formatDateSafe(selectedUser.fecha_termino_suscripcion),
-                esta_verificado: selectedUser.esta_verificado || false,
-                es_admin: selectedUser.es_admin || false,
-                es_soporte: selectedUser.es_soporte || false
+                esta_verificado: !!selectedUser.esta_verificado,
+                es_admin: !!selectedUser.es_admin,
+                es_soporte: !!selectedUser.es_soporte
             });
+        } else {
+            setEditForm(null);
         }
     }, [selectedUser]);
 
@@ -819,10 +822,14 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                     <img src={selectedUser.foto_perfil || `https://ui-avatars.com/api/?name=${selectedUser.nombre_usuario}`} alt="" className="w-full h-full object-cover" />
                                 </div>
                                 <div className="space-y-2">
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="text-3xl font-black uppercase tracking-tighter text-foreground dark:text-white leading-none">{selectedUser.nombre_artistico || 'Sin nombre'}</h3>
-                                        {selectedUser.esta_verificado && (
-                                            <BadgeCheck size={24} className="text-accent fill-accent animate-pulse" />
+                                    <div className="flex items-center gap-3">
+                                        <h3 className="text-3xl font-black uppercase tracking-tighter text-foreground dark:text-white leading-none">{selectedUser?.nombre_artistico || selectedUser?.nombre_usuario || 'Sin nombre'}</h3>
+                                        {selectedUser?.esta_verificado && (
+                                            <img
+                                                src="/verified-badge.png"
+                                                alt="Verificado"
+                                                className="w-6 h-6 object-contain drop-shadow-[0_0_8px_rgba(var(--accent-rgb),0.4)]"
+                                            />
                                         )}
                                     </div>
                                     <p className="text-[10px] text-muted font-black uppercase tracking-[0.3em]">@{selectedUser.nombre_usuario}</p>
@@ -1279,8 +1286,18 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted/60 ml-1">Fecha de Expiración</label>
-                                <div className="relative group">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted/60 ml-1">
+                                    Fecha de Expiración <span className="text-accent underline lowercase ml-2 font-black">(Vacío = No expira)</span>
+                                </label>
+                                <div
+                                    className="relative group cursor-pointer"
+                                    onClick={(e) => {
+                                        const input = (e.currentTarget as HTMLElement).querySelector('input');
+                                        if (input && 'showPicker' in input) {
+                                            try { input.showPicker(); } catch (e) { console.error(e); }
+                                        }
+                                    }}
+                                >
                                     <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted/30 group-focus-within:text-accent transition-colors pointer-events-none z-10">
                                         <Calendar size={18} />
                                     </div>
@@ -1289,13 +1306,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                                         value={formCoupon.fecha_expiracion}
                                         onChange={e => setFormCoupon({ ...formCoupon, fecha_expiracion: e.target.value })}
                                         className="w-full h-14 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl pl-14 pr-6 font-bold text-foreground dark:text-white text-xs outline-none focus:border-accent transition-all cursor-pointer relative z-0 [color-scheme:light] dark:[color-scheme:dark]"
-                                        placeholder="Vacío = No expira"
                                     />
-                                    {!formCoupon.fecha_expiracion && (
-                                        <div className="absolute left-14 top-1/2 -translate-y-1/2 text-muted/40 text-xs font-bold pointer-events-none z-10">
-                                            Vacío = No expira
-                                        </div>
-                                    )}
                                 </div>
                             </div>
 
@@ -1799,8 +1810,13 @@ function BeatsManager({ onBack }: { onBack: () => void }) {
                                         <p className="text-[9px] text-muted uppercase tracking-widest">{beat.genero} • {beat.bpm} BPM</p>
                                     </td>
                                     <td className="px-8 py-5 text-right">
-                                        <Link href={`/beat/${beat.id}`} target="_blank" className="p-2 bg-foreground/5 border border-border rounded-lg hover:bg-accent hover:text-white hover:border-accent transition-all inline-block">
+                                        <Link
+                                            href={`/beats/${beat.id}`}
+                                            target="_blank"
+                                            className="px-4 py-2 bg-accent/10 border border-accent/20 text-accent text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-accent hover:text-white transition-all flex items-center justify-center gap-2 w-fit ml-auto shadow-sm"
+                                        >
                                             <ExternalLink size={14} />
+                                            Detallado
                                         </Link>
                                     </td>
                                 </tr>
