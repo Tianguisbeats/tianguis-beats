@@ -32,11 +32,11 @@ export default function AdminDashboard() {
 
             const { data: profile } = await supabase
                 .from('perfiles')
-                .select('es_admin')
+                .select('es_admin, es_soporte')
                 .eq('id', user.id)
                 .single();
 
-            if (profile?.es_admin) {
+            if (profile?.es_admin || profile?.es_soporte) {
                 setIsAdmin(true);
             } else {
                 setLoading(false);
@@ -65,13 +65,13 @@ export default function AdminDashboard() {
                 <div className="animate-in fade-in slide-in-from-top-4 duration-700">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full mb-4">
                         <ShieldCheck size={12} className="text-accent" />
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Nivel de Acceso: Dios</span>
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Nivel de Acceso: Administrador</span>
                     </div>
                     <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tighter text-foreground mb-2">
-                        Control <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Maestro</span>
+                        Panel de <span className="text-accent underline decoration-slate-200 dark:decoration-white/10 underline-offset-8">Administrador</span>
                     </h1>
                     <p className="text-muted text-[11px] font-black uppercase tracking-[0.3em] opacity-60">
-                        Gestión de Infraestructura Tianguis Beats
+                        Gestión Administrativa Tianguis Beats
                     </p>
                 </div>
             </header>
@@ -627,46 +627,53 @@ function UserManager({ onBack }: { onBack: () => void }) {
         if (selectedUser) {
             setEditForm({
                 nivel_suscripcion: selectedUser.nivel_suscripcion || 'free',
-                esta_verificado: !!selectedUser.esta_verificado,
-                es_admin: !!selectedUser.es_admin,
-                fecha_inicio_suscripcion: selectedUser.fecha_inicio_suscripcion ? selectedUser.fecha_inicio_suscripcion.split('T')[0] : '',
-                fecha_termino_suscripcion: selectedUser.fecha_termino_suscripcion ? selectedUser.fecha_termino_suscripcion.split('T')[0] : ''
+                fecha_inicio_suscripcion: selectedUser.fecha_inicio_suscripcion ? new Date(selectedUser.fecha_inicio_suscripcion).toISOString().split('T')[0] : '',
+                fecha_termino_suscripcion: selectedUser.fecha_termino_suscripcion ? new Date(selectedUser.fecha_termino_suscripcion).toISOString().split('T')[0] : '',
+                esta_verificado: selectedUser.esta_verificado || false,
+                es_admin: selectedUser.es_admin || false,
+                es_soporte: selectedUser.es_soporte || false
             });
-        } else {
-            setEditForm(null);
         }
     }, [selectedUser]);
 
-    const hasChanges = editForm && selectedUser && (
+    const hasChanges = selectedUser && (
         editForm.nivel_suscripcion !== (selectedUser.nivel_suscripcion || 'free') ||
-        editForm.esta_verificado !== !!selectedUser.esta_verificado ||
-        editForm.es_admin !== !!selectedUser.es_admin ||
-        editForm.fecha_inicio_suscripcion !== (selectedUser.fecha_inicio_suscripcion ? selectedUser.fecha_inicio_suscripcion.split('T')[0] : '') ||
-        editForm.fecha_termino_suscripcion !== (selectedUser.fecha_termino_suscripcion ? selectedUser.fecha_termino_suscripcion.split('T')[0] : '')
+        editForm.fecha_inicio_suscripcion !== (selectedUser.fecha_inicio_suscripcion ? new Date(selectedUser.fecha_inicio_suscripcion).toISOString().split('T')[0] : '') ||
+        editForm.fecha_termino_suscripcion !== (selectedUser.fecha_termino_suscripcion ? new Date(selectedUser.fecha_termino_suscripcion).toISOString().split('T')[0] : '') ||
+        editForm.esta_verificado !== (selectedUser.esta_verificado || false) ||
+        editForm.es_admin !== (selectedUser.es_admin || false) ||
+        editForm.es_soporte !== (selectedUser.es_soporte || false)
     );
 
     const handleSave = async () => {
-        if (!hasChanges) {
-            setSelectedUser(null);
-            return;
-        }
-
+        if (!selectedUser) return;
         setSaving(true);
         try {
-            const payload = {
-                nivel_suscripcion: editForm.nivel_suscripcion,
-                esta_verificado: editForm.esta_verificado,
-                es_admin: editForm.es_admin,
-                fecha_inicio_suscripcion: editForm.fecha_inicio_suscripcion ? new Date(editForm.fecha_inicio_suscripcion).toISOString() : null,
-                fecha_termino_suscripcion: editForm.fecha_termino_suscripcion ? new Date(editForm.fecha_termino_suscripcion).toISOString() : null
-            };
-
-            const { error } = await supabase.from('perfiles').update(payload).eq('id', selectedUser.id);
+            const { error } = await supabase
+                .from('perfiles')
+                .update({
+                    nivel_suscripcion: editForm.nivel_suscripcion,
+                    fecha_inicio_suscripcion: editForm.fecha_inicio_suscripcion ? new Date(editForm.fecha_inicio_suscripcion).toISOString() : null,
+                    fecha_termino_suscripcion: editForm.fecha_termino_suscripcion ? new Date(editForm.fecha_termino_suscripcion).toISOString() : null,
+                    esta_verificado: editForm.esta_verificado,
+                    es_admin: editForm.es_admin,
+                    es_soporte: editForm.es_soporte
+                })
+                .eq('id', selectedUser.id);
 
             if (error) throw error;
 
             // Update local lists
-            const updatedUser = { ...selectedUser, ...payload };
+            const updatedUser = {
+                ...selectedUser,
+                nivel_suscripcion: editForm.nivel_suscripcion,
+                fecha_inicio_suscripcion: editForm.fecha_inicio_suscripcion ? new Date(editForm.fecha_inicio_suscripcion).toISOString() : null,
+                fecha_termino_suscripcion: editForm.fecha_termino_suscripcion ? new Date(editForm.fecha_termino_suscripcion).toISOString() : null,
+                esta_verificado: editForm.esta_verificado,
+                es_admin: editForm.es_admin,
+                es_soporte: editForm.es_soporte
+            };
+
             setUsers(users.map(u => u.id === selectedUser.id ? updatedUser : u));
             setSelectedUser(null);
             showToast("Cambios guardados correctamente", "success");
@@ -804,6 +811,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
                             <div className="space-y-6">
                                 <DetailItem label="Correo Electrónico" value={selectedUser.correo || selectedUser.email || 'No registrado'} />
                                 <DetailItem label="Nombre Completo" value={selectedUser.nombre_completo || 'No especificado'} />
+                                <DetailItem label="Fecha de Registro" value={selectedUser.fecha_creacion ? new Date(selectedUser.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }) : 'No disponible'} />
 
                                 <div className="p-5 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-3xl space-y-3">
                                     <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted">Inicio Suscripción</p>
@@ -823,13 +831,19 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                         <select
                                             value={editForm.nivel_suscripcion}
                                             onChange={(e) => setEditForm({ ...editForm, nivel_suscripcion: e.target.value })}
-                                            className="w-full bg-transparent font-black text-xs uppercase tracking-widest text-accent outline-none cursor-pointer appearance-none pr-8"
+                                            className={`w-full bg-transparent font-black text-xs uppercase tracking-widest outline-none cursor-pointer appearance-none pr-8 transition-colors ${editForm.nivel_suscripcion === 'premium' ? 'text-blue-500' :
+                                                editForm.nivel_suscripcion === 'pro' ? 'text-amber-500' :
+                                                    'text-zinc-500 dark:text-zinc-400'
+                                                }`}
                                         >
-                                            <option value="free">Gratis (Free)</option>
-                                            <option value="pro">Plan Pro</option>
-                                            <option value="premium">Plan Premium</option>
+                                            <option value="free" className="text-zinc-800">Gratis (Free)</option>
+                                            <option value="pro" className="text-amber-600">Plan Pro</option>
+                                            <option value="premium" className="text-blue-600">Plan Premium</option>
                                         </select>
-                                        <ChevronRight size={14} className="absolute right-0 top-1/2 -translate-y-1/2 text-accent group-hover/select:translate-x-1 transition-transform pointer-events-none" />
+                                        <ChevronRight size={14} className={`absolute right-0 top-1/2 -translate-y-1/2 group-hover/select:translate-x-1 transition-all pointer-events-none ${editForm.nivel_suscripcion === 'premium' ? 'text-blue-500' :
+                                            editForm.nivel_suscripcion === 'pro' ? 'text-amber-500' :
+                                                'text-zinc-400'
+                                            }`} />
                                     </div>
                                 </div>
 
@@ -882,22 +896,42 @@ function UserManager({ onBack }: { onBack: () => void }) {
                             </div>
                         </div>
 
-                        <div className="relative z-10 p-6 bg-accent/5 border border-accent/20 rounded-3xl mb-8 flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${editForm.es_admin ? 'bg-amber-500 text-white' : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
-                                    <ShieldAlert size={20} />
+                        <div className="relative z-10 grid grid-cols-2 gap-4 mb-8">
+                            <div className="p-5 bg-accent/5 border border-accent/20 rounded-3xl flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${editForm.es_admin ? 'bg-amber-500 text-white' : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
+                                        <ShieldAlert size={20} />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-foreground dark:text-white">Admin</p>
+                                        <p className="text-[8px] text-muted font-bold uppercase tracking-widest">{editForm.es_admin ? 'Total' : 'No'}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-foreground dark:text-white">Permisos de Administrador</p>
-                                    <p className="text-[8px] text-muted font-bold uppercase tracking-widest">{editForm.es_admin ? 'Acceso Total al Panel' : 'Usuario Estándar'}</p>
-                                </div>
+                                <button
+                                    onClick={() => setEditForm({ ...editForm, es_admin: !editForm.es_admin })}
+                                    className={`px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all border ${editForm.es_admin ? 'bg-amber-500 text-white border-amber-600' : 'dark:bg-white/5 border-border'}`}
+                                >
+                                    {editForm.es_admin ? 'Quitar' : 'Hacer'}
+                                </button>
                             </div>
-                            <button
-                                onClick={() => setEditForm({ ...editForm, es_admin: !editForm.es_admin })}
-                                className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${editForm.es_admin ? 'bg-amber-500 text-white border-amber-600' : 'dark:bg-white/5 border-border hover:border-accent'}`}
-                            >
-                                {editForm.es_admin ? 'Quitar' : 'Hacer Admin'}
-                            </button>
+
+                            <div className="p-5 bg-blue-500/5 border border-blue-500/20 rounded-3xl flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${editForm.es_soporte ? 'bg-blue-500 text-white' : 'bg-slate-200 dark:bg-white/10 text-muted'}`}>
+                                        <Users size={20} />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-foreground dark:text-white">Soporte</p>
+                                        <p className="text-[8px] text-muted font-bold uppercase tracking-widest">{editForm.es_soporte ? 'Activo' : 'No'}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setEditForm({ ...editForm, es_soporte: !editForm.es_soporte })}
+                                    className={`px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all border ${editForm.es_soporte ? 'bg-blue-500 text-white border-blue-600' : 'dark:bg-white/5 border-border'}`}
+                                >
+                                    {editForm.es_soporte ? 'Quitar' : 'Hacer'}
+                                </button>
+                            </div>
                         </div>
 
                         <footer className="relative z-10 flex gap-4 pt-8 border-t border-border dark:border-white/10">
