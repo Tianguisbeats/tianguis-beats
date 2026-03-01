@@ -377,155 +377,212 @@ export default function CouponsPage() {
                 </div>
             )}
 
-            {/* Editing Modal Elite: Architecture Style */}
+            {/* Editing Modal Elite: Market Engine Style */}
             {isEditing && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/90 backdrop-blur-2xl animate-in fade-in transition-all">
-                    <div className="bg-white dark:bg-[#0c0c0e] rounded-[3.5rem] p-12 max-w-4xl w-full shadow-2xl dark:shadow-[0_0_100px_rgba(var(--accent-rgb),0.2)] overflow-hidden border border-slate-200 dark:border-white/5 relative flex flex-col md:flex-row gap-10 max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300">
+                    <div className="absolute inset-0 bg-black/40" onClick={() => { setIsEditing(false); setCurrentCoupon(null); setOriginalCoupon(null); setCouponUses([]); }} />
 
+                    <div className="relative bg-white dark:bg-[#08080a] border border-border dark:border-white/10 w-full max-w-4xl rounded-[3.5rem] p-8 md:p-12 shadow-[0_0_100px_rgba(var(--accent-rgb),0.2)] overflow-hidden animate-in zoom-in-95 duration-500 max-h-[90vh] flex flex-col md:flex-row gap-10">
+                        {/* Environmental Glow */}
+                        <div className="absolute -top-20 -right-20 w-64 h-64 bg-accent/20 blur-[100px] rounded-full pointer-events-none" />
+
+                        {/* Close button - Red style as requested */}
                         <button
                             onClick={() => { setIsEditing(false); setCurrentCoupon(null); setOriginalCoupon(null); setCouponUses([]); }}
-                            className="absolute top-8 right-8 w-12 h-12 rounded-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-rose-50 dark:hover:bg-rose-500 text-slate-500 hover:text-rose-500 dark:text-foreground dark:hover:text-white transition-all z-20"
+                            className="absolute top-8 right-8 w-12 h-12 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-full flex items-center justify-center text-foreground dark:text-white hover:bg-rose-500 hover:border-rose-500 hover:text-white transition-all active:scale-90 z-20"
                         >
                             <X size={20} />
                         </button>
 
                         {/* Left Side: Form */}
-                        <div className="flex-1 space-y-8 relative z-10">
-                            <div className="mb-6">
+                        <div className="flex-1 space-y-8 relative z-10 overflow-y-auto pr-4 custom-scrollbar">
+                            <header className="mb-8">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full mb-4">
                                     <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Configuración Estratégica</span>
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Market Engine</span>
                                 </div>
-                                <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground leading-[0.9]">
-                                    {currentCoupon?.id ? 'Refinar' : 'Datos'} <br />
-                                    <span className="text-accent underline decoration-slate-200 dark:decoration-accent/20 underline-offset-8">del Cupón.</span>
+                                <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground dark:text-white leading-none">
+                                    {currentCoupon?.id ? 'Editar' : 'Crear'} <br />
+                                    <span className="text-accent underline decoration-accent/10 underline-offset-8">Cupón.</span>
                                 </h2>
-                            </div>
+                            </header>
 
                             <form onSubmit={handleSave} className="space-y-6">
-                                <div className="grid grid-cols-2 gap-4 bg-slate-50/50 dark:bg-white/[0.02] p-4 rounded-2xl border border-slate-200/50 dark:border-white/5 shadow-inner">
+                                <div className="grid md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Código</label>
-                                        <input
-                                            required
-                                            value={currentCoupon?.codigo || ''}
-                                            onChange={e => setCurrentCoupon({ ...currentCoupon, codigo: e.target.value.toUpperCase() })}
-                                            placeholder="FUEGO20"
-                                            className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all uppercase tracking-widest font-mono shadow-sm"
-                                        />
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted/60 ml-1">Código Promocional</label>
+                                        <div className="relative group">
+                                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted/30 group-focus-within:text-accent transition-colors">
+                                                <Ticket size={18} />
+                                            </div>
+                                            <input
+                                                required
+                                                value={currentCoupon?.codigo || ''}
+                                                onChange={e => setCurrentCoupon({ ...currentCoupon, codigo: e.target.value.toUpperCase() })}
+                                                placeholder="EJ. VERANO50"
+                                                className="w-full h-14 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl pl-14 pr-6 font-bold text-foreground dark:text-white text-sm outline-none focus:border-accent transition-all uppercase tracking-[0.2em] placeholder:text-muted/20"
+                                            />
+                                        </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Descuento (%)</label>
-                                        <div className="relative">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted/60 ml-1">Descuento (%)</label>
+                                        <div className="relative group">
+                                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted/30 group-focus-within:text-accent transition-colors">
+                                                <Percent size={18} />
+                                            </div>
                                             <input
                                                 type="number"
-                                                required
                                                 min="1"
                                                 max="100"
+                                                required
                                                 value={currentCoupon?.porcentaje_descuento || ''}
-                                                onChange={e => setCurrentCoupon({ ...currentCoupon, porcentaje_descuento: Number(e.target.value) })}
-                                                className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 font-black text-slate-900 dark:text-foreground text-sm outline-none focus:border-accent transition-all font-mono"
+                                                onChange={e => setCurrentCoupon({ ...currentCoupon, porcentaje_descuento: parseInt(e.target.value) })}
+                                                className="w-full h-14 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl pl-14 pr-12 font-bold text-foreground dark:text-white text-sm outline-none focus:border-accent transition-all tabular-nums"
+                                                placeholder="0"
                                             />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted/60 ml-1">Uso Límite</label>
+                                        <div className="relative group">
+                                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted/30 group-focus-within:text-accent transition-colors">
+                                                <Users size={18} />
+                                            </div>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={currentCoupon?.usos_maximos || ''}
+                                                onChange={e => setCurrentCoupon({ ...currentCoupon, usos_maximos: e.target.value ? Number(e.target.value) : null })}
+                                                placeholder="Vacío = Ilimitado"
+                                                className="w-full h-14 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl pl-14 pr-12 font-bold text-foreground dark:text-white text-sm outline-none focus:border-accent transition-all tabular-nums placeholder:text-muted/40"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted/60 ml-1">Segmento Objetivo</label>
+                                        <div className="relative group">
+                                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted/30 group-focus-within:text-accent transition-colors">
+                                                <Target size={18} />
+                                            </div>
+                                            <select
+                                                value={currentCoupon?.nivel_objetivo || 'todos'}
+                                                onChange={e => setCurrentCoupon({ ...currentCoupon, nivel_objetivo: e.target.value as any })}
+                                                className="w-full h-14 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl pl-14 pr-6 font-bold text-foreground dark:text-white text-[10px] outline-none focus:border-accent transition-all uppercase tracking-widest appearance-none cursor-pointer"
+                                            >
+                                                <option value="todos">Para Todos</option>
+                                                <option value="gratis">Solo Usuarios FREE</option>
+                                                <option value="pro">Solo Usuarios PRO</option>
+                                                <option value="premium">Solo Usuarios PREMIUM</option>
+                                            </select>
+                                            <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-muted/30 pointer-events-none" size={16} />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2 col-span-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted/60 ml-1 text-center block">Tipo de Producto</label>
+                                        <div className="grid grid-cols-4 gap-2">
+                                            {[
+                                                { id: 'todos', label: 'Todos' },
+                                                { id: 'beats', label: 'Beats' },
+                                                { id: 'sound_kits', label: 'Kits' },
+                                                { id: 'servicios', label: 'Serv.' }
+                                            ].map((type) => (
+                                                <button
+                                                    key={type.id}
+                                                    type="button"
+                                                    onClick={() => setCurrentCoupon({ ...currentCoupon, aplica_a: type.id as any })}
+                                                    className={`px-2 py-3 rounded-xl text-[8px] font-black uppercase tracking-widest border transition-all ${currentCoupon?.aplica_a === type.id
+                                                        ? 'border-accent bg-accent text-white shadow-lg shadow-accent/20'
+                                                        : 'border-border dark:border-white/5 bg-foreground/5 dark:bg-white/5 text-muted hover:border-accent/30'}`}
+                                                >
+                                                    {type.label}
+                                                </button>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-4">
-                                    <label className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1 text-center block">Tipo de Producto</label>
-                                    <div className="grid grid-cols-4 gap-2">
-                                        {[
-                                            { id: 'todos', label: 'Todos' },
-                                            { id: 'beats', label: 'Beats' },
-                                            { id: 'sound_kits', label: 'Kits' },
-                                            { id: 'servicios', label: 'Serv.' }
-                                        ].map((type) => (
-                                            <button
-                                                key={type.id}
-                                                type="button"
-                                                onClick={() => setCurrentCoupon({ ...currentCoupon, aplica_a: type.id as any })}
-                                                className={`px-2 py-3 rounded-xl text-[8px] font-black uppercase tracking-widest border transition-all ${currentCoupon?.aplica_a === type.id
-                                                    ? 'border-accent bg-accent text-white shadow-lg shadow-accent/20'
-                                                    : 'border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-muted/60 hover:border-accent/30'}`}
-                                            >
-                                                {type.label}
-                                            </button>
-                                        ))}
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted/60 ml-1">
+                                        Fecha de Expiración <span className="text-muted/40 lowercase ml-2 font-bold">(vacío no expira)</span>
+                                    </label>
+                                    <div
+                                        className="relative group cursor-pointer"
+                                        onClick={(e) => {
+                                            const input = (e.currentTarget as HTMLElement).querySelector('input');
+                                            if (input && 'showPicker' in input) {
+                                                try { input.showPicker(); } catch (e) { console.error(e); }
+                                            }
+                                        }}
+                                    >
+                                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted/30 group-focus-within:text-accent transition-colors pointer-events-none z-10">
+                                            <Calendar size={18} />
+                                        </div>
+                                        <input
+                                            type="datetime-local"
+                                            value={currentCoupon?.fecha_expiracion ? currentCoupon.fecha_expiracion.slice(0, 16) : ''}
+                                            onChange={e => setCurrentCoupon({ ...currentCoupon, fecha_expiracion: e.target.value })}
+                                            className="w-full h-14 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl pl-14 pr-6 font-bold text-foreground dark:text-white text-[10px] outline-none focus:border-accent transition-all cursor-pointer relative z-0 [color-scheme:light] dark:[color-scheme:dark]"
+                                        />
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Uso Límite</label>
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            placeholder="Ilimitado (∞)"
-                                            value={currentCoupon?.usos_maximos || ''}
-                                            onChange={e => setCurrentCoupon({ ...currentCoupon, usos_maximos: e.target.value ? Number(e.target.value) : null })}
-                                            className="w-full bg-slate-50/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 font-black text-slate-900 dark:text-foreground text-[10px] outline-none focus:border-accent transition-all font-mono shadow-sm"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-muted/60 ml-1">Expiración</label>
-                                        <input
-                                            type="date"
-                                            value={currentCoupon?.fecha_expiracion?.split('T')[0] || ''}
-                                            onChange={e => setCurrentCoupon({ ...currentCoupon, fecha_expiracion: e.target.value })}
-                                            className="w-full bg-slate-50/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 font-black text-slate-900 dark:text-foreground text-[10px] outline-none focus:border-accent transition-all font-mono shadow-sm"
-                                        />
-                                    </div>
+                                <div className="flex items-center gap-3 p-6 bg-accent/5 border border-accent/20 rounded-2xl">
+                                    <ShieldCheck size={20} className="text-accent" />
+                                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-accent/80 leading-relaxed">
+                                        Asegúrate de que tus términos de promoción sean claros para tus clientes antes de activar este código.
+                                    </p>
                                 </div>
 
                                 <button
                                     type="submit"
                                     disabled={saving}
-                                    className="w-full bg-accent text-white py-5 rounded-xl font-black uppercase tracking-[0.4em] text-[10px] hover:scale-[1.01] transition-all shadow-xl shadow-accent/40 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 mt-4"
+                                    className="w-full h-16 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.4em] hover:scale-[1.01] shadow-xl shadow-accent/20 transition-all flex items-center justify-center gap-3 active:scale-95 group/btn mt-8"
                                 >
-                                    {saving ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
-                                    {saving ? 'PROCESANDO...' : 'GUARDAR ESTRATEGIA'}
+                                    {saving ? <Loader2 size={16} className="animate-spin" /> : (currentCoupon?.id ? <CheckCircle2 size={16} /> : <Plus size={16} />)}
+                                    {saving ? 'PROCESANDO...' : (currentCoupon?.id ? 'Guardar Cambios' : 'Desplegar Cupón')}
                                 </button>
                             </form>
                         </div>
 
                         {/* Right Side: Usage History */}
                         {currentCoupon?.id && (
-                            <div className="flex-1 bg-slate-50 dark:bg-[#08080a] border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 flex flex-col">
+                            <div className="flex-1 bg-slate-50 dark:bg-[#08080a] border border-border dark:border-white/10 rounded-[2.5rem] p-8 flex flex-col overflow-hidden">
                                 <div className="flex items-center justify-between mb-8">
                                     <div className="flex items-center gap-3">
                                         <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-500 border border-emerald-500/20">
                                             <BarChart3 size={20} />
                                         </div>
-                                        <h3 className="text-xl font-black uppercase tracking-tighter text-slate-900 dark:text-foreground">Historial de Uso</h3>
+                                        <h3 className="text-xl font-black uppercase tracking-tighter text-foreground dark:text-white">Uso del Cupón</h3>
                                     </div>
                                     <div className="px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20">
                                         <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">{currentCoupon.usos_actuales} TOTAL</p>
                                     </div>
                                 </div>
 
-                                <div className="flex-1 overflow-y-auto space-y-4 max-h-[350px] pr-2 custom-scrollbar">
+                                <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
                                     {loadingUses ? (
                                         <div className="flex justify-center py-10"><Loader2 className="animate-spin text-emerald-500" /></div>
                                     ) : couponUses.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
                                             <Clock size={32} className="text-muted/20" />
-                                            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted max-w-[180px]">Este cupón aún no ha sido utilizado por ningún usuario.</p>
+                                            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted max-w-[180px]">Este cupón aún no ha sido utilizado.</p>
                                         </div>
                                     ) : (
                                         couponUses.map((use, idx) => (
-                                            <div key={idx} className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex items-center gap-4 group hover:border-emerald-500/30 transition-all">
+                                            <div key={idx} className="bg-white dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl p-4 flex items-center gap-4 group hover:border-emerald-500/30 transition-all">
                                                 <div className="w-10 h-10 rounded-xl bg-slate-900 overflow-hidden relative border border-white/10">
                                                     {use.perfiles?.foto_perfil ? (
-                                                        <img src={use.perfiles.foto_perfil} className="w-full h-full object-cover" />
+                                                        <img src={use.perfiles.foto_perfil} className="w-full h-full object-cover" alt="User" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-xs font-black text-white">{use.perfiles?.nombre_artistico?.[0] || '?'}</div>
                                                     )}
                                                 </div>
                                                 <div className="flex-1 overflow-hidden">
-                                                    <p className="text-[10px] font-black text-slate-900 dark:text-white truncate uppercase tracking-tight">{use.perfiles?.nombre_artistico || 'Usuario Desconocido'}</p>
+                                                    <p className="text-[10px] font-black text-foreground dark:text-white truncate uppercase tracking-tight">{use.perfiles?.nombre_artistico || 'Usuario Desconocido'}</p>
                                                     <p className="text-[8px] font-bold text-muted uppercase tracking-widest opacity-60">@{use.perfiles?.nombre_usuario || '...'}</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-[9px] font-black tabular-nums text-slate-900 dark:text-foreground">
+                                                    <p className="text-[9px] font-black tabular-nums text-foreground dark:text-white">
                                                         {new Date(use.fecha_uso).toLocaleDateString()}
                                                     </p>
                                                     <p className="text-[7px] font-bold text-muted uppercase tracking-[0.2em]">{new Date(use.fecha_uso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
@@ -535,11 +592,11 @@ export default function CouponsPage() {
                                     )}
                                 </div>
 
-                                <div className="mt-8 pt-6 border-t border-slate-200 dark:border-white/10">
+                                <div className="mt-8 pt-6 border-t border-border">
                                     <div className="flex items-center gap-3 p-4 bg-orange-500/5 border border-orange-500/10 rounded-2xl">
                                         <Mail size={16} className="text-orange-500/60" />
                                         <p className="text-[8px] font-bold uppercase tracking-widest text-orange-500/80 leading-relaxed">
-                                            Usa esta data para fidelizar a tus compradores más recurrentes.
+                                            Data estratégica para tus campañas.
                                         </p>
                                     </div>
                                 </div>

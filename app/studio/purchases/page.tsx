@@ -32,7 +32,8 @@ import {
     Pause,
     ShieldCheck as Shield,
     Fingerprint,
-    QrCode
+    QrCode,
+    Calendar
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
@@ -50,6 +51,7 @@ type OrderItem = {
     name: string;
     price: number;
     license_type?: string;
+    status?: string;
     metadata?: any;
     project_id?: string; // If it's a service
 };
@@ -603,34 +605,53 @@ export default function MyPurchasesPage() {
                             </div>
                             <button
                                 onClick={() => setSelectedOrder(null)}
-                                className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10 transition-all z-20 relative"
+                                className="w-12 h-12 rounded-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 flex items-center justify-center text-foreground dark:text-white hover:bg-rose-500 hover:border-rose-500 hover:text-white transition-all z-20"
                             >
-                                <X size={24} />
+                                <X size={20} />
                             </button>
                         </div>
 
                         {/* Modal Content */}
-                        <div className="p-8 max-h-[70vh] overflow-y-auto space-y-8 scrollbar-hide text-slate-900 dark:text-white">
+                        <div className="p-8 max-h-[70vh] overflow-y-auto space-y-8 scrollbar-hide text-slate-900 dark:text-white relative z-10">
                             {/* General Info Grid */}
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
                                 <div className="p-5 bg-blue-50 dark:bg-blue-600/5 border border-blue-100 dark:border-blue-500/20 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center">
-                                    <p className="text-[9px] font-black text-blue-600 dark:text-blue-300 uppercase tracking-[0.2em] mb-2">Método de Pago</p>
-                                    <p className="text-[11px] font-black text-blue-900 dark:text-white uppercase tracking-tight">{selectedOrder.payment_method || 'Tarjeta / Stripe'}</p>
+                                    <p className="text-[9px] font-black text-blue-600 dark:text-blue-300 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                                        <CreditCard size={10} /> Pago
+                                    </p>
+                                    <p className="text-[11px] font-black text-blue-900 dark:text-white uppercase tracking-tight">{selectedOrder.payment_method || 'Stripe'}</p>
                                 </div>
                                 <div className="p-5 bg-amber-50 dark:bg-amber-600/5 border border-amber-100 dark:border-amber-500/20 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center">
-                                    <p className="text-[9px] font-black text-amber-600 dark:text-amber-300 uppercase tracking-[0.2em] mb-2">Fecha de Compra</p>
+                                    <p className="text-[9px] font-black text-amber-600 dark:text-amber-300 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                                        <Calendar size={10} /> Fecha
+                                    </p>
                                     <p className="text-[11px] font-black text-amber-900 dark:text-white uppercase tracking-tight">{new Date(selectedOrder.created_at).toLocaleDateString()}</p>
                                 </div>
-                                <div className="p-5 bg-emerald-50 dark:bg-emerald-600/5 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center">
-                                    <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-300 uppercase tracking-[0.2em] mb-2">Estatus</p>
-                                    <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                        <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Inmortalizado</span>
-                                    </div>
+                                <div className="p-5 bg-slate-50 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center">
+                                    <p className="text-[9px] font-black text-slate-500 dark:text-muted uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                                        <Filter size={10} /> Estatus
+                                    </p>
+                                    {(() => {
+                                        const rawStatus = selectedOrder.items?.[0]?.status || 'completado';
+                                        const status = String(rawStatus).toLowerCase();
+
+                                        let config = { bg: 'bg-emerald-500/10', text: 'text-emerald-500', name: 'Completado' };
+
+                                        if (status === 'cancelado') config = { bg: 'bg-rose-500/10', text: 'text-rose-500', name: 'Cancelado' };
+                                        else if (status === 'en-proceso' || status === 'processing') config = { bg: 'bg-amber-500/10', text: 'text-amber-500', name: 'En Proceso' };
+                                        else if (status === 'incompleto' || status === 'valido') config = { bg: 'bg-emerald-500/10', text: 'text-emerald-500', name: 'Válido' };
+
+                                        return (
+                                            <div className={`px-2 py-0.5 ${config.bg} rounded-full flex items-center gap-1.5`}>
+                                                <div className={`w-1 h-1 rounded-full ${config.text.replace('text-', 'bg-')} animate-pulse`} />
+                                                <span className={`text-[8px] font-black ${config.text} uppercase tracking-widest`}>{config.name}</span>
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                                 <div className="p-5 bg-indigo-50 dark:bg-indigo-600/10 border border-indigo-100 dark:border-indigo-500/30 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center">
-                                    <p className="text-[9px] font-black text-indigo-600 dark:text-indigo-300 uppercase tracking-[0.2em] mb-2">Total Invertido</p>
-                                    <p className="text-xl font-black text-indigo-900 dark:text-white tracking-tighter">${selectedOrder.total_amount.toFixed(2)} <span className="text-[10px] text-indigo-500 dark:text-indigo-300 uppercase">{selectedOrder.currency}</span></p>
+                                    <p className="text-[9px] font-black text-indigo-600 dark:text-indigo-300 uppercase tracking-[0.2em] mb-2">Total de la compra</p>
+                                    <p className="text-xl font-black text-indigo-900 dark:text-white tracking-tighter">${selectedOrder.total_amount.toFixed(2)}</p>
                                 </div>
                             </div>
 
@@ -685,9 +706,9 @@ export default function MyPurchasesPage() {
                             </div>
 
                             {/* Certification of Ownership */}
-                            <div className="relative p-8 rounded-[2.5rem] bg-zinc-900 dark:bg-black border-4 border-zinc-800 overflow-hidden group">
+                            <div className="relative p-8 rounded-[2.5rem] bg-[#0c0c0e] dark:bg-black border border-white/5 overflow-hidden group">
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                    <Shield size={120} />
+                                    <Shield size={120} className="text-accent" />
                                 </div>
                                 <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
                                     <div className="flex-1 w-full text-center md:text-left">
@@ -696,44 +717,32 @@ export default function MyPurchasesPage() {
                                             <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Certificación de Propiedad Digital</span>
                                         </div>
                                         <h4 className="text-xl font-black text-white uppercase tracking-tight mb-2">Sello Notarial Tianguis</h4>
-                                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-6 leading-relaxed">
-                                            Esta transacción ha sido firmada criptográficamente y es válida como prueba de propiedad ante entidades legales.
+                                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-6 leading-relaxed">
+                                            Transacción autenticada bajo estándares internacionales de propiedad intelectual digital.
                                         </p>
                                         <div className="space-y-3">
                                             <div className="space-y-1">
-                                                <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">SHA256 Transaction Hash</p>
-                                                <p className="text-[10px] font-mono text-accent break-all bg-accent/5 p-2 rounded-lg border border-accent/20">
+                                                <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">HASH DE LA ORDEN</p>
+                                                <p className="text-[9px] font-mono text-accent break-all bg-accent/5 p-2 rounded-lg border border-accent/20">
                                                     {selectedOrder.id.repeat(4).slice(0, 64)}
-                                                </p>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Stripe Payment ID</p>
-                                                <p className="text-[10px] font-mono text-zinc-300">
-                                                    {selectedOrder.stripe_id || 'INTERNAL_TRANSAC_ID'}
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="shrink-0">
-                                        <ValidationQR orderId={selectedOrder.id} size={110} />
+                                    <div className="shrink-0 bg-white p-2 rounded-2xl shadow-xl">
+                                        <ValidationQR orderId={selectedOrder.id} size={90} />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="p-10 bg-slate-50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 flex flex-col sm:flex-row items-center justify-center gap-6">
+                        <div className="p-10 bg-slate-50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 flex items-center justify-center relative z-10">
                             <button
                                 onClick={() => handleDownloadReceipt(selectedOrder)}
-                                className="w-full sm:w-auto px-10 py-5 bg-white dark:bg-white/10 border border-slate-200 dark:border-white/20 text-foreground rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] hover:bg-accent hover:text-white hover:border-accent hover:scale-[1.05] active:scale-95 transition-all flex items-center justify-center gap-3 shadow-xl shadow-black/5 dark:shadow-white/5"
+                                className="w-full sm:w-auto px-12 py-5 bg-accent text-white rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] hover:scale-[1.05] shadow-2xl shadow-accent/20 active:scale-95 transition-all flex items-center justify-center gap-3"
                             >
-                                <FileText size={20} className="text-accent group-hover:text-white" /> Descargar Factura
-                            </button>
-                            <button
-                                onClick={() => setSelectedOrder(null)}
-                                className="w-full sm:w-auto px-14 py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-black/20 dark:shadow-white/20 hover:scale-[1.05] active:scale-95 transition-all"
-                            >
-                                Cerrar Ventana
+                                <FileText size={20} /> Descargar Factura
                             </button>
                         </div>
                     </div>
