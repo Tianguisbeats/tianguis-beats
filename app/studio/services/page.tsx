@@ -27,6 +27,7 @@ type SoundKit = {
     descripcion: string;
     precio: number;
     url_archivo: string;
+    archivo_muestra_url?: string;
     url_portada?: string;
     es_publico: boolean;
     fecha_creacion: string;
@@ -61,6 +62,7 @@ function ServicesManagerPage() {
     const [kitErrors, setKitErrors] = useState<Record<string, string>>({});
     const [kitSaving, setKitSaving] = useState(false);
     const [kitFile, setKitFile] = useState<File | null>(null);
+    const [kitSampleFile, setKitSampleFile] = useState<File | null>(null);
     const [kitCoverFile, setKitCoverFile] = useState<File | null>(null);
 
     const [username, setUsername] = useState<string>('');
@@ -262,6 +264,23 @@ function ServicesManagerPage() {
                 coverUrl = publicUrl;
             }
 
+            // Handle Sample Audio Upload
+            let sampleUrl = currentKit.archivo_muestra_url || null;
+            if (kitSampleFile) {
+                const sampleName = `${username}/${Date.now()}-sample.mp3`;
+                const { data: sampleData, error: sampleError } = await supabase.storage
+                    .from('muestras_soundkits')
+                    .upload(sampleName, kitSampleFile);
+
+                if (sampleError) throw sampleError;
+
+                const { data: { publicUrl: sUrl } } = supabase.storage
+                    .from('muestras_soundkits')
+                    .getPublicUrl(sampleName);
+
+                sampleUrl = sUrl;
+            }
+
             if (!fileUrl) {
                 alert("Por favor sube un archivo para el Sound Kit");
                 setKitSaving(false);
@@ -274,6 +293,7 @@ function ServicesManagerPage() {
                 descripcion: currentKit.descripcion,
                 precio: currentKit.precio || 0,
                 url_archivo: fileUrl,
+                archivo_muestra_url: sampleUrl,
                 url_portada: coverUrl,
                 es_publico: true
             };
@@ -293,6 +313,7 @@ function ServicesManagerPage() {
             setInitialKit(null);
             setKitErrors({});
             setKitFile(null);
+            setKitSampleFile(null);
             setKitCoverFile(null);
             fetchData();
         } catch (err) {
@@ -521,9 +542,16 @@ function ServicesManagerPage() {
                                         <span className="text-[9px] font-black text-accent uppercase tracking-[0.3em] mb-1">Precio</span>
                                         <span className="font-black text-xl text-slate-900 dark:text-foreground tracking-tighter group-hover:text-accent transition-colors">${kit.precio}</span>
                                     </div>
-                                    <div className="w-full bg-orange-500/10 border border-orange-500/20 rounded-xl p-3 flex items-center justify-center gap-2">
-                                        <Layers size={14} className="text-orange-400" />
-                                        <span className="text-[9px] font-black text-orange-400 uppercase tracking-widest">Incluye Licencia Sound Kit</span>
+                                    <div className="w-full bg-orange-500/10 border border-orange-500/20 rounded-xl p-3 flex flex-col items-center justify-center gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <Layers size={14} className="text-orange-400" />
+                                            <span className="text-[9px] font-black text-orange-400 uppercase tracking-widest">Incluye Licencia Sound Kit</span>
+                                        </div>
+                                        {kit.archivo_muestra_url && (
+                                            <div className="flex items-center gap-2 text-[8px] font-bold text-emerald-400 uppercase tracking-widest mt-1">
+                                                <Music size={10} /> Preview MP3 Listado
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="flex items-center justify-center gap-3 w-full">
                                         <button onClick={() => {
@@ -555,7 +583,7 @@ function ServicesManagerPage() {
             {isEditingKit && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in transition-all">
                     <div className="bg-background rounded-[2rem] p-6 md:p-10 max-w-xl w-full shadow-[0_0_80px_rgba(0,0,0,0.5)] overflow-y-auto border border-border max-h-[90vh] relative">
-                        <button onClick={() => { setIsEditingKit(false); setCurrentKit(null); setKitFile(null); setKitCoverFile(null); setKitErrors({}); }} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 flex items-center justify-center text-muted hover:text-white hover:bg-rose-500 hover:border-rose-500 transition-all z-10 group">
+                        <button onClick={() => { setIsEditingKit(false); setCurrentKit(null); setKitFile(null); setKitSampleFile(null); setKitCoverFile(null); setKitErrors({}); }} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 flex items-center justify-center text-muted hover:text-white hover:bg-rose-500 hover:border-rose-500 transition-all z-10 group">
                             <X size={18} className="group-hover:rotate-90 transition-transform duration-300" />
                         </button>
 
@@ -663,6 +691,40 @@ function ServicesManagerPage() {
                             <div className="space-y-6">
                                 <div>
                                     <div className="flex items-center justify-between mb-2">
+                                        <label className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-foreground/80">Preview (MP3) del Kit</label>
+                                    </div>
+                                    <div className={`relative border-2 border-dashed rounded-2xl p-6 transition-all text-center group ${kitSampleFile ? 'border-emerald-500 bg-emerald-500/5' : 'border-border hover:border-emerald-500/40 hover:bg-emerald-500/5'}`}>
+                                        <input
+                                            type="file"
+                                            accept="audio/mpeg"
+                                            onChange={e => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    setKitSampleFile(file);
+                                                }
+                                            }}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                        />
+                                        <div className="flex flex-col items-center">
+                                            {kitSampleFile ? (
+                                                <>
+                                                    <Music size={24} className="text-emerald-500 mb-2" />
+                                                    <p className="text-[10px] font-black text-slate-900 dark:text-foreground truncate max-w-[200px]">{kitSampleFile.name}</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Music size={24} className="text-muted group-hover:text-emerald-500 mb-2 transition-colors" />
+                                                    <p className="text-[9px] font-black uppercase tracking-wider text-muted group-hover:text-emerald-500 transition-colors">
+                                                        {currentKit?.archivo_muestra_url ? "Click p/ actualizar Preview" : "Subir Preview MP3"}
+                                                    </p>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div className="flex items-center justify-between mb-2">
                                         <label className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-foreground/80">Archivo .ZIP / .RAR de la librería</label>
                                         {kitErrors.file && <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest">{kitErrors.file}</span>}
                                     </div>
@@ -725,7 +787,7 @@ function ServicesManagerPage() {
                             <div className="flex gap-4 pt-6 border-t border-border">
                                 <button
                                     type="button"
-                                    onClick={() => { setIsEditingKit(false); setCurrentKit(null); setKitFile(null); setKitCoverFile(null); setKitErrors({}); }}
+                                    onClick={() => { setIsEditingKit(false); setCurrentKit(null); setKitFile(null); setKitSampleFile(null); setKitCoverFile(null); setKitErrors({}); }}
                                     className="px-6 py-4 rounded-xl font-bold text-muted hover:bg-foreground/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-foreground transition-all"
                                 >
                                     Cancelar

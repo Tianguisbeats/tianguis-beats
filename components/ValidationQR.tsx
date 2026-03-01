@@ -9,7 +9,7 @@ interface ValidationQRProps {
 }
 
 export default function ValidationQR({ orderId, size = 128 }: ValidationQRProps) {
-    const verificationUrl = `https://tianguisbeats.com/verify/${orderId}`;
+    const verificationUrl = `https://tianguisbeats.com/verify?id=${orderId}`;
 
     return (
         <div className="flex flex-col items-center justify-center gap-3 p-4 bg-white rounded-2xl shadow-inner dark:bg-zinc-900/50">

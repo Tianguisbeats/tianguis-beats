@@ -8,6 +8,7 @@ import {
     ArrowRight, Star, Headphones, TrendingUp
 } from "lucide-react";
 import { useCurrency } from "@/context/CurrencyContext";
+import { usePlayer } from "@/context/PlayerContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -25,6 +26,33 @@ export default function SoundKitsPage() {
 }
 
 function KitCard({ kit, formatPrice }: { kit: any; formatPrice: (n: number) => string }) {
+    const { playBeat, currentBeat, isPlaying, togglePlay } = usePlayer();
+
+    const handlePlayPreview = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!kit.archivo_muestra_url) return;
+
+        if (currentBeat?.id === kit.id) {
+            togglePlay();
+        } else {
+            // Mock a beat object for the player
+            playBeat({
+                id: kit.id,
+                titulo: kit.titulo,
+                url_audio: kit.archivo_muestra_url,
+                url_portada: kit.url_portada,
+                productor_id: kit.productor_id,
+                collaborators: [],
+                precio_base: kit.precio,
+                tipo: 'kit',
+                user: kit.producer
+            } as any);
+        }
+    };
+
+    const isCurrentPlaying = currentBeat?.id === kit.id && isPlaying;
     const isPremium = kit.producer?.nivel_suscripcion === 'premium';
     const isPro = kit.producer?.nivel_suscripcion === 'pro';
 
@@ -43,11 +71,24 @@ function KitCard({ kit, formatPrice }: { kit: any; formatPrice: (n: number) => s
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
                 {/* Play icon overlay */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
-                    <div className="w-16 h-16 bg-accent/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-2xl shadow-accent/40 scale-75 group-hover:scale-100 transition-transform duration-500">
-                        <Headphones size={22} className="text-white" />
+                {kit.archivo_muestra_url && (
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
+                        <button
+                            onClick={handlePlayPreview}
+                            className={`w-16 h-16 ${isCurrentPlaying ? 'bg-white text-accent' : 'bg-accent/90 text-white'} backdrop-blur-md rounded-full flex items-center justify-center shadow-2xl shadow-accent/40 scale-75 group-hover:scale-100 transition-all duration-500 hover:scale-110 active:scale-95`}
+                        >
+                            {isCurrentPlaying ? (
+                                <div className="flex gap-1 items-end h-5">
+                                    <div className="w-1 bg-accent h-3 animate-pulse" />
+                                    <div className="w-1 bg-accent h-5 animate-pulse delay-75" />
+                                    <div className="w-1 bg-accent h-4 animate-pulse delay-150" />
+                                </div>
+                            ) : (
+                                <Music size={24} fill="currentColor" />
+                            )}
+                        </button>
                     </div>
-                </div>
+                )}
 
                 {/* Top badges */}
                 <div className="absolute top-4 left-4 right-4 flex justify-between items-start">

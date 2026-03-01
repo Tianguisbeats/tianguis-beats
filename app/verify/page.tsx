@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, use } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { CheckCircle2, ShieldCheck, Calendar, User, Music, Package, AlertTriangle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -8,8 +9,17 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LoadingTianguis from '@/components/LoadingTianguis';
 
-export default function VerificationPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = use(params);
+export default function VerificationPageWrapper() {
+    return (
+        <Suspense fallback={<LoadingTianguis />}>
+            <VerificationPage />
+        </Suspense>
+    );
+}
+
+function VerificationPage() {
+    const searchParams = useSearchParams();
+    const id = searchParams.get('id');
     const [loading, setLoading] = useState(true);
     const [transaction, setTransaction] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
