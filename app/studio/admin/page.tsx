@@ -222,7 +222,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
         setLoading(false);
     };
 
-    const [confirmAction, setConfirmAction] = useState<{ requestId: string; userId: string; status: 'approved' | 'rejected' } | null>(null);
+    const [confirmAction, setConfirmAction] = useState<{ requestId: string; userId: string; status: 'approved' | 'rejected' | 'reviewed' } | null>(null);
     const [selectedHistoryReq, setSelectedHistoryReq] = useState<any>(null); // NEW
 
     const handleDeleteHistoryReq = async (id: string) => {
@@ -248,7 +248,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
             // 1. Actualizar el estado de la solicitud
             const { error: reqError } = await supabase
                 .from('solicitudes_verificacion')
-                .update({ estado: status === 'approved' ? 'aprobado' : 'rechazado' })
+                .update({ estado: status === 'approved' ? 'aprobado' : status === 'rejected' ? 'rechazado' : 'revisado' })
                 .eq('id', requestId);
 
             if (reqError) throw reqError;
@@ -266,8 +266,8 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                 if (profileError) throw profileError;
             }
 
-            setRequests(requests.map(r => r.id === requestId ? { ...r, estado: status === 'approved' ? 'aprobado' : 'rechazado' } : r));
-            showToast(`Solicitud ${status === 'approved' ? 'Aprobada ✅' : 'Rechazada ❌'} correctamente`, "success");
+            setRequests(requests.map(r => r.id === requestId ? { ...r, estado: status === 'approved' ? 'aprobado' : status === 'rejected' ? 'rechazado' : 'revisado' } : r));
+            showToast(`Solicitud ${status === 'approved' ? 'Aprobada ✅' : status === 'rejected' ? 'Rechazada ❌' : 'Marcada como Revisada 👁️'}`, "success");
         } catch (error: any) {
             console.error(error);
             showToast("Error al procesar la decisión. Verifica los permisos de la base de datos.", "error");
@@ -308,18 +308,20 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
             {/* Confirmation Modal */}
             {confirmAction && (
                 <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setConfirmAction(null)} />
-                    <div className="relative bg-card border border-border w-full max-w-md rounded-[3rem] p-10 text-center animate-in zoom-in duration-300 shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
+                    <div className="absolute inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-md" onClick={() => setConfirmAction(null)} />
+                    <div className="relative bg-white dark:bg-card border border-border w-full max-w-md rounded-[3rem] p-10 text-center animate-in zoom-in duration-300 shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
                         <div className={`w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 ${confirmAction.status === 'approved' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'} `}>
                             {confirmAction.status === 'approved' ? <CheckCircle size={32} /> : <AlertTriangle size={32} />}
                         </div>
                         <h3 className="text-2xl font-black uppercase tracking-tighter mb-4">
-                            {confirmAction.status === 'approved' ? '¿Aprobar Verificación?' : '¿Rechazar Solicitud?'}
+                            {confirmAction.status === 'approved' ? '¿Aprobar Verificación?' : confirmAction.status === 'reviewed' ? '¿Marcar como Revisado?' : '¿Rechazar Solicitud?'}
                         </h3>
                         <p className="text-muted text-xs font-bold uppercase tracking-widest leading-relaxed mb-8">
                             {confirmAction.status === 'approved'
                                 ? 'Esta acción otorgará la insignia oficial de verificado al productor.'
-                                : 'La solicitud será marcada como rechazada y el usuario no recibirá su insignia.'}
+                                : confirmAction.status === 'reviewed'
+                                    ? 'La solicitud se moverá al historial sin cambiar el estado de verificación del usuario.'
+                                    : 'La solicitud será marcada como rechazada y el usuario no recibirá su insignia.'}
                         </p>
                         <div className="grid grid-cols-2 gap-4">
                             <button
@@ -330,9 +332,9 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                             </button>
                             <button
                                 onClick={handleDecision}
-                                className={`py-4 text-[10px] font-black uppercase tracking-widest rounded-2xl text-white shadow-xl transition-all scale-100 hover:scale-105 active:scale-95 ${confirmAction.status === 'approved' ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-rose-500 shadow-rose-500/20'} `}
+                                className={`py-4 text-[10px] font-black uppercase tracking-widest rounded-2xl text-white shadow-xl transition-all scale-100 hover:scale-105 active:scale-95 ${confirmAction.status === 'approved' ? 'bg-emerald-500 shadow-emerald-500/20' : confirmAction.status === 'reviewed' ? 'bg-blue-500 shadow-blue-500/20' : 'bg-rose-500 shadow-rose-500/20'} `}
                             >
-                                {confirmAction.status === 'approved' ? 'Sí, Aprobar' : 'Sí, Rechazar'}
+                                {confirmAction.status === 'approved' ? 'Sí, Aprobar' : confirmAction.status === 'reviewed' ? 'Sí, Marcar' : 'Sí, Rechazar'}
                             </button>
                         </div>
                     </div>
@@ -425,6 +427,12 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                                 Rechazar Solicitud
                             </button>
                             <button
+                                onClick={() => setConfirmAction({ requestId: req.id, userId: req.user_id, status: 'reviewed' })}
+                                className="px-8 py-4 bg-slate-100 dark:bg-white/5 text-[11px] font-black uppercase tracking-widest text-muted hover:bg-emerald-500/10 hover:text-emerald-500 rounded-2xl transition-all border border-transparent hover:border-emerald-500/20"
+                            >
+                                Marcar como Revisado
+                            </button>
+                            <button
                                 onClick={() => setConfirmAction({ requestId: req.id, userId: req.user_id, status: 'approved' })}
                                 className="px-12 py-4 bg-blue-600 text-[11px] font-black uppercase tracking-widest text-white rounded-2xl shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all"
                             >
@@ -438,8 +446,8 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
             {/* History Detail Modal */}
             {selectedHistoryReq && (
                 <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setSelectedHistoryReq(null)} />
-                    <div className="relative bg-card border border-border w-full max-w-2xl rounded-[3rem] p-10 max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in duration-300">
+                    <div className="absolute inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-md" onClick={() => setSelectedHistoryReq(null)} />
+                    <div className="relative bg-white dark:bg-card border border-border w-full max-w-2xl rounded-[3rem] p-10 max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in duration-300">
                         <header className="flex justify-between items-start mb-8 border-b border-border/50 pb-6">
                             <div className="flex items-center gap-4">
                                 <div className="w-16 h-16 rounded-2xl overflow-hidden bg-accent-soft shrink-0 border border-border/50">
@@ -447,7 +455,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                                 </div>
                                 <div className="min-w-0">
                                     <h3 className="text-xl font-black uppercase tracking-tighter text-foreground truncate">@{selectedHistoryReq.nombre_usuario}</h3>
-                                    <div className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mt-1 ${selectedHistoryReq.estado === 'aprobado' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                                    <div className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mt-1 ${selectedHistoryReq.estado === 'aprobado' ? 'bg-emerald-500/10 text-emerald-500' : selectedHistoryReq.estado === 'revisado' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-500'}`}>
                                         {selectedHistoryReq.estado}
                                     </div>
                                 </div>
@@ -516,7 +524,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                                     >
                                         Ver Detalles
                                     </button>
-                                    <div className={`flex-1 flex items-center justify-center py-3 text-center rounded-2xl text-[10px] font-black uppercase tracking-widest ${req.estado === 'aprobado' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                                    <div className={`flex-1 flex items-center justify-center py-3 text-center rounded-2xl text-[10px] font-black uppercase tracking-widest ${req.estado === 'aprobado' || req.estado === 'revisado' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-rose-500/10 text-rose-500'}`}>
                                         {req.estado}
                                     </div>
                                 </div>
@@ -706,8 +714,8 @@ function UserManager({ onBack }: { onBack: () => void }) {
             {/* User Detail Modal */}
             {selectedUser && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedUser(null)} />
-                    <div className="relative bg-card border border-border w-full max-w-2xl rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in duration-300">
+                    <div className="absolute inset-0 bg-black/40 dark:bg-black/80 backdrop-blur-sm" onClick={() => setSelectedUser(null)} />
+                    <div className="relative bg-white dark:bg-card border border-border w-full max-w-2xl rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in duration-300">
                         <header className="p-8 border-b border-border flex items-center justify-between">
                             <div className="flex items-center gap-6">
                                 <div className="w-16 h-16 rounded-2xl overflow-hidden bg-foreground/5 border border-border">
@@ -828,6 +836,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
     const [formCoupon, setFormCoupon] = useState({
         codigo: '',
         porcentaje_descuento: 20,
+        usos_maximos: '',
         fecha_expiracion: '',
         nivel_objetivo: 'todos',
         es_activo: true
@@ -855,6 +864,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
             const payload = {
                 codigo: formCoupon.codigo.toUpperCase(),
                 porcentaje_descuento: formCoupon.porcentaje_descuento,
+                usos_maximos: formCoupon.usos_maximos ? parseInt(formCoupon.usos_maximos as string) : null,
                 fecha_expiracion: formCoupon.fecha_expiracion || null,
                 nivel_objetivo: formCoupon.nivel_objetivo,
                 es_activo: formCoupon.es_activo,
@@ -872,7 +882,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
             }
             setShowModal(false);
             setEditingId(null);
-            setFormCoupon({ codigo: '', porcentaje_descuento: 20, fecha_expiracion: '', nivel_objetivo: 'todos', es_activo: true });
+            setFormCoupon({ codigo: '', porcentaje_descuento: 20, usos_maximos: '', fecha_expiracion: '', nivel_objetivo: 'todos', es_activo: true });
             fetchCoupons();
         } catch (error: any) { showToast(error.message, "error"); }
     };
@@ -897,7 +907,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
 
     const openCreateModal = () => {
         setEditingId(null);
-        setFormCoupon({ codigo: '', porcentaje_descuento: 20, fecha_expiracion: '', nivel_objetivo: 'todos', es_activo: true });
+        setFormCoupon({ codigo: '', porcentaje_descuento: 20, usos_maximos: '', fecha_expiracion: '', nivel_objetivo: 'todos', es_activo: true });
         setShowModal(true);
     };
 
@@ -906,6 +916,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
         setFormCoupon({
             codigo: cp.codigo,
             porcentaje_descuento: cp.porcentaje_descuento,
+            usos_maximos: cp.usos_maximos || '',
             fecha_expiracion: cp.fecha_expiracion ? cp.fecha_expiracion.split('.')[0] : '', // format for datetime-local
             nivel_objetivo: cp.nivel_objetivo || 'todos',
             es_activo: cp.es_activo
@@ -1002,9 +1013,9 @@ function CouponManager({ onBack }: { onBack: () => void }) {
             {/* HIGH-END MODAL */}
             {showModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-10 backdrop-blur-xl animate-in fade-in duration-300">
-                    <div className="absolute inset-0 bg-black/60" onClick={() => setShowModal(false)} />
+                    <div className="absolute inset-0 bg-black/60 dark:bg-black/80" onClick={() => setShowModal(false)} />
 
-                    <div className="relative bg-[#08080a] border border-white/10 w-full max-w-2xl rounded-[3.5rem] p-10 md:p-16 shadow-[0_0_100px_rgba(var(--accent-rgb),0.2)] overflow-hidden animate-in zoom-in-95 duration-500">
+                    <div className="relative bg-white dark:bg-[#08080a] border border-border dark:border-white/10 w-full max-w-2xl rounded-[3.5rem] p-10 md:p-16 shadow-[0_0_100px_rgba(var(--accent-rgb),0.2)] overflow-hidden animate-in zoom-in-95 duration-500">
                         {/* Environmental Glow */}
                         <div className="absolute -top-20 -right-20 w-64 h-64 bg-accent/20 blur-[100px] rounded-full" />
 
@@ -1014,12 +1025,12 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                                     <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Marketing Engine</span>
                                 </div>
-                                <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white leading-none">
+                                <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-foreground dark:text-white leading-none">
                                     {editingId ? 'Editar' : 'Crear'} <br />
                                     <span className="text-accent">Cupón.</span>
                                 </h2>
                             </div>
-                            <button onClick={() => setShowModal(false)} className="w-12 h-12 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-rose-500 hover:border-rose-500 transition-all active:scale-90">
+                            <button onClick={() => setShowModal(false)} className="w-12 h-12 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-full flex items-center justify-center text-foreground dark:text-white hover:bg-rose-500 hover:border-rose-500 hover:text-white transition-all active:scale-90">
                                 <X size={20} />
                             </button>
                         </header>
@@ -1033,7 +1044,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                                         value={formCoupon.codigo}
                                         onChange={e => setFormCoupon({ ...formCoupon, codigo: e.target.value.toUpperCase() })}
                                         placeholder="EJ. VERANO50"
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 font-black text-white text-xl outline-none focus:border-accent transition-all uppercase tracking-widest placeholder:text-white/10 font-mono"
+                                        className="w-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl px-6 py-5 font-black text-foreground dark:text-white text-xl outline-none focus:border-accent transition-all uppercase tracking-widest placeholder:text-foreground/10 dark:placeholder:text-white/10 font-mono"
                                     />
                                 </div>
                                 <div className="space-y-3">
@@ -1046,9 +1057,25 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                                             required
                                             value={formCoupon.porcentaje_descuento || ''}
                                             onChange={e => setFormCoupon({ ...formCoupon, porcentaje_descuento: parseInt(e.target.value) })}
-                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 font-black text-white text-xl outline-none focus:border-accent transition-all tabular-nums font-mono"
+                                            className="w-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl px-6 py-5 font-black text-foreground dark:text-white text-xl outline-none focus:border-accent transition-all tabular-nums font-mono"
                                         />
                                         <Percent className="absolute right-6 top-1/2 -translate-y-1/2 text-accent/40" size={24} />
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black uppercase text-muted tracking-[0.2em] ml-2 flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-accent" /> Uso Límite (Dejar vacío para ilimitado)
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={formCoupon.usos_maximos || ''}
+                                            onChange={e => setFormCoupon({ ...formCoupon, usos_maximos: e.target.value })}
+                                            placeholder="Ej. 100"
+                                            className="w-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl px-6 py-5 font-black text-foreground dark:text-white text-xl outline-none focus:border-accent transition-all tabular-nums font-mono placeholder:text-muted/20"
+                                        />
+                                        <Users className="absolute right-6 top-1/2 -translate-y-1/2 text-accent/40" size={20} />
                                     </div>
                                 </div>
                             </div>
@@ -1059,12 +1086,12 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                                     <select
                                         value={formCoupon.nivel_objetivo}
                                         onChange={e => setFormCoupon({ ...formCoupon, nivel_objetivo: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 font-black text-white text-sm outline-none focus:border-accent transition-all uppercase tracking-widest appearance-none cursor-pointer"
+                                        className="w-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl px-6 py-5 font-black text-foreground dark:text-white text-sm outline-none focus:border-accent transition-all uppercase tracking-widest appearance-none cursor-pointer"
                                     >
-                                        <option value="todos">Todos los Planes</option>
-                                        <option value="free">Solo Usuarios Free</option>
+                                        <option value="todos">Todos los Planes (Excepto Free)</option>
                                         <option value="pro">Solo Suscriptores PRO</option>
                                         <option value="premium">Solo Suscriptores PREMIUM</option>
+                                        <option value="pro_premium">Planes PRO & PREMIUM</option>
                                     </select>
                                 </div>
                                 <div className="space-y-3">
@@ -1074,7 +1101,7 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                                             type="datetime-local"
                                             value={formCoupon.fecha_expiracion}
                                             onChange={e => setFormCoupon({ ...formCoupon, fecha_expiracion: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 font-bold text-white text-xs outline-none focus:border-accent transition-all"
+                                            className="w-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl px-6 py-5 font-bold text-foreground dark:text-white text-xs outline-none focus:border-accent transition-all"
                                         />
                                         <Calendar className="absolute right-6 top-1/2 -translate-y-1/2 text-muted/20" size={20} />
                                     </div>
@@ -1178,7 +1205,7 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
             {feedbacks.filter(f => (f.estado || 'pendiente') === 'pendiente').length === 0 ? (
                 <div className="bg-card border border-border rounded-[2.5rem] p-12 text-center">
                     <CheckCircle size={48} className="mx-auto text-emerald-500 mb-4" />
-                    <h3 className="text-xl font-black uppercase text-foreground">Buzón vacío</h3>
+                    <h3 className="text-xl font-black uppercase text-foreground">Buzón de sugerencias vacío</h3>
                     <p className="text-muted text-[10px] uppercase font-bold tracking-widest mt-2">No hay quejas o sugerencias en este momento.</p>
                 </div>
             ) : (
@@ -1262,7 +1289,7 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
                             <Clock size={20} />
                         </div>
                         <div>
-                            <h3 className="text-2xl font-black uppercase tracking-tighter">Historial de Buzón</h3>
+                            <h3 className="text-2xl font-black uppercase tracking-tighter">Historial de Sugerencias</h3>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-muted">Mensajes Procesados</p>
                         </div>
                     </div>

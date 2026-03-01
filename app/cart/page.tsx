@@ -73,21 +73,23 @@ export default function CartPage() {
             if (data.nivel_objetivo && data.nivel_objetivo !== 'todos') {
                 const { data: userData } = await supabase.auth.getUser();
                 if (!userData.user) {
-                    showToast("Inicia sesión para usar cupones exclusivos de miembros.", 'error');
-                    return;
-                }
-                const { data: profile } = await supabase.from('perfiles').select('nivel_suscripcion').eq('id', userData.user.id).single();
-                if (data.nivel_objetivo === 'gratis' && profile?.nivel_suscripcion !== 'free') {
-                    showToast("Cupones exclusivos para usuarios Free.", 'error');
-                    return;
-                }
-                if (data.nivel_objetivo === 'pro' && profile?.nivel_suscripcion !== 'pro') {
-                    showToast("Cupones exclusivos para suscripciones PRO.", 'error');
-                    return;
-                }
-                if (data.nivel_objetivo === 'premium' && profile?.nivel_suscripcion !== 'premium') {
-                    showToast("Cupones exclusivos para suscripciones PREMIUM.", 'error');
-                    return;
+                    // Si no hay sesión, permitimos aplicar pero validaremos al nivel del item en el carrito
+                } else {
+                    const { data: profile } = await supabase.from('perfiles').select('nivel_suscripcion').eq('id', userData.user.id).single();
+                    const userTier = (profile?.nivel_suscripcion || 'free').toLowerCase().trim();
+
+                    if (data.nivel_objetivo === 'gratis' && userTier !== 'free') {
+                        showToast("Cupones exclusivos para usuarios Free.", 'error');
+                        return;
+                    }
+                    if (data.nivel_objetivo === 'pro' && userTier !== 'pro' && data.aplica_a !== 'suscripciones') {
+                        showToast("Cupones exclusivos para nivel PRO.", 'error');
+                        return;
+                    }
+                    if (data.nivel_objetivo === 'premium' && userTier !== 'premium' && data.aplica_a !== 'suscripciones') {
+                        showToast("Cupones exclusivos para nivel PREMIUM.", 'error');
+                        return;
+                    }
                 }
             }
 
@@ -105,7 +107,15 @@ export default function CartPage() {
 
                 if (!producerId) {
                     // Es cupón de administrador, solo aplica a suscripciones
-                    isItemEligible = (cAppliesTo === 'suscripciones' && iType === 'plan');
+                    if (cAppliesTo === 'suscripciones' && iType === 'plan') {
+                        const targetTier = (item.metadata?.tier as string || '').toLowerCase().trim();
+                        const cTarget = (data.nivel_objetivo || 'todos').toLowerCase().trim();
+
+                        if (cTarget === 'todos' && targetTier !== 'free') isItemEligible = true;
+                        if (cTarget === 'pro' && targetTier === 'pro') isItemEligible = true;
+                        if (cTarget === 'premium' && targetTier === 'premium') isItemEligible = true;
+                        if (cTarget === 'pro_premium' && (targetTier === 'pro' || targetTier === 'premium')) isItemEligible = true;
+                    }
                 } else {
                     // Es cupón de productor, aplica a sus propios productos según `aplica_a`
                     // Normalizar tipos para comparación

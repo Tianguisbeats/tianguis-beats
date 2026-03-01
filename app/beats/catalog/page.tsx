@@ -213,7 +213,7 @@ function CatalogContent() {
                         break;
                 }
 
-                const { data, error } = await query.limit(50);
+                const { data, error } = await query.limit(1000);
                 if (cancel) return;
                 if (error) { setErrorMsg(error.message); return; }
 
