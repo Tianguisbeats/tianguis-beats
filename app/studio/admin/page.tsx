@@ -8,7 +8,7 @@ import {
     TrendingUp, Calendar, Layout, Mail, ShieldCheck, UserPlus,
     ExternalLink, Filter, MoreVertical, X, AlertTriangle, AlertCircle,
     Ticket, MessageSquare, XCircle, Edit2, Save, Crown, User, FileKey,
-    Plus, Percent
+    Plus, Percent, BadgeCheck, ShieldAlert
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
@@ -610,17 +610,27 @@ function UserManager({ onBack }: { onBack: () => void }) {
     const updateTier = async (userId: string, tier: string) => {
         const { error } = await supabase.from('perfiles').update({ nivel_suscripcion: tier }).eq('id', userId);
         if (!error) {
-            setUsers(users.map(u => u.id === userId ? { ...u, subscription_tier: tier } : u));
+            setUsers(users.map(u => u.id === userId ? { ...u, nivel_suscripcion: tier } : u));
+            if (selectedUser?.id === userId) setSelectedUser({ ...selectedUser, nivel_suscripcion: tier });
             showToast("Nivel actualizado con éxito", "success");
         }
     };
 
     const toggleAdmin = async (userId: string, currentStatus: boolean) => {
-        if (!confirm(`¿${currentStatus ? 'Quitar' : 'Asignar'} permisos de administrador?`)) return;
         const { error } = await supabase.from('perfiles').update({ es_admin: !currentStatus }).eq('id', userId);
         if (!error) {
-            setUsers(users.map(u => u.id === userId ? { ...u, is_admin: !currentStatus } : u));
+            setUsers(users.map(u => u.id === userId ? { ...u, es_admin: !currentStatus } : u));
+            if (selectedUser?.id === userId) setSelectedUser({ ...selectedUser, es_admin: !currentStatus });
             showToast("Permisos actualizados", "success");
+        }
+    };
+
+    const toggleVerification = async (userId: string, currentStatus: boolean) => {
+        const { error } = await supabase.from('perfiles').update({ esta_verificado: !currentStatus }).eq('id', userId);
+        if (!error) {
+            setUsers(users.map(u => u.id === userId ? { ...u, esta_verificado: !currentStatus } : u));
+            if (selectedUser?.id === userId) setSelectedUser({ ...selectedUser, esta_verificado: !currentStatus });
+            showToast("Estado de verificación actualizado", "success");
         }
     };
 
@@ -711,101 +721,122 @@ function UserManager({ onBack }: { onBack: () => void }) {
                 </div>
             </div>
 
-            {/* User Detail Modal */}
+            {/* PREMIUM User Detail Modal */}
             {selectedUser && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/40 dark:bg-black/80 backdrop-blur-sm" onClick={() => setSelectedUser(null)} />
-                    <div className="relative bg-white dark:bg-card border border-border w-full max-w-2xl rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in duration-300">
-                        <header className="p-8 border-b border-border flex items-center justify-between">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-10 backdrop-blur-xl animate-in fade-in duration-300">
+                    <div className="absolute inset-0 bg-black/60 dark:bg-black/80" onClick={() => setSelectedUser(null)} />
+
+                    <div className="relative bg-white dark:bg-[#08080a] border border-border dark:border-white/10 w-full max-w-2xl rounded-[3.5rem] p-10 md:p-16 shadow-[0_0_100px_rgba(var(--accent-rgb),0.2)] overflow-hidden animate-in zoom-in-95 duration-500">
+                        {/* Environmental Glow */}
+                        <div className="absolute -top-20 -right-20 w-64 h-64 bg-accent/20 blur-[100px] rounded-full" />
+
+                        <header className="relative z-10 mb-12 flex justify-between items-start">
                             <div className="flex items-center gap-6">
-                                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-foreground/5 border border-border">
+                                <div className="w-20 h-20 rounded-[2rem] overflow-hidden bg-foreground/5 border border-border shrink-0 shadow-2xl">
                                     <img src={selectedUser.foto_perfil || `https://ui-avatars.com/api/?name=${selectedUser.nombre_usuario}`} alt="" className="w-full h-full object-cover" />
                                 </div>
-                                <div>
-                                    <div className="flex items-center gap-2 mb-0.5">
-                                        <h3 className="text-2xl font-black uppercase tracking-tighter">{selectedUser.nombre_artistico}</h3>
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="text-3xl font-black uppercase tracking-tighter text-foreground dark:text-white leading-none">{selectedUser.nombre_artistico || 'Sin nombre'}</h3>
                                         {selectedUser.esta_verificado && (
-                                            <img src="/verified-badge.png" alt="Verificado" className="w-6 h-6 object-contain drop-shadow-[0_0_8px_rgba(59,130,246,0.2)]" />
+                                            <BadgeCheck size={24} className="text-accent fill-accent animate-pulse" />
                                         )}
                                     </div>
-                                    <p className="text-xs text-muted font-bold uppercase tracking-widest">@{selectedUser.nombre_usuario}</p>
+                                    <p className="text-[10px] text-muted font-black uppercase tracking-[0.3em]">@{selectedUser.nombre_usuario}</p>
                                 </div>
                             </div>
-                            <button onClick={() => setSelectedUser(null)} className="p-3 bg-foreground/5 border border-border rounded-2xl hover:bg-accent hover:text-white hover:border-accent transition-all text-muted">
-                                <XCircle size={20} />
+                            <button onClick={() => setSelectedUser(null)} className="w-12 h-12 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-full flex items-center justify-center text-foreground dark:text-white hover:bg-rose-500 hover:border-rose-500 hover:text-white transition-all active:scale-90">
+                                <X size={20} />
                             </button>
                         </header>
 
-                        <div className="p-8 grid md:grid-cols-2 gap-8 max-h-[60vh] overflow-y-auto">
+                        <div className="relative z-10 grid md:grid-cols-2 gap-8 mb-12">
                             <div className="space-y-6">
-                                <DetailItem label="Correo" value={selectedUser.email} />
-                                <DetailItem label="Nombre Completo" value={selectedUser.nombre_completo} />
-                                <DetailItem label="ID de Usuario" value={selectedUser.id} copyable />
+                                <DetailItem label="Correo Electrónico" value={selectedUser.correo || selectedUser.email} />
+                                <DetailItem label="Nombre Completo" value={selectedUser.nombre_completo || 'No especificado'} />
                                 <DetailItem label="Fecha de Registro" value={selectedUser.fecha_creacion ? new Date(selectedUser.fecha_creacion).toLocaleDateString() : 'Desconocida'} />
 
-                                {/* New Editable Dates */}
-                                <div className="p-4 bg-foreground/5 rounded-2xl border border-border">
-                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">Inicio Suscripción</p>
+                                <div className="p-5 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-3xl space-y-3">
+                                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted">Inicio Suscripción</p>
                                     <input
                                         type="date"
                                         value={selectedUser.fecha_inicio_suscripcion ? selectedUser.fecha_inicio_suscripcion.split('T')[0] : ''}
                                         onChange={async (e) => {
                                             const date = e.target.value ? new Date(e.target.value).toISOString() : null;
-                                            const { error } = await supabase.from('perfiles').update({ comenzar_suscripcion: date }).eq('id', selectedUser.id);
-                                            if (!error) setUsers(users.map(u => u.id === selectedUser.id ? { ...u, comenzar_suscripcion: date } : u));
+                                            const { error } = await supabase.from('perfiles').update({ fecha_inicio_suscripcion: date }).eq('id', selectedUser.id);
+                                            if (!error) {
+                                                setUsers(users.map(u => u.id === selectedUser.id ? { ...u, fecha_inicio_suscripcion: date } : u));
+                                                setSelectedUser({ ...selectedUser, fecha_inicio_suscripcion: date });
+                                                showToast("Fecha de inicio actualizada", "success");
+                                            }
                                         }}
-                                        className="bg-transparent font-bold text-xs text-foreground outline-none w-full"
+                                        className="w-full bg-transparent font-black text-xs text-foreground dark:text-white outline-none cursor-pointer"
                                     />
                                 </div>
                             </div>
-                            <div className="space-y-6">
-                                <DetailItem label="Membresía" value={
-                                    <select
-                                        value={selectedUser.subscription_tier || 'free'}
-                                        onChange={(e) => updateTier(selectedUser.id, e.target.value)}
-                                        className="bg-transparent font-black text-xs uppercase tracking-widest text-accent outline-none cursor-pointer"
-                                    >
-                                        <option value="free">Gratis</option>
-                                        <option value="pro">Pro</option>
-                                        <option value="premium">Premium</option>
-                                    </select>
-                                } />
-                                <DetailItem label="Estado de Verificación" value={selectedUser.esta_verificado ? 'VERIFICADO' : 'NORMAL'} />
 
-                                {/* End Date */}
-                                <div className="p-4 bg-foreground/5 rounded-2xl border border-border">
-                                    <p className="text-[10px] font-black uppercase text-muted tracking-widest mb-1">Fin Suscripción</p>
+                            <div className="space-y-6">
+                                <div className="p-5 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-3xl space-y-3">
+                                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted">Membresía Actual</p>
+                                    <select
+                                        value={selectedUser.nivel_suscripcion || 'free'}
+                                        onChange={(e) => updateTier(selectedUser.id, e.target.value)}
+                                        className="w-full bg-transparent font-black text-xs uppercase tracking-widest text-accent outline-none cursor-pointer appearance-none"
+                                    >
+                                        <option value="free">Gratis (Free)</option>
+                                        <option value="pro">Plan Pro</option>
+                                        <option value="premium">Plan Premium</option>
+                                    </select>
+                                </div>
+
+                                <div className="p-5 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-3xl flex items-center justify-between">
+                                    <div>
+                                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted mb-1">Verificación</p>
+                                        <p className="font-black text-[10px] text-foreground dark:text-white uppercase tracking-widest">{selectedUser.esta_verificado ? 'Verificado' : 'Sin Verificar'}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => toggleVerification(selectedUser.id, !!selectedUser.esta_verificado)}
+                                        className={`px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all ${selectedUser.esta_verificado ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'}`}
+                                    >
+                                        {selectedUser.esta_verificado ? 'Quitar' : 'Verificar'}
+                                    </button>
+                                </div>
+
+                                <div className="p-5 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-3xl space-y-3">
+                                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted">Fin Suscripción</p>
                                     <input
                                         type="date"
                                         value={selectedUser.fecha_termino_suscripcion ? selectedUser.fecha_termino_suscripcion.split('T')[0] : ''}
                                         onChange={async (e) => {
                                             const date = e.target.value ? new Date(e.target.value).toISOString() : null;
-                                            const { error } = await supabase.from('perfiles').update({ termina_suscripcion: date }).eq('id', selectedUser.id);
+                                            const { error } = await supabase.from('perfiles').update({ fecha_termino_suscripcion: date }).eq('id', selectedUser.id);
                                             if (!error) {
-                                                setUsers(users.map(u => u.id === selectedUser.id ? { ...u, termina_suscripcion: date } : u));
-                                                showToast("Fecha final actualizada", "success");
+                                                setUsers(users.map(u => u.id === selectedUser.id ? { ...u, fecha_termino_suscripcion: date } : u));
+                                                setSelectedUser({ ...selectedUser, fecha_termino_suscripcion: date });
+                                                showToast("Fecha de vencimiento actualizada", "success");
                                             }
                                         }}
-                                        className="bg-transparent font-bold text-xs text-foreground outline-none w-full"
+                                        className="w-full bg-transparent font-black text-xs text-foreground dark:text-white outline-none cursor-pointer"
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        <footer className="p-8 bg-foreground/[0.03] border-t border-border flex gap-4">
+                        <footer className="relative z-10 flex gap-4 pt-8 border-t border-border dark:border-white/10">
                             <button
-                                onClick={() => toggleAdmin(selectedUser.id, selectedUser.is_admin)}
-                                className={`flex-1 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${selectedUser.is_admin ? 'bg-rose-500 text-white shadow-rose-500/20 shadow-lg' : 'bg-accent text-white shadow-accent/20 shadow-lg'
-                                    }`}
+                                onClick={() => toggleAdmin(selectedUser.id, !!selectedUser.es_admin)}
+                                className={`flex-1 h-16 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all shadow-2xl flex items-center justify-center gap-3 ${selectedUser.es_admin ? 'bg-rose-600 text-white shadow-rose-600/30' : 'bg-emerald-600 text-white shadow-emerald-600/30'}`}
                             >
-                                {selectedUser.is_admin ? 'Quitar Admin' : 'Hacer Admin'}
+                                <ShieldAlert size={16} />
+                                {selectedUser.es_admin ? 'Degradar a Usuario' : 'Ascender a Admin'}
                             </button>
                             <Link
                                 href={`/${selectedUser.nombre_usuario}`}
                                 target="_blank"
-                                className="flex-1 py-4 bg-foreground/5 border border-border hover:border-accent/30 text-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest text-center transition-all"
+                                className="flex-1 h-16 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 hover:border-accent/30 text-foreground dark:text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all"
                             >
-                                Ver Perfil Público
+                                <ExternalLink size={16} />
+                                Perfil Público
                             </Link>
                         </footer>
                     </div>
@@ -1088,14 +1119,15 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                                         onChange={e => setFormCoupon({ ...formCoupon, nivel_objetivo: e.target.value })}
                                         className="w-full bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl px-6 py-5 font-black text-foreground dark:text-white text-sm outline-none focus:border-accent transition-all uppercase tracking-widest appearance-none cursor-pointer"
                                     >
-                                        <option value="todos">Todos los Planes (Excepto Free)</option>
-                                        <option value="pro">Solo Suscriptores PRO</option>
-                                        <option value="premium">Solo Suscriptores PREMIUM</option>
-                                        <option value="pro_premium">Planes PRO & PREMIUM</option>
+                                        <option value="todos">Todos los Planes (Excluye Free)</option>
+                                        <option value="pro">Plan PRO</option>
+                                        <option value="premium">Plan PREMIUM</option>
                                     </select>
                                 </div>
                                 <div className="space-y-3">
-                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-muted/60 ml-1">Fecha de Expiración</label>
+                                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-muted/60 ml-1">
+                                        Fecha de Expiración <span className="text-[8px] lowercase opacity-60 font-medium">(Si se deja vacío, no expirará)</span>
+                                    </label>
                                     <div className="relative">
                                         <input
                                             type="datetime-local"
@@ -1125,9 +1157,10 @@ function CouponManager({ onBack }: { onBack: () => void }) {
                             </button>
                         </form>
                     </div>
-                </div>
-            )}
-        </div>
+                </div >
+            )
+            }
+        </div >
     );
 }
 
@@ -1343,7 +1376,7 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
         const fetchTransactions = async () => {
             const { data, error } = await supabase
                 .from('transacciones')
-                .select(`*, perfiles:comprador_id (nombre_usuario, nombre_artistico, email)`)
+                .select(`*, perfiles:comprador_id (nombre_usuario, correo, email)`)
                 .order('fecha_creacion', { ascending: false });
             if (!error) setTransactions(data || []);
             setLoading(false);
@@ -1368,11 +1401,11 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
                             const date = new Date(tx.fecha_creacion);
                             const now = new Date();
                             return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
-                        }).reduce((acc, tx) => acc + (tx.precio || 0), 0).toLocaleString()}</p>
+                        }).reduce((acc, tx) => acc + (tx.precio_total || 0), 0).toLocaleString()}</p>
                     </div>
                     <div className="px-8 py-5 bg-card border border-border rounded-[2rem] text-center hover:border-accent/30 transition-all">
                         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted mb-1">Total Histórico</p>
-                        <p className="text-2xl font-black text-foreground tabular-nums">${transactions.reduce((acc, tx) => acc + (tx.precio || 0), 0).toLocaleString()}</p>
+                        <p className="text-2xl font-black text-foreground tabular-nums">${transactions.reduce((acc, tx) => acc + (tx.precio_total || 0), 0).toLocaleString()}</p>
                     </div>
                 </div>
             </header>
@@ -1403,11 +1436,11 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
                                         <p className="text-[9px] text-muted uppercase tracking-widest">{tx.perfiles?.correo || tx.perfiles?.email}</p>
                                     </td>
                                     <td className="px-6 py-5">
-                                        <p className="font-bold text-xs capitalize">{tx.tipo_item || 'Beat'}</p>
-                                        <p className="text-[9px] text-muted uppercase tracking-widest">{tx.beat_id ? 'ID: ' + tx.beat_id.slice(0, 8) : '---'}</p>
+                                        <p className="font-bold text-xs capitalize">{tx.tipo_producto || tx.tipo_item || 'Beat'}</p>
+                                        <p className="text-[9px] text-muted uppercase tracking-widest">{tx.metadatos?.beat_id ? 'ID: ' + tx.metadatos.beat_id.slice(0, 8) : '---'}</p>
                                     </td>
                                     <td className="px-8 py-5 text-right font-black text-emerald-500">
-                                        ${tx.precio || 0}
+                                        ${tx.precio_total || tx.precio || 0}
                                     </td>
                                 </tr>
                             ))}
@@ -1429,7 +1462,7 @@ function BeatsManager({ onBack }: { onBack: () => void }) {
             const { data, error } = await supabase
                 .from('beats')
                 .select(`*, perfiles:productor_id (nombre_usuario, nombre_artistico)`)
-                .order('created_at', { ascending: false });
+                .order('fecha_creacion', { ascending: false });
             if (!error) setBeats(data || []);
             setLoading(false);
         };
@@ -1466,7 +1499,7 @@ function BeatsManager({ onBack }: { onBack: () => void }) {
                             ) : beats.map(beat => (
                                 <tr key={beat.id} className="hover:bg-foreground/[0.03] transition-colors">
                                     <td className="px-8 py-5 text-[10px] font-bold text-muted">
-                                        {new Date(beat.created_at).toLocaleDateString()}
+                                        {new Date(beat.fecha_creacion).toLocaleDateString()}
                                     </td>
                                     <td className="px-6 py-5">
                                         <p className="font-black text-xs">{beat.perfiles?.nombre_artistico || 'Desconocido'}</p>
