@@ -38,14 +38,14 @@ function VerificationPage() {
                         )
                     `)
                     .or(`id.eq.${id},orden_pedido.eq.${id}`)
-                    .eq('estatus', 'completed')
+                    .in('estado_pago', ['completado', 'completed', 'valido'])
                     .single();
 
                 if (txError) throw txError;
                 setTransaction(data);
             } catch (err: any) {
                 console.error("Verification Error:", err);
-                setError("No se pudo encontrar una licencia válida con este ID.");
+                setError("El código de verificación proporcionado no es válido o la transacción no ha sido completada.");
             } finally {
                 setLoading(false);
             }
@@ -57,12 +57,12 @@ function VerificationPage() {
     if (loading) return <LoadingTianguis />;
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background text-foreground">
             <Navbar />
 
             <main className="max-w-4xl mx-auto px-6 py-24">
                 <div className="text-center mb-12">
-                    <Link href="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted hover:text-accent transition-colors mb-8">
+                    <Link href="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-accent transition-colors mb-8">
                         <ArrowLeft size={14} /> Volver al Inicio
                     </Link>
                     <div className="w-24 h-24 bg-accent/10 text-accent rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-accent/20 border border-accent/20">
@@ -71,7 +71,7 @@ function VerificationPage() {
                     <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground mb-4">
                         Sistema de <span className="text-accent underline underline-offset-8 decoration-accent/20">Verificación.</span>
                     </h1>
-                    <p className="text-[11px] font-bold text-muted uppercase tracking-[0.3em]">Protocolo de Validación Digital Tianguis Beats</p>
+                    <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.3em]">Protocolo de Validación Digital Tianguis Beats</p>
                 </div>
 
                 {error ? (
@@ -82,8 +82,8 @@ function VerificationPage() {
                         <p className="text-sm font-bold text-muted-foreground uppercase leading-relaxed max-w-md mx-auto">
                             El código de verificación proporcionado no coincide con ninguna transacción completada en nuestra base de datos.
                         </p>
-                        <Link href="/beats" className="inline-block mt-8 bg-foreground text-background px-12 py-4 rounded-2xl font-black uppercase text-[11px] tracking-widest hover:scale-105 transition-all">
-                            Explorar Catálogo
+                        <Link href="/quejas-y-sugerencias" className="inline-block mt-8 bg-foreground text-background dark:bg-white dark:text-black px-12 py-4 rounded-2xl font-black uppercase text-[11px] tracking-widest hover:scale-105 transition-all">
+                            Contactar Soporte
                         </Link>
                     </div>
                 ) : transaction && (
