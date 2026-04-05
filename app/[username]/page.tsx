@@ -613,12 +613,12 @@ export default function ProducerProfilePage() {
 
                                 <div className="flex flex-wrap justify-center md:justify-start gap-2 md:gap-3 shrink-0 md:mb-2 mt-8 md:mt-0 text-foreground">
                                     {user?.id === profile?.id ? (
-                                        <button 
-                                            onClick={() => setIsEditModalOpen(true)}
+                                        <Link 
+                                            href="/studio/account"
                                             className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-blue-500/20 active:scale-95 transition-all outline-none"
                                         >
                                             <Edit3 size={14} /> Editar Perfil
-                                        </button>
+                                        </Link>
                                     ) : (
                                         <button 
                                             onClick={handleToggleFollow}

@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/context/ToastContext';
-import { User, Shield, Bell, Settings, Trash2, Camera, Instagram, Youtube, Lock, Save, Loader2, CreditCard, ChevronRight } from 'lucide-react';
+import { User, Shield, Bell, Settings, Trash2, Camera, Instagram, Youtube, Lock, Save, Loader2, Edit3, X, ChevronRight } from 'lucide-react';
 import LoadingTianguis from '@/components/LoadingTianguis';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { NoiseOverlay, AbstractPuzzleBack } from '@/components/ui/BackgroundEffects';
 import CurrencySwitcher from '@/components/CurrencySwitcher';
 
@@ -15,6 +15,8 @@ export default function AccountPage() {
     const [saving, setSaving] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [profile, setProfile] = useState<any>(null);
+
+    const [isEditing, setIsEditing] = useState(false);
 
     // Form states
     const [form, setForm] = useState({
@@ -29,6 +31,8 @@ export default function AccountPage() {
         boletin_activo: true,
         alertas_ventas: true,
     });
+    
+    const [initialForm, setInitialForm] = useState(form);
 
     useEffect(() => {
         fetchProfile();
@@ -47,7 +51,7 @@ export default function AccountPage() {
 
         if (data && !error) {
             setProfile(data);
-            setForm({
+            const loadedForm = {
                 nombre_artistico: data.nombre_artistico || '',
                 nombre_usuario: data.nombre_usuario || '',
                 nombre_completo: data.nombre_completo || '',
@@ -57,14 +61,23 @@ export default function AccountPage() {
                 verificacion_youtube: data.verificacion_youtube || '',
                 verificacion_tiktok: data.verificacion_tiktok || '',
                 boletin_activo: data.boletin_activo !== false,
-                alertas_ventas: true, // Placeholder si no existe en DB
-            });
+                alertas_ventas: true,
+            };
+            setForm(loadedForm);
+            setInitialForm(loadedForm);
         }
         setLoading(false);
     };
 
-    const handleSaveProfile = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const hasChanges = JSON.stringify(form) !== JSON.stringify(initialForm);
+
+    const handleSaveProfile = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (!hasChanges) {
+            setIsEditing(false); // Just exit edit mode if no changes
+            return;
+        }
+        
         setSaving(true);
         try {
             const { error } = await supabase
@@ -84,12 +97,19 @@ export default function AccountPage() {
 
             if (error) throw error;
             showToast("Perfil actualizado correctamente.", "success");
+            setInitialForm(form);
+            setIsEditing(false);
         } catch (error: any) {
             console.error(error);
             showToast("Error al guardar los cambios.", "error");
         } finally {
             setSaving(false);
         }
+    };
+
+    const handleCancelEdit = () => {
+        setForm(initialForm);
+        setIsEditing(false);
     };
 
     const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,31 +151,76 @@ export default function AccountPage() {
     if (loading) return <LoadingTianguis />;
 
     return (
-        <div className="max-w-5xl mx-auto space-y-16 pb-20 px-4 md:px-0 relative z-10 transition-all duration-700">
-            {/* Header */}
-            <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                    <span className="text-[9px] font-black uppercase tracking-tighter text-blue-500">Configuración Global</span>
+        <div className="max-w-5xl mx-auto space-y-12 pb-20 px-4 md:px-0 relative z-10 transition-all duration-700">
+            {/* Header & Status Bar */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border">
+                <div className="space-y-4">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                        <span className="text-[9px] font-black uppercase tracking-tighter text-blue-500">Configuración Global</span>
+                    </div>
+                    <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter leading-[0.8] text-foreground flex flex-col">
+                        <span className="opacity-40">Mi</span>
+                        <span className="text-blue-500 relative inline-block w-max">
+                            Cuenta
+                            <span className="absolute -bottom-2 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500/50 to-transparent rounded-full" />
+                        </span>
+                    </h1>
                 </div>
-                <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter leading-[0.8] text-foreground">
-                    <span className="opacity-40">Mi</span> <br />
-                    <span className="text-blue-500 relative inline-block">
-                        Cuenta
-                        <span className="absolute -bottom-2 left-0 w-full h-1.5 bg-gradient-to-r from-slate-400/50 to-transparent rounded-full" />
-                    </span>
-                </h1>
+
+                {/* Edit Controls */}
+                <div className="flex items-center gap-3">
+                    <AnimatePresence mode="wait">
+                        {!isEditing ? (
+                            <motion.button
+                                key="edit-btn"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                onClick={() => setIsEditing(true)}
+                                className="px-6 py-4 bg-foreground text-background dark:bg-white dark:text-black rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none flex items-center gap-2"
+                            >
+                                <Edit3 size={14} /> Editar Cambios
+                            </motion.button>
+                        ) : (
+                            <motion.div
+                                key="save-controls"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                className="flex flex-row items-center gap-2"
+                            >
+                                <button
+                                    onClick={handleCancelEdit}
+                                    className="px-6 py-4 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-sm active:scale-95 transition-all outline-none flex items-center gap-2 border border-red-500/20"
+                                >
+                                    <X size={14} /> {hasChanges ? 'Descartar' : 'Cancelar'}
+                                </button>
+                                
+                                {hasChanges && (
+                                    <button
+                                        onClick={() => handleSaveProfile()}
+                                        disabled={saving}
+                                        className="px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all outline-none flex items-center gap-2 border border-blue-500/50"
+                                    >
+                                        {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Guardar
+                                    </button>
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* ── Left Column: Profile & Personal Data ── */}
-                <div className="lg:col-span-8 space-y-10">
-                    <form onSubmit={handleSaveProfile} className="space-y-10">
+                <div className="lg:col-span-8 space-y-8">
+                    <form onSubmit={handleSaveProfile} className="space-y-8" id="account-form">
                         
                         {/* Avatar Section */}
-                        <div className="bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/10 rounded-[3rem] p-8 md:p-10 shadow-xl shadow-black/5 flex flex-col md:flex-row items-center gap-8">
+                        <div className={`bg-card/50 border border-border rounded-[3rem] p-8 md:p-10 shadow-xl shadow-black/5 flex flex-col md:flex-row items-center gap-8 transition-colors ${isEditing ? 'border-blue-500/30' : ''}`}>
                             <div className="relative group shrink-0">
-                                <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-background shadow-xl relative bg-black/5 dark:bg-white/5">
+                                <div className={`w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-background shadow-xl relative bg-black/5 dark:bg-white/5 transition-all ${isEditing ? 'ring-4 ring-blue-500/20' : ''}`}>
                                     {profile?.foto_perfil ? (
                                         <img src={profile.foto_perfil} alt="Avatar" className="w-full h-full object-cover" />
                                     ) : (
@@ -163,11 +228,16 @@ export default function AccountPage() {
                                             <User size={48} className="text-muted opacity-50" />
                                         </div>
                                     )}
-                                    <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                                        <Camera className="text-white mb-2" size={24} />
-                                        <span className="text-[9px] font-black text-white uppercase tracking-widest">Cambiar</span>
-                                    </div>
-                                    <input type="file" accept="image/*" onChange={handleAvatarUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                    
+                                    {isEditing && (
+                                        <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                            <Camera className="text-white mb-2" size={24} />
+                                            <span className="text-[9px] font-black text-white uppercase tracking-widest">Cambiar</span>
+                                        </div>
+                                    )}
+                                    {isEditing && (
+                                        <input type="file" accept="image/*" onChange={handleAvatarUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                    )}
                                 </div>
                             </div>
                             <div className="text-center md:text-left space-y-2 flex-1">
@@ -180,8 +250,8 @@ export default function AccountPage() {
                         </div>
 
                         {/* Public Profile Form */}
-                        <div className="bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/10 rounded-[3rem] p-8 md:p-10 shadow-xl shadow-black/5 space-y-8">
-                            <div className="flex items-center gap-4 border-b border-slate-200 dark:border-white/10 pb-6">
+                        <div className="bg-card/50 border border-border rounded-[3rem] p-8 md:p-10 shadow-xl shadow-black/5 space-y-8">
+                            <div className="flex items-center gap-4 border-b border-border pb-6">
                                 <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
                                     <User size={20} />
                                 </div>
@@ -194,40 +264,44 @@ export default function AccountPage() {
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div className="space-y-4">
                                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted ml-2">Nombre Artístico</label>
-                                    <input type="text" value={form.nombre_artistico} onChange={e => setForm({ ...form, nombre_artistico: e.target.value })} className="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-4 text-sm font-bold focus:border-blue-500 outline-none transition-all shadow-sm" placeholder="Ej. Bizarrap" />
+                                    <input type="text" value={form.nombre_artistico} onChange={e => setForm({ ...form, nombre_artistico: e.target.value })} disabled={!isEditing} className={`w-full bg-background border border-border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all shadow-sm ${isEditing ? 'focus:border-blue-500 focus:bg-background' : 'opacity-60 cursor-default'}`} placeholder="Ej. Bizarrap" />
                                 </div>
                                 <div className="space-y-4">
                                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted ml-2">Nombre de Usuario (@)</label>
-                                    <input type="text" value={form.nombre_usuario} onChange={e => setForm({ ...form, nombre_usuario: e.target.value })} className="w-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold focus:border-blue-500 outline-none transition-all shadow-sm opacity-70 cursor-not-allowed" disabled title="Contacta a soporte para cambiar tu usuario" />
+                                    <input type="text" value={form.nombre_usuario} disabled className="w-full bg-slate-100 dark:bg-black/40 border border-border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all shadow-sm opacity-50 cursor-not-allowed" title="Contacta a soporte para cambiar tu usuario" />
                                 </div>
                                 <div className="space-y-4 md:col-span-2">
                                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted ml-2">Biografía</label>
-                                    <textarea value={form.biografia} onChange={e => setForm({ ...form, biografia: e.target.value })} className="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-3xl px-6 py-5 text-sm font-bold focus:border-blue-500 outline-none transition-all h-32 resize-none shadow-sm" placeholder="Cuéntale al mundo sobre tus beats y tu estilo..." />
+                                    <textarea value={form.biografia} onChange={e => setForm({ ...form, biografia: e.target.value })} disabled={!isEditing} className={`w-full bg-background border border-border rounded-3xl px-6 py-5 text-sm font-bold outline-none transition-all h-32 resize-none shadow-sm ${isEditing ? 'focus:border-blue-500' : 'opacity-60 cursor-default'}`} placeholder="Cuéntale al mundo sobre tus beats y tu estilo..." />
                                 </div>
                                 <div className="space-y-4">
                                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted ml-2">País</label>
-                                    <input type="text" value={form.pais} onChange={e => setForm({ ...form, pais: e.target.value })} className="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-4 text-sm font-bold focus:border-blue-500 outline-none transition-all shadow-sm" placeholder="Ej. México" />
+                                    <input type="text" value={form.pais} onChange={e => setForm({ ...form, pais: e.target.value })} disabled={!isEditing} className={`w-full bg-background border border-border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all shadow-sm ${isEditing ? 'focus:border-blue-500' : 'opacity-60 cursor-default'}`} placeholder="Ej. México" />
                                 </div>
                             </div>
                             
-                            <div className="pt-6 border-t border-slate-200 dark:border-white/10">
+                            <div className="pt-6 border-t border-border">
                                 <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted ml-2 mb-6">Redes Sociales</h3>
                                 <div className="space-y-4">
-                                    <div className="flex relative">
-                                        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-muted"><Instagram size={18} /></div>
-                                        <input type="text" value={form.verificacion_instagram} onChange={e => setForm({ ...form, verificacion_instagram: e.target.value })} className="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl pl-14 pr-6 py-4 text-sm font-bold focus:border-blue-500 outline-none transition-all shadow-sm" placeholder="URL de tu Instagram" />
+                                    <div className="flex relative items-center">
+                                        <div className="absolute left-6 text-muted"><Instagram size={18} /></div>
+                                        <input type="text" value={form.verificacion_instagram} onChange={e => setForm({ ...form, verificacion_instagram: e.target.value })} disabled={!isEditing} className={`w-full bg-background border border-border rounded-2xl pl-14 pr-6 py-4 text-sm font-bold outline-none transition-all shadow-sm ${isEditing ? 'focus:border-blue-500' : 'opacity-60 cursor-default'}`} placeholder="Usuario de Instagram" />
                                     </div>
-                                    <div className="flex relative">
-                                        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-muted"><Youtube size={18} /></div>
-                                        <input type="text" value={form.verificacion_youtube} onChange={e => setForm({ ...form, verificacion_youtube: e.target.value })} className="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl pl-14 pr-6 py-4 text-sm font-bold focus:border-blue-500 outline-none transition-all shadow-sm" placeholder="URL de tu canal de YouTube" />
+                                    <div className="flex relative items-center">
+                                        <div className="absolute left-6 text-muted"><span className="font-bold font-sans text-sm italic">TikTok</span></div>
+                                        <input type="text" value={form.verificacion_tiktok} onChange={e => setForm({ ...form, verificacion_tiktok: e.target.value })} disabled={!isEditing} className={`w-full bg-background border border-border rounded-2xl pl-[4.5rem] pr-6 py-4 text-sm font-bold outline-none transition-all shadow-sm ${isEditing ? 'focus:border-blue-500' : 'opacity-60 cursor-default'}`} placeholder="Usuario de TikTok" />
+                                    </div>
+                                    <div className="flex relative items-center">
+                                        <div className="absolute left-6 text-muted"><Youtube size={18} /></div>
+                                        <input type="text" value={form.verificacion_youtube} onChange={e => setForm({ ...form, verificacion_youtube: e.target.value })} disabled={!isEditing} className={`w-full bg-background border border-border rounded-2xl pl-14 pr-6 py-4 text-sm font-bold outline-none transition-all shadow-sm ${isEditing ? 'focus:border-blue-500' : 'opacity-60 cursor-default'}`} placeholder="URL del Canal de YouTube" />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Personal Data Form */}
-                        <div className="bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/10 rounded-[3rem] p-8 md:p-10 shadow-xl shadow-black/5 space-y-8">
-                            <div className="flex items-center gap-4 border-b border-slate-200 dark:border-white/10 pb-6">
+                        <div className="bg-card/50 border border-border rounded-[3rem] p-8 md:p-10 shadow-xl shadow-black/5 space-y-8">
+                            <div className="flex items-center gap-4 border-b border-border pb-6">
                                 <div className="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-500 flex items-center justify-center">
                                     <Shield size={20} />
                                 </div>
@@ -240,29 +314,22 @@ export default function AccountPage() {
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div className="space-y-4">
                                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted ml-2">Nombre y Apellido Legal</label>
-                                    <input type="text" value={form.nombre_completo} onChange={e => setForm({ ...form, nombre_completo: e.target.value })} className="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-4 text-sm font-bold focus:border-violet-500 outline-none transition-all shadow-sm" placeholder="Tu nombre real completo" />
+                                    <input type="text" value={form.nombre_completo} onChange={e => setForm({ ...form, nombre_completo: e.target.value })} disabled={!isEditing} className={`w-full bg-background border border-border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all shadow-sm ${isEditing ? 'focus:border-violet-500' : 'opacity-60 cursor-default'}`} placeholder="Tu nombre legal" />
                                 </div>
                                 <div className="space-y-4">
                                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted ml-2">Correo Electrónico Principal</label>
-                                    <input type="email" value={profile?.correo} disabled className="w-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all shadow-sm opacity-70 cursor-not-allowed" />
+                                    <input type="email" value={profile?.correo} disabled className="w-full bg-slate-100 dark:bg-black/40 border border-border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all shadow-sm opacity-50 cursor-not-allowed" />
                                 </div>
                             </div>
-                        </div>
-
-                        {/* Submit Button */}
-                        <div className="flex justify-end pt-4">
-                            <button type="submit" disabled={saving} className="px-8 py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98] flex items-center justify-center gap-3 w-full md:w-auto">
-                                {saving ? <Loader2 className="animate-spin" size={18} /> : <><Save size={18} /> Guardar Todos Los Cambios</>}
-                            </button>
                         </div>
                     </form>
                 </div>
 
                 {/* ── Right Column: Preferences, Notifications, Security ── */}
-                <div className="lg:col-span-4 space-y-8">
+                <div className="lg:col-span-4 space-y-6">
                     
                     {/* Preferencias */}
-                    <div className="bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-black/5 space-y-6">
+                    <div className="bg-card/50 border border-border rounded-[2.5rem] p-8 shadow-xl shadow-black/5 space-y-6">
                         <div className="flex items-center gap-3">
                             <Settings size={18} className="text-muted" />
                             <h2 className="text-lg font-black uppercase tracking-tighter">Preferencias</h2>
@@ -270,15 +337,15 @@ export default function AccountPage() {
                         <div className="space-y-6">
                             <div>
                                 <label className="text-[9px] font-black uppercase tracking-widest text-muted block mb-3">Moneda Predeterminada</label>
-                                <div className="bg-white dark:bg-black/20 rounded-2xl p-2 border border-slate-200 dark:border-white/10 shadow-sm">
+                                <div className={`bg-background rounded-2xl p-2 border border-border shadow-sm transition-opacity ${!isEditing ? 'opacity-60 pointer-events-none' : ''}`}>
                                     <CurrencySwitcher />
                                 </div>
-                                <p className="text-[8px] text-muted font-bold uppercase tracking-widest mt-3 opacity-50">Así verás los precios en el catálogo de los demás.</p>
+                                <p className="text-[8px] text-muted font-bold uppercase tracking-widest mt-3 opacity-50">Así verás los precios en el catálogo.</p>
                             </div>
                             
                             <div>
                                 <label className="text-[9px] font-black uppercase tracking-widest text-muted block mb-3">Idioma</label>
-                                <select disabled className="w-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/5 rounded-2xl px-4 py-3 text-xs font-bold outline-none shadow-sm opacity-70 cursor-not-allowed appearance-none text-muted">
+                                <select disabled className="w-full bg-slate-100 dark:bg-black/40 border border-border rounded-2xl px-4 py-3 text-xs font-bold outline-none shadow-sm opacity-50 cursor-not-allowed appearance-none text-muted">
                                     <option>Español (México) 🇲🇽</option>
                                 </select>
                             </div>
@@ -286,65 +353,63 @@ export default function AccountPage() {
                     </div>
 
                     {/* Notificaciones */}
-                    <div className="bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-black/5 space-y-6">
+                    <div className="bg-card/50 border border-border rounded-[2.5rem] p-8 shadow-xl shadow-black/5 space-y-6">
                         <div className="flex items-center gap-3">
                             <Bell size={18} className="text-amber-500" />
                             <h2 className="text-lg font-black uppercase tracking-tighter">Notificaciones</h2>
                         </div>
                         
                         <div className="space-y-4">
-                            <label className="flex items-start gap-4 p-4 border border-slate-200 dark:border-white/5 rounded-2xl cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                            <label className={`flex items-start gap-4 p-4 border border-border rounded-2xl transition-all ${isEditing ? 'cursor-pointer hover:bg-black/5 dark:hover:bg-white/5' : 'opacity-60 cursor-default'}`}>
                                 <div className="mt-1">
-                                    <input type="checkbox" className="w-4 h-4 rounded text-blue-500 bg-black/10 border-transparent focus:ring-0 cursor-pointer" checked={form.boletin_activo} onChange={e => setForm({...form, boletin_activo: e.target.checked})} />
+                                    <input type="checkbox" disabled={!isEditing} className="w-4 h-4 rounded text-blue-500 bg-black/10 border-transparent focus:ring-0 cursor-pointer disabled:cursor-default" checked={form.boletin_activo} onChange={e => setForm({...form, boletin_activo: e.target.checked})} />
                                 </div>
                                 <div>
                                     <h4 className="text-[10px] font-black uppercase tracking-widest">Boletín Tianguis</h4>
-                                    <p className="text-[9px] font-medium text-muted mt-1 leading-relaxed">Novedades, recursos gratis para productores y actualizaciones.</p>
+                                    <p className="text-[9px] font-medium text-muted mt-1 leading-relaxed">Novedades y recursos gratis.</p>
                                 </div>
                             </label>
 
-                            <label className="flex items-start gap-4 p-4 border border-slate-200 dark:border-white/5 rounded-2xl cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                            <label className={`flex items-start gap-4 p-4 border border-border rounded-2xl transition-all ${isEditing ? 'cursor-pointer hover:bg-black/5 dark:hover:bg-white/5' : 'opacity-60 cursor-default'}`}>
                                 <div className="mt-1">
-                                    <input type="checkbox" className="w-4 h-4 rounded text-blue-500 bg-black/10 border-transparent focus:ring-0 cursor-pointer" checked={form.alertas_ventas} onChange={e => setForm({...form, alertas_ventas: e.target.checked})} />
+                                    <input type="checkbox" disabled={!isEditing} className="w-4 h-4 rounded text-blue-500 bg-black/10 border-transparent focus:ring-0 cursor-pointer disabled:cursor-default" checked={form.alertas_ventas} onChange={e => setForm({...form, alertas_ventas: e.target.checked})} />
                                 </div>
                                 <div>
                                     <h4 className="text-[10px] font-black uppercase tracking-widest">Alertas de Venta</h4>
-                                    <p className="text-[9px] font-medium text-muted mt-1 leading-relaxed">Te enviaremos un correo cada que alguien obtenga tus beats.</p>
+                                    <p className="text-[9px] font-medium text-muted mt-1 leading-relaxed">Correos de cada venta.</p>
                                 </div>
                             </label>
                         </div>
                     </div>
 
-                    {/* Seguridad y Privacidad */}
-                    <div className="bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-black/5 space-y-6">
+                    <div className="bg-card/50 border border-border rounded-[2.5rem] p-8 shadow-xl shadow-black/5 space-y-6">
                         <div className="flex items-center gap-3">
                             <Lock size={18} className="text-muted" />
                             <h2 className="text-lg font-black uppercase tracking-tighter">Seguridad</h2>
                         </div>
                         
                         <div className="space-y-3">
-                            <button className="w-full p-4 border border-slate-200 dark:border-white/10 rounded-2xl flex items-center justify-between group hover:border-blue-500/30 transition-all bg-white dark:bg-black/20">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-muted group-hover:text-foreground transition-colors">Cambiar Contraseña</span>
-                                <ChevronRight size={16} className="text-muted group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                            <button disabled={!isEditing} className={`w-full p-4 border border-border rounded-2xl flex items-center justify-between transition-all bg-background ${isEditing ? 'group hover:border-blue-500/30 cursor-pointer' : 'opacity-60 cursor-default'}`}>
+                                <span className={`text-[10px] font-black uppercase tracking-widest text-muted transition-colors ${isEditing ? 'group-hover:text-foreground' : ''}`}>Cambiar Contraseña</span>
+                                <ChevronRight size={16} className={`text-muted transition-all ${isEditing ? 'group-hover:text-blue-500 group-hover:translate-x-1' : ''}`} />
                             </button>
-                            <button className="w-full p-4 border border-slate-200 dark:border-white/10 rounded-2xl flex items-center justify-between group hover:border-blue-500/30 transition-all bg-white dark:bg-black/20">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-muted group-hover:text-foreground transition-colors">Conexiones Activas</span>
-                                <ChevronRight size={16} className="text-muted group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                            <button disabled={!isEditing} className={`w-full p-4 border border-border rounded-2xl flex items-center justify-between transition-all bg-background ${isEditing ? 'group hover:border-blue-500/30 cursor-pointer' : 'opacity-60 cursor-default'}`}>
+                                <span className={`text-[10px] font-black uppercase tracking-widest text-muted transition-colors ${isEditing ? 'group-hover:text-foreground' : ''}`}>Conexiones Activas</span>
+                                <ChevronRight size={16} className={`text-muted transition-all ${isEditing ? 'group-hover:text-blue-500 group-hover:translate-x-1' : ''}`} />
                             </button>
                         </div>
                     </div>
 
-                    {/* Danger Zone */}
-                    <div className="bg-red-500/[0.02] border border-red-500/10 rounded-[2.5rem] p-8 space-y-6 relative overflow-hidden group hover:bg-red-500/[0.04] transition-colors">
+                    <div className="bg-red-500/[0.02] border border-red-500/10 rounded-[2.5rem] p-8 space-y-6">
                         <div className="flex items-center gap-3 relative z-10">
                             <Trash2 size={18} className="text-red-500" />
-                            <h2 className="text-lg font-black uppercase tracking-tighter text-red-500">Zona de Riesgo</h2>
+                            <h2 className="text-lg font-black uppercase tracking-tighter text-red-500">Peligro</h2>
                         </div>
                         <p className="text-[10px] text-muted font-bold uppercase tracking-widest opacity-60 leading-relaxed shadow-sm">
-                            Eliminar tu cuenta borrará todos tus beats, ingresos pendientes y datos permanentemente.
+                            Eliminar tu cuenta borrará datos permanentemente.
                         </p>
                         <button className="w-full px-6 py-4 bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all border border-red-500/20 active:scale-95 shadow-sm">
-                            Eliminar mi cuenta
+                            Eliminar cuenta
                         </button>
                     </div>
 
