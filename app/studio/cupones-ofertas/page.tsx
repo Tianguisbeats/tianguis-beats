@@ -60,6 +60,11 @@ export default function CouponsPage() {
     const [processingOfferId, setProcessingOfferId] = useState<string | null>(null);
     const { showToast } = useToast();
 
+    // Bulk deal form state — edits are local until "Guardar" is clicked
+    const [editingBulkId, setEditingBulkId] = useState<string | null>(null);
+    const [bulkForm, setBulkForm] = useState<{ venta_minima: number; beats_gratis: number }>({ venta_minima: 2, beats_gratis: 1 });
+    const [showNewBulkForm, setShowNewBulkForm] = useState(false);
+
     // Form State
     const [isEditing, setIsEditing] = useState(false);
     const [currentCoupon, setCurrentCoupon] = useState<Partial<Coupon> | null>(null);
@@ -326,14 +331,16 @@ export default function CouponsPage() {
                             <p className="text-2xl font-black text-slate-900 dark:text-foreground tabular-nums">{coupons.filter(c => c.es_activo).length}</p>
                         </div>
                     </div>
-                    <button
-                        onClick={() => { const newCp: Partial<Coupon> = { aplica_a: 'todos', nivel_objetivo: 'todos', es_activo: true }; setCurrentCoupon(newCp); setOriginalCoupon(newCp); setIsEditing(true); }}
-                        className="group relative overflow-hidden bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-8 py-4 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] hover:scale-[1.02] transition-all active:scale-95 flex items-center gap-3"
-                    >
-                        <div className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                        <Plus size={18} strokeWidth={3} className="relative z-10 group-hover:text-white" />
-                        <span className="relative z-10 group-hover:text-white pb-[1px]">Nuevo Cupón</span>
-                    </button>
+                    {activeTab === 'cupones' && (
+                        <button
+                            onClick={() => { const newCp: Partial<Coupon> = { aplica_a: 'todos', nivel_objetivo: 'todos', es_activo: true }; setCurrentCoupon(newCp); setOriginalCoupon(newCp); setIsEditing(true); }}
+                            className="group relative overflow-hidden bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-8 py-4 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] hover:scale-[1.02] transition-all active:scale-95 flex items-center gap-3"
+                        >
+                            <div className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                            <Plus size={18} strokeWidth={3} className="relative z-10 group-hover:text-white" />
+                            <span className="relative z-10 group-hover:text-white pb-[1px]">Nuevo Cupón</span>
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -510,11 +517,11 @@ export default function CouponsPage() {
             )}
             </>
             ) : activeTab === 'bulk' ? (
-                <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    {/* Bulk Deals Summary Card */}
+                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    {/* Bulk Header */}
                     <div className="relative group overflow-hidden bg-emerald-500/5 border border-emerald-500/10 rounded-[3rem] p-10 flex flex-col md:flex-row items-center justify-between gap-8">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full -mr-32 -mt-32 pointer-events-none" />
-                        
+
                         <div className="relative z-10 space-y-4 text-center md:text-left">
                             <div className="flex items-center justify-center md:justify-start gap-4 mb-2">
                                 <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 border border-emerald-500/20">
@@ -527,69 +534,153 @@ export default function CouponsPage() {
                             </p>
                         </div>
                         
-                        <button 
-                            onClick={() => handleSaveBulkDeal({ venta_minima: 2, beats_gratis: 1, es_activa: true })}
+                        <button
+                            onClick={() => { setBulkForm({ venta_minima: 2, beats_gratis: 1 }); setShowNewBulkForm(true); }}
                             className="relative z-10 px-8 py-5 bg-emerald-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shadow-2xl shadow-emerald-500/20 group/btn"
                         >
-                            <Plus size={18} className="group-hover:rotate-90 transition-transform duration-500" /> 
-                            Nueva Regla Bulk
+                            <Plus size={18} className="group-hover:rotate-90 transition-transform duration-500" />
+                            Nueva Regla
                         </button>
                     </div>
 
-                    {/* Bulk Deals Grid */}
-                    {bulkDeals.length === 0 ? (
-                        <div className="py-24 text-center bg-foreground/[0.01] border border-dashed border-border rounded-[3rem]">
-                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted opacity-30">No tienes reglas configuradas</p>
-                        </div>
-                    ) : (
-                        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
-                            {bulkDeals.map(deal => (
-                                <div key={deal.id} className={`group relative bg-card border border-border rounded-[2.5rem] p-8 transition-all hover:border-emerald-500/30 ${!deal.es_activa && 'opacity-50 grayscale scale-[0.98]'}`}>
-                                    <div className="flex justify-between items-start mb-10">
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2">
-                                                <div className={`w-2 h-2 rounded-full ${deal.es_activa ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-                                                <p className="text-[8px] font-black uppercase tracking-widest text-muted">Regla Activa</p>
-                                            </div>
-                                            <h4 className="text-4xl font-black uppercase tracking-tighter">
-                                                {deal.venta_minima}<span className="text-emerald-500">x</span>{deal.venta_minima - deal.beats_gratis}
-                                            </h4>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button 
-                                                onClick={() => handleDeleteBulkDeal(deal.id)}
-                                                className="w-10 h-10 rounded-xl bg-rose-500/5 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center active:scale-90"
+                    {/* ── FORM NUEVA REGLA BULK ── */}
+                    <AnimatePresence>
+                        {showNewBulkForm && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -16 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -16 }}
+                                className="bg-card border-2 border-emerald-500/30 rounded-[2.5rem] p-8 space-y-8"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-lg font-black uppercase tracking-tighter text-emerald-500">Nueva Oferta por Volumen</h4>
+                                    <button onClick={() => setShowNewBulkForm(false)} className="w-9 h-9 rounded-xl bg-foreground/5 flex items-center justify-center text-muted hover:text-foreground transition-colors">
+                                        <X size={16} />
+                                    </button>
+                                </div>
+
+                                {/* Presets rápidos */}
+                                <div>
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-muted mb-3">Presets Rápidos</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {[{ label: '2 × 1', vm: 2, bg: 1 }, { label: '3 × 2', vm: 3, bg: 1 }, { label: '4 × 3', vm: 4, bg: 1 }, { label: '5 × 3', vm: 5, bg: 2 }, { label: '10 × 7', vm: 10, bg: 3 }].map(p => (
+                                            <button
+                                                key={p.label}
+                                                onClick={() => setBulkForm({ venta_minima: p.vm, beats_gratis: p.bg })}
+                                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${bulkForm.venta_minima === p.vm && bulkForm.beats_gratis === p.bg ? 'bg-emerald-500 text-white' : 'bg-foreground/[0.05] border border-border text-muted hover:border-emerald-500/30 hover:text-foreground'}`}
                                             >
-                                                <Trash size={16} />
+                                                {p.label}
                                             </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] font-black uppercase tracking-widest text-muted">Beats mínimos para activar</label>
+                                        <div className="bg-foreground/[0.03] border border-border rounded-2xl p-4 flex items-center gap-3">
+                                            <Music size={16} className="text-muted shrink-0" />
+                                            <input
+                                                type="number"
+                                                min={2} max={20}
+                                                value={bulkForm.venta_minima}
+                                                onChange={e => setBulkForm(f => ({ ...f, venta_minima: Math.max(2, parseInt(e.target.value) || 2) }))}
+                                                className="w-full bg-transparent font-black text-2xl text-emerald-500 outline-none"
+                                            />
                                         </div>
                                     </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] font-black uppercase tracking-widest text-muted">Beats que se regalan</label>
+                                        <div className="bg-foreground/[0.03] border border-border rounded-2xl p-4 flex items-center gap-3">
+                                            <Zap size={16} className="text-emerald-500 shrink-0" />
+                                            <input
+                                                type="number"
+                                                min={1} max={bulkForm.venta_minima - 1}
+                                                value={bulkForm.beats_gratis}
+                                                onChange={e => setBulkForm(f => ({ ...f, beats_gratis: Math.max(1, Math.min(f.venta_minima - 1, parseInt(e.target.value) || 1)) }))}
+                                                className="w-full bg-transparent font-black text-2xl text-emerald-500 outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
 
-                                    <div className="space-y-6">
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="bg-foreground/[0.03] rounded-2xl p-4 border border-border/50">
-                                                <p className="text-[8px] font-black uppercase tracking-widest text-muted mb-2">Compra (Min)</p>
-                                                <input 
-                                                    type="number"
-                                                    value={deal.venta_minima}
-                                                    onChange={(e) => handleSaveBulkDeal({ ...deal, venta_minima: parseInt(e.target.value) })}
-                                                    className="w-full bg-transparent font-black text-xl outline-none focus:text-emerald-500 transition-colors"
-                                                />
+                                {/* Preview */}
+                                <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-5 text-center">
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-emerald-500/60 mb-1">Vista previa de la oferta</p>
+                                    <p className="text-2xl font-black text-emerald-500 uppercase tracking-tighter">
+                                        {bulkForm.venta_minima} × {bulkForm.venta_minima - bulkForm.beats_gratis}
+                                    </p>
+                                    <p className="text-[10px] font-bold text-muted mt-1">
+                                        Lleva {bulkForm.venta_minima} beats, paga solo {bulkForm.venta_minima - bulkForm.beats_gratis} — el/los {bulkForm.beats_gratis} más baratos son gratis
+                                    </p>
+                                </div>
+
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={async () => {
+                                            await handleSaveBulkDeal({ venta_minima: bulkForm.venta_minima, beats_gratis: bulkForm.beats_gratis, es_activa: true });
+                                            setShowNewBulkForm(false);
+                                        }}
+                                        disabled={saving}
+                                        className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
+                                    >
+                                        {saving ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />}
+                                        Guardar Regla
+                                    </button>
+                                    <button onClick={() => setShowNewBulkForm(false)} className="px-6 py-4 rounded-2xl border border-border text-muted font-black text-[10px] uppercase tracking-widest hover:border-foreground/30 hover:text-foreground transition-all">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* ── REGLAS EXISTENTES ── */}
+                    {bulkDeals.length === 0 && !showNewBulkForm ? (
+                        <div className="py-24 text-center bg-foreground/[0.01] border border-dashed border-border rounded-[3rem]">
+                            <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mx-auto mb-4 text-emerald-500">
+                                <Zap size={28} />
+                            </div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted opacity-40">Sin reglas configuradas</p>
+                            <p className="text-[9px] font-bold text-muted opacity-25 mt-2 uppercase tracking-widest">Haz clic en "Nueva Regla" para comenzar</p>
+                        </div>
+                    ) : (
+                        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            {bulkDeals.map(deal => (
+                                <div key={deal.id} className={`group relative bg-card border border-border rounded-[2.5rem] p-8 transition-all hover:border-emerald-500/30 ${!deal.es_activa && 'opacity-50 grayscale'}`}>
+                                    <div className="flex justify-between items-start mb-8">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <div className={`w-2 h-2 rounded-full ${deal.es_activa ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                                                <p className="text-[8px] font-black uppercase tracking-widest text-muted">{deal.es_activa ? 'Activa' : 'Inactiva'}</p>
                                             </div>
+                                            <h4 className="text-5xl font-black uppercase tracking-tighter">
+                                                {deal.venta_minima}<span className="text-emerald-500">×</span>{deal.venta_minima - deal.beats_gratis}
+                                            </h4>
+                                        </div>
+                                        <button
+                                            onClick={() => handleDeleteBulkDeal(deal.id)}
+                                            className="w-10 h-10 rounded-xl bg-rose-500/5 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center active:scale-90"
+                                        >
+                                            <Trash size={16} />
+                                        </button>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-3 text-center">
                                             <div className="bg-foreground/[0.03] rounded-2xl p-4 border border-border/50">
-                                                <p className="text-[8px] font-black uppercase tracking-widest text-muted mb-2">Gratis</p>
-                                                <input 
-                                                    type="number"
-                                                    value={deal.beats_gratis}
-                                                    onChange={(e) => handleSaveBulkDeal({ ...deal, beats_gratis: parseInt(e.target.value) })}
-                                                    className="w-full bg-transparent font-black text-xl outline-none focus:text-emerald-500 transition-colors"
-                                                />
+                                                <p className="text-[7px] font-black uppercase tracking-widest text-muted mb-1">Compra mín.</p>
+                                                <p className="text-3xl font-black text-foreground">{deal.venta_minima}</p>
+                                            </div>
+                                            <div className="bg-emerald-500/5 rounded-2xl p-4 border border-emerald-500/20">
+                                                <p className="text-[7px] font-black uppercase tracking-widest text-emerald-600/60 mb-1">Se regalan</p>
+                                                <p className="text-3xl font-black text-emerald-500">{deal.beats_gratis}</p>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center justify-between p-4 bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
-                                            <p className="text-[9px] font-black uppercase tracking-widest text-emerald-600/70">Estado de Regla</p>
-                                            <Switch 
+                                        <div className="flex items-center justify-between p-4 bg-foreground/[0.02] rounded-2xl border border-border/50">
+                                            <p className="text-[9px] font-black uppercase tracking-widest text-muted">Activar oferta</p>
+                                            <Switch
                                                 active={deal.es_activa}
                                                 onChange={() => handleSaveBulkDeal({ ...deal, es_activa: !deal.es_activa })}
                                                 activeColor="bg-emerald-500"
@@ -597,9 +688,9 @@ export default function CouponsPage() {
                                         </div>
                                     </div>
 
-                                    <div className="mt-8 pt-6 border-t border-border/50">
+                                    <div className="mt-6 pt-5 border-t border-border/40">
                                         <p className="text-[9px] font-bold text-muted uppercase tracking-widest leading-relaxed">
-                                            Lleva <span className="text-foreground font-black">{deal.venta_minima}</span> beats y paga solo <span className="text-emerald-500 font-black">{deal.venta_minima - deal.beats_gratis}</span>.
+                                            Lleva <span className="text-foreground font-black">{deal.venta_minima}</span> beats de tu catálogo y paga solo <span className="text-emerald-500 font-black">{deal.venta_minima - deal.beats_gratis}</span>. Los {deal.beats_gratis} más baratos son gratis.
                                         </p>
                                     </div>
                                 </div>

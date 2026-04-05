@@ -136,12 +136,7 @@ export default function PremiumHubPage() {
             tip: 'Crea tu base de datos activando el formulario de correos o boletín.'
         });
 
-        checks.push({
-            id: 'smart-link',
-            label: 'Smart Link Bio',
-            done: preferences.is_links_active,
-            tip: 'Centraliza tus redes y servicios encendiendo tu Smart Link Bio.'
-        });
+
 
         return checks;
     };
@@ -292,46 +287,7 @@ export default function PremiumHubPage() {
                 </div>
 
                 <div className="space-y-10">
-                    {/* Smart Link Bio Card */}
-                    <div className={`group relative bg-white dark:bg-[#020205] backdrop-blur-3xl border border-slate-200 dark:border-white/5 p-8 rounded-[2.5rem] transition-all duration-700 overflow-hidden ${!preferences.is_links_active && 'opacity-60'}`}>
-                        {/* Indigo Top Line */}
-                        <div className="absolute top-0 left-0 right-0 h-[6px] bg-indigo-500 z-20" />
-                        {/* Indigo Accent Aura */}
-                        <div className={`absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/5 blur-[80px] rounded-full transition-all duration-1000 group-hover:scale-125 ${preferences.is_links_active ? 'opacity-100' : 'opacity-0'}`} />
 
-                        <div className="relative z-10 space-y-10">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-5">
-                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${preferences.is_links_active ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-500 ring-4 ring-indigo-500/5' : 'bg-slate-50 dark:bg-white/5 text-slate-400 dark:text-muted/40'}`}>
-                                        <Zap size={32} />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <h3 className="font-black text-2xl text-slate-900 dark:text-foreground uppercase tracking-tight">Smart Link Bio</h3>
-                                        <div className="flex items-center gap-2">
-                                            <span className="w-1 h-1 rounded-full bg-indigo-500" />
-                                            <p className="text-[9px] text-slate-500 dark:text-muted font-black uppercase tracking-widest opacity-60">Matriz de Enlaces Profesionales</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <Switch
-                                    active={preferences.is_links_active}
-                                    onChange={(val) => setPreferences({ ...preferences, is_links_active: val })}
-                                    activeColor="bg-indigo-500"
-                                    size="md"
-                                />
-                            </div>
-
-                            <div className={`space-y-8 transition-all duration-700 ${preferences.is_links_active ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-20 pointer-events-none'}`}>
-                                <p className="text-sm text-slate-600 dark:text-muted font-medium leading-relaxed">
-                                    Despliega una interfaz optimizada para dispositivos móviles que centraliza tu discografía, servicios y redes sociales en un solo punto de contacto.
-                                </p>
-
-                                <Link href={preferences.is_links_active ? `/${username}/links` : '#'} className="w-full flex items-center justify-center gap-3 py-4 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all group/link">
-                                    Ver Smart Link Bio <ChevronRight size={16} className="group-hover/link:translate-x-1 transition-transform" />
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
 
                     {/* Fun Capture / Newsletter Card */}
                     <div className={`group relative bg-white dark:bg-[#020205] backdrop-blur-3xl border border-slate-200 dark:border-white/5 p-8 rounded-[2.5rem] transition-all duration-700 overflow-hidden ${!preferences.newsletter_active && 'opacity-60'}`}>

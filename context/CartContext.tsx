@@ -472,10 +472,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             const deal = bulkDeals.find(d => d.productor_id === pid);
             if (!deal || !deal.es_activa) return;
 
-            const required = (deal as any).compra_qty + (deal as any).regala_qty;
+            const compra = (deal as any).venta_minima ?? (deal as any).compra_qty ?? 2;
+            const regala = (deal as any).beats_gratis ?? (deal as any).regala_qty ?? 1;
+            const required = compra;
             if (indices.length >= required) {
                 const bundleCount = Math.floor(indices.length / required);
-                const freeCount = bundleCount * (deal as any).regala_qty;
+                const freeCount = bundleCount * regala;
 
                 // Ordenar indices por precio del item (más barato primero)
                 const sortedIndices = [...indices].sort((a, b) => result[a].price - result[b].price);
