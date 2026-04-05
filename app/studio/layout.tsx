@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Crown, ShieldCheck, Package, LayoutGrid, FileText, CreditCard, Wallet, ChevronRight, Zap, MessageCircle, PanelLeftClose, PanelLeftOpen, ChevronLeft } from 'lucide-react';
+import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Crown, ShieldCheck, Package, LayoutGrid, FileText, CreditCard, Wallet, ChevronRight, Zap, MessageCircle, PanelLeftClose, PanelLeftOpen, ChevronLeft, Layers } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,7 +18,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         { name: 'Mis Beats', href: '/studio/beats', icon: <Music size={18} /> },
         { name: 'Licencias', href: '/studio/licencias', icon: <FileText size={18} /> },
         { name: 'Cupones y Ofertas', href: '/studio/cupones-ofertas', icon: <Ticket size={18} /> },
-        { name: 'Sound Kits', href: '/studio/soundkits', icon: <Package size={18} /> },
+        { name: 'Sound Kits', href: '/studio/soundkits', icon: <Layers size={18} /> },
         { name: 'Hub Premium', href: '/studio/premium', icon: <Crown size={18} /> },
         { name: 'Estadísticas', href: '/studio/stats', icon: <BarChart2 size={18} /> },
         { name: 'Ventas', href: '/studio/sales', icon: <DollarSign size={18} /> },
