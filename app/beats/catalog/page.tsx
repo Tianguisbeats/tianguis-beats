@@ -430,48 +430,55 @@ function CatalogContent() {
                 <div className="max-w-[1900px] mx-auto px-4 sm:px-8 mt-8">
 
                     {/* Tabs */}
-                    <div className="relative group/tabs mb-8">
-                        <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white dark:from-[#080808] to-transparent z-10 pointer-events-none" />
-                        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white dark:from-[#080808] to-transparent z-10 pointer-events-none" />
-
+                    <div className="relative mb-10 px-2 sm:px-4">
+                        {/* Scroll buttons - Always visible for better UX */}
                         <button
-                            onClick={() => document.getElementById("tabs-scroll")?.scrollBy({ left: -260, behavior: "smooth" })}
-                            className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/10 flex items-center justify-center opacity-0 group-hover/tabs:opacity-100 transition-opacity shadow"
+                            onClick={() => document.getElementById("tabs-scroll")?.scrollBy({ left: -280, behavior: "smooth" })}
+                            className="absolute left-0 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all text-slate-500 dark:text-emerald-500"
                         >
-                            <ChevronLeft size={14} className="text-slate-500 dark:text-slate-400" />
+                            <ChevronLeft size={18} strokeWidth={3} />
                         </button>
 
-                        <div id="tabs-scroll" className="flex items-center gap-2 overflow-x-auto no-scrollbar px-6 py-1">
-                            {TABS.map(({ mode, label, icon: Icon, badge }) => (
-                                <button
-                                    key={mode}
-                                    onClick={() => { setViewMode(mode); setPage(1); }}
-                                    className={`snap-center shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-[0.12em] transition-all duration-300 ${
-                                        viewMode === mode
-                                            ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/25"
-                                            : "text-slate-500 dark:text-white/30 hover:text-emerald-500 dark:hover:text-emerald-400 hover:bg-emerald-500/5 dark:hover:bg-emerald-500/10"
-                                    }`}
-                                >
-                                    <Icon size={12} strokeWidth={viewMode === mode ? 3 : 2} />
-                                    {label}
-                                    {badge && (
-                                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider ${
+                        <div 
+                            id="tabs-scroll" 
+                            className="flex items-center gap-3 overflow-x-auto no-scrollbar py-2 px-12 scroll-smooth"
+                            style={{ 
+                                maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
+                                WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)'
+                            }}
+                        >
+                            <div className="flex items-center gap-3 mx-auto min-w-max">
+                                {TABS.map(({ mode, label, icon: Icon, badge }) => (
+                                    <button
+                                        key={mode}
+                                        onClick={() => { setViewMode(mode); setPage(1); }}
+                                        className={`snap-center shrink-0 flex items-center gap-2.5 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.14em] transition-all duration-500 ${
                                             viewMode === mode
-                                                ? "bg-white/20 text-white"
-                                                : "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400"
-                                        }`}>
-                                            {badge}
-                                        </span>
-                                    )}
-                                </button>
-                            ))}
+                                                ? "bg-emerald-500 text-white shadow-[0_10px_25px_-5px_rgba(16,185,129,0.4)] scale-105"
+                                                : "bg-white/[0.03] dark:bg-white/[0.05] text-slate-500 dark:text-white/40 border border-transparent hover:border-emerald-500/30 hover:text-emerald-500 dark:hover:text-emerald-400 hover:bg-emerald-500/5"
+                                        }`}
+                                    >
+                                        <Icon size={14} strokeWidth={viewMode === mode ? 3 : 2.5} />
+                                        {label}
+                                        {badge && (
+                                            <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                                                viewMode === mode
+                                                    ? "bg-white/25 text-white"
+                                                    : "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 shadow-sm"
+                                            }`}>
+                                                {badge}
+                                            </span>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         <button
-                            onClick={() => document.getElementById("tabs-scroll")?.scrollBy({ left: 260, behavior: "smooth" })}
-                            className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/10 flex items-center justify-center opacity-0 group-hover/tabs:opacity-100 transition-opacity shadow"
+                            onClick={() => document.getElementById("tabs-scroll")?.scrollBy({ left: 280, behavior: "smooth" })}
+                            className="absolute right-0 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all text-slate-500 dark:text-emerald-500"
                         >
-                            <ChevronRight size={14} className="text-slate-500 dark:text-slate-400" />
+                            <ChevronRight size={18} strokeWidth={3} />
                         </button>
                     </div>
 
