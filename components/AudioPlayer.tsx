@@ -176,7 +176,7 @@ export default function AudioPlayer() {
             {/* ═══════════ VERSIÓN MÓVIL ═══════════ */}
             <div className="md:hidden fixed bottom-[68px] left-0 right-0 z-[100] px-3 animate-in slide-in-from-bottom-2 duration-300">
                 <div
-                    className={`relative rounded-[1.75rem] overflow-hidden shadow-2xl border ${playerBgClass} ${playerBorderClass}`}
+                    className={`relative rounded-[1.75rem] overflow-visible shadow-2xl border ${playerBgClass} ${playerBorderClass}`}
                     style={{
                         boxShadow: isDark
                             ? `0 24px 80px rgba(0,0,0,0.6)`
@@ -213,7 +213,7 @@ export default function AudioPlayer() {
                                 </Link>
                                 <div className="flex items-center gap-1.5 mt-0.5">
                                     <Link href={producerLink}
-                                        className={`text-[10px] font-bold uppercase truncate hover:opacity-80 transition-opacity ${textMutedClass}`}>
+                                        className={`text-[10px] font-bold uppercase truncate hover:opacity-80 transition-opacity ${accentText}`}>
                                         {producerName}
                                     </Link>
                                     {(currentBeat.productor_esta_verificado || (currentBeat as any).is_verified) && (
@@ -302,7 +302,7 @@ export default function AudioPlayer() {
             {/* ═══════════ VERSIÓN ESCRITORIO ═══════════ */}
             <div className="hidden md:block fixed bottom-5 left-1/2 -translate-x-1/2 z-[100] w-[97%] max-w-[1400px] animate-in slide-in-from-bottom-6 duration-500">
                 <div
-                    className={`relative rounded-[2rem] overflow-hidden border ${playerBgClass} ${playerBorderClass}`}
+                    className={`relative rounded-[2rem] overflow-visible border ${playerBgClass} ${playerBorderClass}`}
                     style={{
                         boxShadow: isDark
                             ? `0 24px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)`
@@ -342,7 +342,7 @@ export default function AudioPlayer() {
                                 </Link>
                                 <div className="flex items-center gap-1.5">
                                     <Link href={producerLink}
-                                        className={`text-[10px] font-bold truncate transition-colors hover:underline underline-offset-2 uppercase tracking-widest ${textMutedClass} hover:${isDark ? 'text-white/80' : 'text-slate-700'}`}>
+                                        className={`text-[10px] font-bold truncate transition-colors hover:underline underline-offset-2 uppercase tracking-widest ${accentText} hover:${isDark ? 'text-white/80' : 'text-slate-700'}`}>
                                         {producerName}
                                     </Link>
                                     {(currentBeat.productor_esta_verificado || (currentBeat as any).is_verified) && (

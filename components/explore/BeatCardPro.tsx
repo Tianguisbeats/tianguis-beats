@@ -208,9 +208,7 @@ export default function BeatCardPro({ beat, compact = false, adminControls }: Be
                             </span>
                             <div className="flex items-center gap-1 shrink-0">
                                 {beat.productor_esta_verificado && (
-                                    <div className="w-3.5 h-3.5 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
-                                        <Zap size={8} fill="white" className="text-white" />
-                                    </div>
+                                    <img src="/verified-badge.png" alt="V" className="w-3.5 h-3.5 object-contain shrink-0 dark:brightness-0 dark:invert" />
                                 )}
                                 {beat.productor_es_fundador && (
                                     <Crown size={12} className="text-amber-400 drop-shadow-sm" fill="currentColor" />
