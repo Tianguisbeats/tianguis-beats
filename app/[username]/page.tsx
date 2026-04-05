@@ -786,12 +786,7 @@ export default function ProducerProfilePage() {
                                                     key={pl.id}
                                                     className="group relative rounded-[2rem] overflow-hidden cursor-pointer bg-card border border-border/60 hover:border-blue-500/40 transition-all duration-400 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/10"
                                                     onClick={() => {
-                                                        if (isOwner) {
-                                                            setEditingPlaylist(pl);
-                                                            setIsPlaylistModalOpen(true);
-                                                        } else {
-                                                            router.push(`/${username}/playlists/${pl.id}`);
-                                                        }
+                                                        router.push(`/${username}/playlists/${pl.id}`);
                                                     }}
                                                 >
                                                     {/* Cover art */}
