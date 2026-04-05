@@ -202,18 +202,28 @@ export default function BeatCardPro({ beat, compact = false, adminControls }: Be
                                 {beat.titulo}
                             </h4>
                         </Link>
-                        <Link href={`/${beat.productor_nombre_usuario || '#'}`} className="flex items-center gap-1.5 group/prod">
-                            <span className="text-[10px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-widest group-hover/prod:text-emerald-500 transition-colors truncate">
-                                {beat.productor_nombre_artistico || beat.productor_nombre_usuario}
+                        <Link
+                            href={`/${(beat as any).productor_nombre_usuario || (beat as any).nombre_usuario || '#'}`}
+                            className="flex items-center gap-1.5 group/link"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-white/30 group-hover/link:text-blue-500 transition-colors truncate max-w-[120px]">
+                                {(beat as any).productor_nombre_artistico || (beat as any).nombre_artistico || (beat as any).productor_nombre_usuario || (beat as any).nombre_usuario || 'Productor'}
                             </span>
-                            <div className="flex items-center gap-1 shrink-0">
-                                {(beat.productor_esta_verificado || (beat as any).is_verified) && (
-                                    <img src="/verified-badge.png" alt="V" className="w-3.5 h-3.5 object-contain shrink-0 dark:brightness-0 dark:invert" />
-                                )}
-                                {(beat.productor_es_fundador || (beat as any).is_founder) && (
-                                    <Crown size={12} className="text-amber-400 drop-shadow-sm" fill="currentColor" />
-                                )}
-                            </div>
+                            {(beat.productor_esta_verificado || (beat as any).esta_verificado || (beat as any).is_verified) && (
+                                <img 
+                                    src="/verified-badge.png" 
+                                    alt="Verificado" 
+                                    className="w-3.5 h-3.5 object-contain dark:brightness-0 dark:invert"
+                                />
+                            )}
+                            {(beat.productor_es_fundador || (beat as any).es_fundador || (beat as any).is_founder) && (
+                                <Crown 
+                                    size={12} 
+                                    className="text-amber-400 fill-amber-400 shadow-sm"
+                                    style={{ filter: 'drop-shadow(0 0 2px rgba(251, 191, 36, 0.4))' }}
+                                />
+                            )}
                         </Link>
                     </div>
 

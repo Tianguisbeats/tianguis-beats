@@ -78,9 +78,9 @@ function FileUploadZone({ id, label, sublabel, color, hex, icon, file, existingF
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/50 backdrop-blur-[4px] rounded-[2.5rem]">
                     <Link href={disabledLink || "/pricing"} 
                         className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-lg text-white ${
-                            disabledLabel?.includes('Pro') ? 'bg-amber-500' : 
-                            disabledLabel?.includes('Premium') ? 'bg-blue-600' :
-                            disabledLabel?.includes('Licencia') ? 'bg-rose-500' : 'bg-foreground'
+                            disabledLabel?.includes('Premium') ? 'bg-orange-500 shadow-orange-500/20' : 
+                            disabledLabel?.includes('Pro') ? 'bg-blue-600 shadow-blue-500/20' :
+                            disabledLabel?.includes('Licencia') ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-foreground'
                         }`}>
                         {disabledLabel || 'Desbloquear'}
                     </Link>

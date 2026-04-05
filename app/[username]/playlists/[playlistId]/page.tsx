@@ -159,37 +159,37 @@ export default function PlaylistDetailPage() {
         <div className="min-h-screen bg-background flex flex-col">
             <Navbar />
             
-            <main className="flex-1 pb-24 min-h-screen">
+            <main className="flex-1 pb-32 md:pb-24 min-h-screen">
                 {/* Header Section */}
-                <div className="relative pt-32 pb-16 overflow-hidden flex flex-col items-center justify-center min-h-[50vh]">
-                    {/* Background Blur */}
+                <div className="relative pt-20 pb-10 md:pt-32 md:pb-16 overflow-hidden flex flex-col items-center justify-center">
+                    {/* Background Blur — reducido en móvil para mejor rendimiento */}
                     <div className="absolute inset-0 z-0">
-                        <PlaylistCover beats={beats} size="lg" className="w-[120%] h-[120%] -ml-[10%] -mt-[10%] object-cover blur-[140px] opacity-60 saturate-150" />
-                        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/80 to-background" />
+                        <PlaylistCover beats={beats} size="lg" className="w-[120%] h-[120%] -ml-[10%] -mt-[10%] object-cover blur-[60px] md:blur-[140px] opacity-50 md:opacity-60 saturate-150" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/80 to-background" />
                     </div>
 
-                    <div className="max-w-6xl mx-auto px-6 relative z-10 w-full flex flex-col items-center">
-                        <button 
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 w-full flex flex-col items-center">
+                        <button
                             onClick={() => router.back()}
-                            className="mb-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+                            className="mb-5 md:mb-8 self-start flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted hover:text-foreground transition-colors"
                         >
                             <ArrowLeft size={14} /> Volver
                         </button>
 
-                        <div className="flex flex-col items-center gap-8 md:gap-10 w-full mt-4">
-                            <PlaylistCover beats={beats} size="lg" className="w-56 h-56 md:w-72 md:h-72 shadow-2xl shadow-accent/20 rounded-3xl overflow-hidden hover:scale-105 transition-transform duration-500" />
-                            
-                            <div className="flex-1 text-center space-y-5 w-full flex flex-col items-center">
+                        <div className="flex flex-col items-center gap-5 md:gap-10 w-full mt-2 md:mt-4">
+                            <PlaylistCover beats={beats} size="lg" className="w-40 h-40 sm:w-56 sm:h-56 md:w-72 md:h-72 shadow-xl shadow-accent/20 rounded-2xl md:rounded-3xl overflow-hidden hover:scale-105 transition-transform duration-500" />
+
+                            <div className="flex-1 text-center space-y-3 md:space-y-5 w-full flex flex-col items-center">
                                 <span className="inline-flex items-center justify-center gap-2 px-4 py-1.5 bg-accent/10 border border-accent/20 rounded-full text-[10px] font-black uppercase tracking-widest text-accent">
                                     <ListMusic size={12} /> Playlist {!playlist.es_publica && "(Privada)"}
                                 </span>
-                                <h1 className="text-4xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-foreground leading-[0.85] filter drop-shadow-lg text-center">
+                                <h1 className="text-3xl sm:text-4xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-foreground leading-[0.85] filter drop-shadow-lg text-center px-2">
                                     {playlist.nombre}
                                 </h1>
-                                <div className="flex flex-wrap justify-center items-center gap-x-5 gap-y-3 text-[12px] font-bold text-muted uppercase tracking-widest mt-2">
+                                <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-[12px] font-bold text-muted uppercase tracking-widest mt-1 md:mt-2">
                                     <Link href={`/${producer?.nombre_usuario || '#'}`} className="flex items-center gap-2.5 text-foreground bg-foreground/[0.03] hover:bg-foreground/[0.08] transition-colors pr-4 rounded-full border border-border/50 pb-1 pt-1 pl-1">
                                         <div className="w-8 h-8 rounded-full overflow-hidden bg-accent/20 border border-accent/30 shadow-md">
-                                            {producer?.foto_perfil && <img src={producer.foto_perfil} className="w-full h-full object-cover" />}
+                                            {producer?.foto_perfil && <img src={producer.foto_perfil} loading="lazy" className="w-full h-full object-cover" />}
                                         </div>
                                         <span className="font-black">{producer?.nombre_artistico || producer?.nombre_usuario}</span>
                                         {producer?.esta_verificado && <img src="/verified-badge.png" className="w-3.5 h-3.5 object-contain" alt="Verificado"/>}
@@ -199,8 +199,8 @@ export default function PlaylistDetailPage() {
                                     <span className="font-black text-foreground">{beats.length} Beats</span>
                                     {playlist.duracion && (
                                         <>
-                                            <span className="w-1.5 h-1.5 rounded-full bg-border" />
-                                            <span className="flex items-center gap-1.5"><Clock size={14} /> {playlist.duracion}</span>
+                                            <span className="w-1.5 h-1.5 rounded-full bg-border hidden sm:block" />
+                                            <span className="flex items-center gap-1.5 hidden sm:flex"><Clock size={14} /> {playlist.duracion}</span>
                                         </>
                                     )}
                                 </div>
@@ -208,26 +208,26 @@ export default function PlaylistDetailPage() {
 
                         </div>
 
-                        <div className="mt-14 mb-4 flex flex-wrap items-center justify-center gap-4 w-full">
-                            <button 
+                        <div className="mt-8 md:mt-14 mb-4 flex flex-wrap items-center justify-center gap-3 md:gap-4 w-full">
+                            <button
                                 onClick={handlePlayAll}
-                                className="px-10 py-4 bg-accent text-white rounded-2xl flex items-center gap-3 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-accent/20 hover:scale-[1.03] active:scale-95 transition-all overflow-hidden relative group"
+                                className="flex-1 sm:flex-none px-6 sm:px-10 py-4 bg-accent text-white rounded-2xl flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-accent/20 hover:scale-[1.03] active:scale-95 transition-all overflow-hidden relative group"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                                 <Play fill="currentColor" size={20} /> Reproducir Todo
                             </button>
-                            <button 
+                            <button
                                 onClick={handleShare}
-                                className="w-12 h-12 rounded-2xl bg-foreground/[0.03] border border-border flex items-center justify-center text-muted hover:text-foreground hover:bg-foreground/[0.05] transition-all"
+                                className="w-12 h-12 rounded-2xl bg-foreground/[0.03] border border-border flex items-center justify-center text-muted hover:text-foreground hover:bg-foreground/[0.05] active:scale-95 transition-all"
                             >
                                 <Share2 size={20} />
                             </button>
                             {isOwner && (
-                                <button 
+                                <button
                                     onClick={() => setIsEditModalOpen(true)}
-                                    className="px-6 h-12 flex items-center gap-2 rounded-2xl bg-foreground/[0.03] border border-border text-[10px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:bg-foreground/[0.05] transition-all"
+                                    className="px-5 h-12 flex items-center gap-2 rounded-2xl bg-foreground/[0.03] border border-border text-[10px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:bg-foreground/[0.05] active:scale-95 transition-all"
                                 >
-                                    <Edit2 size={16} /> Editar Playlist
+                                    <Edit2 size={16} /> <span className="hidden sm:inline">Editar Playlist</span><span className="sm:hidden">Editar</span>
                                 </button>
                             )}
                         </div>
@@ -235,7 +235,7 @@ export default function PlaylistDetailPage() {
                 </div>
 
                 {/* Beats List Section */}
-                <div className="max-w-4xl mx-auto px-6 mt-2 relative z-20">
+                <div className="max-w-4xl mx-auto px-3 sm:px-6 mt-2 relative z-20">
                     <div className="grid gap-4">
                         {beats.length === 0 ? (
                             <div className="py-20 text-center border-2 border-dashed border-border rounded-[2.5rem]">
@@ -245,11 +245,11 @@ export default function PlaylistDetailPage() {
                             </div>
                         ) : (
                             beats.map((beat, idx) => (
-                                <motion.div 
+                                <motion.div
                                     key={beat.id}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: idx * 0.05 }}
+                                    initial={{ opacity: 0, y: 8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: Math.min(idx * 0.04, 0.4) }}
                                 >
                                     <BeatRow 
                                         beat={beat} 

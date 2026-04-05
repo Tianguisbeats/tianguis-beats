@@ -132,10 +132,10 @@ function CatalogContent() {
 
     // Transform raw beat data
     const transformBeat = (b: any): Beat => {
-        const path = b.archivo_muestra_url || b.archivo_mp3_url || "";
+        const path = b.archivo_muestra_url || b.archivo_mp3_url || b.archivo_wav_url || "";
         let audio = path;
         if (path && !path.startsWith("http")) {
-            const bucket = b.archivo_muestra_url ? "muestras_beats" : "beats";
+            const bucket = b.archivo_muestra_url ? "muestras_beats" : (b.archivo_mp3_url ? "beats_mp3" : "beats_wav");
             const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(path);
             audio = publicUrl;
         }
@@ -144,12 +144,24 @@ function CatalogContent() {
             const { data: { publicUrl } } = supabase.storage.from("portadas_beats").getPublicUrl(cover);
             cover = publicUrl;
         }
-        let avatar = b.productor_foto_perfil;
+        let avatar = b.productor_foto_perfil || b.foto_perfil;
         if (avatar && !avatar.startsWith("http")) {
             const { data: { publicUrl } } = supabase.storage.from("fotos_perfil").getPublicUrl(avatar);
             avatar = publicUrl;
         }
-        return { ...b, portada_url: cover, archivo_mp3_url: audio, productor_foto_perfil: avatar };
+        
+        return { 
+            ...b, 
+            portada_url: cover, 
+            archivo_mp3_url: audio, 
+            productor_foto_perfil: avatar,
+            // Map common aliases from views
+            productor_nombre_artistico: b.productor_nombre_artistico || b.nombre_artistico,
+            productor_nombre_usuario: b.productor_nombre_usuario || b.nombre_usuario,
+            productor_esta_verificado: b.productor_esta_verificado ?? b.esta_verificado,
+            productor_es_fundador: b.productor_es_fundador ?? b.es_fundador,
+            productor_nivel_suscripcion: b.productor_nivel_suscripcion || b.nivel_suscripcion
+        };
     };
 
     // Data fetching

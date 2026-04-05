@@ -142,21 +142,23 @@ export default function ProducerProfilePage() {
             setFollowingCount(followingR.count || 0);
             setIsFollowing(!!isFollowingR?.data);
  
-            if (beatsR.data) setBeats(beatsR.data.map((b: any) => ({
+            const transformBeat = (b: any): any => ({
                 ...b,
-                productor_nombre_artistico: b.productor_nombre_artistico || profileData.nombre_artistico || profileData.nombre_usuario,
-                productor_nombre_usuario: b.productor_nombre_usuario || profileData.nombre_usuario,
-                productor_foto_perfil: b.productor_foto_perfil || profileData.foto_perfil,
-                productor_esta_verificado: b.productor_esta_verificado ?? profileData.esta_verificado,
-                productor_es_fundador: b.productor_es_fundador ?? profileData.es_fundador,
-                // Usamos el bucket de muestras_beats para ambos para asegurar reproducción de bajo consumo (preview)
+                productor_nombre_artistico: b.productor_nombre_artistico || b.nombre_artistico || profileData.nombre_artistico || profileData.nombre_usuario,
+                productor_nombre_usuario: b.productor_nombre_usuario || b.nombre_usuario || profileData.nombre_usuario,
+                productor_foto_perfil: resolveStorageUrl(b.productor_foto_perfil || b.foto_perfil, 'fotos_perfil') || profileData.foto_perfil,
+                productor_esta_verificado: b.productor_esta_verificado ?? b.esta_verificado ?? profileData.esta_verificado,
+                productor_es_fundador: b.productor_es_fundador ?? b.es_fundador ?? profileData.es_fundador,
                 archivo_mp3_url: resolveStorageUrl(b.archivo_mp3_url, 'muestras_beats'),
                 archivo_muestra_url: resolveStorageUrl(b.archivo_muestra_url, 'muestras_beats'),
-            })));
+                portada_url: resolveStorageUrl(b.portada_url, 'portadas_beats'),
+            });
+
+            if (beatsR.data) setBeats(beatsR.data.map(transformBeat));
             if (kitsR.data) setSoundKits(kitsR.data);
             if (serviciosR.data) setServicios(serviciosR.data);
             if (plR.data) setPlaylists(plR.data);
-            if (lbR.data) setLikedBeats(lbR.data.map((f: any) => f.beat).filter(Boolean));
+            if (lbR.data) setLikedBeats(lbR.data.map((f: any) => f.beat).filter(Boolean).map(transformBeat));
             if (lkR.data) setLikedKits(lkR.data.map((f: any) => f.kit).filter(Boolean));
             if (lsR.data) setLikedServicios(lsR.data.map((f: any) => f.servicio).filter(Boolean));
 

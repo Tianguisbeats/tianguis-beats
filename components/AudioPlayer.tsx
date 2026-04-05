@@ -124,15 +124,20 @@ export default function AudioPlayer() {
     const handleShare = async () => {
         if (!currentBeat) return;
         const url = `${window.location.origin}${isSoundKit ? `/sound-kits/${currentBeat.id}` : `/beats/${currentBeat.id}`}`;
+        // Use native share sheet on mobile if available
+        if (typeof navigator.share === 'function') {
+            try {
+                await navigator.share({ title: currentBeat.titulo, url });
+                return;
+            } catch {
+                // User cancelled or not supported — fall through to clipboard
+            }
+        }
         try {
             await navigator.clipboard.writeText(url);
-            setShareCopied(true);
-            setTimeout(() => setShareCopied(false), 2000);
-        } catch {
-            // Fallback para navegadores sin clipboard API
-            setShareCopied(true);
-            setTimeout(() => setShareCopied(false), 2000);
-        }
+        } catch { /* ignore */ }
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2000);
     };
 
     if (!currentBeat) return null;
@@ -247,13 +252,31 @@ export default function AudioPlayer() {
                             </div>
                         </div>
 
-                        {/* Waveform + tiempo */}
+                        {/* Barra de progreso — ligera en móvil (evita doble carga de audio) */}
                         <div className="px-1">
-                            <div className="h-7">
-                                <WaveformPlayer
-                                    url={currentBeat.archivo_mp3_url || ''}
-                                    height={28} hideControls isSync beatId={currentBeat.id}
-                                    waveColor={waveColor} progressColor={progressColor} muted
+                            <div
+                                className="relative h-8 flex items-center cursor-pointer group/prog"
+                                onClick={(e) => {
+                                    if (!duration) return;
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    seek(Math.max(0, Math.min(duration, ((e.clientX - rect.left) / rect.width) * duration)));
+                                }}
+                            >
+                                <div className="w-full h-[3px] rounded-full overflow-hidden" style={{ background: waveColor }}>
+                                    <div
+                                        className="h-full rounded-full"
+                                        style={{
+                                            width: duration ? `${(currentTime / duration) * 100}%` : '0%',
+                                            background: progressColor
+                                        }}
+                                    />
+                                </div>
+                                <div
+                                    className="absolute w-3 h-3 rounded-full shadow-md pointer-events-none"
+                                    style={{
+                                        left: duration ? `calc(${(currentTime / duration) * 100}% - 6px)` : '-6px',
+                                        background: progressColor
+                                    }}
                                 />
                             </div>
                             <div className={`flex items-center justify-between font-mono text-[9px] font-black mt-0.5 ${textMutedClass}`}>

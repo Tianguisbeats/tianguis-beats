@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import { supabase } from '@/lib/supabase';
 import { MotionDiv, useInView } from '@/components/ui/MotionDiv';
 import { ParallaxBackground, FloatingParticles, useScrollProgress, NoiseOverlay, KineticSection, AbstractPuzzleBack, AbstractHomeBack, AnimacionDeInicio, AbstractRaysBack, AbstractCirclesBack, AbstractTrianglesBack } from '@/components/ui/BackgroundEffects';
+import BeatCardPro from '@/components/explore/BeatCardPro';
 
 // ═══════════════════════════════════════════════════════════════════
 // TYPES
@@ -892,79 +893,17 @@ function CosmosFeed({
   beats,
   mousePosition
 }: {
-  beats: Beat[];
+  beats: any[];
   mousePosition: { x: number; y: number }
 }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef as React.RefObject<HTMLElement | null>);
 
-  const getGridSpan = (index: number) => {
-    // Unique masonry pattern
-    const spans = [
-      'col-span-2 row-span-2', // Massive
-      'col-span-1 row-span-1',
-      'col-span-1 row-span-2', // Tall
-      'col-span-2 row-span-1', // Wide
-      'col-span-1 row-span-1',
-      'col-span-1 row-span-1',
-    ];
-    return spans[index % spans.length];
-  };
-
   return (
     <section ref={sectionRef} className="py-20 px-4 md:px-8 relative z-10 max-w-[1600px] mx-auto">
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-5 auto-rows-[160px] md:auto-rows-[220px]">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
         {beats.map((beat, i) => (
-          <MotionDiv
-            key={beat.id}
-            initial={{ opacity: 0, transform: 'translateY(40px) scale(0.95)' }}
-            whileInView={{ opacity: 1, transform: 'translateY(0) scale(1)' }}
-            viewport={{ once: true, margin: '-20px' }}
-            transition={{
-              duration: 0.8,
-              delay: (i % 6) * 0.1,
-              ease: 'cubic-bezier(0.22, 1, 0.36, 1)'
-            }}
-            className={`relative rounded-[2rem] overflow-hidden group shadow-2xl ${getGridSpan(i)}`}
-          >
-            <Link href={`/beats/${beat.id}`} className="block w-full h-full">
-              {/* Image Container with Parallax Scale */}
-              <div className="absolute inset-0 w-full h-full overflow-hidden">
-                <img
-                  src={beat.portada_url || '/logo.png'}
-                  alt={beat.titulo}
-                  className="w-full h-full object-cover transition-transform duration-[1200ms] cubic-bezier(0.2, 0.8, 0.2, 1) group-hover:scale-110"
-                />
-              </div>
-
-              {/* Glossy Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-40 group-hover:opacity-60 transition-opacity duration-700" />
-
-              {/* Shine Flash Effect */}
-              <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-              </div>
-
-              {/* Metadata — always visible on mobile, hover-reveal on desktop */}
-              <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-end sm:translate-y-4 sm:group-hover:translate-y-0 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-500 ease-out">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2 py-1 bg-blue-500 rounded-lg text-[10px] font-black text-white">{beat.bpm} BPM</span>
-                  <span className="px-2 py-1 bg-white/20 backdrop-blur-md rounded-lg text-[10px] font-black text-white">{beat.tono_escala}</span>
-                </div>
-                <h3 className="text-xl md:text-2xl font-black text-white tracking-tighter leading-none mb-1">
-                  {beat.titulo}
-                </h3>
-                <p className="text-sm text-white/50 font-medium">@{beat.producer?.nombre_artistico}</p>
-              </div>
-
-              {/* Centered Play Icon on Hover */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-0 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center">
-                  <Play className="w-6 h-6 text-white fill-white ml-1" />
-                </div>
-              </div>
-            </Link>
-          </MotionDiv>
+          <BeatCardPro key={beat.id} beat={beat} />
         ))}
       </div>
     </section>
@@ -1430,7 +1369,14 @@ export default function Home() {
             portada_url,
             genero,
             created_at,
-            producer:perfiles(nombre_artistico, foto_perfil)
+            productor_id,
+            productor_nombre_usuario,
+            productor_nombre_artistico,
+            productor_foto_perfil,
+            productor_esta_verificado,
+            productor_es_fundador,
+            esta_vendido,
+            precio_basica_mxn
           `)
           .eq('es_publico', true)
           .order('reproducciones', { ascending: false })
@@ -1444,7 +1390,21 @@ export default function Home() {
             const { data: storageData } = supabase.storage.from('portadas_beats').getPublicUrl(coverUrl);
             coverUrl = storageData?.publicUrl || '/logo.png';
           }
-          return { ...beat, portada_url: coverUrl || '/logo.png' };
+          let avatarUrl = beat.productor_foto_perfil;
+          if (avatarUrl && !avatarUrl.startsWith('http')) {
+            const { data: storageData } = supabase.storage.from('fotos_perfil').getPublicUrl(avatarUrl);
+            avatarUrl = storageData?.publicUrl;
+          }
+          return { 
+            ...beat, 
+            portada_url: coverUrl || '/logo.png',
+            productor_foto_perfil: avatarUrl,
+            // Map fallbacks for BeatCardPro
+            productor_nombre_artistico: beat.productor_nombre_artistico || beat.nombre_artistico,
+            productor_nombre_usuario: beat.productor_nombre_usuario || beat.nombre_usuario,
+            productor_esta_verificado: beat.productor_esta_verificado ?? beat.esta_verificado,
+            productor_es_fundador: beat.productor_es_fundador ?? beat.es_fundador
+          };
         });
 
         setBeats(processed);
