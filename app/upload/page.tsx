@@ -1132,7 +1132,7 @@ export default function UploadPage() {
                                             return (
                                                 <div 
                                                     key={row.key}
-                                                    className={`relative flex flex-col p-8 rounded-[2.5rem] border transition-all duration-500 overflow-hidden group/license animate-in fade-in slide-in-from-bottom-2 duration-700 ${isActive ? `bg-card dark:bg-black/20 border-white/10 shadow-2xl` : 'bg-background/20 dark:bg-black/40 border-border dark:border-white/5 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 hover:border-white/10'}`}
+                                                    className={`relative flex flex-col p-8 rounded-[2.5rem] border transition-all duration-500 overflow-hidden group/license animate-in fade-in slide-in-from-bottom-2 duration-700 ${isActive ? `bg-card dark:bg-black/20 border-white/10 shadow-2xl` : 'bg-white/[0.05] dark:bg-white/[0.03] border-slate-200 dark:border-white/10 opacity-90 grayscale-0 hover:opacity-100 hover:border-white/20'}`}
                                                     style={{ borderColor: isActive ? `${meta.hex}30` : undefined }}
                                                 >
                                                     {/* Static Glow Accent */}
@@ -1144,12 +1144,16 @@ export default function UploadPage() {
                                                     {/* Header: Icon & Label */}
                                                     <div className="flex items-center gap-4 mb-6">
                                                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500 ${isActive ? 'rotate-0' : '-rotate-6'}`}
-                                                            style={{ background: isActive ? `${meta.hex}15` : 'transparent', borderColor: isActive ? `${meta.hex}20` : 'rgba(255,255,255,0.05)', color: isActive ? meta.hex : 'rgba(255,255,255,0.2)' }}>
+                                                            style={{ 
+                                                                background: isActive ? `${meta.hex}15` : 'rgba(255,255,255,0.02)', 
+                                                                borderColor: isActive ? `${meta.hex}20` : 'rgba(255,255,255,0.1)', 
+                                                                color: isActive ? meta.hex : 'rgba(255,255,255,0.4)' 
+                                                            }}>
                                                             {meta.icon}
                                                         </div>
                                                         <div className="flex-1">
-                                                            <p className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: isActive ? meta.hex : 'rgba(255,255,255,0.3)' }}>{meta.label}</p>
-                                                            <p className="text-[11px] font-bold text-muted uppercase tracking-widest mt-1 opacity-40">{meta.desc}</p>
+                                                            <p className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: isActive ? meta.hex : 'rgba(255,255,255,0.5)' }}>{meta.label}</p>
+                                                            <p className="text-[11px] font-bold text-muted uppercase tracking-widest mt-1 opacity-60">{meta.desc}</p>
                                                         </div>
                                                         <Switch
                                                             active={isActive}
