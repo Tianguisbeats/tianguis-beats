@@ -430,32 +430,36 @@ function CatalogContent() {
                 <div className="max-w-[1900px] mx-auto px-4 sm:px-8 mt-8">
 
                     {/* Tabs */}
-                    <div className="relative mb-10 px-2 sm:px-4">
-                        {/* Scroll buttons - Always visible for better UX */}
+                    <div className="relative mb-10 px-0 sm:px-2">
+                        {/* Scroll buttons - Wrap around logic */}
                         <button
-                            onClick={() => document.getElementById("tabs-scroll")?.scrollBy({ left: -280, behavior: "smooth" })}
-                            className="absolute left-0 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all text-slate-500 dark:text-emerald-500"
+                            onClick={() => {
+                                const el = document.getElementById("tabs-scroll");
+                                if (!el) return;
+                                if (el.scrollLeft <= 5) {
+                                    el.scrollTo({ left: el.scrollWidth, behavior: "smooth" });
+                                } else {
+                                    el.scrollBy({ left: -280, behavior: "smooth" });
+                                }
+                            }}
+                            className="absolute left-1 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all text-slate-500 dark:text-emerald-500"
                         >
-                            <ChevronLeft size={18} strokeWidth={3} />
+                            <ChevronLeft size={20} strokeWidth={3} />
                         </button>
 
                         <div 
                             id="tabs-scroll" 
-                            className="flex items-center gap-3 overflow-x-auto no-scrollbar py-2 px-12 scroll-smooth"
-                            style={{ 
-                                maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
-                                WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)'
-                            }}
+                            className="flex items-center gap-3 overflow-x-auto no-scrollbar py-3 px-14 scroll-smooth"
                         >
                             <div className="flex items-center gap-3 mx-auto min-w-max">
                                 {TABS.map(({ mode, label, icon: Icon, badge }) => (
                                     <button
                                         key={mode}
                                         onClick={() => { setViewMode(mode); setPage(1); }}
-                                        className={`snap-center shrink-0 flex items-center gap-2.5 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.14em] transition-all duration-500 ${
+                                        className={`snap-center shrink-0 flex items-center gap-2.5 px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.14em] transition-all duration-500 ${
                                             viewMode === mode
                                                 ? "bg-emerald-500 text-white shadow-[0_10px_25px_-5px_rgba(16,185,129,0.4)] scale-105"
-                                                : "bg-white/[0.03] dark:bg-white/[0.05] text-slate-500 dark:text-white/40 border border-transparent hover:border-emerald-500/30 hover:text-emerald-500 dark:hover:text-emerald-400 hover:bg-emerald-500/5"
+                                                : "bg-[#f8f9fa] dark:bg-white/[0.04] text-slate-500 dark:text-white/40 border border-transparent hover:border-emerald-500/30 hover:text-emerald-500 dark:hover:text-emerald-400 hover:bg-emerald-500/5 shadow-sm"
                                         }`}
                                     >
                                         <Icon size={14} strokeWidth={viewMode === mode ? 3 : 2.5} />
@@ -464,7 +468,7 @@ function CatalogContent() {
                                             <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
                                                 viewMode === mode
                                                     ? "bg-white/25 text-white"
-                                                    : "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 shadow-sm"
+                                                    : "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400"
                                             }`}>
                                                 {badge}
                                             </span>
@@ -475,10 +479,19 @@ function CatalogContent() {
                         </div>
 
                         <button
-                            onClick={() => document.getElementById("tabs-scroll")?.scrollBy({ left: 280, behavior: "smooth" })}
-                            className="absolute right-0 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all text-slate-500 dark:text-emerald-500"
+                            onClick={() => {
+                                const el = document.getElementById("tabs-scroll");
+                                if (!el) return;
+                                const isAtEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 10;
+                                if (isAtEnd) {
+                                    el.scrollTo({ left: 0, behavior: "smooth" });
+                                } else {
+                                    el.scrollBy({ left: 280, behavior: "smooth" });
+                                }
+                            }}
+                            className="absolute right-1 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all text-slate-500 dark:text-emerald-500"
                         >
-                            <ChevronRight size={18} strokeWidth={3} />
+                            <ChevronRight size={20} strokeWidth={3} />
                         </button>
                     </div>
 
