@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifica tu correo - Tianguis Beats</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            background-color: #020617;
+            /* slate-950 */
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: -1px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-accent {
+            color: #2563eb;
+            /* blue-600 */
+        }
+
+        .content {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .title {
+            color: #0f172a;
+            font-size: 28px;
+            font-weight: 900;
+            margin-top: 0;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+
+        .text {
+            color: #475569;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .button-container {
+            margin: 40px 0;
+        }
+
+        .button {
+            background-color: #2563eb;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+        }
+
+        .footer {
+            background-color: #f8fafc;
+            padding: 24px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer-text {
+            color: #94a3b8;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .link {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="{{ .SiteURL }}" class="logo">
+                TIANGUIS<span class="logo-accent">BEATS</span>
+            </a>
+        </div>
+        <div class="content">
+            <h1 class="title">¡Bienvenido al Tianguis!</h1>
+            <p class="text">
+                Estamos muy felices de tenerte por aquí. Solo falta un pequeño paso para que puedas empezar a explorar
+                el mejor catálogo de beats en español y conectar con otros productores.
+            </p>
+            <p class="text">Haz clic en el botón de abajo para verificar tu cuenta de correo electrónico:</p>
+
+            <div class="button-container">
+                <a href="{{ .ConfirmationURL }}" class="button">Verificar Mi Correo</a>
+            </div>
+
+            <p class="text" style="font-size: 14px; color: #64748b;">
+                Si no solicitaste crear esta cuenta, puedes ignorar este correo sin problema.
+            </p>
+        </div>
+        <div class="footer">
+            <p class="footer-text">© 2026 Tianguis Beats. Todos los derechos reservados.</p>
+            <p class="footer-text">Este es un correo automático, por favor no respondas a él.</p>
+        </div>
+    </div>
+</body>
+
+</html>

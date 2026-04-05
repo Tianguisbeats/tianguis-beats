@@ -1,0 +1,247 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fbfbfd;
+  --foreground: #0a0a0c;
+  --card:        #ffffff;
+  --border:      rgba(0, 0, 0, 0.08);
+  --muted:       #6e6e73;
+  --accent:      #0071e3;
+  --studio-sidebar-bg: rgba(0, 0, 0, 0.03);
+  --studio-card-bg: rgba(255, 255, 255, 0.6);
+  --studio-text-low: rgba(0, 0, 0, 0.3);
+  --font-heading: var(--font-kanit), sans-serif;
+  --font-body: var(--font-montserrat), sans-serif;
+}
+
+[data-theme='dark'] {
+  --background: #030305;
+  --foreground: #f5f5f7;
+  --card:        #0e0e12;
+  --border:      rgba(255, 255, 255, 0.08);
+  --muted:       #86868b;
+  --accent:      #2997ff;
+  --studio-sidebar-bg: rgba(255, 255, 255, 0.03);
+  --studio-card-bg: rgba(255, 255, 255, 0.015);
+  --studio-text-low: rgba(255, 255, 255, 0.3);
+}
+
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card:       var(--card);
+  --color-border:     var(--border);
+  --color-muted:      var(--muted);
+  --color-accent:     var(--accent);
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+}
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* --- Estética Ultra-Premium & Cyber-Tianguis --- */
+
+html {
+  scroll-behavior: initial !important; /* Lenis handles this */
+}
+
+body {
+  background-color: #050505;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.08) 200px, transparent 100%),
+    radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 200px, transparent 100%);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  transition: background-color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+.noise-bg {
+  position: relative;
+}
+
+.noise-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.03;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  pointer-events: none;
+}
+
+/* EFECTO "BENTO CARD" CON BORDES QUE BRILLAN */
+.bento-card {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  border-radius: 2rem;
+  overflow: hidden;
+}
+
+.bento-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-4px);
+}
+
+/* MASCARA DE TEXTO PARA TITULOS (Texto con degradado) */
+.text-gradient {
+  background: linear-gradient(to right, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.text-gradient-green {
+  background: linear-gradient(to right, #4ade80, #2dd4bf);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.card-glow {
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-glow:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  transform: translateY(-4px);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+}
+
+/* ── PREMIUM CARD — global style para cards/modals ── */
+.premium-card,
+.modal-premium,
+[class*="rounded-"][class*="border-border"],
+[class*="rounded-"][class*="border-black"] {
+  border-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Global override: cualquier border-border que tenga bg-card */
+.bg-card.border-border,
+.bg-card.border,
+div[class~="border-border"] {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Hover premium para cards interactivas */
+.premium-card:hover,
+.modal-premium:hover {
+  border-color: rgba(59, 130, 246, 0.2) !important;
+  transform: translateY(-2px);
+  transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+
+
+/* Custom Scrollbar Premium - only for vertical, keep horizontal invisible */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 0px; /* Hide horizontal scrollbars globally */
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.15);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.4);
+}
+
+/* No-scrollbar utility - hides scrollbar while preserving scroll functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Hide native date picker icons for a custom premium look */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+  display: none !important;
+  -webkit-appearance: none;
+  appearance: none;
+  opacity: 0;
+}
+
+input[type="date"] {
+  appearance: none;
+}
+
+/* ── MOBILE TOUCH OPTIMIZATIONS ── */
+
+/* Prevent 300ms tap delay & remove tap highlight on interactive elements */
+a, button, [role="button"], input, select, textarea, label, summary {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth momentum scrolling for all scrollable containers */
+.overflow-x-auto, .overflow-y-auto, [class*="overflow-scroll"] {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent horizontal overflow bleed-through on mobile */
+html {
+  overflow-x: hidden;
+}
+
+/* Horizontal scroll containers feel natural on touch */
+.snap-x {
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Larger touch targets on mobile for small buttons */
+@media (max-width: 768px) {
+  button, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  /* Allow vertical scroll on cards without blocking horizontal swipes */
+  .overflow-x-auto {
+    touch-action: pan-x;
+  }
+  /* Reduce heavy card hover transforms on mobile — better performance */
+  .bento-card:hover,
+  .card-glow:hover,
+  .premium-card:hover {
+    transform: none;
+  }
+}
+
+/* ── SEGURIDAD TIPOGRÁFICA PARA TÍTULOS MONUMENTALES ── */
+.hero-text-pro {
+  overflow: visible !important;
+  line-height: 1.15 !important;
+  padding-bottom: 0.15em !important;
+  padding-top: 0.1em !important;
+  padding-left: 0.05em !important;
+  padding-right: 0.05em !important;
+  display: block;
+}

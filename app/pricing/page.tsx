@@ -1,0 +1,539 @@
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { Check, Zap, ShieldCheck, X, Crown, Star, Sparkles, ArrowRight, Lock, Clock, Loader2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useCart } from '@/context/CartContext';
+import { useToast } from '@/context/ToastContext';
+import { useCurrency } from '@/context/CurrencyContext';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+export default function PricingPage() {
+    const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+    const [loading, setLoading] = useState(true);
+    const [session, setSession] = useState<any>(null);
+    const [userTier, setUserTier] = useState<string | null>(null);
+    const [terminaSuscripcion, setTerminaSuscripcion] = useState<string | null>(null);
+    const [comenzarSuscripcion, setComenzarSuscripcion] = useState<string | null>(null);
+    const [redirecting, setRedirecting] = useState(false);
+
+    const { addItem, setIsCartOpen } = useCart();
+    const { formatPrice, currency } = useCurrency();
+    const { showToast } = useToast();
+    const router = useRouter();
+
+    const [showModal, setShowModal] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState<any>(null);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const { data: { session: currentSession } } = await supabase.auth.getSession();
+            setSession(currentSession);
+            if (currentSession?.user) {
+                try {
+                    const { data, error } = await supabase
+                        .from('perfiles')
+                        .select('nivel_suscripcion, fecha_termino_suscripcion, fecha_inicio_suscripcion')
+                        .eq('id', currentSession.user.id)
+                        .single();
+                    if (data && !error) {
+                        setUserTier(data.nivel_suscripcion);
+                        setTerminaSuscripcion(data.fecha_termino_suscripcion);
+                        setComenzarSuscripcion(data.fecha_inicio_suscripcion);
+                    }
+                } catch (e) { console.error("Error al obtener perfil:", e); }
+            }
+            setLoading(false);
+        };
+        fetchUser();
+    }, []);
+
+    const plans = [
+        {
+            tier: 'free',
+            name: 'Free',
+            price: { monthly: 0, yearly: 0 },
+            icon: <Zap size={28} />,
+            color: 'slate',
+            features: [
+                { text: '5 Beats públicos', included: true },
+                { text: 'Comisión del 15%', included: true },
+                { text: 'Estadísticas básicas', included: true },
+                { text: 'Perfil de productor', included: true },
+                { text: 'MP3 + WAV', included: false },
+                { text: 'Beats ilimitados', included: false },
+                { text: 'Stems & Sound Kits', included: false },
+            ]
+        },
+        {
+            tier: 'pro',
+            name: 'Pro',
+            price: { monthly: 170, yearly: 127.5 },
+            icon: <Star size={28} fill="currentColor" />,
+            color: 'amber',
+            highlight: true,
+            badge: 'Más Popular',
+            features: [
+                { text: 'Beats ilimitados', included: true },
+                { text: '0% de comisión', included: true },
+                { text: 'MP3 + WAV', included: true },
+                { text: 'Soporte 24/7', included: true },
+                { text: 'Estadísticas avanzadas', included: true },
+                { text: 'Anillo ámbar de Pro', included: true },
+                { text: 'Stems & Sound Kits', included: false },
+            ]
+        },
+        {
+            tier: 'premium',
+            name: 'Premium',
+            price: { monthly: 399, yearly: 299.25 },
+            icon: <Crown size={28} fill="currentColor" />,
+            color: 'blue',
+            founderBadge: true,
+            features: [
+                { text: 'Todo lo de Pro', included: true },
+                { text: 'Stems (Pistas)', included: true },
+                { text: 'Licencia Exclusiva', included: true },
+                { text: 'Sound Kits', included: true },
+                { text: 'Venta de Servicios', included: true },
+                { text: 'Impulso Algorítmico', included: true },
+                { text: 'Anillo azul Premium', included: true },
+            ]
+        }
+    ];
+
+    const getButtonConfig = (plan: any) => {
+        const currentTier = (userTier || 'free').toLowerCase();
+        const tierOrder = ['free', 'pro', 'premium'];
+        const currentIdx = tierOrder.indexOf(currentTier);
+        const targetIdx = tierOrder.indexOf(plan.tier);
+        const isCurrentPlan = currentTier === plan.tier;
+        const isUpgrade = targetIdx > currentIdx;
+        const isDowngrade = targetIdx < currentIdx;
+
+        if (!session) {
+            if (plan.tier === 'free') return { label: 'Empieza Gratis', style: 'secondary' };
+            return { label: `Unirse a ${plan.name}`, style: plan.tier };
+        }
+
+        if (isCurrentPlan) {
+            if (plan.tier === 'free') return { label: 'Tu plan actual', style: 'secondary' };
+            return { label: 'Plan Actual ★', style: plan.tier };
+        }
+
+        // Si ya paga y es un cambio (Mejorar/Bajar)
+        if (currentIdx > 0 && plan.tier !== 'free') {
+            // SI ES MEJORA: Redirigir al portal para gestionar el cambio de plan
+            if (isUpgrade) return { label: `Mejorar a ${plan.name}`, style: plan.tier, action: 'manage' };
+            
+            // SI ES DOWNGRADE: Usar portal
+            return { label: `Bajar a ${plan.name}`, style: plan.tier, action: 'manage' };
+        }
+
+        if (isUpgrade) return { label: `Mejorar a ${plan.name}`, style: plan.tier };
+        
+        // No permitir bajar a Free directamente desde aquí (usar portal de Stripe)
+        if (isDowngrade && plan.tier === 'free') {
+            return { label: 'Bajar a Free', style: 'free', hidden: true };
+        }
+        
+        if (isDowngrade) return { label: `Bajar a ${plan.name}`, style: plan.tier };
+
+        return { label: `Elegir ${plan.name}`, style: plan.tier };
+    };
+
+    const handleSelectPlan = (plan: any) => {
+        if (!session) {
+            router.push('/signup');
+            return;
+        }
+        const currentTier = (userTier || 'free').toLowerCase();
+        const tierOrder = ['free', 'pro', 'premium'];
+        const currentIdx = tierOrder.indexOf(currentTier);
+        const targetIdx = tierOrder.indexOf(plan.tier);
+        const isDowngrade = targetIdx < currentIdx;
+        const isUpgrade = targetIdx > currentIdx;
+        const isSameTier = currentTier === plan.tier;
+
+        if (isSameTier) return; // No hacer nada si es el mismo
+
+        // Si ya es un usuario de pago (Pro/Premium), cualquier cambio se gestiona en el portal
+        if (currentIdx > 0 && plan.tier !== 'free') {
+            handleManageBilling();
+            return;
+        }
+
+        if (isDowngrade) {
+            let msgs: string[] = [];
+            if (currentTier === 'premium' && plan.tier === 'pro') {
+                msgs = [
+                    'Perderás acceso a Stems (Pistas separadas).',
+                    'Ya no podrás vender Licencias Exclusivas.',
+                    'Perderás el Impulso Algorítmico en el catálogo.'
+                ];
+            } else if (plan.tier === 'free') {
+                msgs = [
+                    'Tu comisión subirá del 0% al 15%.',
+                    'Solo podrás tener 5 Beats públicos (el resto se ocultará).',
+                    'Perderás acceso a archivos WAV y Sound Kits.'
+                ];
+            }
+            setSelectedPlan({
+                ...plan, type: 'downgrade',
+                messages: [
+                    `Tu ${currentTier.toUpperCase()} permanece activo hasta el final del ciclo.`,
+                    ...msgs,
+                    terminaSuscripcion ? `El cambio se aplicará el ${new Date(terminaSuscripcion).toLocaleDateString('es-MX', { day: 'numeric', month: 'long' })}.` : 'Se aplicará al finalizar tu periodo pagado.'
+                ]
+            });
+        } else if (isUpgrade) {
+            let msgs: string[] = [
+                `¡Tu plan ${plan.name} se activará INMEDIATAMENTE!`,
+                'Stripe calculará el descuento proporcional por tus días restantes.',
+                'Solo pagarás la diferencia por lo que queda del mes.'
+            ];
+            
+            if (plan.tier === 'premium') {
+                msgs.push('Desbloqueas: Stems, Licencias Exclusivas e Impulso Algorítmico.');
+            }
+
+            setSelectedPlan({
+                ...plan, type: 'upgrade',
+                messages: msgs
+            });
+        }
+        setShowModal(true);
+    };
+
+    // handleLearnMore ya no es necesario ya que usaremos Links directos
+
+    const handleCancelSubscription = () => {
+        const freePlan = plans.find(p => p.tier === 'free');
+        handleSelectPlan(freePlan);
+    };
+
+    const confirmAction = async () => {
+        if (!selectedPlan || !session) return;
+
+        const isCurrentlyPaid = userTier && ['pro', 'premium', 'tianguis pro', 'tianguis premium'].includes(userTier.toLowerCase());
+
+        // Si el usuario ya paga y quiere bajar, lo mandamos al portal
+        if (isCurrentlyPaid && selectedPlan.tier === 'free') {
+            handleManageBilling();
+            setShowModal(false);
+            return;
+        }
+
+        // Si el usuario ya paga y quiere OTRA suscripción de pago (Pero diferente, p.ej Upgrade)
+        // Ahora lo dejamos fluir al addItem al final de la función para que vaya al carrito
+        // A MENOS que sea exactamente el mismo tier (que ya validamos arriba)
+        
+        if (selectedPlan.type === 'downgrade' && selectedPlan.tier === 'free') {
+            // Caso especial para planes ya cancelados o free
+            try {
+                const { error } = await supabase.from('perfiles').update({ fecha_inicio_suscripcion: selectedPlan.tier }).eq('id', session.user.id);
+                if (error) throw error;
+                setShowModal(false);
+                setComenzarSuscripcion(selectedPlan.tier);
+                showToast('Cambio programado. Tu plan actual sigue activo.', 'success');
+            } catch (err) {
+                showToast('Error al procesar la solicitud.', 'error');
+            }
+        } else {
+            const isYearly = billingCycle === 'yearly';
+            const totalPrice = isYearly ? (selectedPlan.price.yearly * 12) : selectedPlan.price.monthly;
+            const wasAdded = addItem({
+                id: `plan-${selectedPlan.tier}-${billingCycle}`,
+                type: 'plan',
+                name: `Plan ${selectedPlan.name} ${isYearly ? '[Anual]' : '[Mensual]'}`,
+                price: totalPrice,
+                subtitle: `Suscripción ${selectedPlan.name}`,
+                metadata: { tier: selectedPlan.tier, cycle: billingCycle }
+            });
+            if (wasAdded) setIsCartOpen(true);
+            setShowModal(false);
+        }
+    };
+
+    const handleManageBilling = async () => {
+        if (!session?.user?.id) return;
+        setLoading(true);
+        try {
+            const res = await fetch('/api/stripe/portal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: session.user.id,
+                    returnUrl: window.location.href
+                }),
+            });
+            const data = await res.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                throw new Error(data.error || 'No se pudo abrir el portal');
+            }
+        } catch (err: any) {
+            showToast(err.message || 'Error al abrir portal de facturación', 'error');
+            setLoading(false);
+        }
+    };
+
+    const btnStyles: Record<string, string> = {
+        pro: 'bg-gradient-to-r from-amber-500 to-amber-400 text-white hover:from-amber-400 hover:to-amber-300 shadow-lg shadow-amber-500/30',
+        premium: 'bg-gradient-to-r from-[#3b82f6] to-[#2563eb] text-slate-900 hover:from-[#1d4ed8] hover:to-[#2563eb] shadow-lg shadow-[#3b82f6]/30',
+        free: 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:opacity-90',
+        secondary: 'bg-slate-100 text-slate-900 dark:bg-white/10 dark:text-white hover:bg-slate-200 dark:hover:bg-white/20',
+        downgrade: 'bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-slate-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 dark:hover:text-red-400 border border-slate-200 dark:border-white/10',
+    };
+
+    return (
+        <div className="min-h-screen bg-background transition-colors duration-300 font-sans">
+            <Navbar />
+
+            {/* ── 1. MODAL DE CONFIRMACIÓN ── 
+                Permite a los usuarios confirmar su elección antes de proceder al carrito o realizar cambios.
+            */}
+            {showModal && selectedPlan && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
+                    <div className={`relative w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl border overflow-hidden ${selectedPlan.tier === 'premium' ? 'bg-slate-900 border-[#3b82f6]/20' : selectedPlan.tier === 'pro' ? 'bg-slate-900 border-amber-500/20' : 'bg-card border-border'}`}>
+
+                        <div className={`absolute top-0 left-0 w-full h-1 ${selectedPlan.tier === 'premium' ? 'bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent' : selectedPlan.tier === 'pro' ? 'bg-gradient-to-r from-transparent via-amber-500 to-transparent' : 'bg-gradient-to-r from-transparent via-slate-400 to-transparent'}`} />
+
+                        <button onClick={() => setShowModal(false)} className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-rose-500/20 transition-all">
+                            <X size={18} />
+                        </button>
+
+                        <div className="mb-6">
+                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest mb-4 ${selectedPlan.tier === 'premium' ? 'bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/20' : selectedPlan.tier === 'pro' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-slate-400/10 text-slate-400 border border-slate-400/20'}`}>
+                                {selectedPlan.icon} Plan {selectedPlan.name}
+                            </div>
+                            <h2 className="text-2xl font-black uppercase tracking-tighter text-white mb-2">
+                                {selectedPlan.type === 'downgrade' ? 'Cambio de Plan' : selectedPlan.type === 'extend' ? 'Extender Suscripción' : selectedPlan.type === 'upgrade' ? '¡Mejora Inmediata!' : 'Confirmar Plan'}
+                            </h2>
+                            {selectedPlan.type === 'downgrade' && terminaSuscripcion && (
+                                <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-amber-400 mb-1">Tu periodo actual vence</p>
+                                    <p className="text-sm font-bold text-white">{new Date(terminaSuscripcion).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <ul className="space-y-3 mb-8">
+                            {selectedPlan.messages?.map((msg: string, i: number) => msg && (
+                                <li key={i} className="flex items-start gap-3 text-sm text-slate-300 font-medium">
+                                    <div className={`shrink-0 mt-0.5 w-5 h-5 rounded-full flex items-center justify-center ${selectedPlan.type === 'downgrade' ? 'bg-amber-500/15 text-amber-400' : 'bg-emerald-500/15 text-emerald-400'}`}>
+                                        <Check size={12} strokeWidth={3} />
+                                    </div>
+                                    {msg}
+                                </li>
+                            ))}
+                        </ul>
+
+                        <button onClick={confirmAction} className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:scale-[1.02] active:scale-95 transition-all ${btnStyles[selectedPlan.tier] || btnStyles.free}`}>
+                            {selectedPlan.type === 'downgrade' ? 'Programar Cambio' : 'Ir al Carrito →'}
+                        </button>
+                        <button onClick={() => setShowModal(false)} className="w-full mt-3 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-slate-300 transition-all">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* ── 2. SECCIÓN HERO ── 
+                Optimizada para móviles con un espaciado más compacto y tipografía responsiva.
+            */}
+            <section className="relative pt-24 pb-12 md:pt-36 md:pb-16 overflow-hidden">
+                {/* Blur effects — desktop only, muy pesados en móvil */}
+                <div className="hidden md:block absolute inset-0 pointer-events-none overflow-hidden">
+                    <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-accent/10 to-transparent rounded-full blur-[100px]" />
+                    <div className="absolute top-20 left-0 w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-[150px]" />
+                    <div className="absolute top-20 right-0 w-[400px] h-[400px] bg-[#3b82f6]/5 rounded-full blur-[150px]" />
+                </div>
+
+                <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
+                    <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[10px] font-black uppercase tracking-[0.2em] mb-6 md:mb-8">
+                        <Crown size={14} fill="currentColor" />
+                        Founder: Primeras 100 personas
+                        <Crown size={14} fill="currentColor" />
+                    </div>
+
+                    <h1 className="text-5xl md:text-8xl lg:text-9xl font-black uppercase tracking-[-0.05em] leading-[0.85] mb-4 md:mb-6 text-foreground">
+                        Elige tu<br /><span className="text-accent">plan.</span>
+                    </h1>
+
+                    <p className="text-muted text-sm md:text-base font-medium mb-8 md:mb-12 max-w-xl mx-auto px-4">
+                        Sin contratos forzosos. Cancela cuando quieras. Impulsa tu carrera como productor hoy mismo.
+                    </p>
+
+                    {/* Selector de Ciclo de Facturación */}
+                    <div className="inline-flex flex-col items-center gap-4">
+                        <div className="relative flex items-center p-1.5 bg-card border border-border rounded-2xl shadow-inner scale-90 md:scale-100">
+                            <button
+                                onClick={() => setBillingCycle('monthly')}
+                                className={`relative px-6 md:px-8 py-3 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${billingCycle === 'monthly' ? 'bg-foreground text-background shadow-lg' : 'text-muted hover:text-foreground'}`}
+                            >
+                                Mensual
+                            </button>
+                            <button
+                                onClick={() => setBillingCycle('yearly')}
+                                className={`relative px-6 md:px-8 py-3 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${billingCycle === 'yearly' ? 'bg-foreground text-background shadow-lg' : 'text-muted hover:text-foreground'}`}
+                            >
+                                Anual
+                            </button>
+                            <div className="absolute -top-5 -right-3 bg-emerald-500 text-white text-[8px] font-black px-3 py-1 rounded-full shadow-lg whitespace-nowrap rotate-3 shadow-emerald-500/30">
+                                25% OFF · 3 MESES GRATIS
+                            </div>
+                        </div>
+                        <p className={`text-[10px] font-bold uppercase tracking-widest transition-all duration-300 ${billingCycle === 'yearly' ? 'text-emerald-500' : 'text-muted opacity-60'}`}>
+                            {billingCycle === 'yearly' ? '✨ Ahorras 3 meses completos al año' : 'Cambia a anual y ahorra 25%'}
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── 3. MATRIZ DE PRECIOS ── 
+                Diseño responsivo que apila las tarjetas de plan en móviles y las muestra en rejilla en escritorio.
+            */}
+            <section className="pb-24 relative z-10">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-8 lg:gap-10 items-end">
+                        {plans.map((plan) => {
+                            const currentTier = (userTier || 'free').toLowerCase();
+                            const isCurrentPlan = currentTier === plan.tier;
+                            const isPro = plan.tier === 'pro';
+                            const isPremium = plan.tier === 'premium';
+                            const isFree = plan.tier === 'free';
+                            const isScheduled = comenzarSuscripcion === plan.tier;
+                            const btnCfg = getButtonConfig(plan);
+                            const price = billingCycle === 'yearly' ? plan.price.yearly : plan.price.monthly;
+
+                            return (
+                                <div
+                                    key={plan.tier}
+                                    className={`relative flex flex-col rounded-[2rem] md:rounded-[3rem] border transition-all duration-500 overflow-hidden ${isPro
+                                        ? 'md:-translate-y-6 bg-gradient-to-b from-amber-950/60 to-slate-900 border-amber-500/40 md:shadow-[0_40px_100px_-20px_rgba(245,158,11,0.3)] ring-1 ring-amber-500/20'
+                                        : isPremium
+                                            ? 'bg-gradient-to-b from-[#001a2e] to-slate-900 border-[#3b82f6]/30 md:shadow-[0_40px_100px_-20px_rgba(0,242,255,0.2)] ring-1 ring-[#3b82f6]/10'
+                                            : 'bg-card border-border hover:border-border/80'
+                                        }`}
+                                >
+                                    {!isFree && (
+                                        <div className={`absolute top-0 left-0 right-0 h-px ${isPro ? 'bg-gradient-to-r from-transparent via-amber-500 to-transparent' : 'bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent'}`} />
+                                    )}
+
+                                    {isPro && (
+                                        <div className="absolute -top-px left-1/2 -translate-x-1/2 bg-amber-500 text-white px-6 py-1.5 rounded-b-2xl font-black text-[9px] uppercase tracking-widest shadow-xl z-10">
+                                            ★ Más Popular
+                                        </div>
+                                    )}
+
+                                    {/* Eliminado el label redundante de arriba */}
+
+                                    <div className={`p-6 md:p-10 flex flex-col flex-1 ${isPro ? 'pt-12 md:pt-14' : 'pt-8 md:pt-10'}`}>
+                                        <div className="mb-5 md:mb-8">
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${isFree ? 'bg-slate-200/10 text-slate-400' : isPro ? 'bg-amber-500/15 text-amber-400' : 'bg-[#3b82f6]/10 text-[#3b82f6]'}`}>
+                                                {plan.icon}
+                                            </div>
+                                            <h3 className={`text-2xl font-black uppercase tracking-tighter ${isFree ? 'text-slate-400' : isPro ? 'text-amber-400' : 'text-[#3b82f6]'}`}>
+                                                {plan.name}
+                                            </h3>
+                                        </div>
+
+                                        <div className="mb-5 md:mb-8">
+                                            <div className="flex items-baseline gap-2">
+                                                <span className={`text-4xl md:text-5xl font-black tracking-tighter ${isFree ? 'text-foreground' : isPro ? 'text-amber-300' : 'text-[#3b82f6]'}`}>
+                                                    {isFree ? 'Gratis' : `$${price}`}
+                                                </span>
+                                                {!isFree && (
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] font-black text-muted uppercase tracking-widest">{currency}</span>
+                                                        <span className="text-[9px] font-bold text-accent uppercase tracking-widest">IVA INCLUIDO</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {!isFree && billingCycle === 'yearly' && (
+                                                <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-2 flex items-center gap-1">
+                                                    <Sparkles size={10} fill="currentColor" /> Total: ${plan.tier === 'pro' ? 1530 : 3591} / año · Ahorras 25%
+                                                </p>
+                                            )}
+                                            {!isFree && billingCycle === 'monthly' && (
+                                                <p className="text-[9px] font-bold text-muted uppercase tracking-widest mt-2">
+                                                    Equivale a ${plan.tier === 'pro' ? '146.55' : '343.97'} + IVA
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <ul className="space-y-3 mb-7 md:mb-10 flex-1">
+                                            {plan.features.map((f, i) => (
+                                                <li key={i} className={`flex items-center gap-3 text-[12px] font-bold ${f.included ? (isFree ? 'text-foreground/80' : isPro ? 'text-amber-100' : 'text-white/90') : 'text-muted/40 line-through'}`}>
+                                                    <div className={`shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${f.included ? (isFree ? 'bg-slate-400/15 text-slate-400' : isPro ? 'bg-amber-500/20 text-amber-400' : 'bg-[#3b82f6]/15 text-[#3b82f6]') : 'bg-white/5 text-muted/20'}`}>
+                                                        <Check size={11} strokeWidth={3} />
+                                                    </div>
+                                                    {f.text}
+                                                </li>
+                                            ))}
+                                        </ul>
+
+                                        {isScheduled ? (
+                                            <div className="w-full py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest bg-amber-500/10 text-amber-400 border border-amber-500/20 text-center">
+                                                <Clock size={14} className="inline mr-2" />
+                                                Cambio Programado
+                                            </div>
+                                        ) : btnCfg.hidden ? null : (
+                                            <button
+                                                onClick={() => {
+                                                    if (btnCfg.action === 'manage') handleManageBilling();
+                                                    else handleSelectPlan(plan);
+                                                }}
+                                                disabled={redirecting}
+                                                className={`w-full py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 ${btnStyles[btnCfg.style] || btnStyles.secondary}`}
+                                            >
+                                                {redirecting ? <Loader2 size={14} className="animate-spin" /> : (
+                                                    <>
+                                                        {btnCfg.label}
+                                                        {!isFree && !isCurrentPlan && <ArrowRight size={14} className="inline ml-2" />}
+                                                        {isCurrentPlan && <Zap size={14} className="inline ml-2" fill="currentColor" />}
+                                                    </>
+                                                )}
+                                            </button>
+                                        )}
+
+                                        <Link
+                                            href={`/pricing/${plan.tier}`}
+                                            className="mt-4 w-full text-[10px] font-bold uppercase tracking-widest text-muted/40 hover:text-foreground/60 transition-all text-center underline underline-offset-4 decoration-muted/20"
+                                        >
+                                            Saber más de este plan
+                                        </Link>
+
+                                        {isCurrentPlan && terminaSuscripcion && !isFree && (
+                                            <p className="mt-3 text-center text-[9px] font-bold uppercase tracking-widest text-muted/50">
+                                                Vence el {new Date(terminaSuscripcion).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Barra de Confianza */}
+                    <div className="mt-10 md:mt-16 flex flex-col items-center gap-8">
+                        <div className="flex flex-wrap items-center justify-center gap-8 text-[10px] font-black uppercase tracking-widest text-muted/60 px-4 text-center">
+                            <span className="flex items-center gap-2"><Lock size={12} /> Sin contratos forzosos</span>
+                            <span className="w-px h-4 bg-border hidden sm:block" />
+                            <span className="flex items-center gap-2"><ShieldCheck size={12} /> Pagos 100% seguros</span>
+                            <span className="w-px h-4 bg-border hidden sm:block" />
+                            <span className="flex items-center gap-2"><Zap size={12} fill="currentColor" /> Activación Instantánea</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <Footer />
+        </div>
+    );
+}
