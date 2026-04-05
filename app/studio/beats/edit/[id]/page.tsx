@@ -578,7 +578,6 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
             )}
 
             <main className="flex-1 pb-24 pt-24 w-full">
-                <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 relative z-10 w-full">
 
                         {/* ═══ FULL-WIDTH HERO ═══ */}
                         <div className="relative pt-24 pb-24 overflow-hidden">
@@ -1072,7 +1071,6 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                             </button>
                         </div>
                     </form>
-                </div>
                 </div>
             </main>
         </div>
