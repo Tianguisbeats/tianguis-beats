@@ -6,10 +6,10 @@ import { useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import Link from 'next/link';
 import { Beat } from '@/lib/types';
-import LicenseSelectionModal from './LicenseSelectionModal';
 import { useState } from 'react';
 import { MUSICAL_KEYS } from '@/lib/constants';
 import AddToPlaylistModal from './AddToPlaylistModal';
+import { useRouter } from 'next/navigation';
 
 interface BeatRowProps {
     beat: Beat;
@@ -28,7 +28,7 @@ export default function BeatRow({ beat }: BeatRowProps) {
     const { currentBeat, isPlaying, playBeat } = usePlayer();
     const { addItem, isInCart, currentUserId } = useCart();
     const { formatPrice } = useCurrency();
-    const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
+    const router = useRouter();
     const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
     const isThisPlaying = currentBeat?.id === beat.id && isPlaying;
     const itemInCart = isInCart(beat.id);
@@ -46,7 +46,7 @@ export default function BeatRow({ beat }: BeatRowProps) {
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        setIsLicenseModalOpen(true);
+        router.push(`/beats/${beat.id}`);
     };
 
     return (
@@ -156,12 +156,6 @@ export default function BeatRow({ beat }: BeatRowProps) {
                     <ListMusic size={18} />
                 </button>
             </div>
-
-            <LicenseSelectionModal
-                beat={beat}
-                isOpen={isLicenseModalOpen}
-                onClose={() => setIsLicenseModalOpen(false)}
-            />
 
             <AddToPlaylistModal
                 beatId={beat.id}
