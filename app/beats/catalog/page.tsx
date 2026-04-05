@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import {
     Music, Clock, TrendingUp, Sparkles, Trophy, Gem, Zap,
     ChevronLeft, ChevronRight, Search, X, Check,
-    Activity, DollarSign, Disc, SlidersHorizontal
+    Activity, DollarSign, Disc, SlidersHorizontal, Star
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -22,7 +22,7 @@ import {
 /* Types                                          */
 /* ─────────────────────────────────────────────── */
 
-type ViewMode = "all" | "new" | "trending" | "best_sellers" | "hidden_gems" | "corridos_tumbados" | "reggaeton_mexa";
+type ViewMode = "all" | "new" | "trending" | "best_sellers" | "hidden_gems" | "premium_producers" | "corridos_tumbados" | "reggaeton_mexa";
 
 interface ActiveFilters {
     genres: string[];
@@ -214,13 +214,56 @@ function CatalogContent() {
                 if (filters.freeOnly) query = query.eq("es_gratis_activa", true);
 
                 // ── View mode ordering ──
+                const now = new Date();
+                const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+                const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
                 switch (viewMode) {
-                    case "new": query = query.order("fecha_creacion", { ascending: false }); break;
-                    case "trending": query = query.order("conteo_reproducciones", { ascending: false, nullsFirst: false }); break;
-                    case "best_sellers": query = query.order("conteo_ventas", { ascending: false, nullsFirst: false }); break;
-                    case "corridos_tumbados": query = query.eq("genero", "Corridos Tumbados 🇲🇽").order("fecha_creacion", { ascending: false }); break;
-                    case "reggaeton_mexa": query = query.eq("genero", "Reggaetón Mexa 🇲🇽").order("fecha_creacion", { ascending: false }); break;
-                    default: query = query.order("fecha_creacion", { ascending: false }); break;
+                    case "new":
+                        // Beats de los últimos 7 días, ordenados por más reciente
+                        query = query
+                            .gte("fecha_creacion", last7Days)
+                            .order("fecha_creacion", { ascending: false });
+                        break;
+                    case "trending":
+                        // Beats del último mes con más reproducciones
+                        query = query
+                            .gte("fecha_creacion", last30Days)
+                            .order("conteo_reproducciones", { ascending: false, nullsFirst: false });
+                        break;
+                    case "best_sellers":
+                        // Beats del último mes con más ventas
+                        query = query
+                            .gte("fecha_creacion", last30Days)
+                            .gt("conteo_ventas", 0)
+                            .order("conteo_ventas", { ascending: false, nullsFirst: false });
+                        break;
+                    case "hidden_gems":
+                        // Joyas: beats con buenas reproducciones pero pocas ventas (bajo el radar)
+                        query = query
+                            .gte("conteo_reproducciones", 10)
+                            .eq("conteo_ventas", 0)
+                            .order("conteo_reproducciones", { ascending: false, nullsFirst: false });
+                        break;
+                    case "premium_producers":
+                        // Solo beats de productores con plan Premium
+                        query = query
+                            .eq("productor_plan", "premium")
+                            .order("fecha_creacion", { ascending: false });
+                        break;
+                    case "corridos_tumbados":
+                        query = query
+                            .eq("genero", "Corridos Tumbados 🇲🇽")
+                            .order("conteo_reproducciones", { ascending: false, nullsFirst: false });
+                        break;
+                    case "reggaeton_mexa":
+                        query = query
+                            .eq("genero", "Reggaetón Mexa 🇲🇽")
+                            .order("conteo_reproducciones", { ascending: false, nullsFirst: false });
+                        break;
+                    default:
+                        query = query.order("fecha_creacion", { ascending: false });
+                        break;
                 }
 
                 const from = (page - 1) * PAGE_SIZE;
@@ -242,14 +285,15 @@ function CatalogContent() {
         return () => { cancel = true; };
     }, [searchQuery, viewMode, filters, page]);
 
-    const TABS: { mode: ViewMode; label: string; icon: any }[] = [
+    const TABS: { mode: ViewMode; label: string; icon: any; badge?: string; color?: string }[] = [
         { mode: "all", label: "Todos", icon: Music },
-        { mode: "new", label: "Nuevos", icon: Clock },
-        { mode: "trending", label: "Tendencia", icon: TrendingUp },
-        { mode: "best_sellers", label: "Más vendidos", icon: Trophy },
-        { mode: "hidden_gems", label: "Joyas", icon: Gem },
-        { mode: "corridos_tumbados", label: "Corridos Tumbados", icon: Zap },
-        { mode: "reggaeton_mexa", label: "Reggaetón Mexa", icon: Zap },
+        { mode: "new", label: "Nuevos", icon: Clock, badge: "7 días", color: "emerald" },
+        { mode: "trending", label: "Tendencia", icon: TrendingUp, badge: "Este mes", color: "blue" },
+        { mode: "best_sellers", label: "Más vendidos", icon: Trophy, badge: "Este mes", color: "amber" },
+        { mode: "hidden_gems", label: "Joyas", icon: Gem, color: "purple" },
+        { mode: "premium_producers", label: "Productores Premium", icon: Star, badge: "Premium", color: "rose" },
+        { mode: "corridos_tumbados", label: "Corridos Tumbados", icon: Zap, color: "orange" },
+        { mode: "reggaeton_mexa", label: "Reggaetón Mexa", icon: Zap, color: "pink" },
     ];
 
     return (
@@ -398,10 +442,10 @@ function CatalogContent() {
                         </button>
 
                         <div id="tabs-scroll" className="flex items-center gap-2 overflow-x-auto no-scrollbar px-6 py-1">
-                            {TABS.map(({ mode, label, icon: Icon }) => (
+                            {TABS.map(({ mode, label, icon: Icon, badge }) => (
                                 <button
                                     key={mode}
-                                    onClick={() => setViewMode(mode)}
+                                    onClick={() => { setViewMode(mode); setPage(1); }}
                                     className={`snap-center shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-[0.12em] transition-all duration-300 ${
                                         viewMode === mode
                                             ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/25"
@@ -410,6 +454,15 @@ function CatalogContent() {
                                 >
                                     <Icon size={12} strokeWidth={viewMode === mode ? 3 : 2} />
                                     {label}
+                                    {badge && (
+                                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider ${
+                                            viewMode === mode
+                                                ? "bg-white/20 text-white"
+                                                : "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400"
+                                        }`}>
+                                            {badge}
+                                        </span>
+                                    )}
                                 </button>
                             ))}
                         </div>
