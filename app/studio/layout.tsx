@@ -24,7 +24,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         { name: 'Pagos', href: '/studio/payments', icon: <Wallet size={18} /> },
         { name: 'Mis Compras', href: '/studio/purchases', icon: <Package size={18} /> },
         { name: 'Mi Suscripción', href: '/studio/billing', icon: <CreditCard size={18} /> },
-        { name: 'Mi Cuenta', href: '/studio/account', icon: <Settings size={18} /> },
+        { name: 'Mi Cuenta', href: '/studio/cuenta', icon: <Settings size={18} /> },
     ]);
 
     const [profile, setProfile] = React.useState<any>(null);
