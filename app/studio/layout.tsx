@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Crown, ShieldCheck, Package, LayoutGrid, FileText, CreditCard, Wallet, ChevronRight, Zap, MessageCircle } from 'lucide-react';
+import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Crown, ShieldCheck, Package, LayoutGrid, FileText, CreditCard, Wallet, ChevronRight, Zap, MessageCircle, PanelLeftClose, PanelLeftOpen, ChevronLeft } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +12,7 @@ import CurrencySwitcher from '@/components/CurrencySwitcher';
 
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const [sidebarOpen, setSidebarOpen] = React.useState(true);
 
     const [navItems, setNavItems] = React.useState([
         { name: 'Mis Beats', href: '/studio/beats', icon: <Music size={18} /> },
@@ -28,6 +29,19 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
 
     const [profile, setProfile] = React.useState<any>(null);
     const [deactivatedCount, setDeactivatedCount] = React.useState(0);
+
+    // Persist sidebar state in localStorage
+    React.useEffect(() => {
+        const saved = localStorage.getItem('studio_sidebar_open');
+        if (saved !== null) setSidebarOpen(saved === 'true');
+    }, []);
+
+    const toggleSidebar = () => {
+        setSidebarOpen(prev => {
+            localStorage.setItem('studio_sidebar_open', String(!prev));
+            return !prev;
+        });
+    };
 
     React.useEffect(() => {
         const fetchProfile = async () => {
@@ -56,17 +70,22 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         fetchProfile();
     }, []);
 
+    const nivel_plan = profile?.nivel_suscripcion?.trim().toLowerCase() || 'free';
+    const es_premium = nivel_plan === 'premium';
+    const es_pro = nivel_plan === 'pro';
+    const color_clase = es_premium ? 'text-blue-500 border-blue-500/30 bg-blue-500/[0.06]' :
+        es_pro ? 'text-amber-500 border-amber-500/30 bg-amber-500/[0.06]' :
+            'text-slate-500 border-slate-500/20 bg-slate-500/[0.06]';
+
     return (
-        /* ── Contenedor principal del Tianguis Studio ── */
         <div className="min-h-screen bg-background font-sans text-foreground selection:bg-blue-500/30 relative overflow-hidden transition-colors duration-300">
             <NoiseOverlay />
             <div className="fixed inset-0 z-0 pointer-events-none opacity-40 dark:opacity-100">
                 <AbstractPuzzleBack theme="blue" opacity={0.15} />
-                {/* Extra premium glow blobs */}
                 <div className="absolute top-0 right-[-10%] w-[600px] h-[600px] bg-blue-600/[0.03] blur-[150px] rounded-full" />
                 <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-violet-600/[0.02] blur-[120px] rounded-full" />
             </div>
-            
+
             <Navbar />
 
             {/* ── Navegación horizontal en móvil (lg:hidden) ── */}
@@ -91,108 +110,164 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
             </div>
 
             {/* ── Layout de escritorio: sidebar + contenido principal ── */}
-            <div className="max-w-[1700px] mx-auto px-3 sm:px-10 lg:px-12 pt-4 lg:pt-16 pb-24 lg:pb-32 flex flex-col lg:flex-row gap-6 lg:gap-14">
+            <div className="max-w-[1700px] mx-auto px-3 sm:px-6 lg:px-8 pt-4 lg:pt-16 pb-24 lg:pb-32 flex flex-col lg:flex-row gap-6 lg:gap-6">
 
-                {/* Sidebar vertical — solo en escritorio */}
-                <aside className="hidden lg:block w-76 shrink-0 relative z-10">
-                    <div className="sticky top-28 space-y-10">
-                        
-                        <div className="px-5">
-                            <h2 className="text-[9px] font-black uppercase tracking-[0.6em] text-blue-500/50 mb-3">Navegación</h2>
-                            <h1 className="text-5xl font-black uppercase tracking-tighter text-foreground leading-[0.85] flex flex-col gap-1">
-                                <span className="opacity-40">Tianguis</span>
-                                <span className="text-blue-500 relative inline-block">
-                                    Studio
-                                    <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-slate-400/50 to-transparent rounded-full" />
-                                </span>
-                            </h1>
-                        </div>
+                {/* ── Sidebar colapsable — solo en escritorio ── */}
+                <aside className="hidden lg:block shrink-0 relative z-10">
+                    <div className="sticky top-28">
 
-                        <nav className="space-y-1.5 px-2">
-                            {navItems.map((item) => {
-                                const isActive = pathname === item.href;
-                                return (
-                                    <Link
-                                        key={item.href}
-                                        href={item.href}
-                                        className="relative group block"
-                                    >
-                                        <div
-                                            className={`flex items-center gap-4 px-6 py-3.5 rounded-2xl transition-all duration-300 font-black text-[13px] uppercase tracking-tighter relative overflow-hidden active:scale-95 ${isActive
-                                                ? 'bg-black/[0.1] dark:bg-white/[0.05] text-blue-500 dark:text-blue-400 border border-border dark:border-white/[0.08]'
-                                                : 'text-muted hover:text-foreground bg-transparent hover:bg-black/5 dark:hover:bg-white/[0.02] hover:translate-x-1'
-                                                }`}
+                        {/* Toggle Button */}
+                        <motion.button
+                            onClick={toggleSidebar}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="absolute -right-4 top-6 z-50 w-8 h-8 bg-background border border-border rounded-full flex items-center justify-center text-muted hover:text-blue-500 hover:border-blue-500/40 transition-all duration-300 shadow-lg shadow-black/10"
+                            title={sidebarOpen ? 'Colapsar menú' : 'Expandir menú'}
+                        >
+                            <motion.div animate={{ rotate: sidebarOpen ? 0 : 180 }} transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}>
+                                <ChevronLeft size={14} />
+                            </motion.div>
+                        </motion.button>
+
+                        {/* Sidebar Panel */}
+                        <motion.div
+                            animate={{ width: sidebarOpen ? 256 : 72 }}
+                            transition={{ duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
+                            className="overflow-hidden"
+                        >
+                            <div className="space-y-8" style={{ width: sidebarOpen ? 256 : 72 }}>
+
+                                {/* Title */}
+                                <AnimatePresence>
+                                    {sidebarOpen && (
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="px-5 pt-1"
                                         >
-                                            <span className={`transition-all duration-300 ${isActive ? 'text-blue-400 scale-110' : 'group-hover:text-blue-400/50 group-hover:scale-110'}`}>
-                                                {item.icon}
-                                            </span>
-                                            {item.name}
-                                            
-                                            {isActive && (
-                                                <motion.div 
-                                                    layoutId="sidebar-active"
-                                                    className="absolute left-0 w-1 h-5 bg-blue-500 rounded-r-full"
-                                                />
-                                            )}
-                                        </div>
-                                    </Link>
-                                );
-                            })}
-                        </nav>
+                                            <h2 className="text-[9px] font-black uppercase tracking-[0.6em] text-blue-500/50 mb-3">Navegación</h2>
+                                            <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground leading-[0.85] flex flex-col gap-1">
+                                                <span className="opacity-40">Tianguis</span>
+                                                <span className="text-blue-500 relative inline-block">
+                                                    Studio
+                                                    <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-slate-400/50 to-transparent rounded-full" />
+                                                </span>
+                                            </h1>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
 
-                        {/* ── Tarjeta de Membresía Rediseñada ── */}
-                        {(() => {
-                            const nivel_plan = profile?.nivel_suscripcion?.trim().toLowerCase() || 'free';
-                            const es_premium = nivel_plan === 'premium';
-                            const es_pro = nivel_plan === 'pro';
-                            
-                            const color_clase = es_premium ? 'text-blue-500 border-blue-500/30 bg-blue-500/[0.06]' : 
-                                               es_pro ? 'text-amber-500 border-amber-500/30 bg-amber-500/[0.06]' : 
-                                               'text-slate-500 border-slate-500/20 bg-slate-500/[0.06]';
+                                {/* Nav Items */}
+                                <nav className={`space-y-1 ${sidebarOpen ? 'px-2' : 'px-1'}`}>
+                                    {navItems.map((item) => {
+                                        const isActive = pathname === item.href;
+                                        return (
+                                            <Link key={item.href} href={item.href} className="relative group block">
+                                                <div title={!sidebarOpen ? item.name : undefined}
+                                                    className={`flex items-center gap-4 rounded-2xl transition-all duration-300 relative overflow-hidden active:scale-95
+                                                        ${sidebarOpen ? 'px-5 py-3.5' : 'px-0 py-3.5 justify-center'}
+                                                        ${isActive
+                                                            ? 'bg-black/[0.1] dark:bg-white/[0.05] text-blue-500 dark:text-blue-400 border border-border dark:border-white/[0.08]'
+                                                            : 'text-muted hover:text-foreground bg-transparent hover:bg-black/5 dark:hover:bg-white/[0.02]'
+                                                        }`}
+                                                >
+                                                    <span className={`shrink-0 transition-all duration-300 ${isActive ? 'text-blue-400 scale-110' : 'group-hover:text-blue-400/70 group-hover:scale-110'}`}>
+                                                        {item.icon}
+                                                    </span>
 
-                            return (
-                                <>
-                                    <div className={`mx-2 rounded-[2.5rem] border overflow-hidden transition-all duration-700 flex flex-col items-center py-6 px-6 text-center shadow-xl shadow-black/5 ${color_clase}`}>
-                                        <Link href="/pricing" className="w-full flex flex-col items-center group/member">
-                                            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] opacity-60 mb-1 active:scale-95 transition-transform">Membresía</h4>
-                                            <h3 className="text-3xl font-black uppercase tracking-tighter mb-0.5 select-none">
-                                                {es_premium ? 'Premium' : es_pro ? 'Pro' : 'Free'}
-                                            </h3>
-                                            {profile?.fecha_termino_suscripcion && nivel_plan !== 'free' && (
-                                                <p className="text-[8px] font-bold opacity-40 uppercase tracking-widest mb-2">
-                                                    Termina: {new Date(profile.fecha_termino_suscripcion).toLocaleDateString()}
-                                                </p>
-                                            )}
-                                        </Link>
+                                                    <AnimatePresence>
+                                                        {sidebarOpen && (
+                                                            <motion.span
+                                                                initial={{ opacity: 0, width: 0 }}
+                                                                animate={{ opacity: 1, width: 'auto' }}
+                                                                exit={{ opacity: 0, width: 0 }}
+                                                                transition={{ duration: 0.2 }}
+                                                                className="font-black text-[12px] uppercase tracking-tighter whitespace-nowrap overflow-hidden"
+                                                            >
+                                                                {item.name}
+                                                            </motion.span>
+                                                        )}
+                                                    </AnimatePresence>
 
-                                        <div className="w-full h-px bg-current opacity-10 my-3" />
-
-                                        <Link 
-                                            href={profile?.esta_verificado ? "#" : "/studio/verification"} 
-                                            className="group/verify flex items-center justify-center gap-2 mt-1"
-                                        >
-                                            {profile?.esta_verificado ? (
-                                                <div className="flex flex-col items-center">
-                                                    <p className={`text-[12px] font-black uppercase tracking-tighter flex items-center gap-2 ${color_clase.split(' ')[0]}`}>
-                                                        Perfil Verificado
-                                                        <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain" />
-                                                    </p>
+                                                    {isActive && (
+                                                        <motion.div
+                                                            layoutId="sidebar-active"
+                                                            className="absolute left-0 w-1 h-5 bg-blue-500 rounded-r-full"
+                                                        />
+                                                    )}
                                                 </div>
-                                            ) : (
-                                                <span className="text-[10px] font-black uppercase tracking-tighter opacity-60 group-hover/verify:opacity-100 transition-opacity">Solicitar Verificación</span>
-                                            )}
-                                        </Link>
-                                    </div>
+                                            </Link>
+                                        );
+                                    })}
+                                </nav>
 
-                                    <div className="mt-8 px-5 pb-8">
-                                        <div className="bg-black/[0.03] dark:bg-white/[0.02] border border-border rounded-3xl p-4 shadow-inner">
-                                            <p className="text-[9px] font-black uppercase tracking-widest text-muted mb-2 opacity-40">Moneda Preferida</p>
-                                            <CurrencySwitcher />
+                                {/* ── Tarjeta de Membresía ── */}
+                                {sidebarOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        <div className={`mx-2 rounded-[2.5rem] border overflow-hidden transition-all duration-700 flex flex-col items-center py-6 px-6 text-center shadow-xl shadow-black/5 ${color_clase}`}>
+                                            <Link href="/pricing" className="w-full flex flex-col items-center group/member">
+                                                <h4 className="text-[10px] font-black uppercase tracking-[0.4em] opacity-60 mb-1 active:scale-95 transition-transform">Membresía</h4>
+                                                <h3 className="text-3xl font-black uppercase tracking-tighter mb-0.5 select-none">
+                                                    {es_premium ? 'Premium' : es_pro ? 'Pro' : 'Free'}
+                                                </h3>
+                                                {profile?.fecha_termino_suscripcion && nivel_plan !== 'free' && (
+                                                    <p className="text-[8px] font-bold opacity-40 uppercase tracking-widest mb-2">
+                                                        Termina: {new Date(profile.fecha_termino_suscripcion).toLocaleDateString()}
+                                                    </p>
+                                                )}
+                                            </Link>
+
+                                            <div className="w-full h-px bg-current opacity-10 my-3" />
+
+                                            <Link
+                                                href={profile?.esta_verificado ? "#" : "/studio/verification"}
+                                                className="group/verify flex items-center justify-center gap-2 mt-1"
+                                            >
+                                                {profile?.esta_verificado ? (
+                                                    <div className="flex flex-col items-center">
+                                                        <p className={`text-[12px] font-black uppercase tracking-tighter flex items-center gap-2 ${color_clase.split(' ')[0]}`}>
+                                                            Perfil Verificado
+                                                            <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain" />
+                                                        </p>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-[10px] font-black uppercase tracking-tighter opacity-60 group-hover/verify:opacity-100 transition-opacity">Solicitar Verificación</span>
+                                                )}
+                                            </Link>
                                         </div>
-                                    </div>
-                                </>
-                            );
-                        })()}
+
+                                        <div className="mt-6 px-4 pb-4">
+                                            <div className="bg-black/[0.03] dark:bg-white/[0.02] border border-border rounded-3xl p-4 shadow-inner">
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-muted mb-2 opacity-40">Moneda Preferida</p>
+                                                <CurrencySwitcher />
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {/* Collapsed — plan badge only */}
+                                {!sidebarOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="flex flex-col items-center px-1"
+                                    >
+                                        <Link href="/pricing"
+                                            title={`Plan ${es_premium ? 'Premium' : es_pro ? 'Pro' : 'Free'}`}
+                                            className={`w-10 h-10 rounded-2xl border flex items-center justify-center text-[9px] font-black uppercase tracking-widest transition-all hover:scale-105 ${color_clase}`}>
+                                            {es_premium ? '★' : es_pro ? '◆' : '○'}
+                                        </Link>
+                                    </motion.div>
+                                )}
+                            </div>
+                        </motion.div>
                     </div>
                 </aside>
 
@@ -202,8 +277,8 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                         {/* Background decor */}
                         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/[0.04] blur-[140px] rounded-full pointer-events-none -mr-40 -mt-40 opactiy-50" />
                         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-violet-600/[0.03] blur-[100px] rounded-full pointer-events-none -ml-20 -mb-20 opacity-50" />
-                        
-                        {/* Status Banners - Slim & Premium */}
+
+                        {/* Status Banners */}
                         {deactivatedCount > 0 && (
                             <div className="mb-10 p-6 bg-rose-500/[0.03] border border-rose-500/20 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden group">
                                 <div className="absolute inset-0 bg-gradient-to-r from-rose-500/[0.02] via-transparent to-transparent pointer-events-none" />
