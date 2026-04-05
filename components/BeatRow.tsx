@@ -1,6 +1,6 @@
 "use client";
 
-import { Music, Play, Pause, ShoppingCart, Check, ChevronRight, Crown, ListMusic, Trash2 } from 'lucide-react';
+import { Music, Play, Pause, ShoppingCart, Check, ChevronRight, Crown, ListMusic, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
@@ -14,6 +14,8 @@ import { useRouter } from 'next/navigation';
 interface BeatRowProps {
     beat: Beat;
     onRemoveFromPlaylist?: () => void;
+    onMoveUp?: () => void;
+    onMoveDown?: () => void;
 }
 
 function formatPriceMXN(value?: number | null) {
@@ -25,7 +27,7 @@ function formatPriceMXN(value?: number | null) {
     }).format(value);
 }
 
-export default function BeatRow({ beat, onRemoveFromPlaylist }: BeatRowProps) {
+export default function BeatRow({ beat, onRemoveFromPlaylist, onMoveUp, onMoveDown }: BeatRowProps) {
     const { currentBeat, isPlaying, playBeat } = usePlayer();
     const { addItem, isInCart, currentUserId } = useCart();
     const { formatPrice } = useCurrency();
@@ -68,10 +70,10 @@ export default function BeatRow({ beat, onRemoveFromPlaylist }: BeatRowProps) {
                         <Music size={24} />
                     </div>
                 )}
-                {/* Overlay Oscuro Siempre Visible en Móvil si está reproduciendo */}
-                <div className={`absolute inset-0 bg-accent/20 flex items-center justify-center transition-all ${isThisPlaying ? 'opacity-100' : 'opacity-0 xl:group-hover/artwork:opacity-100'}`}>
-                    <div className="text-white drop-shadow-lg">
-                        {isThisPlaying ? <Pause fill="currentColor" size={24} /> : <Play fill="currentColor" size={24} className="ml-0.5" />}
+                {/* Overlay Oscuro Siempre Visible si está reproduciendo o Hover */}
+                <div className={`absolute inset-0 bg-black/20 dark:bg-black/40 flex items-center justify-center transition-all duration-300 ${isThisPlaying ? 'opacity-100' : 'opacity-0 group-hover/artwork:opacity-100'}`}>
+                    <div className="text-white drop-shadow-lg bg-black/40 p-1.5 rounded-full backdrop-blur-sm">
+                        {isThisPlaying ? <Pause fill="currentColor" size={20} /> : <Play fill="currentColor" size={20} className="ml-0.5" />}
                     </div>
                 </div>
             </div>
@@ -95,11 +97,21 @@ export default function BeatRow({ beat, onRemoveFromPlaylist }: BeatRowProps) {
                     )}
                 </Link>
 
-                {/* Metadatos (Ocultos en ultra-móvil, visibles en desktop) */}
-                <div className="hidden sm:flex items-center gap-2 mt-2">
+                {/* Metadatos */}
+                <div className="flex flex-wrap items-center gap-2 mt-2">
                     {beat.tono_escala && (
-                        <span className="text-[9px] font-black text-accent bg-accent/10 px-3 py-1.5 rounded-xl uppercase tracking-widest">
+                        <span className="text-[9px] font-black text-accent bg-accent/10 px-3 py-1 rounded-xl uppercase tracking-widest border border-accent/20">
                             {MUSICAL_KEYS.find(k => k.value === beat.tono_escala)?.label || beat.tono_escala}
+                        </span>
+                    )}
+                    {beat.bpm && (
+                        <span className="text-[9px] font-black text-rose-500 bg-rose-500/10 px-3 py-1 rounded-xl uppercase tracking-widest border border-rose-500/20">
+                            {beat.bpm} BPM
+                        </span>
+                    )}
+                    {beat.genero && (
+                        <span className="text-[9px] font-black text-indigo-500 bg-indigo-500/10 px-3 py-1 rounded-xl uppercase tracking-widest border border-indigo-500/20 truncate max-w-[80px] sm:max-w-none">
+                            {beat.genero}
                         </span>
                     )}
                 </div>
@@ -118,7 +130,7 @@ export default function BeatRow({ beat, onRemoveFromPlaylist }: BeatRowProps) {
                     </div>
                 ) : (
                     <>
-                        <div className="text-right hidden sm:block">
+                        <div className="text-right hidden xl:block">
                             <p className="text-accent font-black text-lg leading-none mb-1">
                                 {formatPrice(beat.precio_basica_mxn || 299)}
                             </p>
@@ -127,23 +139,42 @@ export default function BeatRow({ beat, onRemoveFromPlaylist }: BeatRowProps) {
                             </Link>
                         </div>
 
-                        <div className="flex flex-col items-end sm:hidden mb-1">
+                        <div className="flex flex-col items-end xl:hidden mb-1">
                             <span className="text-accent font-black text-sm">{formatPrice(beat.precio_basica_mxn || 299)}</span>
                         </div>
 
                         <button
                             onClick={handleAddToCart}
-                            className={`w-12 h-12 shrink-0 rounded-[1.25rem] flex items-center justify-center transition-all shadow-lg active:scale-90 ${itemInCart
+                            className={`px-4 sm:px-6 h-10 sm:h-12 shrink-0 rounded-xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all shadow-lg active:scale-95 ${itemInCart
                                 ? 'bg-green-500 text-white shadow-green-500/20'
                                 : 'bg-accent text-white hover:bg-accent/80'}`}
                         >
-                            {itemInCart ? <Check size={20} strokeWidth={3} /> : <ShoppingCart size={20} />}
+                            {itemInCart ? <Check size={16} strokeWidth={3} /> : <ShoppingCart size={16} />}
+                            <span>{itemInCart ? 'Agregado' : 'Obtener'}</span>
                         </button>
                     </>
                 )}
             </div>
 
-            <div className="flex flex-row items-center gap-2">
+            <div className="flex flex-row items-center gap-2 shrink-0">
+                {onMoveUp && (
+                    <button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMoveUp(); }}
+                        className="w-8 h-10 rounded-xl bg-foreground/[0.03] border border-border flex items-center justify-center text-muted hover:text-accent hover:border-accent/30 transition-all"
+                        title="Mover Arriba"
+                    >
+                        <ChevronUp size={16} />
+                    </button>
+                )}
+                {onMoveDown && (
+                    <button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMoveDown(); }}
+                        className="w-8 h-10 rounded-xl bg-foreground/[0.03] border border-border flex items-center justify-center text-muted hover:text-accent hover:border-accent/30 transition-all"
+                        title="Mover Abajo"
+                    >
+                        <ChevronDown size={16} />
+                    </button>
+                )}
                 {onRemoveFromPlaylist && (
                     <button
                         onClick={(e) => {

@@ -115,6 +115,35 @@ export default function PlaylistDetailPage() {
         }
     };
 
+    const handleMoveBeat = async (index: number, direction: 'up' | 'down') => {
+        if (direction === 'up' && index === 0) return;
+        if (direction === 'down' && index === beats.length - 1) return;
+
+        const newBeats = [...beats];
+        const swapIndex = direction === 'up' ? index - 1 : index + 1;
+        
+        // Swap
+        const temp = newBeats[index];
+        newBeats[index] = newBeats[swapIndex];
+        newBeats[swapIndex] = temp;
+        
+        setBeats(newBeats);
+
+        try {
+            // Bulk update indices
+            const updates = newBeats.map((b, i) => ({
+                playlist_id: playlistId,
+                beat_id: b.id,
+                indice_orden: i
+            }));
+
+            const { error } = await supabase.from('listas_reproduccion_items').upsert(updates);
+            if (error) throw error;
+        } catch (err) {
+            console.error("Error al reordenar:", err);
+            showToast("Reordenamiento falló en la base de datos", "error");
+        }
+    };
 
     if (isLoading) {
         return (
@@ -130,16 +159,16 @@ export default function PlaylistDetailPage() {
         <div className="min-h-screen bg-background flex flex-col">
             <Navbar />
             
-            <main className="flex-1 pb-24">
+            <main className="flex-1 pb-24 min-h-screen">
                 {/* Header Section */}
-                <div className="relative pt-32 pb-12 overflow-hidden">
+                <div className="relative pt-32 pb-16 overflow-hidden flex flex-col items-center justify-center min-h-[50vh]">
                     {/* Background Blur */}
                     <div className="absolute inset-0 z-0">
-                        <PlaylistCover beats={beats} size="lg" className="w-full h-full scale-150 blur-[100px] opacity-20" />
-                        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/80 to-background" />
+                        <PlaylistCover beats={beats} size="lg" className="w-[120%] h-[120%] -ml-[10%] -mt-[10%] object-cover blur-[100px] opacity-30" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/80 to-background" />
                     </div>
 
-                    <div className="max-w-6xl mx-auto px-6 relative z-10">
+                    <div className="max-w-6xl mx-auto px-6 relative z-10 w-full flex flex-col items-center">
                         <button 
                             onClick={() => router.back()}
                             className="mb-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted hover:text-foreground transition-colors"
@@ -147,17 +176,17 @@ export default function PlaylistDetailPage() {
                             <ArrowLeft size={14} /> Volver
                         </button>
 
-                        <div className="flex flex-col md:flex-row items-center md:items-end gap-8 md:gap-12">
-                            <PlaylistCover beats={beats} size="lg" className="shadow-2xl shadow-accent/20 rounded-3xl overflow-hidden hover:scale-105 transition-transform duration-500" />
+                        <div className="flex flex-col items-center gap-8 md:gap-10 w-full mt-4">
+                            <PlaylistCover beats={beats} size="lg" className="w-56 h-56 md:w-72 md:h-72 shadow-2xl shadow-accent/20 rounded-3xl overflow-hidden hover:scale-105 transition-transform duration-500" />
                             
-                            <div className="flex-1 text-center md:text-left space-y-4">
-                                <span className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full text-[9px] font-black uppercase tracking-widest text-accent">
+                            <div className="flex-1 text-center space-y-5 w-full flex flex-col items-center">
+                                <span className="inline-flex items-center justify-center gap-2 px-4 py-1.5 bg-accent/10 border border-accent/20 rounded-full text-[10px] font-black uppercase tracking-widest text-accent">
                                     <ListMusic size={12} /> Playlist {!playlist.es_publica && "(Privada)"}
                                 </span>
-                                <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter text-foreground leading-[0.85] filter drop-shadow-lg">
+                                <h1 className="text-4xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-foreground leading-[0.85] filter drop-shadow-lg text-center">
                                     {playlist.nombre}
                                 </h1>
-                                <div className="flex flex-wrap justify-center md:justify-start items-center gap-x-4 gap-y-2 text-[11px] font-bold text-muted uppercase tracking-widest">
+                                <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-[11px] font-bold text-muted uppercase tracking-widest">
                                     <div className="flex items-center gap-2 text-foreground">
                                         <div className="w-6 h-6 rounded-full overflow-hidden bg-accent/20 border border-accent/30 shadow-md">
                                             {producer?.foto_perfil && <img src={producer.foto_perfil} className="w-full h-full object-cover" />}
@@ -177,7 +206,7 @@ export default function PlaylistDetailPage() {
 
                         </div>
 
-                        <div className="mt-12 flex flex-wrap items-center justify-center md:justify-start gap-4">
+                        <div className="mt-14 mb-4 flex flex-wrap items-center justify-center gap-4 w-full">
                             <button 
                                 onClick={handlePlayAll}
                                 className="px-10 py-4 bg-accent text-white rounded-2xl flex items-center gap-3 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-accent/20 hover:scale-[1.03] active:scale-95 transition-all overflow-hidden relative group"
@@ -200,12 +229,11 @@ export default function PlaylistDetailPage() {
                                 </button>
                             )}
                         </div>
-
                     </div>
                 </div>
 
                 {/* Beats List Section */}
-                <div className="max-w-6xl mx-auto px-6 mt-12">
+                <div className="max-w-4xl mx-auto px-6 mt-2 relative z-20">
                     <div className="grid gap-4">
                         {beats.length === 0 ? (
                             <div className="py-20 text-center border-2 border-dashed border-border rounded-[2.5rem]">
@@ -224,6 +252,8 @@ export default function PlaylistDetailPage() {
                                     <BeatRow 
                                         beat={beat} 
                                         onRemoveFromPlaylist={isOwner ? () => handleRemoveBeat(beat.id) : undefined} 
+                                        onMoveUp={isOwner && idx > 0 ? () => handleMoveBeat(idx, 'up') : undefined}
+                                        onMoveDown={isOwner && idx < beats.length - 1 ? () => handleMoveBeat(idx, 'down') : undefined}
                                     />
                                 </motion.div>
                             ))
