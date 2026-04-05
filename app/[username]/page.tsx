@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
     Play, Pause, Heart, Share2, Music2, Instagram, Twitter, Youtube,
@@ -38,10 +38,11 @@ type TabId = 'beats' | 'kits' | 'playlists' | 'likes' | 'followers' | 'following
 export default function ProducerProfilePage() {
     const { username } = useParams();
     const router = useRouter();
-    const { currentBeat, isPlaying, playBeat } = usePlayer();
+    const { currentBeat, isPlaying, playBeat, likedBeatIds } = usePlayer();
     const [user, setUser] = useState<any>(null);
     const { addItem } = useCart();
     const { showToast } = useToast();
+    const prevLikedIds = useRef<Set<string>>(new Set());
 
     const [profile, setProfile] = useState<any>(null);
     const [beats, setBeats] = useState<any[]>([]);
@@ -180,40 +181,51 @@ export default function ProducerProfilePage() {
         }
     };
 
-    useEffect(() => { 
-        if (username) fetchAll(); 
+    const fetchAllLikes = async () => {
+        if (!profile) return;
+        const [lbR, lkR, lsR] = await Promise.all([
+            supabase.from('favoritos').select('*, beat:beats(*)').eq('usuario_id', profile.id).not('beat_id', 'is', null),
+            supabase.from('favoritos').select('*, kit:kits_sonido(*, productor:perfiles(*))').eq('usuario_id', profile.id).not('kit_id', 'is', null),
+            supabase.from('favoritos').select('*, servicio:servicios(*)').eq('usuario_id', profile.id).not('servicio_id', 'is', null)
+        ]);
 
-        // Suscripción Realtime para la página de perfil
-        // Si el usuario cambia algo en sus favoritos, queremos que el perfil lo refleje
-        const channel = supabase
-            .channel(`profile_likes_${username}`)
-            .on('postgres_changes', { 
-                event: '*', 
-                table: 'favoritos', 
-                schema: 'public'
-            }, (payload) => {
-                // Si el cambio es para el usuario dueño de este perfil, refrescamos los likes
-                if (profile && (payload.new as any)?.usuario_id === profile.id || (payload.old as any)?.usuario_id === profile.id) {
-                    // Refrescamos específicamente los likes para no recargar todo el perfil
-                    const updateLikes = async () => {
-                        const [lbR, lkR, lsR] = await Promise.all([
-                            supabase.from('favoritos').select('*, beat:beats(*)').eq('usuario_id', profile.id).not('beat_id', 'is', null),
-                            supabase.from('favoritos').select('*, kit:kits_sonido(*, productor:perfiles(*))').eq('usuario_id', profile.id).not('kit_id', 'is', null),
-                            supabase.from('favoritos').select('*, servicio:servicios(*)').eq('usuario_id', profile.id).not('servicio_id', 'is', null)
-                        ]);
-                        if (lbR.data) setLikedBeats(lbR.data.map((f: any) => f.beat).filter(Boolean));
-                        if (lkR.data) setLikedKits(lkR.data.map((f: any) => f.kit).filter(Boolean));
-                        if (lsR.data) setLikedServicios(lsR.data.map((f: any) => f.servicio).filter(Boolean));
-                    };
-                    updateLikes();
+        const transformBeatLocal = (b: any): any => ({
+            ...b,
+            productor_nombre_artistico: b.productor_nombre_artistico || b.nombre_artistico || profile.nombre_artistico || profile.nombre_usuario,
+            productor_nombre_usuario: b.productor_nombre_usuario || b.nombre_usuario || profile.nombre_usuario,
+            productor_foto_perfil: resolveStorageUrl(b.productor_foto_perfil || b.foto_perfil, 'fotos_perfil') || profile.foto_perfil,
+            productor_esta_verificado: b.productor_esta_verificado ?? b.esta_verificado ?? profile.esta_verificado,
+            productor_es_fundador: b.productor_es_fundador ?? b.es_fundador ?? profile.es_fundador,
+            archivo_mp3_url: resolveStorageUrl(b.archivo_mp3_url, 'muestras_beats'),
+            archivo_muestra_url: resolveStorageUrl(b.archivo_muestra_url, 'muestras_beats'),
+            portada_url: resolveStorageUrl(b.portada_url, 'portadas_beats'),
+        });
+
+        if (lbR.data) setLikedBeats(lbR.data.map((f: any) => f.beat).filter(Boolean).map(transformBeatLocal));
+        if (lkR.data) setLikedKits(lkR.data.map((f: any) => f.kit).filter(Boolean));
+        if (lsR.data) setLikedServicios(lsR.data.map((f: any) => f.servicio).filter(Boolean));
+    };
+
+    useEffect(() => {
+        if (!profile && username) {
+            fetchAll();
+        }
+    }, [username]);
+
+    // Optimistically update likes tab immediately when likedBeatIds changes from player / context
+    useEffect(() => {
+        if (profile && user?.id === profile.id) {
+            if (prevLikedIds.current.size !== likedBeatIds.size) {
+                if (likedBeatIds.size > prevLikedIds.current.size) {
+                    fetchAllLikes();
+                } else {
+                    const removedIds = [...prevLikedIds.current].filter(id => !likedBeatIds.has(id));
+                    setLikedBeats(prev => prev.filter(b => !removedIds.includes(b.id)));
                 }
-            })
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, [username, user, profile?.id]);
+            }
+            prevLikedIds.current = new Set(likedBeatIds);
+        }
+    }, [likedBeatIds, profile, user]);
 
     const handleShare = () => {
         if (navigator.share) navigator.share({ title: `${profile?.nombre_artistico} en Tianguis Beats`, url: window.location.href });

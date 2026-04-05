@@ -326,8 +326,8 @@ export default function PremiumHubPage() {
                                     Despliega una interfaz optimizada para dispositivos móviles que centraliza tu discografía, servicios y redes sociales en un solo punto de contacto.
                                 </p>
 
-                                <Link href={preferences.is_links_active ? `/${username}` : '#'} className="w-full flex items-center justify-center gap-3 py-4 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all group/link">
-                                    Ver Mi Perfil <ChevronRight size={16} className="group-hover/link:translate-x-1 transition-transform" />
+                                <Link href={preferences.is_links_active ? `/${username}/links` : '#'} className="w-full flex items-center justify-center gap-3 py-4 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all group/link">
+                                    Ver Smart Link Bio <ChevronRight size={16} className="group-hover/link:translate-x-1 transition-transform" />
                                 </Link>
                             </div>
                         </div>
