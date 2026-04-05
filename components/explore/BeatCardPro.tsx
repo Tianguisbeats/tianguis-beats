@@ -184,10 +184,18 @@ export default function BeatCardPro({ beat, compact = false, adminControls }: Be
                 {/* Info Text Content Section */}
                 <div className="p-4 flex flex-col flex-1 gap-3">
                     <div className="space-y-1">
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className="text-[8px] font-black uppercase tracking-widest text-emerald-500/80 dark:text-emerald-400/60">{beat.genero || 'Trap'}</span>
-                            <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-white/10" />
-                            <span className="text-[8px] font-black uppercase tracking-widest text-slate-400 dark:text-white/20">{beat.bpm} BPM</span>
+                        <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+                            <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[7px] font-black uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 leading-none">
+                                {beat.genero || 'Trap'}
+                            </span>
+                            <span className="px-2 py-0.5 rounded-lg bg-slate-500/10 border border-slate-500/20 text-[7px] font-black uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400 leading-none">
+                                {beat.bpm} BPM
+                            </span>
+                            {beat.tono_escala && (
+                                <span className="px-2 py-0.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[7px] font-black uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400 leading-none">
+                                    {beat.tono_escala}
+                                </span>
+                            )}
                         </div>
                         <Link href={`/beats/${beat.id}`}>
                             <h4 className="text-base font-black uppercase tracking-tighter text-black dark:text-white group-hover/main:text-transparent group-hover/main:bg-clip-text group-hover/main:bg-gradient-to-r group-hover/main:from-emerald-400 group-hover/main:to-teal-500 transition-all truncate leading-tight">
@@ -195,7 +203,7 @@ export default function BeatCardPro({ beat, compact = false, adminControls }: Be
                             </h4>
                         </Link>
                         <Link href={`/${beat.productor_nombre_usuario || '#'}`} className="flex items-center gap-1.5 group/prod">
-                            <span className="text-[10px] font-bold text-black dark:text-white uppercase tracking-widest opacity-80 group-hover/prod:text-emerald-500 transition-colors truncate">
+                            <span className="text-[10px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-widest group-hover/prod:text-emerald-500 transition-colors truncate">
                                 {beat.productor_nombre_artistico || beat.productor_nombre_usuario}
                             </span>
                             <div className="flex items-center gap-1 shrink-0">
