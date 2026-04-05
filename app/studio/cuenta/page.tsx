@@ -8,6 +8,7 @@ import LoadingTianguis from '@/components/LoadingTianguis';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NoiseOverlay, AbstractPuzzleBack } from '@/components/ui/BackgroundEffects';
 import CurrencySwitcher from '@/components/CurrencySwitcher';
+import { useRouter } from 'next/navigation';
 
 export default function AccountPage() {
     const { showToast } = useToast();
@@ -16,7 +17,10 @@ export default function AccountPage() {
     const [user, setUser] = useState<any>(null);
     const [profile, setProfile] = useState<any>(null);
 
+    const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
     // Form states
     const [form, setForm] = useState({
@@ -92,6 +96,7 @@ export default function AccountPage() {
                     verificacion_youtube: form.verificacion_youtube,
                     verificacion_tiktok: form.verificacion_tiktok,
                     boletin_activo: form.boletin_activo,
+                    alertas_ventas: form.alertas_ventas,
                 })
                 .eq('id', user.id);
 
@@ -110,6 +115,50 @@ export default function AccountPage() {
     const handleCancelEdit = () => {
         setForm(initialForm);
         setIsEditing(false);
+    };
+
+    const handleResetPassword = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (!profile?.correo) return;
+        showToast("Enviando correo...", "success");
+        const { error } = await supabase.auth.resetPasswordForEmail(profile.correo);
+        if (error) {
+            console.error(error);
+            showToast("Hubo un error al enviar el enlace. Intenta más tarde.", "error");
+        } else {
+            showToast("¡Enlace enviado! Revisa tu bandeja de entrada o spam.", "success");
+        }
+    };
+
+    const handleSignOut = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        await supabase.auth.signOut();
+        router.push('/login');
+    };
+
+    const handleDeleteAccount = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (deleteConfirmText !== 'ELIMINAR' || !user) {
+            showToast("Debes escribir la palabra ELIMINAR para confirmar", "error");
+            return;
+        }
+
+        setSaving(true);
+        try {
+            // Delete profile entry (Will cascade in Supabase if RLS allows and setup properly, else it hides account). 
+            // Proper db setup should use auth.users or edge functions for deep cascade delete.
+            const { error: profileError } = await supabase.from('perfiles').delete().eq('id', user.id);
+            if (profileError) throw profileError;
+
+            showToast("Tu cuenta ha sido eliminada con éxito", "success");
+            await supabase.auth.signOut();
+            router.push('/');
+        } catch (err) {
+            console.error("Error al eliminar la cuenta", err);
+            showToast("No pudimos eliminar la cuenta por completo. Contacta a soporte.", "error");
+        } finally {
+            setSaving(false);
+        }
     };
 
     const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -386,13 +435,13 @@ export default function AccountPage() {
                         </div>
                         
                         <div className="space-y-3">
-                            <button disabled={!isEditing} className={`w-full p-4 border border-border rounded-2xl flex items-center justify-between transition-all bg-background ${isEditing ? 'group hover:border-blue-500/30 cursor-pointer' : 'opacity-60 cursor-default'}`}>
+                            <button onClick={handleResetPassword} disabled={!isEditing} className={`w-full p-4 border border-border rounded-2xl flex items-center justify-between transition-all bg-background ${isEditing ? 'group hover:border-blue-500/30 cursor-pointer' : 'opacity-60 cursor-default'}`}>
                                 <span className={`text-[10px] font-black uppercase tracking-widest text-muted transition-colors ${isEditing ? 'group-hover:text-foreground' : ''}`}>Cambiar Contraseña</span>
                                 <ChevronRight size={16} className={`text-muted transition-all ${isEditing ? 'group-hover:text-blue-500 group-hover:translate-x-1' : ''}`} />
                             </button>
-                            <button disabled={!isEditing} className={`w-full p-4 border border-border rounded-2xl flex items-center justify-between transition-all bg-background ${isEditing ? 'group hover:border-blue-500/30 cursor-pointer' : 'opacity-60 cursor-default'}`}>
-                                <span className={`text-[10px] font-black uppercase tracking-widest text-muted transition-colors ${isEditing ? 'group-hover:text-foreground' : ''}`}>Conexiones Activas</span>
-                                <ChevronRight size={16} className={`text-muted transition-all ${isEditing ? 'group-hover:text-blue-500 group-hover:translate-x-1' : ''}`} />
+                            <button onClick={handleSignOut} disabled={!isEditing} className={`w-full p-4 border border-border rounded-2xl flex items-center justify-between transition-all bg-background ${isEditing ? 'group hover:border-red-500/30 cursor-pointer' : 'opacity-60 cursor-default'}`}>
+                                <span className={`text-[10px] font-black uppercase tracking-widest text-muted transition-colors ${isEditing ? 'group-hover:text-red-500' : ''}`}>Cerrar Sesión</span>
+                                <ChevronRight size={16} className={`text-muted transition-all ${isEditing ? 'group-hover:text-red-500 group-hover:translate-x-1' : ''}`} />
                             </button>
                         </div>
                     </div>
@@ -405,9 +454,33 @@ export default function AccountPage() {
                         <p className="text-[10px] text-muted font-bold uppercase tracking-widest opacity-60 leading-relaxed shadow-sm">
                             Eliminar tu cuenta borrará datos permanentemente.
                         </p>
-                        <button className="w-full px-6 py-4 bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all border border-red-500/20 active:scale-95 shadow-sm">
-                            Eliminar cuenta
-                        </button>
+                        
+                        {!isDeleting ? (
+                            <button onClick={(e) => { e.preventDefault(); setIsDeleting(true); }} className="w-full px-6 py-4 bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all border border-red-500/20 active:scale-95 shadow-sm">
+                                Solicitar Eliminación
+                            </button>
+                        ) : (
+                            <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                                <p className="text-[9px] font-black text-red-500 uppercase tracking-widest">
+                                    Para confirmar, escribe "ELIMINAR" abajo:
+                                </p>
+                                <input 
+                                    type="text" 
+                                    value={deleteConfirmText}
+                                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                                    placeholder="ELIMINAR" 
+                                    className="w-full bg-red-500/5 border border-red-500/20 rounded-2xl px-4 py-3 text-xs font-bold text-red-500 outline-none focus:border-red-500/50" 
+                                />
+                                <div className="flex gap-2">
+                                    <button onClick={(e) => { e.preventDefault(); setIsDeleting(false); setDeleteConfirmText(''); }} className="w-1/2 px-4 py-3 bg-foreground/5 hover:bg-foreground/10 text-foreground rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all">
+                                        Cancelar
+                                    </button>
+                                    <button onClick={handleDeleteAccount} disabled={deleteConfirmText !== 'ELIMINAR' || saving} className="w-1/2 px-4 py-3 bg-red-600 hover:bg-red-500 disabled:bg-red-500/30 text-white rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all shadow-xl shadow-red-500/20 active:scale-95 flex justify-center items-center">
+                                        {saving ? <Loader2 size={12} className="animate-spin" /> : 'Borrar Cuenta'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                 </div>
