@@ -579,84 +579,13 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
             <main className="flex-1 pb-24 pt-24 w-full">
 
-                        {/* ═══ FULL-WIDTH HERO ═══ */}
-                        <div className="relative pt-24 pb-24 overflow-hidden">
-                            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                                <div className="absolute top-0 right-0 w-[300px] h-[200px] bg-blue-500/[0.04] rounded-full blur-3xl -mr-10 -mt-10" />
-                                <span className="absolute bottom-[-5%] right-[-3%] text-[22vw] font-black leading-none text-blue-500/[0.04] tracking-tighter uppercase block whitespace-nowrap select-none">
-                                    STUDIO
-                                </span>
+                        <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 relative z-10 w-full">
+                            
+                            <div className="mb-12">
+                                <Link href="/studio/beats" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-foreground/[0.03] border border-border text-[10px] font-black uppercase tracking-widest text-muted hover:text-blue-500 hover:border-blue-500/30 transition-all group">
+                                    <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Volver a mis Beats
+                                </Link>
                             </div>
-
-                            <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 relative z-10 w-full">
-                                <ScrollReveal direction="up" delay={0.05}>
-                                    <div className="flex items-center justify-between mb-16">
-                                        <motion.div
-                                            className="flex items-center gap-3"
-                                            initial={{ y: -20, opacity: 0 }}
-                                            animate={{ y: 0, opacity: 1 }}
-                                            transition={{ duration: 1, delay: 0.2 }}
-                                        >
-                                            <span className="relative flex h-2 w-2">
-                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-400" />
-                                            </span>
-                                            <span className="text-[10px] font-black uppercase tracking-[0.6em] text-blue-500 dark:text-blue-400">Tianguis Engine v4</span>
-                                        </motion.div>
-
-                                        <Link href="/studio/beats" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted hover:text-blue-500 transition-all group">
-                                            <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Volver a mis Beats
-                                        </Link>
-                                    </div>
-
-                                    <h1 className="leading-[0.85] mb-8 relative z-10 uppercase font-black tracking-tighter">
-                                        <motion.span
-                                            initial={{ opacity: 0, y: 30 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
-                                            className="block text-6xl md:text-8xl lg:text-[10rem] text-blue-200"
-                                        >
-                                            Editar
-                                        </motion.span>
-                                        <motion.span
-                                            initial={{ opacity: 0, y: 30 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 1.2, delay: 0.15, ease: [0.19, 1, 0.22, 1] }}
-                                            className="block text-6xl md:text-8xl lg:text-[8rem] text-slate-400/50 dark:text-white/20 italic"
-                                        >
-                                            Tu Obra
-                                        </motion.span>
-                                    </h1>
-
-                                    {/* Steps inline */}
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.8, delay: 0.55 }}
-                                        className="flex items-center gap-6 mt-10"
-                                    >
-                                        {[
-                                            { icon: <Wand2 size={13} />, label: 'Identidad', step: '01', color: '#3b82f6' },
-                                            { icon: <Music size={13} />, label: 'Archivos', step: '02', color: '#10b981' },
-                                            { icon: <ShieldCheck size={13} />, label: 'Contratos', step: '03', color: '#f59e0b' },
-                                        ].map((s, idx) => (
-                                            <div key={s.step} className="flex items-center gap-2">
-                                                <div className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${s.color}20`, color: s.color }}>
-                                                    {s.icon}
-                                                </div>
-                                                <div>
-                                                    <span className="text-[8px] font-black text-muted uppercase tracking-widest block" style={{ opacity: 0.4 }}>{s.step}</span>
-                                                    <span className="text-[10px] font-black text-foreground uppercase tracking-wider">{s.label}</span>
-                                                </div>
-                                                {idx < 2 && <div className="w-8 h-px bg-border ml-2" />}
-                                            </div>
-                                        ))}
-                                    </motion.div>
-                                </ScrollReveal>
-                            </div>
-                        </div>
-
-                        <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 relative z-10 w-full mt-12">
 
                     {error && (
                         <div className="flex items-center gap-3 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[11px] font-bold mb-6">
