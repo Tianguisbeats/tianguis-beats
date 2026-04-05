@@ -8,7 +8,6 @@ import Navbar from '@/components/Navbar';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NoiseOverlay, AbstractPuzzleBack } from '@/components/ui/BackgroundEffects';
-import CurrencySwitcher from '@/components/CurrencySwitcher';
 
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -16,9 +15,9 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
 
     const [navItems, setNavItems] = React.useState([
         { name: 'Mis Beats', href: '/studio/beats', icon: <Music size={18} /> },
+        { name: 'Sound Kits', href: '/studio/soundkits', icon: <Layers size={18} /> },
         { name: 'Licencias', href: '/studio/licencias', icon: <FileText size={18} /> },
         { name: 'Cupones y Ofertas', href: '/studio/cupones-ofertas', icon: <Ticket size={18} /> },
-        { name: 'Sound Kits', href: '/studio/soundkits', icon: <Layers size={18} /> },
         { name: 'Hub Premium', href: '/studio/premium', icon: <Crown size={18} /> },
         { name: 'Estadísticas', href: '/studio/stats', icon: <BarChart2 size={18} /> },
         { name: 'Ventas', href: '/studio/sales', icon: <DollarSign size={18} /> },
@@ -244,12 +243,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                             </Link>
                                         </div>
 
-                                        <div className="mt-6 px-4 pb-4">
-                                            <div className="bg-black/[0.03] dark:bg-white/[0.02] border border-border rounded-3xl p-4 shadow-inner">
-                                                <p className="text-[9px] font-black uppercase tracking-widest text-muted mb-2 opacity-40">Moneda Preferida</p>
-                                                <CurrencySwitcher />
-                                            </div>
-                                        </div>
+
                                     </motion.div>
                                 )}
 
