@@ -12,6 +12,7 @@ export default function PremiumHubPage() {
     const [saving, setSaving] = useState(false);
     const [userTier, setUserTier] = useState<string | null>(null);
     const [isVerified, setIsVerified] = useState(false);
+    const [username, setUsername] = useState<string>('');
 
     const [preferences, setPreferences] = useState({
         is_video_active: false,
@@ -48,6 +49,7 @@ export default function PremiumHubPage() {
         if (profile) {
             setUserTier(profile.nivel_suscripcion);
             setIsVerified(profile.esta_verificado || false);
+            setUsername(profile.nombre_usuario || '');
             setPreferences({
                 is_video_active: !!profile.video_destacado_url,
                 video_destacado_url: profile.video_destacado_url || '',
@@ -117,6 +119,28 @@ export default function PremiumHubPage() {
             label: 'Portadas de Beats',
             done: beatsWithCover === stats.beats.length && stats.beats.length > 0,
             tip: 'Cada beat debe tener una portada llamativa y única.'
+        });
+
+        // Premium Checks
+        checks.push({
+            id: 'video',
+            label: 'Video Destacado',
+            done: preferences.is_video_active && !!preferences.video_destacado_url,
+            tip: 'Agrega un video de YouTube para impactar desde tu portada.'
+        });
+        
+        checks.push({
+            id: 'newsletter',
+            label: 'Captura de Fans',
+            done: preferences.newsletter_active,
+            tip: 'Crea tu base de datos activando el formulario de correos o boletín.'
+        });
+
+        checks.push({
+            id: 'smart-link',
+            label: 'Smart Link Bio',
+            done: preferences.is_links_active,
+            tip: 'Centraliza tus redes y servicios encendiendo tu Smart Link Bio.'
         });
 
         return checks;
@@ -302,8 +326,8 @@ export default function PremiumHubPage() {
                                     Despliega una interfaz optimizada para dispositivos móviles que centraliza tu discografía, servicios y redes sociales en un solo punto de contacto.
                                 </p>
 
-                                <Link href={`/${preferences.is_links_active ? 'links' : ''}`} className="w-full flex items-center justify-center gap-3 py-4 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all group/link">
-                                    Ver Smart Link Bio <ChevronRight size={16} className="group-hover/link:translate-x-1 transition-transform" />
+                                <Link href={preferences.is_links_active ? `/${username}` : '#'} className="w-full flex items-center justify-center gap-3 py-4 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all group/link">
+                                    Ver Mi Perfil <ChevronRight size={16} className="group-hover/link:translate-x-1 transition-transform" />
                                 </Link>
                             </div>
                         </div>
