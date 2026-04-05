@@ -1,6 +1,6 @@
 "use client";
 
-import { Music, Play, Pause, ShoppingCart, Check, ChevronRight, Crown, ListMusic } from 'lucide-react';
+import { Music, Play, Pause, ShoppingCart, Check, ChevronRight, Crown, ListMusic, Trash2 } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 
 interface BeatRowProps {
     beat: Beat;
+    onRemoveFromPlaylist?: () => void;
 }
 
 function formatPriceMXN(value?: number | null) {
@@ -24,7 +25,7 @@ function formatPriceMXN(value?: number | null) {
     }).format(value);
 }
 
-export default function BeatRow({ beat }: BeatRowProps) {
+export default function BeatRow({ beat, onRemoveFromPlaylist }: BeatRowProps) {
     const { currentBeat, isPlaying, playBeat } = usePlayer();
     const { addItem, isInCart, currentUserId } = useCart();
     const { formatPrice } = useCurrency();
@@ -143,6 +144,19 @@ export default function BeatRow({ beat }: BeatRowProps) {
             </div>
 
             <div className="flex flex-row items-center gap-2">
+                {onRemoveFromPlaylist && (
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onRemoveFromPlaylist();
+                        }}
+                        className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                        title="Quitar de la Playlist"
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                )}
                 <button
                     onClick={(e) => {
                         e.preventDefault();

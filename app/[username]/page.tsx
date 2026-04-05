@@ -823,9 +823,9 @@ export default function ProducerProfilePage() {
                                                                     setEditingPlaylist(pl);
                                                                     setIsPlaylistModalOpen(true);
                                                                 }}
-                                                                className="absolute top-3.5 right-3.5 p-2 rounded-xl bg-black/55 backdrop-blur-md border border-white/15 text-white/70 hover:text-white hover:border-white/40 opacity-0 group-hover:opacity-100 transition-all"
+                                                                className="absolute top-3.5 right-3.5 px-3 py-1.5 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[9px] font-black uppercase tracking-widest text-white/90 hover:text-white hover:bg-black/80 hover:border-white/40 opacity-0 group-hover:opacity-100 transition-all"
                                                             >
-                                                                <Edit3 size={13} />
+                                                                <Edit3 size={11} /> Editar
                                                             </button>
                                                         )}
 

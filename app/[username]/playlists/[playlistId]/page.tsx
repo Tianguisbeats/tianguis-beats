@@ -5,12 +5,13 @@ import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { 
     Play, Pause, Heart, Share2, Music2, ArrowLeft, 
-    Clock, ListMusic, User, Globe, Calendar, Shuffle 
+    Clock, ListMusic, User, Globe, Calendar, Shuffle, Edit2 
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BeatRow from '@/components/BeatRow';
 import PlaylistCover from '@/components/PlaylistCover';
+import PlaylistManagerModal from '@/components/PlaylistManagerModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePlayer } from '@/context/PlayerContext';
 import { useToast } from '@/context/ToastContext';
@@ -27,6 +28,9 @@ export default function PlaylistDetailPage() {
     const [producer, setProducer] = useState<any>(null);
     const [beats, setBeats] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+    const isOwner = currentUserId === playlist?.usuario_id;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -94,6 +98,24 @@ export default function PlaylistDetailPage() {
         }
     };
 
+    const handleRemoveBeat = async (beatId: string) => {
+        try {
+            const { error } = await supabase
+                .from('listas_reproduccion_items')
+                .delete()
+                .eq('playlist_id', playlistId)
+                .eq('beat_id', beatId);
+            
+            if (error) throw error;
+            setBeats(prev => prev.filter(b => b.id !== beatId));
+            showToast("Beat quitado de la playlist", "success");
+        } catch (err: any) {
+            console.error("Error removing beat:", err);
+            showToast("Error al quitar el beat", "error");
+        }
+    };
+
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
@@ -126,44 +148,59 @@ export default function PlaylistDetailPage() {
                         </button>
 
                         <div className="flex flex-col md:flex-row items-center md:items-end gap-8 md:gap-12">
-                            <PlaylistCover beats={beats} size="lg" />
+                            <PlaylistCover beats={beats} size="lg" className="shadow-2xl shadow-accent/20 rounded-3xl overflow-hidden hover:scale-105 transition-transform duration-500" />
                             
                             <div className="flex-1 text-center md:text-left space-y-4">
                                 <span className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full text-[9px] font-black uppercase tracking-widest text-accent">
-                                    <ListMusic size={12} /> Playlist
+                                    <ListMusic size={12} /> Playlist {!playlist.es_publica && "(Privada)"}
                                 </span>
-                                <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter text-foreground leading-[0.85]">
+                                <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter text-foreground leading-[0.85] filter drop-shadow-lg">
                                     {playlist.nombre}
                                 </h1>
                                 <div className="flex flex-wrap justify-center md:justify-start items-center gap-x-4 gap-y-2 text-[11px] font-bold text-muted uppercase tracking-widest">
                                     <div className="flex items-center gap-2 text-foreground">
-                                        <div className="w-6 h-6 rounded-full overflow-hidden bg-accent/20">
+                                        <div className="w-6 h-6 rounded-full overflow-hidden bg-accent/20 border border-accent/30 shadow-md">
                                             {producer?.foto_perfil && <img src={producer.foto_perfil} className="w-full h-full object-cover" />}
                                         </div>
                                         <span>{producer?.nombre_artistico || producer?.nombre_usuario}</span>
                                     </div>
                                     <span className="w-1 h-1 rounded-full bg-border" />
                                     <span>{beats.length} Beats</span>
-                                    <span className="w-1 h-1 rounded-full bg-border" />
-                                    <span className="flex items-center gap-1.5"><Clock size={12} /> Duración total próximamente</span>
+                                    {playlist.duracion && (
+                                        <>
+                                            <span className="w-1 h-1 rounded-full bg-border" />
+                                            <span className="flex items-center gap-1.5"><Clock size={12} /> {playlist.duracion}</span>
+                                        </>
+                                    )}
                                 </div>
                             </div>
+
                         </div>
 
                         <div className="mt-12 flex flex-wrap items-center justify-center md:justify-start gap-4">
                             <button 
                                 onClick={handlePlayAll}
-                                className="px-10 py-4 bg-accent text-white rounded-2xl flex items-center gap-3 text-[11px] font-black uppercase tracking-[0.2em] shadow-xl shadow-accent/20 hover:scale-105 active:scale-95 transition-all"
+                                className="px-10 py-4 bg-accent text-white rounded-2xl flex items-center gap-3 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-accent/20 hover:scale-[1.03] active:scale-95 transition-all overflow-hidden relative group"
                             >
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                                 <Play fill="currentColor" size={20} /> Reproducir Todo
                             </button>
                             <button 
                                 onClick={handleShare}
-                                className="w-14 h-14 rounded-2xl bg-foreground/[0.03] border border-border flex items-center justify-center text-muted hover:text-foreground transition-all"
+                                className="w-12 h-12 rounded-2xl bg-foreground/[0.03] border border-border flex items-center justify-center text-muted hover:text-foreground hover:bg-foreground/[0.05] transition-all"
                             >
                                 <Share2 size={20} />
                             </button>
+                            {isOwner && (
+                                <button 
+                                    onClick={() => setIsEditModalOpen(true)}
+                                    className="px-6 h-12 flex items-center gap-2 rounded-2xl bg-foreground/[0.03] border border-border text-[10px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:bg-foreground/[0.05] transition-all"
+                                >
+                                    <Edit2 size={16} /> Editar Playlist
+                                </button>
+                            )}
                         </div>
+
                     </div>
                 </div>
 
@@ -184,7 +221,10 @@ export default function PlaylistDetailPage() {
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: idx * 0.05 }}
                                 >
-                                    <BeatRow beat={beat} />
+                                    <BeatRow 
+                                        beat={beat} 
+                                        onRemoveFromPlaylist={isOwner ? () => handleRemoveBeat(beat.id) : undefined} 
+                                    />
                                 </motion.div>
                             ))
                         )}
@@ -193,6 +233,21 @@ export default function PlaylistDetailPage() {
             </main>
             
             <Footer />
+
+            <PlaylistManagerModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                producerId={currentUserId || ''}
+                existingPlaylist={playlist}
+                onSuccess={() => {
+                    // Update playlist data locally so it refreshes without full reload
+                    const fetchData = async () => {
+                        const { data } = await supabase.from('listas_reproduccion').select('*').eq('id', playlistId).single();
+                        if (data) setPlaylist((prev: any) => ({...prev, ...data}));
+                    };
+                    fetchData();
+                }}
+            />
         </div>
     );
 }

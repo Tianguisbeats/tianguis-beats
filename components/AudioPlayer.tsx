@@ -31,7 +31,8 @@ export default function AudioPlayer() {
         currentBeat, isPlaying, togglePlay,
         duration, currentTime, volume, setVolume,
         likedBeatIds, likedKitIds,
-        toggleLike: globalToggleLike, closePlayer
+        toggleLike: globalToggleLike, closePlayer,
+        playNext, playPrevious, playlist
     } = usePlayer();
     const { currentUserId } = useCart();
     const isDark = useIsDarkMode();
@@ -303,10 +304,10 @@ export default function AudioPlayer() {
                                             : `${textMuted} hover:text-red-400 ${controlBg} ${controlBorder} hover:border-red-500/20`}`}>
                                         <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
                                     </button>
-                                    <button className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBg} border ${controlBorder} ${accentText} opacity-60 hover:opacity-100`}>
+                                    <button onClick={playPrevious} disabled={playlist.length === 0} className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBg} border ${controlBorder} ${accentText} opacity-60 hover:opacity-100 disabled:opacity-30 disabled:hover:scale-100 cursor-pointer disabled:cursor-not-allowed`}>
                                         <SkipBack size={16} fill="currentColor" />
                                     </button>
-                                    <button className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBg} border ${controlBorder} ${accentText} opacity-60 hover:opacity-100`}>
+                                    <button onClick={playNext} disabled={playlist.length === 0} className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBg} border ${controlBorder} ${accentText} opacity-60 hover:opacity-100 disabled:opacity-30 disabled:hover:scale-100 cursor-pointer disabled:cursor-not-allowed`}>
                                         <SkipForward size={16} fill="currentColor" />
                                     </button>
                                 </div>
