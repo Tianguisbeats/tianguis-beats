@@ -393,6 +393,21 @@ export default function AudioPlayer() {
                                         <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
                                     </button>
 
+                                    {/* Volumen (Movido aquí para espacio) */}
+                                    <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${controlBgClass} ${controlBorderClass}`}>
+                                        <button onClick={toggleMute} className={`transition-colors shrink-0 ${isMuted || volume === 0 ? textMutedClass : accentText}`}>
+                                            {isMuted || volume === 0 ? <VolumeX size={15} /> : <Volume2 size={15} />}
+                                        </button>
+                                        <div className="w-16 relative flex items-center h-4">
+                                            <input
+                                                type="range" min="0" max="1" step="0.01" value={volume}
+                                                onChange={handleVolumeChange}
+                                                className="w-full cursor-pointer h-[3px] rounded-full appearance-none"
+                                                style={{ accentColor, background: volumeTrackBg }}
+                                            />
+                                        </div>
+                                    </div>
+
                                     <button onClick={playPrevious} disabled={playlist.length === 0}
                                         className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBgClass} border ${controlBorderClass} ${accentText} opacity-60 hover:opacity-100 disabled:opacity-30 disabled:hover:scale-100 cursor-pointer disabled:cursor-not-allowed`}>
                                         <SkipBack size={16} fill="currentColor" />
@@ -477,37 +492,30 @@ export default function AudioPlayer() {
                         </div>
 
                         {/* ── 3. VOLUMEN Y ACCIONES (24%) ── */}
-                        <div className="flex items-center gap-3 w-[24%] shrink-0 justify-end">
-                            {/* Volumen */}
-                            <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${controlBgClass} ${controlBorderClass}`}>
-                                <button onClick={toggleMute} className={`transition-colors shrink-0 ${isMuted || volume === 0 ? textMutedClass : accentText}`}>
-                                    {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                        <div className="flex flex-col items-end gap-2 w-[24%] shrink-0 py-1">
+                            {/* Fila Superior: Compartir y Cerrar */}
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={handleShare}
+                                    title="Copiar enlace"
+                                    className={`w-9 h-9 flex items-center justify-center rounded-xl border transition-all hover:scale-110 active:scale-90 ${shareCopied
+                                        ? 'text-green-500 bg-green-500/10 border-green-500/20'
+                                        : `${textMutedClass} ${controlBgClass} ${controlBorderClass} hover:text-green-500 hover:bg-green-500/10 hover:border-green-500/20`}`}>
+                                    <Share2 size={15} />
                                 </button>
-                                <div className="w-20 relative flex items-center h-5">
-                                    <input
-                                        type="range" min="0" max="1" step="0.01" value={volume}
-                                        onChange={handleVolumeChange}
-                                        className="w-full cursor-pointer h-[3px] rounded-full appearance-none"
-                                        style={{ accentColor, background: volumeTrackBg }}
-                                    />
-                                </div>
+
+                                <button
+                                    onClick={closePlayer}
+                                    className={`w-9 h-9 flex items-center justify-center rounded-xl border transition-all active:scale-90 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 ${controlBgClass} ${controlBorderClass} ${textMutedClass}`}>
+                                    <X size={16} />
+                                </button>
                             </div>
 
-                            {/* Compartir */}
-                            <button
-                                onClick={handleShare}
-                                title="Copiar enlace"
-                                className={`w-9 h-9 flex items-center justify-center rounded-xl border transition-all hover:scale-110 active:scale-90 ${shareCopied
-                                    ? 'text-green-500 bg-green-500/10 border-green-500/20'
-                                    : `${textMutedClass} ${controlBgClass} ${controlBorderClass} hover:text-green-500 hover:bg-green-500/10 hover:border-green-500/20`}`}>
-                                <Share2 size={15} />
-                            </button>
-
-                            {/* Ver Licencias */}
+                            {/* Fila Inferior: Ver Licencias */}
                             {!isOwner && (
                                 <button
                                     onClick={() => router.push(beatLink)}
-                                    className="px-4 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest border transition-all hover:scale-105 active:scale-95 whitespace-nowrap shadow-md"
+                                    className="w-full max-w-[190px] py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest border transition-all hover:scale-105 active:scale-95 whitespace-nowrap shadow-md text-center"
                                     style={{ color: accentColor, borderColor: `${accentColor}30`, background: `${accentColor}10` }}
                                     onMouseEnter={e => {
                                         (e.currentTarget as HTMLElement).style.background = accentColor;
@@ -521,13 +529,6 @@ export default function AudioPlayer() {
                                     Ver Licencias
                                 </button>
                             )}
-
-                            {/* Cerrar */}
-                            <button
-                                onClick={closePlayer}
-                                className={`w-9 h-9 flex items-center justify-center rounded-xl border transition-all active:scale-90 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 ${controlBgClass} ${controlBorderClass} ${textMutedClass}`}>
-                                <X size={16} />
-                            </button>
                         </div>
                     </div>
                 </div>
