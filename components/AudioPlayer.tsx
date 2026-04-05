@@ -211,21 +211,21 @@ export default function AudioPlayer() {
                                     className={`block font-black text-[13px] truncate uppercase tracking-tight leading-none hover:opacity-70 transition-opacity ${textPrimaryClass}`}>
                                     {currentBeat.titulo}
                                 </Link>
-                                <div className="flex items-center gap-1.5 mt-0.5">
+                                <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
                                     <Link href={producerLink}
-                                        className={`text-[10px] font-bold uppercase truncate hover:opacity-80 transition-opacity ${accentText}`}>
-                                        {producerName}
+                                        className={`flex items-center gap-1.5 text-[10px] font-bold uppercase truncate hover:opacity-80 transition-opacity ${accentText}`}>
+                                        <span>{producerName}</span>
+                                        {(currentBeat.productor_esta_verificado || (currentBeat as any).is_verified) && (
+                                            <img src="/verified-badge.png" alt="V"
+                                                className={`w-3.5 h-3.5 object-contain shrink-0 ${isDark ? 'brightness-0 invert' : ''}`} />
+                                        )}
+                                        {(currentBeat.productor_es_fundador || (currentBeat as any).is_founder) && (
+                                            <Crown size={11} className="text-amber-400 shrink-0" fill="currentColor" />
+                                        )}
+                                        {currentBeat.productor_nivel_suscripcion?.toLowerCase() === 'premium' && !currentBeat.productor_es_fundador && !((currentBeat as any).is_founder) && (
+                                            <Crown size={11} className="text-blue-500 shrink-0" fill="currentColor" />
+                                        )}
                                     </Link>
-                                    {(currentBeat.productor_esta_verificado || (currentBeat as any).is_verified) && (
-                                        <img src="/verified-badge.png" alt="V"
-                                            className={`w-3.5 h-3.5 object-contain shrink-0 ${isDark ? 'brightness-0 invert' : ''}`} />
-                                    )}
-                                    {(currentBeat.productor_es_fundador || (currentBeat as any).is_founder) && (
-                                        <Crown size={11} className="text-amber-400 shrink-0" fill="currentColor" />
-                                    )}
-                                    {currentBeat.productor_nivel_suscripcion?.toLowerCase() === 'premium' && !currentBeat.productor_es_fundador && (
-                                        <Crown size={11} className="text-blue-500 shrink-0" fill="currentColor" />
-                                    )}
                                 </div>
                             </div>
 
@@ -342,19 +342,19 @@ export default function AudioPlayer() {
                                 </Link>
                                 <div className="flex items-center gap-1.5">
                                     <Link href={producerLink}
-                                        className={`text-[10px] font-bold truncate transition-colors hover:underline underline-offset-2 uppercase tracking-widest ${accentText} hover:${isDark ? 'text-white/80' : 'text-slate-700'}`}>
-                                        {producerName}
+                                        className={`flex items-center gap-1.5 text-[10px] font-bold truncate transition-colors hover:underline underline-offset-2 uppercase tracking-widest ${accentText} hover:${isDark ? 'text-white/80' : 'text-slate-700'}`}>
+                                        <span>{producerName}</span>
+                                        {(currentBeat.productor_esta_verificado || (currentBeat as any).is_verified) && (
+                                            <img src="/verified-badge.png" alt="V"
+                                                className={`w-4 h-4 object-contain shrink-0 ${isDark ? 'brightness-0 invert' : ''}`} />
+                                        )}
+                                        {(currentBeat.productor_es_fundador || (currentBeat as any).is_founder) && (
+                                            <Crown size={12} className="text-amber-400 shrink-0" fill="currentColor" />
+                                        )}
+                                        {currentBeat.productor_nivel_suscripcion?.toLowerCase() === 'premium' && !currentBeat.productor_es_fundador && !((currentBeat as any).is_founder) && (
+                                            <Crown size={12} className="text-blue-500 shrink-0" fill="currentColor" />
+                                        )}
                                     </Link>
-                                    {(currentBeat.productor_esta_verificado || (currentBeat as any).is_verified) && (
-                                        <img src="/verified-badge.png" alt="V"
-                                            className={`w-4 h-4 object-contain shrink-0 ${isDark ? 'brightness-0 invert' : ''}`} />
-                                    )}
-                                    {(currentBeat.productor_es_fundador || (currentBeat as any).is_founder) && (
-                                        <Crown size={12} className="text-amber-400 shrink-0" fill="currentColor" />
-                                    )}
-                                    {currentBeat.productor_nivel_suscripcion?.toLowerCase() === 'premium' && !currentBeat.productor_es_fundador && (
-                                        <Crown size={12} className="text-blue-500 shrink-0" fill="currentColor" />
-                                    )}
                                 </div>
                             </div>
                         </div>

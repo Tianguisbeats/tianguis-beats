@@ -207,10 +207,10 @@ export default function BeatCardPro({ beat, compact = false, adminControls }: Be
                                 {beat.productor_nombre_artistico || beat.productor_nombre_usuario}
                             </span>
                             <div className="flex items-center gap-1 shrink-0">
-                                {beat.productor_esta_verificado && (
+                                {(beat.productor_esta_verificado || (beat as any).is_verified) && (
                                     <img src="/verified-badge.png" alt="V" className="w-3.5 h-3.5 object-contain shrink-0 dark:brightness-0 dark:invert" />
                                 )}
-                                {beat.productor_es_fundador && (
+                                {(beat.productor_es_fundador || (beat as any).is_founder) && (
                                     <Crown size={12} className="text-amber-400 drop-shadow-sm" fill="currentColor" />
                                 )}
                             </div>
