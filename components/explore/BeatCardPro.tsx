@@ -193,7 +193,7 @@ export default function BeatCardPro({ beat, compact = false, adminControls }: Be
                             </span>
                             {beat.tono_escala && (
                                 <span className="px-2.5 py-1 rounded-md bg-blue-500/10 border border-blue-500/20 text-[7px] font-black uppercase tracking-[0.15em] text-blue-600 dark:text-blue-400 leading-none shadow-sm shadow-blue-500/5">
-                                    {beat.tono_escala.replace(/_/g, ' ')}
+                                    {beat.tono_escala.replace(/_/g, ' ').replace(/sharp/gi, '#')}
                                 </span>
                             )}
                         </div>

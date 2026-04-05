@@ -89,10 +89,10 @@ export default function BeatRow({ beat, onRemoveFromPlaylist, onMoveUp, onMoveDo
                     <p className="text-muted text-[9px] sm:text-[10px] font-black uppercase tracking-widest truncate">
                         {beat.productor_nombre_artistico || beat.productor_nombre_usuario || "—"}
                     </p>
-                    {beat.productor_esta_verificado && (
+                    {((beat as any).productor_esta_verificado || (beat as any).esta_verificado || (beat as any).is_verified) && (
                         <img src="/verified-badge.png" className="w-3 h-3 object-contain" alt="Verificado" />
                     )}
-                    {beat.productor_es_fundador && (
+                    {((beat as any).productor_es_fundador || (beat as any).es_fundador || (beat as any).is_founder) && (
                         <Crown size={12} className="text-amber-500" fill="currentColor" />
                     )}
                 </Link>
@@ -101,7 +101,7 @@ export default function BeatRow({ beat, onRemoveFromPlaylist, onMoveUp, onMoveDo
                 <div className="flex flex-wrap items-center gap-2 mt-2">
                     {beat.tono_escala && (
                         <span className="text-[9px] font-black text-accent bg-accent/10 px-3 py-1 rounded-xl uppercase tracking-widest border border-accent/20">
-                            {MUSICAL_KEYS.find(k => k.value === beat.tono_escala)?.label || beat.tono_escala}
+                            {(MUSICAL_KEYS.find(k => k.value === beat.tono_escala)?.label || beat.tono_escala).replace(/_/g, ' ').replace(/sharp/gi, '#')}
                         </span>
                     )}
                     {beat.bpm && (
