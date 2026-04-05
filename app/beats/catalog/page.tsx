@@ -155,7 +155,8 @@ function CatalogContent() {
             portada_url: cover, 
             archivo_mp3_url: audio, 
             productor_foto_perfil: avatar,
-            // Map exact fields from DB schema provided by user
+            esta_verificado: b.productor_esta_verificado ?? b.esta_verificado,
+            es_fundador: b.productor_es_fundador ?? b.es_fundador,
             productor_esta_verificado: b.productor_esta_verificado ?? b.esta_verificado,
             productor_es_fundador: b.productor_es_fundador ?? b.es_fundador,
             productor_nombre_artistico: b.productor_nombre_artistico || b.nombre_artistico,

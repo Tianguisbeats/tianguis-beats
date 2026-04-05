@@ -210,18 +210,19 @@ export default function BeatCardPro({ beat, compact = false, adminControls }: Be
                             <span className="text-[9px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 group-hover/link:underline transition-all truncate max-w-[120px]">
                                 {(beat as any).productor_nombre_artistico || (beat as any).nombre_artistico || (beat as any).productor_nombre_usuario || (beat as any).nombre_usuario || 'Productor'}
                             </span>
-                            {((beat as any).productor_esta_verificado || (beat as any).esta_verificado || (beat as any).is_verified || (beat as any).verified || (beat as any).productor?.esta_verificado || (beat as any).productor?.is_verified) && (
+                            {((beat as any).esta_verificado || (beat as any).productor_esta_verificado || (beat as any).is_verified) && (
                                 <img 
                                     src="/verified-badge.png" 
                                     alt="Verificado" 
-                                    className="w-3.5 h-3.5 object-contain dark:brightness-0 dark:invert"
+                                    className="w-3.5 h-3.5 object-contain"
+                                    style={{ filter: 'drop-shadow(0 0 1px rgba(0,0,0,0.2))' }}
                                 />
                             )}
-                            {((beat as any).productor_es_fundador || (beat as any).es_fundador || (beat as any).is_founder || (beat as any).founder || (beat as any).productor?.es_fundador || (beat as any).productor?.is_founder) && (
+                            {((beat as any).es_fundador || (beat as any).productor_es_fundador || (beat as any).is_founder) && (
                                 <Crown 
                                     size={12} 
-                                    className="text-amber-400 fill-amber-400 shadow-sm"
-                                    style={{ filter: 'drop-shadow(0 0 2px rgba(251, 191, 36, 0.4))' }}
+                                    className="text-amber-400 fill-amber-400"
+                                    style={{ filter: 'drop-shadow(0 0 3px rgba(251, 191, 36, 0.4))' }}
                                 />
                             )}
                         </Link>
