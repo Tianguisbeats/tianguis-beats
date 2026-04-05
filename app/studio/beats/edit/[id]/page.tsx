@@ -973,7 +973,7 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                     return (
                                         <div 
                                             key={row.key}
-                                            className={`relative flex flex-col p-8 rounded-[2.5rem] border transition-all duration-500 overflow-hidden group/license animate-in fade-in slide-in-from-bottom-2 duration-700 ${isActive ? `bg-card dark:bg-black/20 border-white/10 shadow-2xl` : 'bg-white/[0.05] dark:bg-white/[0.03] border-slate-200 dark:border-white/10 opacity-90 grayscale-0 hover:opacity-100 hover:border-white/20'}`}
+                                            className={`relative flex flex-col p-8 rounded-[2.5rem] border transition-all duration-500 overflow-hidden group/license animate-in fade-in slide-in-from-bottom-2 duration-700 ${isActive ? `bg-card dark:bg-black/30 border-white/10 shadow-2xl` : 'bg-white/[0.07] dark:bg-white/[0.05] border-white/10 opacity-100 grayscale-0 hover:border-white/30 shadow-lg shadow-black/20'}`}
                                             style={{ borderColor: isActive ? `${meta.hex}30` : undefined }}
                                         >
                                             {/* Static Glow Accent */}
@@ -984,17 +984,19 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
 
                                             {/* Header: Icon & Label */}
                                             <div className="flex items-center gap-4 mb-6">
-                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500 ${isActive ? 'rotate-0' : '-rotate-6'}`}
+                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500 ${isActive ? 'rotate-0 shadow-lg' : '-rotate-6'}`}
                                                     style={{ 
-                                                        background: isActive ? `${meta.hex}15` : 'rgba(255,255,255,0.02)', 
-                                                        borderColor: isActive ? `${meta.hex}20` : 'rgba(255,255,255,0.1)', 
-                                                        color: isActive ? meta.hex : 'rgba(255,255,255,0.4)' 
+                                                        background: isActive ? `${meta.hex}25` : `${meta.hex}10`, 
+                                                        borderColor: isActive ? `${meta.hex}30` : `${meta.hex}20`, 
+                                                        color: isActive ? meta.hex : meta.hex,
+                                                        boxShadow: isActive ? `0 10px 30px -10px ${meta.hex}40` : 'none',
+                                                        opacity: isActive ? 1 : 0.6
                                                     }}>
                                                     {meta.icon}
                                                 </div>
                                                 <div className="flex-1">
-                                                    <p className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: isActive ? meta.hex : 'rgba(255,255,255,0.5)' }}>{meta.label}</p>
-                                                    <p className="text-[11px] font-bold text-muted uppercase tracking-widest mt-1 opacity-60">{meta.desc}</p>
+                                                    <p className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: isActive ? meta.hex : 'rgba(255,255,255,0.7)', opacity: isActive ? 1 : 0.8 }}>{meta.label}</p>
+                                                    <p className="text-[11px] font-bold text-muted uppercase tracking-widest mt-1 opacity-70">{meta.desc}</p>
                                                 </div>
                                                 <Switch
                                                     active={isActive}
@@ -1008,14 +1010,16 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                             <div className="mt-auto space-y-5">
                                                 {isLocked ? (
                                                     <div className="flex flex-col gap-3">
-                                                        <div className="flex items-center gap-2 p-4 rounded-xl bg-black/20 border border-white/5 backdrop-blur-md">
-                                                            <Lock size={12} className="text-muted/40 shrink-0" />
-                                                            <span className="text-[9px] font-black uppercase tracking-widest text-muted/50 leading-tight">
+                                                        <div className="flex items-center gap-3 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 backdrop-blur-md">
+                                                            <div className="w-6 h-6 rounded-lg bg-rose-500/20 flex items-center justify-center text-rose-500 shrink-0">
+                                                                <Lock size={12} />
+                                                            </div>
+                                                            <span className="text-[10px] font-black uppercase tracking-widest text-rose-500 leading-tight">
                                                                 {row.lockReason}
                                                             </span>
                                                         </div>
                                                         {row.lockLink && (
-                                                            <Link href={row.lockLink} className="flex items-center justify-center p-3 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground transition-all duration-300">
+                                                            <Link href={row.lockLink} className="flex items-center justify-center p-3 rounded-xl bg-white/5 hover:bg-rose-500 text-rose-500 hover:text-white transition-all duration-300 border border-rose-500/20">
                                                                 <span className="text-[9px] font-black uppercase tracking-widest">Mejorar Plan →</span>
                                                             </Link>
                                                         )}
@@ -1028,11 +1032,11 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                                                                 value={row.price}
                                                                 onChange={(e) => row.setPrice(e.target.value)}
                                                                 disabled={!isActive || row.lockPrice}
-                                                                className={`w-full bg-background/50 dark:bg-black/40 border transition-all duration-500 rounded-2xl px-6 py-4 font-black text-lg outline-none focus:ring-4 focus:ring-blue-500/10 ${isActive ? 'border-border dark:border-white/10 text-foreground' : 'border-transparent text-muted/30 cursor-not-allowed'}`}
+                                                                className={`w-full bg-black/40 border transition-all duration-500 rounded-2xl px-6 py-4 font-black text-lg outline-none focus:ring-4 focus:ring-blue-500/10 ${isActive ? 'border-white/20 text-white' : 'border-white/5 text-white/30 cursor-not-allowed'}`}
                                                                 placeholder="Precio"
                                                             />
                                                             <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
-                                                                <span className="text-[10px] font-black uppercase tracking-widest text-muted/40">MXN</span>
+                                                                <span className="text-[10px] font-black uppercase tracking-widest text-white/20">MXN</span>
                                                             </div>
                                                         </div>
                                                         <PricePreview price={row.price} />
