@@ -423,7 +423,6 @@ export default function UploadPage() {
                 archivo_stems_url: stemsUrl,
                 es_gratis_activa: isBasicActive,
                 es_basica_activa: isMp3Active,
-                es_mp3_activa: isMp3Active,
                 es_pro_activa: isProActive,
                 es_premium_activa: isPremiumActive,
                 es_exclusiva_estandar_activa: isExclusivaActive,

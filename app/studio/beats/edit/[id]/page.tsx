@@ -399,7 +399,6 @@ export default function EditBeatPage({ params }: { params: Promise<{ id: string 
                 archivo_stems_url: stemsPath,
                 es_gratis_activa: isBasicActive,
                 es_basica_activa: isMp3Active,
-                es_mp3_activa: isMp3Active,
                 es_pro_activa: isProActive,
                 es_premium_activa: isPremiumActive,
                 es_exclusiva_estandar_activa: isExclusivaActive,
