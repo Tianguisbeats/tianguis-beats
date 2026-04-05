@@ -180,7 +180,7 @@ export default function AccountPage() {
                                 onClick={() => setIsEditing(true)}
                                 className="px-6 py-4 bg-foreground text-background dark:bg-white dark:text-black rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none flex items-center gap-2"
                             >
-                                <Edit3 size={14} /> Editar Cambios
+                                <Edit3 size={14} /> Editar
                             </motion.button>
                         ) : (
                             <motion.div
@@ -288,8 +288,12 @@ export default function AccountPage() {
                                         <input type="text" value={form.verificacion_instagram} onChange={e => setForm({ ...form, verificacion_instagram: e.target.value })} disabled={!isEditing} className={`w-full bg-background border border-border rounded-2xl pl-14 pr-6 py-4 text-sm font-bold outline-none transition-all shadow-sm ${isEditing ? 'focus:border-blue-500' : 'opacity-60 cursor-default'}`} placeholder="Usuario de Instagram" />
                                     </div>
                                     <div className="flex relative items-center">
-                                        <div className="absolute left-6 text-muted"><span className="font-bold font-sans text-sm italic">TikTok</span></div>
-                                        <input type="text" value={form.verificacion_tiktok} onChange={e => setForm({ ...form, verificacion_tiktok: e.target.value })} disabled={!isEditing} className={`w-full bg-background border border-border rounded-2xl pl-[4.5rem] pr-6 py-4 text-sm font-bold outline-none transition-all shadow-sm ${isEditing ? 'focus:border-blue-500' : 'opacity-60 cursor-default'}`} placeholder="Usuario de TikTok" />
+                                        <div className="absolute left-6 text-muted">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+                                            </svg>
+                                        </div>
+                                        <input type="text" value={form.verificacion_tiktok} onChange={e => setForm({ ...form, verificacion_tiktok: e.target.value })} disabled={!isEditing} className={`w-full bg-background border border-border rounded-2xl pl-14 pr-6 py-4 text-sm font-bold outline-none transition-all shadow-sm ${isEditing ? 'focus:border-blue-500' : 'opacity-60 cursor-default'}`} placeholder="Usuario de TikTok" />
                                     </div>
                                     <div className="flex relative items-center">
                                         <div className="absolute left-6 text-muted"><Youtube size={18} /></div>
@@ -341,13 +345,6 @@ export default function AccountPage() {
                                     <CurrencySwitcher />
                                 </div>
                                 <p className="text-[8px] text-muted font-bold uppercase tracking-widest mt-3 opacity-50">Así verás los precios en el catálogo.</p>
-                            </div>
-                            
-                            <div>
-                                <label className="text-[9px] font-black uppercase tracking-widest text-muted block mb-3">Idioma</label>
-                                <select disabled className="w-full bg-slate-100 dark:bg-black/40 border border-border rounded-2xl px-4 py-3 text-xs font-bold outline-none shadow-sm opacity-50 cursor-not-allowed appearance-none text-muted">
-                                    <option>Español (México) 🇲🇽</option>
-                                </select>
                             </div>
                         </div>
                     </div>
