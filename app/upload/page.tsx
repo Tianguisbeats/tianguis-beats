@@ -1132,7 +1132,7 @@ export default function UploadPage() {
                                             return (
                                                 <div 
                                                     key={row.key}
-                                                    className={`relative flex flex-col p-8 rounded-[2.5rem] border transition-all duration-500 overflow-hidden group/license animate-in fade-in slide-in-from-bottom-2 duration-700 ${isActive ? `bg-card dark:bg-black/30 border-white/10 shadow-2xl` : 'bg-white/[0.07] dark:bg-white/[0.05] border-white/10 opacity-100 grayscale-0 hover:border-white/30 shadow-lg shadow-black/20'}`}
+                                                    className={`relative flex flex-col p-8 rounded-[2.5rem] border transition-all duration-500 overflow-hidden group/license animate-in fade-in slide-in-from-bottom-2 duration-700 bg-card dark:bg-black/30 ${isActive ? `border-white/10 shadow-2xl` : 'border-border/50 dark:border-white/5 shadow-lg shadow-black/20'}`}
                                                     style={{ borderColor: isActive ? `${meta.hex}30` : undefined }}
                                                 >
                                                     {/* Static Glow Accent */}
@@ -1147,15 +1147,15 @@ export default function UploadPage() {
                                                             style={{ 
                                                                 background: isActive ? `${meta.hex}25` : `${meta.hex}10`, 
                                                                 borderColor: isActive ? `${meta.hex}30` : `${meta.hex}20`, 
-                                                                color: isActive ? meta.hex : meta.hex,
+                                                                color: meta.hex,
                                                                 boxShadow: isActive ? `0 10px 30px -10px ${meta.hex}40` : 'none',
-                                                                opacity: isActive ? 1 : 0.6
+                                                                opacity: isActive ? 1 : 0.8
                                                             }}>
                                                             {meta.icon}
                                                         </div>
                                                         <div className="flex-1">
-                                                            <p className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: isActive ? meta.hex : 'rgba(255,255,255,0.7)', opacity: isActive ? 1 : 0.8 }}>{meta.label}</p>
-                                                            <p className="text-[11px] font-bold text-muted uppercase tracking-widest mt-1 opacity-70">{meta.desc}</p>
+                                                            <p className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: meta.hex, opacity: isActive ? 1 : 0.8 }}>{meta.label}</p>
+                                                            <p className="text-[11px] font-bold text-muted uppercase tracking-widest mt-1 opacity-80">{meta.desc}</p>
                                                         </div>
                                                         <Switch
                                                             active={isActive}
@@ -1165,42 +1165,39 @@ export default function UploadPage() {
                                                         />
                                                     </div>
 
-                                                    {/* Content: Price & Status */}
-                                                    <div className="mt-auto space-y-5">
-                                                        {isLocked ? (
-                                                            <div className="flex flex-col gap-3">
-                                                                <div className="flex items-center gap-3 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 backdrop-blur-md">
-                                                                    <div className="w-6 h-6 rounded-lg bg-rose-500/20 flex items-center justify-center text-rose-500 shrink-0">
-                                                                        <Lock size={12} />
+                                                    <div className="mt-auto space-y-4">
+                                                        {isLocked && (
+                                                            <div className="flex flex-col gap-3 mb-2">
+                                                                <div className="flex items-center gap-3 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 backdrop-blur-md">
+                                                                    <div className="w-5 h-5 rounded-lg bg-rose-500/20 flex items-center justify-center text-rose-500 shrink-0">
+                                                                        <Lock size={10} />
                                                                     </div>
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-rose-500 leading-tight">
+                                                                    <span className="text-[9px] font-black uppercase tracking-widest text-rose-500 leading-tight">
                                                                         {row.lockReason}
                                                                     </span>
                                                                 </div>
                                                                 {row.lockLink && (
-                                                                    <Link href={row.lockLink} className="flex items-center justify-center p-3 rounded-xl bg-white/5 hover:bg-rose-500 text-rose-500 hover:text-white transition-all duration-300 border border-rose-500/20">
+                                                                    <Link href={row.lockLink} className="flex items-center justify-center p-2 rounded-xl bg-background border border-border hover:bg-rose-500 text-muted hover:text-white transition-all duration-300">
                                                                         <span className="text-[9px] font-black uppercase tracking-widest">Mejorar Plan →</span>
                                                                     </Link>
                                                                 )}
                                                             </div>
-                                                        ) : (
-                                                            <div className="space-y-4">
-                                                                <div className="relative">
-                                                                    <input
-                                                                        type="number"
-                                                                        value={row.price}
-                                                                        onChange={(e) => row.setPrice(e.target.value)}
-                                                                        disabled={!isActive || row.lockPrice}
-                                                                        className={`w-full bg-black/40 border transition-all duration-500 rounded-2xl px-6 py-4 font-black text-lg outline-none focus:ring-4 focus:ring-blue-500/10 ${isActive ? 'border-white/20 text-white' : 'border-white/5 text-white/30 cursor-not-allowed'}`}
-                                                                        placeholder="Precio"
-                                                                    />
-                                                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
-                                                                        <span className="text-[10px] font-black uppercase tracking-widest text-white/20">MXN</span>
-                                                                    </div>
-                                                                </div>
-                                                                <PricePreview price={row.price} />
-                                                            </div>
                                                         )}
+                                                        
+                                                        <div className="relative">
+                                                            <input
+                                                                type="number"
+                                                                value={row.price}
+                                                                onChange={(e) => row.setPrice(e.target.value)}
+                                                                disabled={!isActive || row.lockPrice}
+                                                                className={`w-full bg-background dark:bg-black/40 border transition-all duration-500 rounded-2xl px-6 py-4 font-black text-lg outline-none focus:ring-4 focus:ring-blue-500/10 ${isActive ? 'border-border dark:border-white/20 text-foreground' : 'border-border/50 dark:border-white/5 text-muted cursor-not-allowed opacity-60'}`}
+                                                                placeholder="Precio"
+                                                            />
+                                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                                <span className="text-[10px] font-black uppercase tracking-widest text-muted">MXN</span>
+                                                            </div>
+                                                        </div>
+                                                        {isActive && <PricePreview price={row.price} />}
                                                     </div>
                                                 </div>
                                             );
