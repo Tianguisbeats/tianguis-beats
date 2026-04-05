@@ -54,20 +54,17 @@ export default function AudioPlayer() {
 
     // Onda con mucho más contraste — distinguible en ambos modos
     const waveColor = isDark
-        ? (isSoundKit ? 'rgba(249,115,22,0.35)' : 'rgba(59,130,246,0.35)')
-        : (isSoundKit ? 'rgba(249,115,22,0.25)' : 'rgba(59,130,246,0.25)');
+        ? (isSoundKit ? 'rgba(249,115,22,0.3)' : 'rgba(59,130,246,0.3)')
+        : (isSoundKit ? 'rgba(249,115,22,0.15)' : 'rgba(59,130,246,0.15)');
     const progressColor = accentColor;
 
-    // Colores del contenedor adaptados al tema
-    const bgPlayer = isDark ? 'rgba(6,6,10,0.95)' : 'rgba(250,252,255,0.97)';
-    const borderColor = isDark ? `${accentColor}20` : `${accentColor}30`;
-    const boxShadow = isDark
-        ? `0 24px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)`
-        : `0 8px 40px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.9)`;
-    const textPrimary = isDark ? 'text-white' : 'text-slate-900';
-    const textMuted = isDark ? 'text-white/40' : 'text-slate-500';
-    const controlBg = isDark ? 'bg-white/[0.05]' : 'bg-slate-100';
-    const controlBorder = isDark ? 'border-white/[0.06]' : 'border-slate-200';
+    // Clases dinámicas de Tailwind para mejor consistencia
+    const playerBgClass = "bg-white/95 dark:bg-[#06060a]/95 backdrop-blur-2xl";
+    const playerBorderClass = "border-slate-200 dark:border-white/10";
+    const textPrimaryClass = "text-slate-900 dark:text-white";
+    const textMutedClass = "text-slate-500 dark:text-white/40";
+    const controlBgClass = "bg-slate-100 dark:bg-white/[0.05]";
+    const controlBorderClass = "border-slate-200 dark:border-white/10";
 
     const toggleLike = () => {
         if (!currentUserId || !currentBeat) return;
@@ -105,8 +102,12 @@ export default function AudioPlayer() {
             {/* ═══════════ VERSIÓN MÓVIL ═══════════ */}
             <div className="md:hidden fixed bottom-[68px] left-0 right-0 z-[100] px-3 animate-in slide-in-from-bottom-2 duration-300">
                 <div
-                    className="relative rounded-[1.75rem] overflow-hidden shadow-2xl border"
-                    style={{ background: bgPlayer, borderColor, boxShadow }}
+                    className={`relative rounded-[1.75rem] overflow-hidden shadow-2xl border ${playerBgClass} ${playerBorderClass}`}
+                    style={{ 
+                        boxShadow: isDark 
+                            ? `0 24px 80px rgba(0,0,0,0.6)` 
+                            : `0 8px 40px rgba(0,0,0,0.12)` 
+                    }}
                 >
                     <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-full"
                         style={{ background: `linear-gradient(90deg, transparent, ${accentColor}, transparent)` }} />
@@ -133,19 +134,19 @@ export default function AudioPlayer() {
                                     {isSoundKit ? 'Sound Kit' : 'Beat'}
                                 </span>
                                 <Link href={beatLink}
-                                    className={`block font-black text-[13px] truncate uppercase tracking-tight leading-none hover:opacity-70 transition-opacity ${textPrimary}`}>
+                                    className={`block font-black text-[13px] truncate uppercase tracking-tight leading-none hover:opacity-70 transition-opacity ${textPrimaryClass}`}>
                                     {currentBeat.titulo}
                                 </Link>
                                 <div className="flex items-center gap-1.5 mt-0.5">
                                     <Link href={producerLink}
-                                        className={`text-[10px] font-bold uppercase truncate hover:opacity-80 transition-opacity ${textMuted}`}>
+                                        className={`text-[10px] font-bold uppercase truncate hover:opacity-80 transition-opacity ${textMutedClass}`}>
                                         {producerName}
                                     </Link>
                                     {(currentBeat.productor_esta_verificado || (currentBeat as any).is_verified) && (
                                         <img 
                                             src="/verified-badge.png" 
                                             alt="V" 
-                                            className={`w-3.5 h-3.5 object-contain shrink-0 ${isDark ? 'brightness-0' : 'brightness-0 invert opacity-80'}`} 
+                                            className={`w-3.5 h-3.5 object-contain shrink-0 ${isDark ? 'brightness-0 invert' : ''}`} 
                                         />
                                     )}
                                     {(currentBeat.productor_es_fundador || (currentBeat as any).is_founder) && (
@@ -160,7 +161,7 @@ export default function AudioPlayer() {
                             {/* Controles */}
                             <div className="flex items-center gap-1 shrink-0">
                                 <button onClick={toggleLike}
-                                    className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all active:scale-90 ${isLiked ? 'text-red-500' : `${textMuted} hover:text-red-400`}`}>
+                                    className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all active:scale-90 ${isLiked ? 'text-red-500' : `${textMutedClass} hover:text-red-400`}`}>
                                     <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
                                 </button>
                                 <button onClick={togglePlay}
@@ -169,7 +170,7 @@ export default function AudioPlayer() {
                                     {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-0.5" />}
                                 </button>
                                 <button onClick={closePlayer}
-                                    className={`w-9 h-9 flex items-center justify-center rounded-xl hover:text-red-400 transition-colors active:scale-90 ${textMuted}`}>
+                                    className={`w-9 h-9 flex items-center justify-center rounded-xl hover:text-red-400 transition-colors active:scale-90 ${textMutedClass}`}>
                                     <X size={16} />
                                 </button>
                             </div>
@@ -186,7 +187,7 @@ export default function AudioPlayer() {
                                     muted
                                 />
                             </div>
-                            <div className={`flex items-center justify-between font-mono text-[9px] font-black mt-0.5 ${textMuted}`}>
+                            <div className={`flex items-center justify-between font-mono text-[9px] font-black mt-0.5 ${textMutedClass}`}>
                                 <span>{formatTime(currentTime)}</span>
                                 <span>{formatTime(duration)}</span>
                             </div>
@@ -198,12 +199,11 @@ export default function AudioPlayer() {
             {/* ═══════════ VERSIÓN ESCRITORIO ═══════════ */}
             <div className="hidden md:block fixed bottom-5 left-1/2 -translate-x-1/2 z-[100] w-[97%] max-w-[1400px] animate-in slide-in-from-bottom-6 duration-500">
                 <div
-                    className="relative rounded-[2rem] overflow-hidden"
+                    className={`relative rounded-[2rem] overflow-hidden border ${playerBgClass} ${playerBorderClass}`}
                     style={{
-                        background: bgPlayer,
-                        backdropFilter: 'blur(32px)',
-                        border: `1px solid ${borderColor}`,
-                        boxShadow
+                        boxShadow: isDark 
+                            ? `0 24px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)` 
+                            : `0 8px 40px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.9)`
                     }}
                 >
                     {/* Línea superior dinámica */}
@@ -239,20 +239,20 @@ export default function AudioPlayer() {
                                 </span>
                                 {/* Nombre del beat → su página */}
                                 <Link href={beatLink}
-                                    className={`font-black text-[13px] truncate uppercase tracking-tight leading-tight transition-opacity hover:opacity-60 ${textPrimary}`}>
+                                    className={`font-black text-[13px] truncate uppercase tracking-tight leading-tight transition-opacity hover:opacity-60 ${textPrimaryClass}`}>
                                     {currentBeat.titulo}
                                 </Link>
                                 {/* Nombre del productor → perfil */}
                                 <div className="flex items-center gap-1.5">
                                     <Link href={producerLink}
-                                        className={`text-[10px] font-bold truncate transition-colors hover:underline underline-offset-2 uppercase tracking-widest ${textMuted} hover:${isDark ? 'text-white/80' : 'text-slate-700'}`}>
+                                        className={`text-[10px] font-bold truncate transition-colors hover:underline underline-offset-2 uppercase tracking-widest ${textMutedClass} hover:${isDark ? 'text-white/80' : 'text-slate-700'}`}>
                                         {producerName}
                                     </Link>
                                     {(currentBeat.productor_esta_verificado || (currentBeat as any).is_verified) && (
                                         <img 
                                             src="/verified-badge.png" 
                                             alt="V" 
-                                            className={`w-4 h-4 object-contain shrink-0 ${isDark ? 'brightness-0' : 'brightness-0 invert opacity-80'}`} 
+                                            className={`w-4 h-4 object-contain shrink-0 ${isDark ? 'brightness-0 invert' : ''}`} 
                                         />
                                     )}
                                     {(currentBeat.productor_es_fundador || (currentBeat as any).is_founder) && (
@@ -289,9 +289,9 @@ export default function AudioPlayer() {
                                         {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-0.5" />}
                                     </button>
                                     <div className="flex items-center gap-1.5 font-mono text-[10px] font-black">
-                                        <span className={textPrimary}>{formatTime(currentTime)}</span>
-                                        <span className={textMuted}>/</span>
-                                        <span className={textMuted}>{formatTime(duration)}</span>
+                                        <span className={textPrimaryClass}>{formatTime(currentTime)}</span>
+                                        <span className={textMutedClass}>/</span>
+                                        <span className={textMutedClass}>{formatTime(duration)}</span>
                                     </div>
                                 </div>
 
@@ -301,13 +301,13 @@ export default function AudioPlayer() {
                                         onClick={toggleLike}
                                         className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 border ${isLiked
                                             ? 'text-red-500 bg-red-500/10 border-red-500/20'
-                                            : `${textMuted} hover:text-red-400 ${controlBg} ${controlBorder} hover:border-red-500/20`}`}>
+                                            : `${textMutedClass} hover:text-red-400 ${controlBgClass} ${controlBorderClass} hover:border-red-500/20`}`}>
                                         <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
                                     </button>
-                                    <button onClick={playPrevious} disabled={playlist.length === 0} className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBg} border ${controlBorder} ${accentText} opacity-60 hover:opacity-100 disabled:opacity-30 disabled:hover:scale-100 cursor-pointer disabled:cursor-not-allowed`}>
+                                    <button onClick={playPrevious} disabled={playlist.length === 0} className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBgClass} border ${controlBorderClass} ${accentText} opacity-60 hover:opacity-100 disabled:opacity-30 disabled:hover:scale-100 cursor-pointer disabled:cursor-not-allowed`}>
                                         <SkipBack size={16} fill="currentColor" />
                                     </button>
-                                    <button onClick={playNext} disabled={playlist.length === 0} className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBg} border ${controlBorder} ${accentText} opacity-60 hover:opacity-100 disabled:opacity-30 disabled:hover:scale-100 cursor-pointer disabled:cursor-not-allowed`}>
+                                    <button onClick={playNext} disabled={playlist.length === 0} className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBgClass} border ${controlBorderClass} ${accentText} opacity-60 hover:opacity-100 disabled:opacity-30 disabled:hover:scale-100 cursor-pointer disabled:cursor-not-allowed`}>
                                         <SkipForward size={16} fill="currentColor" />
                                     </button>
                                 </div>
@@ -317,8 +317,8 @@ export default function AudioPlayer() {
                         {/* ── 3. VOLUMEN Y ACCIONES (24%) ── */}
                         <div className="flex items-center gap-4 w-[24%] shrink-0 justify-end">
                             {/* Volumen */}
-                            <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${controlBg} ${controlBorder}`}>
-                                <button onClick={toggleMute} className={`transition-colors shrink-0 ${isMuted || volume === 0 ? textMuted : accentText}`}>
+                            <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${controlBgClass} ${controlBorderClass}`}>
+                                <button onClick={toggleMute} className={`transition-colors shrink-0 ${isMuted || volume === 0 ? textMutedClass : accentText}`}>
                                     {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
                                 </button>
                                 <div className="w-20 relative flex items-center h-5">
@@ -356,7 +356,7 @@ export default function AudioPlayer() {
                             {/* Cerrar */}
                             <button
                                 onClick={closePlayer}
-                                className={`w-9 h-9 flex items-center justify-center rounded-xl border transition-all active:scale-90 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 ${controlBg} ${controlBorder} ${textMuted}`}>
+                                className={`w-9 h-9 flex items-center justify-center rounded-xl border transition-all active:scale-90 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 ${controlBgClass} ${controlBorderClass} ${textMutedClass}`}>
                                 <X size={16} />
                             </button>
                         </div>
