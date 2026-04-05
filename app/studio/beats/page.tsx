@@ -8,6 +8,7 @@ import Switch from '@/components/ui/Switch';
 import { useToast } from '@/context/ToastContext';
 import LoadingTianguis from '@/components/LoadingTianguis';
 import AddToPlaylistModal from '@/components/AddToPlaylistModal';
+import BeatCardPro from '@/components/explore/BeatCardPro';
 
 export default function StudioBeatsPage() {
     const { showToast } = useToast();
@@ -196,22 +197,6 @@ export default function StudioBeatsPage() {
                                     </h4>
 
                                     {/* Minimal Quick Stats */}
-                                    <div className="flex items-center gap-4 mb-5 px-0.5">
-                                        <div className="flex items-center gap-1.5">
-                                            <Play size={10} className="text-blue-500/40" fill="currentColor" />
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-muted/60">{formatNumber(beat.conteo_reproducciones)}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <Heart size={10} className="text-rose-500/40" fill="currentColor" />
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-muted/60">{formatNumber(beat.conteo_likes)}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5 ml-auto">
-                                            <Wallet size={10} className="text-emerald-500/40" />
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-muted/60">{formatNumber(beat.conteo_ventas || 0)}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Visibility Control Row */}
                                     <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-white/5">
                                         <div className="flex flex-col">
                                             <span className="text-[7px] font-black uppercase tracking-[0.3em] text-muted opacity-40 mb-0.5">Visibilidad</span>

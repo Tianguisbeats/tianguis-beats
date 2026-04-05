@@ -26,6 +26,7 @@ import { useRouter } from 'next/navigation';
 interface BeatCardProProps {
     beat: Beat;
     compact?: boolean;
+    adminControls?: React.ReactNode;
 }
 
 const cardVariants = {
@@ -41,7 +42,7 @@ const cardVariants = {
     }
 };
 
-export default function BeatCardPro({ beat, compact = false }: BeatCardProProps) {
+export default function BeatCardPro({ beat, compact = false, adminControls }: BeatCardProProps) {
     /* ── Contextos globales: reproductor, carrito, toasts, moneda ── */
     const { currentBeat, isPlaying, playBeat, likedBeatIds, toggleLike: globalToggleLike } = usePlayer();
     const { currentUserId } = useCart();
@@ -193,18 +194,29 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                                 {beat.titulo}
                             </h4>
                         </Link>
-                        <Link href={`/${beat.productor_nombre_usuario || '#'}`} className="flex items-center gap-1 group/prod">
-                            <span className="text-[10px] font-bold text-slate-500 dark:text-muted uppercase tracking-widest opacity-70 group-hover/prod:text-purple-500 transition-colors truncate">
+                        <Link href={`/${beat.productor_nombre_usuario || '#'}`} className="flex items-center gap-1.5 group/prod">
+                            <span className="text-[10px] font-bold text-black dark:text-white uppercase tracking-widest opacity-80 group-hover/prod:text-emerald-500 transition-colors truncate">
                                 {beat.productor_nombre_artistico || beat.productor_nombre_usuario}
                             </span>
-                            {beat.productor_esta_verificado && (
-                                <img src="/verified-badge.png" alt="Verificado" className="w-3.5 h-3.5 shrink-0" />
-                            )}
-                            {beat.productor_es_fundador && <Crown size={10} className="text-amber-400 shrink-0" fill="currentColor" />}
+                            <div className="flex items-center gap-1 shrink-0">
+                                {beat.productor_esta_verificado && (
+                                    <div className="w-3.5 h-3.5 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
+                                        <Zap size={8} fill="white" className="text-white" />
+                                    </div>
+                                )}
+                                {beat.productor_es_fundador && (
+                                    <Crown size={12} className="text-amber-400 drop-shadow-sm" fill="currentColor" />
+                                )}
+                            </div>
                         </Link>
                     </div>
 
                     <div className="mt-auto pt-3 border-t border-slate-200 dark:border-white/5">
+                        {adminControls && (
+                            <div className="mb-4">
+                                {adminControls}
+                            </div>
+                        )}
                         {beat.esta_vendido && config?.bloqueo_exclusivos ? (
                             <div className="w-full h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center gap-2">
                                 <Crown size={14} className="text-rose-500" />
@@ -220,20 +232,22 @@ export default function BeatCardPro({ beat, compact = false }: BeatCardProProps)
                                 >
                                     <Heart size={15} fill={isLiked ? "currentColor" : "none"} />
                                 </motion.button>
-                                <motion.button
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        if (!currentUserId) { router.push('/login'); return; }
-                                        setIsPlaylistModalOpen(true);
-                                    }}
-                                    className="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center transition-all border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-slate-400 dark:text-muted hover:text-accent hover:border-accent/30"
-                                    title="Añadir a Playlist"
-                                >
-                                    <Plus size={15} />
-                                </motion.button>
+                                {isOwner && (
+                                    <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            if (!currentUserId) { router.push('/login'); return; }
+                                            setIsPlaylistModalOpen(true);
+                                        }}
+                                        className="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center transition-all border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-slate-400 dark:text-muted hover:text-emerald-500 hover:border-emerald-500/30"
+                                        title="Añadir a Playlist"
+                                    >
+                                        <Plus size={15} />
+                                    </motion.button>
+                                )}
                                 {!isOwner && (
                                     <motion.button
                                         whileHover={config?.ventas_habilitadas !== false ? { scale: 1.02 } : {}}
