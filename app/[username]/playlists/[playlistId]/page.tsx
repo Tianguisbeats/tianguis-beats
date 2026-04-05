@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { 
     Play, Pause, Heart, Share2, Music2, ArrowLeft, 
-    Clock, ListMusic, User, Globe, Calendar, Shuffle, Edit2 
+    Clock, ListMusic, User, Globe, Calendar, Shuffle, Edit2, Crown 
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePlayer } from '@/context/PlayerContext';
 import { useToast } from '@/context/ToastContext';
 import { useCart } from '@/context/CartContext';
+import Link from 'next/link';
 
 export default function PlaylistDetailPage() {
     const { username, playlistId } = useParams();
@@ -130,18 +131,17 @@ export default function PlaylistDetailPage() {
         setBeats(newBeats);
 
         try {
-            // Bulk update indices
-            const updates = newBeats.map((b, i) => ({
-                playlist_id: playlistId,
-                beat_id: b.id,
-                indice_orden: i
-            }));
-
-            const { error } = await supabase.from('listas_reproduccion_items').upsert(updates);
-            if (error) throw error;
+            // Update indices individually mapping by beat_id to avoid constraint or missing ID upsert issues
+            await Promise.all(newBeats.map((b, i) => 
+                supabase
+                    .from('listas_reproduccion_items')
+                    .update({ indice_orden: i })
+                    .eq('playlist_id', playlistId)
+                    .eq('beat_id', b.id)
+            ));
         } catch (err) {
             console.error("Error al reordenar:", err);
-            showToast("Reordenamiento falló en la base de datos", "error");
+            showToast("Error al procesar el reordenamiento", "error");
         }
     };
 
@@ -164,7 +164,7 @@ export default function PlaylistDetailPage() {
                 <div className="relative pt-32 pb-16 overflow-hidden flex flex-col items-center justify-center min-h-[50vh]">
                     {/* Background Blur */}
                     <div className="absolute inset-0 z-0">
-                        <PlaylistCover beats={beats} size="lg" className="w-[120%] h-[120%] -ml-[10%] -mt-[10%] object-cover blur-[100px] opacity-30" />
+                        <PlaylistCover beats={beats} size="lg" className="w-[120%] h-[120%] -ml-[10%] -mt-[10%] object-cover blur-[140px] opacity-60 saturate-150" />
                         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/80 to-background" />
                     </div>
 
@@ -186,19 +186,21 @@ export default function PlaylistDetailPage() {
                                 <h1 className="text-4xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-foreground leading-[0.85] filter drop-shadow-lg text-center">
                                     {playlist.nombre}
                                 </h1>
-                                <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-[11px] font-bold text-muted uppercase tracking-widest">
-                                    <div className="flex items-center gap-2 text-foreground">
-                                        <div className="w-6 h-6 rounded-full overflow-hidden bg-accent/20 border border-accent/30 shadow-md">
+                                <div className="flex flex-wrap justify-center items-center gap-x-5 gap-y-3 text-[12px] font-bold text-muted uppercase tracking-widest mt-2">
+                                    <Link href={`/${producer?.nombre_usuario || '#'}`} className="flex items-center gap-2.5 text-foreground bg-foreground/[0.03] hover:bg-foreground/[0.08] transition-colors pr-4 rounded-full border border-border/50 pb-1 pt-1 pl-1">
+                                        <div className="w-8 h-8 rounded-full overflow-hidden bg-accent/20 border border-accent/30 shadow-md">
                                             {producer?.foto_perfil && <img src={producer.foto_perfil} className="w-full h-full object-cover" />}
                                         </div>
-                                        <span>{producer?.nombre_artistico || producer?.nombre_usuario}</span>
-                                    </div>
-                                    <span className="w-1 h-1 rounded-full bg-border" />
-                                    <span>{beats.length} Beats</span>
+                                        <span className="font-black">{producer?.nombre_artistico || producer?.nombre_usuario}</span>
+                                        {producer?.esta_verificado && <img src="/verified-badge.png" className="w-3.5 h-3.5 object-contain" alt="Verificado"/>}
+                                        {producer?.es_fundador && <Crown size={14} className="text-amber-500" fill="currentColor"/>}
+                                    </Link>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-border" />
+                                    <span className="font-black text-foreground">{beats.length} Beats</span>
                                     {playlist.duracion && (
                                         <>
-                                            <span className="w-1 h-1 rounded-full bg-border" />
-                                            <span className="flex items-center gap-1.5"><Clock size={12} /> {playlist.duracion}</span>
+                                            <span className="w-1.5 h-1.5 rounded-full bg-border" />
+                                            <span className="flex items-center gap-1.5"><Clock size={14} /> {playlist.duracion}</span>
                                         </>
                                     )}
                                 </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Music, Play, Pause, ShoppingCart, Check, ChevronRight, Crown, ListMusic, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Music, Play, Pause, ShoppingCart, Check, ChevronRight, Crown, ListMusic, Trash2, ChevronUp, ChevronDown, Edit3 } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
@@ -123,9 +123,10 @@ export default function BeatRow({ beat, onRemoveFromPlaylist, onMoveUp, onMoveDo
                     <div className="flex flex-col items-end gap-1">
                         <Link
                             href={`/studio/beats/edit/${beat.id}`}
-                            className="bg-foreground text-background px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
+                            className="w-10 h-10 rounded-xl bg-foreground/[0.03] border border-border flex items-center justify-center text-muted hover:text-foreground transition-all shadow-sm group/edit"
+                            title="Editar en Studio"
                         >
-                            Es tu Beat
+                            <Edit3 size={16} className="group-hover/edit:scale-110 transition-transform" />
                         </Link>
                     </div>
                 ) : (
