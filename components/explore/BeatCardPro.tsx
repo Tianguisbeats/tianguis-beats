@@ -207,7 +207,7 @@ export default function BeatCardPro({ beat, compact = false, adminControls }: Be
                             className="flex items-center gap-1.5 group/link"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-white/30 group-hover/link:text-blue-500 transition-colors truncate max-w-[120px]">
+                            <span className="text-[9px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 group-hover/link:underline transition-all truncate max-w-[120px]">
                                 {(beat as any).productor_nombre_artistico || (beat as any).nombre_artistico || (beat as any).productor_nombre_usuario || (beat as any).nombre_usuario || 'Productor'}
                             </span>
                             {(beat.productor_esta_verificado || (beat as any).esta_verificado || (beat as any).is_verified) && (

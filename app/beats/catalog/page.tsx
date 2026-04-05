@@ -300,12 +300,12 @@ function CatalogContent() {
     const TABS: { mode: ViewMode; label: string; icon: any; badge?: string; color?: string }[] = [
         { mode: "all", label: "Todos", icon: Music },
         { mode: "new", label: "Nuevos", icon: Clock, badge: "7 días", color: "emerald" },
+        { mode: "corridos_tumbados", label: "Corridos Tumbados", icon: Zap, color: "orange" },
+        { mode: "reggaeton_mexa", label: "Reggaetón Mexa", icon: Zap, color: "pink" },
         { mode: "trending", label: "Tendencia", icon: TrendingUp, badge: "Este mes", color: "blue" },
         { mode: "best_sellers", label: "Más vendidos", icon: Trophy, badge: "Este mes", color: "amber" },
         { mode: "hidden_gems", label: "Joyas", icon: Gem, color: "purple" },
         { mode: "premium_producers", label: "Productores Premium", icon: Star, color: "rose" },
-        { mode: "corridos_tumbados", label: "Corridos Tumbados", icon: Zap, color: "orange" },
-        { mode: "reggaeton_mexa", label: "Reggaetón Mexa", icon: Zap, color: "pink" },
     ];
 
     return (
