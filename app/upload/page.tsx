@@ -24,9 +24,9 @@ const LICENSE_META: Record<string, { label: string; color: string; hex: string; 
     basic: { label: 'Licencia Gratis', color: 'slate', hex: '#64748b', icon: <Music size={20} />, planReq: null, desc: '' },
     mp3: { label: 'Licencia Básica', color: 'emerald', hex: '#10b981', icon: <FileText size={20} />, planReq: null, desc: '' },
     pro: { label: 'Licencia Pro', color: 'blue', hex: '#3b82f6', icon: <ShieldCheck size={20} />, planReq: 'pro', desc: '' },
-    premium: { label: 'Licencia Premium', color: 'rose', hex: '#f43f5e', icon: <Layers size={20} />, planReq: 'premium', desc: '' },
+    premium: { label: 'Licencia Premium', color: 'orange', hex: '#f97316', icon: <Layers size={20} />, planReq: 'premium', desc: '' },
     exclusiva: { label: 'Exclusiva Estándar', color: 'purple', hex: '#a855f7', icon: <Crown size={20} />, planReq: 'pro', desc: 'WAV + MP3 · Sin Stems' },
-    exclusiva_premium: { label: 'Exclusiva Premium', color: 'rose', hex: '#f43f5e', icon: <Crown size={20} />, planReq: 'premium', desc: 'WAV + MP3 + Stems' },
+    exclusiva_premium: { label: 'Exclusiva Premium', color: 'orange', hex: '#f97316', icon: <Crown size={20} />, planReq: 'premium', desc: 'WAV + MP3 + Stems' },
 };
 
 function getDisplayFileName(url: string) {
