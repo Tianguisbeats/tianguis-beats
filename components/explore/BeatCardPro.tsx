@@ -184,16 +184,16 @@ export default function BeatCardPro({ beat, compact = false, adminControls }: Be
                 {/* Info Text Content Section */}
                 <div className="p-4 flex flex-col flex-1 gap-3">
                     <div className="space-y-1">
-                        <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
-                            <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[7px] font-black uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 leading-none">
+                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                            <span className="px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-[7px] font-black uppercase tracking-[0.15em] text-emerald-600 dark:text-emerald-400 leading-none shadow-sm shadow-emerald-500/5">
                                 {beat.genero || 'Trap'}
                             </span>
-                            <span className="px-2 py-0.5 rounded-lg bg-slate-500/10 border border-slate-500/20 text-[7px] font-black uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400 leading-none">
+                            <span className="px-2.5 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-[7px] font-black uppercase tracking-[0.15em] text-rose-600 dark:text-rose-400 leading-none shadow-sm shadow-rose-500/5">
                                 {beat.bpm} BPM
                             </span>
                             {beat.tono_escala && (
-                                <span className="px-2 py-0.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[7px] font-black uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400 leading-none">
-                                    {beat.tono_escala}
+                                <span className="px-2.5 py-1 rounded-md bg-blue-500/10 border border-blue-500/20 text-[7px] font-black uppercase tracking-[0.15em] text-blue-600 dark:text-blue-400 leading-none shadow-sm shadow-blue-500/5">
+                                    {beat.tono_escala.replace(/_/g, ' ')}
                                 </span>
                             )}
                         </div>
