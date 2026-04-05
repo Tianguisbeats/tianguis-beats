@@ -155,11 +155,11 @@ function CatalogContent() {
             portada_url: cover, 
             archivo_mp3_url: audio, 
             productor_foto_perfil: avatar,
-            // Map common aliases from views
-            productor_nombre_artistico: b.productor_nombre_artistico || b.nombre_artistico,
-            productor_nombre_usuario: b.productor_nombre_usuario || b.nombre_usuario,
+            // Map exact fields from DB schema provided by user
             productor_esta_verificado: b.productor_esta_verificado ?? b.esta_verificado,
             productor_es_fundador: b.productor_es_fundador ?? b.es_fundador,
+            productor_nombre_artistico: b.productor_nombre_artistico || b.nombre_artistico,
+            productor_nombre_usuario: b.productor_nombre_usuario || b.nombre_usuario,
             productor_nivel_suscripcion: b.productor_nivel_suscripcion || b.nivel_suscripcion
         };
     };
