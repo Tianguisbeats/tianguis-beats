@@ -23,6 +23,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         { name: 'Ventas', href: '/studio/sales', icon: <DollarSign size={18} /> },
         { name: 'Pagos', href: '/studio/payments', icon: <Wallet size={18} /> },
         { name: 'Mis Compras', href: '/studio/purchases', icon: <Package size={18} /> },
+        { name: 'Mis Ofertas', href: '/studio/mis-ofertas', icon: <MessageCircle size={18} /> },
         { name: 'Mi Suscripción', href: '/studio/billing', icon: <CreditCard size={18} /> },
         { name: 'Mi Cuenta', href: '/studio/cuenta', icon: <Settings size={18} /> },
     ]);

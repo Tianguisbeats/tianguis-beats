@@ -8,7 +8,7 @@ import {
     ArrowUpRight, Info, Search, Filter, Hash, CreditCard,
     DollarSign, BarChart3, ChevronRight, X, User, Clock,
     Target, ChevronDown, CheckCircle, ShieldCheck, Mail, Zap, Trash,
-    MessageCircle, Check, ArrowRight, Music, AlertCircle
+    MessageCircle, Check, ArrowRight, Music, AlertCircle, Send, Package, ShoppingBag
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
@@ -43,9 +43,12 @@ type BulkDeal = {
 type Offer = {
     id: string;
     monto_ofertado: number;
-    estado: 'pendiente' | 'aceptada' | 'rechazada';
+    estado: 'pendiente' | 'aceptada' | 'rechazada' | 'comprada';
     fecha_creacion: string;
+    fecha_actualizacion?: string;
+    fecha_expiracion?: string;
     mensaje_comprador?: string;
+    historial_chat?: Array<{ sender: string, text: string, timestamp: string }>;
     beats: { titulo: string; portada_url: string };
     comprador: { nombre_usuario: string; nombre_artistico: string; foto_perfil: string };
 };
@@ -58,6 +61,7 @@ export default function CouponsPage() {
     const [bulkDeals, setBulkDeals] = useState<BulkDeal[]>([]);
     const [offers, setOffers] = useState<Offer[]>([]);
     const [processingOfferId, setProcessingOfferId] = useState<string | null>(null);
+    const [chatDrafts, setChatDrafts] = useState<Record<string, string>>({});
     const { showToast } = useToast();
 
     // Bulk deal form state — edits are local until "Guardar" is clicked
@@ -128,7 +132,8 @@ export default function CouponsPage() {
                 .from('ofertas_exclusivas')
                 .update({ 
                     estado: action,
-                    fecha_actualizacion: new Date().toISOString()
+                    fecha_actualizacion: new Date().toISOString(),
+                    fecha_expiracion: action === 'aceptada' ? new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString() : null
                 })
                 .eq('id', id);
 
@@ -140,6 +145,34 @@ export default function CouponsPage() {
             showToast(err.message || "Error al procesar", "error");
         } finally {
             setProcessingOfferId(null);
+        }
+    };
+
+    const handleSendMessage = async (offerId: string) => {
+        const text = chatDrafts[offerId]?.trim();
+        if (!text) return;
+
+        const offer = offers.find(o => o.id === offerId);
+        if (!offer) return;
+
+        const newMessage = {
+            sender: 'productor',
+            text,
+            timestamp: new Date().toISOString()
+        };
+
+        const nextHistory = [...(offer.historial_chat || []), newMessage];
+
+        const { error } = await supabase
+            .from('ofertas_exclusivas')
+            .update({ historial_chat: nextHistory })
+            .eq('id', offerId);
+
+        if (error) {
+            showToast("Error al enviar el mensaje", "error");
+        } else {
+            setOffers(prev => prev.map(o => o.id === offerId ? { ...o, historial_chat: nextHistory } : o));
+            setChatDrafts(prev => ({ ...prev, [offerId]: '' }));
         }
     };
 
@@ -818,23 +851,103 @@ export default function CouponsPage() {
                                         </div>
                                     </div>
 
-                                    {/* Optional Message */}
-                                    <AnimatePresence>
-                                        {offer.mensaje_comprador && (
-                                            <motion.div 
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: 'auto', opacity: 1 }}
-                                                className="mt-6 pt-6 border-t border-border flex gap-4 items-start"
-                                            >
-                                                <div className="w-6 h-6 bg-white/5 rounded-lg flex items-center justify-center text-muted shrink-0">
-                                                    <AlertCircle size={14} />
+                                    {/* Mini Chat & Actions */}
+                                    <div className="mt-8 pt-8 border-t border-border grid lg:grid-cols-2 gap-10">
+                                        {/* Chat side */}
+                                        <div className="bg-foreground/[0.02] border border-border rounded-2xl overflow-hidden flex flex-col h-[300px]">
+                                            <div className="bg-foreground/[0.03] p-3 border-b border-border text-center">
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-muted">Historial de Negociación</p>
+                                            </div>
+                                            <div className="flex-1 p-4 overflow-y-auto space-y-3 flex flex-col">
+                                                {(!offer.historial_chat || offer.historial_chat.length === 0) ? (
+                                                    <div className="flex-1 flex items-center justify-center text-center opacity-30">
+                                                        <p className="text-[9px] font-black uppercase tracking-widest text-muted">No hay mensajes aún.</p>
+                                                    </div>
+                                                ) : (
+                                                    offer.historial_chat.map((msg: any, i: number) => {
+                                                        const isMe = msg.sender === 'productor';
+                                                        return (
+                                                            <div key={i} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                                                                <div className={`px-4 py-2.5 rounded-2xl max-w-[85%] text-sm font-medium ${isMe ? 'bg-amber-500 text-white rounded-br-sm' : 'bg-card border border-border text-foreground rounded-bl-sm'}`}>
+                                                                    {msg.text}
+                                                                </div>
+                                                                <span className="text-[8px] font-bold text-muted uppercase tracking-widest mt-1 opacity-60">
+                                                                    {new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                                                </span>
+                                                            </div>
+                                                        )
+                                                    })
+                                                )}
+                                            </div>
+                                            <div className="p-3 border-t border-border bg-card flex gap-2">
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Responder al comprador..."
+                                                    value={chatDrafts[offer.id] || ''}
+                                                    onChange={e => setChatDrafts(prev => ({...prev, [offer.id]: e.target.value}))}
+                                                    onKeyDown={e => e.key === 'Enter' && handleSendMessage(offer.id)}
+                                                    className="flex-1 bg-foreground/[0.03] border border-border rounded-xl px-4 text-xs font-black uppercase tracking-widest focus:outline-none focus:border-amber-500/50"
+                                                />
+                                                <button 
+                                                    onClick={() => handleSendMessage(offer.id)}
+                                                    className="w-10 h-10 bg-amber-500 text-white rounded-xl flex items-center justify-center hover:bg-amber-600 active:scale-95 transition-all"
+                                                >
+                                                    <Send size={14} />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Status side */}
+                                        <div className="flex flex-col justify-between">
+                                            <div className="space-y-4">
+                                                <div className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-5">
+                                                    <p className="text-[9px] font-black uppercase tracking-widest text-amber-500 mb-2">Resumen de Trato</p>
+                                                    <div className="flex justify-between items-baseline">
+                                                        <p className="text-3xl font-black text-foreground">${offer.monto_ofertado}</p>
+                                                        <p className="text-[10px] font-bold text-muted uppercase">Precio Propuesto</p>
+                                                    </div>
+                                                    {offer.mensaje_comprador && (
+                                                        <p className="mt-4 text-[11px] font-medium text-muted leading-relaxed italic opacity-70">
+                                                            "{offer.mensaje_comprador}"
+                                                        </p>
+                                                    )}
                                                 </div>
-                                                <p className="text-[11px] font-medium text-muted leading-relaxed">
-                                                    "{offer.mensaje_comprador}"
+                                            </div>
+
+                                            <div className="space-y-3 mt-6">
+                                                {offer.estado === 'pendiente' ? (
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <button 
+                                                            onClick={() => handleOfferAction(offer.id, 'aceptada')}
+                                                            disabled={processingOfferId === offer.id}
+                                                            className="px-6 py-4 bg-amber-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 active:scale-95 disabled:opacity-50"
+                                                        >
+                                                            {processingOfferId === offer.id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                                                            Aceptar Oferta
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleOfferAction(offer.id, 'rechazada')}
+                                                            disabled={processingOfferId === offer.id}
+                                                            className="px-6 py-4 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-500 hover:text-white transition-all active:scale-95 disabled:opacity-50"
+                                                        >
+                                                            {processingOfferId === offer.id ? <Loader2 size={14} className="animate-spin" /> : <X size={14} />}
+                                                            Rechazar
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className={`w-full py-4 rounded-2xl text-center text-[11px] font-black uppercase tracking-[0.3em] border flex items-center justify-center gap-3 ${
+                                                        offer.estado === 'aceptada' ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-500' : 'bg-rose-500/5 border-rose-500/20 text-rose-500'
+                                                    }`}>
+                                                        {offer.estado === 'aceptada' ? <ShieldCheck size={18} /> : <AlertCircle size={18} />}
+                                                        Oferta {offer.estado}
+                                                    </div>
+                                                )}
+                                                <p className="text-[8px] font-bold text-muted text-center uppercase tracking-widest opacity-40">
+                                                    ID de negociación: {offer.id.split('-')[0]}
                                                 </p>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </motion.div>
                             ))}
                         </div>
