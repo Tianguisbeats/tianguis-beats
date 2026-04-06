@@ -113,6 +113,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [appliedCoupons, setAppliedCoupons] = useState<Coupon[]>([]);
     const [bulkDeals, setBulkDeals] = useState<any[]>([]);
+    const [exclusiveOffers, setExclusiveOffers] = useState<any[]>([]);
     const { showToast } = useToast();
 
     // Helper to get storage keys
@@ -233,6 +234,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             setItems(initialItems);
             setAppliedCoupons(initialCoupons);
             fetchBulkDeals();
+            if (currentUserId) fetchExclusiveOffers(currentUserId);
         };
 
         loadCart();
@@ -249,6 +251,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             if (data) setBulkDeals(data);
         } catch (err) {
             console.error("Error fetching bulk deals:", err);
+        }
+    };
+
+    const fetchExclusiveOffers = async (userId: string) => {
+        try {
+            const { data } = await supabase
+                .from('ofertas_exclusivas')
+                .select('*')
+                .eq('comprador_id', userId)
+                .eq('estado', 'aceptada');
+            if (data) setExclusiveOffers(data);
+        } catch (err) {
+            console.error("Error fetching exclusive offers:", err);
         }
     };
 
@@ -453,9 +468,39 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     // Calcular items con descuentos aplicados (para Checkout)
     const itemsWithDiscounts = React.useMemo(() => {
-        if (items.length < 2 || bulkDeals.length === 0) return items;
+        if (items.length === 0) return items;
 
-        const result = [...items];
+        let result = [...items];
+
+        // 1. Aplicar ofertas exclusivas aceptadas (Contraofertas)
+        if (exclusiveOffers.length > 0) {
+            result = result.map(item => {
+                if (item.type === 'license' || item.type === 'beat') {
+                    const rawBeatId = item.id.split('_')[0];
+                    const offer = exclusiveOffers.find(o => o.beat_id === rawBeatId);
+                    
+                    // Asegurarnos de que estamos aplicando al tipo de licencia correcta (Exclusiva)
+                    const isExclusiva = item.name.toLowerCase().includes('exclusiv') || 
+                                        item.metadata?.name?.toLowerCase().includes('exclusiv');
+
+                    if (offer && isExclusiva) {
+                        return {
+                            ...item,
+                            price: Number(offer.monto_ofertado),
+                            metadata: {
+                                ...item.metadata,
+                                originalPrice: item.price,
+                                isExclusiveOffer: true
+                            }
+                        };
+                    }
+                }
+                return item;
+            });
+        }
+
+        if (result.length < 2 || bulkDeals.length === 0) return result;
+
         const producerGroups: Record<string, number[]> = {};
 
         // Identificar grupos de beats/licencias por productor
@@ -472,15 +517,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             const deal = bulkDeals.find(d => d.productor_id === pid);
             if (!deal || !deal.es_activa) return;
 
+            // Filtrar items que ya tienen oferta exclusiva de la promoción bulk
+            const validIndices = indices.filter(idx => !result[idx].metadata?.isExclusiveOffer);
+            if (validIndices.length === 0) return;
+
             const compra = (deal as any).venta_minima ?? (deal as any).compra_qty ?? 2;
             const regala = (deal as any).beats_gratis ?? (deal as any).regala_qty ?? 1;
             const required = compra;
-            if (indices.length >= required) {
-                const bundleCount = Math.floor(indices.length / required);
+            if (validIndices.length >= required) {
+                const bundleCount = Math.floor(validIndices.length / required);
                 const freeCount = bundleCount * regala;
 
                 // Ordenar indices por precio del item (más barato primero)
-                const sortedIndices = [...indices].sort((a, b) => result[a].price - result[b].price);
+                const sortedIndices = [...validIndices].sort((a, b) => result[a].price - result[b].price);
 
                 // Marcar los N más baratos como gratis
                 for (let i = 0; i < freeCount && i < sortedIndices.length; i++) {
@@ -500,7 +549,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         });
 
         return result;
-    }, [items, bulkDeals]);
+    }, [items, bulkDeals, exclusiveOffers]);
 
     // Re-calcular bulkDiscountAmount basándose en itemsWithDiscounts para ser consistentes
     const bulkDiscountAmount = React.useMemo(() => {

@@ -273,9 +273,13 @@ export default function CartPage() {
                                     }
                                 });
 
+                                // Check if item is free due to a bulk volume deal
+                                const bulkItem = itemsWithDiscounts.find(bi => bi.id === item.id);
+                                const isBulkFree = bulkItem?.metadata?.isBulkFree === true;
+                                const originalBulkPrice = bulkItem?.metadata?.originalPrice as number | undefined;
 
                                 const isItemEligible = bestItemDiscountPercent > 0;
-                                const discountedPrice = isItemEligible ? item.price * (1 - (bestItemDiscountPercent / 100)) : item.price;
+                                const discountedPrice = isBulkFree ? 0 : (isItemEligible ? item.price * (1 - (bestItemDiscountPercent / 100)) : item.price);
 
                                 return (
                                     <div
@@ -317,6 +321,11 @@ export default function CartPage() {
                                                             <Sparkles size={10} /> CUPÓN APLICADO
                                                         </span>
                                                     )}
+                                                    {isBulkFree && (
+                                                        <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-500 rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-1">
+                                                            <Zap size={10} /> GRATIS · OFERTA VOLUMEN
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-foreground leading-none group-hover:text-accent transition-colors duration-500">
                                                     {item.name.split('[')[0].trim()}
@@ -334,13 +343,13 @@ export default function CartPage() {
                                             {/* Price + Remove */}
                                             <div className="flex sm:flex-col items-center sm:items-end gap-4 sm:gap-3 shrink-0 sm:self-stretch sm:justify-between sm:py-1">
                                                 <div className="flex flex-col items-end">
-                                                    {isItemEligible && (
+                                                    {(isItemEligible || isBulkFree) && (
                                                         <span className="text-[10px] font-black text-muted line-through opacity-50 tracking-tighter">
-                                                            {formatPrice(item.price)}
+                                                            {formatPrice(isBulkFree ? (originalBulkPrice ?? item.price) : item.price)}
                                                         </span>
                                                     )}
-                                                    <span className={`text-3xl font-black tracking-tighter ${isItemEligible ? 'text-emerald-500' : 'text-foreground'}`}>
-                                                        {formatPrice(discountedPrice)}
+                                                    <span className={`text-3xl font-black tracking-tighter ${isBulkFree ? 'text-blue-500' : isItemEligible ? 'text-emerald-500' : 'text-foreground'}`}>
+                                                        {isBulkFree ? 'GRATIS' : formatPrice(discountedPrice)}
                                                     </span>
                                                 </div>
                                                 <button
