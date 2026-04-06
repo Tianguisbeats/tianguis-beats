@@ -51,6 +51,7 @@ type Offer = {
     historial_chat?: Array<{ sender: string, text: string, timestamp: string }>;
     beats: { titulo: string; portada_url: string };
     comprador: { nombre_usuario: string; nombre_artistico: string; foto_perfil: string };
+    productor?: { nombre_usuario: string; nombre_artistico: string; foto_perfil: string };
 };
 
 export default function CouponsPage() {
@@ -59,9 +60,13 @@ export default function CouponsPage() {
     const [userTier, setUserTier] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'cupones' | 'bulk' | 'negociacion'>('cupones');
     const [bulkDeals, setBulkDeals] = useState<BulkDeal[]>([]);
-    const [offers, setOffers] = useState<Offer[]>([]);
+    const [offers_selling, setOffersSelling] = useState<Offer[]>([]);
+    const [offers_buying, setOffersBuying] = useState<Offer[]>([]);
     const [processingOfferId, setProcessingOfferId] = useState<string | null>(null);
     const [chatDrafts, setChatDrafts] = useState<Record<string, string>>({});
+    const [newAmountDrafts, setNewAmountDrafts] = useState<Record<string, number>>({});
+    const [updatingAmount, setUpdatingAmount] = useState<string | null>(null);
+    const [negotiationType, setNegotiationType] = useState<'ventas' | 'compras'>('ventas');
     const { showToast } = useToast();
 
     // Bulk deal form state — edits are local until "Guardar" is clicked
@@ -109,8 +114,8 @@ export default function CouponsPage() {
 
         if (bulkData) setBulkDeals(bulkData as BulkDeal[]);
 
-        // Get Offers (Negotiations)
-        const { data: offersData } = await supabase
+        // Get Offers Selling (Negotiations as Producer)
+        const { data: sellingData } = await supabase
             .from('ofertas_exclusivas')
             .select(`
                 *,
@@ -120,7 +125,20 @@ export default function CouponsPage() {
             .eq('productor_id', user.id)
             .order('fecha_creacion', { ascending: false });
 
-        if (offersData) setOffers(offersData as any[]);
+        if (sellingData) setOffersSelling(sellingData as any[]);
+
+        // Get Offers Buying (Negotiations as Buyer)
+        const { data: buyingData } = await supabase
+            .from('ofertas_exclusivas')
+            .select(`
+                *,
+                beats (titulo, portada_url),
+                productor:productor_id (nombre_usuario, nombre_artistico, foto_perfil)
+            `)
+            .eq('comprador_id', user.id)
+            .order('fecha_creacion', { ascending: false });
+
+        if (buyingData) setOffersBuying(buyingData as any[]);
 
         setLoading(false);
     };
@@ -148,15 +166,16 @@ export default function CouponsPage() {
         }
     };
 
-    const handleSendMessage = async (offerId: string) => {
+    const handleSendMessage = async (offerId: string, role: 'productor' | 'comprador') => {
         const text = chatDrafts[offerId]?.trim();
         if (!text) return;
 
-        const offer = offers.find(o => o.id === offerId);
+        const allOffers = [...offers_selling, ...offers_buying];
+        const offer = allOffers.find(o => o.id === offerId);
         if (!offer) return;
 
         const newMessage = {
-            sender: 'productor',
+            sender: role,
             text,
             timestamp: new Date().toISOString()
         };
@@ -171,8 +190,41 @@ export default function CouponsPage() {
         if (error) {
             showToast("Error al enviar el mensaje", "error");
         } else {
-            setOffers(prev => prev.map(o => o.id === offerId ? { ...o, historial_chat: nextHistory } : o));
+            if (role === 'productor') {
+                setOffersSelling(prev => prev.map(o => o.id === offerId ? { ...o, historial_chat: nextHistory } : o));
+            } else {
+                setOffersBuying(prev => prev.map(o => o.id === offerId ? { ...o, historial_chat: nextHistory } : o));
+            }
             setChatDrafts(prev => ({ ...prev, [offerId]: '' }));
+        }
+    };
+
+    const handleReSubmitOffer = async (offerId: string) => {
+        const newAmount = newAmountDrafts[offerId];
+        if (!newAmount || newAmount <= 0) {
+            showToast("Ingresa un monto válido mayor a 0", "error");
+            return;
+        }
+
+        setUpdatingAmount(offerId);
+        try {
+            const { error } = await supabase
+                .from('ofertas_exclusivas')
+                .update({ 
+                    monto_ofertado: newAmount, 
+                    estado: 'pendiente' 
+                })
+                .eq('id', offerId);
+
+            if (error) throw error;
+
+            showToast("Contraoferta enviada", "success");
+            fetchData();
+            setNewAmountDrafts(prev => ({ ...prev, [offerId]: 0 }));
+        } catch (err: any) {
+            showToast("Hubo un error al reenviar la oferta", "error");
+        } finally {
+            setUpdatingAmount(null);
         }
     };
 
@@ -397,7 +449,7 @@ export default function CouponsPage() {
                     onClick={() => setActiveTab('negociacion')}
                     className={`pb-5 text-[10px] font-black uppercase tracking-[0.3em] transition-all relative ${activeTab === 'negociacion' ? 'text-amber-500' : 'text-slate-400 hover:text-foreground'}`}
                 >
-                    Contraofertas (Negociación)
+                    Mesa de Negociación
                     {activeTab === 'negociacion' && <motion.div layoutId="activeTabMark" className="absolute bottom-0 left-0 right-0 h-1 bg-amber-500 rounded-t-full" />}
                 </button>
             </div>
@@ -743,33 +795,48 @@ export default function CouponsPage() {
                                 </div>
                                 <h3 className="text-2xl font-black uppercase tracking-tighter text-amber-500">Mesa de Negociación</h3>
                             </div>
-                            <p className="text-[10px] font-bold text-muted uppercase tracking-widest max-w-xl leading-loose opacity-60">
-                                Gestiona las propuestas directas por tus licencias exclusivas. Puedes aceptar el trato para generar un enlace de compra único o rechazar la oferta.
-                            </p>
+                            <div className="flex flex-wrap gap-3 mt-4">
+                                <button 
+                                    onClick={() => setNegotiationType('ventas')}
+                                    className={`px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${negotiationType === 'ventas' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-foreground/5 text-muted hover:bg-foreground/10'}`}
+                                >
+                                    Propuestas Recibidas (Ventas)
+                                </button>
+                                <button 
+                                    onClick={() => setNegotiationType('compras')}
+                                    className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${negotiationType === 'compras' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-foreground/5 text-muted hover:bg-foreground/10'}`}
+                                >
+                                    Mis Ofertas (Compras)
+                                </button>
+                            </div>
                         </div>
                         <div className="flex items-center gap-4 bg-white/[0.03] border border-border rounded-2xl px-6 py-4 relative z-10">
                             <div className="text-right">
                                 <p className="text-[9px] font-black text-muted uppercase tracking-widest opacity-40">Pendientes</p>
-                                <p className="text-xl font-black text-amber-500">{offers.filter(o => o.estado === 'pendiente').length}</p>
+                                <p className="text-xl font-black text-amber-500">
+                                    {negotiationType === 'ventas' ? offers_selling.filter(o => o.estado === 'pendiente').length : offers_buying.filter(o => o.estado === 'pendiente').length}
+                                </p>
                             </div>
                             <div className="w-px h-8 bg-border mx-2" />
                             <div className="text-right">
                                 <p className="text-[9px] font-black text-muted uppercase tracking-widest opacity-40">Totales</p>
-                                <p className="text-xl font-black">{offers.length}</p>
+                                <p className="text-xl font-black">
+                                    {negotiationType === 'ventas' ? offers_selling.length : offers_buying.length}
+                                </p>
                             </div>
                         </div>
                     </div>
 
-                    {offers.length === 0 ? (
+                    {(negotiationType === 'ventas' ? offers_selling : offers_buying).length === 0 ? (
                         <div className="py-24 text-center bg-foreground/[0.01] border border-dashed border-border rounded-[3rem]">
                             <div className="w-20 h-20 bg-muted/5 rounded-full flex items-center justify-center mx-auto mb-6 text-muted/20">
                                 <DollarSign size={32} />
                             </div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted opacity-30">Sin ofertas activas por ahora</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted opacity-30">No hay ofertas en esta categoría</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 gap-6">
-                            {offers.map((offer) => (
+                            {(negotiationType === 'ventas' ? offers_selling : offers_buying).map((offer) => (
                                 <motion.div 
                                     key={offer.id}
                                     initial={{ opacity: 0, y: 20 }}
@@ -798,18 +865,18 @@ export default function CouponsPage() {
                                             </div>
                                         </div>
 
-                                        {/* Buyer Info */}
+                                        {/* Counterparty Info */}
                                         <div className="flex items-center gap-4 w-full lg:w-1/4 pb-6 lg:pb-0 border-b lg:border-b-0 lg:border-l border-border lg:pl-10">
                                             <div className="w-12 h-12 bg-white/5 rounded-full overflow-hidden border border-border">
-                                                {offer.comprador?.foto_perfil ? (
-                                                    <img src={offer.comprador.foto_perfil} alt="User" className="w-full h-full object-cover" />
+                                                {(negotiationType === 'ventas' ? offer.comprador : offer.productor)?.foto_perfil ? (
+                                                    <img src={(negotiationType === 'ventas' ? offer.comprador : offer.productor).foto_perfil} alt="User" className="w-full h-full object-cover" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-muted"><User size={20} /></div>
                                                 )}
                                             </div>
                                             <div>
-                                                <p className="text-[9px] font-black text-muted uppercase tracking-[0.2em] mb-1">Comprador</p>
-                                                <h5 className="text-[12px] font-black uppercase">{offer.comprador?.nombre_artistico || offer.comprador?.nombre_usuario}</h5>
+                                                <p className="text-[9px] font-black text-muted uppercase tracking-[0.2em] mb-1">{negotiationType === 'ventas' ? 'Comprador' : 'Productor'}</p>
+                                                <h5 className="text-[12px] font-black uppercase">{(negotiationType === 'ventas' ? offer.comprador : offer.productor)?.nombre_artistico || (negotiationType === 'ventas' ? offer.comprador : offer.productor)?.nombre_usuario}</h5>
                                             </div>
                                         </div>
 
@@ -820,33 +887,20 @@ export default function CouponsPage() {
                                             <p className="text-[10px] font-bold text-muted uppercase mt-1">MXN</p>
                                         </div>
 
-                                        {/* Status & Actions */}
-                                        <div className="w-full lg:w-auto flex flex-row lg:flex-col gap-3 min-w-[180px]">
-                                            {offer.estado === 'pendiente' ? (
-                                                <>
-                                                    <button 
-                                                        onClick={() => handleOfferAction(offer.id, 'aceptada')}
-                                                        disabled={processingOfferId === offer.id}
-                                                        className="flex-1 px-6 py-3.5 bg-amber-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 active:scale-95 disabled:opacity-50"
-                                                    >
-                                                        {processingOfferId === offer.id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                                                        Aceptar
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleOfferAction(offer.id, 'rechazada')}
-                                                        disabled={processingOfferId === offer.id}
-                                                        className="flex-1 px-6 py-3.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-500 hover:text-white transition-all active:scale-95 disabled:opacity-50"
-                                                    >
-                                                        {processingOfferId === offer.id ? <Loader2 size={14} className="animate-spin" /> : <X size={14} />}
-                                                        Rechazar
-                                                    </button>
-                                                </>
-                                            ) : (
-                                                <div className={`px-8 py-3.5 rounded-2xl text-center text-[10px] font-black uppercase tracking-[0.2em] border ${
-                                                    offer.estado === 'aceptada' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-rose-500/10 border-rose-500/20 text-rose-500'
-                                                }`}>
-                                                    Oferta {offer.estado}
-                                                </div>
+                                        {/* Actions Wrapper */}
+                                        <div className="flex flex-col gap-3 min-w-[180px]">
+                                            <div className={`px-8 py-3.5 rounded-2xl text-center text-[10px] font-black uppercase tracking-[0.2em] border flex items-center justify-center gap-2 ${
+                                                offer.estado === 'aceptada' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 
+                                                offer.estado === 'rechazada' ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' : 
+                                                'bg-amber-500/10 border-amber-500/20 text-amber-500'
+                                            }`}>
+                                                {offer.estado === 'aceptada' ? <Check size={12} /> : offer.estado === 'rechazada' ? <X size={12} /> : <Clock size={12} />}
+                                                {offer.estado}
+                                            </div>
+                                            {negotiationType === 'compras' && offer.estado === 'aceptada' && (
+                                                <Link href={`/${offer.productor?.nombre_usuario}`} className="w-full py-3 bg-emerald-500 text-white rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-emerald-600 transition-all text-center flex items-center justify-center gap-2">
+                                                    <ShoppingBag size={14} /> Ir al Catálogo
+                                                </Link>
                                             )}
                                         </div>
                                     </div>
@@ -856,19 +910,19 @@ export default function CouponsPage() {
                                         {/* Chat side */}
                                         <div className="bg-foreground/[0.02] border border-border rounded-2xl overflow-hidden flex flex-col h-[300px]">
                                             <div className="bg-foreground/[0.03] p-3 border-b border-border text-center">
-                                                <p className="text-[9px] font-black uppercase tracking-widest text-muted">Historial de Negociación</p>
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-muted">Historial de Mensajes</p>
                                             </div>
                                             <div className="flex-1 p-4 overflow-y-auto space-y-3 flex flex-col">
                                                 {(!offer.historial_chat || offer.historial_chat.length === 0) ? (
                                                     <div className="flex-1 flex items-center justify-center text-center opacity-30">
-                                                        <p className="text-[9px] font-black uppercase tracking-widest text-muted">No hay mensajes aún.</p>
+                                                        <p className="text-[9px] font-black uppercase tracking-widest text-muted">Sin mensajes aún.</p>
                                                     </div>
                                                 ) : (
                                                     offer.historial_chat.map((msg: any, i: number) => {
-                                                        const isMe = msg.sender === 'productor';
+                                                        const isMe = msg.sender === (negotiationType === 'ventas' ? 'productor' : 'comprador');
                                                         return (
                                                             <div key={i} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                                                                <div className={`px-4 py-2.5 rounded-2xl max-w-[85%] text-sm font-medium ${isMe ? 'bg-amber-500 text-white rounded-br-sm' : 'bg-card border border-border text-foreground rounded-bl-sm'}`}>
+                                                                <div className={`px-4 py-2.5 rounded-2xl max-w-[85%] text-sm font-medium ${isMe ? (negotiationType === 'ventas' ? 'bg-amber-500' : 'bg-blue-600') + ' text-white rounded-br-sm' : 'bg-card border border-border text-foreground rounded-bl-sm'}`}>
                                                                     {msg.text}
                                                                 </div>
                                                                 <span className="text-[8px] font-bold text-muted uppercase tracking-widest mt-1 opacity-60">
@@ -882,40 +936,68 @@ export default function CouponsPage() {
                                             <div className="p-3 border-t border-border bg-card flex gap-2">
                                                 <input 
                                                     type="text" 
-                                                    placeholder="Responder al comprador..."
+                                                    placeholder="Escribe un mensaje..."
                                                     value={chatDrafts[offer.id] || ''}
                                                     onChange={e => setChatDrafts(prev => ({...prev, [offer.id]: e.target.value}))}
-                                                    onKeyDown={e => e.key === 'Enter' && handleSendMessage(offer.id)}
+                                                    onKeyDown={e => e.key === 'Enter' && handleSendMessage(offer.id, negotiationType === 'ventas' ? 'productor' : 'comprador')}
                                                     className="flex-1 bg-foreground/[0.03] border border-border rounded-xl px-4 text-xs font-black uppercase tracking-widest focus:outline-none focus:border-amber-500/50"
                                                 />
                                                 <button 
-                                                    onClick={() => handleSendMessage(offer.id)}
-                                                    className="w-10 h-10 bg-amber-500 text-white rounded-xl flex items-center justify-center hover:bg-amber-600 active:scale-95 transition-all"
+                                                    onClick={() => handleSendMessage(offer.id, negotiationType === 'ventas' ? 'productor' : 'comprador')}
+                                                    className={`w-10 h-10 rounded-xl flex items-center justify-center text-white active:scale-95 transition-all ${negotiationType === 'ventas' ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-500'}`}
                                                 >
                                                     <Send size={14} />
                                                 </button>
                                             </div>
                                         </div>
 
-                                        {/* Status side */}
+                                        {/* Status & Context Actions side */}
                                         <div className="flex flex-col justify-between">
                                             <div className="space-y-4">
                                                 <div className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-5">
-                                                    <p className="text-[9px] font-black uppercase tracking-widest text-amber-500 mb-2">Resumen de Trato</p>
+                                                    <p className="text-[9px] font-black uppercase tracking-widest text-amber-500 mb-2">Información del Trato</p>
                                                     <div className="flex justify-between items-baseline">
-                                                        <p className="text-3xl font-black text-foreground">${offer.monto_ofertado}</p>
-                                                        <p className="text-[10px] font-bold text-muted uppercase">Precio Propuesto</p>
+                                                        <p className="text-3xl font-black text-foreground">${offer.monto_ofertado} <span className="text-xs">MXN</span></p>
+                                                        <p className="text-[10px] font-bold text-muted uppercase">Monto Actual</p>
                                                     </div>
                                                     {offer.mensaje_comprador && (
-                                                        <p className="mt-4 text-[11px] font-medium text-muted leading-relaxed italic opacity-70">
-                                                            "{offer.mensaje_comprador}"
-                                                        </p>
+                                                            <p className="mt-4 text-[11px] font-medium text-muted leading-relaxed italic opacity-70">
+                                                                "{offer.mensaje_comprador}"
+                                                            </p>
                                                     )}
                                                 </div>
+
+                                                {/* Buyer-specific counter-offer UI */}
+                                                {negotiationType === 'compras' && offer.estado === 'rechazada' && (
+                                                    <div className="bg-rose-500/5 border border-rose-500/20 rounded-2xl p-4 mt-2">
+                                                        <p className="text-[9px] font-black uppercase tracking-widest text-rose-500 mb-3 flex items-center gap-1.5">
+                                                            <AlertCircle size={12} /> La oferta fue rechazada. ¿Intentar otro monto?
+                                                        </p>
+                                                        <div className="flex gap-2">
+                                                            <div className="relative flex-1">
+                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted font-black">$</span>
+                                                                <input 
+                                                                    type="number" 
+                                                                    placeholder="Nuevo monto"
+                                                                    value={newAmountDrafts[offer.id] || ''}
+                                                                    onChange={e => setNewAmountDrafts(prev => ({...prev, [offer.id]: Number(e.target.value)}))}
+                                                                    className="w-full bg-card border border-border rounded-xl py-3 pl-8 pr-4 text-xs font-black uppercase tracking-widest focus:outline-none"
+                                                                />
+                                                            </div>
+                                                            <button 
+                                                                onClick={() => handleReSubmitOffer(offer.id)}
+                                                                disabled={updatingAmount === offer.id}
+                                                                className="px-6 bg-foreground text-background font-black text-[10px] uppercase tracking-widest rounded-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+                                                            >
+                                                                {updatingAmount === offer.id ? '...' : 'Re-enviar'}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className="space-y-3 mt-6">
-                                                {offer.estado === 'pendiente' ? (
+                                                {negotiationType === 'ventas' && offer.estado === 'pendiente' ? (
                                                     <div className="grid grid-cols-2 gap-3">
                                                         <button 
                                                             onClick={() => handleOfferAction(offer.id, 'aceptada')}
@@ -936,14 +1018,16 @@ export default function CouponsPage() {
                                                     </div>
                                                 ) : (
                                                     <div className={`w-full py-4 rounded-2xl text-center text-[11px] font-black uppercase tracking-[0.3em] border flex items-center justify-center gap-3 ${
-                                                        offer.estado === 'aceptada' ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-500' : 'bg-rose-500/5 border-rose-500/20 text-rose-500'
+                                                        offer.estado === 'aceptada' ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-500' : 
+                                                        offer.estado === 'rechazada' ? 'bg-rose-500/5 border-rose-500/20 text-rose-500' : 
+                                                        'bg-amber-500/5 border-amber-500/20 text-amber-500'
                                                     }`}>
-                                                        {offer.estado === 'aceptada' ? <ShieldCheck size={18} /> : <AlertCircle size={18} />}
+                                                        {offer.estado === 'aceptada' ? <ShieldCheck size={18} /> : offer.estado === 'rechazada' ? <AlertCircle size={18} /> : <Clock size={18} />}
                                                         Oferta {offer.estado}
                                                     </div>
                                                 )}
                                                 <p className="text-[8px] font-bold text-muted text-center uppercase tracking-widest opacity-40">
-                                                    ID de negociación: {offer.id.split('-')[0]}
+                                                    ID: {offer.id.split('-')[0]}
                                                 </p>
                                             </div>
                                         </div>
