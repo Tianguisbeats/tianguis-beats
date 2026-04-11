@@ -388,7 +388,10 @@ export async function POST(req: Request) {
                 userId: customerId,
                 ip_compra: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
             },
-            billing_address_collection: 'auto'
+            billing_address_collection: 'auto',
+            payment_intent_data: {
+                statement_descriptor: 'TIANGUISBEATS',
+            }
         };
 
         // Si tenemos customer ID, NO debemos pasar customer_email
@@ -436,6 +439,7 @@ export async function POST(req: Request) {
                     }
 
                     sessionConfig.payment_intent_data = {
+                        ...sessionConfig.payment_intent_data,
                         application_fee_amount: applicationFeeAmount,
                         transfer_data: {
                             destination: sellerProfile.stripe_connect_id,
