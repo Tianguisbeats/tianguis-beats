@@ -453,7 +453,7 @@ export async function POST(req: Request) {
     } catch (err: any) {
         console.error('--- ERROR_STRIPE_CHECKOUT ---', err.message);
         return NextResponse.json(
-            { error: "Hubo un error al procesar tu pago. Por favor, intenta de nuevo.", rawError: err.message },
+            { error: "Stripe error: " + err.message, rawError: err.message },
             { status: 500 }
         );
     }
