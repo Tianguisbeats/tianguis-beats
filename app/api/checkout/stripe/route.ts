@@ -418,9 +418,22 @@ export async function POST(req: Request) {
                     }, 0);
 
                     const sellerPlan = (sellerProfile.nivel_suscripcion || 'free').trim().toLowerCase();
-                    let applicationFeeAmount = 0;
                     const isSellerPaid = ['pro', 'premium', 'tianguis pro', 'tianguis premium'].includes(sellerPlan);
-                    if (!isSellerPaid) applicationFeeAmount = Math.round(totalVerifiedCents * 0.15);
+
+                    // 1. Calcular comisión de plataforma (15% si es free, 0% si es paid)
+                    let platformCommission = isSellerPaid ? 0 : totalVerifiedCents * 0.15;
+
+                    // 2. Calcular costo de procesamiento de Stripe (3.6% + $3 MXN + 16% IVA)
+                    // Nota: 300 son los $3.00 MXN en centavos. 1.16 es por el IVA.
+                    const stripeProcessingFee = (totalVerifiedCents * 0.036 + 300) * 1.16;
+
+                    // 3. La comisión de aplicación total que quitamos al productor para cubrir costos
+                    let applicationFeeAmount = Math.round(platformCommission + stripeProcessingFee);
+
+                    // Seguridad: La comisión no puede ser mayor que el total (mínimo dejar 50 centavos para evitar errores)
+                    if (applicationFeeAmount >= totalVerifiedCents) {
+                        applicationFeeAmount = Math.max(0, totalVerifiedCents - 50);
+                    }
 
                     sessionConfig.payment_intent_data = {
                         application_fee_amount: applicationFeeAmount,
@@ -432,6 +445,7 @@ export async function POST(req: Request) {
                     sessionConfig.metadata.isConnect = 'true';
                     sessionConfig.metadata.sellerPlan = sellerPlan;
                     sessionConfig.metadata.applicationFee = applicationFeeAmount.toString();
+                    sessionConfig.metadata.stripeProcessingFee = Math.round(stripeProcessingFee).toString();
                     sessionConfig.metadata.sellerStripeAccount = sellerProfile.stripe_connect_id;
 
                     if (validItems.length === 1) {
