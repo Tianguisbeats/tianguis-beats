@@ -424,7 +424,6 @@ export async function POST(req: Request) {
 
                     sessionConfig.payment_intent_data = {
                         application_fee_amount: applicationFeeAmount,
-                        on_behalf_of: sellerProfile.stripe_connect_id,
                         transfer_data: {
                             destination: sellerProfile.stripe_connect_id,
                         },
