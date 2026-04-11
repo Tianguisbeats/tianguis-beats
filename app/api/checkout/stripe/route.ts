@@ -390,7 +390,7 @@ export async function POST(req: Request) {
             },
             billing_address_collection: 'auto',
             payment_intent_data: {
-                statement_descriptor: 'TIANGUISBEATS',
+                statement_descriptor: 'TIANGUISBEATS.COM',
             }
         };
 
