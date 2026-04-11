@@ -128,6 +128,8 @@ export async function POST(req: Request) {
         const couponMap = new Map((couponsDbResult.data || []).map((c: any) => [c.id, c]));
         const offerMap = new Map((offersDbResult.data || []).map((o: any) => [o.beat_id, o]));
 
+        const hasPlan = validItems.some((i: any) => String(i.type).toLowerCase() === 'plan');
+
         const getVerifiedPrice = (item: any): number => {
             const iType = String(item.type || '').toLowerCase().trim();
             let basePrice = 0;
@@ -167,12 +169,11 @@ export async function POST(req: Request) {
                 basePrice = item.price;
             }
 
-            // --- 2. APLICAR CUPÓN SI EXISTE Y ES VÁLIDO ---
             const couponId = item.appliedCouponId || item.metadata?.appliedCouponId;
             if (couponId) {
                 const coupon = couponMap.get(couponId);
                 if (coupon && coupon.es_activo) {
-                    if (coupon.id_cupon_stripe) {
+                    if (coupon.id_cupon_stripe && hasPlan) {
                         return basePrice;
                     }
                     const discount = coupon.porcentaje_descuento / 100;
@@ -289,7 +290,6 @@ export async function POST(req: Request) {
             if (['soundkit', 'kit', 'sound-kit'].includes(t)) return 'sound_kit';
             return t;
         }));
-        const hasPlan = typesInOrder.has('plan');
         const globalOrderType = typesInOrder.size === 1 ? Array.from(typesInOrder)[0] : 'mixed';
 
         const stripe = getStripe();
@@ -359,7 +359,7 @@ export async function POST(req: Request) {
             payment_method_types: hasPlan ? ['card'] : ['card', 'oxxo'],
             line_items,
             mode: hasPlan ? 'subscription' : 'payment',
-            ...(promotionCode
+            ...((promotionCode && hasPlan)
                 ? {
                     discounts: [
                         promotionCode.startsWith('promo_')
@@ -417,13 +417,6 @@ export async function POST(req: Request) {
                     let totalVerifiedCents = line_items.reduce((acc: number, item: any) => {
                         return acc + (item.price_data?.unit_amount || 0);
                     }, 0);
-
-                    if (promotionCode) {
-                        const stripeCouponDbItem = couponsDbResult.data?.find((c: any) => c.id_cupon_stripe === promotionCode || c.codigo === promotionCode);
-                        if (stripeCouponDbItem && stripeCouponDbItem.porcentaje_descuento) {
-                            totalVerifiedCents = totalVerifiedCents * (1 - (stripeCouponDbItem.porcentaje_descuento / 100));
-                        }
-                    }
 
                     const sellerPlan = (sellerProfile.nivel_suscripcion || 'free').trim().toLowerCase();
                     let applicationFeeAmount = 0;
