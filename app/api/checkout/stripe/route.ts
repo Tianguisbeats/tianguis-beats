@@ -98,7 +98,13 @@ export async function POST(req: Request) {
             .filter(Boolean)
         )];
 
-        const [beatsDbResult, kitsDbResult, servicesDbResult] = await Promise.all([
+        const couponsArray = (couponIds || '').split(',').filter(Boolean);
+        const exclusiveOfferIds = validItems
+            .filter((i: any) => i.metadata?.isExclusiveOffer)
+            .map((i: any) => String(i.id).split('_')[0])
+            .filter(Boolean);
+
+        const [beatsDbResult, kitsDbResult, servicesDbResult, couponsDbResult, offersDbResult] = await Promise.all([
             beatIds.length > 0
                 ? supabaseAdminForPrices.from('beats').select('id, precio_gratis_mxn, precio_basica_mxn, precio_pro_mxn, precio_premium_mxn, precio_exclusiva_estandar_mxn, precio_exclusiva_premium_mxn').in('id', beatIds)
                 : { data: [] },
@@ -108,59 +114,70 @@ export async function POST(req: Request) {
             serviceIds.length > 0
                 ? supabaseAdminForPrices.from('servicios').select('id, precio_mxn').in('id', serviceIds)
                 : { data: [] },
+            couponsArray.length > 0
+                ? supabaseAdminForPrices.from('cupones').select('*').in('id', couponsArray)
+                : { data: [] },
+            exclusiveOfferIds.length > 0
+                ? supabaseAdminForPrices.from('ofertas_exclusivas').select('*').in('beat_id', exclusiveOfferIds).eq('comprador_id', customerId).eq('estado', 'aceptada')
+                : { data: [] },
         ]);
 
         const beatPriceMap = new Map((beatsDbResult.data || []).map((b: any) => [b.id, b]));
         const kitPriceMap = new Map((kitsDbResult.data || []).map((k: any) => [k.id, k]));
         const servicePriceMap = new Map((servicesDbResult.data || []).map((s: any) => [s.id, s]));
+        const couponMap = new Map((couponsDbResult.data || []).map((c: any) => [c.id, c]));
+        const offerMap = new Map((offersDbResult.data || []).map((o: any) => [o.beat_id, o]));
 
         const getVerifiedPrice = (item: any): number => {
             const iType = String(item.type || '').toLowerCase().trim();
+            let basePrice = 0;
 
-            if (iType === 'plan') return item.price; // Plans use fixed Stripe price IDs — safe
+            if (iType === 'plan') return item.price;
 
+            // --- 0. CASOS ESPECIALES (GRATIS O NEGOCIADOS) ---
+            if (item.metadata?.isBulkFree) return 0;
+
+            if (item.metadata?.isExclusiveOffer) {
+                const beatId = String(item.id).split('_')[0];
+                const offer = offerMap.get(beatId);
+                if (offer) return Number(offer.monto_ofertado);
+            }
+
+            // --- 1. DETERMINAR PRECIO BASE DE DB ---
             if (['beat', 'beats'].includes(iType)) {
                 const beatId = item.metadata?.beatId || item.metadata?.productId || String(item.id).split('-')[0];
                 const beat = beatPriceMap.get(beatId);
                 if (!beat) {
-                    logDebug(`[PRICE VALIDATION] Beat ${beatId} no encontrado en DB, usando precio del cliente (${item.price})`);
-                    return item.price;
+                    basePrice = item.price;
+                } else {
+                    const licenseKey = (item.metadata?.licenseType || item.metadata?.license || '').toLowerCase().trim()
+                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                    const priceCol = BEAT_LICENSE_PRICE_COL[licenseKey];
+                    basePrice = priceCol ? (beat[priceCol] ?? beat.precio_basica_mxn) : beat.precio_basica_mxn;
                 }
-                const licenseKey = (item.metadata?.licenseType || item.metadata?.license || '').toLowerCase().trim()
-                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-                const priceCol = BEAT_LICENSE_PRICE_COL[licenseKey];
-                const dbPrice = priceCol ? (beat[priceCol] ?? null) : null;
-                if (dbPrice === null || dbPrice === undefined) {
-                    logDebug(`[PRICE VALIDATION] Columna de precio '${priceCol}' no encontrada para beat ${beatId}, usando precio_basica_mxn`);
-                    return beat.precio_basica_mxn || item.price;
-                }
-                if (dbPrice !== item.price) {
-                    logDebug(`[PRICE VALIDATION] Precio corregido para beat ${beatId} [${licenseKey}]: cliente=${item.price}, DB=${dbPrice}`);
-                }
-                return dbPrice;
-            }
-
-            if (['sound_kit', 'soundkit', 'kit', 'sound-kit'].includes(iType)) {
+            } else if (['sound_kit', 'soundkit', 'kit', 'sound-kit'].includes(iType)) {
                 const kitId = item.metadata?.kitId || item.metadata?.productId || String(item.id).split('-')[0];
                 const kit = kitPriceMap.get(kitId);
-                if (!kit) return item.price;
-                if (kit.precio_mxn !== item.price) {
-                    logDebug(`[PRICE VALIDATION] Precio corregido para kit ${kitId}: cliente=${item.price}, DB=${kit.precio_mxn}`);
-                }
-                return kit.precio_mxn ?? item.price;
-            }
-
-            if (['service', 'servicio'].includes(iType)) {
+                basePrice = kit?.precio_mxn ?? item.price;
+            } else if (['service', 'servicio'].includes(iType)) {
                 const serviceId = item.metadata?.serviceId || item.metadata?.productId || String(item.id).split('-')[0];
                 const service = servicePriceMap.get(serviceId);
-                if (!service) return item.price;
-                if (service.precio_mxn !== item.price) {
-                    logDebug(`[PRICE VALIDATION] Precio corregido para servicio ${serviceId}: cliente=${item.price}, DB=${service.precio_mxn}`);
-                }
-                return service.precio_mxn ?? item.price;
+                basePrice = service?.precio_mxn ?? item.price;
+            } else {
+                basePrice = item.price;
             }
 
-            return item.price;
+            // --- 2. APLICAR CUPÓN SI EXISTE Y ES VÁLIDO ---
+            const couponId = item.appliedCouponId || item.metadata?.appliedCouponId;
+            if (couponId) {
+                const coupon = couponMap.get(couponId);
+                if (coupon && coupon.es_activo) {
+                    const discount = coupon.porcentaje_descuento / 100;
+                    return basePrice * (1 - discount);
+                }
+            }
+
+            return basePrice;
         };
 
         const line_items = validItems.map((item: any) => {
