@@ -426,9 +426,9 @@ export async function POST(req: Request) {
                     // 1. Calcular comisión de plataforma (15% si es free, 0% si es paid)
                     let platformCommission = isSellerPaid ? 0 : totalVerifiedCents * 0.15;
 
-                    // 2. Calcular costo de procesamiento de Stripe (3.6% + $3 MXN + 16% IVA)
-                    // Nota: 300 son los $3.00 MXN en centavos. 1.16 es por el IVA.
-                    const stripeProcessingFee = (totalVerifiedCents * 0.036 + 300) * 1.16;
+                    // 2. Calcular costo de procesamiento de Stripe (3.6% + $4 MXN + 16% IVA)
+                    // Nota: 400 son los $4.00 MXN en centavos (incluye un margen de seguridad). 1.16 es por el IVA.
+                    const stripeProcessingFee = (totalVerifiedCents * 0.036 + 400) * 1.16;
 
                     // 3. La comisión de aplicación total que quitamos al productor para cubrir costos
                     let applicationFeeAmount = Math.round(platformCommission + stripeProcessingFee);
