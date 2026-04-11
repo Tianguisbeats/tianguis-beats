@@ -356,7 +356,7 @@ export async function POST(req: Request) {
         }
 
         const sessionConfig: any = {
-            payment_method_types: hasPlan ? ['card'] : ['card', 'oxxo'],
+            payment_method_types: ['card'],
             line_items,
             mode: hasPlan ? 'subscription' : 'payment',
             ...((promotionCode && hasPlan)
