@@ -1036,7 +1036,7 @@ export default function CouponsPage() {
                                         </div>
                                     </div>
                                 </motion.div>
-                            ))}
+                            )})}
                         </div>
                     )}
                 </div>
