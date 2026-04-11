@@ -358,6 +358,7 @@ export async function POST(req: Request) {
         const sessionConfig: any = {
             line_items,
             mode: hasPlan ? 'subscription' : 'payment',
+            automatic_payment_methods: { enabled: true },
             ...((promotionCode && hasPlan)
                 ? {
                     discounts: [
