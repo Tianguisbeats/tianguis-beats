@@ -356,9 +356,9 @@ export async function POST(req: Request) {
         }
 
         const sessionConfig: any = {
+            payment_method_types: currency.toLowerCase() === 'mxn' ? ['card', 'oxxo'] : ['card'],
             line_items,
             mode: hasPlan ? 'subscription' : 'payment',
-            automatic_payment_methods: { enabled: true },
             ...((promotionCode && hasPlan)
                 ? {
                     discounts: [
