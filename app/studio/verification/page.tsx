@@ -442,7 +442,7 @@ export default function VerificationPage() {
                             </div>
                             <div className="space-y-4">
                                 <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted ml-2">Link de Referencia Principal</label>
-                                <input type="url" required value={form.portfolioUrl} onChange={e => setForm({ ...form, portfolioUrl: e.target.value })} className="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-5 text-sm font-bold focus:border-blue-500 outline-none transition-all shadow-sm" placeholder="Instagram, YouTube o Portafolio" />
+                                <input type="text" required value={form.portfolioUrl} onChange={e => setForm({ ...form, portfolioUrl: e.target.value })} className="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-5 text-sm font-bold focus:border-blue-500 outline-none transition-all shadow-sm" placeholder="Instagram, YouTube o Portafolio" />
                             </div>
                         </div>
 
