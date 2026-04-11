@@ -836,49 +836,52 @@ export default function CouponsPage() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 gap-6">
-                            {(negotiationType === 'ventas' ? offers_selling : offers_buying).map((offer) => (
-                                <motion.div 
-                                    key={offer.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="bg-white/[0.02] hover:bg-white/[0.04] border border-border rounded-[2.5rem] p-8 transition-all group overflow-hidden relative"
-                                >
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/[0.03] blur-[60px] rounded-full pointer-events-none" />
-                                    
-                                    <div className="flex flex-col lg:flex-row items-center gap-10">
-                                        {/* Beat Info */}
-                                        <div className="flex items-center gap-6 w-full lg:w-1/3">
-                                            <div className="w-20 h-20 bg-black/40 rounded-2xl overflow-hidden border border-border shadow-xl shrink-0">
-                                                {offer.beats?.portada_url ? (
-                                                    <img src={offer.beats.portada_url} alt="Cover" className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-muted"><Music size={24} /></div>
-                                                )}
-                                            </div>
-                                            <div>
-                                                <h4 className="text-[13px] font-black uppercase tracking-tight text-foreground line-clamp-1">{offer.beats?.titulo}</h4>
-                                                <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mt-1">Licencia Exclusiva</p>
-                                                <div className="flex items-center gap-2 mt-2 opacity-50">
-                                                    <Clock size={12} />
-                                                    <span className="text-[9px] font-bold uppercase">{new Date(offer.fecha_creacion).toLocaleDateString()}</span>
+                            {(negotiationType === 'ventas' ? offers_selling : offers_buying).map((offer) => {
+                                const person = negotiationType === 'ventas' ? offer.comprador : offer.productor;
+
+                                return (
+                                    <motion.div 
+                                        key={offer.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="bg-white/[0.02] hover:bg-white/[0.04] border border-border rounded-[2.5rem] p-8 transition-all group overflow-hidden relative"
+                                    >
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/[0.03] blur-[60px] rounded-full pointer-events-none" />
+                                        
+                                        <div className="flex flex-col lg:flex-row items-center gap-10">
+                                            {/* Beat Info */}
+                                            <div className="flex items-center gap-6 w-full lg:w-1/3">
+                                                <div className="w-20 h-20 bg-black/40 rounded-2xl overflow-hidden border border-border shadow-xl shrink-0">
+                                                    {offer.beats?.portada_url ? (
+                                                        <img src={offer.beats.portada_url} alt="Cover" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-muted"><Music size={24} /></div>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-[13px] font-black uppercase tracking-tight text-foreground line-clamp-1">{offer.beats?.titulo}</h4>
+                                                    <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mt-1">Licencia Exclusiva</p>
+                                                    <div className="flex items-center gap-2 mt-2 opacity-50">
+                                                        <Clock size={12} />
+                                                        <span className="text-[9px] font-bold uppercase">{new Date(offer.fecha_creacion).toLocaleDateString()}</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        {/* Counterparty Info */}
-                                        <div className="flex items-center gap-4 w-full lg:w-1/4 pb-6 lg:pb-0 border-b lg:border-b-0 lg:border-l border-border lg:pl-10">
-                                            <div className="w-12 h-12 bg-white/5 rounded-full overflow-hidden border border-border">
-                                                {(negotiationType === 'ventas' ? offer.comprador : offer.productor)?.foto_perfil ? (
-                                                    <img src={(negotiationType === 'ventas' ? offer.comprador : offer.productor).foto_perfil} alt="User" className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-muted"><User size={20} /></div>
-                                                )}
+                                            {/* Counterparty Info */}
+                                            <div className="flex items-center gap-4 w-full lg:w-1/4 pb-6 lg:pb-0 border-b lg:border-b-0 lg:border-l border-border lg:pl-10">
+                                                <div className="w-12 h-12 bg-white/5 rounded-full overflow-hidden border border-border">
+                                                    {person?.foto_perfil ? (
+                                                        <img src={person.foto_perfil} alt="User" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-muted"><User size={20} /></div>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <p className="text-[9px] font-black text-muted uppercase tracking-[0.2em] mb-1">{negotiationType === 'ventas' ? 'Comprador' : 'Productor'}</p>
+                                                    <h5 className="text-[12px] font-black uppercase">{person?.nombre_artistico || person?.nombre_usuario || 'Usuario'}</h5>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-[9px] font-black text-muted uppercase tracking-[0.2em] mb-1">{negotiationType === 'ventas' ? 'Comprador' : 'Productor'}</p>
-                                                <h5 className="text-[12px] font-black uppercase">{(negotiationType === 'ventas' ? offer.comprador : offer.productor)?.nombre_artistico || (negotiationType === 'ventas' ? offer.comprador : offer.productor)?.nombre_usuario}</h5>
-                                            </div>
-                                        </div>
 
                                         {/* Offer Amount */}
                                         <div className="flex flex-col items-center lg:items-end flex-1">
