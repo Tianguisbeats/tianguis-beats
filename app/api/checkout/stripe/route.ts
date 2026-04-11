@@ -172,6 +172,9 @@ export async function POST(req: Request) {
             if (couponId) {
                 const coupon = couponMap.get(couponId);
                 if (coupon && coupon.es_activo) {
+                    if (coupon.id_cupon_stripe) {
+                        return basePrice;
+                    }
                     const discount = coupon.porcentaje_descuento / 100;
                     return basePrice * (1 - discount);
                 }
@@ -411,12 +414,21 @@ export async function POST(req: Request) {
                 const buyerPlan = (buyerRes.data?.nivel_suscripcion || 'free').toLowerCase().trim();
 
                 if (sellerProfile?.stripe_connect_id && sellerProfile?.stripe_connect_onboarded) {
-                    const totalAmount = validItems.reduce((acc: number, item: any) => acc + (item.price || 0), 0);
-                    const sellerPlan = (sellerProfile.nivel_suscripcion || 'free').trim().toLowerCase();
+                    let totalVerifiedCents = line_items.reduce((acc: number, item: any) => {
+                        return acc + (item.price_data?.unit_amount || 0);
+                    }, 0);
 
+                    if (promotionCode) {
+                        const stripeCouponDbItem = couponsDbResult.data?.find((c: any) => c.id_cupon_stripe === promotionCode || c.codigo === promotionCode);
+                        if (stripeCouponDbItem && stripeCouponDbItem.porcentaje_descuento) {
+                            totalVerifiedCents = totalVerifiedCents * (1 - (stripeCouponDbItem.porcentaje_descuento / 100));
+                        }
+                    }
+
+                    const sellerPlan = (sellerProfile.nivel_suscripcion || 'free').trim().toLowerCase();
                     let applicationFeeAmount = 0;
                     const isSellerPaid = ['pro', 'premium', 'tianguis pro', 'tianguis premium'].includes(sellerPlan);
-                    if (!isSellerPaid) applicationFeeAmount = Math.round(totalAmount * 0.15 * 100);
+                    if (!isSellerPaid) applicationFeeAmount = Math.round(totalVerifiedCents * 0.15);
 
                     sessionConfig.payment_intent_data = {
                         application_fee_amount: applicationFeeAmount,
