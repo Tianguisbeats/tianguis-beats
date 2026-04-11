@@ -452,8 +452,22 @@ export async function POST(req: Request) {
         return NextResponse.json({ id: session.id, url: session.url });
     } catch (err: any) {
         console.error('--- ERROR_STRIPE_CHECKOUT ---', err.message);
+        
+        let userFriendlyError = "Hubo un problema al procesar tu solicitud. Por favor, intenta de nuevo.";
+        const rawMessage = err.message || "";
+
+        if (rawMessage.includes("invalid_request_error")) {
+            userFriendlyError = "La configuración del pago no es válida. Por favor, contacta a soporte.";
+        } else if (rawMessage.includes("oxxo is invalid")) {
+            userFriendlyError = "El pago en OXXO no está disponible para este monto o vendedor por el momento.";
+        } else if (rawMessage.includes("customer")) {
+            userFriendlyError = "Hubo un error con tu perfil de cliente. Por favor, intenta de nuevo.";
+        } else if (rawMessage.includes("coupon") || rawMessage.includes("discount")) {
+            userFriendlyError = "El cupón aplicado no es válido para esta transacción.";
+        }
+
         return NextResponse.json(
-            { error: "Stripe error: " + err.message, rawError: err.message },
+            { error: userFriendlyError, rawError: rawMessage },
             { status: 500 }
         );
     }
