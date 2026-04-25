@@ -15,6 +15,7 @@ import { calculateEarnings } from '@/lib/finance-utils';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function StudioSalesPage() {
     const [sales, setSales] = useState<any[]>([]);
@@ -26,6 +27,7 @@ export default function StudioSalesPage() {
     const [avgSaleValue, setAvgSaleValue] = useState(0);
     const [calcPrice, setCalcPrice] = useState(199);
     const [profile, setProfile] = useState<any>(null);
+    const [selectedSale, setSelectedSale] = useState<any>(null);
 
     useEffect(() => {
         const fetchSales = async () => {
@@ -459,6 +461,13 @@ export default function StudioSalesPage() {
                                 >
                                     <Download size={14} /> Recibo
                                 </button>
+
+                                <button
+                                    onClick={() => setSelectedSale(sale)}
+                                    className="shrink-0 px-5 py-3.5 bg-accent/5 text-foreground hover:bg-accent/10 rounded-2xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 active:scale-95 transition-all border border-border h-[58px]"
+                                >
+                                    <Info size={14} /> Detalle
+                                </button>
                             </div>
                         </div>
 
@@ -515,6 +524,104 @@ export default function StudioSalesPage() {
                     </div>
                 )}
             </div>
+
+            <Dialog open={!!selectedSale} onOpenChange={(open) => { if (!open) setSelectedSale(null); }}>
+                <DialogContent className="max-w-2xl bg-background border-border p-0 overflow-hidden rounded-[1.5rem]">
+                    {selectedSale && (
+                        <div>
+                            <DialogHeader className="p-6 border-b border-border/60">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center border border-blue-500/20">
+                                        <Receipt size={18} />
+                                    </div>
+                                    <div>
+                                        <DialogTitle className="text-lg font-black uppercase tracking-tight">
+                                            Orden #{selectedSale.orden_pedido || selectedSale.id?.slice(0, 8).toUpperCase()}
+                                        </DialogTitle>
+                                        <DialogDescription className="text-[10px] font-bold uppercase tracking-widest text-muted">
+                                            {new Date(selectedSale.created_at).toLocaleString('es-MX')}
+                                        </DialogDescription>
+                                    </div>
+                                </div>
+                            </DialogHeader>
+
+                            <div className="p-6 space-y-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div className="rounded-2xl border border-border bg-accent/5 p-4">
+                                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-muted">Comprador</span>
+                                        <p className="mt-1 text-sm font-black truncate">
+                                            @{selectedSale.comprador?.nombre_artistico || selectedSale.comprador?.nombre_usuario || 'Cliente'}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-2xl border border-border bg-accent/5 p-4">
+                                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-muted">Venta Bruta</span>
+                                        <p className="mt-1 text-sm font-black">{formatCurrency(selectedSale.amount)}</p>
+                                    </div>
+                                    <div className="rounded-2xl border border-border bg-accent/5 p-4">
+                                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-muted">Ganancia neta</span>
+                                        <p className="mt-1 text-sm font-black text-emerald-500">{formatCurrency(selectedSale.earnings?.netAmount || 0)}</p>
+                                    </div>
+                                </div>
+
+                                {(selectedSale.codigo_cupon || selectedSale.monto_descuento > 0) && (
+                                    <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 flex flex-wrap items-center justify-between gap-3">
+                                        <div className="flex items-center gap-2 text-emerald-500">
+                                            <Tag size={14} />
+                                            <span className="text-[10px] font-black uppercase tracking-widest">
+                                                {selectedSale.codigo_cupon || 'Descuento aplicado'}
+                                            </span>
+                                        </div>
+                                        <span className="text-sm font-black text-emerald-500">
+                                            -{formatCurrency(selectedSale.monto_descuento || 0)}
+                                        </span>
+                                    </div>
+                                )}
+
+                                <div className="space-y-3">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-muted">Items incluidos</h4>
+                                    <div className="max-h-[320px] overflow-y-auto space-y-2 pr-1">
+                                        {selectedSale.items?.map((item: any, idx: number) => (
+                                            <div key={`${item.id}-${idx}`} className="flex items-center gap-4 rounded-2xl border border-border bg-card p-3">
+                                                <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-accent/5 border border-border shrink-0">
+                                                    {item.portada_url ? (
+                                                        <Image src={item.portada_url} fill className="object-cover" alt={item.name} />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-muted/40">
+                                                            {getItemIcon(item.type)}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-black uppercase tracking-tight truncate">{item.name}</p>
+                                                    <p className="text-[9px] font-bold uppercase tracking-widest text-muted">
+                                                        {item.type || 'producto'} {item.license ? `• ${item.license}` : ''}
+                                                    </p>
+                                                </div>
+                                                <span className="text-sm font-black shrink-0">{formatCurrency(item.amount || 0)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <button
+                                        onClick={() => handleDownloadReceipt(selectedSale.id, selectedSale.orden_pedido)}
+                                        className="flex-1 px-5 py-3 rounded-2xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-500 transition-colors"
+                                    >
+                                        <Download size={14} /> Descargar recibo
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectedSale(null)}
+                                        className="px-5 py-3 rounded-2xl border border-border text-[10px] font-black uppercase tracking-widest hover:bg-accent/5 transition-colors"
+                                    >
+                                        Cerrar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

@@ -18,6 +18,7 @@ import { EXCHANGE_RATES } from '@/context/CurrencyContext';
 import { motion } from 'framer-motion';
 import { getGlobalConfig, GlobalConfig } from '@/lib/config';
 import { ScrollReveal } from '@/components/ui/BackgroundEffects';
+import { esquemaBeatNuevo } from '@/lib/schemas';
 
 // License tier definitions (synced with Studio licencias)
 const LICENSE_META: Record<string, { label: string; color: string; hex: string; icon: React.ReactNode; planReq: string | null; desc: string }> = {
@@ -485,13 +486,19 @@ export default function UploadPage() {
                 es_publico: true,
             };
 
+            const parsedBeat = esquemaBeatNuevo.safeParse(beatPayload);
+            if (!parsedBeat.success) {
+                const firstIssue = parsedBeat.error.issues[0];
+                throw new Error(firstIssue?.message || 'Datos del beat inválidos');
+            }
+
             const createRes = await fetch('/api/beats/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${session.access_token}`,
                 },
-                body: JSON.stringify(beatPayload),
+                body: JSON.stringify(parsedBeat.data),
             });
 
             const createData = await createRes.json();

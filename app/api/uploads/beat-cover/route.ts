@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { obtenerSupabaseAdmin, obtenerUsuarioDesdeRequest } from '@/lib/supabase-admin';
 import { stripExifJpeg, validarArchivo } from '@/lib/file-validation';
+import { aplicarLimite } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -12,6 +13,16 @@ export async function POST(req: NextRequest) {
     const usuario = await obtenerUsuarioDesdeRequest(req);
     if (!usuario) {
         return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
+    const lim = aplicarLimite(req, {
+        id: 'beat-cover-upload',
+        max: 60,
+        ventanaMs: 60 * 60 * 1000,
+        sufijo: usuario.id,
+    });
+    if (!lim.permitido && lim.respuesta) {
+        return NextResponse.json(lim.respuesta.body, { status: lim.respuesta.status, headers: lim.respuesta.headers });
     }
 
     try {

@@ -14,6 +14,8 @@ import WaveformPlayer from './WaveformPlayer';
 import { useCart } from '@/context/CartContext';
 import { useRouter } from 'next/navigation';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Slider } from '@/components/ui/slider';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 function useIsDarkMode() {
     const [isDark, setIsDark] = useState(true);
@@ -25,6 +27,17 @@ function useIsDarkMode() {
         return () => observer.disconnect();
     }, []);
     return isDark;
+}
+
+function PlayerTooltip({ label, children }: { label: string; children: React.ReactElement }) {
+    return (
+        <Tooltip>
+            <TooltipTrigger render={children} />
+            <TooltipContent side="top" className="text-[10px] font-black uppercase tracking-widest">
+                {label}
+            </TooltipContent>
+        </Tooltip>
+    );
 }
 
 export default function AudioPlayer() {
@@ -140,8 +153,8 @@ export default function AudioPlayer() {
         return `${m}:${s.toString().padStart(2, '0')}`;
     };
 
-    const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const v = parseFloat(e.target.value);
+    const handleVolumeChange = (value: number | readonly number[]) => {
+        const v = Array.isArray(value) ? value[0] : value;
         setVolume(v);
         if (v > 0) setIsMuted(false);
     };
@@ -161,15 +174,12 @@ export default function AudioPlayer() {
     // Tracks siguientes para el panel Up Next
     const upNextTracks = playlist.slice(playlistIndex + 1, playlistIndex + 5);
 
-    // Background del slider de volumen con fill visible en ambos modos
-    const volumeTrackBg = `linear-gradient(to right, ${accentColor} 0%, ${accentColor} ${volume * 100}%, ${isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'} ${volume * 100}%, ${isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'} 100%)`;
-
     // Ícono y color del loop según el modo
     const LoopIcon = loopMode === 'one' ? Repeat1 : Repeat;
     const loopActive = loopMode !== 'none';
 
     return (
-        <>
+        <TooltipProvider delay={200}>
             {/* ═══════════ VERSIÓN MÓVIL ═══════════ */}
             <div className="md:hidden fixed bottom-[68px] left-0 right-0 z-[100] px-3 animate-in slide-in-from-bottom-2 duration-300">
                 <div
@@ -410,72 +420,84 @@ export default function AudioPlayer() {
 
                                     {/* Volumen (Movido aquí para espacio) */}
                                     <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${controlBgClass} ${controlBorderClass}`}>
-                                        <button onClick={toggleMute} className={`transition-colors shrink-0 ${isMuted || volume === 0 ? textMutedClass : accentText}`}>
-                                            {isMuted || volume === 0 ? <VolumeX size={15} /> : <Volume2 size={15} />}
-                                        </button>
+                                        <PlayerTooltip label={isMuted || volume === 0 ? 'Activar sonido' : 'Silenciar'}>
+                                            <button onClick={toggleMute} className={`transition-colors shrink-0 ${isMuted || volume === 0 ? textMutedClass : accentText}`}>
+                                                {isMuted || volume === 0 ? <VolumeX size={15} /> : <Volume2 size={15} />}
+                                            </button>
+                                        </PlayerTooltip>
                                         <div className="w-16 relative flex items-center h-4">
-                                            <input
-                                                type="range" min="0" max="1" step="0.01" value={volume}
-                                                onChange={handleVolumeChange}
-                                                className="w-full cursor-pointer h-[3px] rounded-full appearance-none"
-                                                style={{ accentColor, background: volumeTrackBg }}
+                                            <Slider
+                                                min={0}
+                                                max={1}
+                                                step={0.01}
+                                                value={volume}
+                                                onValueChange={handleVolumeChange}
+                                                aria-label="Volumen"
+                                                className="cursor-pointer [&_[data-slot=slider-range]]:bg-[var(--player-accent)] [&_[data-slot=slider-thumb]]:border-[var(--player-accent)] [&_[data-slot=slider-thumb]]:bg-white [&_[data-slot=slider-thumb]]:shadow-sm"
+                                                style={{ '--player-accent': accentColor } as React.CSSProperties}
                                             />
                                         </div>
                                     </div>
 
-                                    <button onClick={playPrevious} disabled={playlist.length === 0}
-                                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBgClass} border ${controlBorderClass} ${accentText} opacity-60 hover:opacity-100 disabled:opacity-30 disabled:hover:scale-100 cursor-pointer disabled:cursor-not-allowed`}>
-                                        <SkipBack size={16} fill="currentColor" />
-                                    </button>
+                                    <PlayerTooltip label="Anterior">
+                                        <button onClick={playPrevious} disabled={playlist.length === 0}
+                                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBgClass} border ${controlBorderClass} ${accentText} opacity-60 hover:opacity-100 disabled:opacity-30 disabled:hover:scale-100 cursor-pointer disabled:cursor-not-allowed`}>
+                                            <SkipBack size={16} fill="currentColor" />
+                                        </button>
+                                    </PlayerTooltip>
 
                                     {/* SkipForward */}
-                                    <button onClick={playNext} disabled={playlist.length === 0}
-                                        title="Siguiente"
-                                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBgClass} border ${controlBorderClass} ${accentText} opacity-60 hover:opacity-100 disabled:opacity-30 disabled:hover:scale-100 cursor-pointer disabled:cursor-not-allowed`}>
-                                        <SkipForward size={16} fill="currentColor" />
-                                    </button>
+                                    <PlayerTooltip label="Siguiente">
+                                        <button onClick={playNext} disabled={playlist.length === 0}
+                                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBgClass} border ${controlBorderClass} ${accentText} opacity-60 hover:opacity-100 disabled:opacity-30 disabled:hover:scale-100 cursor-pointer disabled:cursor-not-allowed`}>
+                                            <SkipForward size={16} fill="currentColor" />
+                                        </button>
+                                    </PlayerTooltip>
 
                                     {/* Botón "Ver cola" — abre el Sheet con la lista completa */}
-                                    <button
-                                        onClick={() => setColaAbierta(true)}
-                                        title="Cola de reproducción"
-                                        aria-label="Ver cola de reproducción"
-                                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBgClass} border ${controlBorderClass} ${textMutedClass} hover:opacity-100 cursor-pointer relative`}
-                                    >
-                                        <List size={14} />
-                                        {playlist.length - playlistIndex - 1 > 0 && (
-                                            <span
-                                                className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full text-[7px] font-black flex items-center justify-center text-white"
-                                                style={{ background: accentColor }}
-                                            >
-                                                {Math.min(playlist.length - playlistIndex - 1, 9)}
-                                            </span>
-                                        )}
-                                    </button>
+                                    <PlayerTooltip label="Cola de reproducción">
+                                        <button
+                                            onClick={() => setColaAbierta(true)}
+                                            aria-label="Ver cola de reproducción"
+                                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBgClass} border ${controlBorderClass} ${textMutedClass} hover:opacity-100 cursor-pointer relative`}
+                                        >
+                                            <List size={14} />
+                                            {playlist.length - playlistIndex - 1 > 0 && (
+                                                <span
+                                                    className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full text-[7px] font-black flex items-center justify-center text-white"
+                                                    style={{ background: accentColor }}
+                                                >
+                                                    {Math.min(playlist.length - playlistIndex - 1, 9)}
+                                                </span>
+                                            )}
+                                        </button>
+                                    </PlayerTooltip>
 
                                     {/* Shuffle */}
-                                    <button onClick={toggleShuffle}
-                                        title={isShuffle ? 'Aleatorio activado' : 'Aleatorio'}
-                                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 border ${isShuffle
-                                            ? `${accentText} border-current/20`
-                                            : `${textMutedClass} ${controlBgClass} ${controlBorderClass}`}`}
-                                        style={isShuffle ? { background: `${accentColor}15`, borderColor: `${accentColor}30` } : {}}>
-                                        <Shuffle size={14} />
-                                    </button>
+                                    <PlayerTooltip label={isShuffle ? 'Aleatorio activado' : 'Aleatorio'}>
+                                        <button onClick={toggleShuffle}
+                                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 border ${isShuffle
+                                                ? `${accentText} border-current/20`
+                                                : `${textMutedClass} ${controlBgClass} ${controlBorderClass}`}`}
+                                            style={isShuffle ? { background: `${accentColor}15`, borderColor: `${accentColor}30` } : {}}>
+                                            <Shuffle size={14} />
+                                        </button>
+                                    </PlayerTooltip>
 
                                     {/* Loop */}
-                                    <button onClick={toggleLoopMode}
-                                        title={loopMode === 'none' ? 'Sin repetición' : loopMode === 'all' ? 'Repetir todo' : 'Repetir una canción'}
-                                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 border relative ${loopActive
-                                            ? `${accentText}`
-                                            : `${textMutedClass} ${controlBgClass} ${controlBorderClass}`}`}
-                                        style={loopActive ? { background: `${accentColor}15`, borderColor: `${accentColor}30` } : {}}>
-                                        <LoopIcon size={14} />
-                                        {loopMode === 'one' && (
-                                            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-[7px] font-black flex items-center justify-center text-white"
-                                                style={{ background: accentColor }}>1</span>
-                                        )}
-                                    </button>
+                                    <PlayerTooltip label={loopMode === 'none' ? 'Sin repetición' : loopMode === 'all' ? 'Repetir todo' : 'Repetir una canción'}>
+                                        <button onClick={toggleLoopMode}
+                                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 border relative ${loopActive
+                                                ? `${accentText}`
+                                                : `${textMutedClass} ${controlBgClass} ${controlBorderClass}`}`}
+                                            style={loopActive ? { background: `${accentColor}15`, borderColor: `${accentColor}30` } : {}}>
+                                            <LoopIcon size={14} />
+                                            {loopMode === 'one' && (
+                                                <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-[7px] font-black flex items-center justify-center text-white"
+                                                    style={{ background: accentColor }}>1</span>
+                                            )}
+                                        </button>
+                                    </PlayerTooltip>
                                 </div>
                             </div>
                         </div>
@@ -484,14 +506,15 @@ export default function AudioPlayer() {
                         <div className="flex flex-col items-end gap-2 w-[24%] shrink-0 py-1">
                             {/* Fila Superior: Compartir y Cerrar */}
                             <div className="flex items-center gap-2">
-                                <button
-                                    onClick={handleShare}
-                                    title="Copiar enlace"
-                                    className={`w-9 h-9 flex items-center justify-center rounded-xl border transition-all hover:scale-110 active:scale-90 ${shareCopied
-                                        ? 'text-green-500 bg-green-500/10 border-green-500/20'
-                                        : `${textMutedClass} ${controlBgClass} ${controlBorderClass} hover:text-green-500 hover:bg-green-500/10 hover:border-green-500/20`}`}>
-                                    <Share2 size={15} />
-                                </button>
+                                <PlayerTooltip label={shareCopied ? 'Enlace copiado' : 'Copiar enlace'}>
+                                    <button
+                                        onClick={handleShare}
+                                        className={`w-9 h-9 flex items-center justify-center rounded-xl border transition-all hover:scale-110 active:scale-90 ${shareCopied
+                                            ? 'text-green-500 bg-green-500/10 border-green-500/20'
+                                            : `${textMutedClass} ${controlBgClass} ${controlBorderClass} hover:text-green-500 hover:bg-green-500/10 hover:border-green-500/20`}`}>
+                                        <Share2 size={15} />
+                                    </button>
+                                </PlayerTooltip>
 
                                 <button
                                     onClick={closePlayer}
@@ -568,6 +591,6 @@ export default function AudioPlayer() {
                     </div>
                 </SheetContent>
             </Sheet>
-        </>
+        </TooltipProvider>
     );
 }

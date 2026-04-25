@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { obtenerSupabaseAdmin, obtenerUsuarioDesdeRequest } from '@/lib/supabase-admin';
-import { obtenerStripe, STRIPE_PRECIOS } from '@/lib/stripe-config';
+import { obtenerPrecioStripe, obtenerStripe } from '@/lib/stripe-config';
 import { aplicarLimite } from '@/lib/rate-limit';
 
 // Helper de depuración local
@@ -240,10 +240,12 @@ export async function POST(req: Request) {
                 : `${typeLabel}${discountText}`;
 
             const tierRaw = String(item.metadata?.tier || '').toLowerCase().trim();
-            const planKey = `${tierRaw}_${cycleRaw === 'yearly' ? 'anual' : 'mensual'}` as keyof typeof STRIPE_PRECIOS;
-            const fixedPriceId = iType === 'plan' ? STRIPE_PRECIOS[planKey] : null;
+            const planCycle = cycleRaw === 'yearly' ? 'anual' : 'mensual';
+            const fixedPriceId = iType === 'plan' && ['pro', 'premium'].includes(tierRaw)
+                ? obtenerPrecioStripe(tierRaw as 'pro' | 'premium', planCycle)
+                : null;
 
-            logDebug(`[CHECKOUT] Item: ${productName} | Tipo: ${iType} | ClavePlan: ${planKey} | PriceID: ${fixedPriceId}`);
+            logDebug(`[CHECKOUT] Item: ${productName} | Tipo: ${iType} | Plan: ${tierRaw}_${planCycle} | PriceID: ${fixedPriceId}`);
 
             if (iType === 'plan') {
                 if (!['pro', 'premium'].includes(tierRaw) || !fixedPriceId) {

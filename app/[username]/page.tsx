@@ -98,6 +98,9 @@ export default function ProducerProfilePage() {
     // Wall posts
     const [wallPosts, setWallPosts] = useState<any[]>([]);
     const [wallLoading, setWallLoading] = useState(false);
+    const [wallLoadingMore, setWallLoadingMore] = useState(false);
+    const [wallLoadedCount, setWallLoadedCount] = useState(0);
+    const [wallHasMore, setWallHasMore] = useState(false);
     const [postContent, setPostContent] = useState('');
     const [isPosting, setIsPosting] = useState(false);
     const [likedPostIds, setLikedPostIds] = useState<Set<string>>(new Set());
@@ -276,8 +279,10 @@ export default function ProducerProfilePage() {
     };
 
     // ── Wall Posts ──────────────────────────────────────────────────
-    const fetchWallPosts = async (profileId: string) => {
-        setWallLoading(true);
+    const fetchWallPosts = async (profileId: string, append = false) => {
+        const offset = append ? wallLoadedCount : 0;
+        if (append) setWallLoadingMore(true);
+        else setWallLoading(true);
         try {
             const { data } = await supabase
                 .from('comentarios')
@@ -289,10 +294,20 @@ export default function ProducerProfilePage() {
                 `)
                 .eq('perfil_id', profileId)
                 .order('fecha_creacion', { ascending: false })
-                .limit(PROFILE_LIMITS.wallPosts);
-            if (data) setWallPosts(data);
+                .range(offset, offset + PROFILE_LIMITS.wallPosts - 1);
+            if (data) {
+                setWallPosts(prev => {
+                    if (!append) return data;
+                    const merged = new Map(prev.map(post => [post.id, post]));
+                    data.forEach(post => merged.set(post.id, post));
+                    return Array.from(merged.values());
+                });
+                setWallLoadedCount(offset + data.length);
+                setWallHasMore(data.length === PROFILE_LIMITS.wallPosts);
+            }
         } catch {}
-        setWallLoading(false);
+        if (append) setWallLoadingMore(false);
+        else setWallLoading(false);
     };
 
     const handlePost = async () => {
@@ -313,6 +328,7 @@ export default function ProducerProfilePage() {
                 .single();
             if (error) throw error;
             setWallPosts(prev => [data, ...prev]);
+            setWallLoadedCount(prev => prev + 1);
             setPostContent('');
         } catch {
             showToast('Error al publicar', 'error');
@@ -350,6 +366,7 @@ export default function ProducerProfilePage() {
         try {
             await supabase.from('comentarios').delete().eq('id', postId);
             setWallPosts(prev => prev.filter(p => p.id !== postId));
+            setWallLoadedCount(prev => Math.max(0, prev - 1));
         } catch {
             showToast('Error al eliminar', 'error');
         }
@@ -1368,6 +1385,24 @@ export default function ProducerProfilePage() {
                                                     </div>
                                                 );
                                             })}
+                                            {wallHasMore && (
+                                                <div className="flex justify-center pt-3">
+                                                    <button
+                                                        onClick={() => profile?.id && fetchWallPosts(profile.id, true)}
+                                                        disabled={wallLoadingMore}
+                                                        className="px-5 py-2.5 rounded-xl border border-border bg-card text-[10px] font-black uppercase tracking-widest text-muted hover:text-foreground hover:border-accent/30 transition-all disabled:opacity-50"
+                                                    >
+                                                        {wallLoadingMore ? (
+                                                            <span className="flex items-center gap-2">
+                                                                <Loader2 size={12} className="animate-spin" />
+                                                                Cargando
+                                                            </span>
+                                                        ) : (
+                                                            'Cargar más'
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>

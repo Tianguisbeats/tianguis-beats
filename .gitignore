@@ -38,6 +38,10 @@ yarn-error.log*
 .agents/
 .claude/
 
+# scripts locales de debug
+test-*.mjs
+test-*.js
+
 # vercel
 .vercel
 
