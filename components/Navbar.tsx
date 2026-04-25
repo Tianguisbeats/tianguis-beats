@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { User, Settings, LogOut, Crown, ShoppingCart, Menu, X, Store, PlusSquare } from 'lucide-react';
+import NotificacionesBell from '@/components/NotificacionesBell';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
@@ -133,6 +134,11 @@ export default function Navbar({ minimal = false }: { minimal?: boolean }) {
                     <div className="px-1 scale-90 md:scale-100">
                         <ThemeToggle />
                     </div>
+
+                    {/* NOTIFICACIONES - Solo Logueado */}
+                    {user && (
+                        <NotificacionesBell userId={user.id} className={minimal ? 'text-slate-600 dark:text-white' : ''} />
+                    )}
 
                     {/* CARRITO - Solo Logueado o con items */}
                     {user && (

@@ -11,25 +11,36 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Store, Upload, Sliders, User, Crown, Check } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import Image from 'next/image';
 
 export default function MobileBottomNav() {
     const pathname = usePathname();
 
     const [user, setUser] = useState<any>(null);
     const [profile, setProfile] = useState<any>(null);
+    const [notifCount, setNotifCount] = useState(0);
 
     useEffect(() => {
         const getSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             setUser(session?.user ?? null);
-            if (session?.user) fetchProfile(session.user.id);
+            if (session?.user) {
+                fetchProfile(session.user.id);
+                fetchNotifCount(session.user.id);
+            }
         };
         getSession();
 
+
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user ?? null);
-            if (session?.user) fetchProfile(session.user.id);
-            else setProfile(null);
+            if (session?.user) {
+                fetchProfile(session.user.id);
+                fetchNotifCount(session.user.id);
+            } else {
+                setProfile(null);
+                setNotifCount(0);
+            }
         });
 
         return () => subscription.unsubscribe();
@@ -42,6 +53,15 @@ export default function MobileBottomNav() {
             .eq('id', userId)
             .single();
         if (data) setProfile(data);
+    };
+
+    const fetchNotifCount = async (userId: string) => {
+        const { count } = await supabase
+            .from('notificaciones')
+            .select('*', { count: 'exact', head: true })
+            .eq('usuario_id', userId)
+            .eq('esta_leida', false);
+        setNotifCount(count ?? 0);
     };
 
     const tabs = [
@@ -160,6 +180,13 @@ export default function MobileBottomNav() {
                                             className="transition-all duration-300"
                                         />
                                     </div>
+                                )}
+
+                                    {/* badge de notificaciones en Studio */}
+                                {tab.id === 'studio' && notifCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center leading-none">
+                                        {notifCount > 9 ? '9+' : notifCount}
+                                    </span>
                                 )}
 
                                 {/* founder crown badge */}
