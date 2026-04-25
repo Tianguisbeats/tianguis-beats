@@ -14,12 +14,15 @@ import {
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
 import LoadingTianguis from '@/components/LoadingTianguis';
-import { calculateEarnings, STRIPE_MEXICO_RATE, STRIPE_MEXICO_FIXED, IVA_RATE } from '@/lib/finance-utils';
 import { useGestionUsuarios } from '@/hooks/admin/useGestionUsuarios';
 import { useGestionFeedback } from '@/hooks/admin/useGestionFeedback';
 import { useGestionBeats } from '@/hooks/admin/useGestionBeats';
 import { useGestionControles } from '@/hooks/admin/useGestionControles';
 import { useEstadisticasGlobales } from '@/hooks/admin/useEstadisticasGlobales';
+import { useGestionCupones } from '@/hooks/admin/useGestionCupones';
+import { useGestionVerificaciones } from '@/hooks/admin/useGestionVerificaciones';
+import { useLicensePreview } from '@/hooks/admin/useLicensePreview';
+import { useGestionIngresos } from '@/hooks/admin/useGestionIngresos';
 import { MetricaStorage } from '@/components/admin/MetricaStorage';
 
 type View = 'dashboard' | 'verifications' | 'users' | 'coupons' | 'feedback' | 'income' | 'beats' | 'controls' | 'licenses';
@@ -179,102 +182,21 @@ function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
 
 // --- VERIFICATION MANAGER MODULE ---
 function VerificationManager({ onBack }: { onBack: () => void }) {
-    const [requests, setRequests] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
     const { showToast } = useToast();
-
-    useEffect(() => {
-        fetchRequests();
-    }, []);
-
-    const fetchRequests = async () => {
-        setLoading(true);
-        try {
-            const { data, error } = await supabase
-                .from('solicitudes_verificacion')
-                .select(`*, perfiles: user_id(nombre_usuario, foto_perfil, correo, fecha_creacion)`)
-                .order('fecha_creacion', { ascending: false });
-
-            if (error) {
-                const { data: retryData } = await supabase
-                    .from('solicitudes_verificacion')
-                    .select(`*, perfiles: user_id(nombre_usuario, foto_perfil, correo, fecha_creacion)`)
-                    .eq('estado', 'pendiente');
-                setRequests(retryData || []);
-            } else {
-                setRequests(data || []);
-            }
-        } catch (err) { console.error(err); }
-        setLoading(false);
-    };
-
-    const [confirmAction, setConfirmAction] = useState<{ requestId: string; userId: string; status: 'approved' | 'rejected' | 'reviewed' } | null>(null);
-    const [selectedHistoryReq, setSelectedHistoryReq] = useState<any>(null); // NEW
-
-    const handleDeleteHistoryReq = async (id: string) => {
-        if (!confirm('¿Estás seguro de que deseas eliminar permanentemente esta solicitud de verificación del historial? Esta acción no se puede deshacer.')) return;
-        try {
-            const { error } = await supabase.from('solicitudes_verificacion').delete().eq('id', id);
-            if (error) throw error;
-            setRequests(requests.filter(r => r.id !== id));
-            setSelectedHistoryReq(null);
-            showToast("Solicitud eliminada correctamente", "success");
-        } catch (err) {
-            console.error(err);
-            showToast("Error al eliminar la solicitud", "error");
-        }
-    };
-
-    const handleDecision = async () => {
-        if (!confirmAction) return;
-        const { requestId, userId, status } = confirmAction;
-        setConfirmAction(null); // Cerrar modal
-
-        try {
-            // 1. Actualizar el estado de la solicitud
-            const { error: reqError } = await supabase
-                .from('solicitudes_verificacion')
-                .update({ estado: status === 'approved' ? 'aprobado' : status === 'rejected' ? 'rechazado' : 'revisado' })
-                .eq('id', requestId);
-
-            if (reqError) throw reqError;
-
-            // 2. Si se aprueba, actualizar el perfil Y habilitar la insignia
-            if (status === 'approved') {
-                const { error: profileError } = await supabase
-                    .from('perfiles')
-                    .update({
-                        esta_verificado: true,
-                        boletin_activo: true
-                    })
-                    .eq('id', userId);
-
-                if (profileError) throw profileError;
-            }
-
-            setRequests(requests.map(r => r.id === requestId ? { ...r, estado: status === 'approved' ? 'aprobado' : status === 'rejected' ? 'rechazado' : 'revisado' } : r));
-            showToast(`Solicitud ${status === 'approved' ? 'Aprobada ✅' : status === 'rejected' ? 'Rechazada ❌' : 'Marcada como Revisada 👁️'}`, "success");
-        } catch (error: any) {
-            console.error(error);
-            showToast("Error al procesar la decisión. Verifica los permisos de la base de datos.", "error");
-        }
-    };
-
-    const handleRevert = async (requestId: string) => {
-        try {
-            const { error } = await supabase
-                .from('solicitudes_verificacion')
-                .update({ estado: 'pendiente' })
-                .eq('id', requestId);
-
-            if (error) throw error;
-
-            setRequests(requests.map(r => r.id === requestId ? { ...r, estado: 'pendiente' } : r));
-            showToast("Solicitud devuelta a Pendientes", "success");
-        } catch (err) {
-            showToast("Error al revertir", "error");
-        }
-    };
+    const {
+        requests,
+        loading,
+        confirmAction,
+        setConfirmAction,
+        selectedHistoryReq,
+        setSelectedHistoryReq,
+        handleDeleteHistoryReq,
+        handleDecision,
+        handleRevert,
+    } = useGestionVerificaciones({
+        onError: (m) => showToast(m, 'error'),
+        onExito: (m) => showToast(m, 'success'),
+    });
 
     if (loading) return <LoadingTianguis />;
 
@@ -873,127 +795,28 @@ function DetailItem({ label, value, copyable }: { label: string, value: any, cop
 
 // --- COUPON MANAGER MODULE ---
 function CouponManager({ onBack }: { onBack: () => void }) {
-    const [coupons, setCoupons] = useState<any[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [showModal, setShowModal] = useState(false);
-    const [editingId, setEditingId] = useState<string | null>(null);
-    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-    const [isStripeOnly, setIsStripeOnly] = useState(false);
-    const [formCoupon, setFormCoupon] = useState({
-        codigo: '',
-        porcentaje_descuento: 20,
-        usos_maximos: '',
-        fecha_expiracion: '',
-        nivel_objetivo: 'todos',
-        es_activo: true,
-        id_cupon_stripe: '',
-        texto_descuento: ''
-    });
     const { showToast } = useToast();
-
-    useEffect(() => { fetchCoupons(); }, []);
-
-    const fetchCoupons = async () => {
-        setLoading(true);
-        try {
-            const { data, error } = await supabase.from('cupones')
-                .select('*')
-                .is('productor_id', null)
-                .order('fecha_creacion', { ascending: false });
-            if (error) throw error;
-            setCoupons(data || []);
-        } catch (err) { console.error(err); }
-        setLoading(false);
-    };
-
-    const handleAction = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            const payload = {
-                codigo: formCoupon.codigo.toUpperCase(),
-                porcentaje_descuento: formCoupon.porcentaje_descuento,
-                usos_maximos: formCoupon.usos_maximos ? parseInt(formCoupon.usos_maximos as string) : null,
-                fecha_expiracion: formCoupon.fecha_expiracion || null,
-                nivel_objetivo: formCoupon.nivel_objetivo,
-                es_activo: formCoupon.es_activo,
-                id_cupon_stripe: formCoupon.id_cupon_stripe || null,
-                texto_descuento: formCoupon.texto_descuento || null,
-                aplica_a: 'suscripciones' // Admin coupons only for subscriptions
-            };
-
-            if (editingId) {
-                const { error } = await supabase.from('cupones').update(payload).eq('id', editingId);
-                if (error) throw error;
-                showToast("Cupón actualizado", "success");
-            } else {
-                const { error } = await supabase.from('cupones').insert([payload]);
-                if (error) throw error;
-                showToast("Cupón creado", "success");
-            }
-            setShowModal(false);
-            setEditingId(null);
-            setIsStripeOnly(false);
-            setFormCoupon({ codigo: '', porcentaje_descuento: 20, usos_maximos: '', fecha_expiracion: '', nivel_objetivo: 'todos', es_activo: true, id_cupon_stripe: '', texto_descuento: '' });
-            fetchCoupons();
-        } catch (error: any) { showToast(error.message, "error"); }
-    };
-
-    const handleDelete = async (id: string) => {
-        const { error } = await supabase.from('cupones').delete().eq('id', id);
-        if (error) {
-            showToast("Error al eliminar", "error");
-        } else {
-            showToast("Cupón eliminado definitivamente", "success");
-            fetchCoupons();
-        }
-        setConfirmDeleteId(null);
-    };
-
-    const toggleStatus = async (id: string, currentStatus: boolean) => {
-        const { error } = await supabase.from('cupones').update({ es_activo: !currentStatus }).eq('id', id);
-        if (!error) {
-            setCoupons(coupons.map(cp => cp.id === id ? { ...cp, es_activo: !currentStatus } : cp));
-        }
-    };
-
-    const openCreateModal = () => {
-        setEditingId(null);
-        setIsStripeOnly(false);
-        setFormCoupon({ codigo: '', porcentaje_descuento: 20, usos_maximos: '', fecha_expiracion: '', nivel_objetivo: 'todos', es_activo: true, id_cupon_stripe: '', texto_descuento: '' });
-        setShowModal(true);
-    };
-
-    const openStripeOnlyModal = () => {
-        setEditingId(null);
-        setIsStripeOnly(true);
-        setFormCoupon({ 
-            codigo: '', 
-            porcentaje_descuento: 100, // Default for Stripe-managed coupons in our DB
-            usos_maximos: '', 
-            fecha_expiracion: '', 
-            nivel_objetivo: 'todos', 
-            es_activo: true, 
-            id_cupon_stripe: '',
-            texto_descuento: '' 
-        });
-        setShowModal(true);
-    };
-
-    const openEditModal = (cp: any) => {
-        setEditingId(cp.id);
-        setFormCoupon({
-            codigo: cp.codigo,
-            porcentaje_descuento: cp.porcentaje_descuento,
-            usos_maximos: cp.usos_maximos || '',
-            fecha_expiracion: cp.fecha_expiracion ? cp.fecha_expiracion.split('.')[0] : '', // format for datetime-local
-            nivel_objetivo: cp.nivel_objetivo || 'todos',
-            es_activo: cp.es_activo,
-            id_cupon_stripe: cp.id_cupon_stripe || '',
-            texto_descuento: cp.texto_descuento || ''
-        });
-        setIsStripeOnly(!!cp.id_cupon_stripe);
-        setShowModal(true);
-    };
+    const {
+        coupons,
+        loading,
+        showModal,
+        setShowModal,
+        editingId,
+        confirmDeleteId,
+        setConfirmDeleteId,
+        isStripeOnly,
+        formCoupon,
+        setFormCoupon,
+        handleAction,
+        handleDelete,
+        toggleStatus,
+        openCreateModal,
+        openStripeOnlyModal,
+        openEditModal,
+    } = useGestionCupones({
+        onError: (m) => showToast(m, 'error'),
+        onExito: (m) => showToast(m, 'success'),
+    });
 
     return (
         <div className="space-y-12 animate-in fade-in duration-700">
@@ -1471,148 +1294,24 @@ function FeedbackManager({ onBack }: { onBack: () => void }) {
 
 // --- INCOME MANAGER MODULE ---
 function IncomeManager({ onBack }: { onBack: () => void }) {
-    const [orders, setOrders] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [selectedOrder, setSelectedOrder] = useState<any>(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [categoryFilter, setCategoryFilter] = useState('all');
     const { showToast } = useToast();
-
-    useEffect(() => {
-        fetchOrders();
-    }, []);
-
-    const fetchOrders = async () => {
-        setLoading(true);
-        try {
-            const { data: txData, error: txError } = await supabase
-                .from('transacciones')
-                .select(`
-                    *,
-                    comprador:comprador_id(nombre_usuario, nombre_artistico, correo, nivel_suscripcion),
-                    vendedor:vendedor_id(nombre_usuario, nombre_artistico, correo, nivel_suscripcion)
-                `)
-                .order('fecha_creacion', { ascending: false });
-
-            if (txError) throw txError;
-
-            // Group transactions by orden_pedido / pago_id
-            const groupedOrders: Record<string, any> = {};
-
-            (txData || []).forEach(tx => {
-                const orderKey = tx.orden_pedido || tx.pago_id || tx.id;
-
-                if (!groupedOrders[orderKey]) {
-                    groupedOrders[orderKey] = {
-                        id: orderKey,
-                        pago_id: tx.pago_id,
-                        orden_pedido: tx.orden_pedido,
-                        created_at: tx.fecha_creacion,
-                        total_amount: 0,
-                        currency: tx.moneda || 'MXN',
-                        status: tx.estado_pago || 'completado',
-                        payment_method: tx.metodo_pago || 'Stripe',
-                        comprador: tx.comprador,
-                        vendedor: tx.vendedor,
-                        items: []
-                    };
-                }
-
-                groupedOrders[orderKey].total_amount += Number(tx.precio_total || tx.precio || 0);
-
-                groupedOrders[orderKey].items.push({
-                    id: tx.id,
-                    product_type: tx.tipo_producto,
-                    name: tx.nombre_producto,
-                    price: tx.precio_total || tx.precio || 0,
-                    license_type: tx.tipo_licencia,
-                    metadata: tx.metadatos
-                });
-            });
-
-            setOrders(Object.values(groupedOrders).map(order => {
-                const sellerPlan = order.vendedor?.nivel_suscripcion || 'free';
-                const earnings = calculateEarnings(order.total_amount, sellerPlan);
-                return { ...order, earnings };
-            }).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
-        } catch (err) {
-            console.error(err);
-            showToast("Error al cargar pedidos e ingresos", "error");
-        }
-        setLoading(false);
-    };
-
-    const totalHistorical = orders.reduce((acc, order) => acc + order.total_amount, 0);
-    const totalMonthly = orders.filter(order => {
-        const date = new Date(order.created_at);
-        const now = new Date();
-        return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
-    }).reduce((acc, order) => acc + order.total_amount, 0);
-
-    const handleDownloadReceipt = (order: any) => {
-        try {
-            showToast("Generando comprobante (Admin)...", "info");
-            import('jspdf').then(async ({ default: jsPDF }) => {
-                const autoTable = (await import('jspdf-autotable')).default;
-                const doc = new jsPDF();
-
-                doc.setFillColor(15, 23, 42);
-                doc.rect(0, 0, 210, 40, 'F');
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(24);
-                doc.setFont("helvetica", "bold");
-                doc.text("TIANGUIS BEATS", 15, 25);
-
-                doc.setFontSize(10);
-                doc.setFont("helvetica", "normal");
-                doc.text("Comprobante Administrativo de Pago", 140, 20);
-                doc.text(new Date().toLocaleDateString('es-MX'), 140, 28);
-
-                doc.setTextColor(50, 50, 50);
-                doc.setFontSize(12);
-                doc.setFont("helvetica", "bold");
-                doc.text("Detalles de la Transacción", 15, 55);
-
-                doc.setFontSize(10);
-                doc.setFont("helvetica", "normal");
-                doc.text(`ID de Orden: ${order.orden_pedido || order.id}`, 15, 65);
-                doc.text(`Fecha: ${new Date(order.created_at).toLocaleString()}`, 15, 72);
-                doc.text(`Estado: Pago Verificado (${order.payment_method})`, 15, 79);
-
-                doc.setFont("helvetica", "bold");
-                doc.text("Comprador:", 120, 65);
-                doc.setFont("helvetica", "normal");
-                doc.text(order.comprador?.nombre_artistico || order.comprador?.nombre_usuario || 'Cliente', 120, 72);
-                doc.text(order.comprador?.correo || 'Sin correo', 120, 79);
-
-                const tableBody = order.items.map((item: any) => [
-                    item.name,
-                    item.product_type.toUpperCase(),
-                    `$${Number(item.price).toFixed(2)} ${order.currency}`
-                ]);
-
-                autoTable(doc, {
-                    startY: 95,
-                    head: [['Descripción', 'Tipo', 'Monto']],
-                    body: tableBody,
-                    theme: 'striped',
-                    headStyles: { fillColor: [59, 130, 246] },
-                    styles: { font: 'helvetica', fontSize: 10 },
-                });
-
-                const finalY = (doc as any).lastAutoTable.finalY || 150;
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(14);
-                doc.text(`Total: $${order.total_amount.toFixed(2)} ${order.currency}`, 140, finalY + 15);
-
-                doc.save(`Pedido_${order.orden_pedido || order.id.slice(0, 8)}.pdf`);
-                showToast("Descarga completada", "success");
-            });
-        } catch (e) {
-            console.error(e);
-            showToast("Error al generar PDF", "error");
-        }
-    };
+    const {
+        filteredOrders,
+        loading,
+        selectedOrder,
+        setSelectedOrder,
+        searchTerm,
+        setSearchTerm,
+        categoryFilter,
+        setCategoryFilter,
+        totalHistorical,
+        totalMonthly,
+        handleDownloadReceipt,
+    } = useGestionIngresos({
+        onInfo: (m) => showToast(m, 'info'),
+        onError: (m) => showToast(m, 'error'),
+        onExito: (m) => showToast(m, 'success'),
+    });
 
     return (
         <div className="space-y-6">
@@ -1682,21 +1381,9 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
                         <tbody className="divide-y divide-border">
                             {loading ? (
                                 <tr><td colSpan={6} className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-accent" /></td></tr>
-                            ) : orders.length === 0 ? (
+                            ) : filteredOrders.length === 0 ? (
                                 <tr><td colSpan={6} className="py-20 text-center text-muted text-xs font-bold uppercase tracking-widest">No hay transacciones registradas</td></tr>
-                            ) : orders.filter(o => {
-                                const matchesSearch =
-                                    o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                    (o.orden_pedido && o.orden_pedido.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                                    o.items.some((i: any) =>
-                                        i.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                        (i.license_type && i.license_type.toLowerCase().includes(searchTerm.toLowerCase()))
-                                    );
-
-                                const matchesCategory = categoryFilter === 'all' || o.items.some((i: any) => i.product_type === categoryFilter);
-
-                                return matchesSearch && matchesCategory;
-                            }).map(order => (
+                            ) : filteredOrders.map(order => (
                                 <tr key={order.id} className="hover:bg-foreground/[0.02] transition-colors group">
                                     <td className="px-8 py-6">
                                         <p className="text-[10px] font-black text-foreground uppercase tracking-widest mb-1">
@@ -2120,64 +1807,11 @@ function ControlsManager({ onBack }: { onBack: () => void }) {
 // --- LICENSE PREVIEW MANAGER MODULE ---
 function LicensePreviewManager({ onBack }: { onBack: () => void }) {
     const { showToast } = useToast();
-
-    const licenseTypes = [
-        { key: 'gratis', label: 'Licencia Gratis', color: 'slate' },
-        { key: 'basica', label: 'Licencia Básica', color: 'emerald' },
-        { key: 'pro', label: 'Licencia Pro', color: 'blue' },
-        { key: 'premium', label: 'Licencia Premium', color: 'rose' },
-        { key: 'exclusiva', label: 'Exclusiva Estándar', color: 'purple' },
-        { key: 'exclusiva_premium', label: 'Exclusiva Premium', color: 'rose' },
-        { key: 'soundkits', label: 'Contrato Sound Kit', color: 'amber' }
-    ];
-
-    const handleDownloadPreview = async (type: string) => {
-        try {
-            showToast(`Generando previsualización de ${type}...`, "info");
-            
-            const { getDefaultSpanishText } = await import('@/lib/license-utils');
-            const { default: jsPDF } = await import('jspdf');
-
-            const mockData = {
-                beatTitle: "[NOMBRE_DEL_BEAT]",
-                prodNombre: "[NOMBRE_COMPLETO_PRODUCTOR]",
-                prodArtistico: "[NOMBRE_ARTISTICO_PRODUCTOR]",
-                compradorName: "[NOMBRE_COMPLETO_COMPRADOR]",
-                orderId: "[ID_ORDEN]",
-                fechaCompra: "[FECHA_COMPRA]"
-            };
-
-            const fullText = getDefaultSpanishText(type, mockData.beatTitle, mockData.prodNombre, mockData.prodArtistico);
-            
-            // Reemplazar variables con texto de previsualización (o dejar los corchetes para que el admin vea dónde entran)
-            let processedText = fullText;
-            
-            const doc = new jsPDF();
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10);
-            
-            const splitText = doc.splitTextToSize(processedText, 180);
-            
-            // Header estilo Tianguis
-            doc.setFillColor(15, 23, 42);
-            doc.rect(0, 0, 210, 30, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(16);
-            doc.text("TIANGUIS BEATS - PREVISUALIZACIÓN DE CONTRATO", 15, 15);
-            doc.setFontSize(8);
-            doc.text(`TIPO DE CONTRATO: ${type.toUpperCase()}`, 15, 22);
-
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(10);
-            doc.text(splitText, 15, 45);
-
-            doc.save(`PREVIEW_${type.toUpperCase()}_v2.pdf`);
-            showToast("Previsualización descargada", "success");
-        } catch (e) {
-            console.error(e);
-            showToast("Error al generar vista previa", "error");
-        }
-    };
+    const { licenseTypes, handleDownloadPreview } = useLicensePreview({
+        onInfo: (m) => showToast(m, 'info'),
+        onError: (m) => showToast(m, 'error'),
+        onExito: (m) => showToast(m, 'success'),
+    });
 
     return (
         <div className="space-y-12 pb-24">

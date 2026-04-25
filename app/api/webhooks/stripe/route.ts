@@ -1063,18 +1063,13 @@ export async function POST(req: Request) {
                     let interval = 'month';
 
                     if (heroLine) {
-                        const pid = heroLine.price?.product || (heroLine as any).pricing?.price_details?.product || heroLine.plan?.product;
                         const prid = heroLine.price?.id || (heroLine as any).pricing?.price_details?.price || heroLine.plan?.id;
                         const pName = (heroLine.price?.product as any)?.name || (heroLine.plan?.product as any)?.nickname || (heroLine.plan?.product as any)?.name || "";
-                        
-                        const isAnnualId = prid === 'price_1TB0DFH5NxxqqE4kY51i7dkp' || prid === 'price_1TB057H5NxxqqE4kNxZoU8uY';
-                        const isPremiumId = pid === 'prod_U9UPhLb7ISBYhq' || 
-                                           pid === 'prod_U9g82c9yHCvLQO' ||
-                                           prid === 'price_1TAzIDH5NxxqqE4k339iqiO5' || 
-                                           prid === 'price_1TB057H5NxxqqE4kNxZoU8uY';
-                        
-                        const isPremiumName = pName.toLowerCase().includes('premium');
-                        if (isPremiumId || isPremiumName) tier = 'premium';
+                        const priceId = typeof prid === 'string' ? prid : null;
+                        const detectedTier = detectarTierDesdeStripe({ priceId, productName: pName });
+
+                        const isAnnualId = priceId ? PRECIOS_ANUALES.has(priceId) : false;
+                        if (detectedTier) tier = detectedTier;
 
                         const rawInterval = heroLine.plan?.interval || heroLine.price?.recurring?.interval || '';
                         interval = (isAnnualId || rawInterval === 'year' || rawInterval === 'yearly') ? 'year' : 'month';

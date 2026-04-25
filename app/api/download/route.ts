@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import archiver from 'archiver';
+import { PassThrough, Readable } from 'stream';
 import { renderContractToBuffer } from '@/lib/PDFgenerarContratos';
 import { fetchLicenseDetails } from '@/lib/license-utils';
 import { obtenerSupabaseAdmin, crearClienteUsuario } from '@/lib/supabase-admin';
+
+export const runtime = 'nodejs';
 
 /**
  * TIANGUIS BEATS - Advanced Secure Download Engine v3.2 (ESPAÑOL)
@@ -18,25 +21,73 @@ function toAscii(str: string): string {
         .replace(/[^\x00-\x7F]/g, "_"); // Reemplaza cualquier otro no-ASCII con guion bajo
 }
 
+function safeDecode(value: string): string {
+    try {
+        return decodeURIComponent(value);
+    } catch {
+        return value;
+    }
+}
+
 function extractStoragePath(input: string, bucketName: string): string {
-    if (!input) return '';
-    if (!input.startsWith('http')) return input;
+    const rawInput = input?.trim();
+    if (!rawInput) return '';
+
+    const stripBucketPrefix = (value: string) => {
+        const cleanValue = safeDecode(value).replace(/^\/+/, '');
+        if (cleanValue === bucketName) return '';
+        if (cleanValue.startsWith(`${bucketName}/`)) return cleanValue.slice(bucketName.length + 1);
+        return cleanValue;
+    };
+
+    if (!rawInput.startsWith('http')) return stripBucketPrefix(rawInput);
 
     try {
-        const url = new URL(input);
-        const pathname = url.pathname;
-        const storageRegex = /\/storage\/v1\/object\/(?:public|authenticated|sign)\/([^/]+)\/(.+)/;
-        const match = pathname.match(storageRegex);
-        if (match) return decodeURIComponent(match[2]);
+        const url = new URL(rawInput);
+        const segments = url.pathname.split('/').filter(Boolean);
+        const objectIndex = segments.findIndex((segment, index) =>
+            segment === 'storage' &&
+            segments[index + 1] === 'v1' &&
+            segments[index + 2] === 'object'
+        );
+
+        if (objectIndex !== -1) {
+            const candidates = segments
+                .slice(objectIndex + 3)
+                .map(safeDecode);
+            const bucketIndex = candidates.findIndex(segment => segment === bucketName);
+            if (bucketIndex !== -1) {
+                return candidates.slice(bucketIndex + 1).join('/');
+            }
+        }
+
+        const bucketIndex = segments.map(safeDecode).findIndex(segment => segment === bucketName);
+        if (bucketIndex !== -1) {
+            return segments.slice(bucketIndex + 1).map(safeDecode).join('/');
+        }
     } catch (e) {
         console.error('[Download API] Error parsing storage URL:', e);
     }
 
-    const bucketMarker = `/${bucketName}/`;
-    const idx = input.indexOf(bucketMarker);
-    if (idx !== -1) return decodeURIComponent(input.substring(idx + bucketMarker.length));
+    return stripBucketPrefix(rawInput);
+}
 
-    return decodeURIComponent(input);
+async function createStorageSignedUrl(
+    supabaseAdmin: ReturnType<typeof obtenerSupabaseAdmin>,
+    bucket: string,
+    path: string,
+    expiresIn = 60
+): Promise<string | null> {
+    const { data, error } = await supabaseAdmin.storage
+        .from(bucket)
+        .createSignedUrl(path, expiresIn);
+
+    if (error || !data?.signedUrl) {
+        console.error(`[Download API] Failed to sign ${path} from ${bucket}:`, error);
+        return null;
+    }
+
+    return data.signedUrl;
 }
 
 export async function GET(req: NextRequest) {
@@ -75,7 +126,6 @@ export async function GET(req: NextRequest) {
         
         // Iterar sobre todos los items de la orden (soporta descargas múltiples en un solo ZIP)
         for (const txItem of transactions) {
-            const txIdForLoop = txItem.id;
             let product: any = null;
             let kit: any = null;
             const tipoProducto = (txItem.tipo_producto || '').toLowerCase();
@@ -96,7 +146,7 @@ export async function GET(req: NextRequest) {
 
             if (!product && !kit) continue;
 
-            let licenseTypeStr = (txItem.tipo_licencia || '').toLowerCase().trim();
+            const licenseTypeStr = (txItem.tipo_licencia || '').toLowerCase().trim();
             const normalizedLicense = licenseTypeStr.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             
             const isFree = /gratis|free|demo/i.test(normalizedLicense);
@@ -131,7 +181,6 @@ export async function GET(req: NextRequest) {
         }
 
         const mainTx = transactions[0];
-        const mainProduct:any = null; // We'll look it up if needed for name
         const mainLicense = (mainTx.tipo_licencia || 'DOWNLOAD').toUpperCase();
 
         if (filesToDownload.length === 0) {
@@ -139,16 +188,21 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: 'No hay archivos disponibles en el servidor para este nivel de licencia' }, { status: 404 });
         }
 
-        // 4. Preparar REAL STREAM con TransformStream
+        // 4. Preparar streams de descarga
 
         // --- DESCARGA DIRECTA PARA BÁSICA Y GRATIS (SI ES SOLO 1 ARCHIVO) ---
         if (filesToDownload.length === 1) {
             const singleFile = filesToDownload[0];
-            const { data, error } = await supabaseAdmin.storage.from(singleFile.bucket).download(singleFile.path);
+            const signedUrl = await createStorageSignedUrl(supabaseAdmin, singleFile.bucket, singleFile.path);
 
-            if (error || !data) {
-                console.error(`[Download API] Failed to download single file ${singleFile.path}:`, error);
+            if (!signedUrl) {
                 return NextResponse.json({ error: 'Error al obtener el archivo del servidor' }, { status: 500 });
+            }
+
+            const fileResponse = await fetch(signedUrl);
+            if (!fileResponse.ok || !fileResponse.body) {
+                console.error(`[Download API] Failed to stream single file ${singleFile.path}:`, fileResponse.status);
+                return NextResponse.json({ error: 'Error al transmitir el archivo del servidor' }, { status: 500 });
             }
 
             const extension = singleFile.path.split('.').pop();
@@ -156,9 +210,9 @@ export async function GET(req: NextRequest) {
             const asciiFilename = toAscii(rawFilename);
             const encodedFilename = encodeURIComponent(rawFilename);
 
-            return new NextResponse(data, {
+            return new NextResponse(fileResponse.body, {
                 headers: {
-                    'Content-Type': 'application/octet-stream',
+                    'Content-Type': fileResponse.headers.get('content-type') || 'application/octet-stream',
                     'Content-Disposition': `attachment; filename="${asciiFilename.replace(/"/g, '')}"; filename*=UTF-8''${encodedFilename}`,
                     'Cache-Control': 'no-cache',
                 }
@@ -166,29 +220,36 @@ export async function GET(req: NextRequest) {
         }
 
         // --- DESCARGA EN ZIP PARA LICENCIAS SUPERIORES O KITS ---
-        const { readable, writable } = new TransformStream();
-        const writer = writable.getWriter();
-        const archive = archiver('zip', { zlib: { level: 9 } });
+        const output = new PassThrough();
+        const archive = archiver('zip', { store: true });
 
-        archive.on('data', chunk => writer.write(chunk));
-        archive.on('end', () => writer.close());
+        archive.pipe(output);
+        archive.on('warning', err => {
+            console.warn('[Download API] Archiver warning:', err);
+        });
         archive.on('error', err => {
             console.error('[Download API] Archiver error:', err);
-            writer.abort(err);
+            output.destroy(err);
         });
 
         // Proceso de empaquetado asíncrono
         (async () => {
             try {
                 for (const file of filesToDownload) {
-                    const { data, error } = await supabaseAdmin.storage.from(file.bucket).download(file.path);
-                    if (error || !data) {
-                        console.error(`[Download API] Failed to download ${file.path} from ${file.bucket}:`, error);
+                    const signedUrl = await createStorageSignedUrl(supabaseAdmin, file.bucket, file.path);
+                    if (!signedUrl) {
                         continue;
                     }
+
+                    const fileResponse = await fetch(signedUrl);
+                    if (!fileResponse.ok || !fileResponse.body) {
+                        console.error(`[Download API] Failed to stream ${file.path} from ${file.bucket}:`, fileResponse.status);
+                        continue;
+                    }
+
                     const extension = file.path.split('.').pop();
                     const cleanLabel = `Tianguis Beats - ${file.productName || 'Archivo'}.${extension}`;
-                    archive.append(Buffer.from(await data.arrayBuffer()), { name: cleanLabel });
+                    archive.append(Readable.fromWeb(fileResponse.body as any), { name: cleanLabel });
                 }
 
                 // Generar e incluir Licencia PDF dinámicamente
@@ -214,7 +275,7 @@ export async function GET(req: NextRequest) {
         const asciiZipFilename = toAscii(rawZipFilename);
         const encodedZipFilename = encodeURIComponent(rawZipFilename);
 
-        return new NextResponse(readable, {
+        return new NextResponse(Readable.toWeb(output) as any, {
             headers: {
                 'Content-Type': 'application/zip',
                 'Content-Disposition': `attachment; filename="${asciiZipFilename.replace(/"/g, '')}"; filename*=UTF-8''${encodedZipFilename}`,

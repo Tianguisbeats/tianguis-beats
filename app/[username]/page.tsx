@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import {
     Play, Pause, Heart, Share2, Music2, Instagram, Twitter, Youtube,
@@ -41,6 +42,17 @@ import PlaylistManagerModal from '@/components/PlaylistManagerModal';
 import PlaylistCover from '@/components/PlaylistCover';
 
 type TabId = 'beats' | 'kits' | 'playlists' | 'likes' | 'followers' | 'following' | 'comentarios' | 'info';
+
+const PROFILE_LIMITS = {
+    beats: 48,
+    kits: 48,
+    services: 24,
+    playlists: 24,
+    likes: 48,
+    follows: 60,
+    myFollows: 500,
+    wallPosts: 80,
+};
 
 export default function ProducerProfilePage() {
     const { username } = useParams();
@@ -152,13 +164,13 @@ export default function ProducerProfilePage() {
             const isUserOwner = user?.id === profileData.id;
 
             const [beatsR, kitsR, serviciosR, plR, lbR, lkR, lsR, followsR, followingR, isFollowingR] = await Promise.all([
-                supabase.from('beats').select(`${COLUMNAS_BEAT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO})`).eq('productor_id', profileData.id).eq('es_publico', true).order('fecha_creacion', { ascending: false }),
-                supabase.from('kits_sonido').select(`${COLUMNAS_KIT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO})`).eq('productor_id', profileData.id).eq('es_publico', true).order('fecha_creacion', { ascending: false }),
-                supabase.from('servicios').select(COLUMNAS_SERVICIO_PUBLICO).eq('productor_id', profileData.id).eq('es_activo', true).order('fecha_creacion', { ascending: false }),
-                supabase.from('listas_reproduccion').select('id, nombre, es_publica, fecha_creacion, items:listas_reproduccion_items(*, beat:beats(id, titulo, portada_url))').eq('usuario_id', profileData.id).order('fecha_creacion', { ascending: false }),
-                supabase.from('favoritos').select(`id, beat:beats(${COLUMNAS_BEAT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO}))`).eq('usuario_id', profileData.id).not('beat_id', 'is', null),
-                supabase.from('favoritos').select(`id, kit:kits_sonido(${COLUMNAS_KIT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO}))`).eq('usuario_id', profileData.id).not('kit_id', 'is', null),
-                supabase.from('favoritos').select(`id, servicio:servicios(${COLUMNAS_SERVICIO_PUBLICO})`).eq('usuario_id', profileData.id).not('servicio_id', 'is', null),
+                supabase.from('beats').select(`${COLUMNAS_BEAT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO})`).eq('productor_id', profileData.id).eq('es_publico', true).order('fecha_creacion', { ascending: false }).limit(PROFILE_LIMITS.beats),
+                supabase.from('kits_sonido').select(`${COLUMNAS_KIT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO})`).eq('productor_id', profileData.id).eq('es_publico', true).order('fecha_creacion', { ascending: false }).limit(PROFILE_LIMITS.kits),
+                supabase.from('servicios').select(COLUMNAS_SERVICIO_PUBLICO).eq('productor_id', profileData.id).eq('es_activo', true).order('fecha_creacion', { ascending: false }).limit(PROFILE_LIMITS.services),
+                supabase.from('listas_reproduccion').select('id, nombre, es_publica, fecha_creacion, items:listas_reproduccion_items(*, beat:beats(id, titulo, portada_url))').eq('usuario_id', profileData.id).order('fecha_creacion', { ascending: false }).limit(PROFILE_LIMITS.playlists),
+                supabase.from('favoritos').select(`id, beat:beats(${COLUMNAS_BEAT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO}))`).eq('usuario_id', profileData.id).not('beat_id', 'is', null).limit(PROFILE_LIMITS.likes),
+                supabase.from('favoritos').select(`id, kit:kits_sonido(${COLUMNAS_KIT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO}))`).eq('usuario_id', profileData.id).not('kit_id', 'is', null).limit(PROFILE_LIMITS.likes),
+                supabase.from('favoritos').select(`id, servicio:servicios(${COLUMNAS_SERVICIO_PUBLICO})`).eq('usuario_id', profileData.id).not('servicio_id', 'is', null).limit(PROFILE_LIMITS.likes),
                 supabase.from('seguidores').select('seguido_id', { count: 'exact', head: true }).eq('seguido_id', profileData.id),
                 supabase.from('seguidores').select('seguidor_id', { count: 'exact', head: true }).eq('seguidor_id', profileData.id),
                 user ? supabase.from('seguidores').select('seguidor_id, seguido_id').eq('seguidor_id', user.id).eq('seguido_id', profileData.id).maybeSingle() : Promise.resolve({ data: null })
@@ -191,9 +203,9 @@ export default function ProducerProfilePage() {
 
             // Fetch followers and following profiles
             const [fData, flData, myFl] = await Promise.all([
-                supabase.from('seguidores').select('perfiles:seguidor_id (*)').eq('seguido_id', profileData.id),
-                supabase.from('seguidores').select('perfiles:seguido_id (*)').eq('seguidor_id', profileData.id),
-                user ? supabase.from('seguidores').select('seguido_id').eq('seguidor_id', user.id) : Promise.resolve({ data: null })
+                supabase.from('seguidores').select('perfiles:seguidor_id (*)').eq('seguido_id', profileData.id).limit(PROFILE_LIMITS.follows),
+                supabase.from('seguidores').select('perfiles:seguido_id (*)').eq('seguidor_id', profileData.id).limit(PROFILE_LIMITS.follows),
+                user ? supabase.from('seguidores').select('seguido_id').eq('seguidor_id', user.id).limit(PROFILE_LIMITS.myFollows) : Promise.resolve({ data: null })
             ]);
 
             setFollowers(fData.data?.map(f => (f as any).perfiles).filter(Boolean) || []);
@@ -210,9 +222,9 @@ export default function ProducerProfilePage() {
     const fetchAllLikes = async () => {
         if (!profile) return;
         const [lbR, lkR, lsR] = await Promise.all([
-            supabase.from('favoritos').select(`id, beat:beats(${COLUMNAS_BEAT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO}))`).eq('usuario_id', profile.id).not('beat_id', 'is', null),
-            supabase.from('favoritos').select(`id, kit:kits_sonido(${COLUMNAS_KIT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO}))`).eq('usuario_id', profile.id).not('kit_id', 'is', null),
-            supabase.from('favoritos').select(`id, servicio:servicios(${COLUMNAS_SERVICIO_PUBLICO})`).eq('usuario_id', profile.id).not('servicio_id', 'is', null)
+            supabase.from('favoritos').select(`id, beat:beats(${COLUMNAS_BEAT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO}))`).eq('usuario_id', profile.id).not('beat_id', 'is', null).limit(PROFILE_LIMITS.likes),
+            supabase.from('favoritos').select(`id, kit:kits_sonido(${COLUMNAS_KIT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO}))`).eq('usuario_id', profile.id).not('kit_id', 'is', null).limit(PROFILE_LIMITS.likes),
+            supabase.from('favoritos').select(`id, servicio:servicios(${COLUMNAS_SERVICIO_PUBLICO})`).eq('usuario_id', profile.id).not('servicio_id', 'is', null).limit(PROFILE_LIMITS.likes)
         ]);
 
         const transformBeatLocal = (b: any): any => ({
@@ -277,7 +289,7 @@ export default function ProducerProfilePage() {
                 `)
                 .eq('perfil_id', profileId)
                 .order('fecha_creacion', { ascending: false })
-                .limit(100);
+                .limit(PROFILE_LIMITS.wallPosts);
             if (data) setWallPosts(data);
         } catch {}
         setWallLoading(false);
@@ -582,16 +594,20 @@ export default function ProducerProfilePage() {
                 >
                     {profile.banner_url ? (
                         <>
-                            <img 
-                                src={profile.banner_url} 
-                                alt="Portada" 
-                                className={`w-full h-full object-cover select-none ${isDragging ? 'cursor-grabbing' : isAdjustingBanner ? 'cursor-grab' : ''}`}
+                            <Image
+                                src={profile.banner_url}
+                                alt="Portada"
+                                fill
+                                priority
+                                sizes="100vw"
+                                className={`object-cover select-none ${isDragging ? 'cursor-grabbing' : isAdjustingBanner ? 'cursor-grab' : ''}`}
                                 style={{ 
                                     filter: 'brightness(0.75) saturate(1.1)',
                                     objectPosition: `center ${50 + (bannerOffset / 4)}%`,
                                     transform: isDragging ? 'scale(1.02)' : 'scale(1)',
                                     transition: isDragging ? 'none' : 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                                }} 
+                                }}
+                                draggable={false}
                             />
                             {isAdjustingBanner && (
                                 <motion.div 
@@ -612,7 +628,15 @@ export default function ProducerProfilePage() {
                     ) : (
                         <div className="w-full h-full relative overflow-hidden pointer-events-none">
                             {profile.foto_perfil && (
-                                <img src={profile.foto_perfil} alt="" className="absolute inset-0 w-full h-full object-cover scale-150" style={{ filter: 'blur(60px) saturate(2) brightness(0.2)' }} />
+                                <Image
+                                    src={profile.foto_perfil}
+                                    alt=""
+                                    fill
+                                    priority
+                                    sizes="100vw"
+                                    className="object-cover scale-150"
+                                    style={{ filter: 'blur(60px) saturate(2) brightness(0.2)' }}
+                                />
                             )}
                             <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-transparent to-purple-600/10" />
                             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
@@ -670,7 +694,15 @@ export default function ProducerProfilePage() {
                                         : 'border-background'
                                     }`}>
                                     {profile.foto_perfil ? (
-                                        <img src={profile.foto_perfil} alt={displayName} className="w-full h-full object-cover" />
+                                        <Image
+                                            src={profile.foto_perfil}
+                                            alt={displayName}
+                                            width={180}
+                                            height={180}
+                                            priority
+                                            sizes="(min-width: 768px) 180px, 130px"
+                                            className="w-full h-full object-cover"
+                                        />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-700 to-zinc-900">
                                             <Music2 size={60} className="text-zinc-600" />
@@ -708,7 +740,7 @@ export default function ProducerProfilePage() {
                                             )}
                                             {profile.esta_verificado && (
                                                 <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest text-blue-400 border border-blue-400/30 bg-blue-400/10 shadow-lg shadow-blue-400/5">
-                                                    <img src="/verified-badge.png" className="w-[14px] h-[14px] object-contain" alt="Verificado" /> Verificado
+                                                    <Image src="/verified-badge.png" width={14} height={14} className="object-contain" alt="Verificado" /> Verificado
                                                 </span>
                                             )}
                                             {profile.nivel_suscripcion?.toLowerCase() === 'premium' && (

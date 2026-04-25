@@ -35,7 +35,9 @@ function getDisplayFileName(url: string) {
     catch { return url.split('/').pop() || url; }
 }
 
-const uploadFileWithProgress = async (bucket: string, path: string, file: File, onProgress: (progress: { pct: number, loaded: number, total: number }) => void) => {
+type UploadProgress = { pct: number; loaded: number; total: number };
+
+const uploadFileWithProgress = async (bucket: string, path: string, file: File, onProgress: (progress: UploadProgress) => void) => {
     return new Promise((resolve, reject) => {
         supabase.auth.getSession().then(({ data }) => {
             const token = data.session?.access_token;
@@ -66,6 +68,55 @@ const uploadFileWithProgress = async (bucket: string, path: string, file: File, 
 
             xhr.onerror = () => reject(new Error("Error de red durante la subida"));
             xhr.send(file);
+        }).catch(reject);
+    });
+};
+
+const uploadBeatCoverWithProgress = async (
+    file: File,
+    onProgress: (progress: UploadProgress) => void
+): Promise<{ path: string; publicUrl: string }> => {
+    return new Promise((resolve, reject) => {
+        supabase.auth.getSession().then(({ data }) => {
+            const token = data.session?.access_token;
+            if (!token) return reject(new Error("No autorizado para subir la portada"));
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const xhr = new XMLHttpRequest();
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    onProgress({
+                        pct: Math.round((e.loaded / e.total) * 100),
+                        loaded: e.loaded,
+                        total: e.total,
+                    });
+                }
+            };
+
+            xhr.open('POST', '/api/uploads/beat-cover');
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+            xhr.onload = () => {
+                let body: any = {};
+                try {
+                    body = xhr.responseText ? JSON.parse(xhr.responseText) : {};
+                } catch {
+                    body = {};
+                }
+
+                if (xhr.status >= 200 && xhr.status < 300 && body.publicUrl) {
+                    onProgress({ pct: 100, loaded: file.size, total: file.size });
+                    resolve({ path: body.path, publicUrl: body.publicUrl });
+                    return;
+                }
+
+                reject(new Error(body.error || `Error subiendo portada (${xhr.status})`));
+            };
+
+            xhr.onerror = () => reject(new Error("Error de red durante la subida de portada"));
+            xhr.send(formData);
         }).catch(reject);
     });
 };
@@ -341,18 +392,18 @@ export default function UploadPage() {
         setError(null);
 
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("No hay sesión activa");
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session?.user) throw new Error("No hay sesión activa");
             const san = (n: string) => n.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
             const un = userData.nombre_usuario;
 
             let portada_url = null;
             if (coverFile) {
                 setUploadProgress(p => ({ ...p, cover: { pct: 0, loaded: 0, total: coverFile.size } }));
-                const p = `${un}/${san(coverFile.name)}`;
-                await uploadFileWithProgress('portadas_beats', p, coverFile, (progress) => setUploadProgress(prev => ({ ...prev, cover: progress })));
-                const { data: { publicUrl } } = supabase.storage.from('portadas_beats').getPublicUrl(p);
-                portada_url = publicUrl;
+                const coverResult = await uploadBeatCoverWithProgress(coverFile, (progress) => {
+                    setUploadProgress(prev => ({ ...prev, cover: progress }));
+                });
+                portada_url = coverResult.publicUrl;
             }
             if (!previewFile || !coverFile) throw new Error("Archivos obligatorios faltantes");
 
@@ -402,18 +453,15 @@ export default function UploadPage() {
                 stemsUrl = publicUrl;
             }
 
-            const isSubPremium = userData.nivel_suscripcion?.toLowerCase().includes('premium');
-            const isSubFree = userData.nivel_suscripcion?.toLowerCase() === 'free';
-
-            const { error: dbError } = await supabase.from('beats').insert({
-                productor_id: user.id,
+            const beatPayload = {
                 titulo: title,
                 genero: genre,
-                subgenero: subgenre,
+                subgenero: subgenre || null,
                 bpm: parseInt(bpm),
                 tono_escala: tonoEscala,
-                descripcion: description,
+                descripcion: description || null,
                 vibras: selectedMoods.join(', '),
+                moods: selectedMoods,
                 instrumentos: selectedInstruments,
                 tipos_beat: beatTypes,
                 artista_referencia: beatTypes.join(', '),
@@ -435,12 +483,21 @@ export default function UploadPage() {
                 precio_exclusiva_estandar_mxn: parseInt(exclusivaPrice) || 0,
                 precio_exclusiva_premium_mxn: parseInt(exclusivaPremiumPrice) || 0,
                 es_publico: true,
-                es_visible: true,
-                esta_archivado: false,
-                esta_desactivado_por_plan: false
+            };
+
+            const createRes = await fetch('/api/beats/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify(beatPayload),
             });
 
-            if (dbError) throw dbError;
+            const createData = await createRes.json();
+            if (!createRes.ok) {
+                throw new Error(createData.error || 'Error al registrar el beat');
+            }
 
             setSuccess(true);
             setTimeout(() => router.push(`/${userData.nombre_usuario}`), 1500);

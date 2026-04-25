@@ -8,6 +8,57 @@ export type UserRole = 'comprador' | 'productor' | 'artista' | 'admin';
 
 export type SubscriptionTier = 'free' | 'pro' | 'premium';
 
+export type JsonValue =
+    | string
+    | number
+    | boolean
+    | null
+    | { [key: string]: JsonValue | undefined }
+    | JsonValue[];
+
+export interface TransaccionMetadatos {
+    [key: string]: JsonValue | undefined;
+    checkout_session_id?: string;
+    stripe_session_id?: string;
+    stripe_receipt_url?: string;
+    contract_pdf_url?: string;
+    contractPdfUrl?: string;
+    contract_url?: string;
+    recibo_url?: string;
+    expiry_date?: string;
+    tipo_licencia?: string;
+    licenseType?: string;
+    license?: string;
+    tier?: string;
+    cycle?: string;
+    productId?: string;
+    product_id?: string;
+    productor_id?: string;
+    producer_id?: string;
+    producerId?: string;
+    seller_id?: string;
+    product_name?: string;
+    producer_name?: string;
+    nombre_productor?: string;
+    portada_url?: string;
+    url_portada?: string;
+    image?: string;
+    cover?: string;
+    archivo_muestra_url?: string;
+    preview_url?: string;
+    previewUrl?: string;
+    url_audio?: string;
+    archivo_mp3_url?: string;
+    mp3_url?: string;
+    archivo_wav_url?: string;
+    wav_url?: string;
+    archivo_stems_url?: string;
+    stems_url?: string;
+    completion_percent?: number;
+    ip_compra?: string;
+    audit_log?: string;
+}
+
 /**
  * Tabla `perfiles`
  */
@@ -158,6 +209,7 @@ export interface KitSonido {
     titulo: string;
     descripcion?: string;
     precio: number;
+    precio_mxn?: number | null;
     url_archivo: string;
     url_portada?: string;
     archivo_muestra_url?: string;
@@ -181,7 +233,7 @@ export interface Transaccion {
     estado_pago: string;
     metodo_pago: string;
     tipo_licencia?: string;
-    metadatos?: any;
+    metadatos?: TransaccionMetadatos | null;
     cupon_id?: string;
     codigo_cupon?: string;
     monto_descuento?: number;
@@ -191,4 +243,3 @@ export interface Transaccion {
     fecha_creacion: string;
     producto_uuid?: string;
 }
-
