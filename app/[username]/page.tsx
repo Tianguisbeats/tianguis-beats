@@ -258,15 +258,15 @@ export default function ProducerProfilePage() {
         setWallLoading(true);
         try {
             const { data } = await supabase
-                .from('comentarios_perfil')
+                .from('comentarios')
                 .select(`
-                    id, contenido, created_at, likes_count, parent_id,
-                    autor:autor_id (
+                    id, contenido, fecha_creacion, likes_count, parent_id,
+                    usuario:usuario_id (
                         id, nombre_artistico, nombre_usuario, foto_perfil
                     )
                 `)
                 .eq('perfil_id', profileId)
-                .order('created_at', { ascending: false })
+                .order('fecha_creacion', { ascending: false })
                 .limit(100);
             if (data) setWallPosts(data);
         } catch {}
@@ -280,11 +280,11 @@ export default function ProducerProfilePage() {
         setIsPosting(true);
         try {
             const { data, error } = await supabase
-                .from('comentarios_perfil')
-                .insert({ perfil_id: profile.id, autor_id: user.id, contenido: text })
+                .from('comentarios')
+                .insert({ perfil_id: profile.id, usuario_id: user.id, contenido: text })
                 .select(`
-                    id, contenido, created_at, likes_count, parent_id,
-                    autor:autor_id (
+                    id, contenido, fecha_creacion, likes_count, parent_id,
+                    usuario:usuario_id (
                         id, nombre_artistico, nombre_usuario, foto_perfil
                     )
                 `)
@@ -305,11 +305,11 @@ export default function ProducerProfilePage() {
         setIsReplying(true);
         try {
             const { data, error } = await supabase
-                .from('comentarios_perfil')
-                .insert({ perfil_id: profile.id, autor_id: user.id, contenido: text, parent_id: parentId })
+                .from('comentarios')
+                .insert({ perfil_id: profile.id, usuario_id: user.id, contenido: text, parent_id: parentId })
                 .select(`
-                    id, contenido, created_at, likes_count, parent_id,
-                    autor:autor_id (
+                    id, contenido, fecha_creacion, likes_count, parent_id,
+                    usuario:usuario_id (
                         id, nombre_artistico, nombre_usuario, foto_perfil
                     )
                 `)
@@ -326,7 +326,7 @@ export default function ProducerProfilePage() {
 
     const handleDeletePost = async (postId: string) => {
         try {
-            await supabase.from('comentarios_perfil').delete().eq('id', postId);
+            await supabase.from('comentarios').delete().eq('id', postId);
             setWallPosts(prev => prev.filter(p => p.id !== postId));
         } catch {
             showToast('Error al eliminar', 'error');
@@ -343,7 +343,7 @@ export default function ProducerProfilePage() {
             alreadyLiked ? next.delete(postId) : next.add(postId);
             return next;
         });
-        await supabase.from('comentarios_perfil').update({ likes_count: newCount }).eq('id', postId);
+        await supabase.from('comentarios').update({ likes_count: newCount }).eq('id', postId);
     };
 
     const timeAgo = (date: string) => {
@@ -1158,12 +1158,12 @@ export default function ProducerProfilePage() {
                                     ) : (
                                         <div className="space-y-5">
                                             {wallPosts.filter(p => !p.parent_id).map((post: any) => {
-                                                const autor = post.autor as any;
+                                                const autor = post.usuario as any;
                                                 const isMyPost = user?.id === autor?.id;
                                                 const isProfileOwner = isOwner;
                                                 const canDelete = isMyPost || isProfileOwner;
                                                 const liked = likedPostIds.has(post.id);
-                                                const replies = wallPosts.filter(r => r.parent_id === post.id).sort((a,b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+                                                const replies = wallPosts.filter(r => r.parent_id === post.id).sort((a,b) => new Date(a.fecha_creacion).getTime() - new Date(b.fecha_creacion).getTime());
 
                                                 return (
                                                     <div key={post.id} className="space-y-3">
@@ -1197,7 +1197,7 @@ export default function ProducerProfilePage() {
                                                                         </div>
                                                                         <div className="flex items-center gap-2 shrink-0">
                                                                             <span className="text-[10px] text-muted/50 font-medium">
-                                                                                {timeAgo(post.created_at)}
+                                                                                {timeAgo(post.fecha_creacion)}
                                                                             </span>
                                                                             {canDelete && (
                                                                                 <button
@@ -1245,7 +1245,7 @@ export default function ProducerProfilePage() {
                                                         {replies.length > 0 && (
                                                             <div className="pl-12 pr-2 space-y-3">
                                                                 {replies.map(reply => {
-                                                                    const repAutor = reply.autor as any;
+                                                                    const repAutor = reply.usuario as any;
                                                                     const repIsMyPost = user?.id === repAutor?.id;
                                                                     const repCanDelete = repIsMyPost || isProfileOwner;
                                                                     const repLiked = likedPostIds.has(reply.id);
@@ -1276,7 +1276,7 @@ export default function ProducerProfilePage() {
                                                                                             )}
                                                                                         </div>
                                                                                         <div className="flex items-center gap-2 shrink-0">
-                                                                                            <span className="text-[9px] text-muted/50 font-medium">{timeAgo(reply.created_at)}</span>
+                                                                                            <span className="text-[9px] text-muted/50 font-medium">{timeAgo(reply.fecha_creacion)}</span>
                                                                                             {repCanDelete && (
                                                                                                 <button onClick={() => handleDeletePost(reply.id)} className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-red-500/10 hover:text-red-500 text-muted/30 transition-all">
                                                                                                     <Trash2 size={12} />
