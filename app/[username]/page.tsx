@@ -84,6 +84,8 @@ export default function ProducerProfilePage() {
     const [isUploadingBanner, setIsUploadingBanner] = useState(false);
     const avatarInputRef = React.useRef<HTMLInputElement>(null);
     const bannerInputRef = React.useRef<HTMLInputElement>(null);
+    const tabsScrollRef = React.useRef<HTMLDivElement>(null);
+    const tabTouchStartRef = React.useRef<{ x: number; y: number } | null>(null);
 
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -589,6 +591,34 @@ export default function ProducerProfilePage() {
         { id: 'comentarios', label: 'Comentarios', count: null },
         { id: 'info', label: 'Info', count: null },
     ];
+    const activeTabIndex = tabs.findIndex(tab => tab.id === activeTab);
+
+    const goToTab = (index: number) => {
+        const nextTab = tabs[Math.max(0, Math.min(tabs.length - 1, index))];
+        if (nextTab) setActiveTab(nextTab.id);
+    };
+
+    const handleTabTouchStart = (e: React.TouchEvent) => {
+        const touch = e.touches[0];
+        tabTouchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    };
+
+    const handleTabTouchEnd = (e: React.TouchEvent) => {
+        const start = tabTouchStartRef.current;
+        if (!start) return;
+        const touch = e.changedTouches[0];
+        const dx = touch.clientX - start.x;
+        const dy = touch.clientY - start.y;
+        tabTouchStartRef.current = null;
+
+        if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+        goToTab(activeTabIndex + (dx < 0 ? 1 : -1));
+    };
+
+    useEffect(() => {
+        const activeButton = document.getElementById(`profile-tab-${activeTab}`);
+        activeButton?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }, [activeTab]);
 
     return (
         <div className="min-h-screen bg-background text-foreground">
@@ -851,15 +881,19 @@ export default function ProducerProfilePage() {
                 </div>
 
                 <div className="sticky top-[64px] md:top-[80px] z-[40] bg-background/80 backdrop-blur-xl border-t border-b border-foreground/[0.08]">
-                    <div className="max-w-6xl mx-auto px-4">
-                        <div className="flex overflow-x-auto gap-1 scrollbar-hide no-scrollbar py-2 snap-x snap-mandatory pr-20 md:pr-0">
+                    <div className="max-w-6xl mx-auto px-4 md:px-4">
+                        <div
+                            ref={tabsScrollRef}
+                            className="flex overflow-x-auto gap-2 md:gap-1 scrollbar-hide no-scrollbar py-2.5 md:py-2 snap-x snap-mandatory scroll-px-4 touch-pan-x pr-6 md:pr-0"
+                        >
                             {tabs.map((tab, idx) => (
                                 <button
                                     key={tab.id}
+                                    id={`profile-tab-${tab.id}`}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`relative shrink-0 snap-center px-6 md:px-10 py-3 md:py-4 text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all group overflow-hidden ${activeTab === tab.id
+                                    className={`relative shrink-0 snap-center rounded-2xl md:rounded-none px-5 md:px-10 py-3.5 md:py-4 min-w-[132px] md:min-w-0 text-[10px] md:text-[12px] font-black uppercase tracking-[0.16em] md:tracking-[0.2em] whitespace-nowrap transition-all group overflow-hidden border md:border-0 ${activeTab === tab.id
                                         ? 'text-foreground'
-                                        : 'text-foreground/40 hover:text-foreground/70'
+                                        : 'text-foreground/40 hover:text-foreground/70 border-foreground/[0.06] bg-foreground/[0.02] md:bg-transparent'
                                     }`}
                                 >
                                     {/* Abstract background shape for active tab */}
@@ -899,6 +933,36 @@ export default function ProducerProfilePage() {
                                 </button>
                             ))}
                         </div>
+
+                        <div className="md:hidden flex items-center justify-between gap-3 pb-3 px-1">
+                            <button
+                                onClick={() => goToTab(activeTabIndex - 1)}
+                                disabled={activeTabIndex <= 0}
+                                className="w-10 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] flex items-center justify-center text-foreground/50 disabled:opacity-25"
+                                aria-label="Pestaña anterior"
+                            >
+                                <ArrowRight size={14} className="rotate-180" />
+                            </button>
+                            <div className="flex-1 min-w-0 text-center">
+                                <p className="text-[8px] font-black uppercase tracking-[0.32em] text-foreground/35">Desliza para navegar</p>
+                                <div className="mt-2 flex items-center justify-center gap-1.5">
+                                    {tabs.map(tab => (
+                                        <span
+                                            key={tab.id}
+                                            className={`h-1.5 rounded-full transition-all ${activeTab === tab.id ? 'w-6 bg-blue-500' : 'w-1.5 bg-foreground/15'}`}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => goToTab(activeTabIndex + 1)}
+                                disabled={activeTabIndex >= tabs.length - 1}
+                                className="w-10 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] flex items-center justify-center text-foreground/50 disabled:opacity-25"
+                                aria-label="Siguiente pestaña"
+                            >
+                                <ArrowRight size={14} />
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -906,10 +970,13 @@ export default function ProducerProfilePage() {
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={activeTab}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
+                            onTouchStart={handleTabTouchStart}
+                            onTouchEnd={handleTabTouchEnd}
+                            initial={{ opacity: 0, x: 24 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -24 }}
                             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                            className="touch-pan-y"
                         >
                             {activeTab === 'beats' && (
                                 beats.length === 0 ? (

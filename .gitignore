@@ -23,6 +23,9 @@
 # misc
 .DS_Store
 *.pem
+repomix-output.xml
+__pycache__/
+*.pyc
 
 # debug
 npm-debug.log*
@@ -37,6 +40,9 @@ yarn-error.log*
 # Claude Code (skills, plans, etc. — local-only)
 .agents/
 .claude/
+
+# Supabase CLI local state
+supabase/.temp/
 
 # scripts locales de debug
 test-*.mjs

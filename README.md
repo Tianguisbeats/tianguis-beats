@@ -1,4 +1,4 @@
-# Tianguis Beats 🎺🇲🇽
+# Tianguis Beats
 
 Tianguis Beats is a professional marketplace for beats, sound kits, and creative services, tailored for the Mexican music scene.
 
@@ -11,13 +11,16 @@ Tianguis Beats is a professional marketplace for beats, sound kits, and creative
 
 ## Documentación
 La documentación histórica y técnica se ha organizado en la carpeta `docs/`:
-- [Resumen de Arquitectura](file:///Users/mauriciogarces/Desktop/tianguisbeats/docs/ARCHITECTURE.md)
-- [Historial de Implementación (ES)](file:///Users/mauriciogarces/Desktop/tianguisbeats/docs/HISTORY_ES.md)
+- [Resumen de Arquitectura](docs/ARCHITECTURE.md)
+- [Historial de Implementación (ES)](docs/HISTORY_ES.md)
+- [Plantillas de correo Supabase](docs/email/README.md)
+- [OpenAPI](docs/api/openapi.json)
 
 ## Tech Stack
-- **Frontend**: Next.js 15 (App Router), Tailwind CSS, Lucide React.
+- **Frontend**: Next.js 16 (App Router), React 19, Tailwind CSS, Lucide React.
 - **Backend**: Supabase (Auth, DB, Storage).
-- **Styling**: Vanilla CSS & Tailwind.
+- **Payments**: Stripe + Stripe Connect.
+- **UI**: Base UI/shadcn-style components.
 
 ## Getting Started
 
