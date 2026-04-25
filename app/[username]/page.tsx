@@ -152,11 +152,11 @@ export default function ProducerProfilePage() {
             const isUserOwner = user?.id === profileData.id;
 
             const [beatsR, kitsR, serviciosR, plR, lbR, lkR, lsR, followsR, followingR, isFollowingR] = await Promise.all([
-                supabase.from('beats').select(COLUMNAS_BEAT_PUBLICO).eq('productor_id', profileData.id).eq('es_publico', true).order('fecha_creacion', { ascending: false }),
+                supabase.from('beats').select(`${COLUMNAS_BEAT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO})`).eq('productor_id', profileData.id).eq('es_publico', true).order('fecha_creacion', { ascending: false }),
                 supabase.from('kits_sonido').select(`${COLUMNAS_KIT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO})`).eq('productor_id', profileData.id).eq('es_publico', true).order('fecha_creacion', { ascending: false }),
                 supabase.from('servicios').select(COLUMNAS_SERVICIO_PUBLICO).eq('productor_id', profileData.id).eq('es_activo', true).order('fecha_creacion', { ascending: false }),
                 supabase.from('listas_reproduccion').select('id, nombre, descripcion, es_publica, fecha_creacion, items:listas_reproduccion_items(*, beat:beats(id, titulo, portada_url))').eq('usuario_id', profileData.id).order('fecha_creacion', { ascending: false }),
-                supabase.from('favoritos').select(`id, beat:beats(${COLUMNAS_BEAT_PUBLICO})`).eq('usuario_id', profileData.id).not('beat_id', 'is', null),
+                supabase.from('favoritos').select(`id, beat:beats(${COLUMNAS_BEAT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO}))`).eq('usuario_id', profileData.id).not('beat_id', 'is', null),
                 supabase.from('favoritos').select(`id, kit:kits_sonido(${COLUMNAS_KIT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO}))`).eq('usuario_id', profileData.id).not('kit_id', 'is', null),
                 supabase.from('favoritos').select(`id, servicio:servicios(${COLUMNAS_SERVICIO_PUBLICO})`).eq('usuario_id', profileData.id).not('servicio_id', 'is', null),
                 supabase.from('seguidores').select('seguido_id', { count: 'exact', head: true }).eq('seguido_id', profileData.id),
@@ -170,11 +170,11 @@ export default function ProducerProfilePage() {
  
             const transformBeat = (b: any): any => ({
                 ...b,
-                productor_nombre_artistico: b.productor_nombre_artistico || b.nombre_artistico || profileData.nombre_artistico || profileData.nombre_usuario,
-                productor_nombre_usuario: b.productor_nombre_usuario || b.nombre_usuario || profileData.nombre_usuario,
-                productor_foto_perfil: resolveStorageUrl(b.productor_foto_perfil || b.foto_perfil, 'fotos_perfil') || profileData.foto_perfil,
-                productor_esta_verificado: b.productor_esta_verificado ?? b.esta_verificado ?? profileData.esta_verificado,
-                productor_es_fundador: b.productor_es_fundador ?? b.es_fundador ?? profileData.es_fundador,
+                productor_nombre_artistico: b.productor?.nombre_artistico || b.productor_nombre_artistico || b.nombre_artistico || profileData.nombre_artistico || profileData.nombre_usuario,
+                productor_nombre_usuario: b.productor?.nombre_usuario || b.productor_nombre_usuario || b.nombre_usuario || profileData.nombre_usuario,
+                productor_foto_perfil: resolveStorageUrl(b.productor?.foto_perfil || b.productor_foto_perfil || b.foto_perfil, 'fotos_perfil') || profileData.foto_perfil,
+                productor_esta_verificado: b.productor?.esta_verificado ?? b.productor_esta_verificado ?? b.esta_verificado ?? profileData.esta_verificado,
+                productor_es_fundador: b.productor?.es_fundador ?? b.productor_es_fundador ?? b.es_fundador ?? profileData.es_fundador,
                 // Solo se expone la muestra al público; el master (mp3/wav/stems) se sirve únicamente vía /api/download tras validar compra.
                 archivo_mp3_url: resolveStorageUrl(b.archivo_muestra_url, 'muestras_beats'),
                 archivo_muestra_url: resolveStorageUrl(b.archivo_muestra_url, 'muestras_beats'),
@@ -210,18 +210,18 @@ export default function ProducerProfilePage() {
     const fetchAllLikes = async () => {
         if (!profile) return;
         const [lbR, lkR, lsR] = await Promise.all([
-            supabase.from('favoritos').select(`id, beat:beats(${COLUMNAS_BEAT_PUBLICO})`).eq('usuario_id', profile.id).not('beat_id', 'is', null),
+            supabase.from('favoritos').select(`id, beat:beats(${COLUMNAS_BEAT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO}))`).eq('usuario_id', profile.id).not('beat_id', 'is', null),
             supabase.from('favoritos').select(`id, kit:kits_sonido(${COLUMNAS_KIT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO}))`).eq('usuario_id', profile.id).not('kit_id', 'is', null),
             supabase.from('favoritos').select(`id, servicio:servicios(${COLUMNAS_SERVICIO_PUBLICO})`).eq('usuario_id', profile.id).not('servicio_id', 'is', null)
         ]);
 
         const transformBeatLocal = (b: any): any => ({
             ...b,
-            productor_nombre_artistico: b.productor_nombre_artistico || b.nombre_artistico || profile.nombre_artistico || profile.nombre_usuario,
-            productor_nombre_usuario: b.productor_nombre_usuario || b.nombre_usuario || profile.nombre_usuario,
-            productor_foto_perfil: resolveStorageUrl(b.productor_foto_perfil || b.foto_perfil, 'fotos_perfil') || profile.foto_perfil,
-            productor_esta_verificado: b.productor_esta_verificado ?? b.esta_verificado ?? profile.esta_verificado,
-            productor_es_fundador: b.productor_es_fundador ?? b.es_fundador ?? profile.es_fundador,
+            productor_nombre_artistico: b.productor?.nombre_artistico || b.productor_nombre_artistico || b.nombre_artistico || profile?.nombre_artistico || profile?.nombre_usuario,
+            productor_nombre_usuario: b.productor?.nombre_usuario || b.productor_nombre_usuario || b.nombre_usuario || profile?.nombre_usuario,
+            productor_foto_perfil: resolveStorageUrl(b.productor?.foto_perfil || b.productor_foto_perfil || b.foto_perfil, 'fotos_perfil') || profile?.foto_perfil,
+            productor_esta_verificado: b.productor?.esta_verificado ?? b.productor_esta_verificado ?? b.esta_verificado ?? profile?.esta_verificado,
+            productor_es_fundador: b.productor?.es_fundador ?? b.productor_es_fundador ?? b.es_fundador ?? profile?.es_fundador,
             // Solo muestra al público; master vía /api/download.
             archivo_mp3_url: resolveStorageUrl(b.archivo_muestra_url, 'muestras_beats'),
             archivo_muestra_url: resolveStorageUrl(b.archivo_muestra_url, 'muestras_beats'),

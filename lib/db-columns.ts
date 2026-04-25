@@ -41,16 +41,14 @@ export const COLUMNAS_PERFIL_MINIMO = `
  */
 export const COLUMNAS_BEAT_PUBLICO = `
     id, productor_id, titulo, genero, subgenero, bpm, tono_escala,
-    descripcion, vibras, moods, instrumentos, tipos_beat, artista_referencia,
+    descripcion, instrumentos, tipos_beat, artista_referencia,
     precio_gratis_mxn, precio_basica_mxn, precio_pro_mxn, precio_premium_mxn,
     precio_exclusiva_estandar_mxn, precio_exclusiva_premium_mxn,
     es_publico, esta_vendido,
     portada_url, archivo_muestra_url,
-    conteo_reproducciones, conteo_ventas, conteo_likes, visibilidad_tier,
-    es_gratis_activa, es_basica_activa, es_mp3_activa, es_pro_activa,
+    conteo_reproducciones, conteo_ventas, conteo_likes,
+    es_gratis_activa, es_basica_activa, es_pro_activa,
     es_premium_activa, es_exclusiva_estandar_activa, es_exclusiva_premium_activa,
-    productor_nombre_artistico, productor_nombre_usuario, productor_foto_perfil,
-    productor_esta_verificado, productor_es_fundador, productor_nivel_suscripcion,
     fecha_creacion
 `.replace(/\s+/g, ' ').trim();
 
