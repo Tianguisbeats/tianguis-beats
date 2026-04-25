@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { calculateEarnings } from '@/lib/finance-utils';
 import { obtenerSupabaseAdmin } from '@/lib/supabase-admin';
-import { obtenerStripe, STRIPE_PRODUCTOS, STRIPE_PRECIOS } from '@/lib/stripe-config';
+import { obtenerStripe, STRIPE_PRECIOS } from '@/lib/stripe-config';
 import { aplicarLimite } from '@/lib/rate-limit';
 
 // Helper de depuración local
@@ -224,15 +224,14 @@ export async function POST(req: Request) {
             const tierRaw = String(item.metadata?.tier || '').toLowerCase().trim();
             const planKey = `${tierRaw}_${cycleRaw === 'yearly' ? 'anual' : 'mensual'}` as keyof typeof STRIPE_PRECIOS;
             const fixedPriceId = iType === 'plan' ? STRIPE_PRECIOS[planKey] : null;
-            const officialProductId = iType === 'plan'
-                ? (STRIPE_PRODUCTOS as Record<string, string>)[tierRaw] || null
-                : null;
 
-            logDebug(`[CHECKOUT] Item: ${productName} | Tipo: ${iType} | ClavePlan: ${planKey} | Product: ${officialProductId}`);
+            logDebug(`[CHECKOUT] Item: ${productName} | Tipo: ${iType} | ClavePlan: ${planKey} | PriceID: ${fixedPriceId}`);
 
+            // Para items que NO son planes pre-creados en Stripe (beats, kits, servicios)
+            // construimos product_data inline. Los planes usan fixedPriceId directo.
             const priceData: any = {
                 currency: currency,
-                product_data: officialProductId ? undefined : {
+                product_data: {
                     name: productName,
                     description: description,
                     images: itemImage,
@@ -249,7 +248,6 @@ export async function POST(req: Request) {
                         product_name: productName,
                     }
                 },
-                product: officialProductId || undefined,
                 unit_amount: Math.round(getVerifiedPrice(item) * 100),
             };
 

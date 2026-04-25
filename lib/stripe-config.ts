@@ -3,22 +3,26 @@ import Stripe from 'stripe';
 /**
  * TIANGUIS BEATS — Configuración Centralizada de Stripe
  *
- * Centraliza:
- *   - Cliente Stripe singleton
- *   - IDs de productos y precios (vía variables de entorno)
- *   - Helpers para detectar tier desde IDs
+ * Variables de entorno necesarias (6 en total):
  *
- * Variables de entorno requeridas:
- *   STRIPE_SECRET_KEY
- *   STRIPE_PRODUCT_PRO         (prod_...)
- *   STRIPE_PRODUCT_PREMIUM     (prod_...)
- *   STRIPE_PRICE_PRO_MENSUAL   (price_...)
- *   STRIPE_PRICE_PRO_ANUAL     (price_...)
- *   STRIPE_PRICE_PREMIUM_MENSUAL
- *   STRIPE_PRICE_PREMIUM_ANUAL
+ *   STRIPE_SECRET_KEY            (sk_live_... o sk_test_...)
+ *   STRIPE_WEBHOOK_SECRET        (whsec_...)
+ *   STRIPE_PRICE_PRO_MENSUAL     (price_...)
+ *   STRIPE_PRICE_PRO_ANUAL       (price_...)
+ *   STRIPE_PRICE_PREMIUM_MENSUAL (price_...)
+ *   STRIPE_PRICE_PREMIUM_ANUAL   (price_...)
  *
- * Para retrocompatibilidad mientras se migra el .env, los IDs
- * caen a los valores históricos en producción si la env está vacía.
+ * Para alternar Test/Live SIN tocar código:
+ *   En Vercel, configura cada variable con valor distinto por
+ *   Environment (Production = Live, Preview/Development = Test).
+ *
+ * NOTA: las "STRIPE_PRODUCT_*" no son necesarias. La detección de
+ * tier funciona solo con priceId, y el checkout siempre usa el
+ * priceId fijo cuando el plan ya está pre-creado en Stripe.
+ *
+ * Fallbacks: solo para retrocompatibilidad si la env está vacía
+ * en producción. Si alguno de los precios no se configura, la app
+ * cae a los IDs históricos de Live.
  */
 
 let _stripe: Stripe | null = null;
@@ -31,39 +35,15 @@ export function obtenerStripe(): Stripe {
     return _stripe;
 }
 
-// IDs de Productos Stripe
-export const STRIPE_PRODUCTOS = {
-    pro: process.env.STRIPE_PRODUCT_PRO || 'prod_U9hq8ifcXWz0O3',
-    premium: process.env.STRIPE_PRODUCT_PREMIUM || 'prod_U9g82c9yHCvLQO',
-} as const;
-
-// IDs de Productos Stripe legacy (para detección de tier en webhooks históricos)
-export const STRIPE_PRODUCTOS_LEGACY = {
-    pro_legacy: process.env.STRIPE_PRODUCT_PRO_LEGACY || 'prod_U9HySOfUW9sLu0',
-    premium_legacy: process.env.STRIPE_PRODUCT_PREMIUM_LEGACY || 'prod_U9UPhLb7ISBYhq',
-} as const;
-
-// IDs de Precios Stripe
+/** IDs de los 4 precios de suscripción (los únicos que el flujo necesita) */
 export const STRIPE_PRECIOS = {
-    pro_mensual: process.env.STRIPE_PRICE_PRO_MENSUAL || 'price_1TAzIAH5NxxqqE4kYHQgnDil',
-    pro_anual: process.env.STRIPE_PRICE_PRO_ANUAL || 'price_1TB0DFH5NxxqqE4kY51i7dkp',
+    pro_mensual:     process.env.STRIPE_PRICE_PRO_MENSUAL     || 'price_1TAzIAH5NxxqqE4kYHQgnDil',
+    pro_anual:       process.env.STRIPE_PRICE_PRO_ANUAL       || 'price_1TB0DFH5NxxqqE4kY51i7dkp',
     premium_mensual: process.env.STRIPE_PRICE_PREMIUM_MENSUAL || 'price_1TAzIDH5NxxqqE4k339iqiO5',
-    premium_anual: process.env.STRIPE_PRICE_PREMIUM_ANUAL || 'price_1TB057H5NxxqqE4kNxZoU8uY',
+    premium_anual:   process.env.STRIPE_PRICE_PREMIUM_ANUAL   || 'price_1TB057H5NxxqqE4kNxZoU8uY',
 } as const;
 
-/**
- * Mapa producto Stripe → tier del sistema.
- */
-export const MAPA_PRODUCTO_A_TIER: Record<string, 'pro' | 'premium'> = {
-    [STRIPE_PRODUCTOS.pro]: 'pro',
-    [STRIPE_PRODUCTOS.premium]: 'premium',
-    [STRIPE_PRODUCTOS_LEGACY.pro_legacy]: 'pro',
-    [STRIPE_PRODUCTOS_LEGACY.premium_legacy]: 'premium',
-};
-
-/**
- * Mapa precio Stripe → tier del sistema.
- */
+/** Mapa precio → tier del sistema (única fuente de verdad para detección) */
 export const MAPA_PRECIO_A_TIER: Record<string, 'pro' | 'premium'> = {
     [STRIPE_PRECIOS.pro_mensual]: 'pro',
     [STRIPE_PRECIOS.pro_anual]: 'pro',
@@ -71,33 +51,29 @@ export const MAPA_PRECIO_A_TIER: Record<string, 'pro' | 'premium'> = {
     [STRIPE_PRECIOS.premium_anual]: 'premium',
 };
 
-/**
- * IDs de precios anuales (para detección de ciclo).
- */
+/** Set con los priceIds anuales (para detección de ciclo) */
 export const PRECIOS_ANUALES = new Set<string>([
     STRIPE_PRECIOS.pro_anual,
     STRIPE_PRECIOS.premium_anual,
 ]);
 
-/**
- * Devuelve el priceId Stripe correspondiente a un plan + ciclo.
- */
+/** Devuelve el priceId Stripe correspondiente a un plan + ciclo */
 export function obtenerPrecioStripe(tier: 'pro' | 'premium', ciclo: 'mensual' | 'anual'): string {
     const clave = `${tier}_${ciclo}` as keyof typeof STRIPE_PRECIOS;
     return STRIPE_PRECIOS[clave];
 }
 
 /**
- * Detecta el tier de un suscripción inspeccionando productos y precios.
+ * Detecta el tier de una suscripción a partir del priceId o (fallback)
+ * el nombre del producto. El productId NO se usa: si el priceId del
+ * suscripción coincide con uno de los 4 conocidos, sabemos el tier.
  */
 export function detectarTierDesdeStripe(args: {
-    productId?: string | null;
     priceId?: string | null;
     productName?: string | null;
 }): 'pro' | 'premium' | null {
-    const { productId, priceId, productName } = args;
+    const { priceId, productName } = args;
 
-    if (productId && MAPA_PRODUCTO_A_TIER[productId]) return MAPA_PRODUCTO_A_TIER[productId];
     if (priceId && MAPA_PRECIO_A_TIER[priceId]) return MAPA_PRECIO_A_TIER[priceId];
 
     const nombre = (productName || '').toLowerCase();

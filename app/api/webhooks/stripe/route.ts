@@ -5,7 +5,6 @@ import { generateFriendlyOrderId } from '@/lib/order-utils';
 import { obtenerSupabaseAdmin } from '@/lib/supabase-admin';
 import {
     obtenerStripe,
-    MAPA_PRODUCTO_A_TIER,
     MAPA_PRECIO_A_TIER,
     PRECIOS_ANUALES,
     detectarTierDesdeStripe,
@@ -132,11 +131,10 @@ async function syncUserProfileSubscription(
         const allItems = sub.items?.data || [];
 
         for (const item of allItems) {
-            const pId = (item.price?.product as any)?.id || item.price?.product || '';
             const prId = item.price?.id || '';
             const pName = (item.price?.product as any)?.name || '';
 
-            const tierItem = detectarTierDesdeStripe({ productId: pId as string, priceId: prId, productName: pName });
+            const tierItem = detectarTierDesdeStripe({ priceId: prId, productName: pName });
             if (tierItem === 'premium') {
                 logWebhook(`[SYNC DETECT] Plan PREMIUM encontrado en la suscripción.`);
                 detectedTier = 'premium';
