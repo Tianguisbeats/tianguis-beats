@@ -16,6 +16,7 @@ import { useToast } from '@/context/ToastContext';
 import LoadingTianguis from '@/components/LoadingTianguis';
 import { calculateEarnings, STRIPE_MEXICO_RATE, STRIPE_MEXICO_FIXED, IVA_RATE } from '@/lib/finance-utils';
 import { useGestionUsuarios } from '@/hooks/admin/useGestionUsuarios';
+import { useGestionFeedback } from '@/hooks/admin/useGestionFeedback';
 import { MetricaStorage } from '@/components/admin/MetricaStorage';
 
 type View = 'dashboard' | 'verifications' | 'users' | 'coupons' | 'feedback' | 'income' | 'beats' | 'controls' | 'licenses';
@@ -1364,60 +1365,11 @@ function CouponManager({ onBack }: { onBack: () => void }) {
 
 // --- FEEDBACK MANAGER MODULE ---
 function FeedbackManager({ onBack }: { onBack: () => void }) {
-    const [feedbacks, setFeedbacks] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
     const { showToast } = useToast();
-
-    useEffect(() => {
-        fetchFeedbacks();
-    }, []);
-
-    const fetchFeedbacks = async () => {
-        setLoading(true);
-        try {
-            const { data, error } = await supabase
-                .from('quejas_y_sugerencias')
-                .select('*')
-                .order('fecha_creacion', { ascending: false });
-
-            if (error) {
-                throw error;
-            } else if (data) {
-                // Hacemos el mapeo manualmente ya que la base de datos no tiene una llave foránea explícita
-                const userIds = [...new Set(data.map(d => d.usuario_id).filter(Boolean))];
-                let profilesMap: Record<string, any> = {};
-
-                if (userIds.length > 0) {
-                    const { data: profiles } = await supabase
-                        .from('perfiles')
-                        .select('id, nombre_artistico, nombre_usuario, foto_perfil')
-                        .in('id', userIds);
-
-                    if (profiles) {
-                        profiles.forEach(p => { profilesMap[p.id] = p; });
-                    }
-                }
-
-                const mergedFeedbacks = data.map(item => ({
-                    ...item,
-                    perfiles: item.usuario_id ? (profilesMap[item.usuario_id] || null) : null
-                }));
-
-                setFeedbacks(mergedFeedbacks);
-            }
-        } catch (err) { console.error(err); }
-        setLoading(false);
-    };
-
-    const handleUpdateStatus = async (id: string, newStatus: string) => {
-        const { error } = await supabase.from('quejas_y_sugerencias').update({ estado: newStatus }).eq('id', id);
-        if (!error) {
-            setFeedbacks(feedbacks.map(f => f.id === id ? { ...f, estado: newStatus } : f));
-            showToast("Estado actualizado", "success");
-        } else {
-            showToast("Error al actualizar estado", "error");
-        }
-    };
+    const { feedbacks, loading, handleUpdateStatus } = useGestionFeedback({
+        onError: (m) => showToast(m, 'error'),
+        onExito: (m) => showToast(m, 'success'),
+    });
 
     if (loading) return <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-accent" /></div>;
 

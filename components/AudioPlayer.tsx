@@ -13,6 +13,7 @@ import Image from 'next/image';
 import WaveformPlayer from './WaveformPlayer';
 import { useCart } from '@/context/CartContext';
 import { useRouter } from 'next/navigation';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 function useIsDarkMode() {
     const [isDark, setIsDark] = useState(true);
@@ -40,9 +41,8 @@ export default function AudioPlayer() {
     const router = useRouter();
     const [isMuted, setIsMuted] = useState(false);
     const [prevVolume, setPrevVolume] = useState(volume);
-    const [showUpNext, setShowUpNext] = useState(false);
     const [shareCopied, setShareCopied] = useState(false);
-    const upNextRef = useRef<HTMLDivElement>(null);
+    const [colaAbierta, setColaAbierta] = useState(false);
 
     const isSoundKit = currentBeat
         ? ((currentBeat as any).product_type === 'sound_kit' || (currentBeat as any).product_type === 'soundkit')
@@ -105,16 +105,8 @@ export default function AudioPlayer() {
         return () => window.removeEventListener('keydown', handleKey);
     }, [currentBeat, currentTime, duration, volume, isMuted, prevVolume]);
 
-    // Cerrar Up Next al hacer click fuera
-    useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (upNextRef.current && !upNextRef.current.contains(e.target as Node)) {
-                setShowUpNext(false);
-            }
-        };
-        if (showUpNext) document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [showUpNext]);
+    // (El antiguo handler de click-outside para Up Next se reemplazó por
+    // el comportamiento nativo del Sheet de shadcn — focus trap incluido.)
 
     const toggleLike = () => {
         if (!currentUserId || !currentBeat) return;
@@ -436,60 +428,34 @@ export default function AudioPlayer() {
                                         <SkipBack size={16} fill="currentColor" />
                                     </button>
 
-                                    {/* SkipForward con panel Up Next */}
-                                    <div className="relative" ref={upNextRef}>
-                                        <button
-                                            onClick={playNext}
-                                            onMouseEnter={() => setShowUpNext(true)}
-                                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBgClass} border ${controlBorderClass} ${accentText} opacity-60 hover:opacity-100 cursor-pointer`}>
-                                            <SkipForward size={16} fill="currentColor" />
-                                        </button>
+                                    {/* SkipForward */}
+                                    <button onClick={playNext} disabled={playlist.length === 0}
+                                        title="Siguiente"
+                                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBgClass} border ${controlBorderClass} ${accentText} opacity-60 hover:opacity-100 disabled:opacity-30 disabled:hover:scale-100 cursor-pointer disabled:cursor-not-allowed`}>
+                                        <SkipForward size={16} fill="currentColor" />
+                                    </button>
 
-                                        {/* Panel Up Next */}
-                                        {showUpNext && (
-                                            <div
-                                                className={`absolute bottom-full right-0 mb-2 w-64 rounded-2xl border shadow-2xl overflow-hidden z-20 ${playerBgClass} ${playerBorderClass}`}
-                                                style={{ boxShadow: isDark ? '0 16px 48px rgba(0,0,0,0.7)' : '0 8px 32px rgba(0,0,0,0.12)' }}
+                                    {/* Botón "Ver cola" — abre el Sheet con la lista completa */}
+                                    <button
+                                        onClick={() => setColaAbierta(true)}
+                                        title="Cola de reproducción"
+                                        aria-label="Ver cola de reproducción"
+                                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 ${controlBgClass} border ${controlBorderClass} ${textMutedClass} hover:opacity-100 cursor-pointer relative`}
+                                    >
+                                        <List size={14} />
+                                        {playlist.length - playlistIndex - 1 > 0 && (
+                                            <span
+                                                className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full text-[7px] font-black flex items-center justify-center text-white"
+                                                style={{ background: accentColor }}
                                             >
-                                                <div className={`flex items-center gap-2 px-3 py-2 border-b ${playerBorderClass}`}>
-                                                    <List size={11} className={textMutedClass} />
-                                                    <span className={`text-[9px] font-black uppercase tracking-widest ${textMutedClass}`}>
-                                                        {upNextTracks.length > 0 ? 'Siguiente en la cola' : 'Sin cola activa'}
-                                                    </span>
-                                                </div>
-
-                                                {upNextTracks.length > 0 ? (
-                                                    <div className="py-1">
-                                                        {upNextTracks.map((track, i) => (
-                                                            <button
-                                                                key={track.id}
-                                                                onClick={() => { setPlaylistAndPlay(playlist, playlistIndex + 1 + i); setShowUpNext(false); }}
-                                                                className={`w-full flex items-center gap-2.5 px-3 py-2 transition-colors text-left hover:${isDark ? 'bg-white/5' : 'bg-black/5'}`}
-                                                            >
-                                                                <span className={`text-[9px] font-black w-3 shrink-0 ${textMutedClass}`}>
-                                                                    {playlistIndex + 2 + i}
-                                                                </span>
-                                                                <div className="flex-1 min-w-0">
-                                                                    <div className={`text-[10px] font-black truncate uppercase ${textPrimaryClass}`}>{track.titulo}</div>
-                                                                    <div className={`text-[9px] truncate ${textMutedClass}`}>
-                                                                        {track.productor_nombre_artistico || track.productor_nombre_usuario}
-                                                                    </div>
-                                                                </div>
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                ) : (
-                                                    <div className={`px-3 py-4 text-center text-[9px] ${textMutedClass}`}>
-                                                        Al terminar se buscarán más beats del productor
-                                                    </div>
-                                                )}
-                                            </div>
+                                                {Math.min(playlist.length - playlistIndex - 1, 9)}
+                                            </span>
                                         )}
-                                    </div>
+                                    </button>
 
                                     {/* Shuffle */}
                                     <button onClick={toggleShuffle}
-                                        title="Aleatorio"
+                                        title={isShuffle ? 'Aleatorio activado' : 'Aleatorio'}
                                         className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 border ${isShuffle
                                             ? `${accentText} border-current/20`
                                             : `${textMutedClass} ${controlBgClass} ${controlBorderClass}`}`}
@@ -499,7 +465,7 @@ export default function AudioPlayer() {
 
                                     {/* Loop */}
                                     <button onClick={toggleLoopMode}
-                                        title={loopMode === 'none' ? 'Sin repetición' : loopMode === 'all' ? 'Repetir todo' : 'Repetir una'}
+                                        title={loopMode === 'none' ? 'Sin repetición' : loopMode === 'all' ? 'Repetir todo' : 'Repetir una canción'}
                                         className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 border relative ${loopActive
                                             ? `${accentText}`
                                             : `${textMutedClass} ${controlBgClass} ${controlBorderClass}`}`}
@@ -556,6 +522,52 @@ export default function AudioPlayer() {
                     </div>
                 </div>
             </div>
+
+            {/* Sheet con la cola de reproducción completa (controlado, abre desde el botón "Ver cola") */}
+            <Sheet open={colaAbierta} onOpenChange={setColaAbierta}>
+                <SheetContent side="right" className="w-[360px] sm:w-[420px] bg-[#06060a] border-white/10 text-white">
+                    <SheetHeader>
+                        <SheetTitle className="text-white text-[10px] font-black uppercase tracking-[0.3em]">
+                            Cola de reproducción
+                        </SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6 px-4 pb-6 overflow-y-auto max-h-[calc(100vh-120px)] space-y-1">
+                        {playlist.length === 0 ? (
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 text-center py-12">
+                                Sin cola activa
+                            </p>
+                        ) : (
+                            playlist.map((track, i) => {
+                                const esActual = i === playlistIndex;
+                                const yaSono = i < playlistIndex;
+                                return (
+                                    <button
+                                        key={`${track.id}-${i}`}
+                                        onClick={() => { setPlaylistAndPlay(playlist, i); setColaAbierta(false); }}
+                                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all ${
+                                            esActual
+                                                ? 'bg-white/[0.08] border border-white/10'
+                                                : 'hover:bg-white/[0.04] border border-transparent'
+                                        } ${yaSono ? 'opacity-40' : ''}`}
+                                    >
+                                        <span className={`text-[9px] font-black w-4 shrink-0 ${esActual ? accentText : 'text-white/30'}`}>
+                                            {esActual ? '▶' : i + 1}
+                                        </span>
+                                        <div className="flex-1 min-w-0">
+                                            <div className={`text-[11px] font-black truncate uppercase tracking-tight ${esActual ? accentText : 'text-white'}`}>
+                                                {track.titulo}
+                                            </div>
+                                            <div className="text-[9px] truncate text-white/40 uppercase tracking-widest">
+                                                {track.productor_nombre_artistico || track.productor_nombre_usuario}
+                                            </div>
+                                        </div>
+                                    </button>
+                                );
+                            })
+                        )}
+                    </div>
+                </SheetContent>
+            </Sheet>
         </>
     );
 }
