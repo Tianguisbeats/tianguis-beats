@@ -7,7 +7,7 @@ import {
     Globe, MapPin, MessageCircle, CheckCircle2, Zap, Package, Edit3,
     Crown, ArrowRight, Layers, Sparkles, Flag, ShoppingBag, ExternalLink,
     Clock, Star, Search, Info, User, Camera, Save, Loader2, Facebook,
-    Plus, ListMusic, Lock
+    Plus, ListMusic, Lock, Send, Trash2, SmilePlus
 } from 'lucide-react';
 
 function TikTokIcon({ size = 24 }: { size?: number }) {
@@ -75,6 +75,13 @@ export default function ProducerProfilePage() {
     
     const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
     const [editingPlaylist, setEditingPlaylist] = useState<any>(null);
+
+    // Wall posts
+    const [wallPosts, setWallPosts] = useState<any[]>([]);
+    const [wallLoading, setWallLoading] = useState(false);
+    const [postContent, setPostContent] = useState('');
+    const [isPosting, setIsPosting] = useState(false);
+    const [likedPostIds, setLikedPostIds] = useState<Set<string>>(new Set());
 
     const isOwner = user?.id === profile?.id;
 
@@ -227,10 +234,94 @@ export default function ProducerProfilePage() {
         }
     }, [likedBeatIds, profile, user]);
 
+    useEffect(() => {
+        if (profile && activeTab === 'comentarios') fetchWallPosts(profile.id);
+    }, [activeTab, profile?.id]);
+
     const handleShare = () => {
         if (navigator.share) navigator.share({ title: `${profile?.nombre_artistico} en Tianguis Beats`, url: window.location.href });
         else { navigator.clipboard.writeText(window.location.href); showToast('Enlace copiado', 'success'); }
     };
+
+    // ── Wall Posts ──────────────────────────────────────────────────
+    const fetchWallPosts = async (profileId: string) => {
+        setWallLoading(true);
+        try {
+            const { data } = await supabase
+                .from('comentarios_perfil')
+                .select(`
+                    id, contenido, created_at, likes_count,
+                    autor:autor_id (
+                        id, nombre_artistico, nombre_usuario, foto_perfil
+                    )
+                `)
+                .eq('perfil_id', profileId)
+                .order('created_at', { ascending: false })
+                .limit(50);
+            if (data) setWallPosts(data);
+        } catch {}
+        setWallLoading(false);
+    };
+
+    const handlePost = async () => {
+        if (!user) { showToast('Inicia sesión para comentar', 'info'); return; }
+        const text = postContent.trim();
+        if (!text || text.length > 1000) return;
+        setIsPosting(true);
+        try {
+            const { data, error } = await supabase
+                .from('comentarios_perfil')
+                .insert({ perfil_id: profile.id, autor_id: user.id, contenido: text })
+                .select(`
+                    id, contenido, created_at, likes_count,
+                    autor:autor_id (
+                        id, nombre_artistico, nombre_usuario, foto_perfil
+                    )
+                `)
+                .single();
+            if (error) throw error;
+            setWallPosts(prev => [data, ...prev]);
+            setPostContent('');
+        } catch {
+            showToast('Error al publicar', 'error');
+        }
+        setIsPosting(false);
+    };
+
+    const handleDeletePost = async (postId: string) => {
+        try {
+            await supabase.from('comentarios_perfil').delete().eq('id', postId);
+            setWallPosts(prev => prev.filter(p => p.id !== postId));
+        } catch {
+            showToast('Error al eliminar', 'error');
+        }
+    };
+
+    const handleLikePost = async (postId: string, currentCount: number) => {
+        if (!user) { showToast('Inicia sesión para dar like', 'info'); return; }
+        const alreadyLiked = likedPostIds.has(postId);
+        const newCount = alreadyLiked ? currentCount - 1 : currentCount + 1;
+        setWallPosts(prev => prev.map(p => p.id === postId ? { ...p, likes_count: newCount } : p));
+        setLikedPostIds(prev => {
+            const next = new Set(prev);
+            alreadyLiked ? next.delete(postId) : next.add(postId);
+            return next;
+        });
+        await supabase.from('comentarios_perfil').update({ likes_count: newCount }).eq('id', postId);
+    };
+
+    const timeAgo = (date: string) => {
+        const diff = Date.now() - new Date(date).getTime();
+        const mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'ahora';
+        if (mins < 60) return `${mins}m`;
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return `${hrs}h`;
+        const days = Math.floor(hrs / 24);
+        if (days < 7) return `${days}d`;
+        return new Date(date).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+    };
+    // ────────────────────────────────────────────────────────────────
 
     const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0 || !user) return;
@@ -957,49 +1048,151 @@ export default function ProducerProfilePage() {
                             )}
 
                             {activeTab === 'comentarios' && (
-                                <div className="max-w-4xl mx-auto">
-                                    <section className="bg-white/5 dark:bg-black/20 backdrop-blur-xl border border-white/10 rounded-[3.5rem] p-8 md:p-20 shadow-2xl relative overflow-hidden group/comments">
-                                        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 blur-[130px] rounded-full -mr-48 -mt-48" />
-                                        <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/5 blur-[130px] rounded-full -ml-48 -mb-48" />
-                                        
-                                        <div className="relative z-10 text-center md:text-left">
-                                            <div className="flex flex-col md:flex-row items-center gap-8 mb-16">
-                                                <div className="relative">
-                                                    <div className="absolute inset-0 bg-blue-500 blur-2xl opacity-20 animate-pulse" />
-                                                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-[2.5rem] bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shadow-xl relative z-10 transition-transform duration-700 group-hover/comments:rotate-[10deg]">
-                                                        <MessageCircle size={40} className="text-blue-500" />
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-4xl md:text-7xl font-black uppercase tracking-tighter text-foreground mb-2 leading-none">Feedback.</h3>
-                                                    <p className="text-blue-500 text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] ml-1">Voces de la comunidad</p>
-                                                </div>
-                                            </div>
+                                <div className="max-w-2xl mx-auto space-y-4">
 
-                                            <div className="space-y-10 mb-20 text-left">
-                                                <div className="relative">
-                                                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-[3rem] blur opacity-30" />
-                                                    <textarea 
-                                                        placeholder={`Deja tu marca en el perfil de ${displayName}...`} 
-                                                        className="relative w-full bg-background dark:bg-slate-900/60 border border-white/5 rounded-[2.8rem] p-10 text-sm md:text-lg focus:outline-none focus:border-blue-500/30 transition-all min-h-[220px] resize-none shadow-2xl placeholder:text-slate-500 font-bold tracking-tight" 
+                                    {/* Composer */}
+                                    <div className="bg-card border border-border rounded-[2rem] p-5 shadow-sm">
+                                        <div className="flex items-start gap-3">
+                                            {/* Current user avatar */}
+                                            <div className="shrink-0 w-10 h-10 rounded-full overflow-hidden border border-border bg-foreground/5">
+                                                {user ? (
+                                                    <img
+                                                        src={user.user_metadata?.foto_perfil || user.user_metadata?.avatar_url || '/logo.png'}
+                                                        alt="Tú"
+                                                        className="w-full h-full object-cover"
+                                                        onError={e => { (e.target as HTMLImageElement).src = '/logo.png'; }}
                                                     />
-                                                </div>
-                                                <div className="flex justify-between items-center px-4">
-                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Cero Hate, Puro Arte</span>
-                                                    <button className="group/btn relative px-10 md:px-14 py-5 rounded-[1.8rem] bg-blue-500 text-white text-[11px] font-black uppercase tracking-[0.2em] transition-all hover:scale-[1.05] active:scale-95 shadow-2xl shadow-blue-500/40 overflow-hidden">
-                                                        <span className="relative z-10 flex items-center gap-3">Publicar Comentario <ArrowRight size={16} /></span>
-                                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-[1200ms]" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center">
+                                                        <User size={16} className="text-muted" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <textarea
+                                                    value={postContent}
+                                                    onChange={e => setPostContent(e.target.value)}
+                                                    onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handlePost(); }}
+                                                    placeholder={user ? `Escríbele algo a ${displayName}...` : `Inicia sesión para comentar en el perfil de ${displayName}`}
+                                                    disabled={!user || isPosting}
+                                                    rows={2}
+                                                    maxLength={1000}
+                                                    className="w-full bg-foreground/[0.04] border border-border rounded-2xl px-4 py-3 text-sm text-foreground placeholder:text-muted/50 resize-none focus:outline-none focus:border-accent/40 transition-all disabled:opacity-50 leading-relaxed"
+                                                />
+                                                <div className="flex items-center justify-between mt-2 px-1">
+                                                    <span className={`text-[10px] font-bold uppercase tracking-widest ${postContent.length > 900 ? 'text-red-500' : 'text-muted/40'}`}>
+                                                        {postContent.length > 0 ? `${postContent.length}/1000` : 'Cero hate, puro arte ✌️'}
+                                                    </span>
+                                                    <button
+                                                        onClick={handlePost}
+                                                        disabled={!user || isPosting || !postContent.trim()}
+                                                        className="flex items-center gap-2 px-5 py-2 bg-accent text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:opacity-90 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                                    >
+                                                        {isPosting ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+                                                        Publicar
                                                     </button>
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
 
-                                            <div className="py-24 text-center border-t border-white/5 relative">
-                                                <Sparkles size={48} className="mx-auto text-blue-500/10 mb-8 animate-pulse" />
-                                                <p className="text-2xl md:text-4xl font-black uppercase tracking-tighter text-foreground/20 mb-3">Sé Legendario.</p>
-                                                <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-500/30">Inicia la conversación en este perfil.</p>
+                                    {/* Feed */}
+                                    {wallLoading ? (
+                                        <div className="py-16 flex justify-center">
+                                            <Loader2 size={28} className="animate-spin text-muted/30" />
+                                        </div>
+                                    ) : wallPosts.length === 0 ? (
+                                        <div className="py-20 flex flex-col items-center gap-4 text-center">
+                                            <div className="w-16 h-16 rounded-[1.5rem] bg-foreground/[0.04] border border-border flex items-center justify-center">
+                                                <SmilePlus size={28} className="text-muted/30" />
+                                            </div>
+                                            <div>
+                                                <p className="font-black text-foreground/20 uppercase tracking-tight text-lg">Nadie ha dicho nada todavía.</p>
+                                                <p className="text-[10px] font-bold text-muted/30 uppercase tracking-widest mt-1">Sé el primero en dejar algo.</p>
                                             </div>
                                         </div>
-                                    </section>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {wallPosts.map((post: any) => {
+                                                const autor = post.autor as any;
+                                                const isMyPost = user?.id === autor?.id;
+                                                const isProfileOwner = isOwner;
+                                                const canDelete = isMyPost || isProfileOwner;
+                                                const liked = likedPostIds.has(post.id);
+
+                                                return (
+                                                    <div
+                                                        key={post.id}
+                                                        className="group bg-card border border-border rounded-[1.75rem] p-5 transition-all hover:border-border/80 hover:shadow-sm"
+                                                    >
+                                                        <div className="flex items-start gap-3">
+                                                            {/* Author avatar */}
+                                                            <Link href={`/${autor?.nombre_usuario}`} className="shrink-0">
+                                                                <div className="w-10 h-10 rounded-full overflow-hidden border border-border bg-foreground/5 hover:ring-2 hover:ring-accent/30 transition-all">
+                                                                    {autor?.foto_perfil ? (
+                                                                        <img src={autor.foto_perfil} alt={autor.nombre_artistico} className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <div className="w-full h-full bg-gradient-to-br from-accent/60 to-blue-500/60 flex items-center justify-center text-white text-xs font-black">
+                                                                            {(autor?.nombre_artistico || '?').charAt(0).toUpperCase()}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </Link>
+
+                                                            <div className="flex-1 min-w-0">
+                                                                {/* Header */}
+                                                                <div className="flex items-center justify-between gap-2 mb-1">
+                                                                    <div className="flex items-center gap-2 min-w-0">
+                                                                        <Link href={`/${autor?.nombre_usuario}`} className="font-black text-sm text-foreground hover:text-accent transition-colors truncate">
+                                                                            {autor?.nombre_artistico || autor?.nombre_usuario || 'Usuario'}
+                                                                        </Link>
+                                                                        {autor?.id === profile?.id && (
+                                                                            <span className="shrink-0 px-2 py-0.5 bg-accent/10 border border-accent/20 text-accent text-[8px] font-black uppercase tracking-widest rounded-full">
+                                                                                Autor
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2 shrink-0">
+                                                                        <span className="text-[10px] text-muted/50 font-medium">
+                                                                            {timeAgo(post.created_at)}
+                                                                        </span>
+                                                                        {canDelete && (
+                                                                            <button
+                                                                                onClick={() => handleDeletePost(post.id)}
+                                                                                className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-red-500/10 hover:text-red-500 text-muted/30 transition-all"
+                                                                            >
+                                                                                <Trash2 size={13} />
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Content */}
+                                                                <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap break-words">
+                                                                    {post.contenido}
+                                                                </p>
+
+                                                                {/* Like */}
+                                                                <div className="flex items-center gap-1 mt-3">
+                                                                    <button
+                                                                        onClick={() => handleLikePost(post.id, post.likes_count)}
+                                                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 ${
+                                                                            liked
+                                                                                ? 'bg-red-500/10 text-red-500 border border-red-500/20'
+                                                                                : 'text-muted/40 hover:text-red-500 hover:bg-red-500/10 border border-transparent'
+                                                                        }`}
+                                                                    >
+                                                                        <Heart size={12} className={liked ? 'fill-current' : ''} />
+                                                                        {post.likes_count > 0 && <span>{post.likes_count}</span>}
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
