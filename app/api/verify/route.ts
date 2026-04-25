@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { obtenerSupabaseAdmin } from '@/lib/supabase-admin';
+import { aplicarLimite } from '@/lib/rate-limit';
+import { esquemaIdentificadorOrden } from '@/lib/schemas';
 
 /**
  * API Route: Verificación Pública de Transacciones
@@ -7,6 +9,12 @@ import { obtenerSupabaseAdmin } from '@/lib/supabase-admin';
  */
 export async function GET(req: NextRequest) {
     try {
+        // Rate limit: 30 verificaciones por minuto por IP (anti-enumeración)
+        const lim = aplicarLimite(req, { id: 'verify', max: 30, ventanaMs: 60_000 });
+        if (!lim.permitido && lim.respuesta) {
+            return NextResponse.json(lim.respuesta.body, { status: lim.respuesta.status, headers: lim.respuesta.headers });
+        }
+
         const { searchParams } = new URL(req.url);
         const orderIdRaw = searchParams.get('order') || searchParams.get('id');
 
@@ -14,12 +22,12 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: 'Falta el ID de verificación' }, { status: 400 });
         }
 
-        // Sanitización: el ID solo puede contener caracteres alfanuméricos, guiones y guion bajo.
-        // Esto previene que un atacante inyecte comas u operadores en el filtro .or() de PostgREST.
-        const orderId = orderIdRaw.trim();
-        if (!/^[A-Za-z0-9_-]{4,64}$/.test(orderId)) {
-            return NextResponse.json({ error: 'Formato de ID inválido' }, { status: 400 });
+        // Sanitización via zod (anti PostgREST .or() injection + formato consistente)
+        const r = esquemaIdentificadorOrden.safeParse(orderIdRaw);
+        if (!r.success) {
+            return NextResponse.json({ error: r.error.issues[0]?.message || 'Formato de ID inválido' }, { status: 400 });
         }
+        const orderId = r.data;
 
         const supabaseAdmin = obtenerSupabaseAdmin();
 

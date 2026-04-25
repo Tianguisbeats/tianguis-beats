@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { calculateEarnings } from '@/lib/finance-utils';
 import { obtenerSupabaseAdmin } from '@/lib/supabase-admin';
 import { obtenerStripe, STRIPE_PRODUCTOS, STRIPE_PRECIOS } from '@/lib/stripe-config';
+import { aplicarLimite } from '@/lib/rate-limit';
 
 // Helper de depuración local
 const logDebug = (msg: string) => {
@@ -11,6 +12,12 @@ const logDebug = (msg: string) => {
 
 export async function POST(req: Request) {
     try {
+        // Rate limit: 10 checkouts por minuto por IP (anti-spam de sesiones Stripe)
+        const lim = aplicarLimite(req, { id: 'checkout', max: 10, ventanaMs: 60_000 });
+        if (!lim.permitido && lim.respuesta) {
+            return NextResponse.json(lim.respuesta.body, { status: lim.respuesta.status, headers: lim.respuesta.headers });
+        }
+
         const { items, customerEmail, customerId, couponIds, promotionCode, currency = 'mxn' } = await req.json();
 
         if (!customerId) {

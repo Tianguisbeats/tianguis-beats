@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { renderContractToBuffer } from '@/lib/PDFgenerarContratos';
 import { fetchLicenseDetails } from '@/lib/license-utils';
 import { obtenerSupabaseAdmin, crearClienteUsuario } from '@/lib/supabase-admin';
+import { aplicarLimite } from '@/lib/rate-limit';
 
 /**
  * API Route: Generar Licencia PDF (V4)
@@ -9,6 +10,12 @@ import { obtenerSupabaseAdmin, crearClienteUsuario } from '@/lib/supabase-admin'
  */
 export async function POST(req: NextRequest) {
     try {
+        // Rate limit: 20 generaciones de PDF por minuto por IP
+        const lim = aplicarLimite(req, { id: 'licencia-pdf', max: 20, ventanaMs: 60_000 });
+        if (!lim.permitido && lim.respuesta) {
+            return NextResponse.json(lim.respuesta.body, { status: lim.respuesta.status, headers: lim.respuesta.headers });
+        }
+
         const supabaseAdmin = obtenerSupabaseAdmin();
 
         // --- VERIFICACIÓN DE SESIÓN (SEGURIDAD CRÍTICA) ---
