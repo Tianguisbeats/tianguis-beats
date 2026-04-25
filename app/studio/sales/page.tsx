@@ -5,13 +5,16 @@ import {
     DollarSign, Clock, User, ArrowUpRight, Music,
     Download, Search, Filter, CreditCard,
     ArrowDownLeft, ExternalLink, Calendar,
-    TrendingUp, Users, Wallet, Package, Crown, ShieldCheck, Check, Info, AlertTriangle, X, CheckCircle2, QrCode, Tag
+    TrendingUp, Users, Wallet, Package, Crown, ShieldCheck, Check, Info, AlertTriangle, X, CheckCircle2, QrCode, Tag,
+    BarChart3, Receipt
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
 import Link from 'next/link';
-import LoadingTianguis from '@/components/LoadingTianguis';
 import { calculateEarnings } from '@/lib/finance-utils';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 
 export default function StudioSalesPage() {
     const [sales, setSales] = useState<any[]>([]);
@@ -218,7 +221,60 @@ export default function StudioSalesPage() {
         }
     };
 
-    if (loading) return <LoadingTianguis />;
+    // KPIs derivados (memoizados): número de ventas, ganancia neta total
+    const kpis = useMemo(() => {
+        const numVentas = sales.length;
+        // Ganancia neta total (después de comisión Stripe + IVA, según plan del vendedor)
+        const ventasUltimos30Dias = sales.filter(s => {
+            const dias = (Date.now() - new Date(s.created_at).getTime()) / (1000 * 60 * 60 * 24);
+            return dias <= 30;
+        });
+        const ingresos30d = ventasUltimos30Dias.reduce((acc, s) => acc + Number(s.amount || 0), 0);
+        return { numVentas, ingresos30d, numVentas30d: ventasUltimos30Dias.length };
+    }, [sales]);
+
+    if (loading) {
+        return (
+            <div className="space-y-12 w-full max-w-[1600px] mx-auto pb-20 px-6 sm:px-12">
+                <div className="space-y-4 mb-12">
+                    <Skeleton className="h-4 w-40 bg-white/5" />
+                    <Skeleton className="h-16 w-2/3 bg-white/5" />
+                    <Skeleton className="h-3 w-32 bg-white/5" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+                    {[0, 1, 2, 3].map(i => (
+                        <Card key={i} className="bg-white/[0.02] border-white/5 backdrop-blur-sm">
+                            <CardHeader className="pb-2">
+                                <Skeleton className="h-3 w-20 bg-white/5" />
+                            </CardHeader>
+                            <CardContent>
+                                <Skeleton className="h-8 w-32 bg-white/5 mb-2" />
+                                <Skeleton className="h-3 w-24 bg-white/5" />
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+                {[0, 1, 2].map(i => (
+                    <div key={i} className="space-y-4 pb-12 border-b border-border/20">
+                        <div className="flex items-center justify-between gap-6">
+                            <div className="flex items-center gap-4">
+                                <Skeleton className="h-14 w-14 rounded-2xl bg-white/5" />
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-40 bg-white/5" />
+                                    <Skeleton className="h-3 w-24 bg-white/5" />
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <Skeleton className="h-14 w-32 bg-white/5 rounded-2xl" />
+                                <Skeleton className="h-14 w-32 bg-white/5 rounded-2xl" />
+                                <Skeleton className="h-14 w-28 bg-white/5 rounded-2xl" />
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-12 w-full max-w-[1600px] mx-auto pb-20 px-6 sm:px-12">
@@ -244,6 +300,63 @@ export default function StudioSalesPage() {
                         <Download size={14} /> Reporte CSV
                     </button>
                 </div>
+            </div>
+
+            {/* KPI Cards Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Card className="bg-white/[0.02] border-white/5 backdrop-blur-sm hover:border-blue-500/30 transition-colors">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Venta Bruta Total</CardTitle>
+                        <DollarSign className="h-4 w-4 text-blue-500/60" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-black tracking-tight text-foreground">{formatCurrency(totalRevenue)}</div>
+                        <CardDescription className="text-[9px] font-bold uppercase tracking-widest mt-1">
+                            Ingresos acumulados
+                        </CardDescription>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-white/[0.02] border-white/5 backdrop-blur-sm hover:border-emerald-500/30 transition-colors">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Últimos 30 días</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-emerald-500/60" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-black tracking-tight text-foreground">{formatCurrency(kpis.ingresos30d)}</div>
+                        <CardDescription className="text-[9px] font-bold uppercase tracking-widest mt-1">
+                            <Badge variant="secondary" className="text-[8px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
+                                {kpis.numVentas30d} ventas
+                            </Badge>
+                        </CardDescription>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-white/[0.02] border-white/5 backdrop-blur-sm hover:border-violet-500/30 transition-colors">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Ticket Promedio</CardTitle>
+                        <Receipt className="h-4 w-4 text-violet-500/60" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-black tracking-tight text-foreground">{formatCurrency(avgSaleValue)}</div>
+                        <CardDescription className="text-[9px] font-bold uppercase tracking-widest mt-1">
+                            Por orden de pedido
+                        </CardDescription>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-white/[0.02] border-white/5 backdrop-blur-sm hover:border-amber-500/30 transition-colors">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Total Órdenes</CardTitle>
+                        <BarChart3 className="h-4 w-4 text-amber-500/60" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-black tracking-tight text-foreground">{kpis.numVentas}</div>
+                        <CardDescription className="text-[9px] font-bold uppercase tracking-widest mt-1">
+                            Transacciones cerradas
+                        </CardDescription>
+                    </CardContent>
+                </Card>
             </div>
 
             {/* Search & Filters */}
