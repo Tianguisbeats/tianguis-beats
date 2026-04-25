@@ -1108,7 +1108,7 @@ export default function ProducerProfilePage() {
                                         {followers.map(f => (
                                             <Link key={f.id} href={`/${f.nombre_usuario}`} className="group flex items-center justify-between p-4 bg-white/5 dark:bg-slate-900/40 border border-white/5 hover:border-blue-500/30 rounded-3xl transition-all hover:scale-[1.02]">
                                                 <div className="flex items-center gap-4">
-                                                    <img src={f.foto_perfil || `https://ui-avatars.com/api/?name=${f.nombre_usuario}`} className="w-12 h-12 rounded-xl object-cover border border-white/10" alt="" />
+                                                    <Image src={f.foto_perfil || `https://ui-avatars.com/api/?name=${f.nombre_usuario}`} width={48} height={48} className="w-12 h-12 rounded-xl object-cover border border-white/10" alt={`Avatar de ${f.nombre_usuario}`} unoptimized={!f.foto_perfil} />
                                                     <div className="flex flex-col">
                                                         <span className="text-sm font-black group-hover:text-blue-400 transition-colors">@{f.nombre_usuario}</span>
                                                         <span className="text-[10px] font-bold text-muted uppercase">{f.nombre_artistico || 'Productor'}</span>
@@ -1131,7 +1131,7 @@ export default function ProducerProfilePage() {
                                         {following.map(fl => (
                                             <Link key={fl.id} href={`/${fl.nombre_usuario}`} className="group flex items-center justify-between p-4 bg-white/5 dark:bg-slate-900/40 border border-white/5 hover:border-blue-500/30 rounded-3xl transition-all hover:scale-[1.02]">
                                                 <div className="flex items-center gap-4">
-                                                    <img src={fl.foto_perfil || `https://ui-avatars.com/api/?name=${fl.nombre_usuario}`} className="w-12 h-12 rounded-xl object-cover border border-white/10" alt="" />
+                                                    <Image src={fl.foto_perfil || `https://ui-avatars.com/api/?name=${fl.nombre_usuario}`} width={48} height={48} className="w-12 h-12 rounded-xl object-cover border border-white/10" alt={`Avatar de ${fl.nombre_usuario}`} unoptimized={!fl.foto_perfil} />
                                                     <div className="flex flex-col">
                                                         <span className="text-sm font-black group-hover:text-blue-400 transition-colors">@{fl.nombre_usuario}</span>
                                                         <span className="text-[10px] font-bold text-muted uppercase">{fl.nombre_artistico || 'Productor'}</span>
@@ -1156,11 +1156,12 @@ export default function ProducerProfilePage() {
                                             <div className="shrink-0 w-10 h-10 rounded-full overflow-hidden border border-border bg-foreground/5 flex items-center justify-center">
                                                 {user ? (
                                                     currentUserProfile?.foto_perfil ? (
-                                                        <img
+                                                        <Image
                                                             src={currentUserProfile.foto_perfil}
                                                             alt="Tú"
+                                                            width={40}
+                                                            height={40}
                                                             className="w-full h-full object-cover"
-                                                            onError={e => { (e.target as HTMLImageElement).src = '/logo.png'; }}
                                                         />
                                                     ) : (
                                                         <User size={16} className="text-muted" />
@@ -1232,7 +1233,7 @@ export default function ProducerProfilePage() {
                                                                 <Link href={`/${autor?.nombre_usuario}`} className="shrink-0">
                                                                     <div className="w-10 h-10 rounded-full overflow-hidden border border-border bg-foreground/5 hover:ring-2 hover:ring-accent/30 transition-all">
                                                                         {autor?.foto_perfil ? (
-                                                                            <img src={autor.foto_perfil} alt={autor.nombre_artistico} className="w-full h-full object-cover" />
+                                                                            <Image src={autor.foto_perfil} alt={autor.nombre_artistico || 'Avatar'} width={40} height={40} className="w-full h-full object-cover" />
                                                                         ) : (
                                                                             <div className="w-full h-full bg-gradient-to-br from-accent/60 to-blue-500/60 flex items-center justify-center text-white text-xs font-black">
                                                                                 {(autor?.nombre_artistico || '?').charAt(0).toUpperCase()}
@@ -1315,7 +1316,7 @@ export default function ProducerProfilePage() {
                                                                                 <Link href={`/${repAutor?.nombre_usuario}`} className="shrink-0">
                                                                                     <div className="w-8 h-8 rounded-full overflow-hidden border border-border bg-foreground/5 hover:ring-2 hover:ring-accent/30 transition-all">
                                                                                         {repAutor?.foto_perfil ? (
-                                                                                            <img src={repAutor.foto_perfil} alt={repAutor.nombre_artistico} className="w-full h-full object-cover" />
+                                                                                            <Image src={repAutor.foto_perfil} alt={repAutor.nombre_artistico || 'Avatar'} width={32} height={32} className="w-full h-full object-cover" />
                                                                                         ) : (
                                                                                             <div className="w-full h-full bg-gradient-to-br from-accent/60 to-blue-500/60 flex items-center justify-center text-white text-[10px] font-black">
                                                                                                 {(repAutor?.nombre_artistico || '?').charAt(0).toUpperCase()}
