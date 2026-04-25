@@ -82,6 +82,10 @@ export default function ProducerProfilePage() {
     const [postContent, setPostContent] = useState('');
     const [isPosting, setIsPosting] = useState(false);
     const [likedPostIds, setLikedPostIds] = useState<Set<string>>(new Set());
+    const [currentUserProfile, setCurrentUserProfile] = useState<any>(null);
+    const [replyingTo, setReplyingTo] = useState<string | null>(null);
+    const [replyContent, setReplyContent] = useState('');
+    const [isReplying, setIsReplying] = useState(false);
 
     const isOwner = user?.id === profile?.id;
 
@@ -95,7 +99,13 @@ export default function ProducerProfilePage() {
     });
 
     useEffect(() => {
-        supabase.auth.getUser().then(({ data }) => setUser(data.user));
+        supabase.auth.getUser().then(async ({ data }) => {
+            setUser(data.user);
+            if (data.user) {
+                const { data: prof } = await supabase.from('perfiles').select('foto_perfil').eq('id', data.user.id).single();
+                if (prof) setCurrentUserProfile(prof);
+            }
+        });
     }, []);
 
     const resolveStorageUrl = (path: string | null | undefined, bucket: string): string | null => {
@@ -250,14 +260,14 @@ export default function ProducerProfilePage() {
             const { data } = await supabase
                 .from('comentarios_perfil')
                 .select(`
-                    id, contenido, created_at, likes_count,
+                    id, contenido, created_at, likes_count, parent_id,
                     autor:autor_id (
                         id, nombre_artistico, nombre_usuario, foto_perfil
                     )
                 `)
                 .eq('perfil_id', profileId)
                 .order('created_at', { ascending: false })
-                .limit(50);
+                .limit(100);
             if (data) setWallPosts(data);
         } catch {}
         setWallLoading(false);
@@ -273,7 +283,7 @@ export default function ProducerProfilePage() {
                 .from('comentarios_perfil')
                 .insert({ perfil_id: profile.id, autor_id: user.id, contenido: text })
                 .select(`
-                    id, contenido, created_at, likes_count,
+                    id, contenido, created_at, likes_count, parent_id,
                     autor:autor_id (
                         id, nombre_artistico, nombre_usuario, foto_perfil
                     )
@@ -286,6 +296,32 @@ export default function ProducerProfilePage() {
             showToast('Error al publicar', 'error');
         }
         setIsPosting(false);
+    };
+
+    const handleReply = async (parentId: string) => {
+        if (!user) { showToast('Inicia sesión para responder', 'info'); return; }
+        const text = replyContent.trim();
+        if (!text || text.length > 1000) return;
+        setIsReplying(true);
+        try {
+            const { data, error } = await supabase
+                .from('comentarios_perfil')
+                .insert({ perfil_id: profile.id, autor_id: user.id, contenido: text, parent_id: parentId })
+                .select(`
+                    id, contenido, created_at, likes_count, parent_id,
+                    autor:autor_id (
+                        id, nombre_artistico, nombre_usuario, foto_perfil
+                    )
+                `)
+                .single();
+            if (error) throw error;
+            setWallPosts(prev => [...prev, data]);
+            setReplyContent('');
+            setReplyingTo(null);
+        } catch {
+            showToast('Error al publicar respuesta', 'error');
+        }
+        setIsReplying(false);
     };
 
     const handleDeletePost = async (postId: string) => {
@@ -646,8 +682,12 @@ export default function ProducerProfilePage() {
                             <div className="flex-1 min-w-0 flex flex-col md:flex-row gap-4 md:gap-6 md:items-end pb-2 text-center md:text-left">
                                 <div className="flex-1 min-w-0">
                                     <div className="flex flex-col md:flex-row flex-wrap items-center md:items-start gap-2 md:gap-4 mb-2">
-                                        <h1 className="font-black uppercase tracking-tighter leading-[0.85] text-foreground drop-shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] break-words w-full text-center md:text-left"
-                                            style={{ fontSize: 'clamp(2.5rem, 9vw, 8rem)' }}>
+                                        <h1 className="font-black uppercase tracking-tighter leading-[0.85] text-foreground drop-shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] w-full text-center md:text-left"
+                                            style={{ 
+                                                fontSize: displayName.length > 8 ? 'clamp(2.5rem, 7vw, 5.5rem)' : 'clamp(2.5rem, 9vw, 8rem)',
+                                                wordBreak: 'break-word',
+                                                hyphens: 'auto'
+                                            }}>
                                             {displayName}
                                         </h1>
                                         <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-1">
@@ -1054,14 +1094,18 @@ export default function ProducerProfilePage() {
                                     <div className="bg-card border border-border rounded-[2rem] p-5 shadow-sm">
                                         <div className="flex items-start gap-3">
                                             {/* Current user avatar */}
-                                            <div className="shrink-0 w-10 h-10 rounded-full overflow-hidden border border-border bg-foreground/5">
+                                            <div className="shrink-0 w-10 h-10 rounded-full overflow-hidden border border-border bg-foreground/5 flex items-center justify-center">
                                                 {user ? (
-                                                    <img
-                                                        src={user.user_metadata?.foto_perfil || user.user_metadata?.avatar_url || '/logo.png'}
-                                                        alt="Tú"
-                                                        className="w-full h-full object-cover"
-                                                        onError={e => { (e.target as HTMLImageElement).src = '/logo.png'; }}
-                                                    />
+                                                    currentUserProfile?.foto_perfil ? (
+                                                        <img
+                                                            src={currentUserProfile.foto_perfil}
+                                                            alt="Tú"
+                                                            className="w-full h-full object-cover"
+                                                            onError={e => { (e.target as HTMLImageElement).src = '/logo.png'; }}
+                                                        />
+                                                    ) : (
+                                                        <User size={16} className="text-muted" />
+                                                    )
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center">
                                                         <User size={16} className="text-muted" />
@@ -1112,82 +1156,173 @@ export default function ProducerProfilePage() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="space-y-3">
-                                            {wallPosts.map((post: any) => {
+                                        <div className="space-y-5">
+                                            {wallPosts.filter(p => !p.parent_id).map((post: any) => {
                                                 const autor = post.autor as any;
                                                 const isMyPost = user?.id === autor?.id;
                                                 const isProfileOwner = isOwner;
                                                 const canDelete = isMyPost || isProfileOwner;
                                                 const liked = likedPostIds.has(post.id);
+                                                const replies = wallPosts.filter(r => r.parent_id === post.id).sort((a,b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
                                                 return (
-                                                    <div
-                                                        key={post.id}
-                                                        className="group bg-card border border-border rounded-[1.75rem] p-5 transition-all hover:border-border/80 hover:shadow-sm"
-                                                    >
-                                                        <div className="flex items-start gap-3">
-                                                            {/* Author avatar */}
-                                                            <Link href={`/${autor?.nombre_usuario}`} className="shrink-0">
-                                                                <div className="w-10 h-10 rounded-full overflow-hidden border border-border bg-foreground/5 hover:ring-2 hover:ring-accent/30 transition-all">
-                                                                    {autor?.foto_perfil ? (
-                                                                        <img src={autor.foto_perfil} alt={autor.nombre_artistico} className="w-full h-full object-cover" />
-                                                                    ) : (
-                                                                        <div className="w-full h-full bg-gradient-to-br from-accent/60 to-blue-500/60 flex items-center justify-center text-white text-xs font-black">
-                                                                            {(autor?.nombre_artistico || '?').charAt(0).toUpperCase()}
+                                                    <div key={post.id} className="space-y-3">
+                                                        <div className="group bg-card border border-border rounded-[1.75rem] p-5 transition-all hover:border-border/80 hover:shadow-sm">
+                                                            <div className="flex items-start gap-3">
+                                                                {/* Author avatar */}
+                                                                <Link href={`/${autor?.nombre_usuario}`} className="shrink-0">
+                                                                    <div className="w-10 h-10 rounded-full overflow-hidden border border-border bg-foreground/5 hover:ring-2 hover:ring-accent/30 transition-all">
+                                                                        {autor?.foto_perfil ? (
+                                                                            <img src={autor.foto_perfil} alt={autor.nombre_artistico} className="w-full h-full object-cover" />
+                                                                        ) : (
+                                                                            <div className="w-full h-full bg-gradient-to-br from-accent/60 to-blue-500/60 flex items-center justify-center text-white text-xs font-black">
+                                                                                {(autor?.nombre_artistico || '?').charAt(0).toUpperCase()}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </Link>
+
+                                                                <div className="flex-1 min-w-0">
+                                                                    {/* Header */}
+                                                                    <div className="flex items-center justify-between gap-2 mb-1">
+                                                                        <div className="flex items-center gap-2 min-w-0">
+                                                                            <Link href={`/${autor?.nombre_usuario}`} className="font-black text-sm text-foreground hover:text-accent transition-colors truncate">
+                                                                                {autor?.nombre_artistico || autor?.nombre_usuario || 'Usuario'}
+                                                                            </Link>
+                                                                            {autor?.id === profile?.id && (
+                                                                                <span className="shrink-0 px-2 py-0.5 bg-accent/10 border border-accent/20 text-accent text-[8px] font-black uppercase tracking-widest rounded-full">
+                                                                                    Autor
+                                                                                </span>
+                                                                            )}
                                                                         </div>
-                                                                    )}
-                                                                </div>
-                                                            </Link>
-
-                                                            <div className="flex-1 min-w-0">
-                                                                {/* Header */}
-                                                                <div className="flex items-center justify-between gap-2 mb-1">
-                                                                    <div className="flex items-center gap-2 min-w-0">
-                                                                        <Link href={`/${autor?.nombre_usuario}`} className="font-black text-sm text-foreground hover:text-accent transition-colors truncate">
-                                                                            {autor?.nombre_artistico || autor?.nombre_usuario || 'Usuario'}
-                                                                        </Link>
-                                                                        {autor?.id === profile?.id && (
-                                                                            <span className="shrink-0 px-2 py-0.5 bg-accent/10 border border-accent/20 text-accent text-[8px] font-black uppercase tracking-widest rounded-full">
-                                                                                Autor
+                                                                        <div className="flex items-center gap-2 shrink-0">
+                                                                            <span className="text-[10px] text-muted/50 font-medium">
+                                                                                {timeAgo(post.created_at)}
                                                                             </span>
-                                                                        )}
+                                                                            {canDelete && (
+                                                                                <button
+                                                                                    onClick={() => handleDeletePost(post.id)}
+                                                                                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-red-500/10 hover:text-red-500 text-muted/30 transition-all"
+                                                                                >
+                                                                                    <Trash2 size={13} />
+                                                                                </button>
+                                                                            )}
+                                                                        </div>
                                                                     </div>
-                                                                    <div className="flex items-center gap-2 shrink-0">
-                                                                        <span className="text-[10px] text-muted/50 font-medium">
-                                                                            {timeAgo(post.created_at)}
-                                                                        </span>
-                                                                        {canDelete && (
-                                                                            <button
-                                                                                onClick={() => handleDeletePost(post.id)}
-                                                                                className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-red-500/10 hover:text-red-500 text-muted/30 transition-all"
-                                                                            >
-                                                                                <Trash2 size={13} />
-                                                                            </button>
-                                                                        )}
+
+                                                                    {/* Content */}
+                                                                    <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap break-words">
+                                                                        {post.contenido}
+                                                                    </p>
+
+                                                                    {/* Like and Reply Actions */}
+                                                                    <div className="flex items-center gap-4 mt-3">
+                                                                        <button
+                                                                            onClick={() => handleLikePost(post.id, post.likes_count)}
+                                                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 ${
+                                                                                liked
+                                                                                    ? 'bg-red-500/10 text-red-500 border border-red-500/20'
+                                                                                    : 'text-muted/40 hover:text-red-500 hover:bg-red-500/10 border border-transparent'
+                                                                            }`}
+                                                                        >
+                                                                            <Heart size={12} className={liked ? 'fill-current' : ''} />
+                                                                            {post.likes_count > 0 && <span>{post.likes_count}</span>}
+                                                                        </button>
+                                                                        
+                                                                        <button
+                                                                            onClick={() => setReplyingTo(replyingTo === post.id ? null : post.id)}
+                                                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest text-muted/40 hover:text-accent hover:bg-accent/10 transition-all active:scale-95 border border-transparent"
+                                                                        >
+                                                                            <MessageCircle size={12} />
+                                                                            Responder
+                                                                        </button>
                                                                     </div>
-                                                                </div>
-
-                                                                {/* Content */}
-                                                                <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap break-words">
-                                                                    {post.contenido}
-                                                                </p>
-
-                                                                {/* Like */}
-                                                                <div className="flex items-center gap-1 mt-3">
-                                                                    <button
-                                                                        onClick={() => handleLikePost(post.id, post.likes_count)}
-                                                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 ${
-                                                                            liked
-                                                                                ? 'bg-red-500/10 text-red-500 border border-red-500/20'
-                                                                                : 'text-muted/40 hover:text-red-500 hover:bg-red-500/10 border border-transparent'
-                                                                        }`}
-                                                                    >
-                                                                        <Heart size={12} className={liked ? 'fill-current' : ''} />
-                                                                        {post.likes_count > 0 && <span>{post.likes_count}</span>}
-                                                                    </button>
                                                                 </div>
                                                             </div>
                                                         </div>
+
+                                                        {/* Replies Container */}
+                                                        {replies.length > 0 && (
+                                                            <div className="pl-12 pr-2 space-y-3">
+                                                                {replies.map(reply => {
+                                                                    const repAutor = reply.autor as any;
+                                                                    const repIsMyPost = user?.id === repAutor?.id;
+                                                                    const repCanDelete = repIsMyPost || isProfileOwner;
+                                                                    const repLiked = likedPostIds.has(reply.id);
+
+                                                                    return (
+                                                                        <div key={reply.id} className="group bg-card/50 border border-border/50 rounded-2xl p-4 transition-all hover:border-border/80">
+                                                                            <div className="flex items-start gap-3">
+                                                                                <Link href={`/${repAutor?.nombre_usuario}`} className="shrink-0">
+                                                                                    <div className="w-8 h-8 rounded-full overflow-hidden border border-border bg-foreground/5 hover:ring-2 hover:ring-accent/30 transition-all">
+                                                                                        {repAutor?.foto_perfil ? (
+                                                                                            <img src={repAutor.foto_perfil} alt={repAutor.nombre_artistico} className="w-full h-full object-cover" />
+                                                                                        ) : (
+                                                                                            <div className="w-full h-full bg-gradient-to-br from-accent/60 to-blue-500/60 flex items-center justify-center text-white text-[10px] font-black">
+                                                                                                {(repAutor?.nombre_artistico || '?').charAt(0).toUpperCase()}
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </Link>
+
+                                                                                <div className="flex-1 min-w-0">
+                                                                                    <div className="flex items-center justify-between gap-2 mb-1">
+                                                                                        <div className="flex items-center gap-2 min-w-0">
+                                                                                            <Link href={`/${repAutor?.nombre_usuario}`} className="font-black text-xs text-foreground hover:text-accent transition-colors truncate">
+                                                                                                {repAutor?.nombre_artistico || repAutor?.nombre_usuario || 'Usuario'}
+                                                                                            </Link>
+                                                                                            {repAutor?.id === profile?.id && (
+                                                                                                <span className="shrink-0 px-1.5 py-0.5 bg-accent/10 border border-accent/20 text-accent text-[7px] font-black uppercase tracking-widest rounded-full">Autor</span>
+                                                                                            )}
+                                                                                        </div>
+                                                                                        <div className="flex items-center gap-2 shrink-0">
+                                                                                            <span className="text-[9px] text-muted/50 font-medium">{timeAgo(reply.created_at)}</span>
+                                                                                            {repCanDelete && (
+                                                                                                <button onClick={() => handleDeletePost(reply.id)} className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-red-500/10 hover:text-red-500 text-muted/30 transition-all">
+                                                                                                    <Trash2 size={12} />
+                                                                                                </button>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <p className="text-xs text-foreground/80 leading-relaxed whitespace-pre-wrap break-words">{reply.contenido}</p>
+                                                                                    <div className="flex items-center gap-1 mt-2">
+                                                                                        <button onClick={() => handleLikePost(reply.id, reply.likes_count)} className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all active:scale-95 ${repLiked ? 'text-red-500 bg-red-500/10' : 'text-muted/40 hover:text-red-500'}`}>
+                                                                                            <Heart size={10} className={repLiked ? 'fill-current' : ''} />
+                                                                                            {reply.likes_count > 0 && <span>{reply.likes_count}</span>}
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        )}
+
+                                                        {/* Reply Input */}
+                                                        {replyingTo === post.id && (
+                                                            <div className="pl-12 pr-2">
+                                                                <div className="bg-card border border-border rounded-2xl p-3 shadow-sm flex items-start gap-3 animate-in slide-in-from-top-2 fade-in duration-200">
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <textarea
+                                                                            autoFocus
+                                                                            value={replyContent}
+                                                                            onChange={e => setReplyContent(e.target.value)}
+                                                                            placeholder="Escribe tu respuesta..."
+                                                                            disabled={isReplying}
+                                                                            rows={2}
+                                                                            className="w-full bg-transparent text-sm text-foreground placeholder:text-muted/50 resize-none focus:outline-none transition-all disabled:opacity-50"
+                                                                        />
+                                                                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
+                                                                            <button onClick={() => setReplyingTo(null)} className="text-[10px] font-bold text-muted/60 hover:text-foreground transition-colors uppercase tracking-widest">Cancelar</button>
+                                                                            <button onClick={() => handleReply(post.id)} disabled={isReplying || !replyContent.trim()} className="flex items-center gap-2 px-4 py-1.5 bg-accent/10 hover:bg-accent text-accent hover:text-white rounded-lg font-black text-[10px] uppercase tracking-widest transition-all disabled:opacity-30">
+                                                                                {isReplying ? <Loader2 size={12} className="animate-spin" /> : 'Responder'}
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 );
                                             })}
