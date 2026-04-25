@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Kanit, Montserrat } from "next/font/google";
+import { Kanit, Montserrat, Geist } from "next/font/google";
 import "./globals.css";
 
 const kanit = Kanit({
@@ -49,6 +49,10 @@ import LenisScroll from "@/components/LenisScroll";
 import { Toaster } from 'sonner';
 import MaintenanceGuard from "@/components/MaintenanceGuard";
 import AnuncioBanner from "@/components/AnuncioBanner";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+
 
 export default function RootLayout({
   children,
@@ -57,7 +61,7 @@ export default function RootLayout({
 }>) {
   return (
     /* ── Raíz de la aplicación ── */
-    <html lang="es">
+    <html lang="es" className={cn("font-sans", geist.variable)}>
       <body className={`${kanit.variable} ${montserrat.variable} font-body antialiased`}>
         <LenisScroll />
         <Toaster position="top-right" richColors closeButton theme="dark" />
