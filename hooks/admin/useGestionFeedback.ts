@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
 /**
@@ -18,6 +18,11 @@ interface OpcionesGestionFeedback {
 export function useGestionFeedback(opts: OpcionesGestionFeedback = {}) {
     const [feedbacks, setFeedbacks] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const optsRef = useRef(opts);
+
+    useEffect(() => {
+        optsRef.current = opts;
+    }, [opts]);
 
     const fetchFeedbacks = useCallback(async () => {
         setLoading(true);
@@ -51,10 +56,10 @@ export function useGestionFeedback(opts: OpcionesGestionFeedback = {}) {
 
             setFeedbacks(merged);
         } catch (err: any) {
-            opts.onError?.(err?.message || 'Error al cargar feedback');
+            optsRef.current.onError?.(err?.message || 'Error al cargar feedback');
         }
         setLoading(false);
-    }, [opts]);
+    }, []);
 
     useEffect(() => {
         fetchFeedbacks();
@@ -67,12 +72,12 @@ export function useGestionFeedback(opts: OpcionesGestionFeedback = {}) {
             .eq('id', id);
 
         if (error) {
-            opts.onError?.('Error al actualizar estado');
+            optsRef.current.onError?.('Error al actualizar estado');
             return;
         }
         setFeedbacks(prev => prev.map(f => (f.id === id ? { ...f, estado: newStatus } : f)));
-        opts.onExito?.('Estado actualizado');
-    }, [opts]);
+        optsRef.current.onExito?.('Estado actualizado');
+    }, []);
 
     const pendientes = useMemo(
         () => feedbacks.filter(f => (f.estado || 'pendiente') === 'pendiente'),

@@ -36,7 +36,8 @@ export default function PaymentsPage() {
     }, []);
 
     const fetchInitialData = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
         if (!user) return;
 
         try {
@@ -49,7 +50,9 @@ export default function PaymentsPage() {
             setProfile(profileData);
 
             // 2. Estado de Stripe Connect
-            const res = await fetch(`/api/stripe/connect?userId=${user.id}`);
+            const res = await fetch('/api/stripe/connect', {
+                headers: { Authorization: `Bearer ${session.access_token}` },
+            });
             const connectData = await res.json();
             setConnectStatus(connectData);
 
@@ -73,11 +76,17 @@ export default function PaymentsPage() {
         if (!profile) return;
         setIsConnecting(true);
         try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                throw new Error('Sesión no encontrada');
+            }
             const res = await fetch('/api/stripe/connect', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${session.access_token}`,
+                },
                 body: JSON.stringify({
-                    userId: profile.id,
                     email: profile.correo,
                     returnUrl: window.location.href
                 })

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { calculateEarnings } from '@/lib/finance-utils';
-import { obtenerSupabaseAdmin } from '@/lib/supabase-admin';
+import { obtenerSupabaseAdmin, obtenerUsuarioDesdeRequest } from '@/lib/supabase-admin';
 import { obtenerStripe, STRIPE_PRECIOS } from '@/lib/stripe-config';
 import { aplicarLimite } from '@/lib/rate-limit';
 
@@ -10,6 +9,10 @@ const logDebug = (msg: string) => {
     console.log(`[DEPURACION_CHECKOUT] [${timestamp}] ${msg}`);
 };
 
+class CheckoutValidationError extends Error {
+    status = 400;
+}
+
 export async function POST(req: Request) {
     try {
         // Rate limit: 10 checkouts por minuto por IP (anti-spam de sesiones Stripe)
@@ -18,11 +21,17 @@ export async function POST(req: Request) {
             return NextResponse.json(lim.respuesta.body, { status: lim.respuesta.status, headers: lim.respuesta.headers });
         }
 
-        const { items, customerEmail, customerId, couponIds, promotionCode, currency = 'mxn' } = await req.json();
+        const usuario = await obtenerUsuarioDesdeRequest(req);
+        if (!usuario) {
+            return NextResponse.json({ error: "Debes iniciar sesión para realizar una compra" }, { status: 401 });
+        }
 
-        if (!customerId) {
-            console.error('ERROR: No customerId (userId) provided to Checkout');
-            return NextResponse.json({ error: "Debes iniciar sesión para realizar una compra" }, { status: 400 });
+        const { items, customerEmail: customerEmailFromBody, customerId: customerIdFromBody, couponIds, promotionCode, currency = 'mxn' } = await req.json();
+        const customerId = usuario.id;
+
+        if (customerIdFromBody && customerIdFromBody !== customerId) {
+            console.error('[CHECKOUT] Intento de checkout con customerId ajeno', { authUser: customerId, bodyUser: customerIdFromBody });
+            return NextResponse.json({ error: "No autorizado para crear este checkout" }, { status: 403 });
         }
 
         // --- RESOLVER URL BASE PARA STRIPE (CRÍTICO) ---
@@ -102,10 +111,10 @@ export async function POST(req: Request) {
                 ? supabaseAdminForPrices.from('beats').select('id, precio_gratis_mxn, precio_basica_mxn, precio_pro_mxn, precio_premium_mxn, precio_exclusiva_estandar_mxn, precio_exclusiva_premium_mxn').in('id', beatIds)
                 : { data: [] },
             kitIds.length > 0
-                ? supabaseAdminForPrices.from('kits_sonido').select('id, precio_mxn').in('id', kitIds)
+                ? supabaseAdminForPrices.from('kits_sonido').select('id, precio').in('id', kitIds)
                 : { data: [] },
             serviceIds.length > 0
-                ? supabaseAdminForPrices.from('servicios').select('id, precio_mxn').in('id', serviceIds)
+                ? supabaseAdminForPrices.from('servicios').select('id, precio').in('id', serviceIds)
                 : { data: [] },
             couponsArray.length > 0
                 ? supabaseAdminForPrices.from('cupones').select('*').in('id', couponsArray)
@@ -127,15 +136,14 @@ export async function POST(req: Request) {
             const iType = String(item.type || '').toLowerCase().trim();
             let basePrice = 0;
 
-            if (iType === 'plan') return item.price;
-
             // --- 0. CASOS ESPECIALES (GRATIS O NEGOCIADOS) ---
             if (item.metadata?.isBulkFree) return 0;
 
             if (item.metadata?.isExclusiveOffer) {
                 const beatId = item.metadata?.beatId || item.metadata?.productId || String(item.id).split('_')[0];
                 const offer = offerMap.get(beatId);
-                if (offer) return Number(offer.monto_ofertado);
+                if (!offer) throw new CheckoutValidationError(`Oferta exclusiva no válida para "${item.name || item.id}"`);
+                return Number(offer.monto_ofertado);
             }
 
             // --- 1. DETERMINAR PRECIO BASE DE DB ---
@@ -143,23 +151,34 @@ export async function POST(req: Request) {
                 const beatId = item.metadata?.beatId || item.metadata?.productId || String(item.id).split('-')[0];
                 const beat = beatPriceMap.get(beatId);
                 if (!beat) {
-                    basePrice = item.price;
-                } else {
-                    const licenseKey = (item.metadata?.licenseType || item.metadata?.license || '').toLowerCase().trim()
-                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-                    const priceCol = BEAT_LICENSE_PRICE_COL[licenseKey];
-                    basePrice = priceCol ? (beat[priceCol] ?? beat.precio_basica_mxn) : beat.precio_basica_mxn;
+                    throw new CheckoutValidationError(`Beat no encontrado para "${item.name || item.id}"`);
+                }
+                const licenseKey = (item.metadata?.licenseType || item.metadata?.license || '').toLowerCase().trim()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                const priceCol = BEAT_LICENSE_PRICE_COL[licenseKey];
+                if (!priceCol) {
+                    throw new CheckoutValidationError(`Licencia inválida para "${item.name || item.id}"`);
+                }
+                basePrice = beat[priceCol];
+                if (basePrice === null || basePrice === undefined) {
+                    throw new CheckoutValidationError(`Precio no configurado para "${item.name || item.id}"`);
                 }
             } else if (['sound_kit', 'soundkit', 'kit', 'sound-kit'].includes(iType)) {
                 const kitId = item.metadata?.kitId || item.metadata?.productId || String(item.id).split('-')[0];
                 const kit = kitPriceMap.get(kitId);
-                basePrice = kit?.precio_mxn ?? item.price;
+                if (!kit) throw new CheckoutValidationError(`Sound Kit no encontrado para "${item.name || item.id}"`);
+                basePrice = kit.precio;
             } else if (['service', 'servicio'].includes(iType)) {
                 const serviceId = item.metadata?.serviceId || item.metadata?.productId || String(item.id).split('-')[0];
                 const service = servicePriceMap.get(serviceId);
-                basePrice = service?.precio_mxn ?? item.price;
+                if (!service) throw new CheckoutValidationError(`Servicio no encontrado para "${item.name || item.id}"`);
+                basePrice = service.precio;
             } else {
-                basePrice = item.price;
+                throw new CheckoutValidationError(`Tipo de producto inválido: ${iType || 'sin tipo'}`);
+            }
+
+            if (!Number.isFinite(Number(basePrice)) || Number(basePrice) < 0) {
+                throw new CheckoutValidationError(`Precio inválido para "${item.name || item.id}"`);
             }
 
             const couponId = item.appliedCouponId || item.metadata?.appliedCouponId;
@@ -178,7 +197,6 @@ export async function POST(req: Request) {
         };
 
         const line_items = validItems.map((item: any) => {
-            const cleanName = item.name.split('[')[0].trim();
             const licenseInfo = item.metadata?.license || item.metadata?.licenseType || item.metadata?.tipo_licencia || '';
             const producerId = item.metadata?.productor_id || item.metadata?.producer_id || item.metadata?.seller_id || item.metadata?.producerId || '';
             const discountPercent = item.discountPercent || 0;
@@ -227,6 +245,13 @@ export async function POST(req: Request) {
 
             logDebug(`[CHECKOUT] Item: ${productName} | Tipo: ${iType} | ClavePlan: ${planKey} | PriceID: ${fixedPriceId}`);
 
+            if (iType === 'plan') {
+                if (!['pro', 'premium'].includes(tierRaw) || !fixedPriceId) {
+                    throw new CheckoutValidationError(`Plan inválido: ${tierRaw || 'sin tier'}`);
+                }
+                return { price: fixedPriceId, quantity: 1 };
+            }
+
             // Para items que NO son planes pre-creados en Stripe (beats, kits, servicios)
             // construimos product_data inline. Los planes usan fixedPriceId directo.
             const priceData: any = {
@@ -242,7 +267,7 @@ export async function POST(req: Request) {
                         cycle: cycleRaw,
                         licenseType: licenseInfo,
                         productor_id: producerId,
-                        userId: customerId || '',
+                        userId: customerId,
                         portada_url: item.metadata?.portada_url || (itemImage ? itemImage[0] : ''),
                         discountPercent: item.discountPercent || 0,
                         product_name: productName,
@@ -250,17 +275,6 @@ export async function POST(req: Request) {
                 },
                 unit_amount: Math.round(getVerifiedPrice(item) * 100),
             };
-
-            if (iType === 'plan') {
-                priceData.recurring = {
-                    interval: item.metadata?.cycle === 'yearly' ? 'year' : 'month',
-                    interval_count: 1
-                };
-            }
-
-            if (fixedPriceId) {
-                return { price: fixedPriceId, quantity: 1 };
-            }
 
             return { price_data: priceData, quantity: 1 };
         });
@@ -285,6 +299,7 @@ export async function POST(req: Request) {
             .select('stripe_cliente_id, correo')
             .eq('id', customerId)
             .single();
+        const customerEmail = profile?.correo || usuario.email || customerEmailFromBody;
 
         if (profile?.stripe_cliente_id) {
             try {
@@ -461,6 +476,9 @@ export async function POST(req: Request) {
             userFriendlyError = "Hubo un error con tu perfil de cliente. Por favor, intenta de nuevo.";
         } else if (rawMessage.includes("coupon") || rawMessage.includes("discount")) {
             userFriendlyError = "El cupón aplicado no es válido para esta transacción.";
+        }
+        if (err instanceof CheckoutValidationError) {
+            return NextResponse.json({ error: err.message }, { status: err.status });
         }
 
         return NextResponse.json(

@@ -1,16 +1,22 @@
 import { NextResponse } from 'next/server';
 import { obtenerStripe } from '@/lib/stripe-config';
-import { obtenerSupabaseAdmin } from '@/lib/supabase-admin';
+import { obtenerSupabaseAdmin, obtenerUsuarioDesdeRequest } from '@/lib/supabase-admin';
 
 // GET: Obtener estado de la cuenta conectada
 export async function GET(req: Request) {
     try {
-        const { searchParams } = new URL(req.url);
-        const userId = searchParams.get('userId');
-
-        if (!userId) {
-            return NextResponse.json({ error: 'Falta userId' }, { status: 400 });
+        const usuario = await obtenerUsuarioDesdeRequest(req);
+        if (!usuario) {
+            return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
         }
+
+        const { searchParams } = new URL(req.url);
+        const userIdQuery = searchParams.get('userId');
+
+        if (userIdQuery && userIdQuery !== usuario.id) {
+            return NextResponse.json({ error: 'No autorizado para consultar este perfil' }, { status: 403 });
+        }
+        const userId = usuario.id;
 
         const supabase = obtenerSupabaseAdmin();
         const { data: profile, error } = await supabase
@@ -69,27 +75,35 @@ export async function GET(req: Request) {
 // POST: Crear cuenta o generar link de onboarding
 export async function POST(req: Request) {
     try {
-        const { userId, email, returnUrl } = await req.json();
-
-        if (!userId || !email) {
-            return NextResponse.json({ error: 'Faltan datos (userId, email)' }, { status: 400 });
+        const usuario = await obtenerUsuarioDesdeRequest(req);
+        if (!usuario) {
+            return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
         }
+
+        const { email, returnUrl } = await req.json();
+        const userId = usuario.id;
+
 
         const stripe = obtenerStripe();
         const supabase = obtenerSupabaseAdmin();
 
         const { data: profile } = await supabase
             .from('perfiles')
-            .select('stripe_connect_id, nombre_usuario')
+            .select('stripe_connect_id, nombre_usuario, correo')
             .eq('id', userId)
             .single();
+
+        const accountEmail = profile?.correo || usuario.email || email;
+        if (!accountEmail) {
+            return NextResponse.json({ error: 'El perfil no tiene correo para crear Stripe Connect' }, { status: 400 });
+        }
 
         let stripeAccountId = profile?.stripe_connect_id;
 
         if (!stripeAccountId) {
             const account = await stripe.accounts.create({
                 type: 'express',
-                email: email,
+                email: accountEmail,
                 capabilities: {
                     card_payments: { requested: true },
                     transfers: { requested: true },

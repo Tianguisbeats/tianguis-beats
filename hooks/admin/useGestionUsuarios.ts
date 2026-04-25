@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
 /**
@@ -47,6 +47,11 @@ export function useGestionUsuarios(opts: OpcionesGestionUsuarios = {}) {
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [editForm, setEditForm] = useState<PerfilEditable | null>(null);
     const [saving, setSaving] = useState(false);
+    const optsRef = useRef(opts);
+
+    useEffect(() => {
+        optsRef.current = opts;
+    }, [opts]);
 
     const fetchUsers = useCallback(async () => {
         setLoading(true);
@@ -65,10 +70,10 @@ export function useGestionUsuarios(opts: OpcionesGestionUsuarios = {}) {
                 setUsers(data || []);
             }
         } catch (err: any) {
-            opts.onError?.(err?.message || 'Error al cargar usuarios');
+            optsRef.current.onError?.(err?.message || 'Error al cargar usuarios');
         }
         setLoading(false);
-    }, [opts]);
+    }, []);
 
     useEffect(() => {
         fetchUsers();
@@ -125,12 +130,12 @@ export function useGestionUsuarios(opts: OpcionesGestionUsuarios = {}) {
             const updatedUser = { ...selectedUser, ...payload };
             setUsers(prev => prev.map(u => (u.id === selectedUser.id ? updatedUser : u)));
             setSelectedUser(null);
-            opts.onExito?.('Cambios guardados correctamente');
+            optsRef.current.onExito?.('Cambios guardados correctamente');
         } catch (err: any) {
-            opts.onError?.(err?.message || 'Error al guardar cambios');
+            optsRef.current.onError?.(err?.message || 'Error al guardar cambios');
         }
         setSaving(false);
-    }, [selectedUser, editForm, opts]);
+    }, [selectedUser, editForm]);
 
     const filteredUsers = useMemo(() => {
         const q = searchTerm.toLowerCase();

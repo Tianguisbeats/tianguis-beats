@@ -1,22 +1,23 @@
 import { NextResponse } from 'next/server';
 import { obtenerStripe } from '@/lib/stripe-config';
-import { obtenerSupabaseAdmin } from '@/lib/supabase-admin';
+import { obtenerSupabaseAdmin, obtenerUsuarioDesdeRequest } from '@/lib/supabase-admin';
 
 export async function POST(req: Request) {
     try {
-        const { userId, returnUrl } = await req.json();
+        const usuario = await obtenerUsuarioDesdeRequest(req);
 
-        if (!userId) {
+        if (!usuario) {
             return NextResponse.json({ error: 'No authenticated user' }, { status: 401 });
         }
 
+        const { returnUrl } = await req.json();
         const supabase = obtenerSupabaseAdmin();
         const stripe = obtenerStripe();
 
         const { data: profile } = await supabase
             .from('perfiles')
             .select('stripe_cliente_id, correo')
-            .eq('id', userId)
+            .eq('id', usuario.id)
             .single();
 
         let customerId: string | undefined = undefined;
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
                     if (!customerId) {
                         const newCustomer = await stripe.customers.create({
                             email,
-                            metadata: { userId }
+                            metadata: { userId: usuario.id }
                         });
                         customerId = newCustomer.id;
                     }
@@ -60,7 +61,7 @@ export async function POST(req: Request) {
                     await supabase
                         .from('perfiles')
                         .update({ stripe_cliente_id: customerId })
-                        .eq('id', userId);
+                        .eq('id', usuario.id);
                 } catch (err) {
                     console.error("Error recuperando cliente en Portal:", err);
                 }

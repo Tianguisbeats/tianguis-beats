@@ -264,9 +264,11 @@ export default function PricingPage() {
         try {
             const res = await fetch('/api/stripe/portal', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${session.access_token}`,
+                },
                 body: JSON.stringify({
-                    userId: session.user.id,
                     returnUrl: window.location.href
                 }),
             });

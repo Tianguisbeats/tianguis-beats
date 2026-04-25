@@ -1,19 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
 import { obtenerStripe } from '@/lib/stripe-config';
+import { obtenerSupabaseAdmin, obtenerUsuarioDesdeRequest } from '@/lib/supabase-admin';
 
 export async function POST(req: NextRequest) {
     try {
-        const authHeader = req.headers.get('Authorization');
-        const token = authHeader?.replace('Bearer ', '');
-
-        if (!token) {
+        const usuario = await obtenerUsuarioDesdeRequest(req);
+        if (!usuario) {
             return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-        }
-
-        const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-        if (authError || !user) {
-            return NextResponse.json({ error: 'Usuario no autenticado' }, { status: 401 });
         }
 
         const body = await req.json();
@@ -23,10 +16,11 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Acción inválida' }, { status: 400 });
         }
 
-        const { data: profile, error: profileErr } = await supabase
+        const supabaseAdmin = obtenerSupabaseAdmin();
+        const { data: profile, error: profileErr } = await supabaseAdmin
             .from('perfiles')
             .select('stripe_suscripcion_id, cancela_al_final')
-            .eq('id', user.id)
+            .eq('id', usuario.id)
             .single();
 
         if (profileErr || !profile || !profile.stripe_suscripcion_id) {
@@ -44,10 +38,10 @@ export async function POST(req: NextRequest) {
             cancel_at_period_end: action === 'cancel'
         });
 
-        await supabase
+        await supabaseAdmin
             .from('perfiles')
             .update({ cancela_al_final: action === 'cancel' })
-            .eq('id', user.id);
+            .eq('id', usuario.id);
 
         return NextResponse.json({
             success: true,

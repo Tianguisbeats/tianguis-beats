@@ -17,6 +17,9 @@ import LoadingTianguis from '@/components/LoadingTianguis';
 import { calculateEarnings, STRIPE_MEXICO_RATE, STRIPE_MEXICO_FIXED, IVA_RATE } from '@/lib/finance-utils';
 import { useGestionUsuarios } from '@/hooks/admin/useGestionUsuarios';
 import { useGestionFeedback } from '@/hooks/admin/useGestionFeedback';
+import { useGestionBeats } from '@/hooks/admin/useGestionBeats';
+import { useGestionControles } from '@/hooks/admin/useGestionControles';
+import { useEstadisticasGlobales } from '@/hooks/admin/useEstadisticasGlobales';
 import { MetricaStorage } from '@/components/admin/MetricaStorage';
 
 type View = 'dashboard' | 'verifications' | 'users' | 'coupons' | 'feedback' | 'income' | 'beats' | 'controls' | 'licenses';
@@ -102,61 +105,10 @@ export default function AdminDashboard() {
 
 // --- GLOBAL STATS MODULE ---
 function GlobalStats({ onViewChange }: { onViewChange: (view: View) => void }) {
-    const [stats, setStats] = useState({
-        totalSales: 0,
-        totalUsers: 0,
-        totalBeats: 0,
-        pendingVerifications: 0,
-        pendingFeedback: 0,
-        monthlyRevenue: 0,
-        activeSubscriptions: 0,
-        totalCoupons: 0
+    const { showToast } = useToast();
+    const { stats, loading } = useEstadisticasGlobales({
+        onError: (m) => showToast(m, 'error'),
     });
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchStats = async () => {
-            const [sales, users, beats, verifs, feedback, coupons] = await Promise.all([
-                supabase.from('transacciones').select('*'),
-                supabase.from('perfiles').select('id', { count: 'exact', head: true }),
-                supabase.from('beats').select('id', { count: 'exact', head: true }),
-                supabase.from('solicitudes_verificacion').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente'),
-                supabase.from('quejas_y_sugerencias').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente'),
-                supabase.from('cupones').select('id', { count: 'exact', head: true }).eq('es_activo', true)
-            ]);
-
-            const revenue = sales.data?.reduce((acc, s) => acc + (Number(s.precio_total || s.precio || 0)), 0) || 0;
-
-            // Ingresos del mes actual
-            const now = new Date();
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-            const { data: monthlyData } = await supabase
-                .from('transacciones')
-                .select('precio, precio_total')
-                .gte('fecha_creacion', startOfMonth);
-
-            const monthlyRevenue = monthlyData?.reduce((acc, s) => acc + (Number(s.precio_total) || Number(s.precio) || 0), 0) || 0;
-
-            const { data: verifsData } = await supabase.from('solicitudes_verificacion').select('id').eq('estado', 'pendiente');
-            const pendingVerifs = verifsData?.length || 0;
-
-            const { data: feedbackData } = await supabase.from('quejas_y_sugerencias').select('id').eq('estado', 'pendiente');
-            const pendingFeedback = feedbackData?.length || 0;
-
-            setStats({
-                totalSales: Number(revenue) || 0,
-                totalUsers: Number(users.count) || 0,
-                totalBeats: Number(beats.count) || 0,
-                pendingVerifications: Number(pendingVerifs) || 0,
-                pendingFeedback: Number(pendingFeedback) || 0,
-                monthlyRevenue: Number(monthlyRevenue) || 0,
-                activeSubscriptions: 0,
-                totalCoupons: Number(coupons.count) || 0
-            });
-            setLoading(false);
-        };
-        fetchStats();
-    }, []);
 
     if (loading) return <LoadingTianguis />;
 
@@ -1980,20 +1932,10 @@ function IncomeManager({ onBack }: { onBack: () => void }) {
 
 // --- BEATS MANAGER MODULE ---
 function BeatsManager({ onBack }: { onBack: () => void }) {
-    const [beats, setBeats] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchBeats = async () => {
-            const { data, error } = await supabase
-                .from('beats')
-                .select(`*, perfiles:productor_id (nombre_usuario, nombre_artistico)`)
-                .order('fecha_creacion', { ascending: false });
-            if (!error) setBeats(data || []);
-            setLoading(false);
-        };
-        fetchBeats();
-    }, []);
+    const { showToast } = useToast();
+    const { beats, loading } = useGestionBeats({
+        onError: (m) => showToast(m, 'error'),
+    });
 
     return (
         <div className="space-y-6">
@@ -2057,76 +1999,19 @@ function BeatsManager({ onBack }: { onBack: () => void }) {
 
 // --- CONTROLS MANAGER MODULE ---
 function ControlsManager({ onBack }: { onBack: () => void }) {
-    const [controls, setControls] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [bannerTexto, setBannerTexto] = useState('');
-    const [savingBanner, setSavingBanner] = useState(false);
     const { showToast } = useToast();
-
-    useEffect(() => {
-        fetchControls();
-    }, []);
-
-    const fetchControls = async () => {
-        setLoading(true);
-        try {
-            const { data, error } = await supabase
-                .from('configuracion_global')
-                .select('*')
-                .order('clave', { ascending: true });
-            if (error) throw error;
-            // Separar banner_texto de los controles booleanos
-            const bannerRow = data?.find((c: any) => c.clave === 'banner_texto');
-            if (bannerRow) setBannerTexto(bannerRow.valor || '');
-            setControls((data || []).filter((c: any) => c.clave !== 'banner_texto'));
-        } catch (err: any) {
-            console.error(err);
-            showToast("Error al cargar controles", "error");
-        }
-        setLoading(false);
-    };
-
-    const saveBannerTexto = async () => {
-        setSavingBanner(true);
-        try {
-            const { data: existing } = await supabase
-                .from('configuracion_global')
-                .select('id')
-                .eq('clave', 'banner_texto')
-                .maybeSingle();
-
-            if (existing) {
-                await supabase
-                    .from('configuracion_global')
-                    .update({ valor: bannerTexto, ultima_actualizacion: new Date().toISOString() })
-                    .eq('clave', 'banner_texto');
-            } else {
-                await supabase
-                    .from('configuracion_global')
-                    .insert({ clave: 'banner_texto', valor: bannerTexto, ultima_actualizacion: new Date().toISOString() });
-            }
-            showToast("Texto del banner guardado ✅", "success");
-        } catch (err: any) {
-            showToast("Error al guardar el banner", "error");
-        }
-        setSavingBanner(false);
-    };
-
-    const toggleControl = async (id: string, clave: string, currentVal: boolean) => {
-        try {
-            const { error } = await supabase
-                .from('configuracion_global')
-                .update({ valor: !currentVal, ultima_actualizacion: new Date().toISOString() })
-                .eq('id', id);
-
-            if (error) throw error;
-
-            setControls(controls.map(c => c.id === id ? { ...c, valor: !currentVal } : c));
-            showToast(`${clave.replace(/_/g, ' ').toUpperCase()} ${!currentVal ? 'Activado ✅' : 'Desactivado ❌'}`, "success");
-        } catch (err: any) {
-            showToast("Error al actualizar control", "error");
-        }
-    };
+    const {
+        controls,
+        loading,
+        bannerTexto,
+        setBannerTexto,
+        savingBanner,
+        saveBannerTexto,
+        toggleControl,
+    } = useGestionControles({
+        onError: (m) => showToast(m, 'error'),
+        onExito: (m) => showToast(m, 'success'),
+    });
 
     const getControlIcon = (clave: string) => {
         switch (clave) {

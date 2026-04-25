@@ -71,9 +71,17 @@ export default function StudioBillingPage() {
         if (!profile?.userId) return;
         setRedirecting(true);
         try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                showToast('Sesión no encontrada', 'error');
+                return;
+            }
             const res = await fetch('/api/stripe/subscription', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${session.access_token}`,
+                },
                 body: JSON.stringify({ action })
             });
             const data = await res.json();
@@ -93,17 +101,19 @@ export default function StudioBillingPage() {
     const handleManageBilling = async () => {
         setRedirecting(true);
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
                 showToast('Sesión no encontrada', 'error');
                 return;
             }
 
             const res = await fetch('/api/stripe/portal', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${session.access_token}`,
+                },
                 body: JSON.stringify({
-                    userId: user.id,
                     returnUrl: window.location.href
                 }),
             });

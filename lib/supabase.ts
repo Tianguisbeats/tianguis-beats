@@ -9,24 +9,17 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
 
 if (!supabaseUrl || !supabaseAnonKey) {
-    if (process.env.NODE_ENV !== 'production') {
-        console.warn("[Supabase] Advertencia: Faltan variables de entorno en el cliente público.");
-    }
+    throw new Error("[Supabase] Faltan NEXT_PUBLIC_SUPABASE_URL o NEXT_PUBLIC_SUPABASE_ANON_KEY");
 }
 
 /**
- * Exportamos el cliente instanciado de forma segura.
- * Si las variables faltan durante el build, proporcionamos un fallback 
- * para evitar que la aplicación crashee al importar este módulo.
+ * Cliente público de Supabase para código de navegador.
+ * Las variables son obligatorias para fallar temprano si el entorno está mal configurado.
  */
-export const supabase = (supabaseUrl && supabaseAnonKey)
-    ? createClient(supabaseUrl, supabaseAnonKey, {
-        auth: {
-            persistSession: true, // Mantiene la sesión iniciada al recargar
-            autoRefreshToken: true,
-            detectSessionInUrl: true,
-        },
-    })
-    : createClient("https://placeholder-url.supabase.co", "placeholder-key", {
-        auth: { persistSession: false },
-    });
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+        persistSession: true, // Mantiene la sesión iniciada al recargar
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+    },
+});

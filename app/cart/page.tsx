@@ -122,7 +122,8 @@ export default function CartPage() {
     const handleCheckout = async (method: 'stripe' | 'paypal' = 'stripe') => {
         setCheckingOut(true);
         setCheckoutError(null);
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
         if (!user) { router.push('/login?redirect=/cart'); return; }
         if (config?.ventas_habilitadas === false) {
             showToast("Ventas pausadas temporalmente", "info");
@@ -137,7 +138,10 @@ export default function CartPage() {
 
             const response = await fetch('/api/checkout/stripe', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${session.access_token}`,
+                },
                 body: JSON.stringify({
                     items: itemsWithDiscounts.map(item => {
                         let bestDiscountPercent = 0;
@@ -169,7 +173,6 @@ export default function CartPage() {
                         };
                     }),
                     customerEmail: user.email,
-                    customerId: user.id,
                     couponIds,
                     promotionCode: appliedCoupons.find(c => c.id_cupon_stripe)?.id_cupon_stripe || null,
                     currency: currency.toLowerCase()
