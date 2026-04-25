@@ -395,9 +395,6 @@ export default function CartPage() {
                                         {/* Line items */}
                                         <div className="space-y-3 pb-4 border-b border-border">
                                             {items.map(item => {
-                                                // Calcular mejor descuento para este item específico
-                                                const itemProducerId = item.metadata?.productor_id || item.metadata?.producerId || item.metadata?.producer_id || item.metadata?.seller_id;
-                                                const iTypeForSummary = String(item.type || '').toLowerCase().trim();
                                                 let bestItemDiscountPercent = 0;
                                                 appliedCoupons.forEach(cp => {
                                                     if (isItemEligibleForCoupon(item, cp)) {
@@ -405,7 +402,11 @@ export default function CartPage() {
                                                     }
                                                 });
 
-                                                const discountPrice = bestItemDiscountPercent > 0 ? item.price * (1 - (bestItemDiscountPercent / 100)) : item.price;
+                                                const bulkItem = itemsWithDiscounts.find(bi => bi.id === item.id);
+                                                const isSidebarBulkFree = bulkItem?.metadata?.isBulkFree === true;
+                                                const sidebarOriginalPrice = bulkItem?.metadata?.originalPrice as number | undefined;
+
+                                                const discountPrice = isSidebarBulkFree ? 0 : (bestItemDiscountPercent > 0 ? item.price * (1 - (bestItemDiscountPercent / 100)) : item.price);
 
                                                 return (
                                                     <div key={item.id} className="flex items-center justify-between gap-4">
@@ -413,20 +414,25 @@ export default function CartPage() {
                                                             <span className="text-[10px] font-bold text-muted uppercase tracking-widest block truncate max-w-[150px]">
                                                                 {item.name.split('[')[0].trim()}
                                                             </span>
-                                                            {bestItemDiscountPercent > 0 && (
+                                                            {isSidebarBulkFree && (
+                                                                <span className="text-[8px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-1">
+                                                                    <Zap size={8} /> OFERTA VOLUMEN
+                                                                </span>
+                                                            )}
+                                                            {!isSidebarBulkFree && bestItemDiscountPercent > 0 && (
                                                                 <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">
                                                                     {appliedCoupons.find(cp => cp.porcentaje_descuento === bestItemDiscountPercent)?.texto_descuento || `CUPÓN APLICADO`}
                                                                 </span>
                                                             )}
                                                         </div>
                                                         <div className="flex flex-col items-end shrink-0">
-                                                            {bestItemDiscountPercent > 0 && (
+                                                            {(isSidebarBulkFree || bestItemDiscountPercent > 0) && (
                                                                 <span className="text-[9px] font-bold text-muted line-through opacity-40">
-                                                                    {formatPrice(item.price)}
+                                                                    {formatPrice(isSidebarBulkFree ? (sidebarOriginalPrice ?? item.price) : item.price)}
                                                                 </span>
                                                             )}
-                                                            <span className={`font-black text-sm ${bestItemDiscountPercent > 0 ? 'text-emerald-500' : 'text-foreground'}`}>
-                                                                {formatPrice(discountPrice)}
+                                                            <span className={`font-black text-sm ${isSidebarBulkFree ? 'text-blue-500' : bestItemDiscountPercent > 0 ? 'text-emerald-500' : 'text-foreground'}`}>
+                                                                {isSidebarBulkFree ? 'GRATIS' : formatPrice(discountPrice)}
                                                             </span>
                                                         </div>
                                                     </div>

@@ -101,7 +101,7 @@ export async function POST(req: Request) {
         const couponsArray = (couponIds || '').split(',').filter(Boolean);
         const exclusiveOfferIds = validItems
             .filter((i: any) => i.metadata?.isExclusiveOffer)
-            .map((i: any) => String(i.id).split('_')[0])
+            .map((i: any) => i.metadata?.beatId || i.metadata?.productId || String(i.id).split('_')[0])
             .filter(Boolean);
 
         const [beatsDbResult, kitsDbResult, servicesDbResult, couponsDbResult, offersDbResult] = await Promise.all([
@@ -140,7 +140,7 @@ export async function POST(req: Request) {
             if (item.metadata?.isBulkFree) return 0;
 
             if (item.metadata?.isExclusiveOffer) {
-                const beatId = String(item.id).split('_')[0];
+                const beatId = item.metadata?.beatId || item.metadata?.productId || String(item.id).split('_')[0];
                 const offer = offerMap.get(beatId);
                 if (offer) return Number(offer.monto_ofertado);
             }

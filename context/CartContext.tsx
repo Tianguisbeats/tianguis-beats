@@ -476,7 +476,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (exclusiveOffers.length > 0) {
             result = result.map(item => {
                 if (item.type === 'license' || item.type === 'beat') {
-                    const rawBeatId = item.id.split('_')[0];
+                    const rawBeatId = item.metadata?.beatId || item.metadata?.productId || item.id.split('_')[0];
                     const offer = exclusiveOffers.find(o => o.beat_id === rawBeatId);
                     
                     // Asegurarnos de que estamos aplicando al tipo de licencia correcta (Exclusiva)
