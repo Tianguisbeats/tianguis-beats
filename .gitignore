@@ -34,6 +34,10 @@ yarn-error.log*
 .env*
 !.env.example
 
+# Claude Code (skills, plans, etc. — local-only)
+.agents/
+.claude/
+
 # vercel
 .vercel
 

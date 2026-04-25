@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
 import LoadingTianguis from '@/components/LoadingTianguis';
 import { calculateEarnings, STRIPE_MEXICO_RATE, STRIPE_MEXICO_FIXED, IVA_RATE } from '@/lib/finance-utils';
+import { useGestionUsuarios } from '@/hooks/admin/useGestionUsuarios';
 
 type View = 'dashboard' | 'verifications' | 'users' | 'coupons' | 'feedback' | 'income' | 'beats' | 'controls' | 'licenses';
 
@@ -611,135 +612,23 @@ function DetailBox({ label, value }: { label: string, value: string }) {
 
 // --- USER MANAGER MODULE ---
 function UserManager({ onBack }: { onBack: () => void }) {
-    const [users, setUsers] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedUser, setSelectedUser] = useState<any>(null);
-    const [editForm, setEditForm] = useState<any>(null);
-    const [saving, setSaving] = useState(false);
     const { showToast } = useToast();
-
-
-
-    const fetchUsers = async () => {
-        setLoading(true);
-        try {
-            const { data, error } = await supabase
-                .from('perfiles')
-                .select('*')
-                .order('fecha_creacion', { ascending: false })
-                .limit(100);
-
-            if (error) {
-                // Si fecha_de_creacion falla, intentamos sin orden (o con created_at por si acaso)
-                const { data: retryData } = await supabase.from('perfiles').select('*').limit(100);
-                setUsers(retryData || []);
-            } else {
-                setUsers(data || []);
-            }
-        } catch (err) {
-            console.error(err);
-        }
-        setLoading(false);
-    };
-
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    // Initialize edit form when a user is selected
-    useEffect(() => {
-        if (selectedUser) {
-            const formatDateSafe = (dateStr: any) => {
-                try {
-                    if (!dateStr) return '';
-                    // Handle ISO strings or YYYY-MM-DD
-                    const date = new Date(dateStr);
-                    if (isNaN(date.getTime())) return '';
-                    return date.toISOString().split('T')[0];
-                } catch {
-                    return '';
-                }
-            };
-
-            setEditForm({
-                nivel_suscripcion: selectedUser.nivel_suscripcion || 'free',
-                fecha_inicio_suscripcion: formatDateSafe(selectedUser.fecha_inicio_suscripcion),
-                fecha_termino_suscripcion: formatDateSafe(selectedUser.fecha_termino_suscripcion),
-                esta_verificado: !!selectedUser.esta_verificado,
-                es_admin: !!selectedUser.es_admin,
-                es_soporte: !!selectedUser.es_soporte
-            });
-        } else {
-            setEditForm(null);
-        }
-    }, [selectedUser]);
-
-    const hasChanges = (() => {
-        if (!selectedUser || !editForm) return false;
-        const formatDateSafe = (dateStr: any) => {
-            try {
-                if (!dateStr) return '';
-                const date = new Date(dateStr);
-                if (isNaN(date.getTime())) return '';
-                return date.toISOString().split('T')[0];
-            } catch {
-                return '';
-            }
-        };
-
-        return editForm.nivel_suscripcion !== (selectedUser.nivel_suscripcion || 'free') ||
-            editForm.fecha_inicio_suscripcion !== formatDateSafe(selectedUser.fecha_inicio_suscripcion) ||
-            editForm.fecha_termino_suscripcion !== formatDateSafe(selectedUser.fecha_termino_suscripcion) ||
-            editForm.esta_verificado !== (selectedUser.esta_verificado || false) ||
-            editForm.es_admin !== (selectedUser.es_admin || false) ||
-            editForm.es_soporte !== (selectedUser.es_soporte || false);
-    })();
-
-    const handleSave = async () => {
-        if (!selectedUser) return;
-        setSaving(true);
-        try {
-            const { error } = await supabase
-                .from('perfiles')
-                .update({
-                    nivel_suscripcion: editForm.nivel_suscripcion,
-                    fecha_inicio_suscripcion: editForm.fecha_inicio_suscripcion ? new Date(editForm.fecha_inicio_suscripcion).toISOString() : null,
-                    fecha_termino_suscripcion: editForm.fecha_termino_suscripcion ? new Date(editForm.fecha_termino_suscripcion).toISOString() : null,
-                    esta_verificado: editForm.esta_verificado,
-                    es_admin: editForm.es_admin,
-                    es_soporte: editForm.es_soporte
-                })
-                .eq('id', selectedUser.id);
-
-            if (error) throw error;
-
-            // Update local lists
-            const updatedUser = {
-                ...selectedUser,
-                nivel_suscripcion: editForm.nivel_suscripcion,
-                fecha_inicio_suscripcion: editForm.fecha_inicio_suscripcion ? new Date(editForm.fecha_inicio_suscripcion).toISOString() : null,
-                fecha_termino_suscripcion: editForm.fecha_termino_suscripcion ? new Date(editForm.fecha_termino_suscripcion).toISOString() : null,
-                esta_verificado: editForm.esta_verificado,
-                es_admin: editForm.es_admin,
-                es_soporte: editForm.es_soporte
-            };
-
-            setUsers(users.map(u => u.id === selectedUser.id ? updatedUser : u));
-            setSelectedUser(null);
-            showToast("Cambios guardados correctamente", "success");
-        } catch (err: any) {
-            showToast(err.message || "Error al guardar cambios", "error");
-        }
-        setSaving(false);
-    };
-
-    const filteredUsers = users.filter(u =>
-        u.nombre_usuario?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.nombre_artistico?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.correo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const {
+        filteredUsers,
+        loading,
+        searchTerm,
+        setSearchTerm,
+        selectedUser,
+        setSelectedUser,
+        editForm,
+        setEditForm,
+        hasChanges,
+        saving,
+        handleSave,
+    } = useGestionUsuarios({
+        onError: (m) => showToast(m, 'error'),
+        onExito: (m) => showToast(m, 'success'),
+    });
 
     return (
         <div className="space-y-6">
