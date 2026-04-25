@@ -106,7 +106,7 @@ export default function ServiceProjectPage() {
         try {
             // Fetch project details
             const { data: projectData, error: projectError } = await supabase
-                .from('proyectos_servicio')
+                .from('proyectos')
                 .select(`
                     id,
                     estado,
@@ -228,7 +228,7 @@ export default function ServiceProjectPage() {
     const updateStatus = async (newStatus: Status) => {
         try {
             const { error } = await supabase
-                .from('proyectos_servicio')
+                .from('proyectos')
                 .update({ estado: newStatus })
                 .eq('id', id);
 

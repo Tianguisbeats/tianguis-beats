@@ -144,7 +144,7 @@ export default function SuccessPage() {
 
                     const txIds = transacciones.map(t => t.id);
                     const { data: projects } = await supabase
-                        .from('proyectos_servicio')
+                        .from('proyectos')
                         .select('id, transaccion_id')
                         .in('transaccion_id', txIds);
 

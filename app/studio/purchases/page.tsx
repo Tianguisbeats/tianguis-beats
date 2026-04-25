@@ -319,7 +319,7 @@ export default function MyPurchasesPage() {
             const formattedOrders = Object.values(groupedOrders);
             const itemIds = formattedOrders.flatMap((o: any) => o.items.map((i: any) => i.id));
             if (itemIds.length > 0) {
-                const { data: projectsData } = await supabase.from('proyectos_servicio').select('id, transaccion_id').in('transaccion_id', itemIds);
+                const { data: projectsData } = await supabase.from('proyectos').select('id, transaccion_id').in('transaccion_id', itemIds);
                 formattedOrders.forEach((order: any) => {
                     order.items.forEach((item: any) => {
                         item.project_id = projectsData?.find(p => p.transaccion_id === item.id)?.id;
