@@ -16,6 +16,7 @@ import { useToast } from '@/context/ToastContext';
 import LoadingTianguis from '@/components/LoadingTianguis';
 import { calculateEarnings, STRIPE_MEXICO_RATE, STRIPE_MEXICO_FIXED, IVA_RATE } from '@/lib/finance-utils';
 import { useGestionUsuarios } from '@/hooks/admin/useGestionUsuarios';
+import { MetricaStorage } from '@/components/admin/MetricaStorage';
 
 type View = 'dashboard' | 'verifications' | 'users' | 'coupons' | 'feedback' | 'income' | 'beats' | 'controls' | 'licenses';
 
@@ -756,7 +757,7 @@ function UserManager({ onBack }: { onBack: () => void }) {
                                 <DetailItem label="Correo Electrónico" value={selectedUser.correo || selectedUser.email || 'No registrado'} />
                                 <DetailItem label="Nombre Completo" value={selectedUser.nombre_completo || 'No especificado'} />
                                 <DetailItem label="Fecha de Registro" value={selectedUser.fecha_creacion ? new Date(selectedUser.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }) : 'No disponible'} />
-                                <StorageMetric username={selectedUser.nombre_usuario} />
+                                <MetricaStorage username={selectedUser.nombre_usuario} />
 
                                 <div className="p-5 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-3xl space-y-3">
                                     <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted">Inicio Suscripción</p>
@@ -902,63 +903,6 @@ function UserManager({ onBack }: { onBack: () => void }) {
                     </div>
                 </div>
             )}
-        </div>
-    );
-}
-
-// --- STORAGE METRIC COMPONENT ---
-function StorageMetric({ username }: { username: string }) {
-    const [totalMB, setTotalMB] = useState<number | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const calculateStorage = async () => {
-            if (!username) return;
-            setLoading(true);
-            try {
-                const buckets = [
-                    'fotos_perfil',
-                    'fotos_portada',
-                    'portadas_beats',
-                    'muestras_beats',
-                    'beats_mp3',
-                    'beats_wav',
-                    'beats_stems',
-                    'portadas_kits_sonido',
-                    'kits_sonido'
-                ];
-
-                let totalSize = 0;
-
-                for (const bucket of buckets) {
-                    // List files in the folder named after the username
-                    const { data, error } = await supabase.storage.from(bucket).list(username);
-                    if (data) {
-                        data.forEach(file => {
-                            if (file.metadata?.size) {
-                                totalSize += file.metadata.size;
-                            }
-                        });
-                    }
-                }
-
-                setTotalMB(totalSize / (1024 * 1024));
-            } catch (err) {
-                console.error("Error calculating storage:", err);
-            }
-            setLoading(false);
-        };
-
-        calculateStorage();
-    }, [username]);
-
-    return (
-        <div className="p-4 bg-accent/5 rounded-2xl border border-accent/20">
-            <p className="text-[10px] font-black uppercase text-accent tracking-widest mb-1">Almacenamiento Usado</p>
-            <div className="text-sm font-bold text-foreground flex items-center gap-2">
-                {loading ? <Loader2 size={12} className="animate-spin text-accent" /> : `${totalMB?.toFixed(2) || '0.00'} MB`}
-                <span className="text-[10px] text-muted-foreground font-normal lowercase tracking-normal">(en buckets de storage)</span>
-            </div>
         </div>
     );
 }
