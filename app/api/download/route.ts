@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import archiver from 'archiver';
-import { PassThrough } from 'stream';
 import { renderContractToBuffer } from '@/lib/PDFgenerarContratos';
 import { fetchLicenseDetails } from '@/lib/license-utils';
+import { obtenerSupabaseAdmin, crearClienteUsuario } from '@/lib/supabase-admin';
 
 /**
  * TIANGUIS BEATS - Advanced Secure Download Engine v3.2 (ESPAÑOL)
@@ -50,23 +49,13 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const authHeader = req.headers.get('Authorization');
-        const token = authHeader?.replace('Bearer ', '');
-        if (!token) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-
-        const supabaseClient = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            { global: { headers: { Authorization: `Bearer ${token}` } } }
-        );
+        const supabaseClient = crearClienteUsuario(req.headers.get('Authorization'));
+        if (!supabaseClient) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
         const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
         if (authError || !user) return NextResponse.json({ error: 'Sesión inválida' }, { status: 401 });
 
-        const supabaseAdmin = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY!
-        );
+        const supabaseAdmin = obtenerSupabaseAdmin();
 
         // 2. Obtener transacciones validando pago
         let query = supabaseAdmin.from('transacciones').select('*');

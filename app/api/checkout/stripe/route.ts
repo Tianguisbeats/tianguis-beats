@@ -1,26 +1,12 @@
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
 import { calculateEarnings } from '@/lib/finance-utils';
+import { obtenerSupabaseAdmin } from '@/lib/supabase-admin';
+import { obtenerStripe, STRIPE_PRODUCTOS, STRIPE_PRECIOS } from '@/lib/stripe-config';
 
-const getSupabaseAdmin = () => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const roleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !roleKey) throw new Error('Supabase Admin env vars missing');
-    return createClient(url, roleKey);
-};
-
-// Inicialización de Stripe
-// Ayudante de depuración para diagnóstico
+// Helper de depuración local
 const logDebug = (msg: string) => {
     const timestamp = new Date().toISOString();
     console.log(`[DEPURACION_CHECKOUT] [${timestamp}] ${msg}`);
-};
-
-const getStripe = () => {
-    const key = process.env.STRIPE_SECRET_KEY;
-    if (!key) throw new Error('STRIPE_SECRET_KEY is not defined');
-    return new Stripe(key);
 };
 
 export async function POST(req: Request) {
@@ -66,7 +52,7 @@ export async function POST(req: Request) {
 
         // --- VALIDACIÓN DE PRECIOS CONTRA BASE DE DATOS ---
         // Nunca confiar en los precios enviados por el cliente. Los precios reales se leen de Supabase.
-        const supabaseAdminForPrices = getSupabaseAdmin();
+        const supabaseAdminForPrices = obtenerSupabaseAdmin();
 
         const BEAT_LICENSE_PRICE_COL: Record<string, string> = {
             'gratis': 'precio_gratis_mxn', 'free': 'precio_gratis_mxn', 'demo': 'precio_gratis_mxn',
@@ -228,22 +214,12 @@ export async function POST(req: Request) {
                 ? `${typeLabel}: ${licenseInfo.toUpperCase()}${discountText}`
                 : `${typeLabel}${discountText}`;
 
-            const STRIPE_PRODUCTS: Record<string, string> = {
-                'pro': 'prod_U9hq8ifcXWz0O3',
-                'premium': 'prod_U9g82c9yHCvLQO',
-            };
-
-            const STRIPE_PRICE_IDS: Record<string, string> = {
-                'pro_mensual': 'price_1TAzIAH5NxxqqE4kYHQgnDil',
-                'pro_anual': 'price_1TB0DFH5NxxqqE4kY51i7dkp',
-                'premium_mensual': 'price_1TAzIDH5NxxqqE4k339iqiO5',
-                'premium_anual': 'price_1TB057H5NxxqqE4kNxZoU8uY',
-            };
-
             const tierRaw = String(item.metadata?.tier || '').toLowerCase().trim();
-            const planKey = `${tierRaw}_${cycleRaw === 'yearly' ? 'anual' : 'mensual'}`;
-            const fixedPriceId = iType === 'plan' ? STRIPE_PRICE_IDS[planKey] : null;
-            const officialProductId = iType === 'plan' ? STRIPE_PRODUCTS[tierRaw] : null;
+            const planKey = `${tierRaw}_${cycleRaw === 'yearly' ? 'anual' : 'mensual'}` as keyof typeof STRIPE_PRECIOS;
+            const fixedPriceId = iType === 'plan' ? STRIPE_PRECIOS[planKey] : null;
+            const officialProductId = iType === 'plan'
+                ? (STRIPE_PRODUCTOS as Record<string, string>)[tierRaw] || null
+                : null;
 
             logDebug(`[CHECKOUT] Item: ${productName} | Tipo: ${iType} | ClavePlan: ${planKey} | Product: ${officialProductId}`);
 
@@ -292,13 +268,13 @@ export async function POST(req: Request) {
         }));
         const globalOrderType = typesInOrder.size === 1 ? Array.from(typesInOrder)[0] : 'mixed';
 
-        const stripe = getStripe();
+        const stripe = obtenerStripe();
 
         let stripeCustomerId: string | undefined = undefined;
         let invalidCustomerIds: string[] = [];
 
         // 1. Intentar obtener el ID desde la base de datos primero (Más confiable)
-        const supabaseAdmin = getSupabaseAdmin();
+        const supabaseAdmin = obtenerSupabaseAdmin();
         const { data: profile } = await supabaseAdmin
             .from('perfiles')
             .select('stripe_cliente_id, correo')

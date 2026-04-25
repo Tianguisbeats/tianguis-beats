@@ -1,14 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { renderSalesNoteToBuffer } from '@/lib/PDFgenerarVentas';
 import { fetchLicenseDetails } from '@/lib/license-utils';
-
-const getSupabaseAdmin = () => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !key) throw new Error('Supabase admin env vars not configured');
-    return createClient(url, key);
-};
+import { obtenerSupabaseAdmin, obtenerUsuarioDesdeRequest } from '@/lib/supabase-admin';
 
 /**
  * API Route: Generar Recibo de Venta (Ventas Internas)
@@ -17,6 +10,12 @@ const getSupabaseAdmin = () => {
  */
 export async function POST(req: NextRequest) {
     try {
+        // Solo usuarios autenticados pueden generar la nota de venta.
+        const usuario = await obtenerUsuarioDesdeRequest(req);
+        if (!usuario) {
+            return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+        }
+
         const body = await req.json();
         const { saleId } = body;
 
@@ -24,7 +23,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Falta el ID de la venta' }, { status: 400 });
         }
 
-        const supabaseAdmin = getSupabaseAdmin();
+        const supabaseAdmin = obtenerSupabaseAdmin();
 
         // 1. Obtener la transacción base para identificar la orden
         const { data: baseTx, error: baseTxError } = await supabaseAdmin
@@ -35,6 +34,11 @@ export async function POST(req: NextRequest) {
 
         if (baseTxError || !baseTx) {
             return NextResponse.json({ error: 'Transacción base no encontrada' }, { status: 404 });
+        }
+
+        // Solo comprador o vendedor de la transacción pueden descargar la nota.
+        if (baseTx.comprador_id !== usuario.id && baseTx.vendedor_id !== usuario.id) {
+            return NextResponse.json({ error: 'No tienes permiso para esta venta' }, { status: 403 });
         }
 
         // 2. Buscar todas las transacciones vinculadas (orden_pedido o pago_id idénticos)

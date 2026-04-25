@@ -1,36 +1,25 @@
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
-
-const getStripe = () => {
-    const key = process.env.STRIPE_SECRET_KEY;
-    if (!key) throw new Error('STRIPE_SECRET_KEY is not defined');
-    return new Stripe(key);
-};
-
-const getSupabaseAdmin = () => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const roleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !roleKey) throw new Error('Supabase Admin env vars missing');
-    return createClient(url, roleKey);
-};
+import { obtenerStripe } from '@/lib/stripe-config';
+import { obtenerSupabaseAdmin, obtenerUsuarioDesdeRequest } from '@/lib/supabase-admin';
 
 export async function GET(req: Request) {
     try {
-        const supabaseAdmin = getSupabaseAdmin();
-        const { data: { user } } = await supabaseAdmin.auth.getUser(req.headers.get('Authorization')?.split(' ')[1] || '');
-        
-        // El cliente debe pasar su sesión para validar identidad
-        // Pero para simplificar en esta ruta interna de dashboard, 
-        // asumiremos que el frontend enviará el userId en una query o header si es necesario.
-        // Por ahora, usemos el ID del perfil que el frontend conoce.
-        const { searchParams } = new URL(req.url);
-        const userId = searchParams.get('userId');
-
-        if (!userId) {
-            return NextResponse.json({ error: 'Falta userId' }, { status: 400 });
+        // Validamos sesión: solo el dueño de la cuenta puede consultar su balance.
+        const usuario = await obtenerUsuarioDesdeRequest(req);
+        if (!usuario) {
+            return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
         }
 
+        const { searchParams } = new URL(req.url);
+        const userIdQuery = searchParams.get('userId');
+
+        // Si pasan userId distinto al del token, rechazamos. Evita IDOR.
+        if (userIdQuery && userIdQuery !== usuario.id) {
+            return NextResponse.json({ error: 'No autorizado para consultar este perfil' }, { status: 403 });
+        }
+        const userId = usuario.id;
+
+        const supabaseAdmin = obtenerSupabaseAdmin();
         const { data: profile } = await supabaseAdmin
             .from('perfiles')
             .select('stripe_connect_id, stripe_connect_onboarded')
@@ -46,7 +35,7 @@ export async function GET(req: Request) {
             });
         }
 
-        const stripe = getStripe();
+        const stripe = obtenerStripe();
         const balance = await stripe.balance.retrieve({
             stripeAccount: profile.stripe_connect_id,
         });

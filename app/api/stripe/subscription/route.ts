@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
 import { supabase } from '@/lib/supabase';
-
-// Inicialización de Stripe
-const getStripe = () => {
-    const key = process.env.STRIPE_SECRET_KEY;
-    if (!key) throw new Error('STRIPE_SECRET_KEY is not defined');
-    return new Stripe(key);
-};
+import { obtenerStripe } from '@/lib/stripe-config';
 
 export async function POST(req: NextRequest) {
     try {
@@ -30,7 +23,6 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Acción inválida' }, { status: 400 });
         }
 
-        // Obtener el ID de la subscripción de Stripe desde Supabase
         const { data: profile, error: profileErr } = await supabase
             .from('perfiles')
             .select('stripe_suscripcion_id, cancela_al_final')
@@ -41,21 +33,17 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Suscripción no encontrada en el perfil' }, { status: 404 });
         }
 
-        const stripe = getStripe();
+        const stripe = obtenerStripe();
         const subId = profile.stripe_suscripcion_id;
 
-        // Comprobar si el ID en la BD parece ser de Stripe (empieza por sub_)
         if (!subId.startsWith('sub_')) {
             return NextResponse.json({ error: 'El ID de suscripción no es válido para Stripe' }, { status: 400 });
         }
 
-        // Actualizar la suscripción en Stripe
-        // cancel_at_period_end = true (cancelar), false (mantener/reanudar)
         const updatedSubscription = await stripe.subscriptions.update(subId, {
             cancel_at_period_end: action === 'cancel'
         });
 
-        // Opcional: El webhook lo actualizará automáticamente, pero podemos adelantarnos para mejor UX
         await supabase
             .from('perfiles')
             .update({ cancela_al_final: action === 'cancel' })

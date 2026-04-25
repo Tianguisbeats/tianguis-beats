@@ -1,26 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { renderContractToBuffer, ContractData } from '@/lib/PDFgenerarContratos';
-
-const getSupabaseAdmin = () => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !key) throw new Error('Supabase admin env vars not configured');
-    return createClient(url, key);
-};
+import { obtenerUsuarioDesdeRequest } from '@/lib/supabase-admin';
 
 /**
  * API Route: Generar Previsualización Oficial de Licencia
- * Permite al productor descargar un demo del contrato PDF 
+ * Permite al productor descargar un demo del contrato PDF
  * tal cual se entregará al comprador, con datos de prueba.
  */
 export async function POST(req: NextRequest) {
     try {
+        // Solo usuarios autenticados pueden generar previews.
+        // Antes se llamaba supabaseAdmin.auth.getUser() con service-role,
+        // lo cual NO valida la sesión: era un bypass silencioso.
+        const usuario = await obtenerUsuarioDesdeRequest(req);
+        if (!usuario) {
+            return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+        }
+
         const body = await req.json();
         const { text, type, settings, name } = body;
 
-        const supabaseAdmin = getSupabaseAdmin();
-        const { data: { user } } = await supabaseAdmin.auth.getUser(req.headers.get('Authorization')?.split(' ')[1] || '');
+        if (!type || typeof type !== 'string') {
+            return NextResponse.json({ error: 'Falta el tipo de licencia' }, { status: 400 });
+        }
 
         // Mock data para el contrato de prueba
         const previewData: ContractData = {

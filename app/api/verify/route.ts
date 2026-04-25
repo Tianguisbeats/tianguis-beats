@@ -1,13 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-// Admin client initialized safely to avoid build-time errors when ENV is missing
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-const supabaseAdmin = (supabaseUrl && supabaseKey) 
-    ? createClient(supabaseUrl, supabaseKey)
-    : null;
+import { obtenerSupabaseAdmin } from '@/lib/supabase-admin';
 
 /**
  * API Route: Verificación Pública de Transacciones
@@ -16,44 +8,46 @@ const supabaseAdmin = (supabaseUrl && supabaseKey)
 export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
-        const orderId = searchParams.get('order') || searchParams.get('id');
+        const orderIdRaw = searchParams.get('order') || searchParams.get('id');
 
-        if (!orderId) {
+        if (!orderIdRaw) {
             return NextResponse.json({ error: 'Falta el ID de verificación' }, { status: 400 });
         }
 
-        if (!supabaseAdmin) {
-            console.error('Supabase Admin client not initialized. Missing environment variables.');
-            return NextResponse.json({ error: 'Servicio no configurado' }, { status: 500 });
+        // Sanitización: el ID solo puede contener caracteres alfanuméricos, guiones y guion bajo.
+        // Esto previene que un atacante inyecte comas u operadores en el filtro .or() de PostgREST.
+        const orderId = orderIdRaw.trim();
+        if (!/^[A-Za-z0-9_-]{4,64}$/.test(orderId)) {
+            return NextResponse.json({ error: 'Formato de ID inválido' }, { status: 400 });
         }
 
-        // Buscamos la transacción por ID, Orden de Pedido o ID de Pago
-        let query;
+        const supabaseAdmin = obtenerSupabaseAdmin();
+
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId);
 
+        // Búsqueda en paralelo por cada campo (evita interpolar el ID en .or() de PostgREST,
+        // que es vulnerable si el valor contiene comas o paréntesis).
+        const SELECT = `
+            id, orden_pedido, pago_id, fecha_creacion, nombre_producto, tipo_producto,
+            tipo_licencia, estado_pago, codigo_cupon, monto_descuento, precio_total, monto_total,
+            comprador:perfiles!comprador_id (nombre_artistico, nombre_usuario),
+            vendedor:perfiles!vendedor_id (nombre_artistico, nombre_usuario)
+        `;
+        const ESTADOS_VALIDOS = ['completado', 'completed', 'valido', 'valid', 'active', 'succeeded', 'paid', 'success', 'pagada', 'completada'];
+
+        const consultas = [
+            supabaseAdmin.from('transacciones').select(SELECT).eq('orden_pedido', orderId).in('estado_pago', ESTADOS_VALIDOS),
+            supabaseAdmin.from('transacciones').select(SELECT).eq('pago_id', orderId).in('estado_pago', ESTADOS_VALIDOS),
+        ];
         if (isUUID) {
-            query = supabaseAdmin
-                .from('transacciones')
-                .select(`
-                    id, orden_pedido, pago_id, fecha_creacion, nombre_producto, tipo_producto, tipo_licencia, estado_pago, codigo_cupon, monto_descuento, precio_total, monto_total,
-                    comprador:perfiles!comprador_id (nombre_artistico, nombre_usuario),
-                    vendedor:perfiles!vendedor_id (nombre_artistico, nombre_usuario)
-                `)
-                .or(`id.eq.${orderId},orden_pedido.eq.${orderId},pago_id.eq.${orderId}`);
-        } else {
-            query = supabaseAdmin
-                .from('transacciones')
-                .select(`
-                    id, orden_pedido, pago_id, fecha_creacion, nombre_producto, tipo_producto, tipo_licencia, estado_pago, codigo_cupon, monto_descuento, precio_total, monto_total,
-                    comprador:perfiles!comprador_id (nombre_artistico, nombre_usuario),
-                    vendedor:perfiles!vendedor_id (nombre_artistico, nombre_usuario)
-                `)
-                .or(`orden_pedido.eq.${orderId},pago_id.eq.${orderId}`);
+            consultas.push(supabaseAdmin.from('transacciones').select(SELECT).eq('id', orderId).in('estado_pago', ESTADOS_VALIDOS));
         }
 
-        const { data: allTxs, error } = await query
-            .in('estado_pago', ['completado', 'completed', 'valido', 'valid', 'active', 'succeeded', 'paid', 'success', 'pagada', 'completada'])
-            .order('fecha_creacion', { ascending: true });
+        const resultados = await Promise.all(consultas);
+        const allTxs = resultados
+            .flatMap(r => r.data || [])
+            .sort((a: any, b: any) => new Date(a.fecha_creacion).getTime() - new Date(b.fecha_creacion).getTime());
+        const error = resultados.find(r => r.error)?.error;
 
         if (error || !allTxs || allTxs.length === 0) {
             console.warn(`Verificación fallida para ID: ${orderId}`, error);

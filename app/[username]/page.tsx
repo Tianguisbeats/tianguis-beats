@@ -19,6 +19,13 @@ function TikTokIcon({ size = 24 }: { size?: number }) {
 }
 import { COUNTRIES } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
+import {
+    COLUMNAS_PERFIL_PUBLICO,
+    COLUMNAS_PERFIL_MINIMO,
+    COLUMNAS_BEAT_PUBLICO,
+    COLUMNAS_KIT_PUBLICO,
+    COLUMNAS_SERVICIO_PUBLICO,
+} from '@/lib/db-columns';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -118,9 +125,10 @@ export default function ProducerProfilePage() {
     const fetchAll = async () => {
         setIsLoading(true);
         try {
-            const { data: profileData, error } = await supabase
-                .from('perfiles').select('*').eq('nombre_usuario', username).single();
-            if (error || !profileData) { router.push('/'); return; }
+            const { data: rawProfile, error } = await supabase
+                .from('perfiles').select(COLUMNAS_PERFIL_PUBLICO).eq('nombre_usuario', username).single();
+            if (error || !rawProfile) { router.push('/'); return; }
+            const profileData: any = rawProfile;
 
             // Resolver URLs correctamente
             profileData.foto_perfil = resolveStorageUrl(profileData.foto_perfil, 'fotos_perfil');
@@ -144,16 +152,16 @@ export default function ProducerProfilePage() {
             const isUserOwner = user?.id === profileData.id;
 
             const [beatsR, kitsR, serviciosR, plR, lbR, lkR, lsR, followsR, followingR, isFollowingR] = await Promise.all([
-                supabase.from('beats').select('*').eq('productor_id', profileData.id).eq('es_publico', true).order('fecha_creacion', { ascending: false }),
-                supabase.from('kits_sonido').select('*, productor:perfiles(*)').eq('productor_id', profileData.id).eq('es_publico', true).order('fecha_creacion', { ascending: false }),
-                supabase.from('servicios').select('*').eq('productor_id', profileData.id).eq('es_activo', true).order('fecha_creacion', { ascending: false }),
-                supabase.from('listas_reproduccion').select('*, items:listas_reproduccion_items(*, beat:beats(portada_url))').eq('usuario_id', profileData.id).order('fecha_creacion', { ascending: false }),
-                supabase.from('favoritos').select('*, beat:beats(*)').eq('usuario_id', profileData.id).not('beat_id', 'is', null),
-                supabase.from('favoritos').select('*, kit:kits_sonido(*, productor:perfiles(*))').eq('usuario_id', profileData.id).not('kit_id', 'is', null),
-                supabase.from('favoritos').select('*, servicio:servicios(*)').eq('usuario_id', profileData.id).not('servicio_id', 'is', null),
-                supabase.from('seguidores').select('*', { count: 'exact', head: true }).eq('seguido_id', profileData.id),
-                supabase.from('seguidores').select('*', { count: 'exact', head: true }).eq('seguidor_id', profileData.id),
-                user ? supabase.from('seguidores').select('*').eq('seguidor_id', user.id).eq('seguido_id', profileData.id).single() : Promise.resolve({ data: null })
+                supabase.from('beats').select(COLUMNAS_BEAT_PUBLICO).eq('productor_id', profileData.id).eq('es_publico', true).order('fecha_creacion', { ascending: false }),
+                supabase.from('kits_sonido').select(`${COLUMNAS_KIT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO})`).eq('productor_id', profileData.id).eq('es_publico', true).order('fecha_creacion', { ascending: false }),
+                supabase.from('servicios').select(COLUMNAS_SERVICIO_PUBLICO).eq('productor_id', profileData.id).eq('es_activo', true).order('fecha_creacion', { ascending: false }),
+                supabase.from('listas_reproduccion').select('id, nombre, descripcion, es_publica, fecha_creacion, items:listas_reproduccion_items(*, beat:beats(id, titulo, portada_url))').eq('usuario_id', profileData.id).order('fecha_creacion', { ascending: false }),
+                supabase.from('favoritos').select(`id, beat:beats(${COLUMNAS_BEAT_PUBLICO})`).eq('usuario_id', profileData.id).not('beat_id', 'is', null),
+                supabase.from('favoritos').select(`id, kit:kits_sonido(${COLUMNAS_KIT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO}))`).eq('usuario_id', profileData.id).not('kit_id', 'is', null),
+                supabase.from('favoritos').select(`id, servicio:servicios(${COLUMNAS_SERVICIO_PUBLICO})`).eq('usuario_id', profileData.id).not('servicio_id', 'is', null),
+                supabase.from('seguidores').select('seguido_id', { count: 'exact', head: true }).eq('seguido_id', profileData.id),
+                supabase.from('seguidores').select('seguidor_id', { count: 'exact', head: true }).eq('seguidor_id', profileData.id),
+                user ? supabase.from('seguidores').select('seguidor_id, seguido_id').eq('seguidor_id', user.id).eq('seguido_id', profileData.id).maybeSingle() : Promise.resolve({ data: null })
             ]);
 
                 setFollowersCount(followsR.count || 0);
@@ -167,7 +175,8 @@ export default function ProducerProfilePage() {
                 productor_foto_perfil: resolveStorageUrl(b.productor_foto_perfil || b.foto_perfil, 'fotos_perfil') || profileData.foto_perfil,
                 productor_esta_verificado: b.productor_esta_verificado ?? b.esta_verificado ?? profileData.esta_verificado,
                 productor_es_fundador: b.productor_es_fundador ?? b.es_fundador ?? profileData.es_fundador,
-                archivo_mp3_url: resolveStorageUrl(b.archivo_mp3_url, 'muestras_beats'),
+                // Solo se expone la muestra al público; el master (mp3/wav/stems) se sirve únicamente vía /api/download tras validar compra.
+                archivo_mp3_url: resolveStorageUrl(b.archivo_muestra_url, 'muestras_beats'),
                 archivo_muestra_url: resolveStorageUrl(b.archivo_muestra_url, 'muestras_beats'),
                 portada_url: resolveStorageUrl(b.portada_url, 'portadas_beats'),
             });
@@ -201,9 +210,9 @@ export default function ProducerProfilePage() {
     const fetchAllLikes = async () => {
         if (!profile) return;
         const [lbR, lkR, lsR] = await Promise.all([
-            supabase.from('favoritos').select('*, beat:beats(*)').eq('usuario_id', profile.id).not('beat_id', 'is', null),
-            supabase.from('favoritos').select('*, kit:kits_sonido(*, productor:perfiles(*))').eq('usuario_id', profile.id).not('kit_id', 'is', null),
-            supabase.from('favoritos').select('*, servicio:servicios(*)').eq('usuario_id', profile.id).not('servicio_id', 'is', null)
+            supabase.from('favoritos').select(`id, beat:beats(${COLUMNAS_BEAT_PUBLICO})`).eq('usuario_id', profile.id).not('beat_id', 'is', null),
+            supabase.from('favoritos').select(`id, kit:kits_sonido(${COLUMNAS_KIT_PUBLICO}, productor:perfiles(${COLUMNAS_PERFIL_MINIMO}))`).eq('usuario_id', profile.id).not('kit_id', 'is', null),
+            supabase.from('favoritos').select(`id, servicio:servicios(${COLUMNAS_SERVICIO_PUBLICO})`).eq('usuario_id', profile.id).not('servicio_id', 'is', null)
         ]);
 
         const transformBeatLocal = (b: any): any => ({
@@ -213,7 +222,8 @@ export default function ProducerProfilePage() {
             productor_foto_perfil: resolveStorageUrl(b.productor_foto_perfil || b.foto_perfil, 'fotos_perfil') || profile.foto_perfil,
             productor_esta_verificado: b.productor_esta_verificado ?? b.esta_verificado ?? profile.esta_verificado,
             productor_es_fundador: b.productor_es_fundador ?? b.es_fundador ?? profile.es_fundador,
-            archivo_mp3_url: resolveStorageUrl(b.archivo_mp3_url, 'muestras_beats'),
+            // Solo muestra al público; master vía /api/download.
+            archivo_mp3_url: resolveStorageUrl(b.archivo_muestra_url, 'muestras_beats'),
             archivo_muestra_url: resolveStorageUrl(b.archivo_muestra_url, 'muestras_beats'),
             portada_url: resolveStorageUrl(b.portada_url, 'portadas_beats'),
         });

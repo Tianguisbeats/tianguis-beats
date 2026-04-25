@@ -1,15 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { renderContractToBuffer } from '@/lib/PDFgenerarContratos';
 import { fetchLicenseDetails } from '@/lib/license-utils';
-
-// Admin client initialized safely to avoid build-time errors when ENV is missing
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-
-const supabaseAdmin = (supabaseUrl && supabaseKey) 
-    ? createClient(supabaseUrl, supabaseKey)
-    : null;
+import { obtenerSupabaseAdmin, crearClienteUsuario } from '@/lib/supabase-admin';
 
 /**
  * API Route: Generar Licencia PDF (V4)
@@ -17,25 +9,13 @@ const supabaseAdmin = (supabaseUrl && supabaseKey)
  */
 export async function POST(req: NextRequest) {
     try {
-        if (!supabaseAdmin) {
-            console.error('Supabase Admin client not initialized.');
-            return NextResponse.json({ error: 'Servicio no configurado' }, { status: 500 });
-        }
+        const supabaseAdmin = obtenerSupabaseAdmin();
 
         // --- VERIFICACIÓN DE SESIÓN (SEGURIDAD CRÍTICA) ---
-        const authHeader = req.headers.get('Authorization');
-        const token = authHeader?.replace('Bearer ', '');
-        
-        if (!token) {
+        const supabaseClient = crearClienteUsuario(req.headers.get('Authorization'));
+        if (!supabaseClient) {
             return NextResponse.json({ error: 'No autorizado. Se requiere inicio de sesión.' }, { status: 401 });
         }
-
-        const supabaseClient = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            { global: { headers: { Authorization: `Bearer ${token}` } } }
-        );
-
         const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
         if (authError || !user) {
             return NextResponse.json({ error: 'Sesión inválida o expirada.' }, { status: 401 });

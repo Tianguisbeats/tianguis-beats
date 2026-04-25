@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
 import { renderContractToBuffer, ContractData } from '@/lib/PDFgenerarContratos';
 import { generateFriendlyOrderId } from '@/lib/order-utils';
+import { obtenerSupabaseAdmin } from '@/lib/supabase-admin';
+import {
+    obtenerStripe,
+    MAPA_PRODUCTO_A_TIER,
+    MAPA_PRECIO_A_TIER,
+    PRECIOS_ANUALES,
+    detectarTierDesdeStripe,
+} from '@/lib/stripe-config';
 
 const logWebhook = (msg: string) => {
     const timestamp = new Date().toISOString();
@@ -20,19 +27,6 @@ const toUuidOrNull = (val: string | null | undefined): string | null => {
 const toNumericOrZero = (val: any): number => {
     const n = parseFloat(val);
     return isNaN(n) ? 0 : n;
-};
-
-const getStripe = () => {
-    const key = process.env.STRIPE_SECRET_KEY;
-    if (!key) throw new Error('STRIPE_SECRET_KEY is not defined');
-    return new Stripe(key);
-};
-
-const getSupabaseAdmin = () => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const roleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !roleKey) throw new Error('Supabase Admin env vars missing');
-    return createClient(url, roleKey);
 };
 
 // --- AYUDANTE: SINCRONIZACIÓN DE PERFIL Y SUSCRIPCIÓN ---
@@ -91,10 +85,9 @@ async function syncUserProfileSubscription(
         const activePlan = sub.items?.data[0]?.plan;
         const activePriceId = activePlan?.id || sub.items?.data[0]?.price?.id;
         
-        const isAnnualPlan = activePlan?.interval === 'year' || 
-                           activePlan?.interval === 'yearly' || 
-                           activePriceId === 'price_1TB0DFH5NxxqqE4kY51i7dkp' || 
-                           activePriceId === 'price_1TB057H5NxxqqE4kNxZoU8uY';
+        const isAnnualPlan = activePlan?.interval === 'year' ||
+                           activePlan?.interval === 'yearly' ||
+                           PRECIOS_ANUALES.has(activePriceId);
 
         // Validar que el usuario existe antes de proceder
         const { data: currentProfile, error: profileCheckError } = await supabaseAdmin
@@ -109,10 +102,11 @@ async function syncUserProfileSubscription(
             return false;
         }
 
-        // Blindaje adicional: Si Mau tiene 'premium' anual, nunca bajarlo a 'pro' por un glitch de detección
+        // Blindaje: si el perfil ya está en Premium y no hay fallbackTier explícito,
+        // se preserva Premium para evitar downgrade accidental por glitch de detección.
         let detectedTier = 'pro';
         if (currentProfile.nivel_suscripcion === 'premium' && !fallbackTier) {
-            logWebhook(`[SYNC INFO] Manteniendo Premium por seguridad (Blindaje) antes de escanear ítems.`);
+            logWebhook(`[SYNC INFO] Preservando tier Premium (sin fallback explícito).`);
             detectedTier = 'premium';
         }
 
@@ -133,42 +127,22 @@ async function syncUserProfileSubscription(
         const priceId = sub.items?.data[0]?.price?.id || sub.plan?.id;
         const productMetadata = (sub.items?.data[0]?.price?.product as any)?.metadata || {};
         
-        const STRIPE_PRODUCT_TO_TIER: Record<string, string> = {
-            'prod_U9HySOfUW9sLu0': 'pro',
-            'prod_U9hq8ifcXWz0O3': 'pro', // Pro Anual/Mensual
-            'prod_U9UPhLb7ISBYhq': 'premium', // Premium ID 1
-            'prod_U9g82c9yHCvLQO': 'premium'  // Premium ID 2 (de payload reciente)
-        };
-        const STRIPE_PRICE_TO_TIER: Record<string, string> = {
-            // --- PLANES PRO ---
-            'price_1TAzIAH5NxxqqE4kYHQgnDil': 'pro',     // PRO_MENSUAL
-            'price_1TB0DFH5NxxqqE4kY51i7dkp': 'pro',     // PRO_ANUAL
-
-            // --- PLANES PREMIUM ---
-            'price_1TAzIDH5NxxqqE4k339iqiO5': 'premium', // PREMIUM_MENSUAL
-            'price_1TB057H5NxxqqE4kNxZoU8uY': 'premium'  // PREMIUM_ANUAL
-        };
-
-        // Detección robusta de Tier: Mapas -> Metadata -> Fallback
-        // BUSCAMOS EN TODOS LOS ITEMS DE LA SUSCRIPCIÓN
+        // Detección de tier usando los mapas centralizados (lib/stripe-config).
+        // Iteramos todos los ítems de la suscripción y nos quedamos con el más alto.
         const allItems = sub.items?.data || [];
-        
+
         for (const item of allItems) {
-            const pId = item.price?.product?.id || item.price?.product || '';
+            const pId = (item.price?.product as any)?.id || item.price?.product || '';
             const prId = item.price?.id || '';
-            const pName = (item.price?.product as any)?.name || "";
+            const pName = (item.price?.product as any)?.name || '';
 
-            const isPremium = STRIPE_PRODUCT_TO_TIER[pId] === 'premium' || 
-                             STRIPE_PRICE_TO_TIER[prId] === 'premium' ||
-                             pName.toLowerCase().includes('premium');
-
-            if (isPremium) {
+            const tierItem = detectarTierDesdeStripe({ productId: pId as string, priceId: prId, productName: pName });
+            if (tierItem === 'premium') {
                 logWebhook(`[SYNC DETECT] Plan PREMIUM encontrado en la suscripción.`);
                 detectedTier = 'premium';
-                // Si encontramos premium, no buscamos más (es el nivel más alto)
                 break;
             }
-            if (STRIPE_PRODUCT_TO_TIER[pId] === 'pro' || STRIPE_PRICE_TO_TIER[prId] === 'pro' || pName.toLowerCase().includes('pro')) {
+            if (tierItem === 'pro') {
                 logWebhook(`[SYNC DETECT] Plan PRO encontrado en la suscripción.`);
                 detectedTier = 'pro';
             }
@@ -350,7 +324,7 @@ export async function POST(req: Request) {
     }
 
     let event: Stripe.Event | null = null;
-    const stripe = getStripe();
+    const stripe = obtenerStripe();
 
     const secrets = [
         { name: 'STANDARD', val: process.env.STRIPE_WEBHOOK_SECRET },
@@ -417,7 +391,7 @@ export async function POST(req: Request) {
 
             logWebhook(`Processing Session: ${session.id}`);
             
-            const supabaseAdmin = getSupabaseAdmin();
+            const supabaseAdmin = obtenerSupabaseAdmin();
             const accountId = (event as any).account;
             // CRÍTICO: No pasar {} como opciones vacías al SDK de Stripe — causa "Unknown arguments"
             // Solo pasar stripeAccount cuando realmente es un evento de una cuenta conectada
@@ -922,7 +896,7 @@ export async function POST(req: Request) {
     // --- EVENTOS ASÍNCRONOS (EJ. OXXO) ---
     if (event.type === 'checkout.session.async_payment_succeeded') {
         const session = event.data.object as Stripe.Checkout.Session;
-        const supabaseAdmin = getSupabaseAdmin();
+        const supabaseAdmin = obtenerSupabaseAdmin();
         logWebhook(`[OXXO/ASYNC] Pago exitoso para sesión: ${session.id}`);
         
         // 1. Marcar transacciones como completadas
@@ -977,7 +951,7 @@ export async function POST(req: Request) {
 
     if (event.type === 'checkout.session.async_payment_failed' || event.type === 'checkout.session.expired') {
         const session = event.data.object as Stripe.Checkout.Session;
-        const supabaseAdmin = getSupabaseAdmin();
+        const supabaseAdmin = obtenerSupabaseAdmin();
         const nuevoEstado = event.type === 'checkout.session.expired' ? 'expirado' : 'fallido';
         logWebhook(`[OXXO/ASYNC] Voucher ${nuevoEstado} para sesión: ${session.id}`);
         
@@ -990,8 +964,8 @@ export async function POST(req: Request) {
             const subscription = event.data.object as Stripe.Subscription;
             const subscriptionId = subscription.id;
             const customerId = subscription.customer as string;
-            const supabaseAdmin = getSupabaseAdmin();
-            const stripe = getStripe();
+            const supabaseAdmin = obtenerSupabaseAdmin();
+            const stripe = obtenerStripe();
 
             logWebhook(`Evento ${event.type} recibido para cliente ${customerId}`);
 
@@ -1028,8 +1002,8 @@ export async function POST(req: Request) {
             logWebhook(`[INVOICE.PAID] Recibido para invoice: ${invoice.id}, sub: ${subscriptionId || 'N/A'}`);
             
             if (subscriptionId) {
-                const stripe = getStripe();
-                const supabaseAdmin = getSupabaseAdmin();
+                const stripe = obtenerStripe();
+                const supabaseAdmin = obtenerSupabaseAdmin();
 
                 logWebhook(`Invoice Paid: ${invoice.id} for customer ${invoice.customer}. Sub: ${subscriptionId}`);
 
@@ -1181,7 +1155,7 @@ export async function POST(req: Request) {
                                    (subscription as any).subscription_details?.metadata?.userId;
             
             logWebhook(`Processing customer.subscription.updated for sub: ${subscription.id}`);
-            const supabaseAdmin = getSupabaseAdmin();
+            const supabaseAdmin = obtenerSupabaseAdmin();
             let profileId = metadataUserId;
 
             if (!profileId) {
@@ -1204,7 +1178,7 @@ export async function POST(req: Request) {
 
         if (event.type === 'customer.subscription.deleted') {
             const subscription = event.data.object as Stripe.Subscription;
-            const supabaseAdmin = getSupabaseAdmin();
+            const supabaseAdmin = obtenerSupabaseAdmin();
             const { data: profile } = await supabaseAdmin.from('perfiles').select('id').eq('stripe_cliente_id', subscription.customer as string).single();
 
             if (profile) {
@@ -1220,7 +1194,7 @@ export async function POST(req: Request) {
             logWebhook(`[INVOICE.PAYMENT_FAILED] Fallo de pago para invoice: ${invoice.id}, sub: ${subscriptionId || 'N/A'}, intento: ${invoice.attempt_count}`);
 
             if (subscriptionId) {
-                const supabaseAdmin = getSupabaseAdmin();
+                const supabaseAdmin = obtenerSupabaseAdmin();
 
                 // Buscar perfil del usuario
                 let profile: any = null;
@@ -1258,7 +1232,7 @@ export async function POST(req: Request) {
             const account = event.data.object as Stripe.Account;
             const onboarded = account.charges_enabled && account.payouts_enabled;
             if (onboarded) {
-                const supabaseAdmin = getSupabaseAdmin();
+                const supabaseAdmin = obtenerSupabaseAdmin();
                 await supabaseAdmin.from('perfiles').update({ stripe_connect_onboarded: true }).eq('stripe_connect_id', account.id);
             }
         }
