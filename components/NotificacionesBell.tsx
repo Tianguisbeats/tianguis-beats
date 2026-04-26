@@ -61,7 +61,9 @@ export default function NotificacionesBell({
           filter: `usuario_id=eq.${userId}`,
         },
         (payload) => {
-          setNotificaciones((prev) => [payload.new as Notificacion, ...prev]);
+          if (payload.new) {
+            setNotificaciones((prev) => [payload.new as Notificacion, ...prev]);
+          }
         }
       )
       .subscribe();

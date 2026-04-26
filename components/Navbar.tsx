@@ -48,7 +48,14 @@ export default function Navbar({ minimal = false }: { minimal?: boolean }) {
             .select('foto_perfil, nombre_artistico, nombre_usuario, es_fundador, esta_verificado, nivel_suscripcion, pais')
             .eq('id', userId)
             .single();
-        if (!error && data) setProfile(data);
+        if (!error && data) {
+            // Resolver URL de foto de perfil
+            if (data.foto_perfil && !data.foto_perfil.startsWith('http')) {
+                const { data: { publicUrl } } = supabase.storage.from('fotos_perfil').getPublicUrl(data.foto_perfil);
+                data.foto_perfil = publicUrl;
+            }
+            setProfile(data);
+        }
     };
 
     const handleLogout = async () => {

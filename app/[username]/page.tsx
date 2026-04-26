@@ -127,7 +127,10 @@ export default function ProducerProfilePage() {
             setUser(data.user);
             if (data.user) {
                 const { data: prof } = await supabase.from('perfiles').select('foto_perfil').eq('id', data.user.id).single();
-                if (prof) setCurrentUserProfile(prof);
+                if (prof) {
+                    prof.foto_perfil = resolveStorageUrl(prof.foto_perfil, 'fotos_perfil');
+                    setCurrentUserProfile(prof);
+                }
             }
         });
     }, []);
@@ -298,10 +301,19 @@ export default function ProducerProfilePage() {
                 .order('fecha_creacion', { ascending: false })
                 .range(offset, offset + PROFILE_LIMITS.wallPosts - 1);
             if (data) {
+                // Pre-procesar URLs de autores
+                const processed = data.map(post => ({
+                    ...post,
+                    usuario: post.usuario ? {
+                        ...post.usuario,
+                        foto_perfil: resolveStorageUrl((post.usuario as any).foto_perfil, 'fotos_perfil')
+                    } : null
+                }));
+
                 setWallPosts(prev => {
-                    if (!append) return data;
+                    if (!append) return processed;
                     const merged = new Map(prev.map(post => [post.id, post]));
-                    data.forEach(post => merged.set(post.id, post));
+                    processed.forEach(post => merged.set(post.id, post));
                     return Array.from(merged.values());
                 });
                 setWallLoadedCount(offset + data.length);
@@ -388,7 +400,10 @@ export default function ProducerProfilePage() {
     };
 
     const timeAgo = (date: string) => {
-        const diff = Date.now() - new Date(date).getTime();
+        if (!date) return '...';
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return '...';
+        const diff = Date.now() - d.getTime();
         const mins = Math.floor(diff / 60000);
         if (mins < 1) return 'ahora';
         if (mins < 60) return `${mins}m`;
@@ -396,7 +411,7 @@ export default function ProducerProfilePage() {
         if (hrs < 24) return `${hrs}h`;
         const days = Math.floor(hrs / 24);
         if (days < 7) return `${days}d`;
-        return new Date(date).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+        return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
     };
     // ────────────────────────────────────────────────────────────────
 
