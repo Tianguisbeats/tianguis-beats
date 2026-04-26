@@ -575,6 +575,11 @@ export default function ProducerProfilePage() {
         }
     };
 
+    useEffect(() => {
+        const activeButton = document.getElementById(`profile-tab-${activeTab}`);
+        activeButton?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }, [activeTab]);
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
@@ -629,11 +634,6 @@ export default function ProducerProfilePage() {
         if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
         goToTab(activeTabIndex + (dx < 0 ? 1 : -1));
     };
-
-    useEffect(() => {
-        const activeButton = document.getElementById(`profile-tab-${activeTab}`);
-        activeButton?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    }, [activeTab]);
 
     return (
         <div className="min-h-screen bg-background text-foreground">
