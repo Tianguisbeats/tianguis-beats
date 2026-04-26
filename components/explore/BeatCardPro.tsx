@@ -119,7 +119,11 @@ export default function BeatCardPro({ beat, compact = false, adminControls }: Be
                 className={`absolute inset-0 rounded-[2.5rem] border-2 ${isThisPlaying ? 'border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.3)]' : 'border-white/5'} pointer-events-none z-10 transition-colors duration-500`}
             />
 
-            <div className="bg-white/95 dark:bg-[#0F0F0F] md:backdrop-blur-lg rounded-[2.5rem] border border-slate-200 dark:border-white/5 p-2 flex flex-col h-full relative z-0 group-hover/main:border-emerald-500/30 transition-all duration-300 shadow-sm md:dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)]">
+            <div className="bg-white/95 dark:bg-[#0F0F0F] md:backdrop-blur-lg rounded-[2.5rem] border border-slate-200 dark:border-white/5 p-2 flex flex-col h-full relative z-0 group-hover/main:border-emerald-500/30 transition-all duration-300 shadow-sm md:dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] dark:max-md:shadow-[0_16px_40px_rgba(16,185,129,0.08)] max-md:border-emerald-500/10 max-md:bg-gradient-to-b max-md:from-white max-md:to-emerald-50/35 dark:max-md:from-[#101414] dark:max-md:to-[#07110f]">
+                <div className="md:hidden absolute inset-0 pointer-events-none opacity-80 rounded-[2.5rem] overflow-hidden">
+                    <div className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/45 to-transparent" />
+                    <div className="absolute -right-10 top-10 w-24 h-24 rounded-full bg-emerald-500/10 blur-2xl" />
+                </div>
                 {/* Visual Content Section */}
                 <div className="relative aspect-square rounded-[2rem] overflow-hidden group/img">
                     {beat.portada_url ? (

@@ -36,6 +36,7 @@ function SoundKitsContent() {
     const [loading, setLoading] = useState(true);
     const { formatPrice } = useCurrency();
     const { progress, scrollY } = useScrollProgress();
+    const featuredKits = kits.slice(0, 5);
 
     useEffect(() => {
         async function fetchKits() {
@@ -91,17 +92,40 @@ function SoundKitsContent() {
     );
 
     return (
-        <div className="min-h-screen bg-white text-black dark:bg-[#0A0A0A] dark:text-white font-sans selection:bg-orange-500 selection:text-white flex flex-col transition-colors duration-300">
+        <div className="min-h-screen bg-white text-black dark:bg-[#0A0A0A] dark:text-white font-sans selection:bg-orange-500 selection:text-white flex flex-col transition-colors duration-300 overflow-x-hidden">
             <Navbar minimal={true} />
 
-            <ParallaxBackground scrollY={scrollY} />
-            <FloatingParticles />
+            <div className="hidden md:block">
+                <ParallaxBackground scrollY={scrollY} />
+                <FloatingParticles />
+            </div>
+            <div className="md:hidden fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(249,115,22,0.20),transparent_34%),radial-gradient(circle_at_86%_26%,rgba(245,158,11,0.16),transparent_30%),linear-gradient(180deg,rgba(249,115,22,0.08),transparent_42%)]" />
+                <div className="absolute top-24 -right-20 w-52 h-52 rounded-[3rem] border border-orange-500/15 rotate-12 animate-spin-slow" />
+                <div className="absolute top-48 -left-12 w-32 h-32 rounded-full border border-amber-500/15" />
+            </div>
 
             <main className="flex-1 pb-32 relative">
                 
                 {/* ── Premium Hero Header ── */}
                 <div className="relative pt-24 pb-10 md:pt-40 md:pb-20 overflow-hidden">
                     <AbstractHomeBack theme="orange" opacity={1} />
+                    <div className="md:hidden absolute inset-0 pointer-events-none">
+                        <motion.div
+                            animate={{ y: [0, -12, 0], rotate: [0, 5, 0] }}
+                            transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
+                            className="absolute top-24 right-7 w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-500"
+                        >
+                            <Headphones size={24} strokeWidth={1.5} />
+                        </motion.div>
+                        <motion.div
+                            animate={{ y: [0, 10, 0], rotate: [0, -8, 0] }}
+                            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.7 }}
+                            className="absolute top-44 left-5 w-11 h-11 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500"
+                        >
+                            <Package size={18} strokeWidth={1.5} />
+                        </motion.div>
+                    </div>
                     
                     {/* Giant Watermark - Premium Simplified */}
                     <div className="absolute inset-x-0 bottom-[-5%] flex items-center justify-center pointer-events-none select-none overflow-hidden">
@@ -131,10 +155,43 @@ function SoundKitsContent() {
                                 <p className="text-black/50 dark:text-white/30 text-[11px] font-black uppercase tracking-[0.4em] relative z-10">
                                     {loading ? 'Preparando...' : `${kits.length} drumkits y samples curados`}
                                 </p>
+                                <div className="md:hidden grid grid-cols-3 gap-2 mt-7">
+                                    <div className="rounded-2xl border border-orange-500/15 bg-orange-500/[0.07] px-3 py-3">
+                                        <p className="text-lg font-black leading-none">{kits.length}</p>
+                                        <p className="mt-1 text-[7px] font-black uppercase tracking-widest text-orange-500">Kits</p>
+                                    </div>
+                                    <div className="rounded-2xl border border-amber-500/15 bg-amber-500/[0.07] px-3 py-3">
+                                        <p className="text-lg font-black leading-none">WAV</p>
+                                        <p className="mt-1 text-[7px] font-black uppercase tracking-widest text-amber-500">24-bit</p>
+                                    </div>
+                                    <div className="rounded-2xl border border-blue-500/15 bg-blue-500/[0.07] px-3 py-3">
+                                        <p className="text-lg font-black leading-none">Pro</p>
+                                        <p className="mt-1 text-[7px] font-black uppercase tracking-widest text-blue-500">Audio</p>
+                                    </div>
+                                </div>
                             </ScrollReveal>
                         </div>
                     </div>
                 </div>
+
+                {featuredKits.length > 0 && (
+                    <div className="md:hidden px-4 -mt-1 mb-8">
+                        <div className="flex items-center justify-between mb-3">
+                            <div>
+                                <p className="text-[8px] font-black uppercase tracking-[0.35em] text-orange-500">Caja rápida</p>
+                                <h2 className="text-xl font-black uppercase tracking-tighter">Kits destacados</h2>
+                            </div>
+                            <Gem size={18} className="text-orange-500" />
+                        </div>
+                        <div className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-3 -mx-4 px-4">
+                            {featuredKits.map(kit => (
+                                <div key={kit.id} className="snap-center shrink-0 w-[76vw] max-w-[300px]">
+                                    <SoundKitCard kit={kit} featured />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 <div className="px-4 sm:px-10 max-w-[1700px] mx-auto w-full mt-12 overflow-hidden">
                     <div className="flex flex-col lg:flex-row gap-12 items-start">
@@ -156,8 +213,8 @@ function SoundKitsContent() {
                                 </div>
                             </div>
 
-                            <div className="relative w-full mb-16">
-                                <div id="tabs-container" className="flex items-center gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth justify-start pb-6">
+                            <div className="relative w-full mb-10 md:mb-16">
+                                <div id="tabs-container" className="flex items-center gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth justify-start pb-4 md:pb-6">
                                     <button className="snap-center flex-shrink-0 flex items-center gap-3 px-8 py-4 rounded-full font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-300 min-h-[52px] relative group bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/30">
                                         <Package size={14} strokeWidth={3} className="text-white" />
                                         <span>Todos los Kits</span>
@@ -178,7 +235,7 @@ function SoundKitsContent() {
                                     {[...Array(6)].map((_, i) => <KitSkeleton key={i} />)}
                                 </div>
                             ) : kits.length > 0 ? (
-                                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 md:gap-8">
+                                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-8 [@media(max-width:380px)]:grid-cols-1">
                                     {kits.map(kit => <SoundKitCard key={kit.id} kit={kit} />)}
                                 </div>
                             ) : (

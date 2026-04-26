@@ -11,9 +11,10 @@ import LikeSoundKitButton from '@/components/LikeSoundKitButton';
 
 interface SoundKitCardProps {
     kit: any;
+    featured?: boolean;
 }
 
-export default function SoundKitCard({ kit }: SoundKitCardProps) {
+export default function SoundKitCard({ kit, featured = false }: SoundKitCardProps) {
     const { playBeat, currentBeat, isPlaying, togglePlay } = usePlayer();
     const { addItem, setIsCartOpen } = useCart();
     const { formatPrice } = useCurrency();
@@ -71,8 +72,17 @@ export default function SoundKitCard({ kit }: SoundKitCardProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             whileHover={{ y: -8 }}
-            className="group relative flex flex-col h-full bg-white dark:bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-slate-200 dark:border-white/10 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/10"
+            className={`group relative flex flex-col h-full bg-white dark:bg-white/5 backdrop-blur-xl rounded-[2.5rem] border overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/10 ${
+                featured
+                    ? 'border-orange-500/30 shadow-2xl shadow-orange-500/10'
+                    : 'border-slate-200 dark:border-white/10'
+            }`}
         >
+            <div className="md:hidden absolute inset-0 pointer-events-none opacity-80">
+                <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/50 to-transparent" />
+                <div className="absolute -right-10 top-10 w-24 h-24 rounded-full bg-orange-500/10 blur-2xl" />
+            </div>
+
             {/* Image Section */}
             <div className="relative aspect-[4/5] overflow-hidden m-2 rounded-[2rem]">
                 <img
@@ -101,6 +111,12 @@ export default function SoundKitCard({ kit }: SoundKitCardProps) {
 
                 {/* Badges */}
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
+                    {featured && (
+                        <div className="px-3 py-1.5 rounded-full bg-orange-500/25 backdrop-blur-xl border border-orange-500/30 flex items-center gap-1.5">
+                            <Star size={10} className="text-orange-300 fill-orange-300" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-orange-100">Destacado</span>
+                        </div>
+                    )}
                     {isPremium && (
                         <div className="px-3 py-1.5 rounded-full bg-blue-500/20 backdrop-blur-xl border border-blue-500/30 flex items-center gap-1.5">
                             <Crown size={10} className="text-blue-500" />

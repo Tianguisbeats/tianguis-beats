@@ -129,6 +129,7 @@ function CatalogContent() {
     };
 
     const clearFilters = () => { setFilters(EMPTY_FILTERS); setInputValue(""); setSearchQuery(""); };
+    const featuredBeats = beats.slice(0, 6);
 
     // Transform raw beat data
     const transformBeat = (b: any): Beat => {
@@ -312,6 +313,14 @@ function CatalogContent() {
     return (
         <div className="min-h-[100dvh] bg-white dark:bg-[#080808] text-black dark:text-white font-sans selection:bg-emerald-500 selection:text-white flex flex-col overflow-x-hidden">
             <Navbar minimal={true} />
+
+            {/* Mobile premium atmosphere — lightweight CSS layers */}
+            <div className="md:hidden fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(16,185,129,0.18),transparent_32%),radial-gradient(circle_at_92%_28%,rgba(20,184,166,0.14),transparent_30%),linear-gradient(180deg,rgba(16,185,129,0.06),transparent_38%)]" />
+                <div className="absolute top-24 -right-20 w-48 h-48 rounded-full border border-emerald-500/15 animate-spin-slow" />
+                <div className="absolute top-40 -left-16 w-36 h-36 rounded-[2rem] border border-teal-500/10 rotate-12" />
+            </div>
+
             {/* Heavy background effects — desktop only for mobile performance */}
             <div className="hidden md:block">
                 <ParallaxBackground scrollY={0} />
@@ -323,6 +332,23 @@ function CatalogContent() {
                 {/* ══ Hero + Search ══════════════════════════════════════ */}
                 <div className="relative pt-20 pb-8 md:pt-28 md:pb-14 overflow-hidden border-b border-black/5 dark:border-white/5">
                     <div className="hidden md:block"><AbstractTrianglesBack theme="green" opacity={0.65} /></div>
+                    <div className="md:hidden absolute inset-0 pointer-events-none">
+                        <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-emerald-500/10 to-transparent" />
+                        <motion.div
+                            animate={{ y: [0, -12, 0], rotate: [0, 4, 0] }}
+                            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                            className="absolute top-24 right-6 w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500"
+                        >
+                            <Music size={24} strokeWidth={1.5} />
+                        </motion.div>
+                        <motion.div
+                            animate={{ y: [0, 10, 0], rotate: [0, -6, 0] }}
+                            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+                            className="absolute top-44 left-5 w-11 h-11 rounded-full bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-500"
+                        >
+                            <Activity size={18} strokeWidth={1.5} />
+                        </motion.div>
+                    </div>
                     <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-white dark:from-[#080808] to-transparent pointer-events-none" />
 
                     <div className="max-w-4xl mx-auto px-6 relative z-10">
@@ -339,6 +365,21 @@ function CatalogContent() {
                                 TIANGUIS
                                 <span className="text-emerald-500"> BEATS</span>
                             </h1>
+
+                            <div className="md:hidden grid grid-cols-3 gap-2 mb-6">
+                                <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/[0.06] px-3 py-3">
+                                    <p className="text-lg font-black leading-none">{beats.length}</p>
+                                    <p className="mt-1 text-[7px] font-black uppercase tracking-widest text-emerald-500">Beats</p>
+                                </div>
+                                <div className="rounded-2xl border border-teal-500/15 bg-teal-500/[0.06] px-3 py-3">
+                                    <p className="text-lg font-black leading-none">{activeFilterCount}</p>
+                                    <p className="mt-1 text-[7px] font-black uppercase tracking-widest text-teal-500">Filtros</p>
+                                </div>
+                                <div className="rounded-2xl border border-amber-500/15 bg-amber-500/[0.06] px-3 py-3">
+                                    <p className="text-lg font-black leading-none">{TABS.length}</p>
+                                    <p className="mt-1 text-[7px] font-black uppercase tracking-widest text-amber-500">Vistas</p>
+                                </div>
+                            </div>
 
                             {/* Search row */}
                             <div className="flex gap-3">
@@ -439,6 +480,25 @@ function CatalogContent() {
                     </div>
                 </div>
 
+                {featuredBeats.length > 0 && (
+                    <div className="md:hidden px-4 mt-6">
+                        <div className="flex items-center justify-between mb-3">
+                            <div>
+                                <p className="text-[8px] font-black uppercase tracking-[0.35em] text-emerald-500">Selección rápida</p>
+                                <h2 className="text-xl font-black uppercase tracking-tighter">Beats destacados</h2>
+                            </div>
+                            <Sparkles size={18} className="text-emerald-500" />
+                        </div>
+                        <div className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-3 -mx-4 px-4">
+                            {featuredBeats.map(beat => (
+                                <div key={beat.id} className="snap-center shrink-0 w-[74vw] max-w-[290px]">
+                                    <BeatCardPro beat={beat} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* ══ Tabs + Grid ════════════════════════════════════════ */}
                 <div className="max-w-[1900px] mx-auto px-4 sm:px-8 mt-8">
 
@@ -455,24 +515,24 @@ function CatalogContent() {
                                     el.scrollBy({ left: -280, behavior: "smooth" });
                                 }
                             }}
-                            className="absolute left-1 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all text-slate-500 dark:text-emerald-500"
+                            className="hidden md:flex absolute left-1 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/10 items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all text-slate-500 dark:text-emerald-500"
                         >
                             <ChevronLeft size={20} strokeWidth={3} />
                         </button>
 
                         <div 
                             id="tabs-scroll" 
-                            className="flex items-center gap-3 overflow-x-auto no-scrollbar py-3 px-14 scroll-smooth"
+                            className="flex items-center gap-3 overflow-x-auto no-scrollbar py-3 md:px-14 scroll-smooth snap-x snap-mandatory"
                         >
-                            <div className="flex items-center gap-3 mx-auto min-w-max">
+                            <div className="flex items-center gap-3 md:mx-auto min-w-max">
                                 {TABS.map(({ mode, label, icon: Icon, badge }) => (
                                     <button
                                         key={mode}
                                         onClick={() => { setViewMode(mode); setPage(1); }}
-                                        className={`snap-center shrink-0 flex items-center gap-2.5 px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.14em] transition-all duration-500 ${
+                                        className={`snap-center shrink-0 flex items-center gap-2.5 px-5 md:px-6 py-3 md:py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.14em] transition-all duration-500 ${
                                             viewMode === mode
                                                 ? "bg-emerald-500 text-white shadow-[0_10px_25px_-5px_rgba(16,185,129,0.4)] scale-105"
-                                                : "bg-[#f8f9fa] dark:bg-white/[0.04] text-slate-500 dark:text-white/40 border border-transparent hover:border-emerald-500/30 hover:text-emerald-500 dark:hover:text-emerald-400 hover:bg-emerald-500/5 shadow-sm"
+                                                : "bg-[#f8f9fa] dark:bg-white/[0.04] text-slate-500 dark:text-white/40 border border-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-500 dark:hover:text-emerald-400 hover:bg-emerald-500/5 shadow-sm"
                                         }`}
                                     >
                                         <Icon size={14} strokeWidth={viewMode === mode ? 3 : 2.5} />
@@ -502,7 +562,7 @@ function CatalogContent() {
                                     el.scrollBy({ left: 280, behavior: "smooth" });
                                 }
                             }}
-                            className="absolute right-1 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all text-slate-500 dark:text-emerald-500"
+                            className="hidden md:flex absolute right-1 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/10 items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all text-slate-500 dark:text-emerald-500"
                         >
                             <ChevronRight size={20} strokeWidth={3} />
                         </button>
@@ -522,7 +582,7 @@ function CatalogContent() {
                             {[...Array(12)].map((_, i) => <BeatSkeleton key={i} />)}
                         </div>
                     ) : beats.length > 0 ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-5">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-5 [@media(max-width:380px)]:grid-cols-1">
                             {beats.map(beat => (
                                 <BeatCardPro key={beat.id} beat={beat} />
                             ))}
