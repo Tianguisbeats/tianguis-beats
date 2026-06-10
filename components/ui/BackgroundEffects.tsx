@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 
 // ═══════════════════════════════════════════════════════════════════
@@ -140,15 +140,19 @@ export function ParallaxBackground({ scrollY: _unused }: { scrollY: number }) {
 // ═══════════════════════════════════════════════════════════════════
 
 export function FloatingParticles({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
+  const [montado, setMontado] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  
+
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
+    setMontado(true);
   }, []);
 
-  const particlesCount = isMobile ? 12 : 40;
-  
-  const particles = Array.from({ length: particlesCount }, (_, i) => ({
+  const particlesCount = isMobile ? 8 : 40;
+
+  // Memoizado: las posiciones aleatorias se calculan una sola vez por
+  // (cantidad, dispositivo), no en cada render.
+  const particles = useMemo(() => Array.from({ length: particlesCount }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
     y: Math.random() * 100,
@@ -157,12 +161,18 @@ export function FloatingParticles({ theme = 'blue' }: { theme?: 'blue' | 'green'
     delay: Math.random() * 10,
     opacity: Math.random() * 0.3 + 0.1,
     blur: Math.random() > 0.8 && !isMobile ? 'blur-sm' : '',
-  }));
+  })), [particlesCount, isMobile]);
 
   const themes = {
     blue: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #06b6d4 100%)',
     green: 'linear-gradient(135deg, #10b981 0%, #34d399 50%, #059669 100%)'
   };
+
+  // No renderizar en el servidor: las posiciones aleatorias diferían entre
+  // servidor y cliente y causaban errores de hidratación (React botaba el HTML
+  // del servidor y re-renderizaba). Al pintarlas solo tras montar en el cliente,
+  // eliminamos el mismatch. Es decoración de fondo (-z-10), así que no hay salto.
+  if (!montado) return null;
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
@@ -1017,6 +1027,17 @@ export function AbstractTrianglesBack({ theme, opacity = 1 }: { theme: 'blue' | 
     pink: ['#FDF2F8', '#FCE7F3', '#FBCFE8', '#F9A8D4']
   };
 
+  const [montado, setMontado] = useState(false);
+  useEffect(() => { setMontado(true); }, []);
+  // Posiciones aleatorias calculadas una sola vez para las estrellas flotantes.
+  const estrellas = useMemo(() => Array.from({ length: 8 }, () => ({
+    width: Math.random() * 4 + 2,
+    height: Math.random() * 4 + 2,
+    top: Math.random() * 100,
+    left: Math.random() * 100,
+    duration: Math.random() * 3 + 2,
+  })), []);
+
   return (
     <motion.div className="absolute inset-0 overflow-hidden pointer-events-none z-0 opacity-50 dark:opacity-20">
       <div className="w-full h-full transition-opacity duration-700">
@@ -1055,19 +1076,20 @@ export function AbstractTrianglesBack({ theme, opacity = 1 }: { theme: 'blue' | 
           transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut' }}
         />
         
-        {/* Soft floating stars/particles */}
-        {[...Array(8)].map((_, i) => (
+        {/* Estrellas flotantes — solo en cliente (sus posiciones aleatorias
+            causaban mismatch de hidratación si se renderizaban en el servidor). */}
+        {montado && estrellas.map((e, i) => (
            <motion.div
              key={`star-${i}`}
              className="absolute rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]"
              style={{
-               width: `${Math.random() * 4 + 2}px`,
-               height: `${Math.random() * 4 + 2}px`,
-               top: `${Math.random() * 100}%`,
-               left: `${Math.random() * 100}%`
+               width: `${e.width}px`,
+               height: `${e.height}px`,
+               top: `${e.top}%`,
+               left: `${e.left}%`
              }}
              animate={{ opacity: [0, 1, 0], scale: [0.5, 1.5, 0.5] }}
-             transition={{ duration: Math.random() * 3 + 2, repeat: Infinity, ease: 'easeInOut' }}
+             transition={{ duration: e.duration, repeat: Infinity, ease: 'easeInOut' }}
            />
         ))}
 

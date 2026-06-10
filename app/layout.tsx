@@ -72,6 +72,8 @@ import { CurrencyProvider } from "@/context/CurrencyContext";
 import BackgroundAura from "@/components/ui/BackgroundAura";
 import LenisScroll from "@/components/LenisScroll";
 import { Toaster } from 'sonner';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import MaintenanceGuard from "@/components/MaintenanceGuard";
 import AnuncioBanner from "@/components/AnuncioBanner";
 import { cn } from "@/lib/utils";
@@ -110,6 +112,10 @@ export default function RootLayout({
             </ToastProvider>
           </CurrencyProvider>
         </ThemeProvider>
+        {/* Monitoreo: tráfico real y Core Web Vitals (LCP, CLS, INP). Se activan
+            al encender Analytics/Speed Insights en el panel de Vercel. */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

@@ -55,14 +55,30 @@ interface Producer {
 function useMousePosition() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   useEffect(() => {
+    // En dispositivos táctiles (puntero grueso) no aporta nada y gasta batería:
+    // no escuchamos el mouse.
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+
+    let frame = 0;
+    let pendiente: { x: number; y: number } | null = null;
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
+      pendiente = {
         x: (e.clientX / window.innerWidth) * 2 - 1,
-        y: (e.clientY / window.innerHeight) * 2 - 1
-      });
+        y: (e.clientY / window.innerHeight) * 2 - 1,
+      };
+      // Limitar a un update por frame (~60fps) en vez de uno por cada pixel.
+      if (!frame) {
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          if (pendiente) setMousePosition(pendiente);
+        });
+      }
     };
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, []);
   return mousePosition;
 }
