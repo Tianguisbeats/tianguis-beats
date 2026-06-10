@@ -258,7 +258,7 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                                     </div>
                                     
                                     <h1 className="text-4xl sm:text-5xl md:text-8xl lg:text-[7rem] xl:text-[8rem] font-black uppercase tracking-tighter leading-[0.9] w-full">
-                                        <span className="inline-block break-words text-transparent bg-clip-text bg-gradient-to-r from-foreground via-foreground to-foreground/40 drop-shadow-[0_10px_30px_rgba(59,130,246,0.15)]">
+                                        <span className="inline-block break-words text-transparent bg-clip-text bg-gradient-to-r from-foreground via-foreground to-foreground/70 drop-shadow-[0_10px_30px_rgba(59,130,246,0.15)]">
                                             {beat.titulo}
                                         </span>
                                     </h1>

@@ -153,7 +153,7 @@ export default function BeatsPage() {
                             <div className="h-0.5 w-12 bg-white rounded-full" />
                         </div>
                         <h2 className="text-4xl sm:text-6xl md:text-[10rem] font-black uppercase tracking-tighter leading-[0.85] mb-6 md:mb-8">
-                            Beats<br /><span className="text-white/40">Premium.</span>
+                            Beats<br /><span className="text-white/60">Premium.</span>
                         </h2>
                         <p className="max-w-md text-white/80 text-base md:text-xl font-medium mb-8 md:mb-12 leading-relaxed">Encuentra tu próximo Hit aquí.</p>
                         <motion.div
@@ -288,7 +288,7 @@ export default function BeatsPage() {
                             <Star className="fill-white" size={24} />
                         </div>
                         <h2 className="text-4xl sm:text-6xl md:text-[10rem] font-black uppercase tracking-tighter leading-[0.85] mb-6 md:mb-8">
-                            Sound<br /><span className="text-white/40">Kits.</span>
+                            Sound<br /><span className="text-white/60">Kits.</span>
                         </h2>
                         <p className="max-w-md text-white/80 text-base md:text-xl font-medium mb-8 md:mb-12 leading-relaxed md:ml-auto">Librerías exclusivas con sonidos y Presets de alta calidad para tus Beats.</p>
                         <motion.div

@@ -139,7 +139,7 @@ function HeroTitle({ scrollY }: { scrollY: number }) {
               className="absolute w-full revolut-title text-[18vw] md:text-[14vw] text-center uppercase overflow-visible px-4 flex flex-col items-center justify-center leading-[0.9] pb-10"
             >
               <div className="text-blue-600 dark:text-blue-500">{genres[currentGenreIndex].line1}</div>
-              <div className="opacity-10 dark:opacity-20 text-transparent bg-clip-text bg-gradient-to-r from-black to-slate-500 dark:from-white dark:to-slate-500 py-2">
+              <div className="opacity-30 dark:opacity-45 text-transparent bg-clip-text bg-gradient-to-r from-black to-slate-600 dark:from-white dark:to-slate-400 py-2">
                 {genres[currentGenreIndex].line2}
               </div>
             </motion.div>
