@@ -20,9 +20,35 @@ export const viewport: Viewport = {
   minimumScale: 1,
 };
 
+const SITE_URL = (process.env.NEXT_PUBLIC_URL || 'https://tianguisbeats.com').replace(/\/$/, '');
+const SITE_TITLE = "Tianguis Beats | La plataforma #1 de beats en México";
+const SITE_DESC = "Eleva tu sonido al siguiente nivel con los mejores beats de Corridos Tumbados, Trap y Reggaetón. La comunidad de productores y artistas más grande de México.";
+
 export const metadata: Metadata = {
-  title: "Tianguis Beats | La plataforma #1 de beats en México",
-  description: "Eleva tu sonido al siguiente nivel con los mejores beats de Corridos Tumbados, Trap y Reggaetón. La comunidad de productores y artistas más grande de México.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: "%s | Tianguis Beats",
+  },
+  description: SITE_DESC,
+  applicationName: "Tianguis Beats",
+  keywords: ["beats", "corridos tumbados", "trap", "reggaetón", "instrumentales", "productores", "México", "comprar beats"],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "es_MX",
+    url: SITE_URL,
+    siteName: "Tianguis Beats",
+    title: SITE_TITLE,
+    description: SITE_DESC,
+    images: [{ url: '/icon.png', width: 512, height: 512, alt: 'Tianguis Beats' }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESC,
+    images: ['/icon.png'],
+  },
   icons: {
     icon: [
       { url: '/favicon.png' },
@@ -38,7 +64,6 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { PlayerProvider } from "@/context/PlayerContext";
 import { CartProvider } from "@/context/CartContext";
 import AudioPlayer from "@/components/AudioPlayer";
-import AIChatBot from "@/components/AIChatBot";
 import CartSidebar from "@/components/CartSidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
@@ -79,7 +104,6 @@ export default function RootLayout({
                     <MobileBottomNav />
                     <CartSidebar />
                     <AudioPlayer />
-                    <AIChatBot />
                   </MaintenanceGuard>
                 </PlayerProvider>
               </CartProvider>

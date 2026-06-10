@@ -18,7 +18,7 @@ import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { getGlobalConfig, GlobalConfig } from '@/lib/config';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 // Removed LicenseSelectionModal per user request
 import AddToPlaylistModal from '@/components/AddToPlaylistModal';
 import { useRouter } from 'next/navigation';
@@ -42,7 +42,7 @@ const cardVariants = {
     }
 };
 
-export default function BeatCardPro({ beat, compact = false, adminControls }: BeatCardProProps) {
+function BeatCardPro({ beat, compact = false, adminControls }: BeatCardProProps) {
     /* ── Contextos globales: reproductor, carrito, toasts, moneda ── */
     const { currentBeat, isPlaying, playBeat, likedBeatIds, toggleLike: globalToggleLike } = usePlayer();
     const { currentUserId } = useCart();
@@ -312,3 +312,7 @@ export default function BeatCardPro({ beat, compact = false, adminControls }: Be
         </motion.div>
     );
 }
+
+// Memoizado: en catálogos grandes evita re-renders cuando el padre cambia por
+// motivos ajenos a esta tarjeta (búsqueda, filtros, estado del reproductor).
+export default memo(BeatCardPro);

@@ -32,7 +32,6 @@ import {
     Pause,
     ShieldCheck as Shield,
     Fingerprint,
-    QrCode,
     Calendar,
     Tag,
     Loader2,
@@ -125,6 +124,15 @@ type OrderItem = {
     orden_pedido?: string;
 };
 
+const PAGE_SIZE = 24;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const EXCHANGE_RATES_REV = {
+    MXN: 1,
+    USD: 1 / 0.058, // ~17.2 MXN/USD
+    EUR: 1 / 0.053, // ~18.8 MXN/EUR
+};
+
 type Order = {
     id: string;
     pago_id?: string;
@@ -145,6 +153,11 @@ type Order = {
 
 export default function MyPurchasesPage() {
     const [orders, setOrders] = useState<Order[]>([]);
+    const [allTx, setAllTx] = useState<any[]>([]);
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [totalInvestmentInMXN, setTotalInvestmentInMXN] = useState(0);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -199,18 +212,45 @@ export default function MyPurchasesPage() {
     };
 
     useEffect(() => {
-        fetchOrders();
+        fetchOrders(0);
+        fetchTotalInvestment();
     }, []);
 
-    const fetchOrders = async () => {
+    const fetchTotalInvestment = async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
+        const { data } = await supabase
+            .from('transacciones')
+            .select('precio_total, moneda')
+            .eq('comprador_id', user.id)
+            .neq('tipo_producto', 'plan');
+
+        const total = (data || []).reduce((acc, tx) => {
+            const rate = (EXCHANGE_RATES_REV as any)[tx.moneda || 'MXN'] || 1;
+            return acc + Number(tx.precio_total || 0) * rate;
+        }, 0);
+        setTotalInvestmentInMXN(total);
+    };
+
+    const fetchOrders = async (pageIndex: number) => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            setLoading(false);
+            return;
+        }
+
+        if (pageIndex > 0) setLoadingMore(true);
+
         try {
+            const from = pageIndex * PAGE_SIZE;
             const { data: txData, error: txError } = await supabase
                 .from('transacciones')
                 .select(`
-                    *,
+                    id, pago_id, producto_id, producto_uuid, tipo_producto, nombre_producto,
+                    precio_total, moneda, estado_pago, metodo_pago, tipo_licencia, metadatos,
+                    codigo_cupon, monto_descuento, recibo_url, fecha_creacion, orden_pedido,
+                    vendedor_id, comprador_id,
                     vendedor:perfiles!vendedor_id (
                         nombre_artistico,
                         nombre_usuario,
@@ -219,30 +259,55 @@ export default function MyPurchasesPage() {
                 `)
                 .eq('comprador_id', user.id)
                 .neq('tipo_producto', 'plan')
-                .order('fecha_creacion', { ascending: false });
+                .order('fecha_creacion', { ascending: false })
+                .range(from, from + PAGE_SIZE - 1);
 
             if (txError) throw txError;
 
-            const enrichedData = await Promise.all((txData || []).map(async (tx) => {
+            const pageTx = txData || [];
+            setHasMore(pageTx.length === PAGE_SIZE);
+
+            // Portadas/audio faltantes: una query batch por tabla en vez de una por transacción
+            const needsEnrich = (tx: any) => {
+                const tipo = (tx.tipo_producto || '').toLowerCase();
+                const hasMedia = tx.metadatos?.portada_url && (tx.metadatos?.archivo_muestra_url || tx.metadatos?.preview_url);
+                return !hasMedia && ['beat', 'sound_kit', 'soundkit', 'kit_sonido'].includes(tipo);
+            };
+            const productId = (tx: any) => String(tx.producto_uuid || tx.producto_id || '');
+            const beatIds = pageTx
+                .filter(tx => needsEnrich(tx) && (tx.tipo_producto || '').toLowerCase() === 'beat')
+                .map(productId).filter(id => UUID_RE.test(id));
+            const kitIds = pageTx
+                .filter(tx => needsEnrich(tx) && (tx.tipo_producto || '').toLowerCase() !== 'beat')
+                .map(productId).filter(id => UUID_RE.test(id));
+
+            const [beatsRes, kitsRes] = await Promise.all([
+                beatIds.length
+                    ? supabase.from('beats').select('id, portada_url, archivo_muestra_url, archivo_mp3_url').in('id', beatIds)
+                    : Promise.resolve({ data: [] as any[] }),
+                kitIds.length
+                    ? supabase.from('kits_sonido').select('id, url_portada, archivo_muestra_url, url_archivo').in('id', kitIds)
+                    : Promise.resolve({ data: [] as any[] }),
+            ]);
+            const beatsById = new Map((beatsRes.data || []).map((b: any) => [b.id, b]));
+            const kitsById = new Map((kitsRes.data || []).map((k: any) => [k.id, k]));
+
+            const enrichedData = pageTx.map(tx => {
                 let currentPortada = tx.metadatos?.portada_url;
                 let currentAudio = tx.metadatos?.archivo_muestra_url || tx.metadatos?.preview_url;
                 const tipoTx = (tx.tipo_producto || '').toLowerCase();
 
-                const finalProductId = tx.producto_uuid || tx.producto_id;
-
-                if ((!currentPortada || !currentAudio) && (tipoTx === 'beat' || tipoTx === 'sound_kit' || tipoTx === 'soundkit' || tipoTx === 'kit_sonido')) {
-                    if (tipoTx === 'beat') {
-                        const { data: beatData } = await supabase.from('beats').select('portada_url, archivo_muestra_url, archivo_mp3_url').eq('id', finalProductId).single();
-                        if (beatData) {
-                            currentPortada = beatData.portada_url || currentPortada;
-                            currentAudio = beatData.archivo_muestra_url || beatData.archivo_mp3_url || currentAudio;
-                        }
-                    } else {
-                        const { data: kitData } = await supabase.from('kits_sonido').select('url_portada, archivo_muestra_url, url_archivo').eq('id', finalProductId).single();
-                        if (kitData) {
-                            currentPortada = kitData.url_portada || currentPortada;
-                            currentAudio = kitData.archivo_muestra_url || kitData.url_archivo || currentAudio;
-                        }
+                if (tipoTx === 'beat') {
+                    const beatData = beatsById.get(productId(tx));
+                    if (beatData) {
+                        currentPortada = beatData.portada_url || currentPortada;
+                        currentAudio = beatData.archivo_muestra_url || beatData.archivo_mp3_url || currentAudio;
+                    }
+                } else {
+                    const kitData = kitsById.get(productId(tx));
+                    if (kitData) {
+                        currentPortada = kitData.url_portada || currentPortada;
+                        currentAudio = kitData.archivo_muestra_url || kitData.url_archivo || currentAudio;
                     }
                 }
 
@@ -260,11 +325,14 @@ export default function MyPurchasesPage() {
                         url_audio: currentAudio
                     }
                 };
-            }));
+            });
+
+            const combinedTx = pageIndex === 0 ? enrichedData : [...allTx, ...enrichedData];
+            setAllTx(combinedTx);
 
             const groupedOrders: Record<string, any> = {};
 
-            enrichedData.forEach(tx => {
+            combinedTx.forEach(tx => {
                 const orderKey = tx.orden_pedido || tx.pago_id || tx.id;
 
                 if (!groupedOrders[orderKey]) {
@@ -329,10 +397,12 @@ export default function MyPurchasesPage() {
 
             formattedOrders.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
             setOrders(formattedOrders as Order[]);
+            setPage(pageIndex);
         } catch (err) {
             console.error("Error fetching orders:", err);
         } finally {
             setLoading(false);
+            setLoadingMore(false);
         }
     };
 
@@ -530,17 +600,6 @@ export default function MyPurchasesPage() {
         });
     };
 
-    const EXCHANGE_RATES_REV = {
-        MXN: 1,
-        USD: 1 / 0.058, // ~17.2 MXN/USD
-        EUR: 1 / 0.053, // ~18.8 MXN/EUR
-    };
-
-    const totalInvestmentInMXN = orders.reduce((acc, o) => {
-        const rate = (EXCHANGE_RATES_REV as any)[o.currency] || 1;
-        return acc + (o.total_amount * rate);
-    }, 0);
-
     // Define oCurrencySymbols for the new UI structure
     const oCurrencySymbols: { [key: string]: string } = {
         MXN: '$',
@@ -736,6 +795,19 @@ export default function MyPurchasesPage() {
                             </div>
                         );
                     })}
+
+                    {hasMore && (
+                        <div className="flex justify-center pt-4">
+                            <button
+                                onClick={() => fetchOrders(page + 1)}
+                                disabled={loadingMore}
+                                className="flex items-center gap-3 px-10 py-4 bg-card border border-border rounded-2xl font-black text-[10px] uppercase tracking-widest text-foreground hover:bg-foreground hover:text-background transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loadingMore ? <Loader2 size={14} className="animate-spin" /> : <ChevronDown size={14} />}
+                                {loadingMore ? 'Cargando...' : 'Cargar más compras'}
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -746,7 +818,7 @@ export default function MyPurchasesPage() {
                     <div className="w-14 h-14 bg-accent/10 text-accent rounded-2xl flex items-center justify-center mb-6"><Shield size={28} /></div>
                     <h3 className="text-2xl font-black uppercase tracking-tight text-foreground mb-4">Integridad de Licencias</h3>
                     <p className="text-muted text-sm leading-relaxed max-w-sm">
-                        Cada compra genera un contrato legal único vinculado a tu firma digital. Puedes validarlos escaneando el código QR en cada PDF.
+                        Cada compra genera un contrato legal único vinculado a tu firma digital, con hash de seguridad incluido en cada PDF.
                     </p>
                 </div>
                 <div className="bg-card border border-border rounded-2xl md:rounded-[3rem] p-6 md:p-12 flex flex-col items-center justify-center text-center">

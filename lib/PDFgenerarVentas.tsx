@@ -1,6 +1,5 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Image, renderToStream, Font } from '@react-pdf/renderer';
-import QRCode from 'qrcode';
 import crypto from 'crypto';
 import path from 'path';
 
@@ -199,10 +198,6 @@ const styles = StyleSheet.create({
         borderTopColor: '#E2E8F0',
         paddingTop: 15,
     },
-    qrCode: {
-        width: 70,
-        height: 70,
-    },
     footerInfo: {
         flex: 1,
     },
@@ -262,7 +257,7 @@ export interface SalesNoteData {
 const generateHash = (data: string) => {
     return crypto.createHash('sha256').update(data).digest('hex');
 };
-const SalesNoteDocument = ({ data, qrBase64 }: { data: SalesNoteData, qrBase64: string }) => {
+const SalesNoteDocument = ({ data }: { data: SalesNoteData }) => {
     const securityHash = generateHash(`${data.orderId}-${data.buyerEmail}-${data.transactionDate}`);
 
     return (
@@ -367,7 +362,7 @@ const SalesNoteDocument = ({ data, qrBase64 }: { data: SalesNoteData, qrBase64: 
                         </View>
                     </View>
 
-                    {/* Footer - Sin QR ni certificación temporalmente */}
+                    {/* Footer */}
                     <View style={styles.footer} wrap={false}>
                         <View style={styles.footerInfo}>
                             <Text style={styles.footerMainTitle}>Comprobante de Transacción Digital • Tianguis Beats</Text>
@@ -388,10 +383,7 @@ const SalesNoteDocument = ({ data, qrBase64 }: { data: SalesNoteData, qrBase64: 
 
 
 export const renderSalesNoteToBuffer = async (datos: SalesNoteData): Promise<Buffer> => {
-    const contenido_qr = `https://tianguisbeats.com/verify?order=${datos.orderId}`;
-    const qr_en_base64 = ""; // QR desactivado temporalmente
-    
-    const flujo_pdf = await renderToStream(<SalesNoteDocument data={datos} qrBase64={qr_en_base64} />);
+    const flujo_pdf = await renderToStream(<SalesNoteDocument data={datos} />);
     const fragmentos_pdf: any[] = [];
     for await (const fragmento of flujo_pdf) { fragmentos_pdf.push(fragmento); }
     return Buffer.concat(fragmentos_pdf);

@@ -49,7 +49,8 @@ function SoundKitsContent() {
                         producer:productor_id ( nombre_artistico, nombre_usuario, foto_perfil, nivel_suscripcion, esta_verificado, es_fundador )
                     `)
                     .eq('es_publico', true)
-                    .order('fecha_creacion', { ascending: false });
+                    .order('fecha_creacion', { ascending: false })
+                    .limit(200); // cota de seguridad: evita traer miles de kits de golpe
 
                 if (error) throw error;
 
@@ -101,7 +102,7 @@ function SoundKitsContent() {
             </div>
             <div className="md:hidden fixed inset-0 pointer-events-none -z-10 overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(249,115,22,0.20),transparent_34%),radial-gradient(circle_at_86%_26%,rgba(245,158,11,0.16),transparent_30%),linear-gradient(180deg,rgba(249,115,22,0.08),transparent_42%)]" />
-                <div className="absolute top-24 -right-20 w-52 h-52 rounded-[3rem] border border-orange-500/15 rotate-12 animate-spin-slow" />
+                <div className="absolute top-24 -right-20 w-52 h-52 rounded-[3rem] border border-orange-500/15 rotate-12 animate-[spin_30s_linear_infinite]" />
                 <div className="absolute top-48 -left-12 w-32 h-32 rounded-full border border-amber-500/15" />
             </div>
 

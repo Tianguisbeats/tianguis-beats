@@ -4,12 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
     CreditCard, Crown, Shield, Zap, RefreshCcw, AlertTriangle,
-    CheckCircle2, Calendar, ArrowRight, Loader2, ExternalLink, Star, X, Download, QrCode, Lock, Sparkles
+    CheckCircle2, Calendar, ArrowRight, Loader2, ExternalLink, Star, X, Download, Lock, Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
 import LoadingTianguis from '@/components/LoadingTianguis';
-import ValidationQR from '@/components/ValidationQR';
 import { Fingerprint, ShoppingBag, FileText as FileTextIcon, ShieldCheck, ChevronRight } from 'lucide-react';
 
 export default function StudioBillingPage() {
@@ -606,8 +605,8 @@ export default function StudioBillingPage() {
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                     <Shield size={120} className="text-accent" />
                                 </div>
-                                <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-                                    <div className="flex-1 w-full text-center md:text-left">
+                                <div className="relative z-10">
+                                    <div className="w-full text-center md:text-left">
                                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/20 border border-accent/40 rounded-full mb-4">
                                             <Fingerprint size={12} className="text-accent" />
                                             <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent">Certificación de Propiedad Digital</span>
@@ -624,9 +623,6 @@ export default function StudioBillingPage() {
                                                 </p>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className="shrink-0 bg-white p-2 rounded-xl overflow-hidden">
-                                        <ValidationQR orderId={selectedTx.id} size={100} />
                                     </div>
                                 </div>
                             </div>
@@ -678,19 +674,13 @@ export default function StudioBillingPage() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-3 bg-white/5 px-5 py-3 rounded-2xl border border-white/5">
-                                <QrCode size={18} className="text-emerald-500" />
+                                <ShieldCheck size={18} className="text-emerald-500" />
                                 <div className="text-left">
                                     <p className="text-[7px] font-black text-muted uppercase tracking-widest">Validación</p>
-                                    <p className="text-[10px] font-black text-white uppercase tracking-tight">QR Instantáneo</p>
+                                    <p className="text-[10px] font-black text-white uppercase tracking-tight">Hash Verificado</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="shrink-0 flex flex-col items-center gap-3 transform group-hover:scale-105 transition-transform duration-500">
-                        <div className="bg-white p-4 rounded-3xl overflow-hidden">
-                            <ValidationQR orderId={profile?.userId || 'tianguis-beats-secure'} size={120} />
-                        </div>
-                        <span className="text-[9px] font-bold text-foreground/60 dark:text-muted uppercase tracking-widest opacity-60">* Referencia / Ejemplo</span>
                     </div>
                 </div>
             </div>

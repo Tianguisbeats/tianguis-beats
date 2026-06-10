@@ -106,7 +106,16 @@ export async function POST(req: Request) {
             .map((i: any) => i.metadata?.beatId || i.metadata?.productId || String(i.id).split('_')[0])
             .filter(Boolean);
 
-        const [beatsDbResult, kitsDbResult, servicesDbResult, couponsDbResult, offersDbResult] = await Promise.all([
+        // Productores presentes en items de tipo beat (para revalidar ofertas de volumen en el servidor)
+        const obtenerIdProductorDelItem = (i: any) =>
+            i.metadata?.productor_id || i.metadata?.producer_id || i.metadata?.seller_id || i.metadata?.producerId || '';
+        const idsProductoresConBeats = [...new Set(validItems
+            .filter((i: any) => ['beat', 'beats'].includes(String(i.type || '').toLowerCase().trim()))
+            .map(obtenerIdProductorDelItem)
+            .filter(Boolean)
+        )];
+
+        const [beatsDbResult, kitsDbResult, servicesDbResult, couponsDbResult, offersDbResult, resultadoOfertasVolumen] = await Promise.all([
             beatIds.length > 0
                 ? supabaseAdminForPrices.from('beats').select('id, precio_gratis_mxn, precio_basica_mxn, precio_pro_mxn, precio_premium_mxn, precio_exclusiva_estandar_mxn, precio_exclusiva_premium_mxn').in('id', beatIds)
                 : { data: [] },
@@ -122,6 +131,9 @@ export async function POST(req: Request) {
             exclusiveOfferIds.length > 0
                 ? supabaseAdminForPrices.from('ofertas_exclusivas').select('*').in('beat_id', exclusiveOfferIds).eq('comprador_id', customerId).eq('estado', 'aceptada')
                 : { data: [] },
+            idsProductoresConBeats.length > 0
+                ? supabaseAdminForPrices.from('ofertas_volumen').select('*').in('productor_id', idsProductoresConBeats).eq('es_activa', true)
+                : { data: [] },
         ]);
 
         const beatPriceMap = new Map((beatsDbResult.data || []).map((b: any) => [b.id, b]));
@@ -130,19 +142,72 @@ export async function POST(req: Request) {
         const couponMap = new Map((couponsDbResult.data || []).map((c: any) => [c.id, c]));
         const offerMap = new Map((offersDbResult.data || []).map((o: any) => [o.beat_id, o]));
 
+        // Primera oferta de volumen activa por productor (mismo criterio que el carrito)
+        const ofertaVolumenPorProductor = new Map<string, any>();
+        for (const oferta of (resultadoOfertasVolumen.data || [])) {
+            if (!ofertaVolumenPorProductor.has(oferta.productor_id)) ofertaVolumenPorProductor.set(oferta.productor_id, oferta);
+        }
+
         const hasPlan = validItems.some((i: any) => String(i.type).toLowerCase() === 'plan');
+
+        // --- REVALIDACIÓN EN EL SERVIDOR DE OFERTAS POR VOLUMEN (anti-manipulación) ---
+        // El cliente marca items con metadata.isBulkFree, pero NUNCA confiamos en eso:
+        // recomputamos qué items son legítimamente gratis según las ofertas activas
+        // (los N más baratos por productor, igual que CartContext). Solo esos cobran $0.
+        const precioBaseDelBeat = (item: any): number | null => {
+            const beatId = item.metadata?.beatId || item.metadata?.productId || String(item.id).split('-')[0];
+            const beat: any = beatPriceMap.get(beatId);
+            if (!beat) return null;
+            const claveLicencia = (item.metadata?.licenseType || item.metadata?.license || '').toLowerCase().trim()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const columnaPrecio = BEAT_LICENSE_PRICE_COL[claveLicencia];
+            if (!columnaPrecio) return null;
+            const precio = beat[columnaPrecio];
+            return (precio === null || precio === undefined) ? null : Number(precio);
+        };
+
+        const idsGratisPorVolumenValidados = new Set<string>();
+        if (ofertaVolumenPorProductor.size > 0) {
+            const beatsPorProductor: Record<string, any[]> = {};
+            for (const item of validItems) {
+                if (!['beat', 'beats'].includes(String(item.type || '').toLowerCase().trim())) continue;
+                if (item.metadata?.isExclusiveOffer) continue; // las exclusivas negociadas no entran a la oferta de volumen
+                const idProductor = obtenerIdProductorDelItem(item);
+                if (!idProductor || !ofertaVolumenPorProductor.has(idProductor)) continue;
+                (beatsPorProductor[idProductor] ||= []).push(item);
+            }
+            for (const [idProductor, grupo] of Object.entries(beatsPorProductor)) {
+                const oferta = ofertaVolumenPorProductor.get(idProductor);
+                const ventaMinima = Number(oferta.venta_minima) || 2;
+                const beatsGratis = Number(oferta.beats_gratis) || 1;
+                if (grupo.length < ventaMinima) continue;
+                const cantidadGratis = Math.floor(grupo.length / ventaMinima) * beatsGratis;
+                // Los más baratos primero (mismo criterio que el carrito)
+                const ordenados = [...grupo].sort((a, b) => (precioBaseDelBeat(a) ?? 0) - (precioBaseDelBeat(b) ?? 0));
+                for (let i = 0; i < cantidadGratis && i < ordenados.length; i++) {
+                    idsGratisPorVolumenValidados.add(ordenados[i].id);
+                }
+            }
+        }
 
         const getVerifiedPrice = (item: any): number => {
             const iType = String(item.type || '').toLowerCase().trim();
             let basePrice = 0;
 
             // --- 0. CASOS ESPECIALES (GRATIS O NEGOCIADOS) ---
-            if (item.metadata?.isBulkFree) return 0;
+            // Solo cobramos $0 si el servidor confirmó que este item es legítimamente
+            // gratis por una oferta de volumen activa (anti-tamper del flag isBulkFree).
+            if (item.metadata?.isBulkFree && idsGratisPorVolumenValidados.has(item.id)) return 0;
 
             if (item.metadata?.isExclusiveOffer) {
                 const beatId = item.metadata?.beatId || item.metadata?.productId || String(item.id).split('_')[0];
                 const offer = offerMap.get(beatId);
                 if (!offer) throw new CheckoutValidationError(`Oferta exclusiva no válida para "${item.name || item.id}"`);
+                // La oferta negociada caduca (48h tras aceptarse). No permitir comprar a precio
+                // negociado si ya expiró: el productor debe reactivarla.
+                if (offer.fecha_expiracion && new Date(offer.fecha_expiracion).getTime() < Date.now()) {
+                    throw new CheckoutValidationError(`La oferta negociada para "${item.name || item.id}" expiró. Pídele al productor que la reactive.`);
+                }
                 return Number(offer.monto_ofertado);
             }
 
@@ -153,13 +218,13 @@ export async function POST(req: Request) {
                 if (!beat) {
                     throw new CheckoutValidationError(`Beat no encontrado para "${item.name || item.id}"`);
                 }
-                const licenseKey = (item.metadata?.licenseType || item.metadata?.license || '').toLowerCase().trim()
+                const claveLicencia = (item.metadata?.licenseType || item.metadata?.license || '').toLowerCase().trim()
                     .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-                const priceCol = BEAT_LICENSE_PRICE_COL[licenseKey];
-                if (!priceCol) {
+                const columnaPrecio = BEAT_LICENSE_PRICE_COL[claveLicencia];
+                if (!columnaPrecio) {
                     throw new CheckoutValidationError(`Licencia inválida para "${item.name || item.id}"`);
                 }
-                basePrice = beat[priceCol];
+                basePrice = beat[columnaPrecio];
                 if (basePrice === null || basePrice === undefined) {
                     throw new CheckoutValidationError(`Precio no configurado para "${item.name || item.id}"`);
                 }

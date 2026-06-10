@@ -5,7 +5,7 @@ import {
     DollarSign, Clock, User, ArrowUpRight, Music,
     Download, Search, Filter, CreditCard,
     ArrowDownLeft, ExternalLink, Calendar,
-    TrendingUp, Users, Wallet, Package, Crown, ShieldCheck, Check, Info, AlertTriangle, X, CheckCircle2, QrCode, Tag,
+    TrendingUp, Users, Wallet, Package, Crown, ShieldCheck, Check, Info, AlertTriangle, X, CheckCircle2, Tag,
     BarChart3, Receipt
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';

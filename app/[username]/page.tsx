@@ -389,14 +389,36 @@ export default function ProducerProfilePage() {
     const handleLikePost = async (postId: string, currentCount: number) => {
         if (!user) { showToast('Inicia sesión para dar like', 'info'); return; }
         const alreadyLiked = likedPostIds.has(postId);
-        const newCount = alreadyLiked ? currentCount - 1 : currentCount + 1;
-        setWallPosts(prev => prev.map(p => p.id === postId ? { ...p, likes_count: newCount } : p));
+        const optimisticCount = alreadyLiked ? currentCount - 1 : currentCount + 1;
+
+        // Optimismo inmediato para que la UI responda al instante
+        setWallPosts(prev => prev.map(p => p.id === postId ? { ...p, likes_count: optimisticCount } : p));
         setLikedPostIds(prev => {
             const next = new Set(prev);
             alreadyLiked ? next.delete(postId) : next.add(postId);
             return next;
         });
-        await supabase.from('comentarios').update({ likes_count: newCount }).eq('id', postId);
+
+        // Toggle atómico y seguro vía RPC (la tabla likes_comentarios es la fuente
+        // de verdad y evita el doble-like). Reconciliamos con el conteo real.
+        const { data, error } = await supabase.rpc('alternar_like_comentario', { p_comentario_id: postId });
+        if (error || !data) {
+            // Revertir el optimismo si falló
+            setWallPosts(prev => prev.map(p => p.id === postId ? { ...p, likes_count: currentCount } : p));
+            setLikedPostIds(prev => {
+                const next = new Set(prev);
+                alreadyLiked ? next.add(postId) : next.delete(postId);
+                return next;
+            });
+            return;
+        }
+        const { likes_count, dio_like } = Array.isArray(data) ? data[0] : data;
+        setWallPosts(prev => prev.map(p => p.id === postId ? { ...p, likes_count } : p));
+        setLikedPostIds(prev => {
+            const next = new Set(prev);
+            dio_like ? next.add(postId) : next.delete(postId);
+            return next;
+        });
     };
 
     const timeAgo = (date: string) => {

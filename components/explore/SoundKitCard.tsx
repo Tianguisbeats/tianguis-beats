@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import { memo } from 'react';
 import { Package, Music, ShoppingCart, Heart, Crown, Star, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { usePlayer } from '@/context/PlayerContext';
@@ -14,7 +15,7 @@ interface SoundKitCardProps {
     featured?: boolean;
 }
 
-export default function SoundKitCard({ kit, featured = false }: SoundKitCardProps) {
+function SoundKitCard({ kit, featured = false }: SoundKitCardProps) {
     const { playBeat, currentBeat, isPlaying, togglePlay } = usePlayer();
     const { addItem, setIsCartOpen } = useCart();
     const { formatPrice } = useCurrency();
@@ -182,3 +183,7 @@ export default function SoundKitCard({ kit, featured = false }: SoundKitCardProp
         </motion.div>
     );
 }
+
+// Memoizado: en listados grandes evita re-renders cuando el padre se actualiza
+// por motivos ajenos a esta tarjeta (p.ej. cambios del reproductor global).
+export default memo(SoundKitCard);

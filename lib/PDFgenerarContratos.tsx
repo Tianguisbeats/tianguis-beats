@@ -1,6 +1,5 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Image, Font, renderToStream } from '@react-pdf/renderer';
-import QRCode from 'qrcode';
 import crypto from 'crypto';
 import path from 'path';
 
@@ -170,10 +169,6 @@ const styles = StyleSheet.create({
         color: '#9CA3AF',
         fontFamily: 'Courier',
     },
-    qrCode: {
-        width: 70,
-        height: 70,
-    },
     signatureContainer: {
         marginTop: 30,
         width: 200,
@@ -234,7 +229,7 @@ const generateHash = (data: string) => {
     return crypto.createHash('sha256').update(data).digest('hex');
 };
 
-const ContractDocument = ({ data, qrBase64 }: { data: ContractData, qrBase64: string }) => {
+const ContractDocument = ({ data }: { data: ContractData }) => {
     const securityHash = generateHash(`${data.orderId}-${data.buyerEmail}-${data.transactionDate}`);
     const logoUrl = "https://tianguisbeats.com/logo-navbar.png";
 
@@ -339,7 +334,7 @@ const ContractDocument = ({ data, qrBase64 }: { data: ContractData, qrBase64: st
 };
 
 // --- DOCUMENTO DE NOTA DE VENTA (FACTURA SIMPLIFICADA) ---
-const InvoiceDocument = ({ data, qrBase64 }: { data: ContractData, qrBase64: string }) => {
+const InvoiceDocument = ({ data }: { data: ContractData }) => {
     const securityHash = generateHash(`${data.orderId}-${data.buyerEmail}-${data.transactionDate}`);
     const logoUrl = "https://tianguisbeats.com/logo-navbar.png";
 
@@ -419,17 +414,13 @@ const InvoiceDocument = ({ data, qrBase64 }: { data: ContractData, qrBase64: str
                         </View>
                     </View>
 
-                    {/* Sello de Seguridad QR */}
-                    <View style={{ position: 'absolute', bottom: '15%', left: '12%', right: '12%', flexDirection: 'row', alignItems: 'center', gap: 15, borderTopWidth: 1, borderTopColor: '#F3F4F6', paddingTop: 20 }}>
-                        <Image src={qrBase64} style={{ width: 60, height: 60 }} />
-                        <View style={{ flex: 1 }}>
-                            <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: '#111827', marginBottom: 3 }}>Comprobante Digital Verificado</Text>
-                            <Text style={{ fontSize: 8, color: '#6B7280', lineHeight: 1.4 }}>
-                                Este recibo confirma una transacción segura dentro de la plataforma Tianguis Beats. 
-                                La autenticidad puede verificarse escaneando el código QR.
-                            </Text>
-                            <Text style={{ fontSize: 7, color: '#D1D5DB', marginTop: 8, fontFamily: 'Courier' }}>HASH: {securityHash}</Text>
-                        </View>
+                    {/* Sello de Seguridad */}
+                    <View style={{ position: 'absolute', bottom: '15%', left: '12%', right: '12%', borderTopWidth: 1, borderTopColor: '#F3F4F6', paddingTop: 20 }}>
+                        <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: '#111827', marginBottom: 3 }}>Comprobante Digital Verificado</Text>
+                        <Text style={{ fontSize: 8, color: '#6B7280', lineHeight: 1.4 }}>
+                            Este recibo confirma una transacción segura dentro de la plataforma Tianguis Beats.
+                        </Text>
+                        <Text style={{ fontSize: 7, color: '#D1D5DB', marginTop: 8, fontFamily: 'Courier' }}>HASH: {securityHash}</Text>
                     </View>
                 </View>
 
@@ -444,21 +435,14 @@ const InvoiceDocument = ({ data, qrBase64 }: { data: ContractData, qrBase64: str
 };
 
 export const renderContractToBuffer = async (datos: ContractData): Promise<Buffer> => {
-    const contenido_qr = `https://tianguisbeats.com/verify?id=${datos.orderId}`;
-    const qr_en_base64 = await QRCode.toDataURL(contenido_qr, { errorCorrectionLevel: 'H' });
-    const flujo_pdf = await renderToStream(<ContractDocument data={datos} qrBase64={qr_en_base64} />);
+    const flujo_pdf = await renderToStream(<ContractDocument data={datos} />);
     const fragmentos_pdf: any[] = [];
     for await (const fragmento of flujo_pdf) { fragmentos_pdf.push(fragmento); }
     return Buffer.concat(fragmentos_pdf);
 };
 
 export const renderInvoiceToBuffer = async (datos: ContractData): Promise<Buffer> => {
-    // Generamos la URL de verificación para la nota de venta
-    const contenido_qr = `https://tianguisbeats.com/verify?id=${datos.orderId}`;
-    const qr_en_base64 = await QRCode.toDataURL(contenido_qr, { errorCorrectionLevel: 'H' });
-    
-    // Renderizamos la Nota de Venta
-    const flujo_pdf = await renderToStream(<InvoiceDocument data={datos} qrBase64={qr_en_base64} />);
+    const flujo_pdf = await renderToStream(<InvoiceDocument data={datos} />);
     
     const fragmentos_pdf: any[] = [];
     for await (const fragmento of flujo_pdf) { 

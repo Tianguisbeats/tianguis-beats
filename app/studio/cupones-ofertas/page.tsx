@@ -228,9 +228,57 @@ export default function CouponsPage() {
         }
     };
 
+    // Contraoferta del PRODUCTOR: responde con un monto distinto y deja la oferta
+    // en 'pendiente' para que el comprador decida. La policy oe_update ya permite
+    // al productor actualizar monto y estado de sus ofertas.
+    const handleCounterOffer = async (offerId: string) => {
+        const newAmount = newAmountDrafts[offerId];
+        if (!newAmount || newAmount <= 0) {
+            showToast("Ingresa un monto válido mayor a 0", "error");
+            return;
+        }
+        setUpdatingAmount(offerId);
+        try {
+            const { error } = await supabase
+                .from('ofertas_exclusivas')
+                .update({
+                    monto_ofertado: newAmount,
+                    estado: 'pendiente',
+                    fecha_actualizacion: new Date().toISOString(),
+                })
+                .eq('id', offerId);
+
+            if (error) throw error;
+
+            showToast("Contraoferta enviada al comprador", "success");
+            fetchData();
+            setNewAmountDrafts(prev => ({ ...prev, [offerId]: 0 }));
+        } catch (err: any) {
+            showToast(err.message || "Error al enviar la contraoferta", "error");
+        } finally {
+            setUpdatingAmount(null);
+        }
+    };
+
     const handleSaveBulkDeal = async (deal: Partial<BulkDeal>) => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
+
+        // Validación de reglas de la oferta por volumen (coincide con el CHECK de la BD)
+        const ventaMinima = Number(deal.venta_minima);
+        const beatsGratis = Number(deal.beats_gratis);
+        if (!Number.isInteger(ventaMinima) || ventaMinima < 2) {
+            showToast("La compra mínima debe ser un entero ≥ 2", "error");
+            return;
+        }
+        if (!Number.isInteger(beatsGratis) || beatsGratis < 1) {
+            showToast("Los beats gratis deben ser un entero ≥ 1", "error");
+            return;
+        }
+        if (beatsGratis >= ventaMinima) {
+            showToast("Los beats gratis deben ser menos que la compra mínima", "error");
+            return;
+        }
 
         setSaving(true);
         try {
@@ -1001,23 +1049,45 @@ export default function CouponsPage() {
 
                                             <div className="space-y-3 mt-6">
                                                 {negotiationType === 'ventas' && offer.estado === 'pendiente' ? (
-                                                    <div className="grid grid-cols-2 gap-3">
-                                                        <button 
-                                                            onClick={() => handleOfferAction(offer.id, 'aceptada')}
-                                                            disabled={processingOfferId === offer.id}
-                                                            className="px-6 py-4 bg-amber-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 active:scale-95 disabled:opacity-50"
-                                                        >
-                                                            {processingOfferId === offer.id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                                                            Aceptar Oferta
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => handleOfferAction(offer.id, 'rechazada')}
-                                                            disabled={processingOfferId === offer.id}
-                                                            className="px-6 py-4 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-500 hover:text-white transition-all active:scale-95 disabled:opacity-50"
-                                                        >
-                                                            {processingOfferId === offer.id ? <Loader2 size={14} className="animate-spin" /> : <X size={14} />}
-                                                            Rechazar
-                                                        </button>
+                                                    <div className="space-y-3">
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <button
+                                                                onClick={() => handleOfferAction(offer.id, 'aceptada')}
+                                                                disabled={processingOfferId === offer.id}
+                                                                className="px-6 py-4 bg-amber-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 active:scale-95 disabled:opacity-50"
+                                                            >
+                                                                {processingOfferId === offer.id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                                                                Aceptar Oferta
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleOfferAction(offer.id, 'rechazada')}
+                                                                disabled={processingOfferId === offer.id}
+                                                                className="px-6 py-4 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-500 hover:text-white transition-all active:scale-95 disabled:opacity-50"
+                                                            >
+                                                                {processingOfferId === offer.id ? <Loader2 size={14} className="animate-spin" /> : <X size={14} />}
+                                                                Rechazar
+                                                            </button>
+                                                        </div>
+                                                        {/* Contraoferta: responde con tu propio monto y la pelota vuelve al comprador */}
+                                                        <div className="flex gap-2 items-center pt-1">
+                                                            <div className="relative flex-1">
+                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted font-black">$</span>
+                                                                <input
+                                                                    type="number"
+                                                                    placeholder="Tu contraoferta"
+                                                                    value={newAmountDrafts[offer.id] || ''}
+                                                                    onChange={e => setNewAmountDrafts(prev => ({ ...prev, [offer.id]: Number(e.target.value) }))}
+                                                                    className="w-full bg-card border border-border rounded-xl py-3 pl-8 pr-4 text-xs font-black uppercase tracking-widest focus:outline-none"
+                                                                />
+                                                            </div>
+                                                            <button
+                                                                onClick={() => handleCounterOffer(offer.id)}
+                                                                disabled={updatingAmount === offer.id}
+                                                                className="px-6 py-3 bg-foreground text-background font-black text-[10px] uppercase tracking-widest rounded-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
+                                                            >
+                                                                {updatingAmount === offer.id ? '...' : <><Send size={12} /> Contraofertar</>}
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 ) : (
                                                     <div className={`w-full py-4 rounded-2xl text-center text-[11px] font-black uppercase tracking-[0.3em] border flex items-center justify-center gap-3 ${

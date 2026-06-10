@@ -27,7 +27,7 @@ export default function ProducersPage() {
     );
 }
 
-function ProducerCard({ artist }: { artist: any }) {
+const ProducerCard = React.memo(function ProducerCard({ artist }: { artist: any }) {
     const plan = (artist.nivel_suscripcion || 'free').toLowerCase();
     const isPremium = plan === 'premium';
     const isPro = plan === 'pro';
@@ -43,8 +43,9 @@ function ProducerCard({ artist }: { artist: any }) {
         >
             <Link href={`/${artist.nombre_usuario}`} className="relative h-full flex flex-col">
                 {/* Photo card con efecto Glassmorphism y Elevación */}
-                <div className={`relative aspect-[3.2/4.5] rounded-[3rem] overflow-hidden transition-all duration-700 border-2 shadow-2xl
+                <div className={`relative aspect-[3.2/4.5] rounded-[2rem] sm:rounded-[3rem] overflow-hidden transition-all duration-700 border-2 shadow-2xl max-md:shadow-purple-500/10
                     ${isPremium ? 'border-blue-500/30' : isPro ? 'border-amber-500/30' : 'border-slate-200 dark:border-white/10 dark:bg-white/5 bg-slate-50'}`}>
+                    <div className="md:hidden absolute -inset-10 bg-[radial-gradient(circle_at_28%_18%,rgba(139,92,246,0.30),transparent_32%),radial-gradient(circle_at_75%_72%,rgba(59,130,246,0.22),transparent_30%)] z-10 pointer-events-none mix-blend-screen" />
 
                     <img
                         src={artist.foto_perfil || `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.nombre_artistico || artist.nombre_usuario)}&background=random&color=fff&size=512`}
@@ -97,7 +98,7 @@ function ProducerCard({ artist }: { artist: any }) {
             </Link>
         </motion.div>
     );
-}
+});
 
 function ProducersContent() {
     const [artists, setArtists] = useState<any[]>([]);
@@ -147,6 +148,8 @@ function ProducersContent() {
         setFiltered(result);
     }, [searchQuery, artists]);
 
+    const featuredArtists = filtered.slice(0, 6);
+
     return (
         <div className="min-h-screen bg-white text-black dark:bg-[#0A0A0A] dark:text-white font-sans selection:bg-blue-500 selection:text-white flex flex-col transition-colors duration-300 overflow-x-hidden">
             <Navbar minimal={true} />
@@ -156,6 +159,23 @@ function ProducersContent() {
                 {/* ── Editorial Hero Header ── */}
                 <div className="relative pt-28 pb-12 md:pt-48 md:pb-32 overflow-hidden bg-white dark:bg-[#0A0A0A]">
                     <AbstractCirclesBack theme="purple" opacity={1} />
+                    <div className="md:hidden absolute inset-0 pointer-events-none">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(139,92,246,0.18),transparent_32%),radial-gradient(circle_at_86%_22%,rgba(59,130,246,0.14),transparent_30%)]" />
+                        <motion.div
+                            animate={{ y: [0, -12, 0], rotate: [0, 6, 0] }}
+                            transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
+                            className="absolute top-28 right-7 w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500"
+                        >
+                            <Music size={24} strokeWidth={1.5} />
+                        </motion.div>
+                        <motion.div
+                            animate={{ y: [0, 10, 0], rotate: [0, -8, 0] }}
+                            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.7 }}
+                            className="absolute top-48 left-5 w-11 h-11 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500"
+                        >
+                            <Users size={18} strokeWidth={1.5} />
+                        </motion.div>
+                    </div>
                     
                     {/* Floating Decorative Icons (Matching Beats Style) */}
                     <motion.div 
@@ -179,10 +199,10 @@ function ProducersContent() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 1 }}
                         >
-                            <div className="flex items-center justify-center gap-3 mb-10">
-                                <div className="h-0.5 w-12 bg-[#8B5CF6] rounded-full" />
-                                <span className="text-[11px] font-black uppercase tracking-[0.8em] text-[#8B5CF6]">Tianguis Producer</span>
-                                <div className="h-0.5 w-12 bg-[#8B5CF6] rounded-full" />
+                            <div className="flex items-center justify-center gap-3 mb-8 md:mb-10">
+                                <div className="h-0.5 w-8 md:w-12 bg-[#8B5CF6] rounded-full" />
+                                <span className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.45em] md:tracking-[0.8em] text-[#8B5CF6]">Tianguis Producer</span>
+                                <div className="h-0.5 w-8 md:w-12 bg-[#8B5CF6] rounded-full" />
                             </div>
                             <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[10rem] font-black uppercase tracking-tighter mb-8 md:mb-12 hero-text-pro">
                                 <span className="text-[#8B5CF6]">Artistas</span><br />
@@ -191,6 +211,20 @@ function ProducersContent() {
                             <p className="text-black/50 dark:text-white/30 text-[12px] font-black uppercase tracking-[0.5em]">
                                 {loading ? 'Sincronizando...' : `${artists.length} productores certificados en la plataforma`}
                             </p>
+                            <div className="md:hidden grid grid-cols-3 gap-2 mt-7">
+                                <div className="rounded-2xl border border-purple-500/15 bg-purple-500/[0.07] px-3 py-3">
+                                    <p className="text-lg font-black leading-none">{artists.length}</p>
+                                    <p className="mt-1 text-[7px] font-black uppercase tracking-widest text-purple-500">Perfiles</p>
+                                </div>
+                                <div className="rounded-2xl border border-blue-500/15 bg-blue-500/[0.07] px-3 py-3">
+                                    <p className="text-lg font-black leading-none">Pro</p>
+                                    <p className="mt-1 text-[7px] font-black uppercase tracking-widest text-blue-500">Talento</p>
+                                </div>
+                                <div className="rounded-2xl border border-amber-500/15 bg-amber-500/[0.07] px-3 py-3">
+                                    <p className="text-lg font-black leading-none">Top</p>
+                                    <p className="mt-1 text-[7px] font-black uppercase tracking-widest text-amber-500">Curados</p>
+                                </div>
+                            </div>
                         </motion.div>
                     </div>
                 </div>
@@ -199,23 +233,42 @@ function ProducersContent() {
                     <div className="flex flex-col gap-10 md:gap-20">
                         
                         {/* Modern Search & Title Section */}
-                        <div className="flex flex-col md:flex-row items-center justify-between gap-10">
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-7 md:gap-10">
                              <div className="flex flex-col gap-2">
-                                <h3 className="text-4xl font-black uppercase tracking-tighter">Directorio Global.</h3>
+                                <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tighter">Directorio Global.</h3>
                                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Encuentra al colaborador ideal para tu próximo proyecto</p>
                              </div>
 
                              {/* Redesigned Premium Search */}
-                             <div className="relative w-full max-w-[500px]">
+                             <div className="relative w-full max-w-[500px] md:sticky md:top-28 z-20">
                                 <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-blue-500" />
                                 <input 
                                     type="text" 
                                     value={searchQuery} 
                                     onChange={e => setSearchQuery(e.target.value)}
                                     placeholder="BUSCAR NOMBRE O USUARIO..."
-                                    className="w-full bg-slate-100 dark:bg-white/5 border-2 border-transparent focus:border-blue-500/50 rounded-[2rem] pl-16 pr-8 py-5 text-[11px] font-black uppercase tracking-widest outline-none transition-all text-black dark:text-white shadow-xl dark:shadow-none" />
+                                    className="w-full bg-slate-100/95 dark:bg-white/5 border-2 border-transparent focus:border-blue-500/50 rounded-[2rem] pl-16 pr-8 py-5 text-[10px] md:text-[11px] font-black uppercase tracking-widest outline-none transition-all text-black dark:text-white shadow-xl dark:shadow-none backdrop-blur-xl" />
                              </div>
                         </div>
+
+                        {!loading && featuredArtists.length > 0 && (
+                            <section className="md:hidden -mx-6 px-6 overflow-hidden">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <p className="text-[8px] font-black uppercase tracking-[0.35em] text-[#8B5CF6]">Swipe rápido</p>
+                                        <h2 className="text-xl font-black uppercase tracking-tighter">Productores destacados</h2>
+                                    </div>
+                                    <Trophy size={18} className="text-[#8B5CF6]" />
+                                </div>
+                                <div className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-4">
+                                    {featuredArtists.map(artist => (
+                                        <div key={artist.id} className="snap-center shrink-0 w-[72vw] max-w-[280px]">
+                                            <ProducerCard artist={artist} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
 
                         {loading ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
