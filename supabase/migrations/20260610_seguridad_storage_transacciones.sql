@@ -42,6 +42,16 @@
 --      La subida legítima usa carpeta `nombre_usuario` y está cubierta
 --      por "All_muestra_soundkit". Se elimina la política suelta.
 --
+--   4. "Soporte de subida para dueños" (INSERT, authenticated, SIN bucket):
+--        CHECK: carpeta[1] = uid
+--      Permitía a cualquier autenticado subir a CUALQUIER bucket bajo su
+--      carpeta uid, incluido `activos_plataforma` (público, hasta 500 MB):
+--      hosting gratuito de archivos arbitrarios servidos desde el dominio
+--      de la plataforma. Los flujos legítimos con carpeta uid (avatar y
+--      portada en /studio/cuenta y /[username]) están cubiertos por
+--      "Gestión propia fotos_perfil" y "Gestión propia fotos_portada"
+--      (verificado con ensayo RLS). Se elimina sin pérdida funcional.
+--
 --   SE CONSERVAN (verificadas como necesarias para los flujos de la app):
 --     - Familia "All_<bucket>" (carpeta = nombre_usuario): subir/editar/
 --       borrar beats (mp3/wav/stems), kits, muestras, portadas, fotos,
@@ -67,5 +77,6 @@ DROP POLICY IF EXISTS "Lectura pública para verificación QR" ON public.transac
 DROP POLICY IF EXISTS "Select_licencias_generadas" ON storage.objects;
 DROP POLICY IF EXISTS "Acceso_Dueno_Archivos" ON storage.objects;
 DROP POLICY IF EXISTS "Subida Muestras Autenticados" ON storage.objects;
+DROP POLICY IF EXISTS "Soporte de subida para dueños" ON storage.objects;
 
 COMMIT;

@@ -157,16 +157,35 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
         
         setSubmittingOffer(true);
         try {
-            const { error } = await supabase.from('ofertas_exclusivas').insert({
+            const { data: nuevaOferta, error } = await supabase.from('ofertas_exclusivas').insert({
                 beat_id: id,
                 productor_id: beat?.productor_id,
                 comprador_id: currentUserId,
                 monto_ofertado: parseFloat(offerAmount),
                 mensaje_comprador: offerMessage,
                 estado: 'pendiente'
-            });
+            }).select('id').single();
 
             if (error) throw error;
+
+            // Avisar al productor por correo (best-effort; la notificación en vivo
+            // ya se dispara por el trigger de la BD).
+            if (nuevaOferta?.id) {
+                try {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (session) {
+                        fetch('/api/negociacion/notificar', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${session.access_token}`,
+                            },
+                            body: JSON.stringify({ ofertaId: nuevaOferta.id }),
+                        }).catch(() => {});
+                    }
+                } catch { /* el correo es secundario */ }
+            }
+
             showToast('Oferta enviada al productor', 'success');
             setShowOfferModal(false);
             setOfferAmount('');

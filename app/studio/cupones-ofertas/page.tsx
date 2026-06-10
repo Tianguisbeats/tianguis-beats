@@ -143,6 +143,25 @@ export default function CouponsPage() {
         setLoading(false);
     };
 
+    // Dispara el correo a la contraparte (best-effort, no bloquea ni rompe nada).
+    // La ruta API decide a quién avisar según quién hace la petición.
+    const notificarNegociacionPorEmail = async (ofertaId: string) => {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+            await fetch('/api/negociacion/notificar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify({ ofertaId }),
+            });
+        } catch {
+            // Silencioso: el correo es secundario, la notificación en vivo ya llegó.
+        }
+    };
+
     const handleOfferAction = async (id: string, action: 'aceptada' | 'rechazada') => {
         setProcessingOfferId(id);
         try {
@@ -157,6 +176,7 @@ export default function CouponsPage() {
 
             if (error) throw error;
 
+            notificarNegociacionPorEmail(id);
             showToast(`Oferta ${action === 'aceptada' ? 'aceptada' : 'rechazada'}`, "success");
             fetchData();
         } catch (err: any) {
@@ -218,6 +238,7 @@ export default function CouponsPage() {
 
             if (error) throw error;
 
+            notificarNegociacionPorEmail(offerId);
             showToast("Contraoferta enviada", "success");
             fetchData();
             setNewAmountDrafts(prev => ({ ...prev, [offerId]: 0 }));
@@ -250,6 +271,7 @@ export default function CouponsPage() {
 
             if (error) throw error;
 
+            notificarNegociacionPorEmail(offerId);
             showToast("Contraoferta enviada al comprador", "success");
             fetchData();
             setNewAmountDrafts(prev => ({ ...prev, [offerId]: 0 }));

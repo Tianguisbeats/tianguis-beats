@@ -2,6 +2,7 @@
 "use client";
 
 import { memo } from 'react';
+import Image from 'next/image';
 import { Package, Music, ShoppingCart, Heart, Crown, Star, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { usePlayer } from '@/context/PlayerContext';
@@ -86,9 +87,11 @@ function SoundKitCard({ kit, featured = false }: SoundKitCardProps) {
 
             {/* Image Section */}
             <div className="relative aspect-[4/5] overflow-hidden m-2 rounded-[2rem]">
-                <img
-                    src={kit.url_portada || "https://images.unsplash.com/photo-1516062423079-7c157a58ff62?q=80&w=600&auto=format&fit=crop"}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                <Image
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    src={kit.url_portada || "/logo.png"}
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
                     alt={kit.titulo}
                 />
                 

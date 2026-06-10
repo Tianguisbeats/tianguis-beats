@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import {
     Users, ArrowLeft, Music, Crown, Award, Star, ArrowRight,
@@ -47,9 +48,11 @@ const ProducerCard = React.memo(function ProducerCard({ artist }: { artist: any 
                     ${isPremium ? 'border-blue-500/30' : isPro ? 'border-amber-500/30' : 'border-slate-200 dark:border-white/10 dark:bg-white/5 bg-slate-50'}`}>
                     <div className="md:hidden absolute -inset-10 bg-[radial-gradient(circle_at_28%_18%,rgba(139,92,246,0.30),transparent_32%),radial-gradient(circle_at_75%_72%,rgba(59,130,246,0.22),transparent_30%)] z-10 pointer-events-none mix-blend-screen" />
 
-                    <img
+                    <Image
+                        fill
+                        sizes="(max-width: 768px) 50vw, 25vw"
                         src={artist.foto_perfil || `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.nombre_artistico || artist.nombre_usuario)}&background=random&color=fff&size=512`}
-                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-90 group-hover:opacity-100"
+                        className="object-cover transition-transform duration-1000 group-hover:scale-110 opacity-90 group-hover:opacity-100"
                         alt={artist.nombre_artistico || artist.nombre_usuario}
                     />
 
