@@ -14,6 +14,7 @@ import Footer from '@/components/Footer';
 import CommentSection from '@/components/CommentSection';
 import WaveformPlayer from '@/components/WaveformPlayer';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -245,7 +246,7 @@ export default function SoundKitDetailPage({ params }: { params: Promise<{ id: s
                 {/* Background art blur */}
                 {kit.url_portada && (
                     <div className="absolute inset-0 z-0">
-                        <img src={kit.url_portada} alt="" className="w-full h-full object-cover scale-110"
+                        <Image src={kit.url_portada} alt="" fill sizes="100vw" className="object-cover scale-110"
                             style={{ filter: 'blur(80px) saturate(1.8) brightness(0.3)' }} />
                         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background" />
                     </div>
@@ -273,8 +274,8 @@ export default function SoundKitDetailPage({ params }: { params: Promise<{ id: s
                                 <div className="relative aspect-square rounded-[2.5rem] overflow-hidden border-2 border-orange-500/20 shadow-2xl shadow-orange-500/10"
                                     style={{ background: 'rgba(249,115,22,0.05)' }}>
                                     {kit.url_portada ? (
-                                        <img src={kit.url_portada} alt={kit.titulo}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                        <Image src={kit.url_portada} alt={kit.titulo} fill sizes="(max-width: 1024px) 100vw, 380px" priority
+                                            className="object-cover transition-transform duration-700 group-hover:scale-105" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center"
                                             style={{ background: 'linear-gradient(135deg, rgba(249,115,22,0.15), rgba(234,88,12,0.08))' }}>
@@ -357,7 +358,7 @@ export default function SoundKitDetailPage({ params }: { params: Promise<{ id: s
                                 className="flex items-center gap-3 mb-6 group/prod w-fit">
                                 <div className="relative w-12 h-12 rounded-2xl overflow-hidden border-2 border-orange-500/20 shadow-lg shrink-0">
                                     {kit.productor_foto_perfil ? (
-                                        <img src={kit.productor_foto_perfil} alt={producerName} className="w-full h-full object-cover group-hover/prod:scale-110 transition-transform" />
+                                        <Image src={kit.productor_foto_perfil} alt={producerName} fill sizes="48px" className="object-cover group-hover/prod:scale-110 transition-transform" />
                                     ) : (
                                         <div className="w-full h-full bg-slate-800 flex items-center justify-center">
                                             <Music size={18} className="text-orange-500" />
@@ -370,7 +371,7 @@ export default function SoundKitDetailPage({ params }: { params: Promise<{ id: s
                                             {producerName}
                                         </span>
                                         {kit.productor_esta_verificado && (
-                                            <img src="/verified-badge.png" className="w-4 h-4" alt="Verificado" />
+                                            <Image src="/verified-badge.png" width={16} height={16} className="w-4 h-4" alt="Verificado" />
                                         )}
                                         {kit.productor_es_fundador && (
                                             <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest text-amber-400 border border-amber-400/20"
@@ -555,8 +556,8 @@ export default function SoundKitDetailPage({ params }: { params: Promise<{ id: s
                                     className="group relative flex flex-col rounded-[1.5rem] overflow-hidden border border-border hover:border-orange-500/30 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-500/5">
                                     <div className="aspect-square overflow-hidden relative">
                                         {rk.url_portada ? (
-                                            <img src={rk.url_portada} alt={rk.titulo}
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                            <Image src={rk.url_portada} alt={rk.titulo} fill sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                                                className="object-cover transition-transform duration-500 group-hover:scale-110" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center bg-orange-500/5">
                                                 <Package size={32} className="text-orange-500/30" />

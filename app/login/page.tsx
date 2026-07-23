@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Loader2, Lock, Mail, Check, Eye, EyeOff, Sparkles, ArrowLeft, Send } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -173,10 +174,13 @@ export default function LoginPage() {
                             transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.3 }}
                             className="inline-flex items-center justify-center w-20 h-20 mb-8"
                         >
-                            <img 
-                                src="/logo.png" 
-                                alt="Tianguis Beats" 
-                                className="w-16 h-16 object-contain drop-shadow-[0_0_30px_rgba(59,130,246,0.4)] transform -rotate-6 hover:rotate-0 hover:scale-110 transition-all duration-500" 
+                            <Image
+                                src="/logo.png"
+                                alt="Tianguis Beats"
+                                width={64}
+                                height={64}
+                                priority
+                                className="w-16 h-16 object-contain drop-shadow-[0_0_30px_rgba(59,130,246,0.4)] transform -rotate-6 hover:rotate-0 hover:scale-110 transition-all duration-500"
                             />
                         </motion.div>
 

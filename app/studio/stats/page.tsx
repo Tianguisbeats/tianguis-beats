@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import {
     BarChart, Activity, Heart, Play, DollarSign,
     Users, TrendingUp, Award, Zap, ArrowUpRight,
@@ -12,8 +13,10 @@ import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
 import Link from 'next/link';
 import LoadingTianguis from '@/components/LoadingTianguis';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Area, AreaChart } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// recharts (~90kb) sólo se carga cuando esta pestaña de stats se monta.
+const StatsAreaChart = dynamic(() => import('@/components/StatsAreaChart'), { ssr: false });
 
 type StatData = {
     totalRevenue: number;
@@ -334,33 +337,7 @@ export default function StudioStatsPage() {
                     </div>
 
                     <div className="h-[250px] md:h-[350px] w-full mt-auto relative z-10">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={stats.chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                <defs>
-                                    <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
-                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                                    </linearGradient>
-                                    <linearGradient id="colorPlays" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2}/>
-                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff05" />
-                                <XAxis dataKey="date" fontSize={9} tickLine={false} axisLine={false} tick={{ fill: '#888888', fontWeight: 'bold' }} dy={10} />
-                                <YAxis fontSize={9} tickLine={false} axisLine={false} tick={{ fill: '#888888', fontWeight: 'bold' }} tickFormatter={(value) => `$${value}`} />
-                                <Tooltip 
-                                    contentStyle={{ backgroundColor: '#050508', border: '1px solid #333', borderRadius: '1rem', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', color: '#fff' }}
-                                    itemStyle={{ color: '#ffffff' }}
-                                />
-                                {(viewMode === 'both' || viewMode === 'sales') && (
-                                    <Area type="monotone" dataKey="ventas" name="Ventas ($)" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
-                                )}
-                                {viewMode === 'both' && (
-                                    <Area type="monotone" dataKey="reproducciones" name="Actividad" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorPlays)" />
-                                )}
-                            </AreaChart>
-                        </ResponsiveContainer>
+                        <StatsAreaChart data={stats.chartData} viewMode={viewMode} />
                     </div>
                 </motion.div>
 

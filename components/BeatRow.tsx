@@ -5,6 +5,7 @@ import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Beat } from '@/lib/types';
 import { useState } from 'react';
 import { MUSICAL_KEYS } from '@/lib/constants';
@@ -60,9 +61,11 @@ export default function BeatRow({ beat, onRemoveFromPlaylist, onMoveUp, onMoveDo
                 className="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl overflow-hidden bg-background border border-border group/artwork cursor-pointer active:scale-95 transition-transform"
             >
                 {beat.portada_url ? (
-                    <img
+                    <Image
                         src={beat.portada_url}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover/artwork:scale-110"
+                        fill
+                        sizes="(max-width: 640px) 64px, 80px"
+                        className="object-cover transition-transform duration-500 group-hover/artwork:scale-110"
                         alt={beat.titulo}
                     />
                 ) : (
@@ -90,7 +93,7 @@ export default function BeatRow({ beat, onRemoveFromPlaylist, onMoveUp, onMoveDo
                         {beat.productor_nombre_artistico || beat.productor_nombre_usuario || "—"}
                     </p>
                     {((beat as any).productor_esta_verificado || (beat as any).esta_verificado || (beat as any).is_verified) && (
-                        <img src="/verified-badge.png" className="w-3 h-3 object-contain" alt="Verificado" />
+                        <Image src="/verified-badge.png" width={12} height={12} className="w-3 h-3 object-contain" alt="Verificado" />
                     )}
                     {((beat as any).productor_es_fundador || (beat as any).es_fundador || (beat as any).is_founder) && (
                         <Crown size={12} className="text-amber-500" fill="currentColor" />

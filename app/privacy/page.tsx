@@ -1,11 +1,16 @@
-"use client";
-
 import React from 'react';
+import type { Metadata } from 'next';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { motion } from 'framer-motion';
 import { Lock, Eye, Database, Mail, ShieldCheck, Cookie, Globe, AlertCircle } from 'lucide-react';
 import { LegalPageShell, LegalBadge, LegalSection, LegalBullet, LegalHighlight, LegalAlert, LegalSidebar } from '@/components/ui/LegalPageShell';
+
+export const metadata: Metadata = {
+    title: 'Aviso de Privacidad',
+    description: 'Aviso de Privacidad de Tianguis Beats conforme a la LFPDPPP: datos que recabamos, finalidades del tratamiento y derechos ARCO.',
+    alternates: { canonical: '/privacy' },
+};
 
 const sections = [
     { id: 'responsable',  title: '1. Responsable del Tratamiento',  icon: <ShieldCheck size={14} /> },
@@ -28,25 +33,21 @@ export default function PrivacyPage() {
 
                     {/* ── HERO ── */}
                     <div className="text-center mb-16 flex flex-col items-center">
-                        <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-                            className="w-16 h-16 mb-6 flex items-center justify-center -rotate-6 hover:rotate-0 transition-transform duration-500 drop-shadow-2xl">
-                            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
-                        </motion.div>
+                        <div className="animate-in fade-in zoom-in-90 duration-700 w-16 h-16 mb-6 flex items-center justify-center -rotate-6 hover:rotate-0 transition-transform duration-500 drop-shadow-2xl">
+                            <Image src="/logo.png" alt="Logo" width={64} height={64} className="w-full h-full object-contain" />
+                        </div>
                         <LegalBadge label="Privacidad · LFPDPPP · INAI" theme="violet" />
-                        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-                            className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4 leading-none">
+                        <h1 className="animate-in fade-in slide-in-from-bottom-2 duration-700 delay-150 fill-mode-both text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4 leading-none">
                             Aviso de<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-500 to-fuchsia-400">Privacidad.</span>
-                        </motion.h1>
-                        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
-                            className="text-muted/70 font-medium max-w-xl mx-auto text-sm leading-relaxed">
+                        </h1>
+                        <p className="animate-in fade-in duration-700 delay-300 fill-mode-both text-muted/70 font-medium max-w-xl mx-auto text-sm leading-relaxed">
                             Cumplimos con la <span className="text-foreground font-bold">LFPDPPP</span> y las disposiciones del <span className="text-foreground font-bold">INAI</span>. Tu privacidad es sagrada.
-                        </motion.p>
+                        </p>
                     </div>
 
                     {/* Quick stats */}
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                        className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-700 delay-500 fill-mode-both grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
                         {[
                             { icon: <Lock size={20} />, title: 'No Vendemos tus Datos', desc: 'Tu información nunca se vende a terceros.', color: '#a855f7' },
                             { icon: <ShieldCheck size={20} />, title: 'Cifrado SSL/TLS', desc: 'Toda comunicación viaja encriptada.', color: '#818cf8' },
@@ -60,7 +61,7 @@ export default function PrivacyPage() {
                                 </div>
                             </div>
                         ))}
-                    </motion.div>
+                    </div>
 
                     <div className="flex flex-col lg:flex-row gap-10">
                         <LegalSidebar sections={sections} theme="violet" extras={

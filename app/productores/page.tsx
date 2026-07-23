@@ -64,7 +64,7 @@ const ProducerCard = React.memo(function ProducerCard({ artist }: { artist: any 
                         <div className="flex gap-2">
                             {artist.esta_verificado && (
                                 <div className="p-2 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shadow-xl" title="Verificado">
-                                    <img src="/verified-badge.png" className="w-[16px] h-[16px] object-contain" alt="Verificado" />
+                                    <Image src="/verified-badge.png" width={16} height={16} className="w-[16px] h-[16px] object-contain" alt="Verificado" />
                                 </div>
                             )}
                             {artist.es_fundador && (

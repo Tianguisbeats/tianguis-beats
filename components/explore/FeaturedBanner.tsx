@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Play, Pause, Flame, Crown, CheckCircle2, Music2, Users, ChevronLeft, ChevronRight, ShieldCheck } from "lucide-react";
 import { Beat } from "@/lib/types";
 import { usePlayer } from "@/context/PlayerContext";
@@ -81,13 +81,15 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
 
                     {/* Blurred background */}
                     <div className="absolute inset-0 overflow-hidden">
-                        <img
+                        <Image
                             src={
                                 isBeat
                                     ? (currentItem.portada_url || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop")
                                     : ((currentItem.foto_perfil as string) || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop")
                             }
-                            className="w-full h-full object-cover opacity-20 blur-3xl scale-125 transition-all duration-1000"
+                            fill
+                            sizes="100vw"
+                            className="object-cover opacity-20 blur-3xl scale-125 transition-all duration-1000"
                             alt=""
                         />
                         <div className="absolute inset-0 bg-gradient-to-r from-card via-card/90 to-card/60" />
@@ -99,14 +101,17 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
 
                         {/* Artwork */}
                         <div className="relative shrink-0 group/art">
-                            <div className="w-52 h-52 md:w-72 md:h-72 rounded-[2.5rem] overflow-hidden border border-border shadow-2xl transition-transform duration-700 group-hover/art:scale-105 group-hover/art:rotate-1">
-                                <img
+                            <div className="relative w-52 h-52 md:w-72 md:h-72 rounded-[2.5rem] overflow-hidden border border-border shadow-2xl transition-transform duration-700 group-hover/art:scale-105 group-hover/art:rotate-1">
+                                <Image
                                     src={
                                         isBeat
                                             ? (currentItem.portada_url || "/logo.png")
                                             : ((currentItem.foto_perfil as string) || "/logo.png")
                                     }
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    sizes="(max-width: 768px) 208px, 288px"
+                                    priority
+                                    className="object-cover"
                                     alt="Artwork"
                                 />
                                 {isBeat && isBeatPlaying && (
@@ -153,12 +158,12 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                             {isBeat && beatProducer && (
                                 <Link href={`/${beatProducer.nombre_usuario || '#'}`}
                                     className="flex items-center gap-4 mb-8 group/prod self-center lg:self-start">
-                                    <div className="relative">
-                                        <img src={beatProducer.foto_perfil || "/logo.png"} alt=""
-                                            className="w-12 h-12 rounded-2xl object-cover border border-border group-hover/prod:border-accent transition-colors" />
+                                    <div className="relative w-12 h-12 shrink-0">
+                                        <Image src={beatProducer.foto_perfil || "/logo.png"} alt="" fill sizes="48px"
+                                            className="rounded-2xl object-cover border border-border group-hover/prod:border-accent transition-colors" />
                                         {beatProducer.esta_verificado && (
                                             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-background rounded-full flex items-center justify-center border border-border">
-                                                <img src="/verified-badge.png" className="w-3 h-3" alt="✓" />
+                                                <Image src="/verified-badge.png" width={12} height={12} className="w-3 h-3" alt="✓" />
                                             </div>
                                         )}
                                     </div>
@@ -181,7 +186,7 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                 <div className="flex items-center gap-4 mb-8 self-center lg:self-start">
                                     {currentItem.esta_verificado && (
                                         <div className="flex items-center gap-2 px-3 py-1.5 bg-foreground/5 border border-border rounded-xl">
-                                            <img src="/verified-badge.png" className="w-4 h-4 object-contain" alt="✓" />
+                                            <Image src="/verified-badge.png" width={16} height={16} className="w-4 h-4 object-contain" alt="✓" />
                                             <span className="text-[9px] font-black uppercase tracking-widest text-foreground">Verificado</span>
                                         </div>
                                     )}
@@ -265,8 +270,8 @@ export default function FeaturedBanner({ trendingBeats, trendingProducers }: Fea
                                         onClick={() => { setAnimating(true); setTimeout(() => { setCurrentIndex(i); setAnimating(false); }, 200); }}
                                         className={`flex items-center gap-3 p-3 rounded-2xl border transition-all duration-300 text-left w-52 ${isActive ? 'bg-accent/10 border-accent/30' : 'bg-foreground/5 border-border hover:bg-foreground/10'}`}
                                     >
-                                        <div className={`w-10 h-10 rounded-xl overflow-hidden shrink-0 border transition-colors ${isActive ? 'border-accent/40' : 'border-border'}`}>
-                                            <img src={img || "/logo.png"} alt="" className="w-full h-full object-cover" />
+                                        <div className={`relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border transition-colors ${isActive ? 'border-accent/40' : 'border-border'}`}>
+                                            <Image src={img || "/logo.png"} alt="" fill sizes="40px" className="object-cover" />
                                         </div>
                                         <div className="min-w-0">
                                             <p className={`text-[9px] font-black uppercase tracking-widest truncate transition-colors ${isActive ? 'text-accent' : 'text-foreground'}`}>

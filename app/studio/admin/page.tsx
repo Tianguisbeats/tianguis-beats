@@ -359,7 +359,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                         <header className="flex justify-between items-start mb-8 border-b border-border/50 pb-6">
                             <div className="flex items-center gap-4">
                                 <div className="w-16 h-16 rounded-2xl overflow-hidden bg-accent-soft shrink-0 border border-border/50">
-                                    <img src={selectedHistoryReq.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${selectedHistoryReq.nombre_usuario}`} className="w-full h-full object-cover" />
+                                    <img src={selectedHistoryReq.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${selectedHistoryReq.nombre_usuario}`} className="w-full h-full object-cover" alt={selectedHistoryReq.nombre_usuario} />
                                 </div>
                                 <div className="min-w-0">
                                     <h3 className="text-xl font-black uppercase tracking-tighter text-foreground truncate">@{selectedHistoryReq.nombre_usuario}</h3>
@@ -425,7 +425,7 @@ function VerificationManager({ onBack }: { onBack: () => void }) {
                             <div key={req.id} className="group/hist relative bg-card border border-border rounded-[2.5rem] p-6 flex flex-col gap-6 hover:border-accent/30 transition-all duration-500">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-[1.2rem] overflow-hidden bg-foreground/5 border border-border shrink-0">
-                                        <img src={req.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.nombre_usuario}`} className="w-full h-full object-cover" />
+                                        <img src={req.perfiles?.foto_perfil || `https://ui-avatars.com/api/?name=${req.nombre_usuario}`} className="w-full h-full object-cover" alt={req.nombre_usuario} />
                                     </div>
                                     <div className="min-w-0">
                                         <p className="text-sm font-black uppercase tracking-tight text-foreground truncate">@{req.nombre_usuario}</p>

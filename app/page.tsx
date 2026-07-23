@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowRight, ChevronDown, Play, UserPlus, Upload, Banknote,
   BadgeCheck, Percent, DollarSign, Lock, MessageSquare, Music
@@ -413,10 +414,12 @@ function FeaturedProducers({ beats }: { beats: Beat[] }) {
 
                 <div className="relative w-20 h-20 rounded-2xl overflow-hidden mb-3 ring-2 ring-transparent group-hover:ring-amber-400/40 transition-all duration-300 shrink-0">
                   {p.foto_perfil ? (
-                    <img
+                    <Image
                       src={p.foto_perfil}
                       alt={p.nombre_artistico}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      fill
+                      sizes="80px"
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-2xl font-black">

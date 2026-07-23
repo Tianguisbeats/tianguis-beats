@@ -11,6 +11,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CommentSection from '@/components/CommentSection';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -226,8 +227,8 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
                         <ScrollReveal direction="right" delay={0.2}>
                             <div className="flex flex-col items-center gap-6">
                                 <div className="relative group">
-                                    <div className="w-[260px] sm:w-[300px] md:w-[450px] aspect-square rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.3)] md:shadow-[0_50px_100px_rgba(0,0,0,0.4)] border-2 border-foreground/5 transition-transform duration-700">
-                                        {beat.portada_url ? <img src={beat.portada_url} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-zinc-900 flex items-center justify-center"><Music2 size={100} className="text-foreground/5" /></div>}
+                                    <div className="relative w-[260px] sm:w-[300px] md:w-[450px] aspect-square rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.3)] md:shadow-[0_50px_100px_rgba(0,0,0,0.4)] border-2 border-foreground/5 transition-transform duration-700">
+                                        {beat.portada_url ? <Image src={beat.portada_url} alt="" fill sizes="(max-width: 640px) 260px, (max-width: 768px) 300px, 450px" priority className="object-cover" /> : <div className="w-full h-full bg-zinc-900 flex items-center justify-center"><Music2 size={100} className="text-foreground/5" /></div>}
                                     </div>
                                     <div className="absolute -inset-6 z-[-1] rounded-[4rem] blur-[80px] opacity-10 bg-blue-600/20" />
                                     <motion.div animate={{ rotate: [0, 5, 0], x: [0, 8, 0] }} transition={{ duration: 10, repeat: Infinity }} className="absolute -top-4 -right-4 w-24 h-24 border-2 border-blue-500/20 rounded-3xl z-[-1]" />
@@ -265,8 +266,8 @@ export default function BeatDetailPage({ params }: { params: Promise<{ id: strin
 
                                     <div className="flex flex-col md:flex-row items-center gap-12 w-full lg:w-auto">
                                         <Link href={`/${beat.productor_nombre_usuario}`} className="flex flex-col md:flex-row items-center gap-6 group/prod">
-                                            <div className={`w-16 h-16 rounded-[1.8rem] overflow-hidden border-2 transition-all ${beat.productor_nivel_suscripcion === 'premium' ? 'border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)]' : beat.productor_es_fundador ? 'border-amber-400' : 'border-foreground/10'}`}>
-                                                {beat.productor_foto_perfil ? <img src={beat.productor_foto_perfil} className="w-full h-full object-cover" alt="" /> : <div className="w-full h-full bg-zinc-800" />}
+                                            <div className={`relative w-16 h-16 rounded-[1.8rem] overflow-hidden border-2 transition-all ${beat.productor_nivel_suscripcion === 'premium' ? 'border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)]' : beat.productor_es_fundador ? 'border-amber-400' : 'border-foreground/10'}`}>
+                                                {beat.productor_foto_perfil ? <Image src={beat.productor_foto_perfil} fill sizes="64px" className="object-cover" alt="" /> : <div className="w-full h-full bg-zinc-800" />}
                                             </div>
                                             <div className="flex flex-col items-center md:items-center text-center">
                                                 <div className="flex items-center gap-2">

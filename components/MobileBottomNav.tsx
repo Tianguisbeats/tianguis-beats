@@ -165,10 +165,10 @@ export default function MobileBottomNav() {
                             {/* icon area */}
                             <div className="relative flex items-center justify-center w-8 h-8 mt-2">
                                 {tab.isProfile && profile?.foto_perfil ? (
-                                    <div className={`w-7 h-7 rounded-full overflow-hidden border-2 transition-all duration-300 ${tab.isActive
+                                    <div className={`relative w-7 h-7 rounded-full overflow-hidden border-2 transition-all duration-300 ${tab.isActive
                                         ? 'border-accent scale-110 shadow-lg shadow-accent/30'
                                         : 'border-border/50 group-active:scale-95'}`}>
-                                        <img src={profile.foto_perfil} className="w-full h-full object-cover" alt="Perfil" />
+                                        <Image src={profile.foto_perfil} fill sizes="28px" className="object-cover" alt="Perfil" />
                                     </div>
                                 ) : (
                                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300 ${tab.isActive

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Package, Play, Pause, ShoppingBag, Heart } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
@@ -60,10 +61,12 @@ export default function SoundKitHorizontalCard({ kit, producerName }: SoundKitHo
             {/* Thumbnail with centered play button */}
             <div className="relative w-24 h-24 md:w-28 md:h-28 shrink-0 rounded-[1.8rem] overflow-hidden shadow-lg shadow-orange-500/10 border border-orange-500/20">
                 {kit.url_portada ? (
-                    <img
+                    <Image
                         src={kit.url_portada}
                         alt={kit.titulo}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        fill
+                        sizes="(max-width: 768px) 96px, 112px"
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-orange-500/10">

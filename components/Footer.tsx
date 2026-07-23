@@ -40,7 +40,7 @@ export default function Footer({ minimal = false }: { minimal?: boolean }) {
                     <div className="flex flex-col items-center sm:items-start">
                         <Link href="/" style={{ textDecoration: 'none' }} className="flex items-center gap-2.5 group">
                             <div className="w-8 h-8 flex items-center justify-center -rotate-6 group-hover:rotate-0 transition-transform duration-300">
-                                <img src="/logo.png" alt="Tianguis Beats" className="w-full h-full object-contain" />
+                                <Image src="/logo.png" alt="Tianguis Beats" width={32} height={32} className="w-full h-full object-contain" />
                             </div>
                             <span className="font-heading font-black text-base tracking-tight uppercase leading-tight">
                                 <span className="text-foreground/60 dark:text-white/60">TIANGUIS</span>

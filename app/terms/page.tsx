@@ -1,12 +1,17 @@
-"use client";
-
 import React from 'react';
+import type { Metadata } from 'next';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { Shield, Book, Scale, FileText, AlertCircle, Music, CreditCard, Lock, Users, Ban, ExternalLink } from 'lucide-react';
-import { LegalPageShell, AbstractLegalBg, LegalBadge, LegalSection, LegalBullet, LegalHighlight, LegalAlert, LegalSidebar } from '@/components/ui/LegalPageShell';
+import { LegalPageShell, LegalBadge, LegalSection, LegalBullet, LegalHighlight, LegalAlert, LegalSidebar } from '@/components/ui/LegalPageShell';
+
+export const metadata: Metadata = {
+    title: 'Términos de Servicio',
+    description: 'Términos de Servicio de Tianguis Beats: licencias de uso, propiedad intelectual, pagos y política de no reembolso.',
+    alternates: { canonical: '/terms' },
+};
 
 const licenseTable = [
     { plan: 'Gratis',    color: '#94a3b8', fmt: 'MP3 con Tag',       tipo: 'No Exclusiva', streams: '5,000',     uso: 'Solo promocional',             vigencia: '1 año' },
@@ -40,21 +45,18 @@ export default function TermsPage() {
 
                     {/* ── HERO ── */}
                     <div className="text-center mb-16 flex flex-col items-center">
-                        <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-                            className="w-16 h-16 mb-6 flex items-center justify-center -rotate-6 hover:rotate-0 transition-transform duration-500 drop-shadow-2xl">
-                            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
-                        </motion.div>
+                        <div className="animate-in fade-in zoom-in-90 duration-700 w-16 h-16 mb-6 flex items-center justify-center -rotate-6 hover:rotate-0 transition-transform duration-500 drop-shadow-2xl">
+                            <Image src="/logo.png" alt="Logo" width={64} height={64} className="w-full h-full object-contain" />
+                        </div>
                         <LegalBadge label="Legal · Transparencia · Tianguis Beats" theme="blue" />
-                        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-                            className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4 leading-none">
+                        <h1 className="animate-in fade-in slide-in-from-bottom-2 duration-700 delay-150 fill-mode-both text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4 leading-none">
                             Términos de<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-500 to-cyan-400">Servicio.</span>
-                        </motion.h1>
-                        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
-                            className="text-muted/70 font-medium max-w-xl mx-auto text-sm leading-relaxed">
+                        </h1>
+                        <p className="animate-in fade-in duration-700 delay-300 fill-mode-both text-muted/70 font-medium max-w-xl mx-auto text-sm leading-relaxed">
                             Última actualización: <span className="text-foreground font-bold">4 de marzo de 2026.</span>{' '}
                             Al usar Tianguis Beats aceptas estos términos en su totalidad.
-                        </motion.p>
+                        </p>
                     </div>
 
                     <div className="flex flex-col lg:flex-row gap-10">
@@ -72,7 +74,7 @@ export default function TermsPage() {
                         <div className="flex-1 min-w-0">
                             <LegalSection id="intro" num="1" title="Aceptación y Partes" icon={<FileText size={14} />} theme="blue">
                                 <p>Bienvenido a <LegalHighlight>Tianguis Beats</LegalHighlight>, una tienda de beats en línea operada bajo la legislación de los <LegalHighlight>Estados Unidos Mexicanos</LegalHighlight>. Estos Términos de Servicio regulan la relación jurídica entre Tianguis Beats y cualquier persona que acceda, navegue, compre o venda en la plataforma.</p>
-                                <p>Al hacer clic en <LegalHighlight>"Acepto los Términos"</LegalHighlight> o al completar cualquier compra, el Usuario manifiesta su consentimiento expreso con la totalidad de este documento. Si el Usuario no está de acuerdo, debe abstenerse de utilizar la Plataforma.</p>
+                                <p>Al hacer clic en <LegalHighlight>&ldquo;Acepto los Términos&rdquo;</LegalHighlight> o al completar cualquier compra, el Usuario manifiesta su consentimiento expreso con la totalidad de este documento. Si el Usuario no está de acuerdo, debe abstenerse de utilizar la Plataforma.</p>
                                 <p>Tianguis Beats opera con apego a la <LegalHighlight>LFDA, LFPC, LFPDPPP</LegalHighlight> y demás legislación federal mexicana aplicable.</p>
                             </LegalSection>
 

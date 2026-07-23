@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { usePlayer } from '@/context/PlayerContext';
 import {
     Play, Pause, SkipBack, SkipForward,
@@ -10,7 +11,10 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import WaveformPlayer from './WaveformPlayer';
+
+// wavesurfer.js sólo se necesita cuando hay un beat sonando: se carga en su
+// propio chunk para no inflar el bundle inicial de cada página.
+const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { ssr: false });
 import { useCart } from '@/context/CartContext';
 import { useRouter } from 'next/navigation';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -224,7 +228,7 @@ export default function AudioPlayer() {
                                         className={`flex items-center gap-1.5 text-[10px] font-bold uppercase truncate hover:opacity-80 transition-opacity ${accentText}`}>
                                         <span>{producerName}</span>
                                         {(currentBeat.productor_esta_verificado || (currentBeat as any).is_verified) && (
-                                            <img src="/verified-badge.png" alt="V"
+                                            <Image src="/verified-badge.png" alt="V" width={14} height={14}
                                                 className={`w-3.5 h-3.5 object-contain shrink-0 ${isDark ? 'brightness-0 invert' : ''}`} />
                                         )}
                                         {(currentBeat.productor_es_fundador || (currentBeat as any).is_founder) && (
@@ -376,7 +380,7 @@ export default function AudioPlayer() {
                                                 >
                                                     <span>{producerName}</span>
                                                     {(currentBeat.productor_esta_verificado || (currentBeat as any).esta_verificado || (currentBeat as any).is_verified) && (
-                                                        <img src="/verified-badge.png" alt="V"
+                                                        <Image src="/verified-badge.png" alt="V" width={16} height={16}
                                                             className={`w-3.5 h-3.5 md:w-4 md:h-4 object-contain shrink-0 ${isDark ? 'brightness-0 invert' : ''}`} />
                                                     )}
                                                     {(currentBeat.productor_es_fundador || (currentBeat as any).es_fundador || (currentBeat as any).is_founder) && (
@@ -411,7 +415,7 @@ export default function AudioPlayer() {
                                                             {producerName}
                                                         </Link>
                                                         {currentBeat.productor_esta_verificado && (
-                                                            <img src="/verified-badge.png" alt="Verificado" className={`w-3.5 h-3.5 object-contain shrink-0 ${isDark ? 'brightness-0 invert' : ''}`} />
+                                                            <Image src="/verified-badge.png" alt="Verificado" width={14} height={14} className={`w-3.5 h-3.5 object-contain shrink-0 ${isDark ? 'brightness-0 invert' : ''}`} />
                                                         )}
                                                         {currentBeat.productor_es_fundador && (
                                                             <Crown size={12} className="text-amber-400 shrink-0 fill-amber-400" />

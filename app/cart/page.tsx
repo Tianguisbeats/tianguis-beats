@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
     Trash2, ArrowRight, ShoppingBag, Tag, ShieldCheck,
@@ -295,7 +296,7 @@ export default function CartPage() {
                                             {/* Cover */}
                                             <div className="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-[1.5rem] overflow-hidden shadow-lg">
                                                 {item.image ? (
-                                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                                    <Image src={item.image} alt={item.name} fill sizes="112px" className="object-cover group-hover:scale-110 transition-transform duration-700" />
                                                 ) : (
                                                     <div className={`w-full h-full flex items-center justify-center border ${config.color}`}>
                                                         {config.icon}
@@ -631,10 +632,12 @@ export default function CartPage() {
                                                             <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Ventas Pausadas</span>
                                                         </div>
                                                     ) : (
-                                                        <img 
-                                                            src="/images/stripe/stripe-custom-button.png" 
-                                                            alt="Pagar con Stripe" 
-                                                            className={`absolute inset-0 w-full h-full object-cover rounded-[1.5rem] transition-all duration-500 origin-center ${
+                                                        <Image
+                                                            src="/images/stripe/stripe-custom-button.png"
+                                                            alt="Pagar con Stripe"
+                                                            fill
+                                                            sizes="100vw"
+                                                            className={`object-cover rounded-[1.5rem] transition-all duration-500 origin-center ${
                                                                 legalAccepted 
                                                                     ? 'opacity-100 hover:scale-[1.03] filter-none' 
                                                                     : 'opacity-40 grayscale sepia-[0.3] brightness-75 hover:opacity-50'

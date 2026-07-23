@@ -149,7 +149,7 @@ export default function Navbar({ minimal = false }: { minimal?: boolean }) {
 
                     {/* CARRITO - Solo Logueado o con items */}
                     {user && (
-                        <button onClick={() => setIsCartOpen(true)} className={`relative p-2 transition-all hover:scale-110 ${minimal ? 'text-slate-600 dark:text-white' : 'text-gray-500 dark:text-white'}`}>
+                        <button onClick={() => setIsCartOpen(true)} aria-label="Abrir carrito" className={`relative p-2 transition-all hover:scale-110 ${minimal ? 'text-slate-600 dark:text-white' : 'text-gray-500 dark:text-white'}`}>
                             <ShoppingCart size={18} />
                             {itemCount > 0 && <span className="absolute -top-0.5 -right-0.5 bg-blue-600 text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center">{itemCount}</span>}
                         </button>
@@ -176,7 +176,7 @@ export default function Navbar({ minimal = false }: { minimal?: boolean }) {
 
                     {/* LOGOUT - Solo Logueado */}
                     {user && (
-                        <button onClick={handleLogout} className="p-2 transition-all hover:scale-110">
+                        <button onClick={handleLogout} aria-label="Cerrar sesión" className="p-2 transition-all hover:scale-110">
                             <LogOut size={18} className="text-red-500/70" />
                         </button>
                     )}

@@ -17,6 +17,7 @@ import { usePlayer } from '@/context/PlayerContext';
 import { useToast } from '@/context/ToastContext';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function PlaylistDetailPage() {
     const { username, playlistId } = useParams();
@@ -188,8 +189,8 @@ export default function PlaylistDetailPage() {
                                 </h1>
                                 <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-[12px] font-bold text-muted uppercase tracking-widest mt-1 md:mt-2">
                                     <Link href={`/${producer?.nombre_usuario || '#'}`} className="flex items-center gap-2.5 text-foreground bg-foreground/[0.03] hover:bg-foreground/[0.08] transition-colors pr-4 rounded-full border border-border/50 pb-1 pt-1 pl-1">
-                                        <div className="w-8 h-8 rounded-full overflow-hidden bg-accent/20 border border-accent/30 shadow-md">
-                                            {producer?.foto_perfil && <img src={producer.foto_perfil} loading="lazy" className="w-full h-full object-cover" />}
+                                        <div className="relative w-8 h-8 rounded-full overflow-hidden bg-accent/20 border border-accent/30 shadow-md">
+                                            {producer?.foto_perfil && <Image src={producer.foto_perfil} alt={producer?.nombre_artistico || producer?.nombre_usuario || ''} fill sizes="32px" className="object-cover" />}
                                         </div>
                                         <span className="font-black">{producer?.nombre_artistico || producer?.nombre_usuario}</span>
                                         {producer?.esta_verificado && <img src="/verified-badge.png" className="w-3.5 h-3.5 object-contain" alt="Verificado"/>}

@@ -215,9 +215,11 @@ function BeatCardPro({ beat, compact = false, adminControls }: BeatCardProProps)
                                 {(beat as any).productor_nombre_artistico || (beat as any).nombre_artistico || (beat as any).productor_nombre_usuario || (beat as any).nombre_usuario || 'Productor'}
                             </span>
                             {((beat as any).esta_verificado || (beat as any).productor_esta_verificado || (beat as any).is_verified) && (
-                                <img 
-                                    src="/verified-badge.png" 
-                                    alt="Verificado" 
+                                <Image
+                                    src="/verified-badge.png"
+                                    alt="Verificado"
+                                    width={14}
+                                    height={14}
                                     className="w-3.5 h-3.5 object-contain"
                                     style={{ filter: 'drop-shadow(0 0 1px rgba(0,0,0,0.2))' }}
                                 />

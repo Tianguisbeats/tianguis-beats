@@ -451,14 +451,14 @@ export default function VerificationPage() {
                                 <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted text-center block">Identificación (Frente)</label>
                                 <div className="relative aspect-video rounded-3xl border-2 border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center justify-center overflow-hidden bg-white/50 dark:bg-black/20 group hover:border-blue-500/50 transition-all cursor-pointer">
                                     <input type="file" required accept="image/*" onChange={(e) => handleFileChange(e, 'front')} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                                    {form.idDocumentFront ? <img src={URL.createObjectURL(form.idDocumentFront)} className="w-full h-full object-cover" /> : <Upload className="text-muted group-hover:text-blue-500 transition-colors" />}
+                                    {form.idDocumentFront ? <img src={URL.createObjectURL(form.idDocumentFront)} className="w-full h-full object-cover" alt="Identificación (frente)" /> : <Upload className="text-muted group-hover:text-blue-500 transition-colors" />}
                                 </div>
                             </div>
                             <div className="space-y-4">
                                 <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted text-center block">Identificación (Vuelta)</label>
                                 <div className="relative aspect-video rounded-3xl border-2 border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center justify-center overflow-hidden bg-white/50 dark:bg-black/20 group hover:border-blue-500/50 transition-all cursor-pointer">
                                     <input type="file" required accept="image/*" onChange={(e) => handleFileChange(e, 'back')} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                                    {form.idDocumentBack ? <img src={URL.createObjectURL(form.idDocumentBack)} className="w-full h-full object-cover" /> : <Upload className="text-muted group-hover:text-blue-500 transition-colors" />}
+                                    {form.idDocumentBack ? <img src={URL.createObjectURL(form.idDocumentBack)} className="w-full h-full object-cover" alt="Identificación (vuelta)" /> : <Upload className="text-muted group-hover:text-blue-500 transition-colors" />}
                                 </div>
                             </div>
                         </div>
