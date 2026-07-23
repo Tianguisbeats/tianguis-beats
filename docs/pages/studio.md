@@ -54,3 +54,55 @@ Se revisó pestaña por pestaña la lógica de cada ruta del Studio. Resultado p
 **Deuda conocida (no corregida a propósito)**:
 - `app/studio/beats/page.tsx` `handleDelete`: al borrar archivos del Storage usa `path.split('/').pop()`, que fallaría si los archivos se guardan en subcarpetas por usuario. Verificar el layout real del bucket antes de tocar.
 - Panel Admin: pendiente de auditoría dedicada.
+
+## Nuevas funciones del Studio — 23 de julio de 2026
+
+Se agregaron cinco mejoras al panel del productor:
+
+### 1. Panel (Dashboard de inicio) — `/studio`
+Antes `/studio` solo redirigía a Mis Beats. Ahora es un panel real (`app/studio/page.tsx`, cliente):
+- Saludo personalizado + badge de plan.
+- 4 KPIs: ventas de la semana, reproducciones totales, seguidores, beats activos (cada uno enlaza a su sección).
+- Bloque de **Insights** (los 3 más relevantes, ver #3).
+- **Más vendido** por ingreso.
+- **Salud del catálogo** resumida (barra ok/aviso/crítico, ver #4).
+- **Actividad reciente** (últimas 5 notificaciones con ícono por tipo).
+- **Accesos rápidos** (Subir beat, Estadísticas, Ventas, Cobros).
+- Se agregó "Panel" como primera pestaña del menú (`app/studio/layout.tsx`). El estado activo usa match exacto, así que `/studio` no enciende las subrutas.
+
+### 2. Notificaciones en el Studio
+El sistema ya existía (`components/NotificacionesBell.tsx` en el Navbar, tiempo real vía Supabase Realtime, respaldado por triggers de DB en `_notificaciones_triggers_2026_04_25.sql`: `nueva_venta`, `nuevo_seguidor`, `nuevo_comentario`). Se potenció:
+- Íconos por tipo de notificación en la campana.
+- La actividad reciente también aparece en el Panel (#1).
+
+### 3. Insights accionables — `lib/studioInsights.ts`
+Cálculos con **datos reales** (no simulados) de `beats` + `transacciones`, mostrados en el Panel y en Estadísticas:
+- Beat que mejor convierte reproducción → venta.
+- Oportunidad sin explotar (muchos plays, cero ventas).
+- Mejor día de la semana para vender.
+- Género más rentable.
+Cada insight incluye una recomendación concreta. Nota: la página de Estadísticas aún contiene datos simulados en `trafficCountries` y `trendingSearches` (pendiente de conectar a `analiticas_eventos` real).
+
+### 4. Salud del catálogo — `lib/beatHealth.ts` + `components/studio/BeatHealthBadge.tsx`
+Diagnóstico por beat traducido a avisos accionables:
+- Crítico: sin portada; stems faltantes cuando se activó licencia Premium/Exclusiva; desactivado por plan.
+- Aviso: sin WAV (bloquea licencias Pro+); muchas reproducciones sin ventas (revisar precio); oculto.
+Se muestra como badge por tarjeta en Mis Beats (con detalle al pasar el cursor) y como barra-resumen en Mis Beats y en el Panel.
+
+### 5. Auditoría del Panel Admin — HALLAZGO CRÍTICO DE SEGURIDAD
+
+El panel Admin en sí está bien estructurado (lógica en `hooks/admin/*`, guard por `es_admin || es_soporte`). Pero la auditoría destapó una **escalada de privilegios crítica a nivel de base de datos**, no del panel:
+
+- La política RLS `"Gestión de propio perfil"` sobre `perfiles` es `FOR ALL USING (auth.uid() = id)` **sin `WITH CHECK` ni restricción de columnas**, y ningún trigger protegía los campos sensibles.
+- **Cualquier usuario autenticado** podía ejecutar desde la consola del navegador:
+  `supabase.from('perfiles').update({ es_admin: true, nivel_suscripcion: 'premium' }).eq('id', <su id>)`
+  y volverse **administrador** con **suscripción premium gratis** al instante.
+- Además, un usuario `es_soporte` (que sí entra al panel) podía promoverse a `es_admin`.
+
+**Corrección preparada (NO aplicada aún a la base de datos):**
+`supabase/migrations/20260723_proteger_columnas_privilegiadas_perfiles.sql` añade un trigger `BEFORE UPDATE` que revierte cualquier cambio de `es_admin`, `es_soporte`, `es_fundador`, `nivel_suscripcion`, `balance_pendiente`, `balance_disponible` cuando quien edita no es admin. Excepciones que sí pueden cambiarlas: la `service_role` (webhooks de Stripe) y los administradores reales, para no romper suscripciones ni el propio panel.
+
+⚠️ **Esta migración toca autorización en producción y debe aplicarse manualmente tras revisarla** (ejecutar el SQL en el editor de Supabase). Verificar después: (a) que una suscripción de Stripe siga actualizando el nivel; (b) que el Panel Admin siga pudiendo editar usuarios; (c) que un usuario normal ya no pueda auto-promoverse.
+
+### Archivos nuevos
+- `app/studio/page.tsx` (dashboard), `lib/studioInsights.ts`, `lib/beatHealth.ts`, `components/studio/BeatHealthBadge.tsx`, `supabase/migrations/20260723_proteger_columnas_privilegiadas_perfiles.sql`.

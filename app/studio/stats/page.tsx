@@ -14,6 +14,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import LoadingTianguis from '@/components/LoadingTianguis';
 import { motion, AnimatePresence } from 'framer-motion';
+import { calcularInsights, StudioInsight } from '@/lib/studioInsights';
 
 // recharts (~90kb) sólo se carga cuando esta pestaña de stats se monta.
 const StatsAreaChart = dynamic(() => import('@/components/StatsAreaChart'), { ssr: false });
@@ -33,6 +34,7 @@ type StatData = {
     avgRetention: number;
     trendingSearches: { term: string, count: number }[];
     topSoldBeats: any[];
+    insights: StudioInsight[];
     username?: string;
 };
 
@@ -47,11 +49,12 @@ export default function StudioStatsPage() {
         userTier: 'free',
         expiryDate: null,
         startDate: null,
-        trafficCountries: [], 
-        topKeys: [], 
-        avgRetention: 0, 
+        trafficCountries: [],
+        topKeys: [],
+        avgRetention: 0,
         trendingSearches: [],
-        topSoldBeats: []
+        topSoldBeats: [],
+        insights: []
     });
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState<'both' | 'sales' | 'plays'>('both');
@@ -181,6 +184,7 @@ export default function StudioStatsPage() {
                     avgRetention,
                     trendingSearches,
                     topSoldBeats,
+                    insights: calcularInsights(beats, sales),
                     username: user.user_metadata?.username || user.email?.split('@')[0]
                 });
             }
@@ -277,9 +281,40 @@ export default function StudioStatsPage() {
                 </motion.button>
             </header>
 
+            {/* ── Insights accionables (datos reales) ── */}
+            {stats.insights.length > 0 && (
+                <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><Sparkles size={16} /></div>
+                        <h2 className="text-lg font-black uppercase tracking-tight text-foreground">Insights accionables</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                        {stats.insights.map((ins) => {
+                            const toneStyle: Record<string, string> = {
+                                positivo: 'border-emerald-500/20 bg-emerald-500/[0.04]',
+                                oportunidad: 'border-amber-500/20 bg-amber-500/[0.04]',
+                                neutro: 'border-blue-500/20 bg-blue-500/[0.04]',
+                            };
+                            const toneText: Record<string, string> = {
+                                positivo: 'text-emerald-500',
+                                oportunidad: 'text-amber-500',
+                                neutro: 'text-blue-500',
+                            };
+                            return (
+                                <div key={ins.id} className={`rounded-[1.75rem] border p-6 ${toneStyle[ins.tone]}`}>
+                                    <p className={`text-[9px] font-black uppercase tracking-[0.2em] mb-2 ${toneText[ins.tone]}`}>{ins.titulo}</p>
+                                    <p className="text-base font-black text-foreground tracking-tight mb-2 leading-tight">{ins.valor}</p>
+                                    <p className="text-[11px] text-muted font-medium leading-relaxed">{ins.detalle}</p>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
             {/* BENTO GRID (Flat + Abstract) */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 auto-rows-fr">
-                
+
                 {/* 1. Ingresos Totales */}
                 <KpiCard 
                     color="#10b981" 

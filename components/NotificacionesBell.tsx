@@ -1,9 +1,16 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Bell } from "lucide-react";
+import { Bell, ShoppingBag, UserPlus, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+
+// Ícono por tipo de notificación (mismos tipos que emiten los triggers de DB).
+const iconoPorTipo: Record<string, React.ReactNode> = {
+  nueva_venta: <ShoppingBag size={14} />,
+  nuevo_seguidor: <UserPlus size={14} />,
+  nuevo_comentario: <MessageCircle size={14} />,
+};
 
 type Notificacion = {
   id: string;
@@ -169,6 +176,9 @@ export default function NotificacionesBell({
                       !n.esta_leida ? "bg-blue-50/60 dark:bg-blue-500/5" : ""
                     }`}
                   >
+                    <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0 mt-0.5">
+                      {iconoPorTipo[n.tipo] || <Bell size={14} />}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p
                         className={`text-xs leading-snug ${

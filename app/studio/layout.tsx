@@ -16,6 +16,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
     const [sidebarOpen, setSidebarOpen] = React.useState(true);
 
     const [navItems, setNavItems] = React.useState([
+        { name: 'Panel', href: '/studio', icon: <Home size={18} /> },
         { name: 'Mis Beats', href: '/studio/beats', icon: <Music size={18} /> },
         { name: 'Sound Kits', href: '/studio/soundkits', icon: <Layers size={18} /> },
         { name: 'Licencias', href: '/studio/licencias', icon: <FileText size={18} /> },

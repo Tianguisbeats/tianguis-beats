@@ -9,6 +9,8 @@ import Switch from '@/components/ui/Switch';
 import { useToast } from '@/context/ToastContext';
 import LoadingTianguis from '@/components/LoadingTianguis';
 import AddToPlaylistModal from '@/components/AddToPlaylistModal';
+import BeatHealthBadge from '@/components/studio/BeatHealthBadge';
+import { resumenSaludCatalogo } from '@/lib/beatHealth';
 
 export default function StudioBeatsPage() {
     const { showToast } = useToast();
@@ -27,7 +29,7 @@ export default function StudioBeatsPage() {
 
         const { data } = await supabase
             .from('beats')
-            .select('id, productor_id, titulo, genero, bpm, precio_basica_mxn, precio_gratis_mxn, portada_url, archivo_mp3_url, archivo_wav_url, archivo_stems_url, es_publico, esta_desactivado_por_plan, esta_archivado, es_visible, conteo_reproducciones, conteo_ventas, conteo_likes, fecha_creacion')
+            .select('id, productor_id, titulo, genero, bpm, precio_basica_mxn, precio_gratis_mxn, portada_url, archivo_mp3_url, archivo_wav_url, archivo_stems_url, es_publico, esta_desactivado_por_plan, esta_archivado, es_visible, es_premium_activa, es_exclusiva_premium_activa, conteo_reproducciones, conteo_ventas, conteo_likes, fecha_creacion')
             .eq('productor_id', user.id)
             .order('fecha_creacion', { ascending: false });
 
@@ -134,7 +136,7 @@ export default function StudioBeatsPage() {
             </div>
 
             {/* Buscador Premium */}
-            <div className="relative mb-14 max-w-2xl group">
+            <div className="relative mb-8 max-w-2xl group">
                 <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-blue-500/40 group-focus-within:text-blue-500 transition-all duration-300" size={20} />
                 <input
                     type="text"
@@ -144,6 +146,29 @@ export default function StudioBeatsPage() {
                     className="w-full bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 group-focus-within:border-blue-500/40 rounded-2xl md:rounded-3xl pl-14 md:pl-16 pr-6 md:pr-8 py-4 md:py-5 text-[11px] font-black text-foreground uppercase tracking-[0.2em] focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-muted/40"
                 />
             </div>
+
+            {/* Resumen de salud del catálogo — sólo si hay algo por mejorar */}
+            {(() => {
+                const s = resumenSaludCatalogo(beats);
+                if (s.total === 0 || (s.aviso === 0 && s.critico === 0)) return null;
+                return (
+                    <div className="mb-10 rounded-[2rem] border border-border bg-card p-6 flex flex-col sm:flex-row sm:items-center gap-5">
+                        <div className="flex-1">
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground mb-3">Salud de tu catálogo</p>
+                            <div className="flex h-2.5 rounded-full overflow-hidden bg-foreground/5 max-w-md">
+                                {s.ok > 0 && <div className="bg-emerald-500" style={{ width: `${(s.ok / s.total) * 100}%` }} />}
+                                {s.aviso > 0 && <div className="bg-amber-500" style={{ width: `${(s.aviso / s.total) * 100}%` }} />}
+                                {s.critico > 0 && <div className="bg-rose-500" style={{ width: `${(s.critico / s.total) * 100}%` }} />}
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap gap-x-5 gap-y-1 text-[10px] font-black uppercase tracking-widest shrink-0">
+                            {s.ok > 0 && <span className="text-emerald-500">{s.ok} óptimos</span>}
+                            {s.aviso > 0 && <span className="text-amber-500">{s.aviso} con avisos</span>}
+                            {s.critico > 0 && <span className="text-rose-500">{s.critico} críticos</span>}
+                        </div>
+                    </div>
+                );
+            })()}
 
                 {filtered.length === 0 ? (
                     <div className="p-10 md:p-20 text-center bg-black/5 dark:bg-white/5 rounded-2xl md:rounded-[2.5rem] border-2 border-dashed border-border text-foreground">
@@ -191,9 +216,12 @@ export default function StudioBeatsPage() {
 
                                 {/* Info Block */}
                                 <div className="flex-1 flex flex-col">
-                                    <h4 className="font-black text-foreground text-lg tracking-tighter truncate uppercase group-hover:text-blue-500 transition-colors mb-4">
-                                        {beat.titulo}
-                                    </h4>
+                                    <div className="flex items-start justify-between gap-2 mb-4">
+                                        <h4 className="font-black text-foreground text-lg tracking-tighter truncate uppercase group-hover:text-blue-500 transition-colors min-w-0">
+                                            {beat.titulo}
+                                        </h4>
+                                        <div className="shrink-0"><BeatHealthBadge beat={beat} /></div>
+                                    </div>
 
                                     {/* Minimal Quick Stats */}
                                     <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-white/5">
