@@ -11,7 +11,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { supabase } from '@/lib/supabase';
-import { MotionDiv, useInView } from '@/components/ui/MotionDiv';
 import {
   FloatingParticles, useScrollProgress, NoiseOverlay, KineticSection,
   AbstractPuzzleBack, AbstractHomeBack, AnimacionDeInicio,
@@ -113,7 +112,7 @@ function HeroTitle({ scrollY }: { scrollY: number }) {
 
   return (
     <div className="text-center relative z-10 pt-20">
-      <MotionDiv
+      <motion.div
         className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-white/80 dark:bg-black/40 backdrop-blur-xl border border-blue-500/10 shadow-lg mb-10"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -124,7 +123,7 @@ function HeroTitle({ scrollY }: { scrollY: number }) {
           <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
         </span>
         <span className="text-[11px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">La plataforma de Beats #1 en México 🇲🇽</span>
-      </MotionDiv>
+      </motion.div>
 
       <div className="flex flex-col items-center relative">
         <AnimacionDeInicio theme="blue" />
@@ -147,7 +146,7 @@ function HeroTitle({ scrollY }: { scrollY: number }) {
           </AnimatePresence>
         </div>
 
-        <MotionDiv
+        <motion.div
           className="max-w-3xl text-center text-slate-500 dark:text-slate-400 text-sm md:text-lg font-medium leading-relaxed"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -156,7 +155,7 @@ function HeroTitle({ scrollY }: { scrollY: number }) {
           ¿Cansado de que el 30% de tu esfuerzo se pierda en comisiones y tipos de cambio? <br className="hidden md:block" />
           En otras plataformas, trabajas para ellos. <span className="text-blue-600 font-bold">Tianguis Beats</span> es la plataforma hecha por y para productores latinos. <br className="hidden md:block" />
           Sin letras chiquitas, en tu idioma y con precios que sí son reales.
-        </MotionDiv>
+        </motion.div>
       </div>
     </div>
   );
@@ -188,7 +187,7 @@ function RevolutStats({
       <AbstractCirclesBack theme="blue" opacity={1} />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto px-6 relative z-10 w-full">
         {stats.map((stat, i) => (
-          <MotionDiv
+          <motion.div
             key={i}
             className="text-center group"
             initial={{ opacity: 0, transform: 'translateY(20px)' }}
@@ -203,7 +202,7 @@ function RevolutStats({
             <div className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em] text-slate-400">
               {stat.label}
             </div>
-          </MotionDiv>
+          </motion.div>
         ))}
       </div>
     </div>
@@ -275,7 +274,7 @@ function BentoWhySection() {
     <section className="pt-0 pb-16 md:pb-40 relative overflow-hidden">
       <AbstractPuzzleBack theme="blue" opacity={0.12} />
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <MotionDiv
+        <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, transform: 'translateY(30px)' }}
           whileInView={{ opacity: 1, transform: 'translateY(0)' }}
@@ -294,11 +293,11 @@ function BentoWhySection() {
           <p className="text-slate-500 dark:text-slate-400 text-lg max-w-xl mx-auto">
             No somos otra copia de BeatStars. Somos la plataforma que <strong className="text-foreground">los productores latinos</strong> necesitaban.
           </p>
-        </MotionDiv>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-4 md:gap-5 auto-rows-auto">
           {bentoItems.map((item, i) => (
-            <MotionDiv
+            <motion.div
               key={item.id}
               className={`${item.span} relative rounded-[2rem] overflow-hidden group cursor-default border border-white/5`}
               initial={{ opacity: 0, scale: 0.93, transform: 'translateY(20px)' }}
@@ -333,7 +332,7 @@ function BentoWhySection() {
                   </Link>
                 )}
               </div>
-            </MotionDiv>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -375,7 +374,7 @@ function FeaturedProducers({ beats }: { beats: Beat[] }) {
     <section className="py-16 md:py-32 relative overflow-hidden">
       <AbstractPuzzleBack theme="purple" opacity={0.1} />
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <MotionDiv
+        <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, transform: 'translateY(20px)' }}
           whileInView={{ opacity: 1, transform: 'translateY(0)' }}
@@ -394,11 +393,11 @@ function FeaturedProducers({ beats }: { beats: Beat[] }) {
           <p className="text-slate-500 dark:text-slate-400 mt-4 text-base">
             Los artistas que mueven la plataforma
           </p>
-        </MotionDiv>
+        </motion.div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {producers.map((p, i) => (
-            <MotionDiv
+            <motion.div
               key={p.id}
               initial={{ opacity: 0, transform: 'translateY(30px)' }}
               whileInView={{ opacity: 1, transform: 'translateY(0)' }}
@@ -440,11 +439,11 @@ function FeaturedProducers({ beats }: { beats: Beat[] }) {
                   {p.beatCount} {p.beatCount === 1 ? 'beat' : 'beats'}
                 </p>
               </Link>
-            </MotionDiv>
+            </motion.div>
           ))}
         </div>
 
-        <MotionDiv
+        <motion.div
           className="text-center mt-10"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -454,7 +453,7 @@ function FeaturedProducers({ beats }: { beats: Beat[] }) {
           <Link href="/productores" className="inline-flex items-center gap-2 text-amber-500 font-black text-[10px] uppercase tracking-widest hover:gap-3 transition-all">
             Ver todos los productores <ArrowRight size={14} />
           </Link>
-        </MotionDiv>
+        </motion.div>
       </div>
     </section>
   );
@@ -466,7 +465,7 @@ function FeaturedProducers({ beats }: { beats: Beat[] }) {
 function CosmosFeed({ beats }: { beats: any[] }) {
   return (
     <section className="py-20 px-4 md:px-8 relative z-10 max-w-[1600px] mx-auto">
-      <MotionDiv
+      <motion.div
         className="flex items-center justify-between mb-10 px-2"
         initial={{ opacity: 0, transform: 'translateY(20px)' }}
         whileInView={{ opacity: 1, transform: 'translateY(0)' }}
@@ -482,7 +481,7 @@ function CosmosFeed({ beats }: { beats: any[] }) {
         <Link href="/beats" className="hidden md:flex items-center gap-2 text-blue-500 font-black text-[10px] uppercase tracking-widest hover:gap-3 transition-all">
           Ver todos <ArrowRight size={16} />
         </Link>
-      </MotionDiv>
+      </motion.div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
         {beats.map((beat) => (
@@ -542,7 +541,7 @@ function HowItWorksSection() {
     <section className="py-16 md:py-32 relative overflow-hidden">
       <AbstractCirclesBack theme="blue" opacity={0.7} />
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <MotionDiv
+        <motion.div
           className="text-center mb-20"
           initial={{ opacity: 0, transform: 'translateY(30px)' }}
           whileInView={{ opacity: 1, transform: 'translateY(0)' }}
@@ -558,13 +557,13 @@ function HowItWorksSection() {
               Funciona
             </span>
           </h2>
-        </MotionDiv>
+        </motion.div>
 
         <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="hidden md:block absolute top-[3.5rem] left-[16.5%] right-[16.5%] h-px bg-gradient-to-r from-blue-500/40 via-violet-500/40 to-emerald-500/40 z-0" />
 
           {steps.map((s, i) => (
-            <MotionDiv
+            <motion.div
               key={i}
               className="relative z-10"
               initial={{ opacity: 0, transform: 'translateY(40px)' }}
@@ -591,12 +590,12 @@ function HowItWorksSection() {
 
                 <div className={`absolute bottom-0 left-8 right-8 h-[2px] bg-gradient-to-r ${s.gradient} opacity-0 group-hover:opacity-60 transition-opacity duration-500 rounded-full`} />
               </div>
-            </MotionDiv>
+            </motion.div>
           ))}
         </div>
 
         {!isLoggedIn && (
-          <MotionDiv
+          <motion.div
             className="text-center mt-14"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -606,7 +605,7 @@ function HowItWorksSection() {
             <Link href="/signup" className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-black uppercase tracking-widest text-sm hover:scale-105 hover:shadow-[0_0_40px_rgba(59,130,246,0.4)] transition-all duration-300">
               Comenzar Gratis <ArrowRight size={18} />
             </Link>
-          </MotionDiv>
+          </motion.div>
         )}
       </div>
     </section>
@@ -628,7 +627,7 @@ function ProducerCTASection() {
     <section className="py-16 md:py-40 relative overflow-hidden">
       <AbstractTrianglesBack theme="pink" opacity={0.8} />
       <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-        <MotionDiv
+        <motion.div
           initial={{ opacity: 0, transform: 'translateY(40px)' }}
           whileInView={{ opacity: 1, transform: 'translateY(0)' }}
           viewport={{ once: true }}
@@ -660,7 +659,7 @@ function ProducerCTASection() {
               Ver Planes
             </Link>
           </div>
-        </MotionDiv>
+        </motion.div>
       </div>
     </section>
   );
@@ -781,14 +780,14 @@ export default function Home() {
             <FloatingParticles />
           </div>
           <HeroTitle scrollY={scrollY} />
-          <MotionDiv
+          <motion.div
             className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30 text-slate-400 dark:text-white/40"
             animate={{ transform: ['translateY(0px)', 'translateY(10px)', 'translateY(0px)'] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
             <span className="text-[10px] font-black uppercase tracking-[0.4em]">Explorar</span>
             <ChevronDown size={20} />
-          </MotionDiv>
+          </motion.div>
         </section>
 
         {/* STATS */}

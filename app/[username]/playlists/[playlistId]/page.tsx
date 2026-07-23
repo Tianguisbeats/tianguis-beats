@@ -193,7 +193,7 @@ export default function PlaylistDetailPage() {
                                             {producer?.foto_perfil && <Image src={producer.foto_perfil} alt={producer?.nombre_artistico || producer?.nombre_usuario || ''} fill sizes="32px" className="object-cover" />}
                                         </div>
                                         <span className="font-black">{producer?.nombre_artistico || producer?.nombre_usuario}</span>
-                                        {producer?.esta_verificado && <img src="/verified-badge.png" className="w-3.5 h-3.5 object-contain" alt="Verificado"/>}
+                                        {producer?.esta_verificado && <Image src="/verified-badge.png" width={14} height={14} className="w-3.5 h-3.5 object-contain" alt="Verificado"/>}
                                         {producer?.es_fundador && <Crown size={14} className="text-amber-500" fill="currentColor"/>}
                                     </Link>
                                     <span className="w-1.5 h-1.5 rounded-full bg-border" />

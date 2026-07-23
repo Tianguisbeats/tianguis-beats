@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { Send, User, Trash2, Crown, MessageCircle } from 'lucide-react';
 
@@ -179,12 +180,12 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                 ) : (
                     comments.map(comment => (
                         <div key={comment.id} className="flex gap-4 group">
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden border-2 transition-all ${comment.user.nivel_suscripcion === 'premium' ? 'border-blue-600 shadow-sm' :
+                            <div className={`relative w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden border-2 transition-all ${comment.user.nivel_suscripcion === 'premium' ? 'border-blue-600 shadow-sm' :
                                 comment.user.nivel_suscripcion === 'pro' ? 'border-amber-500' :
                                     'border-border'
                                 }`}>
                                 {comment.user.foto_perfil ? (
-                                    <img src={comment.user.foto_perfil} alt={comment.user.nombre_usuario} className="w-full h-full object-cover" />
+                                    <Image src={comment.user.foto_perfil} alt={comment.user.nombre_usuario} fill sizes="48px" className="object-cover" />
                                 ) : (
                                     <div className="w-full h-full bg-slate-50 dark:bg-white/10 flex items-center justify-center text-muted italic font-black text-xs">
                                         {(comment.user.nombre_artistico || comment.user.nombre_usuario || 'U').charAt(0).toUpperCase()}
@@ -198,7 +199,7 @@ export default function CommentSection({ beatId }: { beatId: string }) {
                                             {comment.user.nombre_artistico || comment.user.nombre_usuario}
                                         </a>
                                         {comment.user.esta_verificado && (
-                                            <img src="/verified-badge.png" className="w-4 h-4 object-contain" alt="Verificado" />
+                                            <Image src="/verified-badge.png" width={16} height={16} className="w-4 h-4 object-contain" alt="Verificado" />
                                         )}
                                         {comment.user.es_fundador && (
                                             <Crown size={14} className="text-amber-500" fill="currentColor" />

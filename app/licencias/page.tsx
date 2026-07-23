@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
@@ -47,7 +48,7 @@ export default function LicenciasPage() {
                     <div className="text-center mb-14 flex flex-col items-center">
                         <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
                             className="w-16 h-16 mb-6 flex items-center justify-center -rotate-6 hover:rotate-0 transition-transform duration-500 drop-shadow-2xl">
-                            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+                            <Image src="/logo.png" alt="Logo" width={64} height={64} className="w-full h-full object-contain" />
                         </motion.div>
                         <LegalBadge label="Acuerdos de Licencia · LFDA México" theme="emerald" />
                         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}

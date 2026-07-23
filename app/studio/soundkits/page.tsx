@@ -458,7 +458,7 @@ function SoundKitsManagerPage() {
                                                 {kitCoverFile ? (
                                                     <img src={URL.createObjectURL(kitCoverFile)} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Cover preview" />
                                                 ) : currentKit?.url_portada ? (
-                                                    <img src={currentKit.url_portada} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Saved cover" />
+                                                    <Image src={currentKit.url_portada} fill sizes="200px" className="object-cover group-hover:scale-105 transition-transform duration-700" alt="Saved cover" />
                                                 ) : (
                                                     <div className="flex flex-col items-center">
                                                         <div className="w-16 h-16 rounded-2xl bg-foreground/5 dark:bg-white/5 text-muted group-hover:bg-orange-500/10 group-hover:text-orange-500 flex items-center justify-center mb-4 transition-all">

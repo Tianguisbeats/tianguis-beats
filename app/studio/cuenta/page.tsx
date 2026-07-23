@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/context/ToastContext';
 import { User, Shield, Bell, Settings, Trash2, Camera, Instagram, Youtube, Lock, Save, Loader2, Edit3, X, ChevronRight } from 'lucide-react';
@@ -271,7 +272,7 @@ export default function AccountPage() {
                             <div className="relative group shrink-0">
                                 <div className={`w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-background shadow-xl relative bg-black/5 dark:bg-white/5 transition-all ${isEditing ? 'ring-4 ring-blue-500/20' : ''}`}>
                                     {profile?.foto_perfil ? (
-                                        <img src={profile.foto_perfil} alt="Avatar" className="w-full h-full object-cover" />
+                                        <Image src={profile.foto_perfil} alt="Avatar" fill sizes="(max-width: 768px) 128px, 160px" className="object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center">
                                             <User size={48} className="text-muted opacity-50" />

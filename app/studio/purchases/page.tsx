@@ -41,6 +41,7 @@ import {
     AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useToast } from '@/context/ToastContext';
 import { usePlayer } from '@/context/PlayerContext';
 import { useCart } from '@/context/CartContext';
@@ -739,7 +740,7 @@ export default function MyPurchasesPage() {
                                         <div key={item.id} className="p-4 sm:p-5 flex items-center gap-4 group/item hover:bg-foreground/[0.02] transition-colors">
                                             <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0">
                                                 {item.metadata?.portada_url ? (
-                                                    <img src={item.metadata.portada_url} alt={item.name} className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500" />
+                                                    <Image src={item.metadata.portada_url} alt={item.name} fill sizes="64px" className="object-cover group-hover/item:scale-110 transition-transform duration-500" />
                                                 ) : (
                                                     <div className="w-full h-full bg-accent/10 flex items-center justify-center">
                                                         <Music size={20} className="text-accent" />

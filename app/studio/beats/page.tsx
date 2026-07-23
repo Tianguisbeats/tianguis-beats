@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Edit, Trash2, Play, AlertCircle, Heart, Music, TrendingUp, Plus, Search, Wallet, Lock, ListMusic } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Switch from '@/components/ui/Switch';
 import { useToast } from '@/context/ToastContext';
 import LoadingTianguis from '@/components/LoadingTianguis';
@@ -167,7 +168,7 @@ export default function StudioBeatsPage() {
                                 {/* Cover - Minimalist Layout */}
                                 <div className="relative aspect-square rounded-[2rem] overflow-hidden bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10">
                                     {beat.portada_url ? (
-                                        <img src={beat.portada_url} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={beat.titulo} />
+                                        <Image src={beat.portada_url} fill sizes="(max-width: 768px) 45vw, 220px" className="object-cover transition-transform duration-1000 group-hover:scale-105" alt={beat.titulo} />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-muted font-black text-5xl uppercase tracking-tighter">
                                             {beat.titulo.charAt(0)}

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, use, Suspense } from 'react';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Users, UserPlus, Loader2, Search, Crown, CheckCircle2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -160,7 +161,7 @@ function ConnectionsContent({ username }: { username: string }) {
                             animate={{ opacity: 1, scale: 1, rotate: 0 }}
                             className="w-24 h-24 md:w-32 md:h-32 rounded-[2.5rem] overflow-hidden border-2 border-white/5 bg-background shadow-2xl relative group/pfp"
                         >
-                            <img src={profile?.foto_perfil || `https://ui-avatars.com/api/?name=${username}`} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            <Image src={profile?.foto_perfil || `https://ui-avatars.com/api/?name=${username}`} alt="" fill sizes="(max-width: 768px) 96px, 128px" className="object-cover group-hover:scale-110 transition-transform duration-700" />
                             <div className="absolute inset-0 bg-gradient-to-t from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                         </motion.div>
                         
@@ -264,9 +265,11 @@ function ConnectionsContent({ username }: { username: string }) {
                                                         user.nivel_suscripcion?.toLowerCase() === 'pro' ? 'border-amber-400 shadow-lg shadow-amber-400/20' : 
                                                         'border-white/5'
                                                     }`}>
-                                                        <img
+                                                        <Image
                                                             src={user.foto_perfil || `https://ui-avatars.com/api/?name=${user.nombre_usuario}`}
-                                                            className="w-full h-full object-cover"
+                                                            fill
+                                                            sizes="(max-width: 768px) 64px, 80px"
+                                                            className="object-cover"
                                                             alt=""
                                                         />
                                                     </div>

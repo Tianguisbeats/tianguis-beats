@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { motion } from 'framer-motion';
@@ -94,7 +95,7 @@ export default function QuejasSugerenciasPage() {
                     <div className="text-center mb-14 flex flex-col items-center">
                         <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
                             className="w-16 h-16 mb-6 flex items-center justify-center -rotate-6 hover:rotate-0 transition-transform duration-500 drop-shadow-2xl">
-                            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+                            <Image src="/logo.png" alt="Logo" width={64} height={64} className="w-full h-full object-contain" />
                         </motion.div>
                         <LegalBadge label="Quejas · Sugerencias · Soporte" theme="rose" />
                         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}

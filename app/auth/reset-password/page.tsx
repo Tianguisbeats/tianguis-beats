@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { Lock, Loader2, Music, CheckCircle2, ArrowRight, Eye, EyeOff, ShieldAlert } from 'lucide-react';
@@ -94,9 +95,11 @@ export default function ResetPasswordPage() {
                             animate={{ scale: 1, rotate: -6 }}
                             className="inline-flex items-center justify-center w-20 h-20 mb-8"
                         >
-                            <img 
-                                src="/logo.png" 
-                                alt="Tianguis Beats" 
+                            <Image
+                                src="/logo.png"
+                                alt="Tianguis Beats"
+                                width={64}
+                                height={64}
                                 className="w-16 h-16 object-contain drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]" 
                             />
                         </motion.div>

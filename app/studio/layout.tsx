@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Crown, ShieldCheck, Package, LayoutGrid, FileText, CreditCard, Wallet, ChevronRight, Zap, MessageCircle, PanelLeftClose, PanelLeftOpen, ChevronLeft, Layers } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -234,7 +235,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                                     <div className="flex flex-col items-center">
                                                         <p className={`text-[12px] font-black uppercase tracking-tighter flex items-center gap-2 ${color_clase.split(' ')[0]}`}>
                                                             Perfil Verificado
-                                                            <img src="/verified-badge.png" alt="Verificado" className="w-4 h-4 object-contain" />
+                                                            <Image src="/verified-badge.png" alt="Verificado" width={16} height={16} className="w-4 h-4 object-contain" />
                                                         </p>
                                                     </div>
                                                 ) : (

@@ -11,6 +11,7 @@ import {
     MessageCircle, Check, ArrowRight, Music, AlertCircle, Send, Package, ShoppingBag
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useToast } from '@/context/ToastContext';
 import Switch from '@/components/ui/Switch';
 import LoadingTianguis from '@/components/LoadingTianguis';
@@ -921,9 +922,9 @@ export default function CouponsPage() {
                                         <div className="flex flex-col lg:flex-row items-center gap-10">
                                             {/* Beat Info */}
                                             <div className="flex items-center gap-6 w-full lg:w-1/3">
-                                                <div className="w-20 h-20 bg-black/40 rounded-2xl overflow-hidden border border-border shadow-xl shrink-0">
+                                                <div className="relative w-20 h-20 bg-black/40 rounded-2xl overflow-hidden border border-border shadow-xl shrink-0">
                                                     {offer.beats?.portada_url ? (
-                                                        <img src={offer.beats.portada_url} alt="Cover" className="w-full h-full object-cover" />
+                                                        <Image src={offer.beats.portada_url} alt="Cover" fill sizes="80px" className="object-cover" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-muted"><Music size={24} /></div>
                                                     )}
@@ -940,9 +941,9 @@ export default function CouponsPage() {
 
                                             {/* Counterparty Info */}
                                             <div className="flex items-center gap-4 w-full lg:w-1/4 pb-6 lg:pb-0 border-b lg:border-b-0 lg:border-l border-border lg:pl-10">
-                                                <div className="w-12 h-12 bg-white/5 rounded-full overflow-hidden border border-border">
+                                                <div className="relative w-12 h-12 bg-white/5 rounded-full overflow-hidden border border-border">
                                                     {person?.foto_perfil ? (
-                                                        <img src={person.foto_perfil} alt="User" className="w-full h-full object-cover" />
+                                                        <Image src={person.foto_perfil} alt="User" fill sizes="48px" className="object-cover" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-muted"><User size={20} /></div>
                                                     )}
@@ -1357,9 +1358,9 @@ export default function CouponsPage() {
                                     ) : (
                                         couponUses.map((use, idx) => (
                                             <div key={idx} className="bg-white dark:bg-white/5 border border-border dark:border-white/10 rounded-2xl p-4 flex items-center gap-4 group hover:border-emerald-500/30 transition-all">
-                                                <div className="w-16 h-16 shrink-0 bg-white rounded-2xl flex items-center justify-center border border-border p-1.5">
+                                                <div className="relative w-16 h-16 shrink-0 bg-white rounded-2xl flex items-center justify-center border border-border p-1.5">
                                                     {use.perfiles?.foto_perfil ? (
-                                                        <img src={use.perfiles.foto_perfil} className="w-full h-full object-cover" alt="User" />
+                                                        <Image src={use.perfiles.foto_perfil} fill sizes="64px" className="object-cover" alt="User" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-xs font-black text-white">{use.perfiles?.nombre_artistico?.[0] || '?'}</div>
                                                     )}
