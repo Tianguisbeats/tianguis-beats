@@ -51,10 +51,16 @@ BEGIN
 END;
 $$;
 
--- Se ejecuta antes que el trigger de escalera de niveles para que éste vea el
--- nivel_suscripcion ya saneado.
+-- IMPORTANTE: Postgres ejecuta los triggers BEFORE UPDATE en orden alfabético
+-- por nombre, no por orden de creación. Los triggers existentes son
+-- `trg_manejar_escalera_perfiles` y `trg_perfiles_actualizacion`; para que
+-- este trigger corra ANTES que `trg_manejar_escalera_perfiles` (y así evitar
+-- que ese trigger altere contadores globales de user_num_* con un
+-- nivel_suscripcion fraudulento antes de ser revertido), el nombre debe
+-- ordenar alfabéticamente antes de "trg_m...". Se usa el prefijo "trg_00_".
 DROP TRIGGER IF EXISTS trg_proteger_columnas_privilegiadas_perfil ON public.perfiles;
-CREATE TRIGGER trg_proteger_columnas_privilegiadas_perfil
+DROP TRIGGER IF EXISTS trg_00_proteger_columnas_privilegiadas_perfil ON public.perfiles;
+CREATE TRIGGER trg_00_proteger_columnas_privilegiadas_perfil
   BEFORE UPDATE ON public.perfiles
   FOR EACH ROW
   EXECUTE FUNCTION public.proteger_columnas_privilegiadas_perfil();
