@@ -3,21 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
-    Wallet, ArrowUpRight, Clock, CheckCircle2,
-    AlertCircle, DollarSign, Info, ArrowDownLeft,
+    Wallet, Clock, CheckCircle2,
     TrendingUp, Loader2, ExternalLink, ShieldCheck, CreditCard
 } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
 import LoadingTianguis from '@/components/LoadingTianguis';
 import Link from 'next/link';
-
-type PayoutRequest = {
-    id: string;
-    monto: number;
-    estado: string;
-    fecha_creacion: string;
-    metodo_pago: string;
-};
 
 export default function PaymentsPage() {
     const { showToast } = useToast();
@@ -28,7 +19,6 @@ export default function PaymentsPage() {
         details: any;
         profileStatus: boolean;
     }>({ status: 'none', details: null, profileStatus: false });
-    const [history, setHistory] = useState<PayoutRequest[]>([]);
     const [isConnecting, setIsConnecting] = useState(false);
 
     useEffect(() => {
@@ -38,7 +28,10 @@ export default function PaymentsPage() {
     const fetchInitialData = async () => {
         const { data: { session } } = await supabase.auth.getSession();
         const user = session?.user;
-        if (!user) return;
+        if (!user) {
+            setLoading(false);
+            return;
+        }
 
         try {
             // 1. Perfil del usuario
@@ -55,14 +48,6 @@ export default function PaymentsPage() {
             });
             const connectData = await res.json();
             setConnectStatus(connectData);
-
-            // 3. Historial de retiros (o transacciones de tipo payout)
-            const { data: payoutData } = await supabase
-                .from('retiros')
-                .select('*')
-                .eq('vendedor_id', user.id)
-                .order('fecha_creacion', { ascending: false });
-            setHistory(payoutData || []);
 
         } catch (error) {
             console.error("Error fetching payment data:", error);
@@ -101,15 +86,6 @@ export default function PaymentsPage() {
             showToast(error.message, "error");
             setIsConnecting(false);
         }
-    };
-
-    const formatMXN = (val: number) =>
-        new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(val);
-
-    const statusConfig: Record<string, { color: string; bg: string; border: string; label: string }> = {
-        completado: { color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', label: 'Completado' },
-        pendiente: { color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/20', label: 'En Proceso' },
-        rechazado: { color: 'text-rose-500', bg: 'bg-rose-500/10', border: 'border-rose-500/20', label: 'Rechazado' },
     };
 
     if (loading) return <LoadingTianguis />;

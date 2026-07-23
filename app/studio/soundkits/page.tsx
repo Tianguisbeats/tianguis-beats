@@ -141,7 +141,10 @@ function SoundKitsManagerPage() {
         setKitSaving(true);
         const { data: { user } } = await supabase.auth.getUser();
 
-        if (!user || !currentKit) return; 
+        if (!user || !currentKit) {
+            setKitSaving(false);
+            return;
+        }
         if (!username) {
             showToast("Error: No se pudo obtener el nombre de usuario.", "error");
             setKitSaving(false);
@@ -216,7 +219,9 @@ function SoundKitsManagerPage() {
                 url_archivo: fileUrl,
                 archivo_muestra_url: sampleUrl,
                 url_portada: coverUrl,
-                es_publico: true
+                // Al editar se respeta la visibilidad que ya tenía el kit;
+                // solo los kits nuevos nacen públicos.
+                es_publico: currentKit.id ? (currentKit.es_publico ?? true) : true
             };
 
             let error;
@@ -237,7 +242,7 @@ function SoundKitsManagerPage() {
             setKitSampleFile(null);
             setKitCoverFile(null);
             fetchData();
-            showToast("Sound Kit publicado exitosamente.", "success");
+            showToast(currentKit.id ? "Sound Kit actualizado." : "Sound Kit publicado exitosamente.", "success");
         } catch (err) {
             console.error(err);
             showToast("Error al guardar el Sound Kit", "error");
@@ -248,9 +253,24 @@ function SoundKitsManagerPage() {
 
     const handleDeleteKit = async (id: string) => {
         if (!confirm("¿Estás seguro de eliminar este Sound Kit?")) return;
+        const kit = soundKits.find(k => k.id === id);
         const { error } = await supabase.from('kits_sonido').delete().eq('id', id);
         if (error) showToast("Error al eliminar", "error");
         else {
+            // Limpieza de archivos físicos del storage (las URLs públicas
+            // llevan el path después de /object/public/<bucket>/).
+            if (kit) {
+                const storageFiles: { bucket: string; url?: string }[] = [
+                    { bucket: 'archivos_kits_sonido', url: kit.url_archivo },
+                    { bucket: 'portadas_kits_sonido', url: kit.url_portada },
+                    { bucket: 'muestra_soundkit', url: kit.archivo_muestra_url },
+                ];
+                for (const f of storageFiles) {
+                    if (!f.url) continue;
+                    const path = decodeURIComponent(f.url.split(`/object/public/${f.bucket}/`)[1] || '');
+                    if (path) await supabase.storage.from(f.bucket).remove([path]);
+                }
+            }
             fetchData();
             showToast("Kit eliminado", "success");
         }
@@ -337,12 +357,18 @@ function SoundKitsManagerPage() {
                                 <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/5 blur-[80px] -mr-24 -mt-24 pointer-events-none group-hover:bg-orange-500/10 transition-colors" />
 
                                 <div className="relative aspect-video overflow-hidden border-b border-border">
-                                    <Image
-                                        src={kit.url_portada || '/placeholder-kit.jpg'}
-                                        fill
-                                        className="object-cover transition-transform duration-[2s] group-hover:scale-110"
-                                        alt={kit.titulo}
-                                    />
+                                    {kit.url_portada ? (
+                                        <Image
+                                            src={kit.url_portada}
+                                            fill
+                                            className="object-cover transition-transform duration-[2s] group-hover:scale-110"
+                                            alt={kit.titulo}
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-orange-500/5 text-orange-500/30">
+                                            <Package size={48} strokeWidth={1} />
+                                        </div>
+                                    )}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
 
                                     {kit.esta_desactivado_por_plan && (

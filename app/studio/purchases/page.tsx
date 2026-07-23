@@ -197,7 +197,7 @@ export default function MyPurchasesPage() {
             tipo: isSoundKit ? 'kit' : 'beat',
             productor_nombre_artistico: item.metadata?.producer_name || item.metadata?.nombre_productor || 'Artista Tianguis',
             productor_nombre_usuario: item.metadata?.producer_name || item.metadata?.nombre_productor || 'Artista Tianguis',
-            portada_url: item.metadata?.portada_url || '/placeholder.png',
+            portada_url: item.metadata?.portada_url || '/logo.png',
             archivo_muestra_url: audioUrl,
             archivo_mp3_url: audioUrl,
             precio_base: item.price,
@@ -607,12 +607,6 @@ export default function MyPurchasesPage() {
         USD: 'US$',
         EUR: '€',
     };
-
-    // Placeholder for handleGeneratePDF, assuming it's a new function
-    const handleGeneratePDF = async (item: OrderItem, orderId: string, orderDate: string) => {
-        showToast("El servicio de generación de licencias está siendo actualizado.", "info");
-    };
-
 
     if (loading) return <LoadingTianguis />;
 

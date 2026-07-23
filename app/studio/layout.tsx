@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Crown, ShieldCheck, Package, LayoutGrid, FileText, CreditCard, Wallet, ChevronRight, Zap, MessageCircle, PanelLeftClose, PanelLeftOpen, ChevronLeft, Layers } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { supabase } from '@/lib/supabase';
@@ -12,6 +12,7 @@ import { NoiseOverlay, AbstractPuzzleBack } from '@/components/ui/BackgroundEffe
 
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const router = useRouter();
     const [sidebarOpen, setSidebarOpen] = React.useState(true);
 
     const [navItems, setNavItems] = React.useState([
@@ -47,6 +48,12 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
     React.useEffect(() => {
         const fetchProfile = async () => {
             const { data: { user } } = await supabase.auth.getUser();
+            // Guard de sesión: sin usuario, todo el Studio queda en spinners
+            // infinitos — mejor mandarlo directo al login.
+            if (!user) {
+                router.replace('/login');
+                return;
+            }
             if (user) {
                 const { data } = await supabase.from('perfiles').select('id, nivel_suscripcion, esta_verificado, es_admin, es_fundador, fecha_termino_suscripcion, es_prueba, es_regalo, stripe_connect_id, stripe_connect_onboarded').eq('id', user.id).single();
                 setProfile(data);

@@ -2,21 +2,19 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Edit, Trash2, Play, AlertCircle, Heart, Music, TrendingUp, Plus, Search, Wallet, Lock, ListMusic } from 'lucide-react';
+import { Edit, Trash2, AlertCircle, Plus, Search, Lock, ListMusic } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Switch from '@/components/ui/Switch';
 import { useToast } from '@/context/ToastContext';
 import LoadingTianguis from '@/components/LoadingTianguis';
 import AddToPlaylistModal from '@/components/AddToPlaylistModal';
-import BeatCardPro from '@/components/explore/BeatCardPro';
 
 export default function StudioBeatsPage() {
     const { showToast } = useToast();
     const [beats, setBeats] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
-    const [isOnboarded, setIsOnboarded] = useState(true);
     const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
     const [selectedBeatId, setSelectedBeatId] = useState<string | null>(null);
 
@@ -45,12 +43,6 @@ export default function StudioBeatsPage() {
                 return { ...b, portada_url: finalCoverUrl };
             });
             setBeats(transformed);
-        }
-
-        // Check connect status
-        const { data: profile } = await supabase.from('perfiles').select('stripe_connect_onboarded').eq('id', user.id).single();
-        if (profile) {
-            setIsOnboarded(!!profile.stripe_connect_onboarded);
         }
 
         setLoading(false);
@@ -133,6 +125,12 @@ export default function StudioBeatsPage() {
                     <p className="text-[10px] font-black text-muted uppercase tracking-[0.4em] opacity-40 ml-1">Universo Sincronizado</p>
                 </div>
 
+                <Link
+                    href="/upload"
+                    className="bg-blue-500 text-white px-8 py-4 rounded-3xl font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-all active:scale-95 flex items-center gap-3 w-fit h-fit shadow-xl shadow-blue-500/20"
+                >
+                    <Plus size={20} className="stroke-[3]" /> Subir Beat
+                </Link>
             </div>
 
             {/* Buscador Premium */}
