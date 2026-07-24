@@ -8,7 +8,7 @@ import {
     TrendingUp, Users, Wallet, Package, Crown, ShieldCheck, Check, Info, AlertTriangle, X, CheckCircle2, Tag,
     BarChart3, Receipt
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase, getUserSafe } from '@/lib/supabase';
 import Image from 'next/image';
 import Link from 'next/link';
 import { calculateEarnings } from '@/lib/finance-utils';
@@ -31,7 +31,7 @@ export default function StudioSalesPage() {
 
     useEffect(() => {
         const fetchSales = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
+            const user = await getUserSafe();
             if (!user) {
                 setLoading(false);
                 return;

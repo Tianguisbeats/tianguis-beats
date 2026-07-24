@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { supabase } from '@/lib/supabase';
+import { supabase, getUserSafe } from '@/lib/supabase';
 import LoadingTianguis from '@/components/LoadingTianguis';
 import {
     TrendingUp, Play, Users, Music, Upload, BarChart2, DollarSign,
@@ -63,7 +63,7 @@ export default function StudioDashboardPage() {
     useEffect(() => {
         const fetchDashboard = async () => {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                const user = await getUserSafe();
                 if (!user) return;
 
                 const [profileRes, beatsRes, salesRes, followersRes, notifRes] = await Promise.all([
@@ -240,7 +240,10 @@ export default function StudioDashboardPage() {
                             </Link>
                         </div>
                         {data.salud.total === 0 ? (
-                            <p className="text-[11px] font-bold text-muted uppercase tracking-widest opacity-60">Aún no tienes beats en tu catálogo.</p>
+                            <div className="rounded-2xl border border-dashed border-border py-6 text-center">
+                                <HeartPulse size={24} className="mx-auto mb-3 text-muted/40" />
+                                <p className="text-[11px] font-bold text-muted uppercase tracking-widest">Sube tu primer beat para ver la salud de tu catálogo aquí.</p>
+                            </div>
                         ) : (
                             <div className="space-y-3">
                                 <div className="flex h-3 rounded-full overflow-hidden bg-foreground/5">
@@ -267,7 +270,10 @@ export default function StudioDashboardPage() {
                             <h3 className="text-sm font-black uppercase tracking-tight text-foreground">Actividad reciente</h3>
                         </div>
                         {data.notificaciones.length === 0 ? (
-                            <p className="text-[11px] font-bold text-muted uppercase tracking-widest opacity-50 py-4 text-center">Sin actividad todavía</p>
+                            <div className="py-4 text-center">
+                                <Bell size={24} className="mx-auto mb-3 text-muted/40" />
+                                <p className="text-[11px] font-bold text-muted uppercase tracking-widest">Aún no hay novedades. Aquí verás tus ventas, seguidores y comentarios nuevos.</p>
+                            </div>
                         ) : (
                             <div className="space-y-1">
                                 {data.notificaciones.map((n) => {

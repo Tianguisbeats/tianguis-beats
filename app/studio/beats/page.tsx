@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, getUserSafe } from '@/lib/supabase';
 import { Edit, Trash2, AlertCircle, Plus, Search, Lock, ListMusic } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -21,7 +21,7 @@ export default function StudioBeatsPage() {
     const [selectedBeatId, setSelectedBeatId] = useState<string | null>(null);
 
     const fetchBeats = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getUserSafe();
         if (!user) {
             setLoading(false);
             return;
@@ -176,7 +176,7 @@ export default function StudioBeatsPage() {
                             <AlertCircle size={36} strokeWidth={1.5} />
                         </div>
                         <h3 className="text-xl font-black text-slate-900 dark:text-foreground uppercase tracking-tight mb-3">Tu galería está vacía</h3>
-                        <p className="text-muted text-[11px] font-bold uppercase tracking-widest mb-8 max-w-sm mx-auto opacity-60">Tus beats aparecerán aquí una vez que los subas.</p>
+                        <p className="text-muted text-[11px] font-bold uppercase tracking-widest mb-8 max-w-sm mx-auto">Sube tu primer beat y aparecerá aquí en segundos.</p>
                         <Link href="/upload" className="bg-accent text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all inline-block">
                             Comenzar Ahora
                         </Link>

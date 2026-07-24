@@ -23,3 +23,21 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
         detectSessionInUrl: true,
     },
 });
+
+/**
+ * supabase.auth.getUser() puede quedarse esperando para siempre si la
+ * recuperación de sesión de supabase-js se traba en una recarga completa
+ * (la librería no aplica ningún timeout a su lock interno). Esta versión
+ * cae a `null` tras `timeoutMs` en vez de colgar la pantalla de carga.
+ */
+export async function getUserSafe(timeoutMs = 8000) {
+    try {
+        const result = await Promise.race([
+            supabase.auth.getUser(),
+            new Promise<null>((resolve) => setTimeout(() => resolve(null), timeoutMs)),
+        ]);
+        return result?.data?.user ?? null;
+    } catch {
+        return null;
+    }
+}

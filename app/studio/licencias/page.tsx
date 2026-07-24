@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, getUserSafe } from '@/lib/supabase';
 import {
     FileText, Settings, ShieldCheck, FileKey, Crown, Zap,
     Package, AlignLeft, Info, Music, Check, X, Layers,
@@ -212,7 +212,7 @@ export default function ContractsPage() {
 
     const fetchTemplates = async () => {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const user = await getUserSafe();
             if (!user) return;
             const { data, error } = await supabase.from('licencias').select('*').eq('productor_id', user.id).single();
             if (error && error.code !== 'PGRST116') { console.warn('Error al cargar licencias:', error.message); setLoading(false); return; }
@@ -428,7 +428,7 @@ ID ÚNICO DE LICENCIA: [ID_ORDEN]`,
     const handleSaveTemplate = async () => {
         if (!activeModal.type) return;
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const user = await getUserSafe();
             if (!user) throw new Error("No autenticado");
             
             const contractInfo = CONTRACT_TYPES.find(ct => ct.id === activeModal.type);

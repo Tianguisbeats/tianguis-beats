@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Crown, Video, Loader2, Check, MessageSquare, Mail, ShieldCheck, Zap, Clock, ChevronRight, ExternalLink, ArrowUpRight } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase, getUserSafe } from '@/lib/supabase';
 import Link from 'next/link';
 import Switch from '@/components/ui/Switch';
 import LoadingTianguis from '@/components/LoadingTianguis';
@@ -32,39 +32,42 @@ export default function PremiumHubPage() {
     });
 
     const fetchData = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        try {
+            const user = await getUserSafe();
+            if (!user) return;
 
-        const { data: profile } = await supabase
-            .from('perfiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
+            const { data: profile } = await supabase
+                .from('perfiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
 
-        const { data: beats } = await supabase
-            .from('beats')
-            .select('*')
-            .eq('productor_id', user.id);
+            const { data: beats } = await supabase
+                .from('beats')
+                .select('*')
+                .eq('productor_id', user.id);
 
-        if (profile) {
-            setUserTier(profile.nivel_suscripcion);
-            setIsVerified(profile.esta_verificado || false);
-            setUsername(profile.nombre_usuario || '');
-            setPreferences({
-                is_video_active: !!profile.video_destacado_url,
-                video_destacado_url: profile.video_destacado_url || '',
-                newsletter_active: profile.boletin_activo || false,
-                is_links_active: profile.enlaces_activos || false
-            });
-            setStats({
-                beats: beats || [],
-                hasBio: !!profile.biografia,
-                hasSocials: !!(profile.instagram_url || profile.twitter_url || profile.youtube_url || profile.tiktok_url || profile.facebook_url),
-                hasPhoto: !!profile.foto_perfil,
-                hasCover: !!(profile.foto_portada || profile.banner_url || profile.portada_url)
-            });
+            if (profile) {
+                setUserTier(profile.nivel_suscripcion);
+                setIsVerified(profile.esta_verificado || false);
+                setUsername(profile.nombre_usuario || '');
+                setPreferences({
+                    is_video_active: !!profile.video_destacado_url,
+                    video_destacado_url: profile.video_destacado_url || '',
+                    newsletter_active: profile.boletin_activo || false,
+                    is_links_active: profile.enlaces_activos || false
+                });
+                setStats({
+                    beats: beats || [],
+                    hasBio: !!profile.biografia,
+                    hasSocials: !!(profile.instagram_url || profile.twitter_url || profile.youtube_url || profile.tiktok_url || profile.facebook_url),
+                    hasPhoto: !!profile.foto_perfil,
+                    hasCover: !!(profile.foto_portada || profile.banner_url || profile.portada_url)
+                });
+            }
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const getOptimizationChecklist = () => {
@@ -147,7 +150,7 @@ export default function PremiumHubPage() {
 
     const handleSave = async () => {
         setSaving(true);
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getUserSafe();
         if (!user) return;
 
         const { error } = await supabase

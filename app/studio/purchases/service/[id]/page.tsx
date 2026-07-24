@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, getUserSafe } from '@/lib/supabase';
 import {
     CheckCircle2,
     Clock,
@@ -99,8 +99,11 @@ export default function ServiceProjectPage() {
     }, [messages]);
 
     const fetchProjectData = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        const user = await getUserSafe();
+        if (!user) {
+            setLoading(false);
+            return;
+        }
         setCurrentUserId(user.id);
 
         try {

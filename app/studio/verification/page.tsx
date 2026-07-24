@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, getUserSafe } from '@/lib/supabase';
 import { ShieldCheck, CheckCircle2, XCircle, ChevronRight, Upload, AlertTriangle, Lock, Edit3, Link as LinkIcon, Music, BarChart2, DollarSign, Globe, ExternalLink, Clock, Crown, Shield, MessageSquare, Loader2, Check, Sparkles, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -48,8 +48,9 @@ export default function VerificationPage() {
     }, []);
 
     const fetchData = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getUserSafe();
         if (!user) {
+            setLoading(false);
             router.push('/login');
             return;
         }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, getUserSafe } from '@/lib/supabase';
 import {
     Plus, Edit3, Trash2, Ticket, Percent, Calendar,
     CheckCircle2, XCircle, Loader2, Users, HardDrive,
@@ -88,8 +88,11 @@ export default function CouponsPage() {
     }, []);
 
     const fetchData = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        const user = await getUserSafe();
+        if (!user) {
+            setLoading(false);
+            return;
+        }
 
         // Get Tier
         const { data: profile } = await supabase.from('perfiles').select('nivel_suscripcion').eq('id', user.id).single();
@@ -284,7 +287,7 @@ export default function CouponsPage() {
     };
 
     const handleSaveBulkDeal = async (deal: Partial<BulkDeal>) => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getUserSafe();
         if (!user) return;
 
         // Validación de reglas de la oferta por volumen (coincide con el CHECK de la BD)
@@ -362,7 +365,7 @@ export default function CouponsPage() {
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         if (saving) return;
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getUserSafe();
         if (!user || !currentCoupon) return;
 
         setSaving(true);

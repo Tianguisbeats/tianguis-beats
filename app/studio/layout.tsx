@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Music, BarChart2, DollarSign, Settings, Home, Briefcase, Ticket, Crown, ShieldCheck, Package, LayoutGrid, FileText, CreditCard, Wallet, ChevronRight, Zap, MessageCircle, PanelLeftClose, PanelLeftOpen, ChevronLeft, Layers } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import { supabase } from '@/lib/supabase';
+import { supabase, getUserSafe } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NoiseOverlay, AbstractPuzzleBack } from '@/components/ui/BackgroundEffects';
 
@@ -48,7 +48,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
 
     React.useEffect(() => {
         const fetchProfile = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
+            const user = await getUserSafe();
             // Guard de sesión: sin usuario, todo el Studio queda en spinners
             // infinitos — mejor mandarlo directo al login.
             if (!user) {
@@ -107,7 +107,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                 <Link key={item.href} href={item.href}
                                     className={`snap-center shrink-0 flex items-center gap-2 px-4 py-2 rounded-2xl transition-all font-black text-[9px] uppercase tracking-tighter whitespace-nowrap ${isActive
                                         ? 'bg-blue-600 text-white'
-                                        : 'bg-black/5 dark:bg-white/[0.03] text-muted border border-border hover:text-foreground'
+                                        : 'bg-black/5 dark:bg-white/[0.03] text-slate-600 dark:text-muted border border-border hover:text-foreground'
                                         }`}>
                                     {item.icon}
                                     {item.name}
@@ -179,7 +179,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
                                                         ${sidebarOpen ? 'px-5 py-3.5' : 'px-0 py-3.5 justify-center'}
                                                         ${isActive
                                                             ? 'bg-black/[0.1] dark:bg-white/[0.05] text-blue-500 dark:text-blue-400 border border-border dark:border-white/[0.08]'
-                                                            : 'text-muted hover:text-foreground bg-transparent hover:bg-black/5 dark:hover:bg-white/[0.02]'
+                                                            : 'text-slate-600 dark:text-muted hover:text-foreground bg-transparent hover:bg-black/5 dark:hover:bg-white/[0.02]'
                                                         }`}
                                                 >
                                                     <span className={`shrink-0 transition-all duration-300 ${isActive ? 'text-blue-400 scale-110' : 'group-hover:text-blue-400/70 group-hover:scale-110'}`}>

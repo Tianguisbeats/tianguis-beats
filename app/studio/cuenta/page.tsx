@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { supabase } from '@/lib/supabase';
+import { supabase, getUserSafe } from '@/lib/supabase';
 import { useToast } from '@/context/ToastContext';
 import { User, Shield, Bell, Settings, Trash2, Camera, Instagram, Youtube, Lock, Save, Loader2, Edit3, X, ChevronRight } from 'lucide-react';
 import LoadingTianguis from '@/components/LoadingTianguis';
@@ -44,8 +44,11 @@ export default function AccountPage() {
     }, []);
 
     const fetchProfile = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        const user = await getUserSafe();
+        if (!user) {
+            setLoading(false);
+            return;
+        }
         setUser(user);
 
         const { data, error } = await supabase

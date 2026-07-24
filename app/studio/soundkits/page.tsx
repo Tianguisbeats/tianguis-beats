@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, getUserSafe } from '@/lib/supabase';
 import {
     Plus, Edit3, Trash2, Loader2, Package,
     ArrowUpRight, Music, Layers, Briefcase, 
@@ -61,7 +61,7 @@ function SoundKitsManagerPage() {
     }, []);
 
     const fetchData = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getUserSafe();
         if (!user) {
             setLoading(false);
             return;
@@ -139,7 +139,7 @@ function SoundKitsManagerPage() {
         }
 
         setKitSaving(true);
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getUserSafe();
 
         if (!user || !currentKit) {
             setKitSaving(false);

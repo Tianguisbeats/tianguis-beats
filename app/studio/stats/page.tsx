@@ -9,7 +9,7 @@ import {
     Sparkles, X, Check, ShoppingBag, Globe,
     Clock
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase, getUserSafe } from '@/lib/supabase';
 import Image from 'next/image';
 import Link from 'next/link';
 import LoadingTianguis from '@/components/LoadingTianguis';
@@ -63,7 +63,7 @@ export default function StudioStatsPage() {
 
     const fetchStats = async () => {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const user = await getUserSafe();
             if (!user) return;
 
             // Fetch profile and basics

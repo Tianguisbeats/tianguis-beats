@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, getUserSafe } from '@/lib/supabase';
 import {
     CreditCard, Crown, Shield, Zap, RefreshCcw, AlertTriangle,
     CheckCircle2, Calendar, ArrowRight, Loader2, ExternalLink, Star, X, Download, Lock, Sparkles
@@ -25,8 +25,11 @@ export default function StudioBillingPage() {
 
     useEffect(() => {
         const fetchProfile = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
+            const user = await getUserSafe();
+            if (!user) {
+                setLoading(false);
+                return;
+            }
 
             const [profileRes, txRes] = await Promise.all([
                 supabase
